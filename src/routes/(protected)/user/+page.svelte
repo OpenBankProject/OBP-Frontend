@@ -4,6 +4,7 @@
   import ConsentCard from "$lib/components/ConsentCard.svelte";
   import { toast } from "$lib/utils/toastService.js";
   import { Clock } from "@lucide/svelte";
+  import { userPreferences, DATE_FORMAT_OPTIONS, THEME_OPTIONS, type DateFormat, type Theme } from "$lib/stores/userPreferences.svelte";
   const { data } = $props();
   const userData: SessionData["user"] = data.userData || undefined;
   const entitlementRequests = data.entitlementRequests || [];
@@ -359,6 +360,41 @@
 
 <div class="flex flex-col space-y-6">
   {@render userInfo(userData)}
+
+  <!-- Preferences Section -->
+  <div class="mx-10 pr-5">
+    <header class="flex items-center justify-between py-4">
+      <h1 class="h4 text-center align-middle">Preferences</h1>
+    </header>
+    <article class="border-primary-500 space-y-4 border-b-[1px] p-4">
+      <div class="flex items-center justify-between rounded-md p-2 hover:bg-primary-500/5">
+        <strong>Date Format</strong>
+        <select
+          class="rounded-md border border-surface-300-700 bg-surface-100-900 px-3 py-1.5 text-sm"
+          value={userPreferences.dateFormat}
+          onchange={(e) => userPreferences.setDateFormat(e.currentTarget.value as DateFormat)}
+        >
+          {#each DATE_FORMAT_OPTIONS as option}
+            <option value={option.value}>{option.label}</option>
+          {/each}
+        </select>
+      </div>
+      <hr class="hr !my-0 opacity-20" />
+      <div class="flex items-center justify-between rounded-md p-2 hover:bg-primary-500/5">
+        <strong>Theme</strong>
+        <select
+          class="rounded-md border border-surface-300-700 bg-surface-100-900 px-3 py-1.5 text-sm"
+          value={userPreferences.theme}
+          onchange={(e) => userPreferences.setTheme(e.currentTarget.value as Theme)}
+        >
+          {#each THEME_OPTIONS as option}
+            <option value={option.value}>{option.label}</option>
+          {/each}
+        </select>
+      </div>
+      <p class="text-xs text-surface-500">Preferences are saved to your account and sync across devices.</p>
+    </article>
+  </div>
 
   <!-- My Entitlement Requests Section -->
   <div class="mx-10 pr-5">

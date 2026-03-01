@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Portal, Switch, Tooltip } from '@skeletonlabs/skeleton-svelte';
 	import { onMount } from 'svelte';
+	import { userPreferences } from '$lib/stores/userPreferences.svelte';
 
 	// Icons
 	import IconMoon from '@lucide/svelte/icons/moon';
@@ -16,15 +17,16 @@
 	let toolTipString = $derived(checked ? 'Toggle Light Mode' : 'Toggle Dark Mode');
 
 	onMount(() => {
-		const storedMode = localStorage.getItem('mode') || 'dark';
-		mode = storedMode as 'dark' | 'light';
+		// Read from preferences store (which reads from localStorage / OBP)
+		mode = userPreferences.theme;
 		document.documentElement.setAttribute('data-mode', mode);
 	});
 
 	const onCheckedChange = (details: { checked: boolean }) => {
 		mode = details.checked ? 'dark' : 'light';
 		document.documentElement.setAttribute('data-mode', mode);
-		localStorage.setItem('mode', mode);
+		// Save via preferences store (syncs to localStorage + OBP)
+		userPreferences.setTheme(mode);
 	};
 </script>
 

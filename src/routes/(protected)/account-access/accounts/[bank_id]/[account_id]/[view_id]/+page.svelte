@@ -1,10 +1,14 @@
 <script lang="ts">
   import { page } from "$app/state";
-  import { Landmark, ArrowLeft, Loader2, User, Tag, Route, CreditCard, Copy, Check } from "@lucide/svelte";
+  import { Landmark, ArrowLeft, Loader2, User, Tag, Route, Copy, Check } from "@lucide/svelte";
   import { trackedFetch } from "$lib/utils/trackedFetch";
   import MissingRoleAlert from "$lib/components/MissingRoleAlert.svelte";
 
   let { data }: { data: any } = $props();
+
+  function toTitleCase(s: string): string {
+    return s.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  }
 
   let userId = $derived(data.userId || "");
   let copied = $state(false);
@@ -76,9 +80,9 @@
     return map;
   });
 
-  let bankId = $derived(page.params.bank_id);
-  let accountId = $derived(page.params.account_id);
-  let viewId = $derived(page.params.view_id);
+  let bankId = $derived(page.params.bank_id || "");
+  let accountId = $derived(page.params.account_id || "");
+  let viewId = $derived(page.params.view_id || "");
 
   let userEntitlements = $derived(data.userEntitlements || []);
   let hasAbacRole = $derived(
@@ -255,7 +259,7 @@
         <div class="header-content">
           <div class="header-left">
             <div class="header-icon">
-              <Landmark size={32} />
+              <Landmark size={24} />
             </div>
             <div>
               <h1 class="panel-title">{account.label || "Unnamed Account"}</h1>
@@ -267,7 +271,7 @@
           <div class="header-actions">
             <a href="/account-access/accounts" class="btn-secondary">
               <ArrowLeft size={16} />
-              Back to Accounts
+              Back
             </a>
           </div>
         </div>
@@ -275,88 +279,81 @@
 
       <!-- Content -->
       <div class="panel-content">
-        <!-- Basic Info -->
-        <section class="info-section">
-          <h2 class="section-title">Account Information</h2>
-          <div class="info-grid">
-            <div class="info-item">
-              <div class="info-label">Account ID</div>
-              <div class="info-value code">{account.id}</div>
-            </div>
-            <div class="info-item">
-              <div class="info-label">Bank ID</div>
-              <div class="info-value code">{account.bank_id}</div>
-            </div>
-            <div class="info-item">
-              <div class="info-label">View ID</div>
-              <div class="info-value code">{viewId}</div>
-            </div>
-            {#if account.number}
+        <!-- Account Info + Owners row -->
+        <div class="info-owners-row">
+          <!-- Basic Info -->
+          <section class="info-section info-main">
+            <h2 class="section-title">Account Information</h2>
+            <div class="info-grid">
               <div class="info-item">
-                <div class="info-label">Account Number</div>
-                <div class="info-value code">{account.number}</div>
+                <div class="info-label">Account ID</div>
+                <div class="info-value code">{account.id}</div>
               </div>
-            {/if}
-            {#if account.label}
               <div class="info-item">
-                <div class="info-label">Label</div>
-                <div class="info-value">{account.label}</div>
+                <div class="info-label">Bank ID</div>
+                <div class="info-value code">{account.bank_id}</div>
               </div>
-            {/if}
-            {#if account.product_code}
               <div class="info-item">
-                <div class="info-label">Product Code</div>
-                <div class="info-value code">{account.product_code}</div>
+                <div class="info-label">View ID</div>
+                <div class="info-value code">{viewId}</div>
               </div>
-            {/if}
-            {#if account.type}
-              <div class="info-item">
-                <div class="info-label">Type</div>
-                <div class="info-value">{account.type}</div>
-              </div>
-            {/if}
-          </div>
-        </section>
-
-        <!-- Balance -->
-        {#if account.balance}
-          <section class="info-section">
-            <h2 class="section-title">
-              <CreditCard size={20} />
-              Balance
-            </h2>
-            <div class="balance-display">
-              <span class="balance-amount">{account.balance.amount}</span>
-              <span class="balance-currency">{account.balance.currency}</span>
-            </div>
-          </section>
-        {/if}
-
-        <!-- Owners -->
-        {#if account.owners && account.owners.length > 0}
-          <section class="info-section">
-            <h2 class="section-title">
-              <User size={20} />
-              Owners ({account.owners.length})
-            </h2>
-            <div class="owners-list">
-              {#each account.owners as owner}
-                <div class="owner-item">
-                  <div class="owner-name">{owner.display_name || "Unknown"}</div>
-                  {#if owner.provider}
-                    <span class="owner-provider">{owner.provider}</span>
-                  {/if}
+              {#if account.number}
+                <div class="info-item">
+                  <div class="info-label">Account Number</div>
+                  <div class="info-value code">{account.number}</div>
                 </div>
-              {/each}
+              {/if}
+              {#if account.label}
+                <div class="info-item">
+                  <div class="info-label">Label</div>
+                  <div class="info-value">{account.label}</div>
+                </div>
+              {/if}
+              {#if account.product_code}
+                <div class="info-item">
+                  <div class="info-label">Product Code</div>
+                  <div class="info-value code">{account.product_code}</div>
+                </div>
+              {/if}
+              {#if account.type}
+                <div class="info-item">
+                  <div class="info-label">Type</div>
+                  <div class="info-value">{account.type}</div>
+                </div>
+              {/if}
+              {#if account.balance}
+                <div class="info-item">
+                  <div class="info-label">Balance</div>
+                  <div class="info-value balance-inline">
+                    <span class="balance-amount">{account.balance.amount}</span>
+                    <span class="balance-currency">{account.balance.currency}</span>
+                  </div>
+                </div>
+              {/if}
             </div>
           </section>
-        {/if}
+
+          <!-- Owners -->
+          {#if account.owners && account.owners.length > 0}
+            <section class="info-section info-sidebar">
+              <h2 class="section-title">
+                <User size={16} />
+                Owners
+              </h2>
+              <div class="owners-list">
+                {#each account.owners as owner}
+                  <div class="owner-chip">{owner.display_name || "Unknown"}{#if owner.provider} <span class="owner-provider">({owner.provider})</span>{/if}</div>
+                {/each}
+              </div>
+            </section>
+          {/if}
+        </div>
 
         <!-- Account Routings -->
         {#if account.account_routings && account.account_routings.length > 0}
           <section class="info-section">
             <h2 class="section-title">
-              <Route size={20} />
+              <Route size={16} />
               Account Routings ({account.account_routings.length})
             </h2>
             <div class="routings-list">
@@ -374,7 +371,7 @@
         {#if account.account_attributes && account.account_attributes.length > 0}
           <section class="info-section">
             <h2 class="section-title">
-              <Tag size={20} />
+              <Tag size={16} />
               Account Attributes ({account.account_attributes.length})
             </h2>
             <div class="attributes-list">
@@ -395,7 +392,7 @@
         {#if account.tags && account.tags.length > 0}
           <section class="info-section">
             <h2 class="section-title">
-              <Tag size={20} />
+              <Tag size={16} />
               Tags ({account.tags.length})
             </h2>
             <div class="tags-list">
@@ -429,17 +426,14 @@
             <div class="views-table">
               <div class="views-table-header">
                 <div class="views-col-name">View</div>
-                <div class="views-col-users">Direct</div>
-                <div class="views-col-users">ABAC</div>
+                <div class="views-col-users">Direct Access</div>
+                <div class="views-col-users">ABAC Access</div>
               </div>
               {#each account.views_available as view}
                 {@const viewUsers = usersByView.get(view.id)}
                 <div class="views-table-row">
                   <div class="views-col-name">
-                    <span class="view-name">{view.short_name || view.id}</span>
-                    {#if view.description}
-                      <span class="view-description">{view.description}</span>
-                    {/if}
+                    <a href="/account-access/accounts/{encodeURIComponent(bankId)}/{encodeURIComponent(accountId)}/{encodeURIComponent(view.id)}/transactions" class="view-name-link">{toTitleCase(view.id)}</a>
                     {#if view.is_public}
                       <span class="view-badge public">PUBLIC</span>
                     {/if}
@@ -662,7 +656,7 @@
   }
 
   .panel-header {
-    padding: 2rem;
+    padding: 1.25rem 1.5rem;
     border-bottom: 1px solid #e5e7eb;
   }
 
@@ -679,8 +673,8 @@
 
   .header-left {
     display: flex;
-    align-items: flex-start;
-    gap: 1.5rem;
+    align-items: center;
+    gap: 1rem;
     flex: 1;
   }
 
@@ -688,11 +682,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 64px;
-    height: 64px;
+    width: 44px;
+    height: 44px;
     background: #eff6ff;
     color: #3b82f6;
-    border-radius: 12px;
+    border-radius: 10px;
     flex-shrink: 0;
   }
 
@@ -702,10 +696,10 @@
   }
 
   .panel-title {
-    font-size: 1.875rem;
+    font-size: 1.25rem;
     font-weight: 700;
     color: #111827;
-    margin: 0 0 0.5rem 0;
+    margin: 0 0 0.125rem 0;
   }
 
   :global([data-mode="dark"]) .panel-title {
@@ -713,7 +707,7 @@
   }
 
   .panel-subtitle {
-    font-size: 0.875rem;
+    font-size: 0.75rem;
     color: #6b7280;
     font-family: monospace;
   }
@@ -731,13 +725,13 @@
   .btn-secondary {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1.25rem;
+    gap: 0.375rem;
+    padding: 0.5rem 0.875rem;
     background: #f3f4f6;
     color: #374151;
     border: none;
     border-radius: 6px;
-    font-size: 0.875rem;
+    font-size: 0.8rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
@@ -759,11 +753,11 @@
   }
 
   .panel-content {
-    padding: 2rem;
+    padding: 1.25rem 1.5rem;
   }
 
   .info-section {
-    margin-bottom: 2.5rem;
+    margin-bottom: 1.5rem;
   }
 
   .info-section:last-child {
@@ -773,13 +767,13 @@
   .section-title {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 1.125rem;
+    gap: 0.375rem;
+    font-size: 0.875rem;
     font-weight: 600;
     color: #111827;
-    margin: 0 0 1.5rem 0;
-    padding-bottom: 0.75rem;
-    border-bottom: 2px solid #e5e7eb;
+    margin: 0 0 0.75rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e5e7eb;
   }
 
   :global([data-mode="dark"]) .section-title {
@@ -789,14 +783,14 @@
 
   .info-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.75rem 1.5rem;
   }
 
   .info-item {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.25rem;
   }
 
   .info-label {
@@ -824,10 +818,11 @@
   .info-value.code {
     font-family: monospace;
     background: #f3f4f6;
-    padding: 0.5rem;
+    padding: 0.25rem 0.375rem;
     border-radius: 4px;
     word-break: break-all;
     overflow: hidden;
+    font-size: 0.8rem;
   }
 
   :global([data-mode="dark"]) .info-value.code {
@@ -835,23 +830,14 @@
   }
 
   /* Balance */
-  .balance-display {
+  .balance-inline {
     display: flex;
     align-items: baseline;
-    gap: 0.5rem;
-    padding: 1rem 1.5rem;
-    background: #f0fdf4;
-    border: 1px solid #bbf7d0;
-    border-radius: 8px;
-  }
-
-  :global([data-mode="dark"]) .balance-display {
-    background: rgba(34, 197, 94, 0.1);
-    border-color: rgba(34, 197, 94, 0.3);
+    gap: 0.375rem;
   }
 
   .balance-amount {
-    font-size: 2rem;
+    font-size: 0.875rem;
     font-weight: 700;
     color: #166534;
     font-family: monospace;
@@ -862,7 +848,7 @@
   }
 
   .balance-currency {
-    font-size: 1rem;
+    font-size: 0.75rem;
     font-weight: 600;
     color: #166534;
   }
@@ -871,49 +857,53 @@
     color: rgb(var(--color-success-400));
   }
 
+  /* Info + Owners side-by-side */
+  .info-owners-row {
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    gap: 1.5rem;
+    align-items: start;
+  }
+
+  .info-main {
+    min-width: 0;
+  }
+
+  .info-sidebar {
+    min-width: 0;
+  }
+
   /* Owners */
   .owners-list {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.25rem;
   }
 
-  .owner-item {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.75rem 1rem;
-    background: #fafafa;
-    border: 1px solid #e5e7eb;
-    border-radius: 6px;
-  }
-
-  :global([data-mode="dark"]) .owner-item {
-    background: rgb(var(--color-surface-900));
-    border-color: rgb(var(--color-surface-700));
-  }
-
-  .owner-name {
-    font-size: 0.875rem;
+  .owner-chip {
+    font-size: 0.8rem;
     font-weight: 500;
+    padding: 0.2rem 0;
     color: #111827;
   }
 
-  :global([data-mode="dark"]) .owner-name {
+  :global([data-mode="dark"]) .owner-chip {
     color: var(--color-surface-200);
   }
 
   .owner-provider {
-    font-size: 0.75rem;
-    padding: 0.125rem 0.5rem;
-    background: #e5e7eb;
+    font-size: 0.7rem;
     color: #6b7280;
-    border-radius: 9999px;
   }
 
   :global([data-mode="dark"]) .owner-provider {
-    background: rgb(var(--color-surface-700));
-    color: var(--color-surface-300);
+    color: var(--color-surface-400);
+  }
+
+  @media (max-width: 768px) {
+    .info-owners-row {
+      grid-template-columns: 1fr;
+    }
   }
 
   /* Users with access error */
@@ -937,17 +927,17 @@
   .routings-list {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.25rem;
   }
 
   .routing-item {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    padding: 0.75rem 1rem;
+    gap: 0.5rem;
+    padding: 0.375rem 0.75rem;
     background: #fafafa;
     border: 1px solid #e5e7eb;
-    border-radius: 6px;
+    border-radius: 4px;
   }
 
   :global([data-mode="dark"]) .routing-item {
@@ -971,7 +961,7 @@
   }
 
   .routing-address {
-    font-size: 0.875rem;
+    font-size: 0.8rem;
     font-family: monospace;
     color: #111827;
     word-break: break-all;
@@ -985,14 +975,14 @@
   .attributes-list {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.25rem;
   }
 
   .attribute-item {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    padding: 0.75rem 1rem;
+    gap: 0.5rem;
+    padding: 0.375rem 0.75rem;
     background: #fafafa;
     border: 1px solid #e5e7eb;
     border-radius: 6px;
@@ -1089,7 +1079,7 @@
   }
 
   .views-table-header > div {
-    padding: 0.625rem 1rem;
+    padding: 0.5rem 0.75rem;
   }
 
   .views-table-row {
@@ -1108,19 +1098,19 @@
   }
 
   .views-col-name {
-    padding: 0.75rem 1rem;
+    padding: 0.5rem 0.75rem;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.375rem;
     flex-wrap: wrap;
   }
 
   .views-col-users {
-    padding: 0.75rem 1rem;
+    padding: 0.5rem 0.75rem;
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 0.375rem;
+    gap: 0.25rem;
   }
 
   .views-col-users :global(.spinner-icon) {
@@ -1132,24 +1122,21 @@
     color: var(--color-surface-500);
   }
 
-  .view-name {
+  .view-name-link {
     font-size: 0.875rem;
     font-weight: 600;
-    color: #111827;
+    color: #3b82f6;
+    text-decoration: none;
   }
 
-  :global([data-mode="dark"]) .view-name {
-    color: var(--color-surface-200);
+  .view-name-link:hover {
+    text-decoration: underline;
   }
 
-  .view-description {
-    font-size: 0.8rem;
-    color: #6b7280;
+  :global([data-mode="dark"]) .view-name-link {
+    color: rgb(var(--color-primary-400));
   }
 
-  :global([data-mode="dark"]) .view-description {
-    color: var(--color-surface-400);
-  }
 
   .view-badge {
     font-size: 0.7rem;

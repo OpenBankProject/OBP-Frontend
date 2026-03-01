@@ -515,6 +515,11 @@ function buildAbacItems(): NavigationItem[] {
       label: "Rules",
       iconComponent: Lock,
     },
+    {
+      href: "/users?role_name=CanExecuteAbacRule",
+      label: "ABAC Users",
+      iconComponent: Users,
+    },
   ];
 
   return items;

@@ -14,6 +14,7 @@
   import { createLogger } from "$lib/utils/logger";
   import { resourceDocsCache } from "$lib/stores/resourceDocsCache";
   import { currentBank } from "$lib/stores/currentBank.svelte";
+  import { userPreferences } from "$lib/stores/userPreferences.svelte";
   import { onMount, tick } from "svelte";
 
   const logger = createLogger("LayoutClient");
@@ -48,7 +49,7 @@
   let isAuthenticated = $state(false);
   let isMobileMenuOpen = $state(false);
   let expandedSections = $state<Record<string, boolean>>({});
-  let displayMode: "dark" | "light" = $state("dark");
+  let displayMode: "dark" | "light" = $state(userPreferences.theme);
   let userMenuOpen = $state(false);
   let bankSelectorOpen = $state(false);
   let bankSelectEl: HTMLSelectElement | undefined = $state();
@@ -96,12 +97,13 @@
     }
   });
 
-  // Pre-warm resource docs cache and fetch banks for authenticated users
+  // Pre-warm resource docs cache, fetch banks, and load preferences for authenticated users
   onMount(() => {
     if (isAuthenticated) {
       logger.info("🔄 Pre-warming browser resource docs cache...");
       resourceDocsCache.preWarmCache(undefined as any);
       currentBank.fetchBanks();
+      userPreferences.loadFromOBP();
     }
   });
 

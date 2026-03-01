@@ -1,8 +1,29 @@
 <script lang="ts">
   import { Mail } from "@lucide/svelte";
+  import { goto } from "$app/navigation";
+  import { page } from "$app/state";
   import type { PageData } from "./$types";
 
   let { data } = $props<{ data: PageData }>();
+
+  let roleFilter = $state(page.url.searchParams.get("role_name") || "");
+  let roles = $state<string[]>([]);
+
+  // Fetch roles on mount
+  $effect(() => {
+    async function fetchRoles() {
+      try {
+        const response = await fetch("/api/rbac/roles-metadata");
+        const result = await response.json();
+        if (result.roles) {
+          roles = result.roles.map((r: any) => r.role).sort();
+        }
+      } catch (err) {
+        console.error("Error fetching roles:", err);
+      }
+    }
+    fetchRoles();
+  });
 
   let users = $derived(data.users || []);
   let hasApiAccess = $derived(data.hasApiAccess);
@@ -12,6 +33,7 @@
   let selectedProvider = $state("");
   let searchQuery = $state("");
   let searchResults = $state<any[]>([]);
+  let searchError = $state<string | null>(null);
   let isSearching = $state(false);
   let searchType = $state<"email" | "userid" | "username" | "">("");
 
@@ -53,6 +75,7 @@
   async function handleSearch() {
     if (!searchQuery.trim()) {
       searchResults = [];
+      searchError = null;
       searchType = "";
       return;
     }
@@ -60,6 +83,7 @@
     const type = detectSearchType(searchQuery.trim());
     searchType = type;
     isSearching = true;
+    searchError = null;
 
     try {
       let response;
@@ -89,6 +113,12 @@
 
       const result = await response.json();
 
+      if (!response.ok) {
+        searchError = result.error || `Search failed (HTTP ${response.status})`;
+        searchResults = [];
+        return;
+      }
+
       if (result.users) {
         // Multiple results (email search)
         searchResults = result.users;
@@ -100,6 +130,7 @@
       }
     } catch (err) {
       console.error("Search error:", err);
+      searchError = err instanceof Error ? err.message : "Search failed — the API may be unavailable";
       searchResults = [];
     } finally {
       isSearching = false;
@@ -166,7 +197,7 @@
           e.preventDefault();
           handleSearch();
         }}
-        class="flex gap-4 items-end"
+        class="flex gap-4 items-end flex-wrap"
       >
         <div style="flex: 0 0 300px;">
           <label for="provider-select" class="block text-sm font-medium mb-2"
@@ -205,6 +236,44 @@
         >
           {isSearching ? "Searching..." : "Search"}
         </button>
+      </form>
+
+      <form
+        onsubmit={(e) => {
+          e.preventDefault();
+          const params = new URLSearchParams();
+          if (roleFilter.trim()) {
+            params.set("role_name", roleFilter.trim());
+          }
+          const qs = params.toString();
+          goto(qs ? `?${qs}` : "/users", { invalidateAll: true });
+        }}
+        class="flex gap-4 items-end mt-4"
+      >
+        <div class="flex-1">
+          <label for="role-input" class="block text-sm font-medium mb-2"
+            >Role</label
+          >
+          <select
+            id="role-input"
+            bind:value={roleFilter}
+            class="form-input w-full"
+          >
+            <option value="">All roles</option>
+            {#each roles as role}
+              <option value={role}>{role}</option>
+            {/each}
+          </select>
+        </div>
+        <button
+          type="submit"
+          class="btn btn-primary"
+        >
+          Filter by Role
+        </button>
+        {#if page.url.searchParams.has("role_name")}
+          <a href="/users" class="btn btn-secondary">Clear</a>
+        {/if}
       </form>
 
       {#if searchResults.length > 0}
@@ -250,6 +319,10 @@
             </table>
           </div>
         </div>
+      {:else if searchError}
+        <div class="mt-6 alert alert-error">
+          <strong>Search error:</strong> {searchError}
+        </div>
       {:else if searchQuery.trim() && !isSearching}
         <div class="mt-6 text-center text-gray-500">
           No users found matching "{searchQuery}"
@@ -261,8 +334,8 @@
   <!-- Users List Panel -->
   <div class="panel">
     <div class="panel-header">
-      <h2 class="panel-title">Recent Users</h2>
-      <div class="panel-subtitle">Most recently created users (up to 100)</div>
+      <h2 class="panel-title">{page.url.searchParams.has("role_name") ? `Users with Role: ${page.url.searchParams.get("role_name")}` : "Recent Users"}</h2>
+      <div class="panel-subtitle">{page.url.searchParams.has("role_name") ? `Filtered by role` : "Most recently created users"} (up to 100)</div>
     </div>
     <div class="panel-content">
       {#if users && users.length > 0}

@@ -20,7 +20,7 @@ interface UsersResponse {
   error?: string;
 }
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load: PageServerLoad = async ({ locals, url }) => {
   const session = locals.session;
 
   if (!session?.data?.user) {
@@ -43,7 +43,11 @@ export const load: PageServerLoad = async ({ locals }) => {
   try {
     // Fetch users from OBP API - get recent users with pagination
     logger.info("=== USERS API CALL ===");
-    const endpoint = `/obp/v6.0.0/users?limit=100`;
+    const role = url.searchParams.get("role_name");
+    let endpoint = `/obp/v6.0.0/users?limit=100`;
+    if (role) {
+      endpoint += `&role_name=${encodeURIComponent(role)}`;
+    }
     logger.info(`Request: ${endpoint}`);
 
     const response = await obp_requests.get(endpoint, accessToken);
