@@ -132,6 +132,11 @@ export const SITE_MAP: Record<string, PageRoleConfig> = {
     required: [{ role: "CanManageFeaturedApiCollections" }],
   },
 
+  // ── Banks ─────────────────────────────────────────────
+  "/banks/create": {
+    required: [{ role: "CanCreateBank" }],
+  },
+
   // ── Consumers ─────────────────────────────────────────
   "/consumers": {
     required: [{ role: "CanGetConsumers" }],

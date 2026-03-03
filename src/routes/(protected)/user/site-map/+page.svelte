@@ -158,9 +158,6 @@
     for (const r of entry.required) {
       if (!hasRole(r)) missing.push(r.role);
     }
-    for (const r of entry.optional) {
-      if (!hasRole(r)) missing.push(r.role);
-    }
     return missing;
   }
 
