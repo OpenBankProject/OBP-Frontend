@@ -1,26 +1,28 @@
 <script lang="ts">
-    import { Accordion } from '@skeletonlabs/skeleton-svelte';
     import type { ToolMessage } from '$lib/opey/types';
     import { ToolError, ObpApiResponse, DefaultToolResponse } from '.';
     import {
         Check,
-        Hammer,
         LoaderCircle,
         XCircle,
-        Diamond,
         AlertTriangle,
         CheckCircle,
+        ChevronDown,
+        ChevronUp,
     } from '@lucide/svelte';
 	import ToolApprovalCard from '../ToolApprovalCard.svelte';
+	import ConsentRequestCard from '../ConsentRequestCard.svelte';
 	    interface Props {
         message: ToolMessage;
         onApprove?: (toolCallId: string, approvalLevel?: string) => Promise<void>;
         onDeny?: (toolCallId: string) => Promise<void>;
         batchApprovalGroup?: ToolMessage[];  // Other tools in the same batch
         onBatchSubmit?: (decisions: Map<string, { approved: boolean; level: string }>) => Promise<void>;
+        onConsent?: (toolCallId: string, consentJwt: string) => Promise<void>;
+        onConsentDeny?: (toolCallId: string) => Promise<void>;
     }
     
-    let { message, onApprove, onDeny, batchApprovalGroup, onBatchSubmit }: Props = $props();
+    let { message, onApprove, onDeny, batchApprovalGroup, onBatchSubmit, onConsent, onConsentDeny }: Props = $props();
     
     // Check if this is part of a batch approval
     let isBatchApproval = $derived(!!batchApprovalGroup && batchApprovalGroup.length > 1);
@@ -42,18 +44,32 @@
     );
     
     // Helper function for tool display names
-    function getToolDisplayName(toolName: string, instanceNumber: number): string {
+    function getToolDisplayName(toolName: string): string {
         switch (toolName) {
             case 'retrieve_endpoints':
-                return `Endpoint Retrieval - Finding API endpoints (${instanceNumber})`;
+                return 'Endpoint Retrieval';
             case 'retrieve_glossary':
-                return `Glossary Retrieval - Looking up terminology (${instanceNumber})`;
+                return 'Glossary Retrieval';
+            case 'list_endpoints_by_tag':
+                return 'List Endpoints by Tag';
+            case 'obp_requests':
+                return 'OBP API Request';
             default:
-                return `Using tool: ${toolName} (${instanceNumber})`;
+                return toolName.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
         }
     }
     
     let isProcessing = $state(false);
+    
+    // Track expanded state - default collapsed unless waiting for approval/consent or error
+    let manualToggle = $state<boolean | null>(null);
+    let isExpanded = $derived(
+        manualToggle ?? (
+            message.waitingForApproval ||
+            message.waitingForConsent ||
+            message.status === 'error'
+        )
+    );
     
     // Individual approval handlers
     async function handleApprove(toolCallId: string, approvalLevel?: string) {
@@ -143,11 +159,19 @@
         message.approvalStatus !== 'approved' && 
         message.approvalStatus !== 'denied'
     );
+
+    // Determine if consent UI should be shown
+    let showConsentInterface = $derived(
+        message.waitingForConsent && 
+        message.consentStatus === 'pending'
+    );
     
     // Determine status display
     let statusDisplay = $derived.by(() => {
         if (message.status === 'error') return 'Error';
         if (message.approvalStatus === 'denied') return 'Denied';
+        if (message.consentStatus === 'denied') return 'Consent Denied';
+        if (message.waitingForConsent) return 'Awaiting Consent';
         if (message.waitingForApproval) return 'Awaiting Approval';
         if (message.isStreaming) return 'Executing...';
         if (message.toolOutput) return 'Complete';
@@ -157,39 +181,48 @@
     let statusIcon = $derived.by(() => {
         if (message.status === 'error') return XCircle;
         if (message.approvalStatus === 'denied') return XCircle;
+        if (message.consentStatus === 'denied') return XCircle;
+        if (message.waitingForConsent) return AlertTriangle;
         if (message.waitingForApproval) return AlertTriangle;
         if (message.isStreaming) return LoaderCircle;
-        if (message.toolOutput) return Check;
-        return Diamond;
+        if (message.toolOutput) return CheckCircle;
+        return LoaderCircle;
     });
     
-    let statusClass = $derived(() => {
-        if (message.status === 'error') return 'stroke-error-500';
-        if (message.approvalStatus === 'denied') return 'stroke-error-500';
-        if (message.waitingForApproval) return 'stroke-warning-500';
-        if (message.isStreaming) return 'stroke-warning-500 animate-spin';
-        if (message.toolOutput) return 'stroke-success-500';
-        return 'stroke-warning-500';
+    let statusColorClass = $derived.by(() => {
+        if (message.status === 'error') return 'text-error-600-400';
+        if (message.approvalStatus === 'denied') return 'text-error-600-400';
+        if (message.consentStatus === 'denied') return 'text-error-600-400';
+        if (message.waitingForConsent) return 'text-tertiary-600-400';
+        if (message.waitingForApproval) return 'text-warning-600-400';
+        if (message.isStreaming) return 'text-warning-600-400';
+        if (message.toolOutput) return 'text-success-600-400';
+        return 'text-surface-600-400';
     });
 
-    // Track open accordion items
-    let mainAccordionValue = $state<string[]>(
-        message.waitingForApproval || message.isStreaming ? [message.id] : []
-    );
-    
-    let nestedAccordionValue = $state<string[]>([]);
+    let shouldSpin = $derived(message.isStreaming && !message.waitingForApproval && !message.waitingForConsent);
+
+    let borderColorClass = $derived.by(() => {
+        if (message.status === 'error') return 'border-error-500';
+        if (message.approvalStatus === 'denied') return 'border-error-500';
+        if (message.consentStatus === 'denied') return 'border-error-500';
+        if (message.waitingForConsent) return 'border-tertiary-500';
+        if (message.waitingForApproval) return 'border-warning-500';
+        return 'border-surface-300-700';
+    });
+
 </script>
 
 {#if isBatchApproval && isFirstInBatch}
     <!-- Batch Approval View -->
-    <div class="card variant-ghost-warning rounded-lg border-2 border-warning-500 p-4 space-y-4">
+    <div class="card variant-ghost-warning rounded-lg border-2 border-warning-500 p-4 space-y-4 text-left">
         <!-- Header -->
         <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <AlertTriangle class="text-warning-600" size={24} />
                 <div>
                     <h3 class="text-lg font-semibold">Multiple Approvals Required</h3>
-                    <p class="text-sm text-surface-600 dark:text-surface-400">
+                    <p class="text-sm text-surface-600-400">
                         {batchApprovalGroup?.length || 0} operations pending approval
                     </p>
                 </div>
@@ -240,7 +273,7 @@
                             <CheckCircle class="text-success-600" size={20} />
                             <div class="flex-1">
                                 <div class="font-semibold text-sm">{toolMsg.toolName}</div>
-                                <div class="text-xs text-surface-600 dark:text-surface-400">
+                                <div class="text-xs text-surface-600-400">
                                     Approved ({decision.level})
                                 </div>
                             </div>
@@ -253,7 +286,7 @@
                             <XCircle class="text-error-600" size={20} />
                             <div class="flex-1">
                                 <div class="font-semibold text-sm">{toolMsg.toolName}</div>
-                                <div class="text-xs text-surface-600 dark:text-surface-400">
+                                <div class="text-xs text-surface-600-400">
                                     Denied
                                 </div>
                             </div>
@@ -283,106 +316,87 @@
 {:else if isBatchApproval}
     <!-- This is part of a batch but not the first - don't render, it's shown above -->
 {:else}
-    <!-- Single Tool Approval (Original) -->
-<Accordion 
-    collapsible 
-    class="max-w-full" 
-    value={mainAccordionValue} 
-    onValueChange={(details: any) => (mainAccordionValue = details.value)}
->
-    <Accordion.Item value={message.id}>
-        <h3>
-            <Accordion.ItemTrigger class="flex items-center justify-between gap-2 w-full">
-                <div class="flex items-center gap-2">
-                    <Hammer />
-                    <span class:text-error-700={message.status === 'error'}>
-                        {getToolDisplayName(
-                            message.toolName,
-                            message.instanceNumber || 1
-                        )}
-                        {#if message.status === 'error'}
-                            - Failed
-                        {/if}
+    <!-- Single Tool Card (Simplified) -->
+    <div class="card rounded-lg border-1 {borderColorClass} bg-primary-300-700 transition-all text-left">
+        <!-- Card Header - Always Visible, Clickable to Expand -->
+        <button
+            type="button"
+            class="w-full p-2 text-left flex items-center justify-between gap-3 hover:bg-primary-200-800 transition-colors rounded-lg"
+            onclick={() => manualToggle = !isExpanded}
+        >
+            {#if statusIcon}
+                {@const StatusIcon = statusIcon}
+                <div class="flex items-center gap-2 flex-shrink-0">
+                    <StatusIcon
+                        class="{statusColorClass} {shouldSpin ? 'animate-spin' : ''}"
+                        size={18}
+                    />
+                    <span class="font-semibold text-sm">
+                        {getToolDisplayName(message.toolName)}
                     </span>
                 </div>
-                {@const StatusIcon = statusIcon}
-                <StatusIcon class={statusClass} />
-            </Accordion.ItemTrigger>
-        </h3>
-        <Accordion.ItemContent>
-            <!-- Tool Status -->
-            <div class="mb-2 flex justify-between">
-                <span class="text-sm font-medium">Status: {statusDisplay}</span>
-            </div>
-            
-            <!-- Approval Interface - Shown only when waiting for approval -->
-            {#if showApprovalInterface}
-                <ToolApprovalCard
-                    toolMessage={message}
-                    onApprove={handleApprove}
-                    onDeny={handleDeny}
-                />
+                <div class="flex-1 border-b border-surface-300-700 mx-2 self-center"></div>
+                <div class="flex items-center gap-2 flex-shrink-0">
+                    <span class="text-xs {statusColorClass}">
+                        {statusDisplay}
+                    </span>
+                    {#if isExpanded}
+                        <ChevronUp class="text-surface-600-400" size={18} />
+                    {:else}
+                        <ChevronDown class="text-surface-600-400" size={18} />
+                    {/if}
+                </div>
             {/if}
-            
-            <!-- Tool Input/Output Sections -->
-            <Accordion 
-                collapsible 
-                value={nestedAccordionValue}
-                onValueChange={(details: any) => (nestedAccordionValue = details.value)}
-            >
-                <Accordion.Item value="input">
-                    <h4>
-                        <Accordion.ItemTrigger class="flex items-center gap-2">
-                            <Hammer />
-                            <span>Tool Input</span>
-                        </Accordion.ItemTrigger>
-                    </h4>
-                    <Accordion.ItemContent>
-                        <div class="preset-filled-primary-500 max-w-full rounded-2xl p-2 text-white">
-                            <pre class="overflow-x-auto text-xs">{JSON.stringify(message.toolInput, null, 2)}</pre>
-                        </div>
-                    </Accordion.ItemContent>
-                </Accordion.Item>
-                
-                <Accordion.Item value="output" disabled={!!message.isStreaming && !message.toolOutput}>
-                    <h4>
-                        <Accordion.ItemTrigger class="flex items-center justify-between gap-2 w-full">
-                            <div class="flex items-center gap-2">
-                                <Hammer />
-                                <span class:text-error-700={message.status === 'error'}>
-                                    Tool Output
-                                    {#if message.status === 'error'}
-                                        - Error
-                                    {/if}
-                                </span>
-                            </div>
-                            <div>
-                                {#if message.status === 'error'}
-                                    <XCircle class="stroke-error-500" />
-                                {:else if message.toolOutput}
-                                    <Check class="stroke-success-500" />
-                                {:else if message.isStreaming}
-                                    <LoaderCircle class="stroke-warning-500 animate-spin" />
-                                {:else}
-                                    <Diamond class="stroke-warning-500" />
-                                {/if}
-                            </div>
-                        </Accordion.ItemTrigger>
-                    </h4>
-                    <Accordion.ItemContent>
-                        <div class="max-w-full rounded-2xl p-2">
-                            {#if message.status === 'error'}
-                                <ToolError message={message} />
-                            {:else if message.toolName === 'obp_requests'}
-                                <ObpApiResponse message={message} />
-                            {:else}
-                                <DefaultToolResponse message={message} />
-                            {/if}
-                        </div>
-                    </Accordion.ItemContent>
-                </Accordion.Item>
-            </Accordion>
-        </Accordion.ItemContent>
-    </Accordion.Item>
-</Accordion>
+        </button>
+
+        <!-- Expandable Content -->
+        {#if isExpanded}
+            <div class="border-t border-surface-300-700 p-4 space-y-4">
+                <!-- Approval Interface -->
+                {#if showApprovalInterface}
+                    <ToolApprovalCard
+                        toolMessage={message}
+                        onApprove={handleApprove}
+                        onDeny={handleDeny}
+                    />
+                {/if}
+
+                <!-- Consent Interface -->
+                {#if showConsentInterface && onConsent && onConsentDeny}
+                    <ConsentRequestCard
+                        toolMessage={message}
+                        {onConsent}
+                        onDeny={onConsentDeny}
+                    />
+                {/if}
+
+                <!-- Tool Input -->
+                {#if message.toolInput}
+                    <div class="space-y-2">
+                        <h4 class="text-sm font-semibold text-surface-950-50">Tool Input</h4>
+                        <pre class="text-xs preset-filled-surface-200-800 p-3 rounded-lg border border-surface-300-700 overflow-x-auto max-h-60 text-left">{JSON.stringify(message.toolInput, null, 2)}</pre>
+                    </div>
+                {/if}
+
+                <!-- Tool Output -->
+                {#if message.toolOutput || message.status === 'error'}
+                    <div class="space-y-2">
+                        <h4 class="text-sm font-semibold text-surface-950-50">Tool Output</h4>
+                        {#if message.status === 'error'}
+                            <ToolError {message} />
+                        {:else if message.toolName === 'obp_requests'}
+                            <ObpApiResponse {message} />
+                        {:else}
+                            <DefaultToolResponse {message} />
+                        {/if}
+                    </div>
+                {:else if message.isStreaming}
+                    <div class="flex items-center gap-2 text-sm italic text-surface-600-400">
+                        <LoaderCircle class="animate-spin" size={16} />
+                        {message.waitingForConsent || message.waitingForApproval ? 'Waiting for user approval...' : 'Executing...'}
+                    </div>
+                {/if}
+            </div>
+        {/if}
+    </div>
 {/if}

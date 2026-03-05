@@ -3,7 +3,9 @@
 	import { renderMarkdown } from '$lib/markdown/helper-funcs';
 	import type { BaseMessage, ToolMessage as ToolMessageType } from '$lib/opey/types';
 	import { ToolMessage } from './tool-messages';
-	import { RotateCw } from '@lucide/svelte';
+	import { RotateCw, Copy } from '@lucide/svelte';
+	import { messageToMarkdown } from '$lib/opey/utils/chatToMarkdown';
+	import { toast } from '$lib/utils/toastService';
 
 	// Props
 	interface Props {
@@ -15,6 +17,9 @@
 		batchApprovalGroup?: ToolMessageType[];
 		userName?: string;
 		onRegenerate?: (messageId: string) => Promise<void>;
+		onConsent?: (toolCallId: string, consentJwt: string) => Promise<void>;
+		onConsentDeny?: (toolCallId: string) => Promise<void>;
+		allMessages?: BaseMessage[];
 	}
 
 	let {
@@ -25,17 +30,27 @@
 		onBatchSubmit,
 		batchApprovalGroup,
 		userName = 'Guest',
-		onRegenerate
+		onRegenerate,
+		onConsent,
+		onConsentDeny,
+		allMessages = []
 	}: Props = $props();
-
-	// Track hover state for showing regenerate button
-	let isHovered = $state(false);
 
 	// Check if message can be regenerated
 	// Don't allow regeneration for messages with temporary IDs or still pending confirmation
 	let canRegenerate = $derived(
 		message.role === 'user' && !message.isPending && !message.id.startsWith('temp-')
 	);
+
+	async function handleCopyAsMarkdown() {
+		try {
+			const md = messageToMarkdown(message, allMessages);
+			await navigator.clipboard.writeText(md);
+			toast.success('Copied to clipboard');
+		} catch {
+			toast.error('Failed to copy');
+		}
+	}
 
 	// Format error messages - can be extended to handle specific error types
 	function getErrorMessage(error?: string): string {
@@ -88,24 +103,26 @@
 
 	<!-- Message content -->
 	<div
-		class="{message.role === 'user' ? 'max-w-3/5' : 'max-w-full'} group relative mt-3"
+		class="{message.role === 'user' ? 'max-w-3/5' : message.role === 'tool' ? 'w-2/3' : 'max-w-full'} group relative mt-3"
 		role="region"
 		aria-label="Chat message"
-		onmouseenter={() => {
-			if (message.role === 'user') isHovered = true;
-		}}
-		onmouseleave={() => {
-			if (message.role === 'user') isHovered = false;
-		}}
 	>
 		{#if message.role === 'user'}
 			<div class="relative max-w-full rounded-2xl preset-filled-tertiary-500 p-2 text-white">
 				{message.message}
 			</div>
 
-			<!-- Regenerate button - only show on hover for confirmed user messages -->
-			{#if isHovered && onRegenerate && canRegenerate}
-				<div class="mt-1 flex justify-end" id="message-options">
+			<!-- Action buttons - visible on hover via CSS opacity (always in DOM to prevent layout shift) -->
+			<div class="mt-1 flex justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100" id="message-options">
+				<button
+					onclick={handleCopyAsMarkdown}
+					class="rounded-full p-1.5 transition-transform hover:scale-120"
+					title="Copy message"
+					aria-label="Copy message"
+				>
+					<Copy class="h-4 w-4 text-surface-700 dark:text-surface-200" />
+				</button>
+				{#if onRegenerate && canRegenerate}
 					<button
 						onclick={() => onRegenerate?.(message.id)}
 						class="rounded-full p-1.5 transition-transform hover:scale-120"
@@ -114,8 +131,8 @@
 					>
 						<RotateCw class="h-4 w-4 text-surface-700 dark:text-surface-200" />
 					</button>
-				</div>
-			{/if}
+				{/if}
+			</div>
 		{:else if message.role === 'assistant'}
 			{#if message.isLoading}
 				<!-- Loading spinner while waiting for response -->
@@ -156,11 +173,16 @@
 							</p>
 						</div>
 					{/if}
-					{#if message.cancelled}
-						<div class="mt-2 text-sm italic opacity-70">
-							<span class="text-warning-500">⚠ Generation stopped by user</span>
-						</div>
-					{/if}
+				</div>
+				<div class="mt-1 flex justify-start opacity-0 transition-opacity group-hover:opacity-100">
+					<button
+						onclick={handleCopyAsMarkdown}
+						class="rounded-full p-1.5 transition-transform hover:scale-120"
+						title="Copy message"
+						aria-label="Copy message"
+					>
+						<Copy class="h-4 w-4 text-surface-700 dark:text-surface-200" />
+					</button>
 				</div>
 			{/if}
 		{:else if message.role === 'tool'}
@@ -170,6 +192,8 @@
 				{onDeny}
 				{onBatchSubmit}
 				{batchApprovalGroup}
+				{onConsent}
+				{onConsentDeny}
 			/>
 		{:else if message.role === 'error'}
 			<div class="max-w-full p-2">

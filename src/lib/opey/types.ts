@@ -3,6 +3,7 @@
 export type Role = 'user' | 'assistant' | 'tool' | 'error' | 'approval_request';
 export interface BaseMessage {
 	id: string; // i.e. UUID4
+	correlationId?: string; // Temporary ID for optimistic UI updates
 	role: Role;
 	message: string;
 	timestamp: Date; // ISO string
@@ -15,6 +16,7 @@ export interface BaseMessage {
 
 export interface UserMessage extends BaseMessage {
 	role: 'user';
+	correlationId: string; // correlationId is required for user messages
 	// Additional fields specific to user messages can be added here
 }
 export interface AssistantMessage extends BaseMessage {
@@ -49,6 +51,25 @@ export interface ToolMessage extends BaseMessage {
 	similarOperationsCount?: number;
 	availableApprovalLevels?: string[];
 	defaultApprovalLevel?: string;
+	// Consent request fields (for consent_request events)
+	waitingForConsent?: boolean; // Whether tool is waiting for user to provide consent JWT
+	consentStatus?: 'pending' | 'granted' | 'denied'; // Status of the consent request
+	consentOperationId?: string; // OBP API operation that requires consent
+	consentRequiredRoles?: string[]; // OBP roles the user must consent to
+	consentToolCallCount?: number; // Number of pending tool calls this consent will cover
+	consentBankId?: string; // Bank ID for bank-scoped consent roles
+}
+
+/**
+ * Represents a consent_request event from the backend.
+ * Sent when an OBP API tool call returns a consent_required error.
+ */
+export interface ConsentRequest {
+	toolCallId: string;
+	toolName: string;
+	operationId: string | null;
+	requiredRoles: string[];
+	timestamp: number;
 }
 
 export interface ToolCall {
