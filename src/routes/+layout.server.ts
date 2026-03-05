@@ -55,14 +55,15 @@ export async function load(event: RequestEvent) {
   );
 
   // Get information about the user from the session if they are logged in
+  // User is only considered logged in if they have both user data AND a valid access token
   logger.info("👤 Checking user session");
-  if (session?.data?.user) {
+  if (session?.data?.user && session?.data?.oauth?.access_token) {
     data.userId = session.data.user.user_id;
     data.email = session.data.user.email;
     data.username = session.data.user.username;
     logger.info(`✅ User session found: ${data.email}`);
   } else {
-    logger.info("ℹ️  No user session found (user not logged in)");
+    logger.info("ℹ️  No user session found (user not logged in or no access token)");
   }
 
   // Get Opey consent info if we have Opey consumer ID configured

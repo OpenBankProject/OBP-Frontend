@@ -14,6 +14,24 @@
   console.debug("USER DATA:", JSON.stringify(userData));
 
   const opeyConsentInfo = data.opeyConsentInfo || null;
+  const sessionInfo = data.sessionInfo || null;
+
+  function formatTimeRemaining(seconds: number | null): string {
+    if (seconds === null) return "Unknown";
+    if (seconds <= 0) return "Expired";
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    if (hours > 0) return `${hours}h ${minutes}m`;
+    if (minutes > 0) return `${minutes}m`;
+    return `${seconds}s`;
+  }
+
+  function tokenStatusColor(seconds: number | null): string {
+    if (seconds === null) return "bg-surface-300 dark:bg-surface-600";
+    if (seconds <= 0) return "bg-error-500";
+    if (seconds < 300) return "bg-warning-500";
+    return "bg-success-500";
+  }
 
   function formatDateFromUnix(epochDateMilliseconds: number | string): string {
     console.log("Formatting date:", epochDateMilliseconds);
@@ -360,6 +378,92 @@
 
 <div class="flex flex-col space-y-6">
   {@render userInfo(userData)}
+
+  <!-- Session Info Section -->
+  <div class="mx-10 pr-5">
+    <header class="py-4">
+      <h1 class="h4 text-center align-middle">Session Info</h1>
+    </header>
+    {#if sessionInfo && sessionInfo.hasAccessToken}
+      <article class="border-primary-500 space-y-1 border-b-[1px] p-4">
+        {#each [
+          { label: "Session ID", value: sessionInfo.sessionId },
+          { label: "OAuth Provider", value: sessionInfo.oauthProvider },
+        ] as item}
+          <div class="hover:bg-primary-500/5 flex items-center justify-between rounded-md p-2" data-testid={`session-${item.label.toLowerCase().replace(/\s+/g, "-")}`}>
+            <strong>{item.label}</strong>
+            <span class="rounded-sm bg-gray-800/20 p-2 font-mono text-sm backdrop-blur-2xl">
+              {item.value || "N/A"}
+            </span>
+          </div>
+          <hr class="hr !my-0 opacity-20" />
+        {/each}
+
+        <!-- Access Token -->
+        <div class="hover:bg-primary-500/5 flex items-center justify-between rounded-md p-2" data-testid="session-access-token">
+          <div class="flex items-center gap-2">
+            <strong>Access Token</strong>
+            <span class="h-2.5 w-2.5 rounded-full {tokenStatusColor(sessionInfo.accessTokenExpiresInSeconds)}" title={sessionInfo.accessTokenExpiresInSeconds !== null && sessionInfo.accessTokenExpiresInSeconds <= 0 ? "Expired" : "Active"}></span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="rounded-sm bg-gray-800/20 p-2 font-mono text-sm backdrop-blur-2xl">
+              {sessionInfo.accessTokenPreview || "N/A"}
+            </span>
+            <span class="text-xs text-surface-600 dark:text-surface-400">
+              {#if sessionInfo.accessTokenExpiresInSeconds !== null && sessionInfo.accessTokenExpiresInSeconds <= 0}
+                Expired
+              {:else}
+                {formatTimeRemaining(sessionInfo.accessTokenExpiresInSeconds)} remaining
+              {/if}
+            </span>
+          </div>
+        </div>
+        <hr class="hr !my-0 opacity-20" />
+
+        <!-- Refresh Token -->
+        <div class="hover:bg-primary-500/5 flex items-center justify-between rounded-md p-2" data-testid="session-refresh-token">
+          <div class="flex items-center gap-2">
+            <strong>Refresh Token</strong>
+            {#if sessionInfo.hasRefreshToken}
+              <span class="h-2.5 w-2.5 rounded-full {tokenStatusColor(sessionInfo.refreshTokenExpiresInSeconds)}" title={sessionInfo.refreshTokenExpiresInSeconds !== null && sessionInfo.refreshTokenExpiresInSeconds <= 0 ? "Expired" : "Active"}></span>
+            {:else}
+              <span class="h-2.5 w-2.5 rounded-full bg-error-500" title="Missing"></span>
+            {/if}
+          </div>
+          <div class="flex items-center gap-3">
+            {#if sessionInfo.hasRefreshToken}
+              <span class="rounded-sm bg-gray-800/20 p-2 font-mono text-sm backdrop-blur-2xl">
+                {sessionInfo.refreshTokenPreview}
+              </span>
+              <span class="text-xs text-surface-600 dark:text-surface-400">
+                {#if sessionInfo.refreshTokenExpiresAt === null}
+                  Expiry unknown (not a JWT)
+                {:else if sessionInfo.refreshTokenExpiresInSeconds !== null && sessionInfo.refreshTokenExpiresInSeconds <= 0}
+                  Expired
+                {:else}
+                  {formatTimeRemaining(sessionInfo.refreshTokenExpiresInSeconds)} remaining
+                {/if}
+              </span>
+            {:else}
+              <span class="text-xs text-error-600 dark:text-error-400">
+                None — session cannot auto-renew
+              </span>
+            {/if}
+          </div>
+        </div>
+        <hr class="hr !my-0 opacity-20" />
+      </article>
+    {:else}
+      <article class="border-primary-500 border-b-[1px] p-4">
+        <div class="rounded-lg bg-warning-50 p-3 dark:bg-warning-900/20" data-testid="session-warning">
+          <p class="text-sm text-warning-700 dark:text-warning-300">
+            No active session found. Your session may have expired.
+            <a href="/login" class="font-medium underline hover:text-warning-900 dark:hover:text-warning-100">Log in again</a> to restore full functionality.
+          </p>
+        </div>
+      </article>
+    {/if}
+  </div>
 
   <!-- Preferences Section -->
   <div class="mx-10 pr-5">
