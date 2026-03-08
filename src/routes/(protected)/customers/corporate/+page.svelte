@@ -159,8 +159,12 @@
               </thead>
               <tbody>
                 {#each filteredCustomers as customer}
-                  <tr>
-                    <td class="cell-label">{customer.legal_name || "—"}</td>
+                  <tr data-testid="customer-row-{customer.customer_id}">
+                    <td class="cell-label">
+                      <a href="/customers/{encodeURIComponent(customer.bank_id)}/{encodeURIComponent(customer.customer_id)}" class="customer-link" data-testid="customer-detail-link">
+                        {customer.legal_name || "—"}
+                      </a>
+                    </td>
                     <td class="cell-mono">{customer.customer_number || "—"}</td>
                     <td>
                       {#if customer.customer_type}
@@ -416,6 +420,20 @@
 
   :global([data-mode="dark"]) .cell-label {
     color: var(--color-surface-100);
+  }
+
+  .cell-label :global(.customer-link) {
+    color: #3b82f6;
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .cell-label :global(.customer-link:hover) {
+    text-decoration: underline;
+  }
+
+  :global([data-mode="dark"]) .cell-label :global(.customer-link) {
+    color: rgb(var(--color-primary-400));
   }
 
   .cell-mono {

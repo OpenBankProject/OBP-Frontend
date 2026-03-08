@@ -12,7 +12,7 @@ import { oauth2ProviderManager } from "$lib/oauth/providerManager";
 import { SessionOAuthHelper } from "$lib/oauth/sessionHelper";
 import { resourceDocsCache } from "$lib/stores/resourceDocsCache";
 import { healthCheckRegistry } from "$lib/health-check/HealthCheckRegistry";
-import { ensureSystemActivityTrail } from "$lib/opey/bootstrap/activityTrailEntities";
+import { ensureOpeyNotebook } from "$lib/opey/bootstrap/opeyNotebook";
 
 declare const process: { env: Record<string, string | undefined>; argv: string[] };
 
@@ -93,8 +93,16 @@ if (env.OPEY_BASE_URL) {
 }
 healthCheckRegistry.startAll();
 
-// Bootstrap: ensure activity trail dynamic entity exists (attempted once per server lifecycle)
-let activityTrailBootstrapped = false;
+// Bootstrap: ensure opey_notebook dynamic entity exists (using application access)
+ensureOpeyNotebook().then((ok) => {
+  if (!ok) {
+    logger.warn(
+      "opey_notebook entity could not be created at startup. " +
+        "Ensure the API Manager consumer has the CanCreateSystemLevelDynamicEntity scope " +
+        "and supports the client_credentials grant. Opey notebook features will not work without it."
+    );
+  }
+});
 
 function needsAuthorization(routeId: string): boolean {
   // protected routes are put in the /(protected)/ route group
@@ -176,21 +184,6 @@ const checkAuthorization: Handle = async ({ event, resolve }) => {
         resourceDocsCache.preWarmCache(sessionOAuth.accessToken).catch(() => {
           // Silently fail - pre-warming is best-effort
         });
-
-        // Ensure system_activity_trail entity exists (once per server lifecycle)
-        if (!activityTrailBootstrapped) {
-          activityTrailBootstrapped = true;
-          ensureSystemActivityTrail(sessionOAuth.accessToken).then((ok) => {
-            if (!ok) {
-              logger.warn(
-                "WARNING: system_activity_trail entity could not be created. " +
-                  "Ensure the API Manager consumer has the CanCreateSystemLevelDynamicEntity scope. " +
-                  "Opey activity trail features will not work without it."
-              );
-              activityTrailBootstrapped = false; // Allow retry on next request
-            }
-          });
-        }
       }
     }
   }

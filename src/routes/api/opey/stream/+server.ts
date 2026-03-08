@@ -31,6 +31,7 @@ export async function POST(event: RequestEvent) {
 		'Content-Type': opeyResponse.headers.get('Content-Type') || 'text/event-stream',
 		'Cache-Control': 'no-cache',
 		'Connection': 'keep-alive',
+		'X-Accel-Buffering': 'no',
 	});
 
 	const setCookie = opeyResponse.headers.get('set-cookie');

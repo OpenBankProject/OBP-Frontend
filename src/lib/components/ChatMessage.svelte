@@ -80,11 +80,7 @@
 	// Compute alignment class
 	let alignmentClass = $derived(message.role === 'user' ? 'items-end' : 'items-start');
 
-	// Use $effect.pre to ensure renderedContent updates before DOM render
-	let renderedContent = $state('');
-	$effect.pre(() => {
-		renderedContent = renderMarkdown(message.message);
-	});
+	let renderedContent = $derived(renderMarkdown(message.message));
 </script>
 
 <!-- Message container -->

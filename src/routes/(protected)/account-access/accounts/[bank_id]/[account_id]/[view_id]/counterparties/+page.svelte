@@ -109,9 +109,13 @@
             <div class="cp-col-beneficiary">Beneficiary</div>
           </div>
           {#each counterparties as cp}
-            <div class="cp-row">
+            <div class="cp-row" data-testid="counterparty-row-{cp.counterparty_id}">
               <div class="cp-col-name">
-                <span class="cp-name">{cp.name || "—"}</span>
+                {#if cp.counterparty_id}
+                  <a href="/account-access/accounts/{encodeURIComponent(bankId)}/{encodeURIComponent(accountId)}/{encodeURIComponent(viewId)}/counterparties/{encodeURIComponent(cp.counterparty_id)}" class="cp-name cp-link" data-testid="counterparty-detail-link">{cp.name || "—"}</a>
+                {:else}
+                  <span class="cp-name">{cp.name || "—"}</span>
+                {/if}
                 {#if cp.description}
                   <span class="cp-description">{cp.description}</span>
                 {/if}
@@ -348,6 +352,19 @@
 
   :global([data-mode="dark"]) .cp-name {
     color: var(--color-surface-200);
+  }
+
+  .cp-link {
+    color: #3b82f6;
+    text-decoration: none;
+  }
+
+  .cp-link:hover {
+    text-decoration: underline;
+  }
+
+  :global([data-mode="dark"]) .cp-link {
+    color: rgb(var(--color-primary-400));
   }
 
   .cp-description {
