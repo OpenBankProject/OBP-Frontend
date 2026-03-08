@@ -12,6 +12,14 @@
 
     let refreshInterval: ReturnType<typeof setTimeout> | undefined;
 
+    function providerLoginUrl(provider: string): string {
+        const base = `/login/${provider}`;
+        if (data.redirectTo) {
+            return `${base}?redirect_to=${encodeURIComponent(data.redirectTo)}`;
+        }
+        return base;
+    }
+
     function formatProviderName(provider: string): string {
         switch (provider) {
             case 'obp-oidc':
@@ -98,7 +106,7 @@
                 <p class="text-center text-sm text-gray-300">Choose your authentication provider:</p>
                 {#each data.availableProviders as provider}
                     <button type="button" class="btn preset-filled-primary-500 mx-auto w-full">
-                        <a href="/login/{provider.provider}" class="w-full flex items-center justify-between">
+                        <a href={providerLoginUrl(provider.provider)} class="w-full flex items-center justify-between">
                             <span class="flex items-center gap-2">
                                 <span class="text-green-400">●</span>
                                 {formatProviderName(provider.provider)}

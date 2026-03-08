@@ -19,22 +19,25 @@ export class DefaultOBPIntegrationService implements OBPIntegrationService {
       throw new Error("User not authenticated with OBP");
     }
 
+    logger.info(`getOrCreateOpeyConsent: looking for existing ACCEPTED consent with consumer_id="${this.opeyConsumerId}"`);
+
     // Check for existing consent first
     const existingConsentId = await this.checkExistingOpeyConsent(session);
     if (existingConsentId) {
       const userIdentifier = extractUsernameFromJWT(existingConsentId.jwt);
       logger.info(
-        `Found existing consent JWT - Primary user: ${userIdentifier}`,
+        `Found existing consent: consent_id="${existingConsentId.consent_id}", status="${existingConsentId.status}", consumer_id="${existingConsentId.consumer_id}" - user: ${userIdentifier}`,
       );
       return existingConsentId;
     }
 
     // Create new consent
+    logger.info(`No existing ACCEPTED consent found - creating new IMPLICIT consent with consumer_id="${this.opeyConsumerId}"`);
     const consent = await this.createImplicitConsent(
       session.data.oauth.access_token,
     );
     const userIdentifier = extractUsernameFromJWT(consent.jwt);
-    logger.info(`Created new consent JWT - Primary user: ${userIdentifier}`);
+    logger.info(`Created new consent: consent_id="${consent.consent_id}", status="${consent.status}", consumer_id="${consent.consumer_id}" - user: ${userIdentifier}`);
     return consent;
   }
 

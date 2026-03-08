@@ -277,10 +277,8 @@
       href: "https://github.com/OpenBankProject",
       label: "GitHub",
     },
+    { href: "/about", label: "About" },
   ]); //{ href: '/terms', label: 'Terms of Service' },
-
-  //{ href: '/support', label: 'Support' },
-  //{ href: '/sitemap', label: 'Sitemap' }
 
   // Default logo URL, can be overridden by PUBLIC_LOGO_URL in .env
   const defaultLogoUrl = "/logo2x-1.png";

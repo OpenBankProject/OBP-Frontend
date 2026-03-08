@@ -326,29 +326,30 @@ export class ChatState {
 	}
 
 	appendToMessage(messageId: string, text: string): void {
-		const message = this.messages.find((msg) => msg.id === messageId);
-		if (message) {
-			message.message += text; // Append text to the existing message
-			this.messages = [...this.messages]; // Force Svelte reactivity
-			this.emit(); // Notify subscribers about the change
+		const index = this.messages.findIndex((msg) => msg.id === messageId);
+		if (index !== -1) {
+			// Create a new object reference so Svelte detects the change (same ref = no re-render)
+			this.messages[index] = { ...this.messages[index], message: this.messages[index].message + text };
+			this.messages = [...this.messages];
+			this.emit();
 		} else {
-			logger.debug(`Message with ID ${messageId} not found for append operation.`);
+			logger.warn(`Message with ID ${messageId} not found for append operation.`);
 		}
 	}
 
 	markMessageComplete(messageId: string): void {
-		const message = this.messages.find((msg) => msg.id === messageId);
-		if (!message) {
+		const index = this.messages.findIndex((msg) => msg.id === messageId);
+		if (index === -1) {
 			logger.error(`Message ${messageId} not found for completion`);
 			return;
 		}
 
-		if (!message.isStreaming) {
+		if (!this.messages[index].isStreaming) {
 			logger.error(`Message ${messageId} is already marked as complete`);
 			return;
 		}
 
-		message.isStreaming = false;
+		this.messages[index] = { ...this.messages[index], isStreaming: false };
 		this.messages = [...this.messages];
 		this.emit();
 		logger.debug(`Marked message ${messageId} as complete`);

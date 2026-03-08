@@ -13,6 +13,8 @@ export function GET(event: RequestEvent) {
 	}
 
 	// Redirect to the generic provider route for backward compatibility
-	logger.debug(`Redirecting to generic provider route: /login/${provider}`);
-	throw redirect(302, `/login/${provider}`);
+	const redirectTo = event.url.searchParams.get('redirect_to');
+	const providerUrl = `/login/${provider}${redirectTo ? `?redirect_to=${encodeURIComponent(redirectTo)}` : ''}`;
+	logger.debug(`Redirecting to generic provider route: ${providerUrl}`);
+	throw redirect(302, providerUrl);
 }

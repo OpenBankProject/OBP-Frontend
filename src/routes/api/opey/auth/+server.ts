@@ -45,6 +45,8 @@ export async function POST(event: RequestEvent) {
 async function _getAuthenticatedSession(opeyConsumerId: string, portalSession: Session) {
 	// AUTHENTICATED FLOW - Create consent and authenticated Opey session
 
+	logger.info(`_getAuthenticatedSession: Using OPEY_CONSUMER_ID = "${opeyConsumerId}"`);
+
 	const consent = await obpIntegrationService.getOrCreateOpeyConsent(portalSession);
 	const consentJwt = consent.jwt;
 	const consentId = consent.consent_id;
@@ -53,7 +55,7 @@ async function _getAuthenticatedSession(opeyConsumerId: string, portalSession: S
 	// Extract and log user identifier from consent JWT
 	const userIdentifier = extractUsernameFromJWT(consentJwt);
 	logger.info(
-		`_getAuthenticatedSession says: Sending consent JWT to Opey - Making request to ${env.OPEY_BASE_URL}/create-session - Primary user: ${userIdentifier}`
+		`_getAuthenticatedSession: consent_id="${consentId}", consumer_id="${consent.consumer_id}", status="${consent.status}", user="${userIdentifier}" → sending to ${env.OPEY_BASE_URL}/create-session`
 	);
 
 	const opeyResponse = await fetch(`${env.OPEY_BASE_URL}/create-session`, {

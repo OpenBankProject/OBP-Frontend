@@ -72,7 +72,7 @@ function buildMyAccountItems(): NavigationItem[] {
       label: "My Collections",
       iconComponent: FolderOpen,
     },
-    { href: "/user/site-map", label: "Site Map", iconComponent: Map },
+    { href: "/site-map", label: "Site Map", iconComponent: Map },
   ];
 
   // Only add Subscriptions link if PUBLIC_SUBSCRIPTIONS_URL is set

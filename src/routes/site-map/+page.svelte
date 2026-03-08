@@ -167,6 +167,9 @@
   let blockedPages = $derived(totalPages - accessiblePages);
 </script>
 
+<!-- Site Map -->
+<div class="site-map-container">
+
 <!-- Summary -->
 <div class="summary-bar">
   <div class="summary-item">
@@ -265,10 +268,19 @@
   <p class="empty-text">No pages match your search.</p>
 {/if}
 
+</div>
+
 <style>
+  .site-map-container {
+    padding: 1.5rem;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
   /* Summary bar */
   .summary-bar {
     display: flex;
+    flex-wrap: wrap;
     gap: 1rem;
     margin-bottom: 1.5rem;
   }
@@ -369,7 +381,6 @@
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     margin-bottom: 1rem;
-    overflow: hidden;
   }
 
   :global([data-mode="dark"]) .section {
@@ -441,6 +452,7 @@
   .tree-row {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 0;
     padding: 0.3rem 0;
     min-height: 1.75rem;

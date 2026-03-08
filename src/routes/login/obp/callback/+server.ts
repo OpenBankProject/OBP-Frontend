@@ -222,10 +222,19 @@ export async function GET(event: RequestEvent): Promise<Response> {
     });
     await session.save();
     logger.debug("Session data set:", session.data);
+
+    // Redirect to the originally requested URL if available
+    let redirectTo = event.cookies.get("obp_redirect_to") || "/";
+    event.cookies.delete("obp_redirect_to", { path: "/" });
+    // Validate: must start with / to prevent open redirect
+    if (!redirectTo.startsWith("/")) {
+      redirectTo = "/";
+    }
+
     return new Response(null, {
       status: 302,
       headers: {
-        Location: `/`,
+        Location: redirectTo,
       },
     });
   } else {

@@ -55,6 +55,18 @@ export function GET(event: RequestEvent) {
             sameSite: 'lax'
         });
 
+        // Store redirect_to in a separate cookie so we can redirect after login
+        const redirectTo = event.url.searchParams.get('redirect_to');
+        if (redirectTo && redirectTo.startsWith('/')) {
+            event.cookies.set('obp_redirect_to', redirectTo, {
+                httpOnly: true,
+                maxAge: 60 * 10,
+                secure: import.meta.env.PROD,
+                path: '/',
+                sameSite: 'lax'
+            });
+        }
+
         return new Response(null, {
             status: 302,
             headers: {

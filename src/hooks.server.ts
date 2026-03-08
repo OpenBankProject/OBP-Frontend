@@ -7,9 +7,12 @@ import { sveltekitSessionHandle } from "svelte-kit-sessions";
 import RedisStore from "svelte-kit-connect-redis";
 import { Redis } from "ioredis";
 import { env } from "$env/dynamic/private";
+import { PUBLIC_OBP_BASE_URL } from "$env/static/public";
 import { oauth2ProviderManager } from "$lib/oauth/providerManager";
 import { SessionOAuthHelper } from "$lib/oauth/sessionHelper";
 import { resourceDocsCache } from "$lib/stores/resourceDocsCache";
+import { healthCheckRegistry } from "$lib/health-check/HealthCheckRegistry";
+import { ensureSystemActivityTrail } from "$lib/opey/bootstrap/activityTrailEntities";
 
 declare const process: { env: Record<string, string | undefined>; argv: string[] };
 
@@ -83,6 +86,16 @@ if (!env.REDIS_HOST || !env.REDIS_PORT) {
 // Start OAuth2 provider manager (handles initialization and retries automatically)
 await oauth2ProviderManager.start();
 
+// Register and start health checks
+healthCheckRegistry.register({ serviceName: 'OBP API', url: `${PUBLIC_OBP_BASE_URL}/obp/v6.0.0/root` });
+if (env.OPEY_BASE_URL) {
+  healthCheckRegistry.register({ serviceName: 'Opey II', url: `${env.OPEY_BASE_URL}/status` });
+}
+healthCheckRegistry.startAll();
+
+// Bootstrap: ensure activity trail dynamic entity exists (attempted once per server lifecycle)
+let activityTrailBootstrapped = false;
+
 function needsAuthorization(routeId: string): boolean {
   // protected routes are put in the /(protected)/ route group
   return routeId.startsWith("/(protected)/");
@@ -106,10 +119,11 @@ const checkAuthorization: Handle = async ({ event, resolve }) => {
         "No valid OAuth data found in session. Redirecting to login.",
       );
       // Redirect to login page if no OAuth data is found
+      const redirectTo = encodeURIComponent(event.url.pathname + event.url.search);
       return new Response(null, {
         status: 302,
         headers: {
-          Location: "/login",
+          Location: `/login?redirect_to=${redirectTo}`,
         },
       });
     }
@@ -134,10 +148,11 @@ const checkAuthorization: Handle = async ({ event, resolve }) => {
         logger.info("Destroying expired session and redirecting to login.");
         await session.destroy();
 
+        const redirectTo = encodeURIComponent(event.url.pathname + event.url.search);
         return new Response(null, {
           status: 302,
           headers: {
-            Location: "/login",
+            Location: `/login?redirect_to=${redirectTo}`,
           },
         });
       }
@@ -145,10 +160,11 @@ const checkAuthorization: Handle = async ({ event, resolve }) => {
 
     if (!session || !session.data.user) {
       // Redirect to login page if not authenticated
+      const redirectTo = encodeURIComponent(event.url.pathname + event.url.search);
       return new Response(null, {
         status: 302,
         headers: {
-          Location: "/login",
+          Location: `/login?redirect_to=${redirectTo}`,
         },
       });
     } else {
@@ -160,6 +176,21 @@ const checkAuthorization: Handle = async ({ event, resolve }) => {
         resourceDocsCache.preWarmCache(sessionOAuth.accessToken).catch(() => {
           // Silently fail - pre-warming is best-effort
         });
+
+        // Ensure system_activity_trail entity exists (once per server lifecycle)
+        if (!activityTrailBootstrapped) {
+          activityTrailBootstrapped = true;
+          ensureSystemActivityTrail(sessionOAuth.accessToken).then((ok) => {
+            if (!ok) {
+              logger.warn(
+                "WARNING: system_activity_trail entity could not be created. " +
+                  "Ensure the API Manager consumer has the CanCreateSystemLevelDynamicEntity scope. " +
+                  "Opey activity trail features will not work without it."
+              );
+              activityTrailBootstrapped = false; // Allow retry on next request
+            }
+          });
+        }
       }
     }
   }
