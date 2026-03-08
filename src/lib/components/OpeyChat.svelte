@@ -13,7 +13,7 @@
 	import { ChatController } from '$lib/opey/controllers/ChatController';
 	import { SessionState, type SessionSnapshot } from '$lib/opey/state/SessionState';
 	import { ConsentSessionService } from '$lib/opey/services/ConsentSessionService';
-	import type { BaseMessage, ToolMessage } from '$lib/opey/types';
+	import type { ToolMessage } from '$lib/opey/types';
 	import type { OBPConsentInfo } from '$lib/obp/types';
 	import { healthCheckRegistry } from '$lib/health-check/HealthCheckRegistry';
 
@@ -52,7 +52,7 @@
 	}
 	// Default chat options
 	const defaultChatOptions: OpeyChatOptions = {
-		baseUrl: '/api/opey',
+		baseUrl: env.PUBLIC_OPEY_BASE_URL || 'http://localhost:5000',
 		displayHeader: true,
 		currentlyActiveUserName: 'Guest',
 		displayConnectionPips: true,
@@ -74,7 +74,6 @@
 
 	let session: SessionSnapshot = $state({ isAuthenticated: userAuthenticated, status: 'ready' });
 	let chat: ChatStateSnapshot = $state({ threadId: '', messages: [] });
-	let messages: BaseMessage[] = $state([]);
 
 	// Track pending approvals for batch handling
 	let pendingApprovalTools = $derived.by(() => {
@@ -216,7 +215,6 @@
 		sessionState.subscribe((s) => (session = s));
 		chatState.subscribe((c) => {
 			chat = c;
-			messages = [...c.messages];
 		});
 
 		if (options.initialAssistantMessage) {
@@ -560,10 +558,10 @@
 				class="h-full w-full overflow-y-auto overflow-x-hidden py-4 {options.bodyClasses || ''}"
 			>
 				<div class="space-y-4 min-w-0">
-					{#each messages as message, index (message.id)}
+					{#each chat.messages as message, index (message.id)}
 						<ChatMessage
 							{message}
-							previousMessageRole={index > 0 ? messages[index - 1].role : undefined}
+							previousMessageRole={index > 0 ? chat.messages[index - 1].role : undefined}
 							userName={options.currentlyActiveUserName}
 							onApprove={handleApprove}
 							onDeny={handleDeny}
@@ -572,7 +570,7 @@
 							batchApprovalGroup={pendingApprovalTools.length > 1 ? pendingApprovalTools : undefined}
 							onConsent={handleConsent}
 							onConsentDeny={handleConsentDeny}
-							allMessages={messages}
+							allMessages={chat.messages}
 						/>
 					{/each}
 				</div>

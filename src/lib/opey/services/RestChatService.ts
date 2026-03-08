@@ -207,6 +207,7 @@ export class RestChatService implements ChatService {
 				buffer = lines.pop() || ''; // Keep the last incomplete line
 
 				for (const line of lines) {
+					//logger.debug(line);
 					if (line.startsWith('data: ')) {
 						let eventData;
 
@@ -232,7 +233,7 @@ export class RestChatService implements ChatService {
 	}
 
 	private handleStreamEvent(eventData: any): void {
-		logger.debug(`Received stream event type="${eventData?.type}":`, eventData);
+		logger.debug('Received stream event data:', eventData);
 		switch (eventData.type) {
 			case 'user_message_confirmed':
 				this.streamEventCallback?.({
@@ -247,8 +248,7 @@ export class RestChatService implements ChatService {
 				this.streamEventCallback?.({
 					type: 'assistant_start',
 					messageId: eventData.message_id,
-					// Opey sends Unix timestamps in seconds; multiply by 1000 for JS Date (milliseconds)
-					timestamp: new Date(eventData.timestamp * 1000)
+					timestamp: new Date(eventData.timestamp)
 				});
 				break;
 			case 'assistant_token':

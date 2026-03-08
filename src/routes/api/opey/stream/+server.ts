@@ -9,6 +9,8 @@ import { env } from '$env/dynamic/private';
  * Proxies streaming chat requests to the Opey service.
  * The browser sends to this same-origin endpoint (no CORS issues),
  * and SvelteKit forwards to Opey server-side, piping the SSE response back.
+ *
+ * Uses a ReadableStream with explicit chunk-by-chunk enqueue to prevent buffering.
  */
 export async function POST(event: RequestEvent) {
 	const opeyBaseUrl = env.OPEY_BASE_URL || 'http://localhost:5000';
@@ -26,10 +28,17 @@ export async function POST(event: RequestEvent) {
 		body
 	});
 
+	if (!opeyResponse.ok || !opeyResponse.body) {
+		return new Response(opeyResponse.body, {
+			status: opeyResponse.status,
+			headers: { 'Content-Type': 'application/json' }
+		});
+	}
+
 	// Forward any new cookies Opey sets
 	const responseHeaders = new Headers({
-		'Content-Type': opeyResponse.headers.get('Content-Type') || 'text/event-stream',
-		'Cache-Control': 'no-cache',
+		'Content-Type': 'text/event-stream',
+		'Cache-Control': 'no-cache, no-transform',
 		'Connection': 'keep-alive',
 		'X-Accel-Buffering': 'no',
 	});
@@ -40,7 +49,24 @@ export async function POST(event: RequestEvent) {
 	const threadId = opeyResponse.headers.get('X-Thread-ID');
 	if (threadId) responseHeaders.set('X-Thread-ID', threadId);
 
-	return new Response(opeyResponse.body, {
+	// Create a new ReadableStream that reads from the upstream response
+	// chunk by chunk, enqueuing each chunk immediately to prevent buffering.
+	const reader = opeyResponse.body.getReader();
+	const stream = new ReadableStream({
+		async pull(controller) {
+			const { done, value } = await reader.read();
+			if (done) {
+				controller.close();
+				return;
+			}
+			controller.enqueue(value);
+		},
+		cancel() {
+			reader.cancel();
+		}
+	});
+
+	return new Response(stream, {
 		status: opeyResponse.status,
 		headers: responseHeaders
 	});

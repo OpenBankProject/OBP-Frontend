@@ -8,12 +8,12 @@ import { deduplicateRoles, pickConsentRole } from '$lib/opey/utils/roles';
 
 /**
  * POST /api/opey/consent
- * 
+ *
  * Creates a role-specific consent at OBP for a tool call that requires elevated permissions.
  * The frontend sends the required roles from the consent_request event, and this endpoint:
  * 1. Creates a consent with those specific roles via the OBP API
  * 2. Returns the Consent-JWT to the frontend
- * 
+ *
  * The frontend then sends this JWT to the Opey backend via the approval endpoint,
  * where it's injected into the tool call headers (never reaching the LLM).
  */
@@ -63,7 +63,7 @@ export async function POST(event: RequestEvent) {
 
 		// First, get the user's current roles to check what they have access to
 		logger.info('Fetching user entitlements to check available roles...');
-		const userEntitlements = await obp_requests.get('/obp/v6.0.0/my/entitlements', accessToken);
+		const userEntitlements = await obp_requests.get('/obp/v5.1.0/my/entitlements', accessToken);
 		const userRoleNames: string[] = (userEntitlements.list || []).map((e: any) => e.role_name);
 		const userRolesSet = new Set(userRoleNames);
 		logger.info(`User has ${userRoleNames.length} roles:`, userRoleNames);
@@ -117,7 +117,7 @@ export async function POST(event: RequestEvent) {
 		logger.info(`Consent body:`, JSON.stringify(consentBody, null, 2));
 
 		const consent = await obp_requests.post(
-			'/obp/v6.0.0/my/consents/IMPLICIT',
+			'/obp/v5.1.0/my/consents/IMPLICIT',
 			consentBody,
 			accessToken
 		);

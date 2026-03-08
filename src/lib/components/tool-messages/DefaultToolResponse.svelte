@@ -1,7 +1,8 @@
 <script lang="ts">
     import type { ToolMessage } from "$lib/opey/types";
     import { toast } from '$lib/utils/toastService';
-    
+    import { Copy, CheckCircle } from '@lucide/svelte';
+
     let { message }: { message: ToolMessage } = $props();
 
     let outputContent = $derived(
@@ -11,6 +12,8 @@
                 : JSON.stringify(message.toolOutput, null, 2)
             : "No output available."
     );
+
+    let showOutput = $state(false);
 
     async function copyToClipboard() {
         try {
@@ -23,29 +26,44 @@
     }
 </script>
 
-<div class="alert preset-tonal-info">
-    <div class="text-sm mt-2">
-        <strong>Tool:</strong> {message.toolName}
+<div class="card rounded-lg border border-surface-300-700 bg-surface-50-950 p-4 text-left">
+    <!-- Header -->
+    <div class="mb-3 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+            <CheckCircle class="text-success-600-400" size={20} />
+            <h4 class="text-sm font-semibold">Tool Output</h4>
+        </div>
+        <button
+            type="button"
+            class="btn btn-sm preset-tonal-primary"
+            onclick={copyToClipboard}
+            title="Copy output"
+            aria-label="Copy output"
+        >
+            <Copy size={16} />
+            <span class="hidden sm:inline">Copy</span>
+        </button>
     </div>
-    <details class="mt-2">
-        <summary class="cursor-pointer text-xs flex justify-between items-center">
-            <span>View Output</span>
-            <button
-                type="button"
-                class="btn btn-sm preset-tonal-primary"
-                onclick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    copyToClipboard();
-                }}
-                title="Copy output"
-                aria-label="Copy output"
-            >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
-            </button>
-        </summary>
-        <pre class="text-xs mt-2 preset-filled-primary-500 p-2 rounded max-h-96 overflow-auto font-mono whitespace-pre">{outputContent}</pre>
-    </details>
+
+    <!-- Tool Name -->
+    <div class="mb-3">
+        <span class="text-xs font-medium text-surface-600-400">Tool:</span>
+        <code class="ml-2 rounded bg-primary-100-900 px-2 py-1 text-xs">
+            {message.toolName}
+        </code>
+    </div>
+
+    <!-- Output Toggle -->
+    <button
+        type="button"
+        class="btn preset-outlined-primary-500 btn-sm w-full mb-2"
+        onclick={() => showOutput = !showOutput}
+    >
+        {showOutput ? 'Hide' : 'View'} Output
+    </button>
+
+    <!-- Output Content -->
+    {#if showOutput}
+        <pre class="text-xs text-left mt-2 preset-filled-surface-200-800 p-3 rounded-lg max-h-96 overflow-auto font-mono whitespace-pre border border-surface-300-700">{outputContent}</pre>
+    {/if}
 </div>

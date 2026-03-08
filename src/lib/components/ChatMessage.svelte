@@ -79,8 +79,6 @@
 
 	// Compute alignment class
 	let alignmentClass = $derived(message.role === 'user' ? 'items-end' : 'items-start');
-
-	let renderedContent = $derived(renderMarkdown(message.message));
 </script>
 
 <!-- Message container -->
@@ -105,7 +103,7 @@
 
 	<!-- Message content -->
 	<div
-		class="{message.role === 'user' ? 'max-w-3/5' : message.role === 'tool' ? 'w-2/3' : 'w-full'} group relative mt-3"
+		class="{message.role === 'user' ? 'max-w-3/5' : message.role === 'tool' ? 'w-2/3' : 'max-w-full'} group relative mt-3"
 		role="region"
 		aria-label="Chat message"
 	>
@@ -167,7 +165,7 @@
 			{:else}
 				<hr class="hr" />
 				<div class="prose max-w-full rounded-2xl p-2 text-left dark:prose-invert">
-					{@html renderedContent}
+					{@html renderMarkdown(message.message)}
 					{#if message.error}
 						<div class="mt-2">
 							<p class="text-sm text-error-500 dark:text-error-400">
