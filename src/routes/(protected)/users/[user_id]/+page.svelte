@@ -2,11 +2,20 @@
   import type { PageData } from "./$types";
   import { Trash2 } from "@lucide/svelte";
 
+  import { pageDataSummary } from "$lib/stores/pageDataSummary.svelte";
+
   let { data } = $props<{ data: PageData }>();
 
   let user = $derived(data.user);
   let hasApiAccess = $derived(data.hasApiAccess);
   let pageError = $derived(data.error);
+
+  $effect(() => {
+    if (user) {
+      const entitlements = user.entitlements?.length || 0;
+      pageDataSummary.set(`Viewing user ${user.username || user.email} (${user.provider}), ${entitlements} entitlements`);
+    }
+  });
 
   function formatDate(dateString: string): string {
     if (!dateString) return "N/A";

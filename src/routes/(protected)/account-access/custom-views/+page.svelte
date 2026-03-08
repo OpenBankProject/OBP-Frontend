@@ -25,9 +25,9 @@
     const query = searchQuery.toLowerCase();
     return views.filter(
       (view: any) =>
-        view.short_name.toLowerCase().includes(query) ||
-        view.description.toLowerCase().includes(query) ||
-        view.id.toLowerCase().includes(query),
+        view.short_name?.toLowerCase().includes(query) ||
+        view.description?.toLowerCase().includes(query) ||
+        view.view_id?.toLowerCase().includes(query),
     );
   });
 </script>
@@ -122,7 +122,7 @@
           <div class="views-grid">
             {#each filteredViews as view}
               <a
-                href="/account-access/custom-views/{view.id}"
+                href="/account-access/custom-views/{view.bank_id}/{view.account_id}/{view.view_id}"
                 class="view-card"
               >
                 <div class="view-card-header">

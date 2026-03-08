@@ -21,8 +21,13 @@
   let formError = $state("");
   let isSubmitting = $state(false);
 
-  // Get view permissions from API data
-  const allAllowedActions = data.viewPermissions || [];
+  // Get view permissions from API data, grouped by category
+  let permissionsByCategory = $derived(data.permissionsByCategory || []);
+
+  // Flat list of all permissions (for select/deselect all)
+  let allAllowedActions = $derived(
+    permissionsByCategory.flatMap((g: any) => g.permissions),
+  );
 
   // Prepopulate with existing allowed actions
   let selectedActions = $state<string[]>(
@@ -49,6 +54,19 @@
 
   function deselectAllActions() {
     selectedActions = [];
+  }
+
+  function selectAllInGroup(permissions: string[]) {
+    const toAdd = permissions.filter((a) => !selectedActions.includes(a));
+    selectedActions = [...selectedActions, ...toAdd];
+  }
+
+  function deselectAllInGroup(permissions: string[]) {
+    selectedActions = selectedActions.filter((a) => !permissions.includes(a));
+  }
+
+  function countSelectedInGroup(permissions: string[]): number {
+    return permissions.filter((a) => selectedActions.includes(a)).length;
   }
 
   async function handleSubmit(event: Event) {
@@ -335,26 +353,51 @@
                   </button>
                 </div>
               </div>
-              <div
-                class="max-h-96 overflow-y-auto rounded-lg border border-gray-300 bg-gray-50 p-4 dark:border-gray-600 dark:bg-gray-900"
-              >
-                <div class="grid grid-cols-1 gap-2 md:grid-cols-2">
-                  {#each allAllowedActions as action}
-                    <label class="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={selectedActions.includes(action)}
-                        onclick={() => toggleAction(action)}
-                        class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
-                      />
-                      <span
-                        class="ml-2 text-xs text-gray-700 dark:text-gray-300"
-                      >
-                        {action}
+              <div class="space-y-4">
+                {#each permissionsByCategory as group}
+                  <div class="rounded-lg border border-gray-300 dark:border-gray-600">
+                    <div class="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-4 py-2 dark:border-gray-600 dark:bg-gray-800">
+                      <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                        {group.category}
+                        <span class="ml-1 font-normal text-gray-500 dark:text-gray-400">({countSelectedInGroup(group.permissions)}/{group.permissions.length})</span>
                       </span>
-                    </label>
-                  {/each}
-                </div>
+                      <div class="flex gap-2">
+                        <button
+                          type="button"
+                          onclick={() => selectAllInGroup(group.permissions)}
+                          class="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                        >
+                          All
+                        </button>
+                        <button
+                          type="button"
+                          onclick={() => deselectAllInGroup(group.permissions)}
+                          class="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                        >
+                          None
+                        </button>
+                      </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-1 p-3">
+                      {#each group.permissions as action}
+                        <label class="flex items-center rounded px-1 py-0.5 hover:bg-gray-50 dark:hover:bg-gray-800">
+                          <input
+                            type="checkbox"
+                            checked={selectedActions.includes(action)}
+                            onclick={() => toggleAction(action)}
+                            data-testid="action-{action}"
+                            class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
+                          />
+                          <span
+                            class="ml-2 text-xs text-gray-700 dark:text-gray-300"
+                          >
+                            {action}
+                          </span>
+                        </label>
+                      {/each}
+                    </div>
+                  </div>
+                {/each}
               </div>
             </div>
           </div>

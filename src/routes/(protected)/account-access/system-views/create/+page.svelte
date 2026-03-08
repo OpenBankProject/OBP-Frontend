@@ -19,44 +19,17 @@
   let formError = $state("");
   let isSubmitting = $state(false);
 
-  // Get view permissions from API data
-  const allAllowedActions = data.viewPermissions || [];
+  // Get view permissions from API data, grouped by category
+  let permissionsByCategory = $derived(data.permissionsByCategory || []);
+
+  // Flat list of all permissions (for select/deselect all)
+  let allAllowedActions = $derived(
+    permissionsByCategory.flatMap((g: any) => g.permissions),
+  );
 
   let selectedActions = $state<string[]>([]);
   let grantAccessViews = $state("");
   let revokeAccessViews = $state("");
-
-  // Group actions by category based on prefix
-  interface ActionGroup {
-    label: string;
-    actions: string[];
-  }
-
-  let groupedActions = $derived.by(() => {
-    const groups: ActionGroup[] = [
-      { label: "Transaction Permissions", actions: [] },
-      { label: "Account Permissions", actions: [] },
-      { label: "Counterparty Permissions", actions: [] },
-      { label: "Write Permissions", actions: [] },
-      { label: "Other Permissions", actions: [] },
-    ];
-
-    for (const action of allAllowedActions) {
-      if (action.includes("transaction")) {
-        groups[0].actions.push(action);
-      } else if (action.includes("bank_account") || action.includes("bank_routing")) {
-        groups[1].actions.push(action);
-      } else if (action.includes("other_account") || action.includes("other_bank") || action.includes("public_alias") || action.includes("private_alias") || action.includes("counterparty")) {
-        groups[2].actions.push(action);
-      } else if (action.startsWith("can_add_") || action.startsWith("can_delete_") || action.startsWith("can_edit_") || action.startsWith("can_create_")) {
-        groups[3].actions.push(action);
-      } else {
-        groups[4].actions.push(action);
-      }
-    }
-
-    return groups.filter((g) => g.actions.length > 0);
-  });
 
   function toggleAction(action: string) {
     if (selectedActions.includes(action)) {
@@ -74,17 +47,17 @@
     selectedActions = [];
   }
 
-  function selectAllInGroup(group: ActionGroup) {
-    const toAdd = group.actions.filter((a) => !selectedActions.includes(a));
+  function selectAllInGroup(permissions: string[]) {
+    const toAdd = permissions.filter((a) => !selectedActions.includes(a));
     selectedActions = [...selectedActions, ...toAdd];
   }
 
-  function deselectAllInGroup(group: ActionGroup) {
-    selectedActions = selectedActions.filter((a) => !group.actions.includes(a));
+  function deselectAllInGroup(permissions: string[]) {
+    selectedActions = selectedActions.filter((a) => !permissions.includes(a));
   }
 
-  function countSelectedInGroup(group: ActionGroup): number {
-    return group.actions.filter((a) => selectedActions.includes(a)).length;
+  function countSelectedInGroup(permissions: string[]): number {
+    return permissions.filter((a) => selectedActions.includes(a)).length;
   }
 
   async function handleSubmit(event: Event) {
@@ -383,32 +356,32 @@
               </div>
 
               <div class="space-y-4">
-                {#each groupedActions as group}
+                {#each permissionsByCategory as group}
                   <div class="rounded-lg border border-gray-300 dark:border-gray-600">
                     <div class="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-4 py-2 dark:border-gray-600 dark:bg-gray-800">
                       <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                        {group.label}
-                        <span class="ml-1 font-normal text-gray-500 dark:text-gray-400">({countSelectedInGroup(group)}/{group.actions.length})</span>
+                        {group.category}
+                        <span class="ml-1 font-normal text-gray-500 dark:text-gray-400">({countSelectedInGroup(group.permissions)}/{group.permissions.length})</span>
                       </span>
                       <div class="flex gap-2">
                         <button
                           type="button"
-                          onclick={() => selectAllInGroup(group)}
+                          onclick={() => selectAllInGroup(group.permissions)}
                           class="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
                         >
                           All
                         </button>
                         <button
                           type="button"
-                          onclick={() => deselectAllInGroup(group)}
+                          onclick={() => deselectAllInGroup(group.permissions)}
                           class="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
                         >
                           None
                         </button>
                       </div>
                     </div>
-                    <div class="grid grid-cols-1 gap-1 p-3 md:grid-cols-2">
-                      {#each group.actions as action}
+                    <div class="grid grid-cols-3 gap-1 p-3">
+                      {#each group.permissions as action}
                         <label class="flex items-center rounded px-1 py-0.5 hover:bg-gray-50 dark:hover:bg-gray-800">
                           <input
                             type="checkbox"

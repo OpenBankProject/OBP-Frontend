@@ -1,8 +1,10 @@
 <script lang="ts">
   import { page } from "$app/state";
-  import { Landmark, ArrowLeft, Loader2, User, Tag, Route, Copy, Check } from "@lucide/svelte";
+  import { Landmark, ArrowLeft, Loader2, User, Tag, Route, Copy, Check, Plus } from "@lucide/svelte";
   import { trackedFetch } from "$lib/utils/trackedFetch";
   import MissingRoleAlert from "$lib/components/MissingRoleAlert.svelte";
+
+  import { pageDataSummary } from "$lib/stores/pageDataSummary.svelte";
 
   let { data }: { data: any } = $props();
 
@@ -42,6 +44,14 @@
   let account = $state<any>(null);
   let loading = $state(false);
   let error = $state<string | null>(null);
+
+  $effect(() => {
+    if (account) {
+      const views = account.views_available?.length || 0;
+      const label = account.label || account.account_id || "";
+      pageDataSummary.set(`Viewing account ${label} at ${account.bank_id}, ${views} views available`);
+    }
+  });
   let hasAccountAccess = $state<boolean | null>(null);
   let accessSource = $state<string>("");
   let abacRuleId = $state<string>("");
@@ -189,6 +199,60 @@
     ]);
     if (account?.views_available?.length) {
       await fetchUsersWithAccess(bankId, accountId, account.views_available);
+    }
+  }
+
+  // Add Account Attribute
+  let showAddAttribute = $state(false);
+  let newAttrName = $state("");
+  let newAttrType = $state("STRING");
+  let newAttrValue = $state("");
+  let addingAttribute = $state(false);
+  let addAttributeError = $state<string | null>(null);
+
+  async function addAccountAttribute() {
+    if (!newAttrName.trim() || !newAttrValue.trim()) return;
+
+    const productCode = account?.product_code || "NONE";
+    addingAttribute = true;
+    addAttributeError = null;
+
+    try {
+      const res = await trackedFetch(
+        `/api/obp/banks/${encodeURIComponent(bankId)}/accounts/${encodeURIComponent(accountId)}/products/${encodeURIComponent(productCode)}/attribute`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: newAttrName.trim(),
+            type: newAttrType,
+            value: newAttrValue.trim(),
+          }),
+        }
+      );
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to create account attribute");
+      }
+
+      const created = await res.json();
+
+      // Add to existing attributes list
+      if (!account.account_attributes) {
+        account.account_attributes = [];
+      }
+      account.account_attributes = [...account.account_attributes, created];
+
+      // Reset form
+      newAttrName = "";
+      newAttrType = "STRING";
+      newAttrValue = "";
+      showAddAttribute = false;
+    } catch (err) {
+      addAttributeError = err instanceof Error ? err.message : "Failed to create account attribute";
+    } finally {
+      addingAttribute = false;
     }
   }
 
@@ -345,15 +409,100 @@
         {/if}
 
         <!-- Account Attributes -->
-        {#if account.account_attributes && account.account_attributes.length > 0}
-          <section class="info-section">
-            <h2 class="section-title">
+        <section class="info-section">
+          <div class="section-header-row">
+            <h2 class="section-title" style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">
               <Tag size={16} />
-              Account Attributes ({account.account_attributes.length})
+              Account Attributes ({account.account_attributes?.length || 0})
             </h2>
+            <button
+              type="button"
+              class="btn-add"
+              data-testid="add-account-attribute"
+              onclick={() => { showAddAttribute = !showAddAttribute; addAttributeError = null; }}
+            >
+              <Plus size={14} />
+              Add
+            </button>
+          </div>
+
+          {#if showAddAttribute}
+            <div class="add-attribute-form" data-testid="add-attribute-form">
+              {#if addAttributeError}
+                <div class="attr-error">{addAttributeError}</div>
+              {/if}
+              <div class="attr-form-row">
+                <div class="attr-form-field">
+                  <label for="attr-name" class="attr-form-label">Name</label>
+                  <input
+                    type="text"
+                    id="attr-name"
+                    name="attr-name"
+                    class="attr-form-input"
+                    data-testid="attr-name"
+                    placeholder="e.g. LOAN_ID, REQUIRED_CHALLENGE_ANSWERS"
+                    bind:value={newAttrName}
+                  />
+                </div>
+                <div class="attr-form-field">
+                  <label for="attr-type" class="attr-form-label">Type</label>
+                  <select
+                    id="attr-type"
+                    name="attr-type"
+                    class="attr-form-input"
+                    data-testid="attr-type"
+                    bind:value={newAttrType}
+                  >
+                    <option value="STRING">STRING</option>
+                    <option value="INTEGER">INTEGER</option>
+                    <option value="DOUBLE">DOUBLE</option>
+                    <option value="DATE_WITH_DAY">DATE_WITH_DAY</option>
+                  </select>
+                </div>
+                <div class="attr-form-field attr-form-field-grow">
+                  <label for="attr-value" class="attr-form-label">Value</label>
+                  <input
+                    type="text"
+                    id="attr-value"
+                    name="attr-value"
+                    class="attr-form-input"
+                    data-testid="attr-value"
+                    placeholder="Attribute value"
+                    bind:value={newAttrValue}
+                  />
+                </div>
+                <div class="attr-form-actions">
+                  <button
+                    type="button"
+                    class="btn-attr-save"
+                    data-testid="save-attribute"
+                    disabled={!newAttrName.trim() || !newAttrValue.trim() || addingAttribute}
+                    onclick={addAccountAttribute}
+                  >
+                    {#if addingAttribute}
+                      <Loader2 size={14} class="spinner-icon" />
+                    {:else}
+                      Save
+                    {/if}
+                  </button>
+                  <button
+                    type="button"
+                    class="btn-attr-cancel"
+                    data-testid="cancel-attribute"
+                    onclick={() => { showAddAttribute = false; addAttributeError = null; }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+              <p class="attr-form-hint">REQUIRED_CHALLENGE_ANSWERS can be used to enforce multi-signature by SCA.</p>
+            </div>
+          {/if}
+
+          {#if account.account_attributes && account.account_attributes.length > 0}
             <div class="attributes-list">
               {#each account.account_attributes as attr}
-                <div class="attribute-item">
+                <div class="attribute-item" data-testid="attribute-{attr.name}">
                   <span class="attribute-name">{attr.name || attr.product_code}</span>
                   <span class="attribute-value">{attr.value}</span>
                   {#if attr.type}
@@ -362,8 +511,10 @@
                 </div>
               {/each}
             </div>
-          </section>
-        {/if}
+          {:else if !showAddAttribute}
+            <p class="no-attributes">No account attributes</p>
+          {/if}
+        </section>
 
         <!-- Tags -->
         {#if account.tags && account.tags.length > 0}
@@ -1017,6 +1168,210 @@
 
   :global([data-mode="dark"]) .attribute-type {
     background: rgb(var(--color-surface-700));
+    color: var(--color-surface-400);
+  }
+
+  .no-attributes {
+    font-size: 0.813rem;
+    color: #9ca3af;
+    margin: 0.5rem 0 0 0;
+  }
+
+  :global([data-mode="dark"]) .no-attributes {
+    color: var(--color-surface-500);
+  }
+
+  /* Add attribute */
+  .section-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  :global([data-mode="dark"]) .section-header-row {
+    border-bottom-color: rgb(var(--color-surface-700));
+  }
+
+  .btn-add {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.3rem 0.625rem;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+
+  .btn-add:hover {
+    background: #2563eb;
+  }
+
+  :global([data-mode="dark"]) .btn-add {
+    background: rgb(var(--color-primary-600));
+  }
+
+  :global([data-mode="dark"]) .btn-add:hover {
+    background: rgb(var(--color-primary-500));
+  }
+
+  .add-attribute-form {
+    margin-bottom: 0.75rem;
+    padding: 0.75rem;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+  }
+
+  :global([data-mode="dark"]) .add-attribute-form {
+    background: rgb(var(--color-surface-900));
+    border-color: rgb(var(--color-surface-700));
+  }
+
+  .attr-error {
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 0.5rem;
+    background: #fef2f2;
+    border: 1px solid #fca5a5;
+    border-radius: 4px;
+    color: #991b1b;
+    font-size: 0.8rem;
+  }
+
+  :global([data-mode="dark"]) .attr-error {
+    background: rgba(220, 38, 38, 0.1);
+    border-color: rgba(220, 38, 38, 0.3);
+    color: rgb(var(--color-error-300));
+  }
+
+  .attr-form-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-end;
+    flex-wrap: wrap;
+  }
+
+  .attr-form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-width: 120px;
+  }
+
+  .attr-form-field-grow {
+    flex: 1;
+  }
+
+  .attr-form-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  :global([data-mode="dark"]) .attr-form-label {
+    color: var(--color-surface-400);
+  }
+
+  .attr-form-input {
+    padding: 0.375rem 0.5rem;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 0.813rem;
+    background: white;
+    color: #111827;
+  }
+
+  .attr-form-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+  }
+
+  :global([data-mode="dark"]) .attr-form-input {
+    background: rgb(var(--color-surface-800));
+    border-color: rgb(var(--color-surface-600));
+    color: var(--color-surface-100);
+  }
+
+  :global([data-mode="dark"]) .attr-form-input:focus {
+    border-color: rgb(var(--color-primary-500));
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  }
+
+  .attr-form-actions {
+    display: flex;
+    gap: 0.375rem;
+    align-items: center;
+  }
+
+  .btn-attr-save {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.375rem 0.75rem;
+    background: #10b981;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.813rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .btn-attr-save:hover:not(:disabled) {
+    background: #059669;
+  }
+
+  .btn-attr-save:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .btn-attr-save :global(.spinner-icon) {
+    animation: spin 1s linear infinite;
+  }
+
+  .btn-attr-cancel {
+    padding: 0.375rem 0.75rem;
+    background: none;
+    color: #6b7280;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 0.813rem;
+    cursor: pointer;
+  }
+
+  .btn-attr-cancel:hover {
+    background: #f3f4f6;
+  }
+
+  :global([data-mode="dark"]) .btn-attr-cancel {
+    color: var(--color-surface-400);
+    border-color: rgb(var(--color-surface-600));
+  }
+
+  :global([data-mode="dark"]) .btn-attr-cancel:hover {
+    background: rgb(var(--color-surface-800));
+  }
+
+  .attr-form-hint {
+    margin: 0.5rem 0 0 0;
+    font-size: 0.75rem;
+    color: #6b7280;
+  }
+
+  :global([data-mode="dark"]) .attr-form-hint {
     color: var(--color-surface-400);
   }
 

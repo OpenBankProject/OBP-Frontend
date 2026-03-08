@@ -1,15 +1,7 @@
 <script lang="ts">
-  import { pageDataSummary } from "$lib/stores/pageDataSummary.svelte";
-
   let { data } = $props();
   const consumers = data.consumers;
   const errorMessage = data.error;
-
-  $effect(() => {
-    const count = consumers?.length || 0;
-    const enabled = (consumers || []).filter((c: any) => c.enabled).length;
-    pageDataSummary.set(`${count} consumers (${enabled} enabled)`);
-  });
 
   let searchQuery = $state("");
 

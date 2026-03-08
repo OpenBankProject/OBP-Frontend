@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { PageData } from "./$types";
-  import { Eye, ArrowLeft, Shield, AlertCircle, Save } from "@lucide/svelte";
+  import { Eye, ArrowLeft, Shield, Save } from "@lucide/svelte";
   import { goto } from "$app/navigation";
   import MissingRoleAlert from "$lib/components/MissingRoleAlert.svelte";
   import { currentBank } from "$lib/stores/currentBank.svelte";
@@ -89,81 +89,23 @@
     accountResults = [];
   }
 
-  // Permission checkboxes state - organized by category
-  let transactionPermissions = $state({
-    can_see_transaction_this_bank_account: false,
-    can_see_transaction_other_bank_account: false,
-    can_see_transaction_metadata: false,
-    can_see_transaction_label: false,
-    can_see_transaction_amount: false,
-    can_see_transaction_type: false,
-    can_see_transaction_currency: false,
-    can_see_transaction_start_date: false,
-    can_see_transaction_finish_date: false,
-    can_see_transaction_balance: false,
-  });
+  // Permission checkboxes state - driven by API response
+  let permissionsByCategory = $derived(data.permissionsByCategory || []);
 
-  let accountPermissions = $state({
-    can_see_bank_account_owners: false,
-    can_see_bank_account_type: false,
-    can_see_bank_account_balance: false,
-    can_see_bank_account_currency: false,
-    can_see_bank_account_label: false,
-    can_see_bank_account_national_identifier: false,
-    can_see_bank_account_swift_bic: false,
-    can_see_bank_account_iban: false,
-    can_see_bank_account_number: false,
-    can_see_bank_account_bank_name: false,
-    can_see_bank_account_credit_limit: false,
-  });
-
-  let counterpartyPermissions = $state({
-    can_see_other_account_national_identifier: false,
-    can_see_other_account_swift_bic: false,
-    can_see_other_account_iban: false,
-    can_see_other_account_bank_name: false,
-    can_see_other_account_number: false,
-    can_see_other_account_metadata: false,
-    can_see_other_account_kind: false,
-    can_see_public_alias: false,
-    can_see_private_alias: false,
-  });
-
-  let otherPermissions = $state({
-    can_see_comments: false,
-    can_see_narrative: false,
-    can_see_tags: false,
-    can_see_images: false,
-    can_see_more_info: false,
-    can_see_url: false,
-    can_see_image_url: false,
-    can_see_where_tag: false,
-  });
-
-  let writePermissions = $state({
-    can_add_comment: false,
-    can_delete_comment: false,
-    can_add_tag: false,
-    can_delete_tag: false,
-    can_add_image: false,
-    can_delete_image: false,
-    can_edit_narrative: false,
-    can_create_counterparty: false,
-    can_add_transaction_request_to_own_account: false,
-    can_add_transaction_request_to_any_account: false,
-  });
+  // Track which permissions are selected: permission name -> boolean
+  let selectedPermissions = $state<Record<string, boolean>>({});
 
   // Helper functions for bulk selection
-  function selectAllInCategory(category: any) {
-    Object.keys(category).forEach((key) => {
-      category[key] = true;
-    });
+  function selectAllInCategory(permissions: string[]) {
+    for (const p of permissions) {
+      selectedPermissions[p] = true;
+    }
   }
 
-  function deselectAllInCategory(category: any) {
-    Object.keys(category).forEach((key) => {
-      category[key] = false;
-    });
+  function deselectAllInCategory(permissions: string[]) {
+    for (const p of permissions) {
+      selectedPermissions[p] = false;
+    }
   }
 
   // Validation
@@ -191,6 +133,11 @@
     submitSuccess = false;
 
     try {
+      // Build the list of enabled permissions
+      const enabledPermissions = Object.entries(selectedPermissions)
+        .filter(([, value]) => value)
+        .map(([key]) => key);
+
       // Build the request payload
       const payload: any = {
         name: formData.name.trim(),
@@ -199,21 +146,8 @@
         metadata_view: formData.metadata_view.trim() || "_0",
         which_alias_to_use: formData.which_alias_to_use.trim(),
         hide_metadata_if_alias_used: formData.hide_metadata_if_alias_used,
-        allowed_actions: formData.allowed_actions,
+        allowed_actions: enabledPermissions,
       };
-
-      // Add all enabled permissions to the payload
-      Object.entries({
-        ...transactionPermissions,
-        ...accountPermissions,
-        ...counterpartyPermissions,
-        ...otherPermissions,
-        ...writePermissions,
-      }).forEach(([key, value]) => {
-        if (value) {
-          payload[key] = [];
-        }
-      });
 
       // Make the API call
       const response = await fetch(
@@ -237,7 +171,7 @@
 
       // Redirect to the new view's detail page after showing success message
       setTimeout(() => {
-        goto(`/account-access/custom-views/${result.id}`);
+        goto(`/account-access/custom-views/${result.view_id}`);
       }, 2500);
     } catch (err) {
       submitError =
@@ -472,532 +406,51 @@
             </div>
           </section>
 
-          <!-- Transaction Permissions Section -->
-          <section class="form-section">
-            <div class="section-header">
-              <h2 class="section-title">
-                <Shield size={20} />
-                Transaction Permissions
-              </h2>
-              <div class="section-actions">
-                <button
-                  type="button"
-                  class="btn-link"
-                  onclick={() => selectAllInCategory(transactionPermissions)}
-                >
-                  Select All
-                </button>
-                <button
-                  type="button"
-                  class="btn-link"
-                  onclick={() => deselectAllInCategory(transactionPermissions)}
-                >
-                  Deselect All
-                </button>
+          <!-- Permissions Sections (from API) -->
+          {#each permissionsByCategory as group}
+            <section class="form-section">
+              <div class="section-header">
+                <h2 class="section-title">
+                  <Shield size={20} />
+                  {group.category} Permissions
+                </h2>
+                <div class="section-actions">
+                  <button
+                    type="button"
+                    class="btn-link"
+                    onclick={() => selectAllInCategory(group.permissions)}
+                  >
+                    Select All
+                  </button>
+                  <button
+                    type="button"
+                    class="btn-link"
+                    onclick={() => deselectAllInCategory(group.permissions)}
+                  >
+                    Deselect All
+                  </button>
+                </div>
               </div>
-            </div>
 
-            <div class="permissions-grid">
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={
-                    transactionPermissions.can_see_transaction_this_bank_account
-                  }
-                />
-                <span>This Bank Account</span>
-              </label>
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={
-                    transactionPermissions.can_see_transaction_other_bank_account
-                  }
-                />
-                <span>Other Bank Account</span>
-              </label>
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={
-                    transactionPermissions.can_see_transaction_metadata
-                  }
-                />
-                <span>Metadata</span>
-              </label>
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={
-                    transactionPermissions.can_see_transaction_label
-                  }
-                />
-                <span>Label</span>
-              </label>
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={
-                    transactionPermissions.can_see_transaction_amount
-                  }
-                />
-                <span>Amount</span>
-              </label>
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={transactionPermissions.can_see_transaction_type}
-                />
-                <span>Type</span>
-              </label>
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={
-                    transactionPermissions.can_see_transaction_currency
-                  }
-                />
-                <span>Currency</span>
-              </label>
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={
-                    transactionPermissions.can_see_transaction_start_date
-                  }
-                />
-                <span>Start Date</span>
-              </label>
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={
-                    transactionPermissions.can_see_transaction_finish_date
-                  }
-                />
-                <span>Finish Date</span>
-              </label>
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={
-                    transactionPermissions.can_see_transaction_balance
-                  }
-                />
-                <span>Balance</span>
-              </label>
-            </div>
-          </section>
-
-          <!-- Account Permissions Section -->
-          <section class="form-section">
-            <div class="section-header">
-              <h2 class="section-title">
-                <Shield size={20} />
-                Account Permissions
-              </h2>
-              <div class="section-actions">
-                <button
-                  type="button"
-                  class="btn-link"
-                  onclick={() => selectAllInCategory(accountPermissions)}
-                >
-                  Select All
-                </button>
-                <button
-                  type="button"
-                  class="btn-link"
-                  onclick={() => deselectAllInCategory(accountPermissions)}
-                >
-                  Deselect All
-                </button>
+              <div class="permissions-grid">
+                {#each group.permissions as permission}
+                  <label class="permission-checkbox">
+                    <input
+                      type="checkbox"
+                      bind:checked={selectedPermissions[permission]}
+                    />
+                    <span>{permission}</span>
+                  </label>
+                {/each}
               </div>
-            </div>
+            </section>
+          {/each}
 
-            <div class="permissions-grid">
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={accountPermissions.can_see_bank_account_owners}
-                />
-                <span>Owners</span>
-              </label>
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={accountPermissions.can_see_bank_account_type}
-                />
-                <span>Type</span>
-              </label>
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={accountPermissions.can_see_bank_account_balance}
-                />
-                <span>Balance</span>
-              </label>
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={
-                    accountPermissions.can_see_bank_account_currency
-                  }
-                />
-                <span>Currency</span>
-              </label>
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={accountPermissions.can_see_bank_account_label}
-                />
-                <span>Label</span>
-              </label>
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={
-                    accountPermissions.can_see_bank_account_national_identifier
-                  }
-                />
-                <span>National Identifier</span>
-              </label>
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={
-                    accountPermissions.can_see_bank_account_swift_bic
-                  }
-                />
-                <span>SWIFT BIC</span>
-              </label>
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={accountPermissions.can_see_bank_account_iban}
-                />
-                <span>IBAN</span>
-              </label>
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={accountPermissions.can_see_bank_account_number}
-                />
-                <span>Number</span>
-              </label>
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={
-                    accountPermissions.can_see_bank_account_bank_name
-                  }
-                />
-                <span>Bank Name</span>
-              </label>
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={
-                    accountPermissions.can_see_bank_account_credit_limit
-                  }
-                />
-                <span>Credit Limit</span>
-              </label>
+          {#if permissionsByCategory.length === 0}
+            <div class="error-message">
+              <p>Could not load available permissions from the API.</p>
             </div>
-          </section>
-
-          <!-- Counterparty Permissions Section -->
-          <section class="form-section">
-            <div class="section-header">
-              <h2 class="section-title">
-                <Shield size={20} />
-                Counterparty Permissions
-              </h2>
-              <div class="section-actions">
-                <button
-                  type="button"
-                  class="btn-link"
-                  onclick={() => selectAllInCategory(counterpartyPermissions)}
-                >
-                  Select All
-                </button>
-                <button
-                  type="button"
-                  class="btn-link"
-                  onclick={() => deselectAllInCategory(counterpartyPermissions)}
-                >
-                  Deselect All
-                </button>
-              </div>
-            </div>
-
-            <div class="permissions-grid">
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={
-                    counterpartyPermissions.can_see_other_account_national_identifier
-                  }
-                />
-                <span>National Identifier</span>
-              </label>
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={
-                    counterpartyPermissions.can_see_other_account_swift_bic
-                  }
-                />
-                <span>SWIFT BIC</span>
-              </label>
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={
-                    counterpartyPermissions.can_see_other_account_iban
-                  }
-                />
-                <span>IBAN</span>
-              </label>
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={
-                    counterpartyPermissions.can_see_other_account_bank_name
-                  }
-                />
-                <span>Bank Name</span>
-              </label>
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={
-                    counterpartyPermissions.can_see_other_account_number
-                  }
-                />
-                <span>Number</span>
-              </label>
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={
-                    counterpartyPermissions.can_see_other_account_metadata
-                  }
-                />
-                <span>Metadata</span>
-              </label>
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={
-                    counterpartyPermissions.can_see_other_account_kind
-                  }
-                />
-                <span>Kind</span>
-              </label>
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={counterpartyPermissions.can_see_public_alias}
-                />
-                <span>Public Alias</span>
-              </label>
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={counterpartyPermissions.can_see_private_alias}
-                />
-                <span>Private Alias</span>
-              </label>
-            </div>
-          </section>
-
-          <!-- Other Permissions Section -->
-          <section class="form-section">
-            <div class="section-header">
-              <h2 class="section-title">
-                <Shield size={20} />
-                Other Permissions
-              </h2>
-              <div class="section-actions">
-                <button
-                  type="button"
-                  class="btn-link"
-                  onclick={() => selectAllInCategory(otherPermissions)}
-                >
-                  Select All
-                </button>
-                <button
-                  type="button"
-                  class="btn-link"
-                  onclick={() => deselectAllInCategory(otherPermissions)}
-                >
-                  Deselect All
-                </button>
-              </div>
-            </div>
-
-            <div class="permissions-grid">
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={otherPermissions.can_see_comments}
-                />
-                <span>Comments</span>
-              </label>
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={otherPermissions.can_see_narrative}
-                />
-                <span>Narrative</span>
-              </label>
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={otherPermissions.can_see_tags}
-                />
-                <span>Tags</span>
-              </label>
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={otherPermissions.can_see_images}
-                />
-                <span>Images</span>
-              </label>
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={otherPermissions.can_see_more_info}
-                />
-                <span>More Info</span>
-              </label>
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={otherPermissions.can_see_url}
-                />
-                <span>URL</span>
-              </label>
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={otherPermissions.can_see_image_url}
-                />
-                <span>Image URL</span>
-              </label>
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={otherPermissions.can_see_where_tag}
-                />
-                <span>Where Tag</span>
-              </label>
-            </div>
-          </section>
-
-          <!-- Write Permissions Section -->
-          <section class="form-section">
-            <div class="section-header">
-              <h2 class="section-title">
-                <AlertCircle size={20} />
-                Write Permissions
-              </h2>
-              <div class="section-actions">
-                <button
-                  type="button"
-                  class="btn-link"
-                  onclick={() => selectAllInCategory(writePermissions)}
-                >
-                  Select All
-                </button>
-                <button
-                  type="button"
-                  class="btn-link"
-                  onclick={() => deselectAllInCategory(writePermissions)}
-                >
-                  Deselect All
-                </button>
-              </div>
-            </div>
-
-            <div class="permissions-grid">
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={writePermissions.can_add_comment}
-                />
-                <span>Add Comment</span>
-              </label>
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={writePermissions.can_delete_comment}
-                />
-                <span>Delete Comment</span>
-              </label>
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={writePermissions.can_add_tag}
-                />
-                <span>Add Tag</span>
-              </label>
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={writePermissions.can_delete_tag}
-                />
-                <span>Delete Tag</span>
-              </label>
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={writePermissions.can_add_image}
-                />
-                <span>Add Image</span>
-              </label>
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={writePermissions.can_delete_image}
-                />
-                <span>Delete Image</span>
-              </label>
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={writePermissions.can_edit_narrative}
-                />
-                <span>Edit Narrative</span>
-              </label>
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={writePermissions.can_create_counterparty}
-                />
-                <span>Create Counterparty</span>
-              </label>
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={
-                    writePermissions.can_add_transaction_request_to_own_account
-                  }
-                />
-                <span>Transaction Request (Own)</span>
-              </label>
-              <label class="permission-checkbox">
-                <input
-                  type="checkbox"
-                  bind:checked={
-                    writePermissions.can_add_transaction_request_to_any_account
-                  }
-                />
-                <span>Transaction Request (Any)</span>
-              </label>
-            </div>
-          </section>
+          {/if}
 
           <!-- Validation Errors -->
           {#if submitAttempted && validationErrors.length > 0}
@@ -1413,7 +866,7 @@
 
   .permissions-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 1rem;
   }
 

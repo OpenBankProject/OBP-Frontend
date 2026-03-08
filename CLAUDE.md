@@ -4,6 +4,10 @@
 
 - Never deflect blame or make excuses like "this isn't related to my changes". Just focus on diagnosing and fixing the problem.
 
+## Code style
+
+- Do not use fallbacks (e.g. `value || otherValue`). Use the correct field name directly. If the field name is wrong, fix it — don't paper over it.
+
 ## UX tone
 
 - Do not add patronising or condescending warnings, tooltips, or helper text (e.g. "Use with caution", "Are you sure?", "This action cannot be undone"). Trust that users understand what they are doing.

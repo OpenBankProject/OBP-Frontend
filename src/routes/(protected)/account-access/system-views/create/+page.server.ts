@@ -17,47 +17,38 @@ export const load: PageServerLoad = async ({ locals }) => {
     });
   }
 
-  // Fetch available view permissions from OBP API
-  let viewPermissions: string[] = [];
+  // Fetch available view permissions from OBP API, grouped by category
+  let permissionsByCategory: { category: string; permissions: string[] }[] = [];
   try {
     const response = await obp_requests.get(
       "/obp/v6.0.0/management/view-permissions",
       token,
     );
 
-    // Log the response to see structure
-    logger.debug(
-      "View permissions response:",
-      JSON.stringify(response, null, 2),
-    );
-
-    // Extract permission names - response.permissions might be an array of objects
     const permissions = response.permissions || [];
-
-    // If permissions are objects with a 'permission' field, extract it
-    if (permissions.length > 0 && typeof permissions[0] === "object") {
-      viewPermissions = permissions.map(
-        (p: any) => p.permission || p.name || p,
-      );
-    } else {
-      viewPermissions = permissions;
+    const categoryMap = new Map<string, string[]>();
+    for (const p of permissions) {
+      const name = typeof p === "object" ? (p.permission || p.name) : p;
+      const category = typeof p === "object" ? (p.category || "Other") : "Other";
+      const perms = categoryMap.get(category) || [];
+      perms.push(name);
+      categoryMap.set(category, perms);
     }
 
-    // Sort permissions alphabetically
-    viewPermissions.sort();
+    permissionsByCategory = Array.from(categoryMap.entries()).map(
+      ([category, perms]) => ({ category, permissions: perms }),
+    );
 
     logger.debug(
-      `Retrieved ${viewPermissions.length} view permissions from API`,
+      `Retrieved ${permissions.length} view permissions in ${permissionsByCategory.length} categories`,
     );
   } catch (e) {
     logger.error("Error fetching view permissions:", e);
-    // Don't fail the page load, just use empty array
-    viewPermissions = [];
   }
 
   logger.debug("Create system view page loaded");
 
   return {
-    viewPermissions,
+    permissionsByCategory,
   };
 };

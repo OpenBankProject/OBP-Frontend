@@ -11,17 +11,9 @@
 
   let { data } = $props<{ data: PageData }>();
 
-  import { pageDataSummary } from "$lib/stores/pageDataSummary.svelte";
-
   let roles = $derived(data.roles || []);
   let hasApiAccess = $derived(data.hasApiAccess);
   let error = $derived(data.error);
-
-  $effect(() => {
-    const count = roles.length;
-    const totalEntitlements = roles.reduce((sum: number, r: any) => sum + (r.entitlement_count || 0), 0);
-    pageDataSummary.set(`${count} roles with ${totalEntitlements} total entitlements`);
-  });
   // Parse OBP error to extract missing role information
   let parsedError = $derived.by(() => {
     if (!error) return null;

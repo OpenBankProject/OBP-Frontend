@@ -4,10 +4,19 @@
   import MissingRoleAlert from "$lib/components/MissingRoleAlert.svelte";
   import { currentBank } from "$lib/stores/currentBank.svelte";
 
+  import { pageDataSummary } from "$lib/stores/pageDataSummary.svelte";
+
   let { data, form } = $props();
 
   let consumer = $derived(data.consumer);
   let scopes = $derived(data.scopes || []);
+
+  $effect(() => {
+    if (consumer) {
+      const status = consumer.enabled ? "enabled" : "disabled";
+      pageDataSummary.set(`Viewing consumer ${consumer.app_name || consumer.consumer_id} (${status}), ${scopes.length} scopes`);
+    }
+  });
   let availableRoles = $derived(data.availableRoles || []);
   let banks = $derived(data.banks || []);
   const userEntitlements = data.userEntitlements || [];

@@ -5,7 +5,6 @@
   import type { PageData } from "./$types";
   import { configHelpers } from "$lib/config";
   import MetricsQueryForm from "$lib/components/metrics/MetricsQueryForm.svelte";
-  import { pageDataSummary } from "$lib/stores/pageDataSummary.svelte";
 
   let { data } = $props<{ data: PageData }>();
 
@@ -25,14 +24,6 @@
   let metrics = $derived(data.metrics);
   let hasApiAccess = $derived(data.hasApiAccess);
   let error = $derived(data.error);
-
-  $effect(() => {
-    if (metrics) {
-      const count = metrics.metrics?.length || 0;
-      const topOps = [...new Set((metrics.metrics || []).slice(0, 20).map((m: any) => m.operation_id))].slice(0, 3).join(", ");
-      pageDataSummary.set(`${metrics.count ?? count} API calls recorded${topOps ? `. Recent operations: ${topOps}` : ""}`);
-    }
-  });
 
   // Debug reactive statements
   $effect(() => {

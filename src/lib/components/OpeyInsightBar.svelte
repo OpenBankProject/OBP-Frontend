@@ -22,16 +22,15 @@
     loading = true;
 
     try {
-      // Build a rich notebook note from navigation + page data
-      const dataPart = pageDataSummary.value
-        ? ` — ${pageDataSummary.value}`
-        : "";
-      await insightService.writeNote(`Navigated to ${pageContext}${dataPart}`);
+      // Only write to notebook on detail pages (when pageDataSummary has content)
+      if (pageDataSummary.value) {
+        await insightService.writeNote(`${pageContext} — ${pageDataSummary.value}`);
+      }
 
       // Fetch last 10 notebook entries
       const recentNotes = await insightService.getRecentNotes(10);
 
-      // Ask Opey for a short insight
+      // Ask Opey for a short insight based on notebook + current page
       const insight = await insightService.getInsight(pageContext, recentNotes);
 
       insightText = insight || "";

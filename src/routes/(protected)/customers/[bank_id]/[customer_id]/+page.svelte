@@ -35,9 +35,19 @@
     }>;
   }
 
+  import { pageDataSummary } from "$lib/stores/pageDataSummary.svelte";
+
   let customer = $state<CustomerDetail | null>(null);
   let loading = $state(false);
   let error = $state<string | null>(null);
+
+  $effect(() => {
+    if (customer) {
+      const kyc = customer.kyc_status ? "KYC complete" : "KYC incomplete";
+      const attrs = customer.customer_attributes?.length || 0;
+      pageDataSummary.set(`Viewing customer ${customer.legal_name} at ${customer.bank_id}, ${kyc}, ${attrs} attributes`);
+    }
+  });
 
   let bankId = $derived(page.params.bank_id || "");
   let customerId = $derived(page.params.customer_id || "");

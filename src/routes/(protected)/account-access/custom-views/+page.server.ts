@@ -7,7 +7,7 @@ import { SessionOAuthHelper } from "$lib/oauth/sessionHelper";
 const logger = createLogger("CustomViewsPageServer");
 
 interface CustomView {
-  id: string;
+  view_id: string;
   short_name: string;
   description: string;
   is_public: boolean;

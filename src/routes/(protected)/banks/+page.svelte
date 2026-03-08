@@ -1,15 +1,8 @@
 <script lang="ts">
   import type { PageData } from "./$types";
   import { currentBank } from "$lib/stores/currentBank.svelte";
-  import { pageDataSummary } from "$lib/stores/pageDataSummary.svelte";
 
   let { data }: { data: PageData } = $props();
-
-  $effect(() => {
-    const count = data.banks?.length || 0;
-    const names = (data.banks || []).slice(0, 5).map((b: any) => b.full_name).join(", ");
-    pageDataSummary.set(`${count} banks loaded${names ? `: ${names}` : ""}`);
-  });
 
   let searchQuery = $state("");
 

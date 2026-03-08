@@ -2,7 +2,6 @@
   import { UserRound, Search, X, Loader2, Landmark } from "@lucide/svelte";
   import { currentBank } from "$lib/stores/currentBank.svelte";
   import { trackedFetch } from "$lib/utils/trackedFetch";
-  import { pageDataSummary } from "$lib/stores/pageDataSummary.svelte";
 
   interface Customer {
     customer_id: string;
@@ -20,13 +19,6 @@
   let loading = $state(false);
   let error = $state<string | null>(null);
   let searchQuery = $state("");
-
-  $effect(() => {
-    if (customers.length > 0) {
-      const kycComplete = customers.filter(c => c.kyc_status).length;
-      pageDataSummary.set(`${customers.length} individual customers at ${currentBank.bankId} (${kycComplete} KYC complete)`);
-    }
-  });
 
   let filteredCustomers = $derived.by(() => {
     if (!searchQuery.trim()) return customers;

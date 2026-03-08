@@ -4,10 +4,18 @@
   import { trackedFetch } from "$lib/utils/trackedFetch";
   import { invalidateAll } from "$app/navigation";
   import { currentBank } from "$lib/stores/currentBank.svelte";
+  import { pageDataSummary } from "$lib/stores/pageDataSummary.svelte";
 
   let { data }: { data: PageData } = $props();
 
   let bank = $derived(data.bank);
+
+  $effect(() => {
+    if (bank) {
+      const attrs = bank.bank_attributes?.length || 0;
+      pageDataSummary.set(`Viewing bank ${bank.full_name} (${bank.bank_id}, code: ${bank.bank_code})${attrs ? `, ${attrs} attributes` : ""}`);
+    }
+  });
 
   // Set current bank if not already this bank
   $effect(() => {

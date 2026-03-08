@@ -39,17 +39,9 @@
     fetchBanks();
   });
 
-  import { pageDataSummary } from "$lib/stores/pageDataSummary.svelte";
-
   let users = $derived(data.users || []);
   let hasApiAccess = $derived(data.hasApiAccess);
   let error = $derived(data.error);
-
-  $effect(() => {
-    const count = users.length;
-    const names = users.slice(0, 5).map((u: any) => u.username || u.email).join(", ");
-    pageDataSummary.set(`${count} users loaded${names ? `: ${names}` : ""}`);
-  });
 
   let providers = $state<string[]>([]);
   let selectedProvider = $state("");
