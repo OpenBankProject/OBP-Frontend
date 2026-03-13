@@ -1,6 +1,6 @@
 <script lang="ts">
-	import OpeyChat from '$lib/components/OpeyChat.svelte';
-	import type { OpeyChatOptions, SuggestedQuestion } from '$lib/components/OpeyChat.svelte';
+	import { OpeyChat } from 'obp-svelte-components/components';
+	import type { OpeyChatOptions, SuggestedQuestion } from 'obp-svelte-components/components';
 	import { CheckCheck, Layers, Rocket, UserLock, HelpCircle } from '@lucide/svelte';
 	import { env } from '$env/dynamic/public';
 	import { page } from '$app/stores';

@@ -1,7 +1,7 @@
 import { createLogger } from '$lib/utils/logger';
 const logger = createLogger('UserPageServer');
 import type { RequestEvent } from '@sveltejs/kit';
-import { obpIntegrationService } from '$lib/opey/services/OBPIntegrationService';
+import { obpIntegrationService } from '$lib/server/opey/OBPIntegrationService';
 import { env } from '$env/dynamic/private';
 import { jwtDecode } from 'jwt-decode';
 import type { OAuth2AccessTokenPayload } from '$lib/oauth/types';

@@ -12,7 +12,7 @@ import { oauth2ProviderManager } from "$lib/oauth/providerManager";
 import { SessionOAuthHelper } from "$lib/oauth/sessionHelper";
 import { resourceDocsCache } from "$lib/stores/resourceDocsCache";
 import { healthCheckRegistry } from "$lib/health-check/HealthCheckRegistry";
-import { ensureOpeyNotebook } from "$lib/opey/bootstrap/opeyNotebook";
+import { ensureOpeyNotebook } from "$lib/server/opey/opeyNotebook";
 
 declare const process: { env: Record<string, string | undefined>; argv: string[] };
 

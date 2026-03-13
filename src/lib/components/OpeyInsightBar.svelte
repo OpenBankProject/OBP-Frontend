@@ -1,7 +1,7 @@
 <script lang="ts">
   import { X, MessageCircle, Loader2 } from "@lucide/svelte";
   import { onMount } from "svelte";
-  import { insightService } from "$lib/opey/services/InsightService";
+  import { insightService } from "$lib/services/InsightService";
   import { pageDataSummary } from "$lib/stores/pageDataSummary.svelte";
 
   let { pathname, pageContext }: { pathname: string; pageContext: string } = $props();

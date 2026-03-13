@@ -1,7 +1,7 @@
 import { createLogger } from "$lib/utils/logger";
 const logger = createLogger("LayoutServer");
 import type { RequestEvent } from "@sveltejs/kit";
-import { obpIntegrationService } from "$lib/opey/services/OBPIntegrationService";
+import { obpIntegrationService } from "$lib/server/opey/OBPIntegrationService";
 import type { OBPConsentInfo } from "$lib/obp/types";
 // import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
 // import { storePopup } from '@skeletonlabs/skeleton';

@@ -62,6 +62,7 @@
     "jwt-decode": "^4.0.0",
     "langchain": "^0.3.27",
     "markdown-it": "^14.1.0",
+    "obp-svelte-components": "^1.0.3",
     "prismjs": "^1.30.0",
     "svelte-kit-connect-redis": "^0.1.0",
     "svelte-kit-sessions": "^0.4.0"
