@@ -36,6 +36,7 @@
   }
 
   import { pageDataSummary } from "$lib/stores/pageDataSummary.svelte";
+  import { pageHeading } from "$lib/stores/pageHeading.svelte";
 
   let customer = $state<CustomerDetail | null>(null);
   let loading = $state(false);
@@ -46,6 +47,7 @@
       const kyc = customer.kyc_status ? "KYC complete" : "KYC incomplete";
       const attrs = customer.customer_attributes?.length || 0;
       pageDataSummary.set(`Viewing customer ${customer.legal_name} at ${customer.bank_id}, ${kyc}, ${attrs} attributes`);
+      pageHeading.set(customer.legal_name);
     }
   });
 

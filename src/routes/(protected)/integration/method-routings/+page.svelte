@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onMount, tick } from "svelte";
 
   interface MethodRouting {
     method_routing_id?: string;
@@ -22,8 +22,14 @@
   let successMessage = $state<string | null>(null);
   let showCreateForm = $state(false);
   let editingRouting = $state<MethodRouting | null>(null);
+  let formPanel = $state<HTMLElement | null>(null);
 
   const jsonPlaceholder = '{"param1": "value1", "param2": "value2"}';
+
+  async function scrollToForm() {
+    await tick();
+    formPanel?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 
   // Form state
   let formData = $state<MethodRouting>({
@@ -215,11 +221,57 @@
 
   function startEdit(routing: MethodRouting) {
     editingRouting = routing;
-    formData = { ...routing };
+    // Convert parameters from OBP array format [{key, value}] back to JSON object string for the form
+    let parametersStr = "";
+    const params = routing.parameters as unknown;
+    if (Array.isArray(params) && params.length > 0) {
+      const obj: Record<string, string> = {};
+      for (const p of params) {
+        if (p && typeof p === "object" && "key" in p && "value" in p) {
+          obj[p.key] = p.value;
+        }
+      }
+      parametersStr = JSON.stringify(obj, null, 2);
+    } else if (typeof params === "string" && params.trim()) {
+      parametersStr = params;
+    }
+    formData = { ...routing, parameters: parametersStr };
     showCreateForm = true;
     if (methodNames.length === 0) {
       fetchMethodNames();
     }
+    scrollToForm();
+  }
+
+  function startOverride(routing: MethodRouting) {
+    // Pre-fill the create form with the default routing's values (no method_routing_id — this will be a new custom routing)
+    editingRouting = null;
+    let parametersStr = "";
+    const params = routing.parameters as unknown;
+    if (Array.isArray(params) && params.length > 0) {
+      const obj: Record<string, string> = {};
+      for (const p of params) {
+        if (p && typeof p === "object" && "key" in p && "value" in p) {
+          obj[p.key] = p.value;
+        }
+      }
+      parametersStr = JSON.stringify(obj, null, 2);
+    } else if (typeof params === "string" && params.trim()) {
+      parametersStr = params;
+    }
+    formData = {
+      method_name: routing.method_name,
+      connector_name: routing.connector_name,
+      is_bank_id_exact_match: routing.is_bank_id_exact_match,
+      bank_id_pattern: routing.bank_id_pattern,
+      parameters: parametersStr,
+    };
+    showCreateForm = true;
+    clearMessages();
+    if (methodNames.length === 0) {
+      fetchMethodNames();
+    }
+    scrollToForm();
   }
 
   function startCreate() {
@@ -311,10 +363,10 @@
 
   <!-- Create/Edit Form -->
   {#if showCreateForm}
-    <div class="panel mb-6">
+    <div class="panel mb-6" bind:this={formPanel}>
       <div class="panel-header">
         <h2 class="panel-title">
-          {editingRouting ? "Edit Method Routing" : "Create Method Routing"}
+          {editingRouting ? "Edit Method Routing" : formData.method_name ? "Override Method Routing" : "Create Method Routing"}
         </h2>
       </div>
       <div class="panel-content">
@@ -451,14 +503,14 @@
       <div class="view-toggle">
         <button
           onclick={() => switchViewMode("active")}
-          class="btn {viewMode === 'active' ? 'btn-primary' : 'btn-secondary'}"
+          class="btn {viewMode === 'active' ? 'btn-toggle-active' : 'btn-toggle-inactive'}"
           disabled={isLoading}
         >
           Active
         </button>
         <button
           onclick={() => switchViewMode("configured")}
-          class="btn {viewMode === 'configured' ? 'btn-primary' : 'btn-secondary'}"
+          class="btn {viewMode === 'configured' ? 'btn-toggle-active' : 'btn-toggle-inactive'}"
           disabled={isLoading}
         >
           Configured
@@ -489,8 +541,12 @@
             <tbody>
               {#each methodRoutings as routing}
                 <tr class={isDefaultRouting(routing) ? "row-default" : ""}>
-                  <td class="font-mono text-sm">{routing.method_name}</td>
-                  <td>{routing.connector_name}</td>
+                  <td class="font-mono text-sm {isDefaultRouting(routing) ? '' : 'method-name-custom'}">{routing.method_name}</td>
+                  <td>
+                    <span class="badge {routing.connector_name === 'mapped' ? 'badge-connector-mapped' : 'badge-connector-custom'}">
+                      {routing.connector_name}
+                    </span>
+                  </td>
                   <td class="font-mono text-sm">
                     {routing.bank_id_pattern || "N/A"}
                   </td>
@@ -511,11 +567,20 @@
                     </td>
                   {/if}
                   <td>
-                    {#if !isDefaultRouting(routing)}
+                    {#if isDefaultRouting(routing)}
+                      <button
+                        onclick={() => startOverride(routing)}
+                        class="btn-icon"
+                        data-testid="override-{routing.method_name}"
+                        disabled={isLoading}
+                      >
+                        Override
+                      </button>
+                    {:else}
                       <button
                         onclick={() => startEdit(routing)}
                         class="btn-icon"
-                        title="Edit"
+                        data-testid="edit-{routing.method_name}"
                         disabled={isLoading}
                       >
                         Edit
@@ -588,7 +653,43 @@
 
   .view-toggle {
     display: flex;
-    gap: 0.5rem;
+    gap: 0;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    overflow: hidden;
+  }
+
+  .btn-toggle-active {
+    background: #3b82f6;
+    color: white;
+    border-radius: 0;
+  }
+
+  .btn-toggle-inactive {
+    background: white;
+    color: #374151;
+    border-radius: 0;
+  }
+
+  .btn-toggle-inactive:hover:not(:disabled) {
+    background: #f3f4f6;
+  }
+
+  :global([data-mode="dark"]) .view-toggle {
+    border-color: rgb(var(--color-surface-600));
+  }
+
+  :global([data-mode="dark"]) .btn-toggle-active {
+    background: rgb(var(--color-primary-600));
+  }
+
+  :global([data-mode="dark"]) .btn-toggle-inactive {
+    background: rgb(var(--color-surface-800));
+    color: var(--color-surface-300);
+  }
+
+  :global([data-mode="dark"]) .btn-toggle-inactive:hover:not(:disabled) {
+    background: rgb(var(--color-surface-700));
   }
 
   .panel-title {
@@ -750,7 +851,7 @@
   }
 
   .btn-icon {
-    padding: 0.25rem 0.75rem;
+    padding: 0.625rem 1.5rem;
     font-size: 0.8125rem;
     background: transparent;
     color: #3b82f6;
@@ -758,6 +859,7 @@
     border-radius: 0.25rem;
     cursor: pointer;
     transition: all 0.2s;
+    white-space: nowrap;
   }
 
   .btn-icon:hover:not(:disabled) {
@@ -870,13 +972,46 @@
   }
 
   .badge-custom {
-    background: #dbeafe;
-    color: #1e40af;
+    background: #fff7ed;
+    color: #9a3412;
+    border: 1px solid #fdba74;
   }
 
   :global([data-mode="dark"]) .badge-custom {
-    background: rgb(var(--color-primary-900));
-    color: rgb(var(--color-primary-200));
+    background: #431407;
+    color: #fed7aa;
+    border-color: #9a3412;
+  }
+
+  .badge-connector-mapped {
+    background: #e5e7eb;
+    color: #374151;
+  }
+
+  :global([data-mode="dark"]) .badge-connector-mapped {
+    background: rgb(var(--color-surface-700));
+    color: var(--color-surface-300);
+  }
+
+  .badge-connector-custom {
+    background: #f3e8ff;
+    color: #6b21a8;
+    border: 1px solid #c084fc;
+  }
+
+  :global([data-mode="dark"]) .badge-connector-custom {
+    background: #3b0764;
+    color: #e9d5ff;
+    border-color: #7e22ce;
+  }
+
+  .method-name-custom {
+    color: #2563eb;
+    font-weight: 600;
+  }
+
+  :global([data-mode="dark"]) .method-name-custom {
+    color: rgb(var(--color-primary-400));
   }
 
   .row-default {

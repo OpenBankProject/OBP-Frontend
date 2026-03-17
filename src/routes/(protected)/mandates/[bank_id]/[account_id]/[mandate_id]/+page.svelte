@@ -3,6 +3,7 @@
   import { FileSignature, ArrowLeft, Loader2, Plus, Users, ScrollText, ExternalLink } from "@lucide/svelte";
   import { trackedFetch } from "$lib/utils/trackedFetch";
   import { pageDataSummary } from "$lib/stores/pageDataSummary.svelte";
+  import { pageHeading } from "$lib/stores/pageHeading.svelte";
 
   let bankId = $derived(page.params.bank_id || "");
   let accountId = $derived(page.params.account_id || "");
@@ -68,6 +69,7 @@
       }
       mandate = await res.json();
       pageDataSummary.set(`Mandate ${mandate.mandate_name} (${mandate.status}) for account ${aId} at bank ${bId}`);
+      pageHeading.set(mandate.mandate_name);
     } catch (err) {
       mandateError = err instanceof Error ? err.message : "Failed to load mandate";
     } finally {

@@ -5,6 +5,7 @@
   import { currentBank } from "$lib/stores/currentBank.svelte";
 
   import { pageDataSummary } from "$lib/stores/pageDataSummary.svelte";
+  import { pageHeading } from "$lib/stores/pageHeading.svelte";
 
   let { data, form } = $props();
 
@@ -15,6 +16,7 @@
     if (consumer) {
       const status = consumer.enabled ? "enabled" : "disabled";
       pageDataSummary.set(`Viewing consumer ${consumer.app_name || consumer.consumer_id} (${status}), ${scopes.length} scopes`);
+      pageHeading.set(consumer.app_name || consumer.consumer_id);
     }
   });
   let availableRoles = $derived(data.availableRoles || []);

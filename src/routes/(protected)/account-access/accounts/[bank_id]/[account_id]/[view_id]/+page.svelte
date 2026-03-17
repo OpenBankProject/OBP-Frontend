@@ -5,6 +5,7 @@
   import MissingRoleAlert from "$lib/components/MissingRoleAlert.svelte";
 
   import { pageDataSummary } from "$lib/stores/pageDataSummary.svelte";
+  import { pageHeading } from "$lib/stores/pageHeading.svelte";
 
   let { data }: { data: any } = $props();
 
@@ -50,6 +51,7 @@
       const views = account.views_available?.length || 0;
       const label = account.label || account.account_id || "";
       pageDataSummary.set(`Viewing account ${label} at ${account.bank_id}, ${views} views available`);
+      pageHeading.set(label);
     }
   });
   let hasAccountAccess = $state<boolean | null>(null);

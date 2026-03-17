@@ -3,6 +3,7 @@
   import { onMount } from "svelte";
   import { insightService } from "$lib/services/InsightService";
   import { pageDataSummary } from "$lib/stores/pageDataSummary.svelte";
+  import { pageHeading } from "$lib/stores/pageHeading.svelte";
 
   let { pathname, pageContext }: { pathname: string; pageContext: string } = $props();
 
@@ -11,12 +12,23 @@
   let loading = $state(true);
 
   onMount(() => {
-    // Clear any stale summary from the previous page
+    // Clear any stale data from the previous page
     pageDataSummary.clear();
-    // Wait a moment for the page to load its data and call pageDataSummary.set()
+    pageHeading.clear();
+    // Wait a moment for the page to load its data and call pageDataSummary.set() / pageHeading.set()
     const timer = setTimeout(() => fetchInsight(), 1500);
     return () => clearTimeout(timer);
   });
+
+  let displayLabel = $derived(
+    pageHeading.value ? `${pageContext}: ${pageHeading.value}` : pageContext
+  );
+
+  let askPrompt = $derived(
+    pageHeading.value
+      ? `Tell me about the ${pageContext} ${pageHeading.value}`
+      : insightText
+  );
 
   async function fetchInsight() {
     loading = true;
@@ -33,9 +45,9 @@
       // Ask Opey for a short insight based on notebook + current page
       const insight = await insightService.getInsight(pageContext, recentNotes);
 
-      insightText = insight || pageContext;
+      insightText = insight || displayLabel;
     } catch {
-      insightText = pageContext;
+      insightText = displayLabel;
     } finally {
       loading = false;
     }
@@ -53,9 +65,15 @@
       <span class="flex-1 text-surface-500">Opey is thinking...</span>
     {:else}
       <MessageCircle class="size-4 shrink-0 text-tertiary-500" />
-      <span class="flex-1">{insightText}</span>
+      <span class="flex-1">
+        {#if pageHeading.value}
+          <strong>{displayLabel}</strong> — {insightText}
+        {:else}
+          {insightText}
+        {/if}
+      </span>
       <a
-        href="/?ask={encodeURIComponent(insightText)}"
+        href="/?ask={encodeURIComponent(askPrompt)}"
         data-testid="opey-insight-ask-button"
         class="btn btn-sm preset-tonal-tertiary shrink-0"
       >

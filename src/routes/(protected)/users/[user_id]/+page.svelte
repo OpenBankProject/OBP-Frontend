@@ -3,6 +3,7 @@
   import { Trash2 } from "@lucide/svelte";
 
   import { pageDataSummary } from "$lib/stores/pageDataSummary.svelte";
+  import { pageHeading } from "$lib/stores/pageHeading.svelte";
 
   let { data } = $props<{ data: PageData }>();
 
@@ -14,6 +15,7 @@
     if (user) {
       const entitlements = user.entitlements?.length || 0;
       pageDataSummary.set(`Viewing user ${user.username || user.email} (${user.provider}), ${entitlements} entitlements`);
+      pageHeading.set(user.username || user.email);
     }
   });
 

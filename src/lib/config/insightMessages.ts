@@ -5,7 +5,7 @@
 
 const routeDescriptions: Array<{ pattern: RegExp; description: string }> = [
   { pattern: /^\/banks\/create$/, description: "Create Bank" },
-  { pattern: /^\/banks\/([^/]+)\/([^/]+)/, description: "Bank detail" },
+  { pattern: /^\/banks\/(?!create$)[^/]+/, description: "Bank" },
   { pattern: /^\/banks$/, description: "Banks list" },
   { pattern: /^\/users$/, description: "Users list" },
   { pattern: /^\/consumers$/, description: "API Consumers list" },
@@ -38,6 +38,7 @@ const routeDescriptions: Array<{ pattern: RegExp; description: string }> = [
   { pattern: /^\/dynamic-endpoints/, description: "Dynamic Endpoints" },
   { pattern: /^\/customers\/individual/, description: "Individual Customers" },
   { pattern: /^\/customers\/corporate/, description: "Corporate Customers" },
+  { pattern: /^\/customers\/[^/]+\/[^/]+/, description: "Customer" },
   { pattern: /^\/customers/, description: "Customers" },
   { pattern: /^\/account-access\/system-views/, description: "System Views" },
   { pattern: /^\/account-access\/custom-views/, description: "Custom Views" },
