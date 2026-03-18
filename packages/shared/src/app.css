@@ -1,0 +1,44 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/typography';
+
+@import '@skeletonlabs/skeleton';
+@import '@skeletonlabs/skeleton/themes/cerberus';
+
+@import '@skeletonlabs/skeleton-svelte';
+/* Register a Custom Themes */
+/* Make sure to resolve the relative path. */
+/* Note the .css extension is optional. */
+@import '../obp-theme.css';
+
+/* for dark mode toggling */
+@custom-variant dark (&:where([data-mode=dark], [data-mode=dark] *));
+
+/* Minimal scrollbar — no track, thin thumb, auto-hide on supported browsers */
+* {
+	scrollbar-width: thin;
+	scrollbar-color: oklch(60% 0 0 / 0.3) transparent;
+}
+
+*:where([data-mode=dark], [data-mode=dark] *) {
+	scrollbar-color: oklch(80% 0 0 / 0.2) transparent;
+}
+
+/* Webkit fallback for Safari and older Chrome */
+::-webkit-scrollbar {
+	width: 6px;
+	height: 6px;
+}
+
+::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+	background: oklch(60% 0 0 / 0.3);
+	border-radius: 3px;
+}
+
+:where([data-mode=dark], [data-mode=dark] *)::-webkit-scrollbar-thumb {
+	background: oklch(80% 0 0 / 0.2);
+}

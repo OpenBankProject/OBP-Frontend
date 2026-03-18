@@ -1,0 +1,6 @@
+@import 'tailwindcss';
+@import '@skeletonlabs/skeleton';
+@import '@skeletonlabs/skeleton-svelte';
+@import '../../obp-theme.css';
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/typography';
