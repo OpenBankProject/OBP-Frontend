@@ -1,0 +1,36 @@
+test-results
+node_modules
+
+# Output
+.output
+.vercel
+.netlify
+.wrangler
+/.svelte-kit
+/build
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+/env/
+.env
+.env.*
+!.env.example
+!.env.test.example
+.env.docker
+.env-docker
+env_ai
+
+# Vite
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+# Swark
+swark-output/
+
+/.idea
+.specstory
+.cursorindexingignore
+.npm-cache

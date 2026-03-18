@@ -1,0 +1,39 @@
+
+services:
+  obp-portal:
+    container_name: obp-portal
+    # The name of the image that will be created when building this container
+    image: obp-portal:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - PUBLIC_OBP_BASE_URL=${PUBLIC_OBP_BASE_URL}
+        - OBP_OAUTH_CLIENT_ID=${OBP_OAUTH_CLIENT_ID}
+        - OBP_OAUTH_CLIENT_SECRET=${OBP_OAUTH_CLIENT_SECRET}
+        - APP_CALLBACK_URL=${APP_CALLBACK_URL}
+        - ORIGIN=${ORIGIN}
+    user: "node"
+    depends_on:
+      - redis-cache
+    environment:
+      # Internal server error messages will not send stacktrace to the browser in production
+      - NODE_ENV=production
+    # Points to a file with the sensitive environment variables
+    env_file:
+      - .env-docker
+    restart: unless-stopped
+    ports:
+      - 3000:3000
+  redis-cache:
+    image: redis:6.2-alpine
+    restart: always
+    ports:
+      - '6378:6379'
+    command: redis-server --save 20 1 --loglevel warning
+    volumes:
+      - redis-cache:/data
+
+volumes:
+  redis-cache:
+    driver: local
