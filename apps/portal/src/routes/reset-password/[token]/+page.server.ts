@@ -9,7 +9,7 @@ import type { PageServerLoad } from './$types';
 export const load: PageServerLoad = async ({ params }) => {
     const { token } = params;
 
-    logger.debug("Password reset page loaded with token:", token);
+    logger.debug("Password reset page loaded");
 
     return {
         token
@@ -21,7 +21,7 @@ export const actions = {
         const { token } = params;
         const formData = await request.formData();
 
-        logger.debug("Password reset form submitted for token:", token);
+        logger.debug("Password reset form submitted");
 
         const newPassword = formData.get('new_password') as string;
         const confirmPassword = formData.get('confirm_password') as string;
@@ -77,7 +77,7 @@ export const actions = {
                 requestBody
             );
 
-            logger.info("Password reset successful for token:", token);
+            logger.info("Password reset successful");
 
         } catch (err) {
             if (err instanceof OBPRequestError) {

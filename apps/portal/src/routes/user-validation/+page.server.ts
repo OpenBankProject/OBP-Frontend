@@ -7,7 +7,7 @@ import { OBPRequestError } from '@obp/shared/obp';
 export const load: ServerLoad = async ({ url }) => {
 	const token = url.searchParams.get('token');
 	
-	logger.debug('Email validation token:', token);
+	logger.debug('Email validation requested');
 
 	if (!token) {
 		logger.warn('No token provided for email validation');

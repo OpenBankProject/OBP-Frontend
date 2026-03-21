@@ -47,6 +47,10 @@ function checkServerPort() {
 }
 
 // Startup scripts
+if (!env.SESSION_SECRET) {
+	throw new Error('SESSION_SECRET environment variable is required but not set.');
+}
+
 // Check server port
 checkServerPort();
 
@@ -203,8 +207,9 @@ const transformHTML: Handle = async ({ event, resolve }) => {
 export const handle: Handle = sequence(
 	sveltekitSessionHandle({
 		name: 'obp-portal-connect.sid',
-		secret: 'secret',
-		store: new RedisStore({ 
+		secret: env.SESSION_SECRET,
+		cookie: { httpOnly: true, secure: true, sameSite: 'lax' },
+		store: new RedisStore({
 			client: redisClient,
 			prefix: 'obp-portal-session:'
 		})
