@@ -50,12 +50,8 @@ export const GET: RequestHandler = async ({ url, locals }) => {
     logger.info(`Correlation ID: ${correlationId}`);
 
     // Aggregate metrics returns an array with a single object containing count, average_response_time, min, max
-    if (
-      Array.isArray(response) &&
-      response.length > 0 &&
-      response[0].count !== undefined
-    ) {
-      const metrics = response[0];
+    const metrics = Array.isArray(response) ? response[0] : response;
+    if (metrics && metrics.count !== undefined) {
       logger.info(
         `Response: count=${metrics.count}, avg=${metrics.average_response_time}ms`,
       );

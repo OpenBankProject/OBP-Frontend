@@ -3,7 +3,7 @@
   import { invalidate } from "$app/navigation";
   import type { PageData } from "./$types";
   import { configHelpers } from "$lib/config";
-  import MetricsQueryForm from "$lib/components/metrics/MetricsQueryForm.svelte";
+  import AggregateMetricsQueryForm from "$lib/components/metrics/AggregateMetricsQueryForm.svelte";
 
   let { data } = $props<{ data: PageData }>();
 
@@ -67,10 +67,6 @@
   let queryForm = $state({
     from_date: "",
     to_date: "",
-    limit: "100",
-    offset: "0",
-    sort_by: "date",
-    direction: "desc",
     consumer_id: "",
     user_id: "",
     username: "",
@@ -81,7 +77,6 @@
     implemented_in_version: "",
     verb: "",
     correlation_id: "",
-    duration: "",
     include_app_names: "",
     http_status_code: "",
   });
@@ -129,10 +124,6 @@
       queryForm = {
         from_date: urlParams.get("from_date") || defaultFromDate,
         to_date: urlParams.get("to_date") || "",
-        limit: urlParams.get("limit") || "100",
-        offset: urlParams.get("offset") || "0",
-        sort_by: urlParams.get("sort_by") || "date",
-        direction: urlParams.get("direction") || "desc",
         consumer_id: urlParams.get("consumer_id") || "",
         user_id: urlParams.get("user_id") || "",
         username: urlParams.get("username") || "",
@@ -144,7 +135,6 @@
         implemented_in_version: urlParams.get("implemented_in_version") || "",
         verb: urlParams.get("verb") || "",
         correlation_id: urlParams.get("correlation_id") || "",
-        duration: urlParams.get("duration") || "",
         include_app_names: urlParams.get("include_app_names") || "",
         http_status_code: urlParams.get("http_status_code") || "",
       };
@@ -287,12 +277,6 @@
       params.set("http_status_code", queryForm.http_status_code);
     }
 
-    // Always include pagination and sorting
-    params.set("limit", queryForm.limit);
-    params.set("offset", queryForm.offset);
-    params.set("sort_by", queryForm.sort_by);
-    params.set("direction", queryForm.direction);
-
     return params.toString();
   });
 
@@ -329,10 +313,6 @@
     queryForm = {
       from_date: "",
       to_date: "",
-      limit: "100",
-      offset: "0",
-      sort_by: "date",
-      direction: "desc",
       consumer_id: "",
       user_id: "",
       username: "",
@@ -343,12 +323,9 @@
       implemented_in_version: "",
       verb: "",
       correlation_id: "",
-      duration: "",
       include_app_names: "",
       http_status_code: "",
     };
-
-    // Reset default date range
   }
 
   function formatDuration(duration: number): string {
@@ -439,7 +416,7 @@
 
     <div class="panel-content">
       <!-- Query Form -->
-      <MetricsQueryForm
+      <AggregateMetricsQueryForm
         bind:queryForm
         bind:autoRefresh
         onFieldChange={handleFieldChange}
