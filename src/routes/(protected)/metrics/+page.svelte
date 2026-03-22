@@ -375,19 +375,19 @@
   <div class="panel full-width-panel">
     <div class="panel-header-compact">
       <div class="panel-header-row">
-        <h2 class="panel-title">Query Metrics</h2>
+        <h2 class="panel-title">Metrics Query</h2>
         <div class="panel-meta header-fields">
           <label class="hf"><span>From</span>
-            <input type="datetime-local" bind:value={queryForm.from_date} onblur={handleFieldChange} step="1" name="from_date" />
+            <input type="datetime-local" bind:value={queryForm.from_date} onblur={handleFieldChange} onchange={handleFieldChange} step="1" name="from_date" />
           </label>
           <label class="hf"><span>To</span>
-            <input type="datetime-local" bind:value={queryForm.to_date} onblur={handleFieldChange} step="1" name="to_date" />
+            <input type="datetime-local" bind:value={queryForm.to_date} onblur={handleFieldChange} onchange={handleFieldChange} step="1" name="to_date" />
           </label>
           <label class="hf hf-tiny"><span>Limit</span>
-            <input type="number" bind:value={queryForm.limit} min="1" max="10000" onblur={handleFieldChange} name="limit" />
+            <input type="number" bind:value={queryForm.limit} min="1" max="10000" onblur={handleFieldChange} onchange={handleFieldChange} name="limit" />
           </label>
           <label class="hf hf-tiny"><span>Offset</span>
-            <input type="number" bind:value={queryForm.offset} min="0" onblur={handleFieldChange} name="offset" />
+            <input type="number" bind:value={queryForm.offset} min="0" onblur={handleFieldChange} onchange={handleFieldChange} name="offset" />
           </label>
           <label class="hf hf-sm"><span>Sort</span>
             <select bind:value={queryForm.sort_by} onchange={handleFieldChange} name="sort_by">

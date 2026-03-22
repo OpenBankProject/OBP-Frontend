@@ -88,22 +88,25 @@
         </select>
       </label>
       <label class="qf-inline"><span>Consumer</span>
-        <input type="text" bind:value={queryForm.consumer_id} onblur={handleFieldChange} placeholder="ID" name="consumer_id" />
+        <input type="text" bind:value={queryForm.consumer_id} onblur={handleFieldChange} onchange={handleFieldChange} placeholder="ID" name="consumer_id" />
       </label>
       <label class="qf-inline"><span>App</span>
-        <input type="text" bind:value={queryForm.app_name} onblur={handleFieldChange} placeholder="name" name="app_name" />
+        <input type="text" bind:value={queryForm.app_name} onblur={handleFieldChange} onchange={handleFieldChange} placeholder="name" name="app_name" />
       </label>
       <label class="qf-inline"><span>Apps</span>
-        <input type="text" bind:value={queryForm.include_app_names} onblur={handleFieldChange} placeholder="csv" name="include_app_names" />
+        <input type="text" bind:value={queryForm.include_app_names} onblur={handleFieldChange} onchange={handleFieldChange} placeholder="csv" name="include_app_names" />
       </label>
       <label class="qf-inline"><span>User</span>
-        <input type="text" bind:value={queryForm.username} onblur={handleFieldChange} placeholder="ID" name="username" />
+        <input type="text" bind:value={queryForm.username} onblur={handleFieldChange} onchange={handleFieldChange} placeholder="ID" name="username" />
       </label>
       <label class="qf-inline"><span>Fn</span>
-        <input type="text" bind:value={queryForm.implemented_by_partial_function} onblur={handleFieldChange} placeholder="partial fn" name="implemented_by_partial_function" />
+        <input type="text" bind:value={queryForm.implemented_by_partial_function} onblur={handleFieldChange} onchange={handleFieldChange} placeholder="partial fn" name="implemented_by_partial_function" />
       </label>
       <label class="qf-inline qf-sm"><span>Ver</span>
-        <input type="text" bind:value={queryForm.implemented_in_version} onblur={handleFieldChange} placeholder="ver" name="implemented_in_version" />
+        <input type="text" bind:value={queryForm.implemented_in_version} onblur={handleFieldChange} onchange={handleFieldChange} placeholder="ver" name="implemented_in_version" />
+      </label>
+      <label class="qf-inline qf-sm"><span>Min Duration</span>
+        <input type="number" bind:value={queryForm.duration} min="0" onblur={handleFieldChange} onchange={handleFieldChange} placeholder="ms" name="duration" />
       </label>
       <label class="qf-inline qf-sm"><span>Anon</span>
         <select bind:value={queryForm.anon} onchange={handleFieldChange} name="anon">
@@ -112,6 +115,7 @@
           <option value="false">No</option>
         </select>
       </label>
+      <button type="submit" hidden>Submit</button>
       {#if showClearButton}
         <div class="qf-actions">
           <button type="button" class="qf-btn" onclick={onClear} title="Clear form">🗑️ Clear</button>
