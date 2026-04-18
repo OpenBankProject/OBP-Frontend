@@ -1,12 +1,13 @@
 <script lang="ts">
   import { page } from "$app/state";
   import { trackedFetch } from "$lib/utils/trackedFetch";
-  import type { OBPChatRoomParticipant } from "$lib/obp/types";
+  import type { OBPChatRoom, OBPChatRoomParticipant } from "$lib/obp/types";
 
   const chatRoomId = $derived(page.params.chat_room_id);
   const level = $derived(page.url.searchParams.get("level") || "system");
   const bankId = $derived(page.url.searchParams.get("bank_id") || "");
 
+  let room = $state<OBPChatRoom | null>(null);
   let participants = $state<OBPChatRoomParticipant[]>([]);
   let loading = $state(false);
   let error = $state<string | null>(null);
@@ -15,6 +16,24 @@
   let showAddForm = $state(false);
   let addUserId = $state("");
   let addPermissions = $state("can_send_message");
+
+  async function fetchRoom() {
+    if (!chatRoomId) return;
+    try {
+      const bankParam = bankId ? `?bank_id=${encodeURIComponent(bankId)}` : "";
+      const res = await trackedFetch(
+        `/proxy/obp/v6.0.0/chat-rooms/${encodeURIComponent(chatRoomId)}${bankParam}`,
+      );
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to fetch chat room");
+      }
+      room = await res.json();
+    } catch (err) {
+      error = err instanceof Error ? err.message : "Failed to fetch chat room";
+      room = null;
+    }
+  }
 
   async function fetchParticipants() {
     if (!chatRoomId) return;
@@ -69,6 +88,37 @@
     }
   }
 
+  async function refreshJoiningKey() {
+    if (!chatRoomId) return;
+    error = null;
+    successMessage = null;
+    try {
+      const endpoint =
+        level === "bank" && bankId
+          ? `/proxy/obp/v6.0.0/banks/${encodeURIComponent(bankId)}/chat-rooms/${encodeURIComponent(chatRoomId)}/joining-key`
+          : `/proxy/obp/v6.0.0/chat-rooms/${encodeURIComponent(chatRoomId)}/joining-key`;
+      const res = await trackedFetch(endpoint, { method: "PUT" });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to refresh joining key");
+      }
+      successMessage = "Joining key refreshed.";
+      fetchRoom();
+    } catch (err) {
+      error = err instanceof Error ? err.message : "Failed to refresh joining key";
+    }
+  }
+
+  async function copyJoiningKey() {
+    if (!room?.joining_key) return;
+    try {
+      await navigator.clipboard.writeText(room.joining_key);
+      successMessage = "Joining key copied.";
+    } catch {
+      error = "Could not copy to clipboard.";
+    }
+  }
+
   async function removeParticipant(userId: string) {
     if (!chatRoomId) return;
     error = null;
@@ -105,6 +155,7 @@
   }
 
   $effect(() => {
+    fetchRoom();
     fetchParticipants();
   });
 </script>
@@ -135,15 +186,40 @@
         Participants: {participants.length}
       </span>
     {/if}
-    <button
-      onclick={() => (showAddForm = !showAddForm)}
-      class="inline-flex items-center rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
-      data-testid="add-participant-btn"
-    >
-      {showAddForm ? "Cancel" : "Add Participant"}
-    </button>
+    {#if !room?.is_open_room}
+      <button
+        onclick={() => (showAddForm = !showAddForm)}
+        class="inline-flex items-center rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+        data-testid="add-participant-btn"
+      >
+        {showAddForm ? "Cancel" : "Add Participant"}
+      </button>
+    {/if}
   </div>
 </div>
+
+{#if room && !room.is_open_room && room.joining_key}
+  <div class="mb-4 rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-800" data-testid="joining-key-panel">
+    <div class="flex flex-wrap items-center gap-3">
+      <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Joining Key:</span>
+      <code class="flex-1 min-w-0 truncate rounded bg-gray-100 px-2 py-1 font-mono text-sm text-gray-900 dark:bg-gray-900 dark:text-gray-100" data-testid="joining-key-value">{room.joining_key}</code>
+      <button
+        onclick={copyJoiningKey}
+        class="inline-flex items-center rounded border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+        data-testid="copy-joining-key-btn"
+      >
+        Copy
+      </button>
+      <button
+        onclick={refreshJoiningKey}
+        class="inline-flex items-center rounded border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+        data-testid="refresh-joining-key-btn"
+      >
+        Refresh
+      </button>
+    </div>
+  </div>
+{/if}
 
 {#if successMessage}
   <div class="mb-4 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-800 dark:border-green-800 dark:bg-green-900/20 dark:text-green-200" data-testid="success-message">
@@ -258,12 +334,18 @@
     </table>
   </div>
 {:else if !error}
-  <div class="rounded-lg bg-gray-100 p-8 text-center dark:bg-gray-800">
-    <p class="text-lg font-medium text-gray-700 dark:text-gray-300">
-      No participants found
-    </p>
-    <p class="mt-1 text-gray-600 dark:text-gray-400">
-      Add a participant to this chat room.
-    </p>
+  <div class="rounded-lg bg-gray-100 p-8 text-center dark:bg-gray-800" data-testid="empty-participants">
+    {#if room?.is_open_room}
+      <p class="text-lg font-medium text-gray-700 dark:text-gray-300" data-testid="everyone-label">
+        This room is Open. Everyone can join.
+      </p>
+    {:else}
+      <p class="text-lg font-medium text-gray-700 dark:text-gray-300">
+        No participants found
+      </p>
+      <p class="mt-1 text-gray-600 dark:text-gray-400">
+        Add a participant to this chat room.
+      </p>
+    {/if}
   </div>
 {/if}

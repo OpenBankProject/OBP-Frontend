@@ -578,6 +578,11 @@ function buildManagementDocsItems(): NavigationItem[] {
       label: "Entitlements",
       iconComponent: KeyRound,
     },
+    {
+      href: "/management-docs/chat-rooms",
+      label: "Chat Rooms",
+      iconComponent: MessageSquare,
+    },
   ];
 
   return items;
