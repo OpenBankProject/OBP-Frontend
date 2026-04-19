@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package code.obp.grpc.metricsstream.g1;
+
+service MetricsStreamService {
+  rpc StreamMetrics (StreamMetricsRequest) returns (stream MetricEvent);
+}
+
+message StreamMetricsRequest {
+  string consumer_id = 1;
+  string user_id = 2;
+  string verb = 3;
+  string url_substring = 4;
+  string implemented_by_partial_function = 5;
+  string app_name = 6;
+}
+
+message MetricEvent {
+  string url = 1;
+  string date = 2;
+  int64 duration = 3;
+  string user_id = 4;
+  string username = 5;
+  string app_name = 6;
+  string developer_email = 7;
+  string consumer_id = 8;
+  string implemented_by_partial_function = 9;
+  string implemented_in_version = 10;
+  string verb = 11;
+  int32 status_code = 12;
+  string correlation_id = 13;
+  string source_ip = 14;
+  string target_ip = 15;
+  string api_instance_id = 16;
+  string operation_id = 17;
+}

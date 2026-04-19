@@ -16,6 +16,7 @@ message LogCacheEntry {
   LogLevel level = 1;
   string message = 2;
   google.protobuf.Timestamp timestamp = 3;
+  string api_instance_id = 4;
 }
 
 enum LogLevel {

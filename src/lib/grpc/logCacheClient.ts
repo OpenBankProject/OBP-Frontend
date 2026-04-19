@@ -48,6 +48,7 @@ export interface LogCacheEntryEvent {
   level: string;
   message: string;
   timestamp: string;
+  api_instance_id: string;
 }
 
 export function streamLogCacheEntries(level: LogLevelEnum, accessToken?: string) {
@@ -73,5 +74,6 @@ export function formatLogCacheEntry(event: any): LogCacheEntryEvent {
     level: event.level,
     message: event.message || "",
     timestamp: formatTimestamp(event.timestamp),
+    api_instance_id: event.api_instance_id || "",
   };
 }

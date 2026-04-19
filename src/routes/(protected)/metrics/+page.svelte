@@ -21,9 +21,26 @@
     return `${apiExplorerUrl}/resource-docs/OBPv6.0.0?operationid=${operationId}`;
   }
 
-  let metrics = $derived(data.metrics);
   let hasApiAccess = $derived(data.hasApiAccess);
   let error = $derived(data.error);
+
+  // Transport: user explicitly chooses REST or gRPC.
+  let transport = $state<"rest" | "grpc">("rest");
+  let eventSource: EventSource | null = null;
+  let streamConnected = $state(false);
+  let transportReason = $state<string>("");
+  let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+  let streamedMetrics = $state<any[]>([]);
+  let pendingMetrics: any[] = [];
+  let flushTimer: ReturnType<typeof setTimeout> | null = null;
+  let frozen = $state(false);
+  let nextMetricId = 0;
+
+  let metrics = $derived(
+    transport === "grpc"
+      ? { count: streamedMetrics.length, metrics: streamedMetrics }
+      : data.metrics,
+  );
 
   // Debug reactive statements
   $effect(() => {
@@ -138,8 +155,10 @@
         http_status_code: urlParams.get("http_status_code") || "",
       };
 
-      // Sync URL with form values and start auto-refresh
+      // Sync URL with form values
       submitQuery();
+
+      // Default transport is REST with polling; user can switch to gRPC.
       startAutoRefresh();
 
       // Update current time every second
@@ -161,6 +180,7 @@
       if (timeUpdateInterval) {
         clearInterval(timeUpdateInterval);
       }
+      closeStream();
     };
   });
 
@@ -270,9 +290,135 @@
     }, 1000);
   }
 
+  function stopAutoRefresh() {
+    if (countdownInterval) {
+      clearInterval(countdownInterval);
+      countdownInterval = undefined;
+    }
+    isCountingDown = false;
+  }
+
+  function flushPendingMetrics() {
+    flushTimer = null;
+    if (frozen) return;
+    if (pendingMetrics.length === 0) return;
+    const incoming = pendingMetrics;
+    pendingMetrics = [];
+    // Newest first, same as REST display.
+    streamedMetrics = [...incoming.reverse(), ...streamedMetrics].slice(0, 500);
+    lastRefreshTime = new Date().toLocaleString();
+    timestampColorIndex = (timestampColorIndex + 1) % 2;
+  }
+
+  function scheduleFlush() {
+    if (flushTimer) return;
+    flushTimer = setTimeout(flushPendingMetrics, 200);
+  }
+
+  function toggleFrozen() {
+    frozen = !frozen;
+    if (!frozen) flushPendingMetrics();
+  }
+
+  function buildStreamUrl(): string {
+    const params = new URLSearchParams();
+    if (queryForm.consumer_id) params.set("consumer_id", queryForm.consumer_id);
+    if (queryForm.user_id) params.set("user_id", queryForm.user_id);
+    if (queryForm.verb) params.set("verb", queryForm.verb);
+    if (queryForm.url) params.set("url_substring", queryForm.url);
+    if (queryForm.implemented_by_partial_function)
+      params.set(
+        "implemented_by_partial_function",
+        queryForm.implemented_by_partial_function,
+      );
+    if (queryForm.app_name) params.set("app_name", queryForm.app_name);
+    return `/backend/metrics/stream?${params.toString()}`;
+  }
+
+  function closeStream() {
+    if (eventSource) {
+      eventSource.close();
+      eventSource = null;
+    }
+    streamConnected = false;
+    if (reconnectTimer) {
+      clearTimeout(reconnectTimer);
+      reconnectTimer = null;
+    }
+    if (flushTimer) {
+      clearTimeout(flushTimer);
+      flushTimer = null;
+    }
+    pendingMetrics = [];
+  }
+
+  function connectStream() {
+    closeStream();
+    eventSource = new EventSource(buildStreamUrl());
+
+    eventSource.onopen = () => {
+      streamConnected = true;
+      transportReason = "";
+      streamedMetrics = [];
+      stopAutoRefresh();
+    };
+
+    eventSource.onmessage = (event) => {
+      try {
+        const entry = JSON.parse(event.data);
+        entry.__id = nextMetricId++;
+        pendingMetrics.push(entry);
+        scheduleFlush();
+      } catch {
+        // ignore parse errors
+      }
+    };
+
+    eventSource.addEventListener("transport-error", (event: MessageEvent) => {
+      try {
+        const payload = JSON.parse(event.data);
+        transportReason = payload.reason || "gRPC transport error";
+      } catch {
+        transportReason = "gRPC transport error";
+      }
+    });
+
+    eventSource.onerror = () => {
+      streamConnected = false;
+      if (!transportReason) transportReason = "SSE connection to server failed";
+      if (eventSource) {
+        eventSource.close();
+        eventSource = null;
+      }
+      // Respect the user's transport choice — only retry if still on gRPC.
+      if (transport === "grpc") {
+        reconnectTimer = setTimeout(connectStream, 10000);
+      }
+    };
+  }
+
+  function setTransport(next: "rest" | "grpc") {
+    if (next === transport) return;
+    transport = next;
+    if (next === "grpc") {
+      stopAutoRefresh();
+      connectStream();
+    } else {
+      closeStream();
+      streamedMetrics = [];
+      startAutoRefresh();
+      // Kick an immediate REST fetch so the table populates right away.
+      invalidate("app:metrics");
+    }
+  }
+
   function handleFieldChange() {
     submitQuery();
-    startAutoRefresh();
+    if (transport === "grpc") {
+      connectStream();
+    } else {
+      startAutoRefresh();
+    }
   }
 
   function clearQuery() {
@@ -437,31 +583,71 @@
       <div class="panel-header-row">
         <h2 class="panel-title">Results{#if metrics?.metrics && metrics.metrics.length > 0} <span class="panel-title-count">— {metrics.count} calls from {obpInfo.displayName}</span>{/if}</h2>
         <div class="panel-meta">
-          <button
-            class="url-toggle"
-            onclick={() => showUrl = !showUrl}
-            title={showUrl ? "Hide URL" : "Show URL"}
-          >
-            {showUrl ? "▼" : "▶"} URL
-          </button>
-          <span class="meta-separator">•</span>
-          <span class="timestamp-color-{timestampColorIndex}">{lastRefreshTime}</span>
-          <span class="meta-separator">•</span>
-          {#if isCountingDown}
-            <span class="countdown">{countdown}s</span>
-          {:else}
-            <span class="countdown-idle">{countdown}s</span>
+          {#if transport === "rest"}
+            <button
+              class="url-toggle"
+              onclick={() => showUrl = !showUrl}
+              title={showUrl ? "Hide URL" : "Show URL"}
+            >
+              {showUrl ? "▼" : "▶"} URL
+            </button>
+            <span class="meta-separator">•</span>
           {/if}
+          <div class="transport-toggle" role="group" aria-label="Transport">
+            <button
+              type="button"
+              class="transport-toggle-btn"
+              data-active={transport === "rest"}
+              onclick={() => setTransport("rest")}
+              data-testid="transport-rest"
+            >
+              REST
+            </button>
+            <button
+              type="button"
+              class="transport-toggle-btn"
+              data-active={transport === "grpc"}
+              onclick={() => setTransport("grpc")}
+              data-testid="transport-grpc"
+            >
+              gRPC
+              {#if transport === "grpc"}
+                <span
+                  class="transport-dot {streamConnected ? 'transport-dot-on' : 'transport-dot-off'}"
+                  title={streamConnected ? "Connected" : transportReason || "Connecting..."}
+                ></span>
+              {/if}
+            </button>
+          </div>
+          <span class="meta-separator">•</span>
           <button
-            class="refresh-btn-inline"
-            onclick={submitQuery}
-            title="Manual refresh"
+            class="freeze-btn"
+            onclick={toggleFrozen}
+            data-testid="freeze-btn"
+            data-state={frozen ? "frozen" : "running"}
           >
-            🔄
+            {frozen ? `Continue${pendingMetrics.length > 0 ? ` (+${pendingMetrics.length})` : ""}` : "Freeze"}
           </button>
+          {#if transport === "rest"}
+            <span class="meta-separator">•</span>
+            <span class="timestamp-color-{timestampColorIndex}">{lastRefreshTime}</span>
+            <span class="meta-separator">•</span>
+            {#if isCountingDown}
+              <span class="countdown">{countdown}s</span>
+            {:else}
+              <span class="countdown-idle">{countdown}s</span>
+            {/if}
+            <button
+              class="refresh-btn-inline"
+              onclick={submitQuery}
+              title="Manual refresh"
+            >
+              🔄
+            </button>
+          {/if}
         </div>
       </div>
-      {#if showUrl}
+      {#if showUrl && transport === "rest"}
         <div class="url-display">
           <code>{obpInfo.baseUrl}/obp/v6.0.0/management/metrics?{currentQueryString}</code>
         </div>
@@ -547,6 +733,24 @@
               </tbody>
             </table>
           {/key}
+        </div>
+      {:else if hasApiAccess && transport === "grpc"}
+        <div class="empty-state">
+          <div
+            style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; text-align: center;"
+          >
+            🟢
+          </div>
+          <h4
+            style="color: #4a5568; margin-bottom: 0.5rem; font-size: 1.125rem; text-align: center;"
+          >
+            {streamConnected ? "Listening for live metrics…" : "Connecting to gRPC stream…"}
+          </h4>
+          <p style="text-align: center; margin-bottom: 0;">
+            {streamConnected
+              ? "New API calls will appear here as they happen."
+              : transportReason || "Establishing connection to the metrics stream."}
+          </p>
         </div>
       {:else if hasApiAccess}
         <div class="empty-state">
@@ -913,6 +1117,108 @@
 
   .refresh-btn-inline:hover {
     transform: rotate(180deg);
+  }
+
+  .freeze-btn {
+    padding: 0.25rem 0.625rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-radius: 0.375rem;
+    border: 1px solid #d1d5db;
+    background: white;
+    color: #374151;
+    cursor: pointer;
+  }
+
+  .freeze-btn:hover {
+    background: #f9fafb;
+  }
+
+  .freeze-btn[data-state="frozen"] {
+    background: #fef3c7;
+    color: #92400e;
+    border-color: #fde68a;
+  }
+
+  :global([data-mode="dark"]) .freeze-btn {
+    background: rgb(var(--color-surface-700));
+    border-color: rgb(var(--color-surface-600));
+    color: var(--color-surface-200);
+  }
+
+  :global([data-mode="dark"]) .freeze-btn[data-state="frozen"] {
+    background: rgba(251, 191, 36, 0.2);
+    color: rgb(253, 224, 71);
+    border-color: rgba(251, 191, 36, 0.4);
+  }
+
+  .transport-toggle {
+    display: inline-flex;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    overflow: hidden;
+  }
+
+  :global([data-mode="dark"]) .transport-toggle {
+    border-color: rgb(var(--color-surface-600));
+  }
+
+  .transport-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.625rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background: white;
+    color: #6b7280;
+    border: none;
+    cursor: pointer;
+  }
+
+  .transport-toggle-btn + .transport-toggle-btn {
+    border-left: 1px solid #d1d5db;
+  }
+
+  :global([data-mode="dark"]) .transport-toggle-btn {
+    background: rgb(var(--color-surface-700));
+    color: var(--color-surface-300);
+  }
+
+  :global([data-mode="dark"]) .transport-toggle-btn + .transport-toggle-btn {
+    border-left-color: rgb(var(--color-surface-600));
+  }
+
+  .transport-toggle-btn[data-active="true"] {
+    background: #3b82f6;
+    color: white;
+  }
+
+  :global([data-mode="dark"]) .transport-toggle-btn[data-active="true"] {
+    background: rgb(var(--color-primary-600));
+  }
+
+  .transport-toggle-btn:hover:not([data-active="true"]) {
+    background: #f9fafb;
+  }
+
+  :global([data-mode="dark"]) .transport-toggle-btn:hover:not([data-active="true"]) {
+    background: rgb(var(--color-surface-600));
+  }
+
+  .transport-dot {
+    display: inline-block;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+  }
+
+  .transport-dot-on {
+    background: #22c55e;
+  }
+
+  .transport-dot-off {
+    background: #f59e0b;
   }
 
   .panel-title {
