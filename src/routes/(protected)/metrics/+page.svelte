@@ -5,6 +5,17 @@
   import type { PageData } from "./$types";
   import { configHelpers } from "$lib/config";
   import MetricsQueryForm from "$lib/components/metrics/MetricsQueryForm.svelte";
+  import { toast } from "$lib/utils/toastService";
+
+  async function copyToClipboard(text: string, label: string) {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.info(`${label} copied to clipboard`);
+    } catch (err) {
+      console.error("Failed to copy:", err);
+      toast.error(`Failed to copy ${label}`);
+    }
+  }
 
   let { data } = $props<{ data: PageData }>();
 
@@ -674,8 +685,6 @@
                 <tr>
                   <th>Date</th>
                   <th>User</th>
-                  <th>App</th>
-                  <th>Operation ID</th>
                   <th>Method</th>
                   <th>Status</th>
                   <th>Duration</th>
@@ -690,24 +699,6 @@
                     </td>
                     <td class="user-cell">
                       {metric.username || "Anonymous"}
-                    </td>
-                    <td class="app-cell">
-                      {metric.app_name || "Unknown"}
-                    </td>
-                    <td class="operation-id-cell">
-                      {#if getApiExplorerLink(metric)}
-                        <a
-                          href={getApiExplorerLink(metric)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          class="operation-id-link"
-                          title="View in API Explorer"
-                        >
-                          <code class="operation-id">{getOperationId(metric)}</code>
-                        </a>
-                      {:else}
-                        <code class="operation-id">{getOperationId(metric)}</code>
-                      {/if}
                     </td>
                     <td class="method-cell">
                       <span
@@ -749,11 +740,62 @@
                     </td>
                   </tr>
                   <tr class="metric-row-endpoint">
-                    <td colspan="8" class="endpoint-cell-full">
-                      <code class="api-instance-id" title="API Instance ID"
-                        >{metric.api_instance_id || "N/A"}</code
+                    <td colspan="6" class="endpoint-cell-full">
+                      <code
+                        class="api-instance-id"
+                        title={`API Instance ID: ${metric.api_instance_id || "N/A"}`}
+                        >{metric.api_instance_id ? metric.api_instance_id.slice(0, 8) : "N/A"}</code
                       >
-                      <code class="endpoint-path">{metric.url}</code>
+                      {#if metric.consumer_id}
+                        <a
+                          href="/consumers/{metric.consumer_id}/edit"
+                          title={`Consumer ID: ${metric.consumer_id} — click to open consumer details`}
+                          data-testid="metric-consumer-id-link"
+                          class="consumer-id-link"
+                        >
+                          <code class="consumer-id">{metric.consumer_id.slice(0, 8)}</code>
+                          {#if metric.app_name}
+                            <span class="app-name-inline">{metric.app_name}</span>
+                          {/if}
+                        </a>
+                      {:else}
+                        <code class="consumer-id consumer-id-missing" title="No consumer ID for this call">N/A</code>
+                        {#if metric.app_name}
+                          <span class="app-name-inline app-name-plain">{metric.app_name}</span>
+                        {/if}
+                      {/if}
+                      {#if getApiExplorerLink(metric)}
+                        <a
+                          href={getApiExplorerLink(metric)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          class="operation-id-link"
+                          title="View in API Explorer"
+                        >
+                          <code class="operation-id">{getOperationId(metric)}</code>
+                        </a>
+                      {:else}
+                        <code class="operation-id">{getOperationId(metric)}</code>
+                      {/if}
+                    </td>
+                  </tr>
+                  <tr class="metric-row-operation">
+                    <td colspan="6" class="endpoint-cell-full">
+                      <span class="endpoint-path">
+                        <code class="endpoint-path-text">{metric.url}</code>
+                        <button
+                          type="button"
+                          class="url-copy-btn"
+                          aria-label="Copy URL"
+                          title="Copy URL"
+                          data-testid="copy-metric-url"
+                          onclick={() => copyToClipboard(metric.url, "URL")}
+                        >
+                          <svg class="url-copy-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                          </svg>
+                        </button>
+                      </span>
                     </td>
                   </tr>
                 {/each}
@@ -1387,7 +1429,47 @@
     border-color: var(--color-surface-800);
   }
 
-  /* Row hover is handled by .metric-row-main:hover styles */
+  .metric-row-main td {
+    border-bottom: none;
+  }
+
+  .metric-row-endpoint,
+  .metric-row-operation {
+    background: var(--color-surface-50);
+  }
+
+  :global([data-mode="dark"]) .metric-row-endpoint,
+  :global([data-mode="dark"]) .metric-row-operation {
+    background: var(--color-surface-900);
+  }
+
+  .metric-row-endpoint td {
+    padding-top: 0;
+    padding-bottom: 0.5rem;
+    border-bottom: none;
+  }
+
+  .metric-row-operation td {
+    padding-top: 0.375rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--color-surface-300);
+  }
+
+  :global([data-mode="dark"]) .metric-row-operation td {
+    border-color: var(--color-surface-700);
+  }
+
+  .metric-row-main:hover,
+  .metric-row-main:hover + .metric-row-endpoint,
+  .metric-row-main:hover + .metric-row-endpoint + .metric-row-operation {
+    background: var(--color-surface-100);
+  }
+
+  :global([data-mode="dark"]) .metric-row-main:hover,
+  :global([data-mode="dark"]) .metric-row-main:hover + .metric-row-endpoint,
+  :global([data-mode="dark"]) .metric-row-main:hover + .metric-row-endpoint + .metric-row-operation {
+    background: var(--color-surface-800);
+  }
 
   .date-cell {
     font-family: monospace;
@@ -1401,37 +1483,6 @@
     color: var(--color-surface-400);
   }
 
-  .metric-row-main td {
-    border-bottom: none;
-  }
-
-  .metric-row-endpoint {
-    background: var(--color-surface-50);
-  }
-
-  :global([data-mode="dark"]) .metric-row-endpoint {
-    background: var(--color-surface-900);
-  }
-
-  .metric-row-endpoint td {
-    padding-top: 0;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid var(--color-surface-300);
-  }
-
-  :global([data-mode="dark"]) .metric-row-endpoint td {
-    border-color: var(--color-surface-700);
-  }
-
-  .metric-row-main:hover,
-  .metric-row-main:hover + .metric-row-endpoint {
-    background: var(--color-surface-100);
-  }
-
-  :global([data-mode="dark"]) .metric-row-main:hover,
-  :global([data-mode="dark"]) .metric-row-main:hover + .metric-row-endpoint {
-    background: var(--color-surface-800);
-  }
 
   .endpoint-cell-full {
     font-family: monospace;
@@ -1444,19 +1495,69 @@
     padding: 0.25rem 0.5rem;
     border-radius: 3px;
     font-size: 0.75rem;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
   }
 
   :global([data-mode="dark"]) .endpoint-path {
     background: var(--color-surface-800);
   }
 
-  .user-cell,
-  .app-cell {
+  .url-copy-btn {
+    padding: 0.125rem;
+    background: transparent;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    color: var(--color-surface-500);
+    line-height: 0;
+  }
+
+  .url-copy-btn:hover {
+    background: var(--color-surface-300);
+    color: var(--color-surface-800);
+  }
+
+  :global([data-mode="dark"]) .url-copy-btn {
+    color: var(--color-surface-400);
+  }
+
+  :global([data-mode="dark"]) .url-copy-btn:hover {
+    background: var(--color-surface-700);
+    color: var(--color-surface-200);
+  }
+
+  .url-copy-icon {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+
+  .user-cell {
     max-width: 150px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  .app-name-inline {
+    margin-right: 0.5rem;
+    color: #9d174d;
+    font-weight: 500;
+    font-family: system-ui, sans-serif;
+    font-size: 0.8125rem;
+  }
+
+  :global([data-mode="dark"]) .app-name-inline {
+    color: rgb(249, 168, 212);
+  }
+
+  .consumer-id-link:hover .app-name-inline {
+    text-decoration: underline;
+  }
+
+  .app-name-plain {
+    opacity: 0.7;
   }
 
   .operation-id-cell {
@@ -1663,6 +1764,39 @@
   :global([data-mode="dark"]) .api-instance-id {
     background: var(--color-primary-900);
     color: var(--color-primary-200);
+  }
+
+  .consumer-id {
+    margin-right: 0.5rem;
+    background: #fce7f3;
+    color: #9d174d;
+    padding: 0.125rem 0.375rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: help;
+  }
+
+  :global([data-mode="dark"]) .consumer-id {
+    background: rgba(236, 72, 153, 0.18);
+    color: rgb(249, 168, 212);
+  }
+
+  .consumer-id-link {
+    text-decoration: none;
+  }
+
+  .consumer-id-link:hover .consumer-id {
+    background: #fbcfe8;
+    text-decoration: underline;
+  }
+
+  :global([data-mode="dark"]) .consumer-id-link:hover .consumer-id {
+    background: rgba(236, 72, 153, 0.3);
+  }
+
+  .consumer-id-missing {
+    opacity: 0.6;
   }
 
   .table-wrapper {

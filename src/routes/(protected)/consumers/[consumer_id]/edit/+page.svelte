@@ -6,6 +6,17 @@
 
   import { pageDataSummary } from "$lib/stores/pageDataSummary.svelte";
   import { pageHeading } from "$lib/stores/pageHeading.svelte";
+  import { toast } from "$lib/utils/toastService";
+
+  async function copyToClipboard(text: string, label: string) {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.info(`${label} copied to clipboard`);
+    } catch (err) {
+      console.error("Failed to copy:", err);
+      toast.error(`Failed to copy ${label}`);
+    }
+  }
 
   let { data, form } = $props();
 
@@ -25,6 +36,23 @@
   const actionRoles = data.actionRoles || {};
   const isCurrentConsumer = data.isCurrentConsumer || false;
   const rateLimitingInfo = data.rateLimitingInfo;
+  const activeRateLimits = data.activeRateLimits;
+
+  type PeriodKey = "per_second" | "per_minute" | "per_hour" | "per_day" | "per_week" | "per_month";
+
+  const ratePeriods: Array<{ key: PeriodKey; label: string; limit: number | undefined }> = [
+    { key: "per_second", label: "Per Second", limit: activeRateLimits?.active_per_second_rate_limit },
+    { key: "per_minute", label: "Per Minute", limit: activeRateLimits?.active_per_minute_rate_limit },
+    { key: "per_hour", label: "Per Hour", limit: activeRateLimits?.active_per_hour_rate_limit },
+    { key: "per_day", label: "Per Day", limit: activeRateLimits?.active_per_day_rate_limit },
+    { key: "per_week", label: "Per Week", limit: activeRateLimits?.active_per_week_rate_limit },
+    { key: "per_month", label: "Per Month", limit: activeRateLimits?.active_per_month_rate_limit },
+  ];
+
+  function formatLimit(limit: number | undefined): string {
+    if (limit === undefined || limit === null || limit < 0) return "Unlimited";
+    return limit.toLocaleString();
+  }
 
   // Helper to check if user has a specific role
   function hasRole(roleName: string): boolean {
@@ -128,17 +156,10 @@
 
 <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
   {consumer.app_name} - Detail
+  {#if isCurrentConsumer}
+    <span data-testid="current-consumer-marker" class="ml-2 text-base font-normal text-blue-600 dark:text-blue-400">(the current consumer)</span>
+  {/if}
 </h1>
-
-{#if isCurrentConsumer}
-  <div class="mb-6 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 dark:border-blue-800 dark:bg-blue-900/20">
-    <div class="flex items-center gap-2">
-      <span class="text-blue-600 dark:text-blue-400">ℹ️</span>
-      <span class="text-sm font-medium text-blue-800 dark:text-blue-200">This is the current consumer</span>
-      <span class="text-xs text-blue-600 dark:text-blue-400">— the app you are using to access the API right now</span>
-    </div>
-  </div>
-{/if}
 
 <!-- Error/Success Messages -->
 {#if form?.error}
@@ -403,7 +424,25 @@
     </div>
     <div>
       <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Developer Email</label>
-      <p class="mt-1 text-gray-900 dark:text-gray-100">{consumer.developer_email}</p>
+      <div class="mt-1 flex items-center gap-2">
+        <a
+          data-testid="developer-email-link"
+          href="mailto:{consumer.developer_email}"
+          class="text-blue-600 hover:text-blue-700 hover:underline break-all dark:text-blue-400 dark:hover:text-blue-300"
+        >{consumer.developer_email}</a>
+        <button
+          type="button"
+          data-testid="copy-developer-email"
+          aria-label="Copy developer email"
+          title="Copy email"
+          onclick={() => copyToClipboard(consumer.developer_email, "Developer email")}
+          class="inline-flex items-center rounded p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200"
+        >
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          </svg>
+        </button>
+      </div>
     </div>
     <div>
       <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Company</label>
@@ -497,13 +536,25 @@
   {/if}
 </div>
 
-<!-- Call Counters Section -->
-<div class="mb-8 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-  <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-    API Call Counters
-  </h2>
+<!-- Rate Limits & Usage Section -->
+<div data-testid="rate-limits-and-usage" class="mb-8 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+  <div class="mb-4 flex items-center justify-between gap-4">
+    <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+      Rate Limits &amp; Usage
+    </h2>
+    <a
+      data-testid="manage-rate-limits-link"
+      href="/consumers/{consumer.consumer_id}/rate-limits"
+      class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-800"
+    >
+      Manage Rate Limits
+      <svg class="ml-1.5 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+      </svg>
+    </a>
+  </div>
   <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
-    Current API usage for this consumer.
+    Current usage against the active rate limit for each period. Shown as <code>calls / limit</code>.
   </p>
   {#if rateLimitingInfo}
     <p class="mb-4 text-[11px] text-gray-400 dark:text-gray-500">
@@ -520,72 +571,26 @@
     </p>
   {/if}
   <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-    <div class="rounded-lg bg-gray-50 p-3 dark:bg-gray-900/50">
-      <div class="text-xs font-medium text-gray-500 dark:text-gray-400">Per Second</div>
-      {#if consumer.call_counters?.per_second && typeof consumer.call_counters.per_second.calls_made === 'number'}
-        <div class="mt-1 text-lg font-semibold text-gray-900 dark:text-gray-100">{consumer.call_counters.per_second.calls_made}</div>
-        <div class="text-[10px] text-gray-400 dark:text-gray-500">resets: {consumer.call_counters.per_second.reset_in_seconds}s</div>
-        <div class="text-[10px] text-gray-400 dark:text-gray-500">{consumer.call_counters.per_second.status || ''}</div>
-      {:else}
-        <div class="mt-1 text-lg font-semibold text-red-600 dark:text-red-400">Err</div>
-        <div class="text-[10px] text-gray-400 dark:text-gray-500">unavailable</div>
-      {/if}
-    </div>
-    <div class="rounded-lg bg-gray-50 p-3 dark:bg-gray-900/50">
-      <div class="text-xs font-medium text-gray-500 dark:text-gray-400">Per Minute</div>
-      {#if consumer.call_counters?.per_minute && typeof consumer.call_counters.per_minute.calls_made === 'number'}
-        <div class="mt-1 text-lg font-semibold text-gray-900 dark:text-gray-100">{consumer.call_counters.per_minute.calls_made}</div>
-        <div class="text-[10px] text-gray-400 dark:text-gray-500">resets: {consumer.call_counters.per_minute.reset_in_seconds}s</div>
-        <div class="text-[10px] text-gray-400 dark:text-gray-500">{consumer.call_counters.per_minute.status || ''}</div>
-      {:else}
-        <div class="mt-1 text-lg font-semibold text-red-600 dark:text-red-400">Err</div>
-        <div class="text-[10px] text-gray-400 dark:text-gray-500">unavailable</div>
-      {/if}
-    </div>
-    <div class="rounded-lg bg-gray-50 p-3 dark:bg-gray-900/50">
-      <div class="text-xs font-medium text-gray-500 dark:text-gray-400">Per Hour</div>
-      {#if consumer.call_counters?.per_hour && typeof consumer.call_counters.per_hour.calls_made === 'number'}
-        <div class="mt-1 text-lg font-semibold text-gray-900 dark:text-gray-100">{consumer.call_counters.per_hour.calls_made}</div>
-        <div class="text-[10px] text-gray-400 dark:text-gray-500">resets: {consumer.call_counters.per_hour.reset_in_seconds}s</div>
-        <div class="text-[10px] text-gray-400 dark:text-gray-500">{consumer.call_counters.per_hour.status || ''}</div>
-      {:else}
-        <div class="mt-1 text-lg font-semibold text-red-600 dark:text-red-400">Err</div>
-        <div class="text-[10px] text-gray-400 dark:text-gray-500">unavailable</div>
-      {/if}
-    </div>
-    <div class="rounded-lg bg-gray-50 p-3 dark:bg-gray-900/50">
-      <div class="text-xs font-medium text-gray-500 dark:text-gray-400">Per Day</div>
-      {#if consumer.call_counters?.per_day && typeof consumer.call_counters.per_day.calls_made === 'number'}
-        <div class="mt-1 text-lg font-semibold text-gray-900 dark:text-gray-100">{consumer.call_counters.per_day.calls_made}</div>
-        <div class="text-[10px] text-gray-400 dark:text-gray-500">resets: {consumer.call_counters.per_day.reset_in_seconds}s</div>
-        <div class="text-[10px] text-gray-400 dark:text-gray-500">{consumer.call_counters.per_day.status || ''}</div>
-      {:else}
-        <div class="mt-1 text-lg font-semibold text-red-600 dark:text-red-400">Err</div>
-        <div class="text-[10px] text-gray-400 dark:text-gray-500">unavailable</div>
-      {/if}
-    </div>
-    <div class="rounded-lg bg-gray-50 p-3 dark:bg-gray-900/50">
-      <div class="text-xs font-medium text-gray-500 dark:text-gray-400">Per Week</div>
-      {#if consumer.call_counters?.per_week && typeof consumer.call_counters.per_week.calls_made === 'number'}
-        <div class="mt-1 text-lg font-semibold text-gray-900 dark:text-gray-100">{consumer.call_counters.per_week.calls_made}</div>
-        <div class="text-[10px] text-gray-400 dark:text-gray-500">resets: {consumer.call_counters.per_week.reset_in_seconds}s</div>
-        <div class="text-[10px] text-gray-400 dark:text-gray-500">{consumer.call_counters.per_week.status || ''}</div>
-      {:else}
-        <div class="mt-1 text-lg font-semibold text-red-600 dark:text-red-400">Err</div>
-        <div class="text-[10px] text-gray-400 dark:text-gray-500">unavailable</div>
-      {/if}
-    </div>
-    <div class="rounded-lg bg-gray-50 p-3 dark:bg-gray-900/50">
-      <div class="text-xs font-medium text-gray-500 dark:text-gray-400">Per Month</div>
-      {#if consumer.call_counters?.per_month && typeof consumer.call_counters.per_month.calls_made === 'number'}
-        <div class="mt-1 text-lg font-semibold text-gray-900 dark:text-gray-100">{consumer.call_counters.per_month.calls_made}</div>
-        <div class="text-[10px] text-gray-400 dark:text-gray-500">resets: {consumer.call_counters.per_month.reset_in_seconds}s</div>
-        <div class="text-[10px] text-gray-400 dark:text-gray-500">{consumer.call_counters.per_month.status || ''}</div>
-      {:else}
-        <div class="mt-1 text-lg font-semibold text-red-600 dark:text-red-400">Err</div>
-        <div class="text-[10px] text-gray-400 dark:text-gray-500">unavailable</div>
-      {/if}
-    </div>
+    {#each ratePeriods as period}
+      {@const counter = consumer.call_counters?.[period.key]}
+      <div data-testid="rate-usage-{period.key}" class="rounded-lg bg-gray-50 p-3 dark:bg-gray-900/50">
+        <div class="text-xs font-medium text-gray-500 dark:text-gray-400">{period.label}</div>
+        {#if counter && typeof counter.calls_made === 'number'}
+          <div class="mt-1 text-lg font-semibold text-gray-900 dark:text-gray-100">
+            {counter.calls_made.toLocaleString()}
+            <span class="text-sm font-normal text-gray-500 dark:text-gray-400">/ {formatLimit(period.limit)}</span>
+          </div>
+          <div class="text-[10px] text-gray-400 dark:text-gray-500">resets: {counter.reset_in_seconds}s</div>
+          <div class="text-[10px] text-gray-400 dark:text-gray-500">{counter.status || ''}</div>
+        {:else}
+          <div class="mt-1 text-lg font-semibold text-gray-900 dark:text-gray-100">
+            <span class="text-red-600 dark:text-red-400">Err</span>
+            <span class="text-sm font-normal text-gray-500 dark:text-gray-400">/ {formatLimit(period.limit)}</span>
+          </div>
+          <div class="text-[10px] text-gray-400 dark:text-gray-500">unavailable</div>
+        {/if}
+      </div>
+    {/each}
   </div>
 </div>
 
@@ -812,15 +817,7 @@
 <!-- Additional Actions -->
 <div class="mt-6 flex flex-wrap gap-4">
   <a
-    href="/consumers/{consumer.consumer_id}/rate-limits"
-    class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 dark:focus:ring-gray-700"
-  >
-    <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-    </svg>
-    Manage Rate Limits
-  </a>
-  <a
+    data-testid="view-metrics-link"
     href="/metrics?consumer_id={consumer.consumer_id}"
     class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 dark:focus:ring-gray-700"
   >

@@ -50,6 +50,17 @@ interface Scope {
   bank_id: string;
 }
 
+interface ActiveRateLimits {
+  considered_rate_limit_ids: string[];
+  active_at_date: string;
+  active_per_second_rate_limit: number;
+  active_per_minute_rate_limit: number;
+  active_per_hour_rate_limit: number;
+  active_per_day_rate_limit: number;
+  active_per_week_rate_limit: number;
+  active_per_month_rate_limit: number;
+}
+
 interface Role {
   role: string;
   requires_bank_id: boolean;
@@ -94,6 +105,7 @@ export async function load(event: RequestEvent) {
     technology?: string;
     service_available?: boolean;
   } | null = null;
+  let activeRateLimits: ActiveRateLimits | undefined = undefined;
 
   // Fetch consumer details
   try {
@@ -134,6 +146,18 @@ export async function load(event: RequestEvent) {
   } catch (e) {
     logger.error("Error fetching rate limiting info:", e);
     // Non-fatal - continue without this info
+  }
+
+  // Fetch active rate limits for this consumer
+  try {
+    activeRateLimits = await obp_requests.get(
+      `/obp/v6.0.0/management/consumers/${consumerId}/active-rate-limits`,
+      token,
+    );
+    logger.debug(`Active rate limits: ${JSON.stringify(activeRateLimits)}`);
+  } catch (e) {
+    logger.error("Error fetching active rate limits:", e);
+    // Non-fatal - continue without active limits
   }
 
   // Fetch scopes for this consumer
@@ -186,6 +210,7 @@ export async function load(event: RequestEvent) {
     actionRoles,
     isCurrentConsumer,
     rateLimitingInfo,
+    activeRateLimits,
   };
 }
 

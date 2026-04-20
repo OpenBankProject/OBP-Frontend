@@ -148,10 +148,14 @@
           <!-- Header with App Name and Status -->
           <div class="mb-2 flex items-start justify-between">
             <div class="flex-1 min-w-0">
-              <h2
-                class="text-base font-semibold text-gray-900 dark:text-gray-100 truncate"
-              >
-                {consumer.app_name}
+              <h2 class="text-base font-semibold truncate">
+                <a
+                  data-testid="consumer-name-link"
+                  href="/consumers/{consumer.consumer_id}/edit"
+                  class="text-gray-900 hover:text-blue-600 hover:underline dark:text-gray-100 dark:hover:text-blue-400"
+                >
+                  {consumer.app_name}
+                </a>
               </h2>
               <p class="text-xs text-gray-600 dark:text-gray-400">
                 Created: {formatDate(consumer.created)}
@@ -270,9 +274,17 @@
           </div>
           <div class="mt-1 text-xs">
             <span class="font-medium text-gray-600 dark:text-gray-400">Redirect URL:</span>
-            <span class="ml-1 text-gray-900 dark:text-gray-100 break-all"
-              >{consumer.redirect_url || "Not specified"}</span
-            >
+            {#if consumer.redirect_url}
+              <a
+                data-testid="consumer-redirect-url-link"
+                href={consumer.redirect_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="ml-1 text-blue-600 hover:text-blue-700 hover:underline break-all dark:text-blue-400 dark:hover:text-blue-300"
+              >{consumer.redirect_url}</a>
+            {:else}
+              <span class="ml-1 text-gray-900 dark:text-gray-100">Not specified</span>
+            {/if}
           </div>
         </div>
       {/each}
