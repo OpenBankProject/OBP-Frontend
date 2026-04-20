@@ -312,46 +312,11 @@
     return !routing.method_routing_id || routing.method_routing_id === "";
   }
 
-  // Read deep-link query params (e.g. from Dynamic Endpoint operations table)
-  // and pre-open the create form with fields pre-filled.
-  let prefillBanner = $state<string | null>(null);
-  function applyPrefillFromUrl() {
-    if (typeof window === "undefined") return;
-    const params = new URLSearchParams(window.location.search);
-    const prefillMethod = params.get("prefill_method_name");
-    if (!prefillMethod) return;
-
-    const prefillConnector = params.get("prefill_connector_name") || "";
-    const prefillBankPattern = params.get("prefill_bank_id_pattern") || "";
-    const prefillExact = params.get("prefill_is_bank_id_exact_match") === "true";
-
-    // Dynamic Endpoint operationIds are not part of /system/connector-method-names,
-    // so add the prefilled name to the options list. Without this, bind:value on the
-    // <select> can't match any <option> and the field resets to empty.
-    if (!methodNames.includes(prefillMethod)) {
-      methodNames = [prefillMethod, ...methodNames];
-    }
-
-    formData = {
-      method_name: prefillMethod,
-      connector_name: prefillConnector,
-      is_bank_id_exact_match: prefillExact,
-      bank_id_pattern: prefillBankPattern,
-      parameters: "",
-    };
-    showCreateForm = true;
-    prefillBanner = `Pre-filled from a Dynamic Endpoint operation: ${prefillMethod}. Edit the connector and parameters before saving.`;
-    scrollToForm();
-  }
-
-  onMount(async () => {
+  onMount(() => {
     fetchMethodRoutings();
+    fetchMethodNames();
     fetchConnectorNames();
     fetchBankIds();
-    // Await method names before applying the URL prefill so the <select> options
-    // are populated when we set formData.method_name.
-    await fetchMethodNames();
-    applyPrefillFromUrl();
   });
 </script>
 
@@ -378,15 +343,6 @@
       </button>
     {/if}
   </div>
-
-  <!-- Prefill banner (from Dynamic Endpoint deep-link) -->
-  {#if prefillBanner}
-    <div class="alert alert-info mb-6" data-testid="prefill-banner">
-      <strong>ℹ️</strong>
-      {prefillBanner}
-      <button onclick={() => (prefillBanner = null)} class="alert-close">×</button>
-    </div>
-  {/if}
 
   <!-- Messages -->
   {#if error}

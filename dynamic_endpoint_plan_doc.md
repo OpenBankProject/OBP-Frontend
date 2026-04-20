@@ -110,15 +110,14 @@ The existing `/integration/method-routings` stays as a cross-cutting admin page;
 
 Each phase ships independently.
 
-### Phase 1 — Roles surfacing (smallest, highest leverage)
+### Phase 1 — Roles surfacing ✅ done via SITE_MAP
 
-- Add an `actionRoles` dict to the Dynamic Endpoint server load (same pattern as `consumers/[consumer_id]/edit/+page.server.ts`).
-- Pull user entitlements via `user.entitlements` (already available in other pages).
-- Pass `canCreate`, `canDelete`, `canUpdate` derivations into the detail and list pages.
-- Use the existing `MissingRoleAlert` component on action attempts.
-- No new OBP calls, no new routes.
+All six Dynamic Endpoint routes are registered in `src/lib/utils/roleChecker.ts` SITE_MAP with `required` (Get) and `optional` (Create / Update / Delete / JSON Schema) roles. `(protected)/+layout.svelte` auto-wraps each page with `PageRoleCheck`, which:
 
-**Files touched:** 4 existing server+page files in `dynamic-endpoints/`.
+- Blocks the page if any `required` role is missing (shows `MissingRoleAlert`).
+- Shows a passive info note listing missing `optional` roles at the top of the page.
+
+Failed action attempts (e.g. clicking Delete without `CanDeleteDynamicEndpoint`) surface the OBP error. No per-page `actionRoles` dicts needed — SITE_MAP is the single source of truth.
 
 ### Phase 2 — Per-operation table on the detail page
 
@@ -140,13 +139,16 @@ Each phase ships independently.
 
 **Decision:** inline panel on the detail page is simpler for v1; split to its own route only if the editor grows.
 
-### Phase 4 — Method Routing deep-link
+### Phase 4 — Method Routing deep-link ❌ dropped
 
-- Add "Configure routing" per operation that opens `/integration/method-routings?method_name=<derived>&operation_id=<op>&prefilled=true`.
-- Teach `method-routings/+page.svelte` to honour those query params and pre-open the create form with fields populated.
-- Show the current routing summary on the operation row by calling `GET /method_routings?active=true` once at page load and filtering by `method_name`.
+Earlier we added a "Configure routing" deep-link from each operation to `/integration/method-routings` with `prefill_method_name=<operationId>`. We've since removed it.
 
-**Open question:** the OBP `method_name` on a `method_routing` isn't always the same as the Dynamic Endpoint's `operation_id` — it's the Scala connector method (e.g. `getBank`). For `obp_mock` endpoints there is no connector call, so a method routing is only meaningful when host is `dynamic_entity` or an external URL. We should only show "Configure routing" in those cases, and document the mapping rule clearly.
+Why: OBP's `method_routing.method_name` is a Scala connector method (e.g. `getBank`) discovered via reflection at runtime (see `GET /system/connector-method-names`). Dynamic Endpoint `operation_id` values live in a different namespace and are not valid `method_name` values — OBP would reject the create with `OBP-10022: Incorrect Connector method name.`. Method Routing is a cross-cutting admin concern, not a per-Dynamic-Endpoint-operation action.
+
+`/integration/method-routings` stays as a standalone page. When operators need to wire a Dynamic Endpoint to real data, the correct paths are:
+- `host = <URL>` — the host itself is the backend; no routing needed.
+- `host = dynamic_entity` — use Endpoint Mapping (Phase 5).
+- `host = obp_mock` — no routing needed.
 
 ### Phase 5 — Endpoint Mapping (only when `host: dynamic_entity`)
 
@@ -174,7 +176,5 @@ Each phase ships independently.
 
 ## Open questions / decisions needed before coding
 
-1. **Method Routing linkage.** Is the mapping "Dynamic Endpoint operation ↔ method_routing.method_name" ever 1:1, or do operators typically point multiple operations at one routing? This affects whether Phase 4 shows a 1:1 "current routing" cell or a "routings that match this operation" list.
-2. **Bank-level roles.** Confirm via `get_endpoint_schema` whether bank-level create/update/delete dynamic-endpoint endpoints use `Can...AtAnyBank`-style roles. Schema query pending for the bank routes.
-3. **Inline vs routed editors.** JSON Schema editing inline is fine for small schemas, but a Monaco/codemirror editor on a full route is nicer once schemas get large. Start inline; upgrade only if users complain.
-4. **Try-it panel (Phase 6).** Worth doing, or leave to the API Explorer? The appeal is "verify the whole chain without leaving the page" — even a curl snippet on the operation row beats nothing.
+1. **Bank-level roles.** Confirm via `get_endpoint_schema` whether bank-level create/update/delete dynamic-endpoint endpoints use `Can...AtAnyBank`-style roles. Schema query pending for the bank routes.
+2. **Inline vs routed editors.** JSON Schema editing inline is fine for small schemas, but a Monaco/codemirror editor on a full route is nicer once schemas get large. Start inline; upgrade only if users complain.

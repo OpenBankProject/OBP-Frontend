@@ -21,10 +21,9 @@
   interface Props {
     swagger: any;
     validations?: Validation[];
-    bankId?: string;
   }
 
-  let { swagger, validations = [], bankId }: Props = $props();
+  let { swagger, validations = [] }: Props = $props();
 
   // Dynamic endpoints are served under /obp/dynamic-endpoint/ (no API version, no /banks/ segment
   // even for bank-scoped endpoints — bank scoping is enforced at the record level).
@@ -331,7 +330,6 @@
             <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Operation ID</th>
             <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Resolves to</th>
             <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">JSON Schema</th>
-            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Method Routing</th>
             <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Try it</th>
           </tr>
         </thead>
@@ -408,21 +406,6 @@
                 {/if}
               </td>
               <td class="whitespace-nowrap px-4 py-3 align-top text-xs">
-                {#if op.operationId}
-                  {@const mrParams = new URLSearchParams({
-                    prefill_method_name: op.operationId,
-                    ...(bankId ? { prefill_bank_id_pattern: bankId, prefill_is_bank_id_exact_match: "true" } : {}),
-                  })}
-                  <a
-                    href={`/integration/method-routings?${mrParams.toString()}`}
-                    data-testid="configure-routing-link"
-                    class="text-blue-600 hover:underline dark:text-blue-400"
-                  >Configure routing →</a>
-                {:else}
-                  <span class="text-gray-400 dark:text-gray-500">—</span>
-                {/if}
-              </td>
-              <td class="whitespace-nowrap px-4 py-3 align-top text-xs">
                 <button
                   type="button"
                   class="inline-flex items-center rounded border border-blue-300 bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 hover:bg-blue-100 dark:border-blue-700 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50"
@@ -433,7 +416,7 @@
             </tr>
             {#if isSchemaOpen}
               <tr data-testid="validation-editor-row">
-                <td colspan="8" class="px-4 py-4 bg-gray-50 dark:bg-gray-900/40">
+                <td colspan="7" class="px-4 py-4 bg-gray-50 dark:bg-gray-900/40">
                   <div class="space-y-3">
                     <div class="flex items-baseline justify-between">
                       <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100">
@@ -484,7 +467,7 @@
             {/if}
             {#if isTryOpen}
               <tr data-testid="try-it-row">
-                <td colspan="8" class="px-4 py-4 bg-gray-50 dark:bg-gray-900/40">
+                <td colspan="7" class="px-4 py-4 bg-gray-50 dark:bg-gray-900/40">
                   <div class="space-y-3">
                     <div class="flex items-baseline justify-between">
                       <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100">

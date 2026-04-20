@@ -356,7 +356,7 @@
 
   <!-- Operations Section -->
   <div class="mb-6">
-    <DynamicEndpointOperationsTable {swagger} validations={data.validations || []} bankId={bankId} />
+    <DynamicEndpointOperationsTable {swagger} validations={data.validations || []} />
   </div>
 
   <!-- Raw Swagger View -->
