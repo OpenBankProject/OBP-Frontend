@@ -1,0 +1,46 @@
+FROM node:22-alpine AS builder
+RUN apk add --no-cache git
+WORKDIR /app
+
+# Copy monorepo root manifests and install all workspace dependencies
+COPY package*.json ./
+COPY apps/portal/package*.json ./apps/portal/
+COPY apps/api-manager/package*.json ./apps/api-manager/
+COPY packages/shared/package*.json ./packages/shared/
+
+RUN npm ci
+
+# Copy full source
+COPY packages/shared/ ./packages/shared/
+COPY apps/api-manager/ ./apps/api-manager/
+
+# Accept build arguments for environment variables
+ARG PUBLIC_OBP_BASE_URL
+ARG OBP_OAUTH_CLIENT_ID
+ARG OBP_OAUTH_CLIENT_SECRET
+ARG APP_CALLBACK_URL
+ARG ORIGIN
+
+# Set environment variables for build
+ENV PUBLIC_OBP_BASE_URL=$PUBLIC_OBP_BASE_URL
+ENV OBP_OAUTH_CLIENT_ID=$OBP_OAUTH_CLIENT_ID
+ENV OBP_OAUTH_CLIENT_SECRET=$OBP_OAUTH_CLIENT_SECRET
+ENV APP_CALLBACK_URL=$APP_CALLBACK_URL
+ENV ORIGIN=$ORIGIN
+
+# Generate .svelte-kit/ for shared package so its tsconfig.json can resolve during the app build
+RUN npm run prepare --workspace=packages/shared
+
+# Build the api-manager app (shared package source is consumed directly via workspace symlink)
+RUN npm run build --workspace=apps/api-manager
+
+RUN npm prune --production
+
+FROM node:22-alpine
+WORKDIR /app
+COPY --from=builder /app/apps/api-manager/build ./build/
+COPY --from=builder /app/node_modules ./node_modules/
+COPY --from=builder /app/apps/api-manager/package.json ./package.json
+EXPOSE 3003
+ENV NODE_ENV=production
+CMD [ "node", "build" ]
