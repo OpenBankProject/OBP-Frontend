@@ -491,6 +491,28 @@ export function getActiveDynamicEndpointsMenuItem(pathname: string) {
   return found || dynamicEndpointsItems[0]; // fallback to first item
 }
 
+// Dynamic Resource Docs navigation items
+function buildDynamicResourceDocsItems(): NavigationItem[] {
+  return [
+    {
+      href: "/dynamic-resource-docs/system",
+      label: "System",
+      iconComponent: Plug,
+    },
+  ];
+}
+
+export const dynamicResourceDocsItems = buildDynamicResourceDocsItems();
+
+export function getActiveDynamicResourceDocsMenuItem(pathname: string) {
+  const found = dynamicResourceDocsItems.find((item) => {
+    if (item.external) return false;
+    return pathname.startsWith(item.href);
+  });
+
+  return found || dynamicResourceDocsItems[0];
+}
+
 // Products navigation items
 function buildProductsItems(): NavigationItem[] {
   const items: NavigationItem[] = [
@@ -721,6 +743,7 @@ export const navSections: NavigationSection[] = [
   { id: "account-access", label: "Account Access", iconComponent: Landmark, items: accountAccessItems, basePaths: ["/account-access", "/mandates"] },
   { id: "dynamic-entities", label: "Dynamic Entities", iconComponent: Box, items: dynamicEntitiesItems, basePaths: ["/dynamic-entities"] },
   { id: "dynamic-endpoints", label: "Dynamic Endpoints", iconComponent: Plug, items: dynamicEndpointsItems, basePaths: ["/dynamic-endpoints"] },
+  { id: "dynamic-resource-docs", label: "Dynamic Resource Docs", iconComponent: FileText, items: dynamicResourceDocsItems, basePaths: ["/dynamic-resource-docs"] },
   { id: "chat-rooms", label: "Chat Rooms", iconComponent: MessageSquare, items: chatRoomsItems, basePaths: ["/chat-rooms"] },
   { id: "management-docs", label: "Management Docs", iconComponent: BookOpen, items: managementDocsItems, basePaths: ["/management-docs"] },
 ];

@@ -18,12 +18,36 @@
     json_schema: any;
   }
 
+  interface Mapping {
+    endpoint_mapping_id: string;
+    operation_id: string;
+    request_mapping: any;
+    response_mapping: any;
+  }
+
   interface Props {
     swagger: any;
     validations?: Validation[];
+    mappings?: Mapping[];
+    /** Pass a bank_id to target bank-level endpoint-mapping CRUD; omit for system-level. */
+    bankId?: string;
   }
 
-  let { swagger, validations = [] }: Props = $props();
+  let { swagger, validations = [], mappings = [], bankId }: Props = $props();
+
+  // Only `dynamic_entity` hosts use Endpoint Mapping; hide the column otherwise.
+  const showMapping = $derived((swagger?.host || "") === "dynamic_entity");
+
+  // Column count is 7 by default, 8 when the Endpoint Mapping column is visible.
+  // Used for colspan on the full-width editor rows.
+  const columnCount = $derived(showMapping ? 8 : 7);
+
+  // Endpoint-mapping CRUD base: bank-level when bankId is set, otherwise system.
+  const mappingsBase = $derived(
+    bankId
+      ? `/proxy/obp/v4.0.0/management/banks/${encodeURIComponent(bankId)}/endpoint-mappings`
+      : `/proxy/obp/v4.0.0/management/endpoint-mappings`,
+  );
 
   // Dynamic endpoints are served under /obp/dynamic-endpoint/ (no API version, no /banks/ segment
   // even for bank-scoped endpoints — bank scoping is enforced at the record level).
@@ -54,6 +78,10 @@
 
   let validationsByOpId = $derived(
     new Map(validations.map((v) => [v.operation_id, v])),
+  );
+
+  let mappingsByOpId = $derived(
+    new Map(mappings.map((m) => [m.operation_id, m])),
   );
 
   function isUrlHost(h: string): boolean {
@@ -119,12 +147,20 @@
     );
   }
 
-  // Editor state — one panel open at a time. "schema" = JSON Schema editor, "try" = try-it panel.
-  type EditorMode = { kind: "none" } | { kind: "schema"; opKey: string } | { kind: "try"; opKey: string };
+  // Editor state — one panel open at a time.
+  type EditorMode =
+    | { kind: "none" }
+    | { kind: "schema"; opKey: string }
+    | { kind: "mapping"; opKey: string }
+    | { kind: "try"; opKey: string };
   let editor = $state<EditorMode>({ kind: "none" });
   let editorJson = $state("");
   let editorError = $state("");
   let editorSaving = $state(false);
+
+  // Endpoint-mapping editor state (two JSON docs: request and response mapping).
+  let requestMappingJson = $state("");
+  let responseMappingJson = $state("");
 
   // Try-it state
   let tryUrl = $state("");
@@ -161,11 +197,161 @@
     editor = { kind: "none" };
     editorJson = "";
     editorError = "";
+    requestMappingJson = "";
+    responseMappingJson = "";
     tryUrl = "";
     tryBody = "";
     tryResponseStatus = null;
     tryResponseText = "";
     tryError = "";
+  }
+
+  function resolveRef(schema: any): any {
+    if (schema?.$ref && typeof schema.$ref === "string") {
+      const refName = schema.$ref
+        .replace(/^#\/definitions\//, "")
+        .replace(/^#\/components\/schemas\//, "");
+      return swagger?.definitions?.[refName] || swagger?.components?.schemas?.[refName];
+    }
+    return schema;
+  }
+
+  function mappingFromSchema(schema: any): string {
+    // Turn a schema's `properties` into a starter mapping object. Placeholder
+    // values (<EntityName>, <queryKey>) flag what the operator still needs to fill in.
+    const resolved = resolveRef(schema);
+    const properties = resolved?.properties;
+    if (!properties || typeof properties !== "object") {
+      return "{}";
+    }
+    const obj: Record<string, any> = {};
+    for (const fieldName of Object.keys(properties)) {
+      obj[fieldName] = {
+        entity: "<EntityName>",
+        field: fieldName,
+        query: "<queryKey>",
+      };
+    }
+    return JSON.stringify(obj, null, 2);
+  }
+
+  function seedRequestMapping(op: Operation): string {
+    // Swagger 2.0: body parameter with `in: body` + schema. OpenAPI 3.x: requestBody.
+    const swaggerOp = swagger?.paths?.[op.path]?.[op.method.toLowerCase()];
+    const bodyParam = (swaggerOp?.parameters || []).find((p: any) => p.in === "body");
+    const bodySchema =
+      bodyParam?.schema || swaggerOp?.requestBody?.content?.["application/json"]?.schema;
+    return mappingFromSchema(bodySchema);
+  }
+
+  function seedResponseMapping(op: Operation): string {
+    // Pick a 2xx response schema (200 / 201 preferred, else first 2xx).
+    const swaggerOp = swagger?.paths?.[op.path]?.[op.method.toLowerCase()];
+    const responses = swaggerOp?.responses || {};
+    const successCode =
+      ["200", "201"].find((c) => responses[c]) ||
+      Object.keys(responses).find((c) => /^2\d\d$/.test(c));
+    const schema = successCode ? responses[successCode]?.schema : undefined;
+    return mappingFromSchema(schema);
+  }
+
+  function openMappingEditor(op: Operation) {
+    editor = { kind: "mapping", opKey: opKey(op) };
+    editorError = "";
+    const existing = mappingsByOpId.get(op.operationId);
+    requestMappingJson = existing
+      ? JSON.stringify(existing.request_mapping, null, 2)
+      : seedRequestMapping(op);
+    responseMappingJson = existing
+      ? JSON.stringify(existing.response_mapping, null, 2)
+      : seedResponseMapping(op);
+  }
+
+  async function saveMapping(op: Operation) {
+    if (!op.operationId) {
+      editorError = "This operation has no operationId in its Swagger spec. Add one to the Swagger doc first.";
+      return;
+    }
+
+    let requestParsed: any;
+    let responseParsed: any;
+    try {
+      requestParsed = JSON.parse(requestMappingJson || "{}");
+    } catch (e) {
+      editorError = `Request mapping is not valid JSON: ${e instanceof Error ? e.message : "parse error"}`;
+      return;
+    }
+    try {
+      responseParsed = JSON.parse(responseMappingJson || "{}");
+    } catch (e) {
+      editorError = `Response mapping is not valid JSON: ${e instanceof Error ? e.message : "parse error"}`;
+      return;
+    }
+
+    editorSaving = true;
+    editorError = "";
+
+    const existing = mappingsByOpId.get(op.operationId);
+    const url = existing
+      ? `${mappingsBase}/${encodeURIComponent(existing.endpoint_mapping_id)}`
+      : mappingsBase;
+    const method = existing ? "PUT" : "POST";
+
+    try {
+      const response = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          operation_id: op.operationId,
+          request_mapping: requestParsed,
+          response_mapping: responseParsed,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorDetails = await extractErrorFromResponse(
+          response,
+          `Failed to ${existing ? "update" : "create"} endpoint mapping`,
+        );
+        logErrorDetails(`${method} Endpoint Mapping`, errorDetails);
+        editorError = formatErrorForDisplay(errorDetails);
+        return;
+      }
+
+      closeEditor();
+      await invalidateAll();
+    } catch (e) {
+      editorError = e instanceof Error ? e.message : "Failed to save endpoint mapping";
+    } finally {
+      editorSaving = false;
+    }
+  }
+
+  async function deleteMapping(op: Operation) {
+    const existing = mappingsByOpId.get(op.operationId);
+    if (!existing) return;
+
+    try {
+      const response = await fetch(
+        `${mappingsBase}/${encodeURIComponent(existing.endpoint_mapping_id)}`,
+        { method: "DELETE", credentials: "include" },
+      );
+
+      if (!response.ok) {
+        const errorDetails = await extractErrorFromResponse(
+          response,
+          "Failed to delete endpoint mapping",
+        );
+        logErrorDetails("DELETE Endpoint Mapping", errorDetails);
+        alert(`Error: ${formatErrorForDisplay(errorDetails)}`);
+        return;
+      }
+
+      await invalidateAll();
+    } catch (e) {
+      alert(`Error: ${e instanceof Error ? e.message : "Failed to delete endpoint mapping"}`);
+    }
   }
 
   function needsBody(method: string): boolean {
@@ -330,6 +516,9 @@
             <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Operation ID</th>
             <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Resolves to</th>
             <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">JSON Schema</th>
+            {#if showMapping}
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Endpoint Mapping</th>
+            {/if}
             <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Try it</th>
           </tr>
         </thead>
@@ -337,7 +526,9 @@
           {#each operations as op (opKey(op))}
             {@const resolved = resolveUrl(op)}
             {@const validation = op.operationId ? validationsByOpId.get(op.operationId) : undefined}
+            {@const mapping = op.operationId ? mappingsByOpId.get(op.operationId) : undefined}
             {@const isSchemaOpen = editor.kind === "schema" && editor.opKey === opKey(op)}
+            {@const isMappingOpen = editor.kind === "mapping" && editor.opKey === opKey(op)}
             {@const isTryOpen = editor.kind === "try" && editor.opKey === opKey(op)}
             <tr data-testid="operation-row" data-method={op.method} data-path={op.path}>
               <td class="whitespace-nowrap px-4 py-3 align-top">
@@ -405,6 +596,42 @@
                   {/if}
                 {/if}
               </td>
+              {#if showMapping}
+                <td class="whitespace-nowrap px-4 py-3 align-top text-xs">
+                  {#if mapping}
+                    <span
+                      class="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-200"
+                      data-testid="mapping-status-configured"
+                    >Configured</span>
+                    <div class="mt-1 flex gap-2">
+                      <button
+                        type="button"
+                        class="text-blue-600 hover:underline dark:text-blue-400"
+                        data-testid="mapping-edit-btn"
+                        onclick={() => openMappingEditor(op)}
+                      >Edit</button>
+                      <button
+                        type="button"
+                        class="text-red-600 hover:underline dark:text-red-400"
+                        data-testid="mapping-delete-btn"
+                        onclick={() => deleteMapping(op)}
+                      >Delete</button>
+                    </div>
+                  {:else}
+                    <span class="text-gray-400 dark:text-gray-500" data-testid="mapping-status-none">None</span>
+                    {#if op.operationId}
+                      <div class="mt-1">
+                        <button
+                          type="button"
+                          class="text-blue-600 hover:underline dark:text-blue-400"
+                          data-testid="mapping-add-btn"
+                          onclick={() => openMappingEditor(op)}
+                        >Add mapping</button>
+                      </div>
+                    {/if}
+                  {/if}
+                </td>
+              {/if}
               <td class="whitespace-nowrap px-4 py-3 align-top text-xs">
                 <button
                   type="button"
@@ -416,7 +643,7 @@
             </tr>
             {#if isSchemaOpen}
               <tr data-testid="validation-editor-row">
-                <td colspan="7" class="px-4 py-4 bg-gray-50 dark:bg-gray-900/40">
+                <td colspan={columnCount} class="px-4 py-4 bg-gray-50 dark:bg-gray-900/40">
                   <div class="space-y-3">
                     <div class="flex items-baseline justify-between">
                       <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100">
@@ -465,9 +692,83 @@
                 </td>
               </tr>
             {/if}
+            {#if isMappingOpen}
+              <tr data-testid="mapping-editor-row">
+                <td colspan={columnCount} class="px-4 py-4 bg-gray-50 dark:bg-gray-900/40">
+                  <div class="space-y-3">
+                    <div class="flex items-baseline justify-between">
+                      <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                        {mapping ? "Edit" : "Add"} Endpoint Mapping
+                      </h3>
+                      <span class="font-mono text-xs text-gray-600 dark:text-gray-400">
+                        operation_id: {op.operationId}
+                      </span>
+                    </div>
+                    <div class="rounded border border-gray-200 bg-white p-3 text-xs text-gray-700 dark:border-gray-700 dark:bg-gray-900/40 dark:text-gray-300">
+                      <p>
+                        Each entry is keyed by a JSON field name in the Dynamic Endpoint payload and maps to a Dynamic Entity field via <code>{"{ entity, field, query }"}</code>:
+                      </p>
+                      <ul class="mt-1 ml-4 list-disc space-y-0.5">
+                        <li><code>entity</code> — the Dynamic Entity name. Only one entity per mapping is supported (OBP uses the first).</li>
+                        <li><code>field</code> — the entity field whose value populates this JSON key in the output (and the filter field when URL query strings like <code>?status=available</code> are used).</li>
+                        <li><code>query</code> — the entity field used as the lookup key when the URL has a path parameter containing "id" (e.g. <code>{"/pet/{petId}"}</code>). Only the first <code>query</code> value in the mapping is used, so by convention repeat the same value across entries.</li>
+                      </ul>
+                      <p class="mt-1">
+                        See the <a class="text-blue-600 hover:underline dark:text-blue-400" href="/dynamic-entities/system" target="_blank" rel="noopener noreferrer">Dynamic Entities</a> page for available entities and their fields, or the <a class="text-blue-600 hover:underline dark:text-blue-400" href="/glossary#Endpoint-Mapping" target="_blank" rel="noopener noreferrer">Endpoint Mapping glossary entry</a> for the full spec.
+                      </p>
+                    </div>
+                    <label class="block">
+                      <span class="block text-xs font-medium text-gray-700 dark:text-gray-300">request_mapping (JSON)</span>
+                      <textarea
+                        bind:value={requestMappingJson}
+                        rows="8"
+                        name="request_mapping"
+                        data-testid="mapping-request-textarea"
+                        class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 font-mono text-xs text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                      ></textarea>
+                    </label>
+                    <label class="block">
+                      <span class="block text-xs font-medium text-gray-700 dark:text-gray-300">response_mapping (JSON)</span>
+                      <textarea
+                        bind:value={responseMappingJson}
+                        rows="10"
+                        name="response_mapping"
+                        data-testid="mapping-response-textarea"
+                        class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 font-mono text-xs text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                      ></textarea>
+                    </label>
+                    {#if editorError}
+                      <div class="rounded bg-red-50 p-2 text-xs text-red-700 dark:bg-red-900/20 dark:text-red-300" data-testid="mapping-editor-error">
+                        {editorError}
+                      </div>
+                    {/if}
+                    <div class="flex gap-2">
+                      <button
+                        type="button"
+                        disabled={editorSaving}
+                        data-testid="mapping-save-btn"
+                        onclick={() => saveMapping(op)}
+                        class="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
+                      >
+                        {editorSaving ? "Saving..." : mapping ? "Save changes" : "Create mapping"}
+                      </button>
+                      <button
+                        type="button"
+                        disabled={editorSaving}
+                        data-testid="mapping-cancel-btn"
+                        onclick={closeEditor}
+                        class="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            {/if}
             {#if isTryOpen}
               <tr data-testid="try-it-row">
-                <td colspan="7" class="px-4 py-4 bg-gray-50 dark:bg-gray-900/40">
+                <td colspan={columnCount} class="px-4 py-4 bg-gray-50 dark:bg-gray-900/40">
                   <div class="space-y-3">
                     <div class="flex items-baseline justify-between">
                       <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100">

@@ -48,9 +48,30 @@ export const load: PageServerLoad = async ({ params, locals }) => {
       logger.warn("Could not fetch JSON schema validations:", e);
     }
 
+    // Fetch all Endpoint Mappings (per-operation_id) — non-fatal. Only meaningful
+    // when the endpoint's host is dynamic_entity; still fetched unconditionally so
+    // the client can filter/display without an extra roundtrip.
+    let mappings: Array<{
+      endpoint_mapping_id: string;
+      operation_id: string;
+      request_mapping: any;
+      response_mapping: any;
+    }> = [];
+    try {
+      const resp = await obp_requests.get(
+        `/obp/v4.0.0/management/endpoint-mappings`,
+        accessToken,
+      );
+      mappings = resp?.["endpoint-mappings"] || [];
+      logger.debug(`Retrieved ${mappings.length} endpoint mappings`);
+    } catch (e) {
+      logger.warn("Could not fetch endpoint mappings:", e);
+    }
+
     return {
       endpoint: dynamicEndpoint,
       validations,
+      mappings,
     };
   } catch (err) {
     logger.error("Error fetching system dynamic endpoint:", err);

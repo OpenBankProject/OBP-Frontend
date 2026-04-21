@@ -328,6 +328,10 @@ export const SITE_MAP: Record<string, PageRoleConfig> = {
       { role: "CanCreateJsonSchemaValidation" },
       { role: "CanUpdateJsonSchemaValidation" },
       { role: "CanDeleteJsonSchemaValidation" },
+      { role: "CanGetAllEndpointMappings" },
+      { role: "CanCreateEndpointMapping" },
+      { role: "CanUpdateEndpointMapping" },
+      { role: "CanDeleteEndpointMapping" },
     ],
   },
   "/dynamic-endpoints/system/create": {
@@ -358,12 +362,40 @@ export const SITE_MAP: Record<string, PageRoleConfig> = {
       { role: "CanCreateJsonSchemaValidation" },
       { role: "CanUpdateJsonSchemaValidation" },
       { role: "CanDeleteJsonSchemaValidation" },
+      { role: "CanGetAllBankLevelEndpointMappings", bankScoped: true },
+      { role: "CanGetAllEndpointMappings" },
+      { role: "CanCreateBankLevelEndpointMapping", bankScoped: true },
+      { role: "CanCreateEndpointMapping" },
+      { role: "CanUpdateBankLevelEndpointMapping", bankScoped: true },
+      { role: "CanUpdateEndpointMapping" },
+      { role: "CanDeleteBankLevelEndpointMapping", bankScoped: true },
+      { role: "CanDeleteEndpointMapping" },
     ],
   },
   "/dynamic-endpoints/bank/[bank_id]/create": {
     required: [
       { role: "CanCreateBankLevelDynamicEndpoint", bankScoped: true },
       { role: "CanCreateDynamicEndpoint" },
+    ],
+  },
+
+  // ── Dynamic Resource Docs ─────────────────────────────
+  "/dynamic-resource-docs/system": {
+    required: [{ role: "CanGetDynamicResourceDoc" }],
+    optional: [
+      { role: "CanCreateDynamicResourceDoc" },
+      { role: "CanUpdateDynamicResourceDoc" },
+      { role: "CanDeleteDynamicResourceDoc" },
+    ],
+  },
+  "/dynamic-resource-docs/system/create": {
+    required: [{ role: "CanCreateDynamicResourceDoc" }],
+  },
+  "/dynamic-resource-docs/system/[id]": {
+    required: [{ role: "CanGetDynamicResourceDoc" }],
+    optional: [
+      { role: "CanUpdateDynamicResourceDoc" },
+      { role: "CanDeleteDynamicResourceDoc" },
     ],
   },
 };

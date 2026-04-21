@@ -52,10 +52,29 @@ export const load: PageServerLoad = async ({ params, locals }) => {
       logger.warn("Could not fetch JSON schema validations:", e);
     }
 
+    // Fetch bank-level Endpoint Mappings (per-operation_id) — non-fatal.
+    let mappings: Array<{
+      endpoint_mapping_id: string;
+      operation_id: string;
+      request_mapping: any;
+      response_mapping: any;
+    }> = [];
+    try {
+      const resp = await obp_requests.get(
+        `/obp/v4.0.0/management/banks/${bank_id}/endpoint-mappings`,
+        accessToken,
+      );
+      mappings = resp?.["endpoint-mappings"] || [];
+      logger.debug(`Retrieved ${mappings.length} bank endpoint mappings`);
+    } catch (e) {
+      logger.warn("Could not fetch bank endpoint mappings:", e);
+    }
+
     return {
       endpoint: dynamicEndpoint,
       bank_id,
       validations,
+      mappings,
     };
   } catch (err) {
     logger.error("Error fetching bank dynamic endpoint:", err);
