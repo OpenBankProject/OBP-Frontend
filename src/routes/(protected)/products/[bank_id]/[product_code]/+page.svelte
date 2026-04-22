@@ -259,7 +259,7 @@
                   <code class="rounded bg-blue-50 px-2 py-0.5 text-sm dark:bg-blue-900/30">{product.collection_id}</code>
                 </a>
                 <a
-                  href="{apiExplorerUrl}/api-collections/{product.collection_id}"
+                  href="{apiExplorerUrl}/collections/{product.collection_id}"
                   target="_blank"
                   rel="noopener noreferrer"
                   class="inline-flex items-center gap-1 rounded border border-purple-300 bg-purple-600 px-2 py-0.5 text-xs font-medium text-white hover:bg-purple-700 dark:border-purple-600 dark:bg-purple-500 dark:hover:bg-purple-600"
