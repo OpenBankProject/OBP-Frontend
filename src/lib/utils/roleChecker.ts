@@ -83,6 +83,9 @@ export const SITE_MAP: Record<string, PageRoleConfig> = {
   "/rbac/groups/[group_id]": {
     required: [{ role: "CanGetEntitlementsForAnyBank" }],
   },
+  "/rbac/groups/[group_id]/edit": {
+    required: [{ role: "CanUpdateGroupAtAllBanks" }],
+  },
   "/rbac/groups/[group_id]/delete": {
     required: [{ role: "CanDeleteGroupAtAllBanks" }],
   },
@@ -145,6 +148,20 @@ export const SITE_MAP: Record<string, PageRoleConfig> = {
   // ── Products ────────────────────────────────────────────
   "/products/financial": {
     required: [],
+  },
+  "/products/financial/create": {
+    required: [{ role: "CanCreateProduct", bankScoped: true }],
+    optional: [{ role: "CanCreateProductAttribute", bankScoped: true }],
+  },
+  "/products/financial/[bank_id]/[product_code]": {
+    required: [],
+  },
+  "/products/financial/[bank_id]/[product_code]/edit": {
+    required: [{ role: "CanCreateProduct", bankScoped: true }],
+    optional: [
+      { role: "CanCreateProductAttribute", bankScoped: true },
+      { role: "CanUpdateProductAttribute", bankScoped: true },
+    ],
   },
   "/products/collections": {
     required: [],

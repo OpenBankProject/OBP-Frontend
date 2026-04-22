@@ -73,10 +73,14 @@
               <ArrowLeft size={16} />
               Back to Groups
             </a>
-            <button class="btn-secondary" disabled>
+            <a
+              href="/rbac/groups/{group.group_id}/edit"
+              class="btn-secondary"
+              data-testid="edit-group-link"
+            >
               <Edit size={16} />
               Edit
-            </button>
+            </a>
             <a href="/rbac/groups/{group.group_id}/delete" class="btn-danger">
               <Trash2 size={16} />
               Delete
