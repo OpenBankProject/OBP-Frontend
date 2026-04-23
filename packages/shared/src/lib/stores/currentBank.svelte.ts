@@ -72,7 +72,7 @@ class CurrentBankStore {
   private async _doFetch(): Promise<OBPBank[]> {
     try {
       this.loading = true;
-      const response = await fetch("/api/banks");
+      const response = await fetch("/backend/banks");
 
       if (!response.ok) {
         throw new Error("Failed to fetch banks");

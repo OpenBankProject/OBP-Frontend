@@ -63,7 +63,7 @@
 			logger.info(`Original roles from toolMessage:`, toolMessage.consentRequiredRoles);
 
 			// Call our server-side API to create the consent at OBP
-			const response = await fetch('/api/opey/consent', {
+			const response = await fetch('/backend/opey/consent', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({

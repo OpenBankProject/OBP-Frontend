@@ -66,7 +66,7 @@
 	// Initialize session state and services
 
 	const sessionState = new SessionState();
-	const sessionService = new OpeySessionService('/api/opey/auth');
+	const sessionService = new OpeySessionService('/backend/opey/auth');
 	const sessionController = new SessionController(sessionService, sessionState);
 
 	const chatState = new ChatState();
@@ -89,7 +89,7 @@
 
 	async function fetchHealthStatus() {
 		try {
-			const response = await fetch('/api/status');
+			const response = await fetch('/backend/status');
 			if (response.ok) {
 				const data = await response.json();
 				const opeySnapshot = data.services['Opey II'];

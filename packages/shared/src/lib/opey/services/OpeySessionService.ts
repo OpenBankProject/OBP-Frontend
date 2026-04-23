@@ -5,7 +5,7 @@ import type { SessionService } from './SessionService.js';
 /**
  * Manages Opey sessions by calling the host app's auth proxy endpoint.
  *
- * The host app's /api/opey/auth route handles:
+ * The host app's /backend/opey/auth route handles:
  * - Reading the OAuth access token from the server-side session
  * - Forwarding it as a Bearer token to Opey's /create-session
  * - Returning whether the session is authenticated or anonymous
@@ -15,7 +15,7 @@ import type { SessionService } from './SessionService.js';
  * access to the OAuth token.
  */
 export class OpeySessionService implements SessionService {
-	constructor(private authEndpoint: string = '/api/opey/auth') {}
+	constructor(private authEndpoint: string = '/backend/opey/auth') {}
 
 	async createSession(): Promise<{ authenticated: boolean }> {
 		logger.info('Creating Opey session via auth endpoint');
