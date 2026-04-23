@@ -34,7 +34,6 @@ export async function load(event: RequestEvent) {
     API_EXPLORER_URL:
       env.API_EXPLORER_URL ||
       "https://apiexplorer-ii-sandbox.openbankproject.com",
-    API_MANAGER_URL: env.API_MANAGER_URL,
     SUBSCRIPTIONS_URL: publicEnv.PUBLIC_SUBSCRIPTIONS_URL,
     LEGACY_PORTAL_URL: publicEnv.PUBLIC_LEGACY_PORTAL_URL,
     PORTAL_URL: publicEnv.PUBLIC_PORTAL_URL || "http://localhost:5174",

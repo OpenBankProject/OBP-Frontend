@@ -27,7 +27,6 @@
   import {
     Compass,
     KeyRound,
-    SquareTerminal,
     ChevronDown,
     ChevronRight,
     CreditCard,
@@ -257,16 +256,6 @@
     //{ label: 'Onboarding', href: '/intro', iconComponent: UserPlus },
     //{ label: 'Consent Simulator', href: '/hola', iconComponent: ShieldUser },
     //{ label: 'FAQs', href: '/faq', iconComponent: MessageCircleQuestion },
-    ...(data.externalLinks.API_MANAGER_URL
-      ? [
-          {
-            href: data.externalLinks.API_MANAGER_URL,
-            label: "API Manager",
-            iconComponent: SquareTerminal,
-            external: true,
-          },
-        ]
-      : []),
   ]);
 
   let footerLinks = $state([
