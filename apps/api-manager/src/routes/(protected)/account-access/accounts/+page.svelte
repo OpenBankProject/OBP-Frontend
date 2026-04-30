@@ -19,7 +19,7 @@
       const res = await trackedFetch(`/proxy/obp/v6.0.0/banks/${encodeURIComponent(bankId)}/accounts`);
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.message ?? `HTTP ${res.status}`);
+        throw new Error(data.message || data.error || `HTTP ${res.status} Failed to fetch accounts`);
       }
       const data = await res.json();
       accounts = data.accounts || [];
