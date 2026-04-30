@@ -54,8 +54,10 @@ export const fallback: RequestHandler = async ({ params, request, locals, url })
 	};
 
 	// Forward body for methods that have one
+	let requestBody: string | undefined;
 	if (["POST", "PUT", "PATCH", "DELETE"].includes(request.method)) {
-		fetchOptions.body = await request.text();
+		requestBody = await request.text();
+		fetchOptions.body = requestBody;
 	}
 
 	const startTime = performance.now();
@@ -71,6 +73,36 @@ export const fallback: RequestHandler = async ({ params, request, locals, url })
 
 	if (duration > 400) {
 		logger.warn(`Slow request: ${request.method} /${obpPath} took ${duration.toFixed(0)}ms`);
+	}
+
+	// Log full request/response details on non-2xx responses
+	if (!obpResponse.ok) {
+		const responseBodyText = await obpResponse.text();
+
+		const loggableHeaders: Record<string, string> = { ...headers };
+		if (loggableHeaders["Authorization"]) {
+			const token = loggableHeaders["Authorization"];
+			loggableHeaders["Authorization"] = token.length > 30
+				? `${token.substring(0, 20)}...[truncated]`
+				: token;
+		}
+
+		logger.warn(`Request failed — details:
+  URL:     ${obpUrl}
+  Method:  ${request.method}
+  Headers: ${JSON.stringify(loggableHeaders, null, 2)}
+  Body:    ${requestBody ? requestBody : "(none)"}
+  ----
+  Status:  ${obpResponse.status}
+  Response: ${responseBodyText}`);
+
+		return new Response(responseBodyText, {
+			status: obpResponse.status,
+			headers: {
+				"content-type": obpResponse.headers.get("content-type") || "application/json",
+				...(correlationId ? { "Correlation-Id": correlationId } : {}),
+			},
+		});
 	}
 
 	// Stream the OBP response back unchanged

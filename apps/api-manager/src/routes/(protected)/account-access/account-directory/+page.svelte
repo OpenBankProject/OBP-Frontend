@@ -161,7 +161,7 @@
                 {#each filteredAccounts as account}
                   <tr>
                     <td class="cell-mono cell-id">
-                      <a href="/account-access/accounts/{encodeURIComponent(account.bank_id)}/{encodeURIComponent(account.account_id)}/owner" class="account-link">
+                      <a href="/account-access/accounts/{encodeURIComponent(account.bank_id)}/{encodeURIComponent(account.account_id)}/public" class="account-link">
                         {account.account_id}
                       </a>
                     </td>

@@ -9,3 +9,5 @@ build
 .claude
 security-scan.log
 security-fix.log
+.idea
+*.code-workspace

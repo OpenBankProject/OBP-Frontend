@@ -9,6 +9,7 @@
   let logo = $state("");
   let website = $state("");
   let isSubmitting = $state(false);
+  let submitError = $state<string | null>(null);
 
   // Bank routings - dynamic list
   let routings = $state<Array<{ scheme: string; address: string }>>([]);
@@ -35,6 +36,7 @@
     }
 
     isSubmitting = true;
+    submitError = null;
 
     try {
       const requestBody: Record<string, any> = {
@@ -90,6 +92,7 @@
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "Failed to create bank";
+      submitError = errorMessage;
       toast.error("Error", errorMessage);
     } finally {
       isSubmitting = false;
@@ -289,6 +292,29 @@
           {/if}
         </div>
       </div>
+
+      <!-- Inline error banner -->
+      {#if submitError}
+        <div class="mt-6 flex items-start gap-3 rounded-lg border border-red-300 bg-red-50 p-4 dark:border-red-700 dark:bg-red-950">
+          <svg class="mt-0.5 h-5 w-5 flex-shrink-0 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <div class="flex-1">
+            <p class="text-sm font-medium text-red-800 dark:text-red-300">Error</p>
+            <p class="mt-1 text-sm text-red-700 dark:text-red-400">{submitError}</p>
+          </div>
+          <button
+            type="button"
+            onclick={() => (submitError = null)}
+            class="text-red-400 hover:text-red-600 dark:text-red-500 dark:hover:text-red-300"
+            aria-label="Dismiss error"
+          >
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      {/if}
 
       <!-- Actions -->
       <div class="mt-8 flex justify-end gap-3 border-t border-gray-200 pt-6 dark:border-gray-700">
