@@ -752,7 +752,7 @@
 	<div class="flex min-h-0 flex-1 flex-col">
 		{#if splashScreenDisplay && splash}
 			<!-- Splash layout: centered content with input directly below -->
-			<div class="flex flex-1 flex-col items-center justify-center space-y-6">
+			<div class="mx-auto flex w-full max-w-4xl flex-1 flex-col items-center justify-center space-y-6">
 				{@render splash()}
 
 				<div class="relative w-2/3 {options.footerClasses || ''} mb-0">

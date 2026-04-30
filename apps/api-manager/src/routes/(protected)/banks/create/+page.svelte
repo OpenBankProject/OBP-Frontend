@@ -140,6 +140,7 @@
           </label>
           <input
             id="bank-id"
+            data-testid="bank-id-input"
             type="text"
             bind:value={bankId}
             placeholder="e.g., gh.29.uk"
@@ -162,6 +163,7 @@
           </label>
           <input
             id="full-name"
+            data-testid="full-name-input"
             type="text"
             bind:value={fullName}
             placeholder="e.g., Bank of Example"
@@ -298,6 +300,7 @@
         </a>
         <button
           type="submit"
+          data-testid="submit-create-bank"
           disabled={isSubmitting}
           class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
         >

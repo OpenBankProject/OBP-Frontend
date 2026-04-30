@@ -66,7 +66,7 @@
 </script>
 
 <div class="flex h-full w-full items-start justify-center px-4 pb-4">
-	<div class="h-full w-full max-w-4xl">
+	<div class="h-full w-full max-w-4xl xl:max-w-6xl 2xl:max-w-7xl">
 		<OpeyChat {opeyChatOptions} userAuthenticated={isAuthenticated}>
 			{#snippet splash()}
 				<div class="flex w-2/3 flex-col items-center justify-center text-center">

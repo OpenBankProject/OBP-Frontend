@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { Avatar } from '@skeletonlabs/skeleton-svelte';
+	import UserAvatar from '$shared/avatar/Avatar.svelte';
+	import { userAvatarSeed } from '$shared/avatar/generate';
 	import { renderMarkdown } from '$shared/markdown/helper-funcs';
 	import type { BaseMessage, ToolMessage as ToolMessageType } from '$shared/opey/types';
 	import { ToolMessage } from './tool-messages';
@@ -90,9 +92,12 @@
 		<div class="mb-2 flex items-center gap-2">
 			{#if message.role === 'user'}
 				<p class="text-s font-bold">{userName}</p>
-				<Avatar class="h-7 w-7 border border-primary-500 bg-secondary-50 p-1">
-					<Avatar.Fallback>{userName.slice(0, 2).toUpperCase()}</Avatar.Fallback>
-				</Avatar>
+				<UserAvatar
+					seed={userAvatarSeed(userName)}
+					size={28}
+					shape="circle"
+					title="Avatar for {userName}"
+				/>
 			{:else}
 				<Avatar class="h-7 w-7 border border-primary-500 bg-secondary-500 p-1">
 					<Avatar.Image src="/opey-icon-white.png" alt="opey" />
