@@ -114,7 +114,7 @@
       const data = await response.json();
 
       if (!response.ok) {
-        cleanupError = data.error || "Failed to clean up orphaned records";
+        cleanupError = data.message ?? `HTTP ${response.status}`;
         return;
       }
 

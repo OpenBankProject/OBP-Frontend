@@ -11,13 +11,13 @@ export const DELETE: RequestHandler = async ({ params, locals }) => {
   const session = locals.session;
 
   if (!session?.data?.user) {
-    return json({ error: "Unauthorized" }, { status: 401 });
+    return json({ message: "Unauthorized", code: 401 }, { status: 401 });
   }
 
   const entitlement_id = params.entitlement_id;
 
   if (!entitlement_id) {
-    return json({ error: "entitlement_id is required" }, { status: 400 });
+    return json({ message: "entitlement_id is required", code: 400 }, { status: 400 });
   }
 
   // Get the OAuth session data
@@ -26,7 +26,7 @@ export const DELETE: RequestHandler = async ({ params, locals }) => {
 
   if (!accessToken) {
     logger.warn("No access token available for entitlement deletion");
-    return json({ error: "No API access token available" }, { status: 401 });
+    return json({ message: "No API access token available", code: 401 }, { status: 401 });
   }
 
   // Check if user has required entitlements
@@ -40,11 +40,7 @@ export const DELETE: RequestHandler = async ({ params, locals }) => {
   if (!hasPermission) {
     logger.warn("User does not have permission to delete entitlements");
     return json(
-      {
-        error:
-          "Insufficient permissions. Required: CanDeleteEntitlementAtAnyBank or CanDeleteEntitlementAtOneBank",
-      },
-      { status: 403 },
+      { message: "Insufficient permissions. Required: CanDeleteEntitlementAtAnyBank or CanDeleteEntitlementAtOneBank", code: 403 }, { status: 403 },
     );
   }
 

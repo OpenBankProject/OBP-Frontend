@@ -11,7 +11,7 @@ export const POST: RequestHandler = async ({ locals, params, request }) => {
   const session = locals.session;
 
   if (!session?.data?.user) {
-    return json({ error: "Unauthorized" }, { status: 401 });
+    return json({ message: "Unauthorized", code: 401 }, { status: 401 });
   }
 
   // Get the OAuth session data
@@ -20,17 +20,17 @@ export const POST: RequestHandler = async ({ locals, params, request }) => {
 
   if (!accessToken) {
     logger.warn("No access token available for custom view creation");
-    return json({ error: "No API access token available" }, { status: 401 });
+    return json({ message: "No API access token available", code: 401 }, { status: 401 });
   }
 
   const { bank_id, account_id } = params;
 
   if (!bank_id) {
-    return json({ error: "Bank ID is required" }, { status: 400 });
+    return json({ message: "Bank ID is required", code: 400 }, { status: 400 });
   }
 
   if (!account_id) {
-    return json({ error: "Account ID is required" }, { status: 400 });
+    return json({ message: "Account ID is required", code: 400 }, { status: 400 });
   }
 
   try {

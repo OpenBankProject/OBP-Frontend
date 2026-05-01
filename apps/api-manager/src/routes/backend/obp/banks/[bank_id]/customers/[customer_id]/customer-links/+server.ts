@@ -11,7 +11,7 @@ export const GET: RequestHandler = async ({ locals, params }) => {
   const session = locals.session;
 
   if (!session?.data?.user) {
-    return json({ error: "Unauthorized" }, { status: 401 });
+    return json({ message: "Unauthorized", code: 401 }, { status: 401 });
   }
 
   const sessionOAuth = SessionOAuthHelper.getSessionOAuth(session);
@@ -19,13 +19,13 @@ export const GET: RequestHandler = async ({ locals, params }) => {
 
   if (!accessToken) {
     logger.warn("No access token available for fetching customer links");
-    return json({ error: "No API access token available" }, { status: 401 });
+    return json({ message: "No API access token available", code: 401 }, { status: 401 });
   }
 
   const { bank_id, customer_id } = params;
 
   if (!bank_id || !customer_id) {
-    return json({ error: "Bank ID and Customer ID are required" }, { status: 400 });
+    return json({ message: "Bank ID and Customer ID are required", code: 400 }, { status: 400 });
   }
 
   try {

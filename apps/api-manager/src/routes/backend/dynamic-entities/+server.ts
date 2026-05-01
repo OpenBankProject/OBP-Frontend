@@ -11,7 +11,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
   const session = locals.session;
 
   if (!session?.data?.user) {
-    return json({ error: "Unauthorized" }, { status: 401 });
+    return json({ message: "Unauthorized", code: 401 }, { status: 401 });
   }
 
   const sessionOAuth = SessionOAuthHelper.getSessionOAuth(session);
@@ -19,7 +19,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
   if (!accessToken) {
     logger.warn("No access token available for dynamic entity creation");
-    return json({ error: "No API access token available" }, { status: 401 });
+    return json({ message: "No API access token available", code: 401 }, { status: 401 });
   }
 
   try {
@@ -30,15 +30,13 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
     if (!dynamic_entity_id) {
       return json(
-        { error: "dynamic_entity_id or definition_id is required" },
-        { status: 400 },
+        { message: "dynamic_entity_id or definition_id is required", code: 400 }, { status: 400 },
       );
     }
 
     if (!data || typeof data !== "object") {
       return json(
-        { error: "data is required and must be an object" },
-        { status: 400 },
+        { message: "data is required and must be an object", code: 400 }, { status: 400 },
       );
     }
 

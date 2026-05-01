@@ -18,8 +18,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
   if (!session?.data?.user) {
     logger.error("No user in session - returning 401");
     return json(
-      { error: "Unauthorized - No user in session" },
-      { status: 401 },
+      { message: "Unauthorized - No user in session", code: 401 }, { status: 401 },
     );
   }
 
@@ -28,7 +27,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 
   if (!accessToken) {
     logger.error("No access token available for method routings API call");
-    return json({ error: "No API access token available" }, { status: 401 });
+    return json({ message: "No API access token available", code: 401 }, { status: 401 });
   }
 
   try {
@@ -140,8 +139,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
   if (!session?.data?.user) {
     logger.error("No user in session - returning 401");
     return json(
-      { error: "Unauthorized - No user in session" },
-      { status: 401 },
+      { message: "Unauthorized - No user in session", code: 401 }, { status: 401 },
     );
   }
 
@@ -150,7 +148,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
   if (!accessToken) {
     logger.error("No access token available for creating method routing");
-    return json({ error: "No API access token available" }, { status: 401 });
+    return json({ message: "No API access token available", code: 401 }, { status: 401 });
   }
 
   try {
@@ -198,8 +196,7 @@ export const PUT: RequestHandler = async ({ request, locals }) => {
   if (!session?.data?.user) {
     logger.error("No user in session - returning 401");
     return json(
-      { error: "Unauthorized - No user in session" },
-      { status: 401 },
+      { message: "Unauthorized - No user in session", code: 401 }, { status: 401 },
     );
   }
 
@@ -208,7 +205,7 @@ export const PUT: RequestHandler = async ({ request, locals }) => {
 
   if (!accessToken) {
     logger.error("No access token available for updating method routing");
-    return json({ error: "No API access token available" }, { status: 401 });
+    return json({ message: "No API access token available", code: 401 }, { status: 401 });
   }
 
   try {
@@ -217,8 +214,7 @@ export const PUT: RequestHandler = async ({ request, locals }) => {
 
     if (!methodRoutingId) {
       return json(
-        { error: "method_routing_id is required for update" },
-        { status: 400 },
+        { message: "method_routing_id is required for update", code: 400 }, { status: 400 },
       );
     }
 

@@ -85,7 +85,7 @@
       );
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || `Failed to load mandates (${res.status})`);
+        throw new Error(data.message ?? `HTTP ${res.status}`);
       }
       const data = await res.json();
       results = data.mandates || [];
@@ -110,7 +110,7 @@
       );
       if (!accountsRes.ok) {
         const data = await accountsRes.json().catch(() => ({}));
-        throw new Error(data.error || "Failed to get customer accounts");
+        throw new Error(data.message ?? `HTTP ${accountsRes.status}`);
       }
       const accountsData = await accountsRes.json();
       const accounts: Array<{ bank_id: string; account_id: string }> = accountsData.accounts || [];

@@ -21,8 +21,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
     if (!namespace_id) {
       return json(
-        { error: "namespace_id is required" },
-        { status: 400 }
+        { message: "namespace_id is required", code: 400 }, { status: 400 }
       );
     }
 

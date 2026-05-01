@@ -11,7 +11,7 @@ export const GET: RequestHandler = async ({ params, locals }) => {
   const session = locals.session;
 
   if (!session?.data?.user) {
-    return json({ error: "Unauthorized" }, { status: 401 });
+    return json({ message: "Unauthorized", code: 401 }, { status: 401 });
   }
 
   const sessionOAuth = SessionOAuthHelper.getSessionOAuth(session);
@@ -19,14 +19,14 @@ export const GET: RequestHandler = async ({ params, locals }) => {
 
   if (!accessToken) {
     logger.warn("No access token available for dynamic entity retrieval");
-    return json({ error: "No API access token available" }, { status: 401 });
+    return json({ message: "No API access token available", code: 401 }, { status: 401 });
   }
 
   try {
     const { id } = params;
 
     if (!id) {
-      return json({ error: "Entity ID is required" }, { status: 400 });
+      return json({ message: "Entity ID is required", code: 400 }, { status: 400 });
     }
 
     logger.info(`Fetching dynamic entity: ${id}`);
@@ -48,7 +48,7 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
   const session = locals.session;
 
   if (!session?.data?.user) {
-    return json({ error: "Unauthorized" }, { status: 401 });
+    return json({ message: "Unauthorized", code: 401 }, { status: 401 });
   }
 
   const sessionOAuth = SessionOAuthHelper.getSessionOAuth(session);
@@ -56,14 +56,14 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 
   if (!accessToken) {
     logger.warn("No access token available for dynamic entity update");
-    return json({ error: "No API access token available" }, { status: 401 });
+    return json({ message: "No API access token available", code: 401 }, { status: 401 });
   }
 
   try {
     const { id } = params;
 
     if (!id) {
-      return json({ error: "Entity ID is required" }, { status: 400 });
+      return json({ message: "Entity ID is required", code: 400 }, { status: 400 });
     }
 
     const body = await request.json();
@@ -71,8 +71,7 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 
     if (!data || typeof data !== "object") {
       return json(
-        { error: "data is required and must be an object" },
-        { status: 400 },
+        { message: "data is required and must be an object", code: 400 }, { status: 400 },
       );
     }
 
@@ -95,7 +94,7 @@ export const DELETE: RequestHandler = async ({ params, locals, url }) => {
   const session = locals.session;
 
   if (!session?.data?.user) {
-    return json({ error: "Unauthorized" }, { status: 401 });
+    return json({ message: "Unauthorized", code: 401 }, { status: 401 });
   }
 
   const sessionOAuth = SessionOAuthHelper.getSessionOAuth(session);
@@ -103,14 +102,14 @@ export const DELETE: RequestHandler = async ({ params, locals, url }) => {
 
   if (!accessToken) {
     logger.warn("No access token available for dynamic entity deletion");
-    return json({ error: "No API access token available" }, { status: 401 });
+    return json({ message: "No API access token available", code: 401 }, { status: 401 });
   }
 
   try {
     const { id } = params;
 
     if (!id) {
-      return json({ error: "Entity ID is required" }, { status: 400 });
+      return json({ message: "Entity ID is required", code: 400 }, { status: 400 });
     }
 
     // Check if cascade parameter is provided

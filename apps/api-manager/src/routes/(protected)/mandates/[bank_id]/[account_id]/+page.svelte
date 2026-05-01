@@ -48,7 +48,7 @@
       );
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || `Failed to load mandates (${res.status})`);
+        throw new Error(data.message ?? `HTTP ${res.status}`);
       }
       const data = await res.json();
       mandates = data.mandates;

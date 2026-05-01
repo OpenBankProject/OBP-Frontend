@@ -11,7 +11,7 @@ export const POST: RequestHandler = async ({ params, locals, url }) => {
   const session = locals.session;
 
   if (!session?.data?.user) {
-    return json({ error: "Unauthorized" }, { status: 401 });
+    return json({ message: "Unauthorized", code: 401 }, { status: 401 });
   }
 
   const sessionOAuth = SessionOAuthHelper.getSessionOAuth(session);
@@ -19,14 +19,14 @@ export const POST: RequestHandler = async ({ params, locals, url }) => {
 
   if (!accessToken) {
     logger.warn("No access token available for dynamic entity backup");
-    return json({ error: "No API access token available" }, { status: 401 });
+    return json({ message: "No API access token available", code: 401 }, { status: 401 });
   }
 
   try {
     const { id } = params;
 
     if (!id) {
-      return json({ error: "Entity ID is required" }, { status: 400 });
+      return json({ message: "Entity ID is required", code: 400 }, { status: 400 });
     }
 
     // Check if bank_id is provided for bank-level backup

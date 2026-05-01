@@ -11,7 +11,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
   const session = locals.session;
 
   if (!session?.data?.user) {
-    return json({ error: "Unauthorized" }, { status: 401 });
+    return json({ message: "Unauthorized", code: 401 }, { status: 401 });
   }
 
   // Get the OAuth session data
@@ -20,7 +20,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
   if (!accessToken) {
     logger.warn("No access token available for group creation");
-    return json({ error: "No API access token available" }, { status: 401 });
+    return json({ message: "No API access token available", code: 401 }, { status: 401 });
   }
 
   try {
@@ -34,11 +34,11 @@ export const POST: RequestHandler = async ({ request, locals }) => {
     } = body;
 
     if (!group_name) {
-      return json({ error: "group_name is required" }, { status: 400 });
+      return json({ message: "group_name is required", code: 400 }, { status: 400 });
     }
 
     if (!group_description) {
-      return json({ error: "group_description is required" }, { status: 400 });
+      return json({ message: "group_description is required", code: 400 }, { status: 400 });
     }
 
     if (
@@ -47,10 +47,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
       list_of_roles.length === 0
     ) {
       return json(
-        {
-          error: "list_of_roles is required and must contain at least one role",
-        },
-        { status: 400 },
+        { message: "list_of_roles is required and must contain at least one role", code: 400 }, { status: 400 },
       );
     }
 

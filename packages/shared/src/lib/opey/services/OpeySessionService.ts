@@ -28,7 +28,7 @@ export class OpeySessionService implements SessionService {
 		const data = await response.json();
 
 		if (!response.ok) {
-			throw new Error(data.error || 'Failed to create Opey session');
+			throw new Error(data.message ?? `HTTP ${response.status}`);
 		}
 
 		logger.info(`Opey session created - authenticated: ${data.authenticated}`);

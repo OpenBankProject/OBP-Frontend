@@ -11,7 +11,7 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
   const session = locals.session;
 
   if (!session?.data?.user) {
-    return json({ error: "Unauthorized" }, { status: 401 });
+    return json({ message: "Unauthorized", code: 401 }, { status: 401 });
   }
 
   const sessionOAuth = SessionOAuthHelper.getSessionOAuth(session);
@@ -19,17 +19,17 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 
   if (!accessToken) {
     logger.warn("No access token available");
-    return json({ error: "No API access token available" }, { status: 401 });
+    return json({ message: "No API access token available", code: 401 }, { status: 401 });
   }
 
   const { bank_id, id } = params;
 
   if (!bank_id) {
-    return json({ error: "Bank ID is required" }, { status: 400 });
+    return json({ message: "Bank ID is required", code: 400 }, { status: 400 });
   }
 
   if (!id) {
-    return json({ error: "Endpoint ID is required" }, { status: 400 });
+    return json({ message: "Endpoint ID is required", code: 400 }, { status: 400 });
   }
 
   try {
@@ -37,8 +37,7 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 
     if (!body || typeof body !== "object" || !body.host) {
       return json(
-        { error: "host is required in the request body" },
-        { status: 400 },
+        { message: "host is required in the request body", code: 400 }, { status: 400 },
       );
     }
 

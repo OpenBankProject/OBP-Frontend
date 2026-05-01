@@ -341,7 +341,7 @@
 			const data = await response.json();
 
 			if (!response.ok) {
-				throw new Error(data.error || 'Failed to initialize session');
+				throw new Error(data.message ?? `HTTP ${response.status}`);
 			}
 
 			logger.debug('Opey session initialized:', data);

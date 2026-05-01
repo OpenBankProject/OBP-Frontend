@@ -11,7 +11,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
   const session = locals.session;
 
   if (!session?.data?.user) {
-    return json({ error: "Unauthorized" }, { status: 401 });
+    return json({ message: "Unauthorized", code: 401 }, { status: 401 });
   }
 
   // Get the OAuth session data
@@ -20,7 +20,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
   if (!accessToken) {
     logger.warn("No access token available for entitlement request");
-    return json({ error: "No API access token available" }, { status: 401 });
+    return json({ message: "No API access token available", code: 401 }, { status: 401 });
   }
 
   try {
@@ -28,7 +28,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
     const { role_name, bank_id } = body;
 
     if (!role_name) {
-      return json({ error: "role_name is required" }, { status: 400 });
+      return json({ message: "role_name is required", code: 400 }, { status: 400 });
     }
 
     logger.info("=== CREATE ENTITLEMENT REQUEST ===");

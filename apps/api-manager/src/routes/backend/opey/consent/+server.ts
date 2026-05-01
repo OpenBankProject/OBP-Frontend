@@ -42,7 +42,7 @@ export async function POST(event: RequestEvent) {
 				sessionId: session?.id || 'none',
 				username: session?.data?.user?.username || 'none'
 			});
-			return json({ error: 'Authentication required to create consent' }, { status: 401 });
+			return json({ message: 'Authentication required to create consent', code: 401 }, { status: 401 });
 		}
 
 		const body = await event.request.json();
@@ -53,13 +53,13 @@ export async function POST(event: RequestEvent) {
 
 		if (!Array.isArray(normalizedRequiredRoles)) {
 			logger.warn('Invalid required_roles:', required_roles);
-			return json({ error: 'required_roles must be an array when provided' }, { status: 400 });
+			return json({ message: 'required_roles must be an array when provided', code: 400 }, { status: 400 });
 		}
 
 		const opeyConsumerId = env.OPEY_CONSUMER_ID;
 		if (!opeyConsumerId) {
 			logger.error('OPEY_CONSUMER_ID not configured');
-			return json({ error: 'Server configuration error: OPEY_CONSUMER_ID not set' }, { status: 500 });
+			return json({ message: 'Server configuration error: OPEY_CONSUMER_ID not set', code: 500 }, { status: 500 });
 		}
 
 		// First, get the user's current roles to check what they have access to

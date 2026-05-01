@@ -25,7 +25,7 @@
       );
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || "Failed to fetch chat room");
+        throw new Error(data.message ?? `HTTP ${res.status}`);
       }
       room = await res.json();
       allUsers = room?.is_open_room ?? false;
@@ -54,7 +54,7 @@
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || "Failed to update chat room");
+        throw new Error(data.message ?? `HTTP ${res.status}`);
       }
       const updated = await res.json();
       room = updated;

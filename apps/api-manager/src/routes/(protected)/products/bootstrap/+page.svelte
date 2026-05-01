@@ -103,7 +103,7 @@
 
         if (!res.ok) {
           const data = await res.json();
-          throw new Error(data.error || "Failed to create collection");
+          throw new Error(data.message ?? `HTTP ${res.status}`);
         }
 
         const created = await res.json();
@@ -190,7 +190,7 @@
 
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || "Failed to create product");
+        throw new Error(data.message ?? `HTTP ${res.status}`);
       }
 
       productStatus[product.id] = "created";
@@ -248,9 +248,10 @@
           );
           if (!res.ok) {
             const data = await res.json();
+            const msg = data.message ?? "";
             // Ignore "not found" errors — product may not have been created
-            if (!data.error?.includes("not found") && !data.error?.includes("OBP-30001")) {
-              productErrors[product.id] = data.error || "Delete failed";
+            if (!msg.includes("not found") && !msg.includes("OBP-30001")) {
+              productErrors[product.id] = msg || `HTTP ${res.status}`;
             }
           }
         } catch {
@@ -276,7 +277,7 @@
         if (!res.ok) {
           const data = await res.json();
           collectionStatus[collection.id] = "error";
-          collectionErrors[collection.id] = data.error || "Failed to delete collection";
+          collectionErrors[collection.id] = data.message ?? `HTTP ${res.status}`;
           toast.error("Delete Error", collectionErrors[collection.id]);
           return;
         }

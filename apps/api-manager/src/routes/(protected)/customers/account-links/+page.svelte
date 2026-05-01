@@ -59,7 +59,7 @@
       );
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || "Failed to fetch customers");
+        throw new Error(data.message ?? `HTTP ${res.status}`);
       }
       const data = await res.json();
       customers = data.customers || [];
@@ -86,7 +86,7 @@
       );
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || "Failed to fetch customer account links");
+        throw new Error(data.message ?? `HTTP ${res.status}`);
       }
       const data = await res.json();
       links = data.links || [];

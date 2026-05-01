@@ -11,7 +11,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
   const session = locals.session;
 
   if (!session?.data?.user) {
-    return json({ error: "Unauthorized" }, { status: 401 });
+    return json({ message: "Unauthorized", code: 401 }, { status: 401 });
   }
 
   // Get the OAuth session data
@@ -20,7 +20,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
   if (!accessToken) {
     logger.warn("No access token available for adding featured collection");
-    return json({ error: "No API access token available" }, { status: 401 });
+    return json({ message: "No API access token available", code: 401 }, { status: 401 });
   }
 
   try {
@@ -28,13 +28,12 @@ export const POST: RequestHandler = async ({ request, locals }) => {
     const { api_collection_id, sort_order } = body;
 
     if (!api_collection_id) {
-      return json({ error: "api_collection_id is required" }, { status: 400 });
+      return json({ message: "api_collection_id is required", code: 400 }, { status: 400 });
     }
 
     if (sort_order === undefined || sort_order < 1) {
       return json(
-        { error: "sort_order is required and must be at least 1" },
-        { status: 400 },
+        { message: "sort_order is required and must be at least 1", code: 400 }, { status: 400 },
       );
     }
 

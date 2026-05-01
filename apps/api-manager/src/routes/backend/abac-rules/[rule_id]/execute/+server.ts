@@ -11,7 +11,7 @@ export const POST: RequestHandler = async ({ request, locals, params }) => {
   const session = locals.session;
 
   if (!session?.data?.user) {
-    return json({ error: "Unauthorized" }, { status: 401 });
+    return json({ message: "Unauthorized", code: 401 }, { status: 401 });
   }
 
   const sessionOAuth = SessionOAuthHelper.getSessionOAuth(session);
@@ -19,13 +19,13 @@ export const POST: RequestHandler = async ({ request, locals, params }) => {
 
   if (!accessToken) {
     logger.warn("No access token available for ABAC rule execution");
-    return json({ error: "No API access token available" }, { status: 401 });
+    return json({ message: "No API access token available", code: 401 }, { status: 401 });
   }
 
   const ruleId = params.rule_id;
 
   if (!ruleId) {
-    return json({ error: "Rule ID is required" }, { status: 400 });
+    return json({ message: "Rule ID is required", code: 400 }, { status: 400 });
   }
 
   try {

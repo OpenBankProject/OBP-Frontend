@@ -11,7 +11,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
   const session = locals.session;
 
   if (!session?.data?.user) {
-    return json({ error: "Unauthorized" }, { status: 401 });
+    return json({ message: "Unauthorized", code: 401 }, { status: 401 });
   }
 
   // Get the OAuth session data
@@ -20,7 +20,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
   if (!accessToken) {
     logger.warn("No access token available for user invitation creation");
-    return json({ error: "No API access token available" }, { status: 401 });
+    return json({ message: "No API access token available", code: 401 }, { status: 401 });
   }
 
   try {
@@ -30,8 +30,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
     // Validate required fields
     if (!bank_id || !first_name || !last_name || !email || !company || !country || !purpose) {
       return json(
-        { error: "Missing required fields" },
-        { status: 400 }
+        { message: "Missing required fields", code: 400 }, { status: 400 }
       );
     }
 

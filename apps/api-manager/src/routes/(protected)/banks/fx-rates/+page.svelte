@@ -54,7 +54,7 @@
       );
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || "Failed to fetch currencies");
+        throw new Error(data.message ?? `HTTP ${res.status}`);
       }
       const data = await res.json();
       currencies = (data.currencies || []).sort(
@@ -86,7 +86,7 @@
       );
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || "Failed to fetch FX rate");
+        throw new Error(data.message ?? `HTTP ${res.status}`);
       }
       fxRate = await res.json();
     } catch (err) {

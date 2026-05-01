@@ -9,7 +9,7 @@ export const GET: RequestHandler = async ({ locals }) => {
 	const session = locals.session;
 
 	if (!session?.data?.user) {
-		return json({ error: 'Unauthorized' }, { status: 401 });
+		return json({ message: 'Unauthorized', code: 401 }, { status: 401 });
 	}
 
 	try {

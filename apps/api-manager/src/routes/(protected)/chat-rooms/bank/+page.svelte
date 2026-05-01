@@ -38,7 +38,7 @@
       );
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || "Failed to fetch chat rooms");
+        throw new Error(data.message ?? `HTTP ${res.status}`);
       }
       const data = await res.json();
       chatRooms = (data.chat_rooms || []).sort(
@@ -68,7 +68,7 @@
       );
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || "Failed to create chat room");
+        throw new Error(data.message ?? `HTTP ${res.status}`);
       }
       successMessage = "Chat room created successfully.";
       createName = "";
@@ -91,7 +91,7 @@
       );
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || "Failed to delete chat room");
+        throw new Error(data.message ?? `HTTP ${res.status}`);
       }
       successMessage = "Chat room deleted.";
       fetchChatRooms(currentBank.bankId);

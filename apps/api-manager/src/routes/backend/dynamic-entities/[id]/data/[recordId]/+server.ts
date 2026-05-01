@@ -35,7 +35,7 @@ export const GET: RequestHandler = async ({ params, locals }) => {
   const session = locals.session;
 
   if (!session?.data?.user) {
-    return json({ error: "Unauthorized" }, { status: 401 });
+    return json({ message: "Unauthorized", code: 401 }, { status: 401 });
   }
 
   const sessionOAuth = SessionOAuthHelper.getSessionOAuth(session);
@@ -43,24 +43,24 @@ export const GET: RequestHandler = async ({ params, locals }) => {
 
   if (!accessToken) {
     logger.warn("No access token available");
-    return json({ error: "No API access token available" }, { status: 401 });
+    return json({ message: "No API access token available", code: 401 }, { status: 401 });
   }
 
   try {
     const { id, recordId } = params;
 
     if (!id) {
-      return json({ error: "Entity ID is required" }, { status: 400 });
+      return json({ message: "Entity ID is required", code: 400 }, { status: 400 });
     }
 
     if (!recordId) {
-      return json({ error: "Record ID is required" }, { status: 400 });
+      return json({ message: "Record ID is required", code: 400 }, { status: 400 });
     }
 
     // Get entity name from ID
     const entityName = await getEntityName(id, accessToken);
     if (!entityName) {
-      return json({ error: "Entity not found" }, { status: 404 });
+      return json({ message: "Entity not found", code: 404 }, { status: 404 });
     }
 
     logger.info(`Fetching record ${recordId} for entity: ${entityName}`);
@@ -83,7 +83,7 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
   const session = locals.session;
 
   if (!session?.data?.user) {
-    return json({ error: "Unauthorized" }, { status: 401 });
+    return json({ message: "Unauthorized", code: 401 }, { status: 401 });
   }
 
   const sessionOAuth = SessionOAuthHelper.getSessionOAuth(session);
@@ -91,33 +91,32 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 
   if (!accessToken) {
     logger.warn("No access token available");
-    return json({ error: "No API access token available" }, { status: 401 });
+    return json({ message: "No API access token available", code: 401 }, { status: 401 });
   }
 
   try {
     const { id, recordId } = params;
 
     if (!id) {
-      return json({ error: "Entity ID is required" }, { status: 400 });
+      return json({ message: "Entity ID is required", code: 400 }, { status: 400 });
     }
 
     if (!recordId) {
-      return json({ error: "Record ID is required" }, { status: 400 });
+      return json({ message: "Record ID is required", code: 400 }, { status: 400 });
     }
 
     const body = await request.json();
 
     if (!body || typeof body !== "object") {
       return json(
-        { error: "Request body must be a valid object" },
-        { status: 400 },
+        { message: "Request body must be a valid object", code: 400 }, { status: 400 },
       );
     }
 
     // Get entity name from ID
     const entityName = await getEntityName(id, accessToken);
     if (!entityName) {
-      return json({ error: "Entity not found" }, { status: 404 });
+      return json({ message: "Entity not found", code: 404 }, { status: 404 });
     }
 
     logger.info(`Updating record ${recordId} for entity: ${entityName}`);
@@ -141,7 +140,7 @@ export const DELETE: RequestHandler = async ({ params, locals }) => {
   const session = locals.session;
 
   if (!session?.data?.user) {
-    return json({ error: "Unauthorized" }, { status: 401 });
+    return json({ message: "Unauthorized", code: 401 }, { status: 401 });
   }
 
   const sessionOAuth = SessionOAuthHelper.getSessionOAuth(session);
@@ -149,24 +148,24 @@ export const DELETE: RequestHandler = async ({ params, locals }) => {
 
   if (!accessToken) {
     logger.warn("No access token available");
-    return json({ error: "No API access token available" }, { status: 401 });
+    return json({ message: "No API access token available", code: 401 }, { status: 401 });
   }
 
   try {
     const { id, recordId } = params;
 
     if (!id) {
-      return json({ error: "Entity ID is required" }, { status: 400 });
+      return json({ message: "Entity ID is required", code: 400 }, { status: 400 });
     }
 
     if (!recordId) {
-      return json({ error: "Record ID is required" }, { status: 400 });
+      return json({ message: "Record ID is required", code: 400 }, { status: 400 });
     }
 
     // Get entity name from ID
     const entityName = await getEntityName(id, accessToken);
     if (!entityName) {
-      return json({ error: "Entity not found" }, { status: 404 });
+      return json({ message: "Entity not found", code: 404 }, { status: 404 });
     }
 
     logger.info(`Deleting record ${recordId} for entity: ${entityName}`);

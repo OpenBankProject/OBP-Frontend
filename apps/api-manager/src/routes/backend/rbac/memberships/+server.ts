@@ -37,7 +37,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
   const session = locals.session;
 
   if (!session?.data?.user) {
-    return json({ error: "Unauthorized" }, { status: 401 });
+    return json({ message: "Unauthorized", code: 401 }, { status: 401 });
   }
 
   // Get the OAuth session data
@@ -46,7 +46,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
   if (!accessToken) {
     logger.warn("No access token available for membership creation");
-    return json({ error: "No API access token available" }, { status: 401 });
+    return json({ message: "No API access token available", code: 401 }, { status: 401 });
   }
 
   try {
@@ -54,11 +54,11 @@ export const POST: RequestHandler = async ({ request, locals }) => {
     const { user_id, group_id } = body;
 
     if (!user_id) {
-      return json({ error: "user_id is required" }, { status: 400 });
+      return json({ message: "user_id is required", code: 400 }, { status: 400 });
     }
 
     if (!group_id) {
-      return json({ error: "group_id is required" }, { status: 400 });
+      return json({ message: "group_id is required", code: 400 }, { status: 400 });
     }
 
     logger.info("=== CREATE GROUP MEMBERSHIP ===");
@@ -115,7 +115,7 @@ export const GET: RequestHandler = async ({ locals }) => {
   const session = locals.session;
 
   if (!session?.data?.user) {
-    return json({ error: "Unauthorized" }, { status: 401 });
+    return json({ message: "Unauthorized", code: 401 }, { status: 401 });
   }
 
   // Get the OAuth session data
@@ -124,7 +124,7 @@ export const GET: RequestHandler = async ({ locals }) => {
 
   if (!accessToken) {
     logger.warn("No access token available for memberships list");
-    return json({ error: "No API access token available" }, { status: 401 });
+    return json({ message: "No API access token available", code: 401 }, { status: 401 });
   }
 
   try {

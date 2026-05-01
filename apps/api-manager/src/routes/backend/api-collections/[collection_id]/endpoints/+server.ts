@@ -11,13 +11,13 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
   const session = locals.session;
 
   if (!session?.data?.user) {
-    return json({ error: "Unauthorized" }, { status: 401 });
+    return json({ message: "Unauthorized", code: 401 }, { status: 401 });
   }
 
   const { collection_id } = params;
 
   if (!collection_id) {
-    return json({ error: "collection_id is required" }, { status: 400 });
+    return json({ message: "collection_id is required", code: 400 }, { status: 400 });
   }
 
   // Get the OAuth session data
@@ -26,7 +26,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
 
   if (!accessToken) {
     logger.warn("No access token available for adding endpoint to collection");
-    return json({ error: "No API access token available" }, { status: 401 });
+    return json({ message: "No API access token available", code: 401 }, { status: 401 });
   }
 
   try {
@@ -34,7 +34,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
     const { operation_id } = body;
 
     if (!operation_id) {
-      return json({ error: "operation_id is required" }, { status: 400 });
+      return json({ message: "operation_id is required", code: 400 }, { status: 400 });
     }
 
     logger.info("=== ADD ENDPOINT TO API COLLECTION ===");

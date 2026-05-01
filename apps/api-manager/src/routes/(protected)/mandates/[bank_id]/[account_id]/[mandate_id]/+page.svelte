@@ -65,7 +65,7 @@
       );
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || `Failed to load mandate (${res.status})`);
+        throw new Error(data.message ?? `HTTP ${res.status}`);
       }
       mandate = await res.json();
       pageDataSummary.set(`Mandate ${mandate.mandate_name} (${mandate.status})`);
@@ -86,7 +86,7 @@
       );
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || `Failed to load signatory panels (${res.status})`);
+        throw new Error(data.message ?? `HTTP ${res.status}`);
       }
       const json = await res.json();
       signatoryPanels = json.signatory_panels;
@@ -106,7 +106,7 @@
       );
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || `Failed to load provisions (${res.status})`);
+        throw new Error(data.message ?? `HTTP ${res.status}`);
       }
       const json = await res.json();
       provisions = json.provisions;
@@ -136,7 +136,7 @@
       );
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || "Failed to create signatory panel");
+        throw new Error(data.message ?? `HTTP ${res.status}`);
       }
       const created = await res.json();
       signatoryPanels = [...signatoryPanels, created];
@@ -173,7 +173,7 @@
       );
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || "Failed to create provision");
+        throw new Error(data.message ?? `HTTP ${res.status}`);
       }
       const created = await res.json();
       provisions = [...provisions, created];

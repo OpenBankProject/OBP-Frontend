@@ -46,7 +46,7 @@
       );
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || "Failed to fetch individual customers");
+        throw new Error(data.message ?? `HTTP ${res.status}`);
       }
       const data = await res.json();
       customers = data.customers || [];

@@ -78,7 +78,7 @@
       );
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || "Failed to fetch customer details");
+        throw new Error(data.message ?? `HTTP ${res.status}`);
       }
       customer = await res.json();
     } catch (err) {
@@ -145,7 +145,7 @@
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || "Failed to create customer attribute");
+        throw new Error(data.message ?? `HTTP ${res.status}`);
       }
 
       const created = await res.json();

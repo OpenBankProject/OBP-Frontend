@@ -14,8 +14,7 @@ export const GET: RequestHandler = async ({ locals }) => {
   if (!session?.data?.user) {
     logger.error("No user in session - returning 401");
     return json(
-      { error: "Unauthorized - No user in session" },
-      { status: 401 },
+      { message: "Unauthorized - No user in session", code: 401 }, { status: 401 },
     );
   }
 
@@ -24,7 +23,7 @@ export const GET: RequestHandler = async ({ locals }) => {
 
   if (!accessToken) {
     logger.error("No access token available for connector methods API call");
-    return json({ error: "No API access token available" }, { status: 401 });
+    return json({ message: "No API access token available", code: 401 }, { status: 401 });
   }
 
   try {

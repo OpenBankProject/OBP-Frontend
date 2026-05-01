@@ -12,7 +12,7 @@ export const GET: RequestHandler = async ({ locals }) => {
   const session = locals.session;
 
   if (!session?.data?.user) {
-    return json({ error: "Unauthorized" }, { status: 401 });
+    return json({ message: "Unauthorized", code: 401 }, { status: 401 });
   }
 
   const sessionOAuth = SessionOAuthHelper.getSessionOAuth(session);
@@ -20,7 +20,7 @@ export const GET: RequestHandler = async ({ locals }) => {
 
   if (!accessToken) {
     logger.warn("No access token available for fetching preferences");
-    return json({ error: "No API access token available" }, { status: 401 });
+    return json({ message: "No API access token available", code: 401 }, { status: 401 });
   }
 
   try {
@@ -41,7 +41,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
   const session = locals.session;
 
   if (!session?.data?.user) {
-    return json({ error: "Unauthorized" }, { status: 401 });
+    return json({ message: "Unauthorized", code: 401 }, { status: 401 });
   }
 
   const sessionOAuth = SessionOAuthHelper.getSessionOAuth(session);
@@ -49,7 +49,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 
   if (!accessToken) {
     logger.warn("No access token available for creating preference");
-    return json({ error: "No API access token available" }, { status: 401 });
+    return json({ message: "No API access token available", code: 401 }, { status: 401 });
   }
 
   try {
@@ -57,7 +57,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
     const { name, value, type } = body;
 
     if (!name || value === undefined) {
-      return json({ error: "name and value are required" }, { status: 400 });
+      return json({ message: "name and value are required", code: 400 }, { status: 400 });
     }
 
     const endpoint = `/obp/v6.0.0/my/personal-data-fields`;
@@ -80,7 +80,7 @@ export const PUT: RequestHandler = async ({ locals, request }) => {
   const session = locals.session;
 
   if (!session?.data?.user) {
-    return json({ error: "Unauthorized" }, { status: 401 });
+    return json({ message: "Unauthorized", code: 401 }, { status: 401 });
   }
 
   const sessionOAuth = SessionOAuthHelper.getSessionOAuth(session);
@@ -88,7 +88,7 @@ export const PUT: RequestHandler = async ({ locals, request }) => {
 
   if (!accessToken) {
     logger.warn("No access token available for updating preference");
-    return json({ error: "No API access token available" }, { status: 401 });
+    return json({ message: "No API access token available", code: 401 }, { status: 401 });
   }
 
   try {
@@ -96,7 +96,7 @@ export const PUT: RequestHandler = async ({ locals, request }) => {
     const { user_attribute_id, name, value, type } = body;
 
     if (!user_attribute_id || !name || value === undefined) {
-      return json({ error: "user_attribute_id, name, and value are required" }, { status: 400 });
+      return json({ message: "user_attribute_id, name, and value are required", code: 400 }, { status: 400 });
     }
 
     const endpoint = `/obp/v6.0.0/my/personal-data-fields/${encodeURIComponent(user_attribute_id)}`;

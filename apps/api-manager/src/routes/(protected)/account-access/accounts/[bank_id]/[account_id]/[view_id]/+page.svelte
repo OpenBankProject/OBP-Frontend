@@ -147,7 +147,7 @@
         );
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
-          throw new Error(data.error || `Failed to fetch users with access for view ${vid}`);
+          throw new Error(data.message ?? `HTTP ${res.status}`);
         }
         const data = await res.json();
         return { viewId: vid, users: data.users || [] };
@@ -221,7 +221,7 @@
       );
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || "Failed to fetch customer account links");
+        throw new Error(data.message ?? `HTTP ${res.status}`);
       }
       const data = await res.json();
       customerAccountLinks = data.links || [];
@@ -264,7 +264,7 @@
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || "Failed to create account attribute");
+        throw new Error(data.message ?? `HTTP ${res.status}`);
       }
 
       const created = await res.json();

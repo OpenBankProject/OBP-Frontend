@@ -11,7 +11,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
   const session = locals.session;
 
   if (!session?.data?.user) {
-    return json({ error: "Unauthorized" }, { status: 401 });
+    return json({ message: "Unauthorized", code: 401 }, { status: 401 });
   }
 
   // Get the OAuth session data
@@ -20,7 +20,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 
   if (!accessToken) {
     logger.warn("No access token available for connector metrics API call");
-    return json({ error: "No API access token available" }, { status: 401 });
+    return json({ message: "No API access token available", code: 401 }, { status: 401 });
   }
 
   try {

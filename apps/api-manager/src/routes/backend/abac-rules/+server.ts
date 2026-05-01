@@ -11,7 +11,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
   const session = locals.session;
 
   if (!session?.data?.user) {
-    return json({ error: "Unauthorized" }, { status: 401 });
+    return json({ message: "Unauthorized", code: 401 }, { status: 401 });
   }
 
   const sessionOAuth = SessionOAuthHelper.getSessionOAuth(session);
@@ -19,7 +19,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
   if (!accessToken) {
     logger.warn("No access token available for ABAC rule creation");
-    return json({ error: "No API access token available" }, { status: 401 });
+    return json({ message: "No API access token available", code: 401 }, { status: 401 });
   }
 
   try {
@@ -29,22 +29,19 @@ export const POST: RequestHandler = async ({ request, locals }) => {
     // Validate required fields
     if (!rule_name || typeof rule_name !== "string") {
       return json(
-        { error: "rule_name is required and must be a string" },
-        { status: 400 },
+        { message: "rule_name is required and must be a string", code: 400 }, { status: 400 },
       );
     }
 
     if (!rule_code || typeof rule_code !== "string") {
       return json(
-        { error: "rule_code is required and must be a string" },
-        { status: 400 },
+        { message: "rule_code is required and must be a string", code: 400 }, { status: 400 },
       );
     }
 
     if (!policy || typeof policy !== "string") {
       return json(
-        { error: "policy is required and must be a string" },
-        { status: 400 },
+        { message: "policy is required and must be a string", code: 400 }, { status: 400 },
       );
     }
 

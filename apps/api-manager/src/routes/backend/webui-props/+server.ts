@@ -11,7 +11,7 @@ export const PUT: RequestHandler = async ({ request, locals }) => {
   const session = locals.session;
 
   if (!session?.data?.user) {
-    return json({ error: "Unauthorized" }, { status: 401 });
+    return json({ message: "Unauthorized", code: 401 }, { status: 401 });
   }
 
   const sessionOAuth = SessionOAuthHelper.getSessionOAuth(session);
@@ -19,7 +19,7 @@ export const PUT: RequestHandler = async ({ request, locals }) => {
 
   if (!accessToken) {
     logger.warn("No access token available for webui prop creation");
-    return json({ error: "No API access token available" }, { status: 401 });
+    return json({ message: "No API access token available", code: 401 }, { status: 401 });
   }
 
   try {
@@ -28,15 +28,13 @@ export const PUT: RequestHandler = async ({ request, locals }) => {
 
     if (!name || typeof name !== "string") {
       return json(
-        { error: "name is required and must be a string" },
-        { status: 400 },
+        { message: "name is required and must be a string", code: 400 }, { status: 400 },
       );
     }
 
     if (!value || typeof value !== "string") {
       return json(
-        { error: "value is required and must be a string" },
-        { status: 400 },
+        { message: "value is required and must be a string", code: 400 }, { status: 400 },
       );
     }
 

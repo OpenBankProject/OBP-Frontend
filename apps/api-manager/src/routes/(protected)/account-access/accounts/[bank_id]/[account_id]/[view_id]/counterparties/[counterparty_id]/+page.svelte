@@ -79,7 +79,7 @@
       );
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || "Failed to fetch counterparty details");
+        throw new Error(data.message ?? `HTTP ${res.status}`);
       }
       counterparty = await res.json();
     } catch (err) {
