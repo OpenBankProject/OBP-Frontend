@@ -1,6 +1,7 @@
 <script lang="ts">
   let channelName = $state("task-requests");
   let messageType = $state("");
+  let toUserId = $state("");
   let payload = $state('{"message": "Please report what time it is where you are"}');
   let isPublishing = $state(false);
   let error = $state<string | null>(null);
@@ -26,6 +27,9 @@
       if (messageType.trim()) {
         body.message_type = messageType.trim();
       }
+      if (toUserId.trim()) {
+        body.to_user_id = toUserId.trim();
+      }
 
       const response = await fetch(
         `/proxy/obp/v6.0.0/signal/channels/${encodeURIComponent(channelName.trim())}/messages`,
@@ -42,7 +46,10 @@
       }
 
       const result = await response.json();
-      success = `Message published to "${channelName.trim()}" (ID: ${result.message_id?.substring(0, 8)}...)`;
+      const target = toUserId.trim()
+        ? `private to ${toUserId.trim().substring(0, 8)}...`
+        : "broadcast";
+      success = `Message published to "${channelName.trim()}" (${target}, ID: ${result.message_id?.substring(0, 8)}...)`;
     } catch (err) {
       error =
         err instanceof Error ? err.message : "Failed to publish message";
@@ -60,7 +67,7 @@
   <div class="panel">
     <div class="panel-header">
       <h1 class="panel-title">Publish Signal</h1>
-      <p class="panel-subtitle">Broadcast a message to a signal channel</p>
+      <p class="panel-subtitle">Broadcast a message to a signal channel, or privately address one recipient</p>
     </div>
 
     <div class="panel-content">
@@ -87,6 +94,20 @@
               disabled={isPublishing}
             />
           </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="pub-to-user">
+            To User ID <span class="optional">(optional — leave empty for broadcast)</span>
+          </label>
+          <input
+            id="pub-to-user"
+            type="text"
+            class="field-input"
+            placeholder="recipient OBP user_id (UUID)"
+            bind:value={toUserId}
+            disabled={isPublishing}
+          />
         </div>
 
         <div class="field">

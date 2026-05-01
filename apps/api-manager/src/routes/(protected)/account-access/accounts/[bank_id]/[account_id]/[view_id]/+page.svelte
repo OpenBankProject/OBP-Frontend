@@ -122,11 +122,11 @@
       );
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || "Failed to fetch account");
+        throw new Error(data.message ?? `HTTP ${res.status}`);
       }
       account = await res.json();
     } catch (err) {
-      error = err instanceof Error ? err.message : "Failed to fetch account";
+      error = err instanceof Error ? err.message : String(err);
       account = null;
     } finally {
       loading = false;
