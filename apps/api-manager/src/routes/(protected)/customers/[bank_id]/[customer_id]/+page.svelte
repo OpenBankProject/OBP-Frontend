@@ -103,12 +103,12 @@
       );
       if (!res.ok) {
         const d = await res.json().catch(() => ({}));
-        throw new Error(d.error || "Failed to fetch account links");
+        throw new Error(d.message ?? `HTTP ${res.status}`);
       }
       const d = await res.json();
       accountLinks = d.links || [];
     } catch (err) {
-      accountLinksError = err instanceof Error ? err.message : "Failed to fetch account links";
+      accountLinksError = err instanceof Error ? err.message : String(err);
       accountLinks = [];
     } finally {
       accountLinksLoading = false;

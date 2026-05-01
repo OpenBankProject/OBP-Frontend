@@ -4,6 +4,7 @@
   import { Loader2, Landmark, Users } from "@lucide/svelte";
   import { currentBank } from "$lib/stores/currentBank.svelte";
   import { trackedFetch } from "$lib/utils/trackedFetch";
+  import MissingRoleAlert from "$lib/components/MissingRoleAlert.svelte";
   import * as d3 from "d3";
 
   interface Customer {
@@ -11,13 +12,15 @@
     customer_number: string;
     legal_name: string;
     bank_id: string;
+    parent_customer_id?: string;
   }
 
   interface GraphNode extends d3.SimulationNodeDatum {
     id: string;
     label: string;
-    type: "customer" | "account" | "transaction";
+    type: "customer" | "account" | "transaction" | "user";
     parent?: string;
+    user_id?: string;
     /** extra data for linking / display */
     bank_id?: string;
     account_id?: string;
@@ -52,6 +55,12 @@
   /** Track which accounts have had their transactions expanded */
   let expandedAccounts = new Set<string>();
 
+  /** Track which customers have had their hierarchy (parent + children) fetched */
+  let expandedHierarchy = new Set<string>();
+
+  /** Track which customers have had their user-customer-links fetched */
+  let expandedUsers = new Set<string>();
+
   async function fetchCustomers(bankId: string) {
     if (!bankId) { customers = []; return; }
     customersLoading = true;
@@ -59,10 +68,10 @@
     selectedCustomerId = "";
     clearGraph();
     try {
-      const res = await trackedFetch(`/proxy/obp/v6.0.0/banks/${encodeURIComponent(bankId)}/retail-customers?limit=200`);
+      const res = await trackedFetch(`/proxy/obp/v6.0.0/banks/${encodeURIComponent(bankId)}/customers?limit=200`);
       if (!res.ok) {
         const d = await res.json().catch(() => ({}));
-        throw new Error(d.error || "Failed to fetch customers");
+        throw new Error(d.message ?? `HTTP ${res.status}`);
       }
       const d = await res.json();
       customers = d.customers || [];
@@ -73,19 +82,165 @@
         selectedCustomerId = qCustomerId;
       }
     } catch (err) {
-      customersError = err instanceof Error ? err.message : "Failed to fetch customers";
+      customersError = err instanceof Error ? err.message : String(err);
       customers = [];
     } finally {
       customersLoading = false;
     }
   }
 
+  let customersParsedError = $derived.by(() => {
+    if (!customersError) return null;
+    const m = customersError.match(/OBP-(\d+):.*missing one or more roles:\s*(.+)/i);
+    if (m) {
+      const roles = m[2].split(",").map((r) => r.trim());
+      return { type: "missing_role" as const, code: m[1], roles, message: customersError };
+    }
+    return { type: "general" as const, message: customersError };
+  });
+
   function clearGraph() {
     nodes = [];
     links = [];
     expandedAccounts = new Set();
     expandedCustomers = new Set();
+    expandedHierarchy = new Set();
+    expandedUsers = new Set();
     if (simulation) { simulation.stop(); simulation = null; }
+  }
+
+  /**
+   * Fetch users linked to a customer via user_customer_links and return graph nodes/edges.
+   * Each user is enriched with username via /users/user-id/{id} (parallel).
+   * Inactive links are skipped.
+   */
+  async function fetchUsersForCustomer(
+    bankId: string,
+    customerId: string,
+    existingNodeIds: Set<string>,
+  ): Promise<{ nodes: GraphNode[]; edges: GraphLink[] }> {
+    if (expandedUsers.has(customerId)) return { nodes: [], edges: [] };
+    expandedUsers.add(customerId);
+
+    const newNodes: GraphNode[] = [];
+    const newEdges: GraphLink[] = [];
+    const seen = new Set(existingNodeIds);
+    const sourceId = `customer-${customerId}`;
+
+    try {
+      const res = await trackedFetch(
+        `/proxy/obp/v4.0.0/banks/${encodeURIComponent(bankId)}/user_customer_links/customers/${encodeURIComponent(customerId)}`,
+      );
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        graphWarnings = [...graphWarnings, `Users for ${customerId}: ${errData.message ?? `HTTP ${res.status}`}`];
+        return { nodes: [], edges: [] };
+      }
+      const data = await res.json();
+      const links_ = (data.user_customer_links || []).filter((l: any) => l.is_active !== false);
+
+      // Resolve usernames in parallel
+      const userInfos = await Promise.all(
+        links_.map(async (l: any) => {
+          try {
+            const ures = await trackedFetch(`/proxy/obp/v6.0.0/users/user-id/${encodeURIComponent(l.user_id)}`);
+            if (ures.ok) {
+              const u = await ures.json();
+              return { user_id: l.user_id, label: u.username || u.email || l.user_id };
+            }
+          } catch {
+            // ignore — fall back to user_id below
+          }
+          return { user_id: l.user_id, label: l.user_id };
+        }),
+      );
+
+      for (const info of userInfos) {
+        const userNodeId = `user-${info.user_id}`;
+        if (!seen.has(userNodeId)) {
+          newNodes.push({
+            id: userNodeId,
+            label: info.label,
+            type: "user",
+            user_id: info.user_id,
+          });
+          seen.add(userNodeId);
+        }
+        newEdges.push({ source: userNodeId, target: sourceId });
+      }
+    } catch {
+      // ignore network errors — partial graph is fine
+    }
+
+    return { nodes: newNodes, edges: newEdges };
+  }
+
+  /**
+   * Fetch parent + children for a customer and return graph nodes/edges.
+   * - Children come from /customers/{id}/children
+   * - Parent is read from parent_customer_id on the in-memory customers list
+   *   (fetched once per customer; safe to call repeatedly).
+   */
+  async function fetchHierarchyForCustomer(
+    bankId: string,
+    customerId: string,
+    existingNodeIds: Set<string>,
+  ): Promise<{ nodes: GraphNode[]; edges: GraphLink[] }> {
+    if (expandedHierarchy.has(customerId)) return { nodes: [], edges: [] };
+    expandedHierarchy.add(customerId);
+
+    const newNodes: GraphNode[] = [];
+    const newEdges: GraphLink[] = [];
+    const seen = new Set(existingNodeIds);
+    const sourceId = `customer-${customerId}`;
+
+    // Parent edge — read from in-memory customers list
+    const self = customers.find((c) => c.customer_id === customerId);
+    const parentId = self?.parent_customer_id;
+    if (parentId) {
+      const parent = customers.find((c) => c.customer_id === parentId);
+      const parentNodeId = `customer-${parentId}`;
+      if (!seen.has(parentNodeId)) {
+        newNodes.push({
+          id: parentNodeId,
+          label: parent?.legal_name || parentId,
+          type: "customer",
+          bank_id: parent?.bank_id || bankId,
+        });
+        seen.add(parentNodeId);
+      }
+      newEdges.push({ source: sourceId, target: parentNodeId, label: "parent" });
+    }
+
+    // Children — call /customers/{id}/children
+    try {
+      const res = await trackedFetch(
+        `/proxy/obp/v6.0.0/banks/${encodeURIComponent(bankId)}/customers/${encodeURIComponent(customerId)}/children`,
+      );
+      if (res.ok) {
+        const data = await res.json();
+        for (const child of data.customers || []) {
+          const childNodeId = `customer-${child.customer_id}`;
+          if (!seen.has(childNodeId)) {
+            newNodes.push({
+              id: childNodeId,
+              label: child.legal_name || child.customer_id,
+              type: "customer",
+              bank_id: child.bank_id,
+            });
+            seen.add(childNodeId);
+          }
+          newEdges.push({ source: sourceId, target: childNodeId, label: "child" });
+        }
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        graphWarnings = [...graphWarnings, `Children of ${customerId}: ${errData.message ?? `HTTP ${res.status}`}`];
+      }
+    } catch {
+      // ignore network errors — partial graph is fine
+    }
+
+    return { nodes: newNodes, edges: newEdges };
   }
 
   async function loadGraph(bankId: string, customerId: string) {
@@ -109,7 +264,7 @@
 
       if (!accountLinksRes.ok) {
         const d = await accountLinksRes.json().catch(() => ({}));
-        throw new Error(d.error || "Failed to fetch account links");
+        throw new Error(d.message ?? `HTTP ${accountLinksRes.status}`);
       }
       const accountLinksData = await accountLinksRes.json();
       const accountLinks = accountLinksData.links || [];
@@ -121,7 +276,7 @@
         customerLinks = clData.customer_links || [];
       } else {
         const errData = await customerLinksRes.json().catch(() => ({}));
-        graphWarnings = [...graphWarnings, `Customer links: ${errData.error || "could not load (may need CanGetCustomerLinks role)"}`];
+        graphWarnings = [...graphWarnings, `Customer links: ${errData.message ?? `HTTP ${customerLinksRes.status}`}`];
       }
 
       const customerNode: GraphNode = {
@@ -167,14 +322,17 @@
       nodes = [customerNode, ...accountNodes, ...relatedCustomerNodes];
       links = [...accountEdges, ...relatedCustomerEdges];
 
-      // Enrich all accounts with details + linked customers, and fetch transactions — all in parallel
-      const [customerResults, txResults] = await Promise.all([
+      // Enrich all accounts with details + linked customers, fetch transactions, hierarchy, and users — all in parallel
+      const existingIds = new Set(nodes.map((n) => n.id));
+      const [customerResults, txResults, hierarchyResult, usersResult] = await Promise.all([
         Promise.all(accountNodes.map((n) => fetchCustomersForAccount(n, nodes))),
         Promise.all(accountNodes.map((n) => fetchTransactionsForNode(n))),
+        fetchHierarchyForCustomer(bankId, customerId, existingIds),
+        fetchUsersForCustomer(bankId, customerId, existingIds),
       ]);
 
-      const extraNodes: GraphNode[] = [];
-      const extraEdges: GraphLink[] = [];
+      const extraNodes: GraphNode[] = [...hierarchyResult.nodes, ...usersResult.nodes];
+      const extraEdges: GraphLink[] = [...hierarchyResult.edges, ...usersResult.edges];
       for (const result of customerResults) {
         extraNodes.push(...result.nodes);
         extraEdges.push(...result.edges);
@@ -331,13 +489,16 @@
     expandedCustomers.add(custId);
 
     try {
-      const [alRes, clRes] = await Promise.all([
+      const existingIdsSnapshot = new Set(nodes.map((n) => n.id));
+      const [alRes, clRes, hierarchy, usersResult] = await Promise.all([
         trackedFetch(`/backend/obp/banks/${encodeURIComponent(node.bank_id)}/customers/${encodeURIComponent(custId)}/customer-account-links`),
         trackedFetch(`/backend/obp/banks/${encodeURIComponent(node.bank_id)}/customers/${encodeURIComponent(custId)}/customer-links`),
+        fetchHierarchyForCustomer(node.bank_id, custId, existingIdsSnapshot),
+        fetchUsersForCustomer(node.bank_id, custId, existingIdsSnapshot),
       ]);
 
-      const newNodes: GraphNode[] = [];
-      const newEdges: GraphLink[] = [];
+      const newNodes: GraphNode[] = [...hierarchy.nodes, ...usersResult.nodes];
+      const newEdges: GraphLink[] = [...hierarchy.edges, ...usersResult.edges];
 
       // Account links (start with account_id as label — enriched below)
       if (alRes.ok) {
@@ -561,16 +722,29 @@
           }) as any
       );
 
+    const nodeRadius = (t: GraphNode["type"]) =>
+      t === "customer" ? 24 : t === "account" ? 18 : t === "user" ? 16 : 12;
+    const nodeFill = (t: GraphNode["type"]) =>
+      t === "customer" ? "#6366f1" : t === "account" ? "#0ea5e9" : t === "user" ? "#f97316" : "#22c55e";
+    const nodeStroke = (t: GraphNode["type"]) =>
+      t === "customer" ? "#4338ca" : t === "account" ? "#0284c7" : t === "user" ? "#c2410c" : "#16a34a";
+    const nodeLetter = (t: GraphNode["type"]) =>
+      t === "customer" ? "C" : t === "account" ? "A" : t === "user" ? "U" : "T";
+    const nodeLabelDy = (t: GraphNode["type"]) =>
+      t === "customer" ? 38 : t === "account" ? 30 : t === "user" ? 28 : 24;
+    const nodeLetterSize = (t: GraphNode["type"]) =>
+      t === "customer" ? 14 : t === "account" ? 11 : t === "user" ? 11 : 9;
+
     // Node circles
     nodeGroup.append("circle")
-      .attr("r", (d) => d.type === "customer" ? 24 : d.type === "account" ? 18 : 12)
-      .attr("fill", (d) => d.type === "customer" ? "#6366f1" : d.type === "account" ? "#0ea5e9" : "#22c55e")
-      .attr("stroke", (d) => d.type === "customer" ? "#4338ca" : d.type === "account" ? "#0284c7" : "#16a34a")
+      .attr("r", (d) => nodeRadius(d.type))
+      .attr("fill", (d) => nodeFill(d.type))
+      .attr("stroke", (d) => nodeStroke(d.type))
       .attr("stroke-width", 2);
 
     // Node labels
     nodeGroup.append("text")
-      .attr("dy", (d) => d.type === "customer" ? 38 : d.type === "account" ? 30 : 24)
+      .attr("dy", (d) => nodeLabelDy(d.type))
       .attr("text-anchor", "middle")
       .attr("font-size", (d) => d.type === "customer" ? 12 : 10)
       .attr("font-weight", (d) => d.type === "customer" ? "600" : "400")
@@ -581,10 +755,10 @@
     nodeGroup.append("text")
       .attr("text-anchor", "middle")
       .attr("dy", "0.35em")
-      .attr("font-size", (d) => d.type === "customer" ? 14 : d.type === "account" ? 11 : 9)
+      .attr("font-size", (d) => nodeLetterSize(d.type))
       .attr("fill", "white")
       .attr("pointer-events", "none")
-      .text((d) => d.type === "customer" ? "C" : d.type === "account" ? "A" : "T");
+      .text((d) => nodeLetter(d.type));
 
     // Tooltip on hover for accounts
     nodeGroup.append("title")
@@ -596,6 +770,9 @@
         if (d.type === "account") {
           const tip = `Account: ${d.account_id}\nRelationship: ${d.relationship_type || ""}`;
           return expandedAccounts.has(d.account_id || "") ? tip : tip + "\nClick to load transactions";
+        }
+        if (d.type === "user") {
+          return `User: ${d.label}\nuser_id: ${d.user_id}`;
         }
         const tip = `${d.amount} ${d.currency}\n${d.date}`;
         return d.other_account_id ? tip + "\nClick to show other account & customers" : tip;
@@ -648,7 +825,7 @@
     {:else if customersLoading}
       <Loader2 size={16} class="spinner-icon" />
       <span class="toolbar-hint">Loading customers...</span>
-    {:else if customersError}
+    {:else if customersError && customersParsedError?.type !== "missing_role"}
       <span class="toolbar-error">{customersError}</span>
     {:else}
       <select
@@ -656,8 +833,11 @@
         data-testid="graph-customer-select"
         class="toolbar-select"
         bind:value={selectedCustomerId}
+        disabled={customers.length === 0}
       >
-        <option value="">Select a customer...</option>
+        <option value="">
+          {customers.length === 0 ? "No customers available" : "Select a customer..."}
+        </option>
         {#each customers as c}
           <option value={c.customer_id}>
             {c.legal_name || c.customer_number || c.customer_id}
@@ -673,10 +853,21 @@
     <div class="toolbar-legend">
       <span class="legend-item"><span class="legend-dot customer"></span> Customer</span>
       <span class="legend-item"><span class="legend-dot account"></span> Account</span>
+      <span class="legend-item"><span class="legend-dot user"></span> User</span>
       <span class="legend-item"><span class="legend-dot transaction"></span> Transaction</span>
     </div>
   </div>
 
+  {#if customersParsedError?.type === "missing_role"}
+    <div class="missing-role-wrap">
+      <MissingRoleAlert
+        roles={customersParsedError.roles}
+        errorCode={customersParsedError.code}
+        message={customersParsedError.message}
+        bankId={currentBank.bankId}
+      />
+    </div>
+  {/if}
   {#if graphError}
     <div class="graph-error">{graphError}</div>
   {/if}
@@ -797,6 +988,7 @@
 
   .legend-dot.customer { background: #6366f1; }
   .legend-dot.account { background: #0ea5e9; }
+  .legend-dot.user { background: #f97316; }
   .legend-dot.transaction { background: #22c55e; }
 
   .graph-container {
@@ -823,6 +1015,11 @@
 
   :global([data-mode="dark"]) .graph-empty {
     color: var(--color-surface-500);
+  }
+
+  .missing-role-wrap {
+    padding: 0.75rem 1.5rem;
+    flex-shrink: 0;
   }
 
   .graph-error {
