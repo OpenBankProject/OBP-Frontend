@@ -79,6 +79,30 @@
   let usersByView = $state(new Map<string, { direct: string[]; abac: string[] }>());
   let viewErrors = $state(new Map<string, string>());
 
+  // TEMP DEBUG — raw users-with-access response per view, shown on the page
+  let debugUsersByView = $state(new Map<string, any[]>());
+
+  // Reverse lookup: viewId+username -> user_id (from raw users-with-access response)
+  let usernameToUserId = $derived.by(() => {
+    const m = new Map<string, string>();
+    for (const [vid, users] of debugUsersByView.entries()) {
+      for (const u of users) {
+        const name = u.username || u.user_id;
+        if (name && u.user_id) m.set(`${vid}::${name}`, u.user_id);
+      }
+    }
+    return m;
+  });
+
+  function explainUser(vid: string, username: string) {
+    const userId = usernameToUserId.get(`${vid}::${username}`);
+    if (!userId) return;
+    explainViewId = vid;
+    explainUserId = userId;
+    fetchAccessExplanation();
+    document.querySelector('[data-testid="account-access-trace-panel"]')?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
   let bankId = $derived(page.params.bank_id || "");
   let accountId = $derived(page.params.account_id || "");
   let viewId = $derived(page.params.view_id || "");
@@ -156,6 +180,7 @@
 
     const map = new Map<string, { direct: string[]; abac: string[] }>();
     const errors = new Map<string, string>();
+    const debugMap = new Map<string, any[]>();
     let anySuccess = false;
 
     for (let i = 0; i < settled.length; i++) {
@@ -166,12 +191,14 @@
         const entry = { direct: [] as string[], abac: [] as string[] };
         for (const user of result.value.users) {
           const name = user.username || user.user_id || "Unknown";
-          if (user.access_source === "ABAC") {
+          const source = String(user.access_source ?? "").toUpperCase();
+          if (source.includes("ABAC")) {
             entry.abac.push(name);
           } else {
             entry.direct.push(name);
           }
         }
+        debugMap.set(viewId, result.value.users);
         map.set(viewId, entry);
       } else {
         const msg = result.reason instanceof Error ? result.reason.message : String(result.reason);
@@ -181,6 +208,7 @@
 
     usersByView = map;
     viewErrors = errors;
+    debugUsersByView = debugMap;
     usersWithAccess = anySuccess ? { users: [] } : null;
     if (errors.size > 0 && !anySuccess) {
       usersWithAccessError = "Failed to fetch users with access for all views";
@@ -196,11 +224,12 @@
     viewErrors = new Map();
     customerAccountLinks = [];
     customerAccountLinksError = null;
-    // Run access check, account fetch, and customer links fetch in parallel
+    // Run access check, account fetch, customer links fetch, and ABAC rules fetch in parallel
     await Promise.all([
       checkAccountAccess(bankId, accountId, viewId),
       fetchAccount(bankId, accountId, viewId),
       fetchCustomerAccountLinks(bankId, accountId),
+      fetchAbacRules(),
     ]);
     if (account?.views_available?.length) {
       await fetchUsersWithAccess(bankId, accountId, account.views_available);
@@ -211,6 +240,147 @@
   let customerAccountLinks = $state<any[]>([]);
   let customerAccountLinksLoading = $state(false);
   let customerAccountLinksError = $state<string | null>(null);
+
+  // ABAC rules (system-wide — diagnostic panel for ABAC visibility)
+  interface AbacRule {
+    abac_rule_id: string;
+    rule_name: string;
+    rule_code: string;
+    is_active: boolean;
+    description?: string;
+    policy?: string;
+    created_by_user_id?: string;
+    updated_by_user_id?: string;
+  }
+  let abacRules = $state<AbacRule[]>([]);
+  let abacRulesLoading = $state(false);
+  let abacRulesError = $state<string | null>(null);
+  let abacRulesShowInactive = $state(false);
+  let abacRulesFilter = $state("");
+
+  async function fetchAbacRules() {
+    abacRulesLoading = true;
+    abacRulesError = null;
+    try {
+      const res = await trackedFetch("/proxy/obp/v6.0.0/management/abac-rules");
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.message ?? `HTTP ${res.status}`);
+      }
+      const data = await res.json();
+      abacRules = data.abac_rules || [];
+    } catch (err) {
+      abacRulesError = err instanceof Error ? err.message : String(err);
+      abacRules = [];
+    } finally {
+      abacRulesLoading = false;
+    }
+  }
+
+  let abacRulesParsedError = $derived.by(() => {
+    if (!abacRulesError) return null;
+    const m = abacRulesError.match(/OBP-(\d+):.*missing one or more roles:\s*(.+)/i);
+    if (m) {
+      return { type: "missing_role" as const, code: m[1], roles: m[2].split(",").map((r) => r.trim()), message: abacRulesError };
+    }
+    return { type: "general" as const, message: abacRulesError };
+  });
+
+  // Account Access Trace (v7) — diagnostic for "why does/doesn't this user have access"
+  let explainViewId = $state("");
+  let explainUserId = $state("");
+  let explainLoading = $state(false);
+  let explainResult = $state<any>(null);
+  let explainError = $state<string | null>(null);
+  let explainHttpStatus = $state<number | null>(null);
+  let traceJsonCopied = $state(false);
+
+  async function copyTraceJson() {
+    const targetView = explainViewId.trim();
+    const targetUser = explainUserId.trim();
+    const traceEndpoint = targetView && targetUser
+      ? `/obp/v7.0.0/banks/${bankId}/accounts/${accountId}/views/${targetView}/users/${targetUser}/account-access-trace`
+      : null;
+    const payload = {
+      generated_at: new Date().toISOString(),
+      source: "OBP-Frontend api-manager / account-access page",
+      context: {
+        bank_id: bankId,
+        account_id: accountId,
+        page_view_id: viewId,
+        target_view_id: targetView || null,
+        target_user_id: targetUser || null,
+      },
+      api: {
+        endpoint: traceEndpoint,
+        required_role: "CanGetAccountAccessTrace",
+        http_status: explainHttpStatus,
+        error: explainError,
+      },
+      views_available: account?.views_available ?? [],
+      account_access_trace_response: explainResult,
+    };
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(payload, null, 2));
+      traceJsonCopied = true;
+      setTimeout(() => (traceJsonCopied = false), 1500);
+    } catch {
+      traceJsonCopied = false;
+    }
+  }
+
+  $effect(() => {
+    if (!explainViewId && viewId) explainViewId = viewId;
+  });
+
+  async function fetchAccessExplanation() {
+    const targetView = explainViewId.trim();
+    const targetUser = explainUserId.trim();
+    if (!targetView || !targetUser || !bankId || !accountId) return;
+    explainLoading = true;
+    explainError = null;
+    explainResult = null;
+    explainHttpStatus = null;
+    try {
+      const res = await trackedFetch(
+        `/proxy/obp/v7.0.0/banks/${encodeURIComponent(bankId)}/accounts/${encodeURIComponent(accountId)}/views/${encodeURIComponent(targetView)}/users/${encodeURIComponent(targetUser)}/account-access-trace`,
+      );
+      explainHttpStatus = res.status;
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(body.message ?? `HTTP ${res.status}`);
+      }
+      explainResult = body;
+    } catch (err) {
+      explainError = err instanceof Error ? err.message : String(err);
+    } finally {
+      explainLoading = false;
+    }
+  }
+
+  let explainParsedError = $derived.by(() => {
+    if (!explainError) return null;
+    const m = explainError.match(/OBP-(\d+):.*missing one or more roles:\s*(.+)/i);
+    if (m) {
+      return { type: "missing_role" as const, code: m[1], roles: m[2].split(",").map((r) => r.trim()), message: explainError };
+    }
+    return { type: "general" as const, message: explainError };
+  });
+
+  let abacRulesFiltered = $derived.by(() => {
+    const q = abacRulesFilter.trim().toLowerCase();
+    return abacRules.filter((r) => {
+      if (!abacRulesShowInactive && !r.is_active) return false;
+      if (!q) return true;
+      return (
+        r.rule_name?.toLowerCase().includes(q) ||
+        r.rule_code?.toLowerCase().includes(q) ||
+        r.description?.toLowerCase().includes(q) ||
+        r.policy?.toLowerCase().includes(q) ||
+        r.abac_rule_id?.toLowerCase().includes(q)
+      );
+    });
+  });
 
   async function fetchCustomerAccountLinks(bankId: string, accountId: string) {
     customerAccountLinksLoading = true;
@@ -602,6 +772,21 @@
           </section>
         {/if}
 
+        <!-- TEMP DEBUG: raw users-with-access responses per view -->
+        {#if debugUsersByView.size > 0}
+          <section class="info-section">
+            <details class="debug-section-details">
+              <summary class="section-title debug-section-summary">DEBUG: users-with-access raw responses ({debugUsersByView.size})</summary>
+              {#each [...debugUsersByView.entries()] as [vid, users]}
+                <div class="debug-block">
+                  <div class="debug-block-header">view: <code>{vid}</code> — {users.length} user{users.length === 1 ? "" : "s"}</div>
+                  <pre class="debug-block-body">{JSON.stringify(users, null, 2)}</pre>
+                </div>
+              {/each}
+            </details>
+          </section>
+        {/if}
+
         <!-- Views Available -->
         {#if account.views_available && account.views_available.length > 0}
           <section class="info-section">
@@ -657,7 +842,7 @@
                         <Loader2 size={14} class="spinner-icon" />
                       {:else if viewUsers?.direct?.length}
                         {#each viewUsers.direct as username}
-                          <span class="user-chip direct">{username}</span>
+                          <button type="button" class="user-chip direct chip-button" title="Explain access for {username}" onclick={() => explainUser(vid, username)}>{username}</button>
                         {/each}
                       {:else}
                         <span class="no-users">—</span>
@@ -668,7 +853,7 @@
                         <Loader2 size={14} class="spinner-icon" />
                       {:else if viewUsers?.abac?.length}
                         {#each viewUsers.abac as username}
-                          <span class="user-chip abac">{username}</span>
+                          <button type="button" class="user-chip abac chip-button" title="Explain access for {username}" onclick={() => explainUser(vid, username)}>{username}</button>
                         {/each}
                       {:else}
                         <span class="no-users">—</span>
@@ -680,6 +865,265 @@
             </div>
           </section>
         {/if}
+
+        <!-- Account Access Trace diagnostic panel (v7) -->
+        <section class="info-section" data-testid="account-access-trace-panel">
+          <h2 class="section-title">
+            <span>Account Access Trace</span>
+            <button
+              type="button"
+              class="trace-copy-btn"
+              onclick={copyTraceJson}
+              title="Copy Views Available + Account Access Trace as JSON"
+              data-testid="trace-copy-json"
+            >
+              {#if traceJsonCopied}
+                <Check size={14} />
+                Copied
+              {:else}
+                <Copy size={14} />
+                Copy JSON
+              {/if}
+            </button>
+          </h2>
+          <p class="abac-rules-hint">
+            Calls <code>/obp/v7.0.0/banks/{bankId}/accounts/{accountId}/views/{`{target_view_id}`}/users/{`{target_user_id}`}/account-access-trace</code>
+            to show why a specific user has (or doesn't have) access.
+          </p>
+          <div class="explain-form">
+            <div class="explain-field">
+              <label for="explain-view" class="search-label">View</label>
+              {#if account?.views_available?.length}
+                <select
+                  id="explain-view"
+                  class="explain-input"
+                  bind:value={explainViewId}
+                  data-testid="explain-view-select"
+                >
+                  {#each account.views_available as v}
+                    {@const vid = viewId_(v)}
+                    <option value={vid}>{vid}</option>
+                  {/each}
+                </select>
+              {:else}
+                <input
+                  id="explain-view"
+                  type="text"
+                  class="explain-input"
+                  bind:value={explainViewId}
+                  data-testid="explain-view-input"
+                />
+              {/if}
+            </div>
+            <div class="explain-field explain-field-grow">
+              <label for="explain-user" class="search-label">User ID</label>
+              <input
+                id="explain-user"
+                type="text"
+                class="explain-input"
+                placeholder="Paste a user_id (UUID)"
+                bind:value={explainUserId}
+                data-testid="explain-user-input"
+              />
+            </div>
+            <button
+              type="button"
+              class="btn-add"
+              onclick={fetchAccessExplanation}
+              disabled={!explainViewId.trim() || !explainUserId.trim() || explainLoading}
+              data-testid="explain-submit"
+            >
+              {#if explainLoading}
+                <Loader2 size={14} class="spinner-icon" />
+              {:else}
+                Trace
+              {/if}
+            </button>
+          </div>
+
+          {#if explainParsedError && explainParsedError.type === "missing_role"}
+            <MissingRoleAlert
+              roles={explainParsedError.roles}
+              errorCode={explainParsedError.code}
+              message={explainParsedError.message}
+              bankId={bankId}
+            />
+          {:else if explainError}
+            <div class="users-access-error" data-testid="explain-error">
+              {explainError}{explainHttpStatus ? ` (HTTP ${explainHttpStatus})` : ""}
+            </div>
+          {/if}
+
+          {#if explainResult}
+            {@const accessTrace = explainResult.account_access_trace ?? {}}
+            {@const entTrace = explainResult.entitlement_trace ?? {}}
+            {@const abacTrace = explainResult.abac_trace ?? {}}
+            {@const rules = abacTrace.rules_evaluated ?? []}
+            <div class="explain-summary" data-testid="explain-summary">
+              <span class="explain-badge {explainResult.has_access ? 'success' : 'fail'}">
+                has_access: {String(explainResult.has_access)}
+              </span>
+              {#if explainResult.access_source}
+                <span class="explain-badge neutral">access_source: {explainResult.access_source}</span>
+              {/if}
+            </div>
+
+            <div class="explain-trace">
+              <div class="explain-trace-section">
+                <h3 class="explain-trace-title">AccountAccess</h3>
+                <div class="explain-trace-row">
+                  <span class="explain-trace-label">has_account_access_for_view</span>
+                  <span class="explain-badge {accessTrace.has_account_access_for_view ? 'success' : 'fail'}">{String(accessTrace.has_account_access_for_view)}</span>
+                </div>
+                {#if accessTrace.account_access_view_ids?.length}
+                  <div class="explain-trace-row">
+                    <span class="explain-trace-label">account_access_view_ids</span>
+                    <span class="explain-trace-value code">{accessTrace.account_access_view_ids.join(", ")}</span>
+                  </div>
+                {/if}
+              </div>
+
+              <div class="explain-trace-section">
+                <h3 class="explain-trace-title">Entitlement</h3>
+                <div class="explain-trace-row">
+                  <span class="explain-trace-label">has_can_execute_abac_rule</span>
+                  <span class="explain-badge {entTrace.has_can_execute_abac_rule ? 'success' : 'fail'}">{String(entTrace.has_can_execute_abac_rule)}</span>
+                </div>
+              </div>
+
+              <div class="explain-trace-section">
+                <h3 class="explain-trace-title">ABAC</h3>
+                <div class="explain-trace-row">
+                  <span class="explain-trace-label">policy</span>
+                  <span class="explain-trace-value code">{abacTrace.policy ?? "—"}</span>
+                </div>
+                <div class="explain-trace-row">
+                  <span class="explain-trace-label">allow_abac_account_access</span>
+                  <span class="explain-badge {abacTrace.allow_abac_account_access ? 'success' : 'fail'}">{String(abacTrace.allow_abac_account_access)}</span>
+                </div>
+                <div class="explain-trace-hint">
+                  Value of the API <code>allow_abac_account_access</code> system Prop. When <code>false</code>, ABAC can never grant account access on this deployment, regardless of rules or entitlements.
+                </div>
+                <div class="explain-trace-row">
+                  <span class="explain-trace-label">standalone_abac_result</span>
+                  <span class="explain-badge {abacTrace.standalone_abac_result ? 'success' : 'fail'}">{String(abacTrace.standalone_abac_result)}</span>
+                </div>
+                <div class="explain-trace-hint">
+                  What ABAC would decide on its own. <code>true</code> only when all three hold: (1) <code>allow_abac_account_access</code> is <code>true</code>, (2) the target user has the <code>CanExecuteAbacRule</code> entitlement, and (3) at least one active rule under the <code>account-access</code> policy returns <code>PASS</code> (logical OR across rules). The final <code>has_access</code> is <code>has_account_access_for_view</code> OR <code>standalone_abac_result</code>.
+                </div>
+                <div class="explain-trace-row">
+                  <span class="explain-trace-label">rules_evaluated ({rules.length})</span>
+                </div>
+                {#if rules.length > 0}
+                  <div class="explain-rules-list">
+                    {#each rules as rule, i}
+                      <details class="abac-rule">
+                        <summary class="abac-rule-summary">
+                          <span class="abac-rule-name">{rule.rule_name ?? `rule[${i}]`}</span>
+                          {#if rule.result}
+                            <span class="explain-badge {rule.result === 'PASS' ? 'success' : rule.result === 'FAIL' ? 'fail' : 'neutral'}">{rule.result}</span>
+                          {/if}
+                          {#if rule.is_active === false}
+                            <span class="explain-badge neutral">inactive</span>
+                          {/if}
+                          {#if rule.error_message}
+                            <span class="explain-badge fail" title={rule.error_message}>error</span>
+                          {/if}
+                        </summary>
+                        <pre class="abac-rule-code">{JSON.stringify(rule, null, 2)}</pre>
+                      </details>
+                    {/each}
+                  </div>
+                {/if}
+              </div>
+            </div>
+
+            <details class="explain-raw-toggle">
+              <summary>Raw JSON response</summary>
+              <pre class="abac-rule-code" data-testid="explain-json">{JSON.stringify(explainResult, null, 2)}</pre>
+            </details>
+          {/if}
+        </section>
+
+        <!-- ABAC Rules diagnostic panel -->
+        <section class="info-section">
+          <h2 class="section-title">
+            ABAC Rules
+            {#if !abacRulesLoading && !abacRulesError}
+              ({abacRulesFiltered.length}{abacRulesShowInactive ? "" : ` of ${abacRules.length} active`})
+            {/if}
+          </h2>
+          <p class="abac-rules-hint">
+            System-wide rules. Filter by rule name, code, policy, description, or id to find rules referencing this account ({accountId}) or view ({viewId}).
+          </p>
+          {#if abacRulesLoading}
+            <div class="cal-loading">
+              <Loader2 size={16} class="spinner-icon" />
+              <span>Loading ABAC rules...</span>
+            </div>
+          {:else if abacRulesParsedError && abacRulesParsedError.type === "missing_role"}
+            <MissingRoleAlert
+              roles={abacRulesParsedError.roles}
+              errorCode={abacRulesParsedError.code}
+              message={abacRulesParsedError.message}
+              bankId={bankId}
+            />
+          {:else if abacRulesError}
+            <div class="users-access-error">{abacRulesError}</div>
+          {:else}
+            <div class="abac-controls">
+              <input
+                type="text"
+                class="abac-filter-input"
+                name="abac-rules-filter"
+                placeholder={`Filter (try "${accountId}" or "${viewId}")`}
+                bind:value={abacRulesFilter}
+                data-testid="abac-rules-filter"
+              />
+              <label class="abac-toggle">
+                <input type="checkbox" bind:checked={abacRulesShowInactive} data-testid="abac-show-inactive" />
+                Show inactive
+              </label>
+            </div>
+            {#if abacRulesFiltered.length === 0}
+              <p class="no-attributes">No matching ABAC rules.</p>
+            {:else}
+              <div class="abac-rules-list">
+                {#each abacRulesFiltered as rule (rule.abac_rule_id)}
+                  <details class="abac-rule" data-testid="abac-rule-{rule.abac_rule_id}">
+                    <summary class="abac-rule-summary">
+                      <span class="abac-rule-name">{rule.rule_name}</span>
+                      {#if rule.policy}
+                        <span class="abac-rule-policy">{rule.policy}</span>
+                      {/if}
+                      {#if rule.is_active}
+                        <span class="abac-rule-state active">active</span>
+                      {:else}
+                        <span class="abac-rule-state inactive">inactive</span>
+                      {/if}
+                    </summary>
+                    <div class="abac-rule-body">
+                      {#if rule.description}
+                        <div class="abac-rule-row">
+                          <span class="abac-rule-label">Description</span>
+                          <span class="abac-rule-value">{rule.description}</span>
+                        </div>
+                      {/if}
+                      <div class="abac-rule-row">
+                        <span class="abac-rule-label">Rule ID</span>
+                        <span class="abac-rule-value code">{rule.abac_rule_id}</span>
+                      </div>
+                      <div class="abac-rule-row">
+                        <span class="abac-rule-label">Code</span>
+                        <pre class="abac-rule-code">{rule.rule_code}</pre>
+                      </div>
+                    </div>
+                  </details>
+                {/each}
+              </div>
+            {/if}
+          {/if}
+        </section>
       </div>
     </div>
   {/if}
@@ -1119,6 +1563,547 @@
     .info-owners-row {
       grid-template-columns: 1fr;
     }
+  }
+
+  /* Account Access Trace panel */
+  .trace-copy-btn {
+    margin-inline-start: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.625rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #374151;
+    background: #f3f4f6;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .trace-copy-btn:hover {
+    background: #e5e7eb;
+  }
+
+  :global([data-mode="dark"]) .trace-copy-btn {
+    color: var(--color-surface-200);
+    background: rgb(var(--color-surface-800));
+    border-color: rgb(var(--color-surface-600));
+  }
+
+  :global([data-mode="dark"]) .trace-copy-btn:hover {
+    background: rgb(var(--color-surface-700));
+  }
+
+  .explain-form {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.625rem;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .explain-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-width: 180px;
+  }
+
+  .explain-field-grow {
+    flex: 1;
+    min-width: 280px;
+  }
+
+  .explain-input {
+    padding: 0.375rem 0.5rem;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 0.813rem;
+    background: white;
+    color: #111827;
+  }
+
+  .explain-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+  }
+
+  :global([data-mode="dark"]) .explain-input {
+    background: rgb(var(--color-surface-800));
+    border-color: rgb(var(--color-surface-600));
+    color: var(--color-surface-100);
+  }
+
+  .explain-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+    margin: 0.625rem 0;
+  }
+
+  .explain-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.25rem 0.625rem;
+    border-radius: 9999px;
+    font-family: monospace;
+  }
+
+  .explain-badge.success {
+    background: #dcfce7;
+    color: #166534;
+  }
+
+  .explain-badge.fail {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+
+  .explain-badge.neutral {
+    background: #e5e7eb;
+    color: #374151;
+  }
+
+  :global([data-mode="dark"]) .explain-badge.success {
+    background: rgba(22, 163, 74, 0.2);
+    color: rgb(var(--color-success-400));
+  }
+
+  :global([data-mode="dark"]) .explain-badge.fail {
+    background: rgba(220, 38, 38, 0.2);
+    color: rgb(var(--color-error-400));
+  }
+
+  :global([data-mode="dark"]) .explain-badge.neutral {
+    background: rgb(var(--color-surface-700));
+    color: var(--color-surface-200);
+  }
+
+  .explain-trace {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 0.75rem;
+    margin: 0.625rem 0;
+  }
+
+  .explain-trace-section {
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 0.625rem 0.75rem;
+    background: #fafafa;
+  }
+
+  :global([data-mode="dark"]) .explain-trace-section {
+    border-color: rgb(var(--color-surface-700));
+    background: rgb(var(--color-surface-900));
+  }
+
+  .explain-trace-title {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  :global([data-mode="dark"]) .explain-trace-title {
+    color: var(--color-surface-400);
+  }
+
+  .explain-trace-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.375rem;
+    font-size: 0.813rem;
+    flex-wrap: wrap;
+  }
+
+  .explain-trace-row:last-child {
+    margin-bottom: 0;
+  }
+
+  .explain-trace-label {
+    font-family: monospace;
+    font-size: 0.75rem;
+    color: #6b7280;
+  }
+
+  :global([data-mode="dark"]) .explain-trace-label {
+    color: var(--color-surface-400);
+  }
+
+  .explain-trace-value {
+    color: #111827;
+    word-break: break-all;
+  }
+
+  :global([data-mode="dark"]) .explain-trace-value {
+    color: var(--color-surface-200);
+  }
+
+  .explain-trace-value.code {
+    font-family: monospace;
+    font-size: 0.75rem;
+    background: #f3f4f6;
+    padding: 0.125rem 0.375rem;
+    border-radius: 4px;
+  }
+
+  .explain-trace-hint {
+    font-size: 0.7rem;
+    line-height: 1.45;
+    color: #6b7280;
+    margin: -0.125rem 0 0.5rem 0;
+  }
+
+  .explain-trace-hint code {
+    font-family: monospace;
+    font-size: 0.7rem;
+    background: #f3f4f6;
+    padding: 0.05rem 0.25rem;
+    border-radius: 3px;
+    color: #374151;
+  }
+
+  :global([data-mode="dark"]) .explain-trace-hint {
+    color: var(--color-surface-400);
+  }
+
+  :global([data-mode="dark"]) .explain-trace-hint code {
+    background: rgb(var(--color-surface-800));
+    color: var(--color-surface-200);
+  }
+
+  :global([data-mode="dark"]) .explain-trace-value.code {
+    background: rgb(var(--color-surface-800));
+  }
+
+  .explain-rules-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-top: 0.375rem;
+  }
+
+  .explain-raw-toggle {
+    margin-top: 0.625rem;
+  }
+
+  .explain-raw-toggle summary {
+    cursor: pointer;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6b7280;
+  }
+
+  :global([data-mode="dark"]) .explain-raw-toggle summary {
+    color: var(--color-surface-400);
+  }
+
+  /* Chip-as-button styling */
+  .chip-button {
+    cursor: pointer;
+    border: none;
+    font-family: inherit;
+  }
+
+  .chip-button:hover {
+    filter: brightness(0.95);
+    text-decoration: underline;
+  }
+
+  /* ABAC rules panel */
+  .abac-rules-hint {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin: 0 0 0.625rem 0;
+  }
+
+  :global([data-mode="dark"]) .abac-rules-hint {
+    color: var(--color-surface-400);
+  }
+
+  .abac-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.625rem;
+  }
+
+  .abac-filter-input {
+    flex: 1;
+    max-width: 480px;
+    padding: 0.375rem 0.5rem;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 0.813rem;
+    background: white;
+    color: #111827;
+  }
+
+  .abac-filter-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+  }
+
+  :global([data-mode="dark"]) .abac-filter-input {
+    background: rgb(var(--color-surface-800));
+    border-color: rgb(var(--color-surface-600));
+    color: var(--color-surface-100);
+  }
+
+  .abac-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.75rem;
+    color: #6b7280;
+    cursor: pointer;
+  }
+
+  :global([data-mode="dark"]) .abac-toggle {
+    color: var(--color-surface-400);
+  }
+
+  .abac-rules-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+
+  .abac-rule {
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    background: #fafafa;
+    overflow: hidden;
+  }
+
+  :global([data-mode="dark"]) .abac-rule {
+    background: rgb(var(--color-surface-900));
+    border-color: rgb(var(--color-surface-700));
+  }
+
+  .abac-rule-summary {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+    font-size: 0.813rem;
+  }
+
+  .abac-rule-summary::-webkit-details-marker { display: none; }
+
+  .abac-rule-summary::before {
+    content: "▶";
+    font-size: 0.6rem;
+    color: #9ca3af;
+    transition: transform 0.15s;
+  }
+
+  .abac-rule[open] .abac-rule-summary::before {
+    transform: rotate(90deg);
+    display: inline-block;
+  }
+
+  .abac-rule-name {
+    font-weight: 600;
+    color: #111827;
+  }
+
+  :global([data-mode="dark"]) .abac-rule-name {
+    color: var(--color-surface-100);
+  }
+
+  .abac-rule-policy {
+    font-family: monospace;
+    font-size: 0.75rem;
+    padding: 0.125rem 0.375rem;
+    background: #dbeafe;
+    color: #1e40af;
+    border-radius: 4px;
+  }
+
+  :global([data-mode="dark"]) .abac-rule-policy {
+    background: rgba(59, 130, 246, 0.2);
+    color: rgb(var(--color-primary-300));
+  }
+
+  .abac-rule-state {
+    margin-left: auto;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .abac-rule-state.active {
+    background: #dcfce7;
+    color: #166534;
+  }
+
+  :global([data-mode="dark"]) .abac-rule-state.active {
+    background: rgba(22, 163, 74, 0.2);
+    color: rgb(var(--color-success-400));
+  }
+
+  .abac-rule-state.inactive {
+    background: #f3f4f6;
+    color: #6b7280;
+  }
+
+  :global([data-mode="dark"]) .abac-rule-state.inactive {
+    background: rgb(var(--color-surface-700));
+    color: var(--color-surface-400);
+  }
+
+  .abac-rule-body {
+    padding: 0.5rem 0.75rem 0.75rem;
+    border-top: 1px solid #e5e7eb;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  :global([data-mode="dark"]) .abac-rule-body {
+    background: rgb(var(--color-surface-800));
+    border-top-color: rgb(var(--color-surface-700));
+  }
+
+  .abac-rule-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+
+  .abac-rule-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  :global([data-mode="dark"]) .abac-rule-label {
+    color: var(--color-surface-400);
+  }
+
+  .abac-rule-value {
+    font-size: 0.813rem;
+    color: #111827;
+  }
+
+  :global([data-mode="dark"]) .abac-rule-value {
+    color: var(--color-surface-200);
+  }
+
+  .abac-rule-value.code {
+    font-family: monospace;
+    font-size: 0.75rem;
+  }
+
+  .abac-rule-code {
+    margin: 0;
+    padding: 0.5rem 0.625rem;
+    background: #1f2937;
+    color: #f9fafb;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-family: monospace;
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 280px;
+    overflow: auto;
+  }
+
+  :global([data-mode="dark"]) .abac-rule-code {
+    background: rgb(var(--color-surface-950, var(--color-surface-900)));
+  }
+
+  /* TEMP DEBUG */
+  .debug-section-details {
+    margin: 0;
+  }
+
+  .debug-section-summary {
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+  }
+
+  .debug-section-summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .debug-section-summary::before {
+    content: "▶";
+    display: inline-block;
+    margin-right: 0.5rem;
+    font-size: 0.625rem;
+    transition: transform 0.15s ease;
+  }
+
+  .debug-section-details[open] > .debug-section-summary::before {
+    transform: rotate(90deg);
+  }
+
+  .debug-section-details[open] > .debug-section-summary {
+    margin-bottom: 0.75rem;
+  }
+
+  .debug-block {
+    margin-bottom: 0.75rem;
+    border: 1px solid #fbbf24;
+    border-radius: 6px;
+    background: #fffbeb;
+    overflow: hidden;
+  }
+
+  :global([data-mode="dark"]) .debug-block {
+    background: rgba(245, 158, 11, 0.08);
+    border-color: rgba(245, 158, 11, 0.4);
+  }
+
+  .debug-block-header {
+    padding: 0.375rem 0.625rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #92400e;
+    background: #fef3c7;
+    border-bottom: 1px solid #fbbf24;
+  }
+
+  :global([data-mode="dark"]) .debug-block-header {
+    background: rgba(245, 158, 11, 0.15);
+    border-bottom-color: rgba(245, 158, 11, 0.4);
+    color: rgb(var(--color-warning-300));
+  }
+
+  .debug-block-body {
+    margin: 0;
+    padding: 0.5rem 0.625rem;
+    font-size: 0.75rem;
+    font-family: monospace;
+    color: #374151;
+    white-space: pre-wrap;
+    word-break: break-all;
+    max-height: 320px;
+    overflow: auto;
+  }
+
+  :global([data-mode="dark"]) .debug-block-body {
+    color: var(--color-surface-200);
   }
 
   /* Users with access error */
