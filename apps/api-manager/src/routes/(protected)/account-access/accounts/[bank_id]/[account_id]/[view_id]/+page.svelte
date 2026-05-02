@@ -793,6 +793,11 @@
             <h2 class="section-title">
               Views Available ({account.views_available.length})
             </h2>
+            <p class="abac-rules-hint">
+              <strong>Direct Access</strong>: users with a row in <code>AccountAccess</code> for this view (<code>access_source: ACCOUNT_ACCESS</code>).
+              <br />
+              <strong>ABAC Access</strong>: users who <em>don't</em> have Direct Access, <em>do</em> hold the <code>CanExecuteAbacRule</code> entitlement, and match at least one active rule under the <code>account-access</code> policy. Users granted by both are reported only under Direct. Users matched by a rule but lacking <code>CanExecuteAbacRule</code> are not enumerated here.
+            </p>
             {#if usersWithAccessError}
               {#if usersWithAccessParsedError && usersWithAccessParsedError.type === "missing_role"}
                 <MissingRoleAlert
@@ -812,8 +817,14 @@
                 <div class="views-col-name">View</div>
                 <div class="views-col-link">Transactions</div>
                 <div class="views-col-link">Counterparties</div>
-                <div class="views-col-users">Direct Access</div>
-                <div class="views-col-users">ABAC Access</div>
+                <div
+                  class="views-col-users"
+                  title="Users with a row in AccountAccess for this view (access_source: ACCOUNT_ACCESS)."
+                >Direct Access</div>
+                <div
+                  class="views-col-users"
+                  title="Users without Direct Access who hold CanExecuteAbacRule and match an active rule under the account-access policy. Direct Access wins precedence — users with both are listed only as Direct. Rule-matching users without CanExecuteAbacRule are not enumerated."
+                >ABAC Access</div>
               </div>
               {#each account.views_available as view}
                 {@const vid = viewId_(view)}
@@ -969,11 +980,14 @@
             </div>
 
             <div class="explain-trace">
-              <div class="explain-trace-section">
+              <div class="explain-trace-section explain-trace-section-primary {accessTrace.has_account_access_for_view ? 'is-grant' : 'is-deny'}">
                 <h3 class="explain-trace-title">AccountAccess</h3>
-                <div class="explain-trace-row">
+                <div class="explain-trace-row explain-trace-row-primary">
                   <span class="explain-trace-label">has_account_access_for_view</span>
-                  <span class="explain-badge {accessTrace.has_account_access_for_view ? 'success' : 'fail'}">{String(accessTrace.has_account_access_for_view)}</span>
+                  <span class="explain-badge explain-badge-lg {accessTrace.has_account_access_for_view ? 'success' : 'fail'}">{String(accessTrace.has_account_access_for_view)}</span>
+                </div>
+                <div class="explain-trace-hint">
+                  Decisive when <code>true</code>: AccountAccess wins outright and <code>has_access</code> is <code>true</code> regardless of ABAC. When <code>false</code>, the final decision falls back to ABAC.
                 </div>
                 {#if accessTrace.account_access_view_ids?.length}
                   <div class="explain-trace-row">
@@ -1699,6 +1713,49 @@
   :global([data-mode="dark"]) .explain-trace-section {
     border-color: rgb(var(--color-surface-700));
     background: rgb(var(--color-surface-900));
+  }
+
+  .explain-trace-section-primary {
+    border-width: 2px;
+  }
+
+  .explain-trace-section-primary.is-grant {
+    border-color: #16a34a;
+    background: #f0fdf4;
+  }
+
+  .explain-trace-section-primary.is-deny {
+    border-color: #d1d5db;
+    background: #fafafa;
+  }
+
+  :global([data-mode="dark"]) .explain-trace-section-primary.is-grant {
+    border-color: rgb(var(--color-success-500));
+    background: rgba(22, 163, 74, 0.08);
+  }
+
+  :global([data-mode="dark"]) .explain-trace-section-primary.is-deny {
+    border-color: rgb(var(--color-surface-700));
+    background: rgb(var(--color-surface-900));
+  }
+
+  .explain-trace-row-primary {
+    margin-bottom: 0.5rem;
+  }
+
+  .explain-trace-row-primary .explain-trace-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #111827;
+  }
+
+  :global([data-mode="dark"]) .explain-trace-row-primary .explain-trace-label {
+    color: var(--color-surface-100);
+  }
+
+  .explain-badge-lg {
+    font-size: 0.875rem;
+    padding: 0.3125rem 0.75rem;
   }
 
   .explain-trace-title {
