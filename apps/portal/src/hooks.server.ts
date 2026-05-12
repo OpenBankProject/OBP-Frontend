@@ -12,7 +12,7 @@ import { obp_requests } from '$lib/obp/requests';
 import { oauth2ProviderManager } from '$lib/oauth/providerManager';
 import { SessionOAuthHelper } from '$lib/oauth/sessionHelper';
 import { healthCheckRegistry, OIDCHealthCheckService } from '@obp/shared/health-check';
-import { PUBLIC_OBP_BASE_URL } from '$env/static/public';
+import { PUBLIC_OBP_BASE_URL, PUBLIC_OPEY_BASE_URL } from '$env/static/public';
 
 import { redisService } from '$lib/redis/services/RedisService';
 import { RedisHealthCheckService } from '$lib/health-check/services/RedisHealthCheckService';
@@ -48,8 +48,15 @@ function checkServerPort() {
 }
 
 // Startup scripts
-if (!env.SESSION_SECRET) {
-	throw new Error('SESSION_SECRET environment variable is required but not set.');
+if (!env.SESSION_SECRET || typeof env.SESSION_SECRET !== 'string') {
+	throw new Error(
+		'SESSION_SECRET environment variable is required but not set (or not a string). ' +
+			'Set it to a long random string in the runtime environment (e.g. in your .env file, ' +
+			"docker-compose 'environment:' block, or 'docker run -e SESSION_SECRET=...'). " +
+			'Note: this is a dynamic env var read at runtime — it must be present when the ' +
+			'container starts, not only at build time. Without it, svelte-kit-sessions will ' +
+			"crash later inside unsign() with 'Cannot read properties of undefined (reading map)'."
+	);
 }
 
 // Check server port
@@ -61,12 +68,19 @@ const redisClient = redisService.getClient();
 function initHealthChecks() {
 	healthCheckRegistry.register({
 		serviceName: 'OBP API',
-		url: `${PUBLIC_OBP_BASE_URL}/obp/v5.1.0/root`
+		url: `${PUBLIC_OBP_BASE_URL}/obp/v5.1.0/root`,
+		details: {
+			PUBLIC_OBP_BASE_URL: PUBLIC_OBP_BASE_URL
+		}
 	});
 
 	healthCheckRegistry.register({
 		serviceName: 'Opey II',
-		url: `${env.OPEY_BASE_URL}/status`
+		url: `${env.OPEY_BASE_URL}/status`,
+		details: {
+			OPEY_BASE_URL: env.OPEY_BASE_URL ?? '(unset)',
+			PUBLIC_OPEY_BASE_URL: PUBLIC_OPEY_BASE_URL || '(unset)'
+		}
 	});
 
 	const redisHealthCheck = new RedisHealthCheckService();

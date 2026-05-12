@@ -8,7 +8,7 @@ import RedisStore from "svelte-kit-connect-redis";
 import { RateLimiter } from "sveltekit-rate-limiter/server";
 import { Redis } from "ioredis";
 import { env } from "$env/dynamic/private";
-import { PUBLIC_OBP_BASE_URL } from "$env/static/public";
+import { PUBLIC_OBP_BASE_URL, PUBLIC_OPEY_BASE_URL } from "$env/static/public";
 import { oauth2ProviderManager } from "$lib/oauth/providerManager";
 import { SessionOAuthHelper } from "$lib/oauth/sessionHelper";
 import { resourceDocsCache } from "$lib/stores/resourceDocsCache";
@@ -57,6 +57,17 @@ function checkServerPort() {
 }
 
 // Startup scripts
+if (!env.SESSION_SECRET || typeof env.SESSION_SECRET !== 'string') {
+  throw new Error(
+    'SESSION_SECRET environment variable is required but not set (or not a string). ' +
+      'Set it to a long random string in the runtime environment (e.g. in your .env file, ' +
+      "docker-compose 'environment:' block, or 'docker run -e SESSION_SECRET=...'). " +
+      'Note: this is a dynamic env var read at runtime — it must be present when the ' +
+      'container starts, not only at build time. Without it, svelte-kit-sessions will ' +
+      "crash later inside unsign() with 'Cannot read properties of undefined (reading map)'."
+  );
+}
+
 // Check server port
 checkServerPort();
 
@@ -88,9 +99,22 @@ if (!env.REDIS_HOST || !env.REDIS_PORT) {
 await oauth2ProviderManager.start();
 
 // Register and start health checks
-healthCheckRegistry.register({ serviceName: 'OBP API', url: `${PUBLIC_OBP_BASE_URL}/obp/v6.0.0/root` });
+healthCheckRegistry.register({
+  serviceName: 'OBP API',
+  url: `${PUBLIC_OBP_BASE_URL}/obp/v6.0.0/root`,
+  details: {
+    PUBLIC_OBP_BASE_URL: PUBLIC_OBP_BASE_URL
+  }
+});
 if (env.OPEY_BASE_URL) {
-  healthCheckRegistry.register({ serviceName: 'Opey II', url: `${env.OPEY_BASE_URL}/status` });
+  healthCheckRegistry.register({
+    serviceName: 'Opey II',
+    url: `${env.OPEY_BASE_URL}/status`,
+    details: {
+      OPEY_BASE_URL: env.OPEY_BASE_URL,
+      PUBLIC_OPEY_BASE_URL: PUBLIC_OPEY_BASE_URL || '(unset)'
+    }
+  });
 }
 
 const testTokenDisabled = env.OIDC_HEALTHCHECK_TEST_TOKEN === 'false';
