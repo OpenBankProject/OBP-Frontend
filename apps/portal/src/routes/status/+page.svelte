@@ -2,6 +2,7 @@
 	import type { PageData } from './$types';
 	import { onMount, onDestroy } from 'svelte';
 	import { Copy, Check } from '@lucide/svelte';
+	import { env } from '$env/dynamic/public';
 
 	let { data }: { data: PageData } = $props();
 
@@ -11,6 +12,70 @@
 	let intervalId: ReturnType<typeof setInterval> | null = null;
 	let countdownId: ReturnType<typeof setInterval> | null = null;
 	let copiedService = $state<string | null>(null);
+
+	// Browser-side Opey check: fetches PUBLIC_OPEY_BASE_URL/status from the user's
+	// network, mirroring the path the Opey chat actually uses. Different from the
+	// 'Opey II (server)' check which runs on the portal server.
+	type BrowserCheck = {
+		status: 'healthy' | 'unhealthy' | 'unknown';
+		responseTimeMs?: number;
+		error?: string;
+		lastChecked?: string;
+		details: Record<string, string>;
+	};
+	let opeyBrowserCheck = $state<BrowserCheck>({
+		status: 'unknown',
+		details: { PUBLIC_OPEY_BASE_URL: env.PUBLIC_OPEY_BASE_URL || '(unset)' }
+	});
+
+	async function runOpeyBrowserCheck() {
+		const url = env.PUBLIC_OPEY_BASE_URL;
+		const lastChecked = new Date().toISOString();
+		if (!url) {
+			opeyBrowserCheck = {
+				status: 'unhealthy',
+				error: 'PUBLIC_OPEY_BASE_URL is not set in the browser env',
+				lastChecked,
+				details: { PUBLIC_OPEY_BASE_URL: '(unset)' }
+			};
+			return;
+		}
+		const start = performance.now();
+		const controller = new AbortController();
+		const timeoutId = setTimeout(() => controller.abort('timeout'), 5000);
+		try {
+			const res = await fetch(`${url}/status`, { signal: controller.signal });
+			const responseTimeMs = Math.round(performance.now() - start);
+			if (res.ok) {
+				opeyBrowserCheck = {
+					status: 'healthy',
+					responseTimeMs,
+					lastChecked,
+					details: { PUBLIC_OPEY_BASE_URL: url }
+				};
+			} else {
+				opeyBrowserCheck = {
+					status: 'unhealthy',
+					responseTimeMs,
+					error: `Unexpected status code: ${res.status}`,
+					lastChecked,
+					details: { PUBLIC_OPEY_BASE_URL: url }
+				};
+			}
+		} catch (err) {
+			const responseTimeMs = Math.round(performance.now() - start);
+			const msg = err instanceof Error ? err.message : String(err);
+			opeyBrowserCheck = {
+				status: 'unhealthy',
+				responseTimeMs,
+				error: msg === 'timeout' ? 'Request timeout' : msg,
+				lastChecked,
+				details: { PUBLIC_OPEY_BASE_URL: url }
+			};
+		} finally {
+			clearTimeout(timeoutId);
+		}
+	}
 
 	function buildServiceText(name: string, service: typeof data.services[string]): string {
 		const lines = [
@@ -117,6 +182,7 @@
 		} catch (error) {
 			console.error('Failed to refresh status:', error);
 		}
+		await runOpeyBrowserCheck();
 	}
 	
 	function startAutoRefresh() {
@@ -155,6 +221,10 @@
 		};
 	});
 	
+	onMount(() => {
+		runOpeyBrowserCheck();
+	});
+
 	onDestroy(() => {
 		stopAutoRefresh();
 	});
@@ -311,6 +381,58 @@
 				<p class="text-gray-600 dark:text-gray-400">No services are being monitored.</p>
 			</div>
 		{/if}
+
+		<!-- Browser-side Opey check: runs in the user's browser, not the portal server -->
+		<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:shadow-lg transition-shadow" data-testid="service-opey-browser">
+			<div class="flex items-start justify-between">
+				<div class="flex items-center gap-4 flex-1">
+					<div class="w-12 h-12 rounded-full {getStatusColor(opeyBrowserCheck.status)} flex items-center justify-center text-white text-xl font-bold">
+						{getStatusIcon(opeyBrowserCheck.status)}
+					</div>
+					<div class="flex-1">
+						<h3 class="text-xl font-semibold mb-1">Opey II (browser)</h3>
+						<p class="text-xs text-gray-500 dark:text-gray-400 mb-2">
+							Fetched directly from your browser to PUBLIC_OPEY_BASE_URL — mirrors the path the Opey chat uses.
+						</p>
+						<div class="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+							<span class="flex items-center gap-1">
+								<span class="font-medium">Status:</span>
+								<span class="{getStatusTextColor(opeyBrowserCheck.status)} font-semibold capitalize">
+									{opeyBrowserCheck.status}
+								</span>
+							</span>
+							{#if opeyBrowserCheck.responseTimeMs !== undefined}
+								<span class="flex items-center gap-1">
+									<span class="font-medium">Response Time:</span>
+									<span class={opeyBrowserCheck.responseTimeMs > 5000 ? 'text-red-600 dark:text-red-400' : opeyBrowserCheck.responseTimeMs > 1000 ? 'text-yellow-600 dark:text-yellow-400' : 'text-green-600 dark:text-green-400'}>
+										{formatResponseTime(opeyBrowserCheck.responseTimeMs)}
+									</span>
+								</span>
+							{/if}
+							{#if opeyBrowserCheck.lastChecked}
+								<span class="flex items-center gap-1">
+									<span class="font-medium">Last Checked:</span>
+									<span>{formatTimestamp(opeyBrowserCheck.lastChecked)}</span>
+								</span>
+							{/if}
+						</div>
+						<dl class="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs text-gray-600 dark:text-gray-400" data-testid="service-details-opey-browser">
+							{#each Object.entries(opeyBrowserCheck.details) as [key, value]}
+								<dt class="font-medium">{key}:</dt>
+								<dd class="font-mono break-all">{value}</dd>
+							{/each}
+						</dl>
+						{#if opeyBrowserCheck.error}
+							<div class="mt-2 p-3 bg-red-50 dark:bg-red-900/20 rounded border border-red-200 dark:border-red-800">
+								<p class="text-sm text-red-700 dark:text-red-300 font-mono">
+									<span class="font-semibold">Error:</span> {opeyBrowserCheck.error}
+								</p>
+							</div>
+						{/if}
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 </div>
 

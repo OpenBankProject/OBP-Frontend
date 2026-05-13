@@ -80,14 +80,19 @@ function initHealthChecks() {
 		}
 	});
 
-	healthCheckRegistry.register({
-		serviceName: 'Opey II',
-		url: `${env.OPEY_BASE_URL}/status`,
-		details: {
-			OPEY_BASE_URL: env.OPEY_BASE_URL ?? '(unset)',
-			PUBLIC_OPEY_BASE_URL: publicEnv.PUBLIC_OPEY_BASE_URL || '(unset)'
-		}
-	});
+	// Server-side check: tests connectivity from the portal server to OPEY_BASE_URL
+	// (private env, usually an internal/private network address). This does NOT prove
+	// the user's browser can reach Opey — the browser uses PUBLIC_OPEY_BASE_URL,
+	// which is verified by a separate browser-side check on the /status page.
+	if (env.OPEY_BASE_URL) {
+		healthCheckRegistry.register({
+			serviceName: 'Opey II (server)',
+			url: `${env.OPEY_BASE_URL}/status`,
+			details: {
+				OPEY_BASE_URL: env.OPEY_BASE_URL
+			}
+		});
+	}
 
 	const redisHealthCheck = new RedisHealthCheckService();
 	healthCheckRegistry.register(redisHealthCheck);

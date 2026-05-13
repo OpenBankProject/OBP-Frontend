@@ -54,6 +54,7 @@
 	const suggestedQuestions: SuggestedQuestion[] = parseSuggestedQuestions();
 
 	let opeyChatOptions: Partial<OpeyChatOptions> = $derived({
+		baseUrl: env.PUBLIC_OPEY_BASE_URL,
 		displayHeader: false,
 		currentlyActiveUserName: name,
 		suggestedQuestions: suggestedQuestions,

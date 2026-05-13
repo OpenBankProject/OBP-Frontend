@@ -28,7 +28,7 @@ If you're running Opey as a separate service, you'll need to configure CORS to a
 
 Without proper CORS configuration, you'll see errors like "Access to fetch at 'http://localhost:5000/stream' from origin 'http://localhost:5174' has been blocked by CORS policy".
 
-Once the user has logged in to the portal, and the OpeyChat component is mounted (see `lib/components/OpeyChat.svelte`). The user will make a consent at OBP-API, which is sent to Opey in exchange for a session.
+Once the user has logged in to the portal, and the OpeyChat component is mounted (see `packages/shared/src/lib/components/OpeyChat.svelte`, imported via `@obp/shared/components`). The user will make a consent at OBP-API, which is sent to Opey in exchange for a session.
 
 ## Architecture
 Built with reusability, flexibility, and modularity in mind we have tried to adhere as best as possible to SOLID design principles, and used [design patterns](https://refactoring.guru/design-patterns) where applicable.
