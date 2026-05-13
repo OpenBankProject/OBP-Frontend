@@ -8,7 +8,7 @@ import RedisStore from "svelte-kit-connect-redis";
 import { RateLimiter } from "sveltekit-rate-limiter/server";
 import { Redis } from "ioredis";
 import { env } from "$env/dynamic/private";
-import { PUBLIC_OBP_BASE_URL, PUBLIC_OPEY_BASE_URL } from "$env/static/public";
+import { env as publicEnv } from "$env/dynamic/public";
 import { oauth2ProviderManager } from "$lib/oauth/providerManager";
 import { SessionOAuthHelper } from "$lib/oauth/sessionHelper";
 import { resourceDocsCache } from "$lib/stores/resourceDocsCache";
@@ -101,9 +101,9 @@ await oauth2ProviderManager.start();
 // Register and start health checks
 healthCheckRegistry.register({
   serviceName: 'OBP API',
-  url: `${PUBLIC_OBP_BASE_URL}/obp/v6.0.0/root`,
+  url: `${publicEnv.PUBLIC_OBP_BASE_URL}/obp/v6.0.0/root`,
   details: {
-    PUBLIC_OBP_BASE_URL: PUBLIC_OBP_BASE_URL
+    PUBLIC_OBP_BASE_URL: publicEnv.PUBLIC_OBP_BASE_URL
   }
 });
 if (env.OPEY_BASE_URL) {
@@ -112,7 +112,7 @@ if (env.OPEY_BASE_URL) {
     url: `${env.OPEY_BASE_URL}/status`,
     details: {
       OPEY_BASE_URL: env.OPEY_BASE_URL,
-      PUBLIC_OPEY_BASE_URL: PUBLIC_OPEY_BASE_URL || '(unset)'
+      PUBLIC_OPEY_BASE_URL: publicEnv.PUBLIC_OPEY_BASE_URL || '(unset)'
     }
   });
 }

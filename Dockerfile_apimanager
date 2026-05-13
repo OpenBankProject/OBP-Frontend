@@ -15,14 +15,14 @@ COPY packages/shared/ ./packages/shared/
 COPY apps/api-manager/ ./apps/api-manager/
 
 # Accept build arguments for environment variables
-ARG PUBLIC_OBP_BASE_URL
+# (PUBLIC_* vars are read at runtime via $env/dynamic/public, so they are
+# not needed at build time and must be set on the running container instead.)
 ARG OBP_OAUTH_CLIENT_ID
 ARG OBP_OAUTH_CLIENT_SECRET
 ARG APP_CALLBACK_URL
 ARG ORIGIN
 
 # Set environment variables for build
-ENV PUBLIC_OBP_BASE_URL=$PUBLIC_OBP_BASE_URL
 ENV OBP_OAUTH_CLIENT_ID=$OBP_OAUTH_CLIENT_ID
 ENV OBP_OAUTH_CLIENT_SECRET=$OBP_OAUTH_CLIENT_SECRET
 ENV APP_CALLBACK_URL=$APP_CALLBACK_URL

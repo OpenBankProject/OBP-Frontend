@@ -87,6 +87,7 @@
 		}
 	},
 	"dependencies": {
+		"@internationalized/date": "^3.12.1",
 		"@lucide/svelte": "^0.513.0",
 		"@skeletonlabs/skeleton": "^4.0.0",
 		"@skeletonlabs/skeleton-svelte": "^4.0.0",

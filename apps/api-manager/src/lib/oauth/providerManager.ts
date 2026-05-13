@@ -4,7 +4,7 @@ import {
   oauth2ProviderFactory,
   type WellKnownUri,
 } from "$lib/oauth/providerFactory";
-import { PUBLIC_OBP_BASE_URL } from "$env/static/public";
+import { env as publicEnv } from "$env/dynamic/public";
 
 const logger = createLogger("OAuthProviderManager");
 
@@ -54,7 +54,7 @@ class OAuth2ProviderManager {
    */
   async fetchWellKnownUris(): Promise<WellKnownUri[]> {
     const endpoint = "/obp/v6.0.0/well-known";
-    const fullUrl = `${PUBLIC_OBP_BASE_URL}${endpoint}`;
+    const fullUrl = `${publicEnv.PUBLIC_OBP_BASE_URL}${endpoint}`;
 
     try {
       logger.debug(`Fetching well-known URIs from: ${fullUrl}`);
