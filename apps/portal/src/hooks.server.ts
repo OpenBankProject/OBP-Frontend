@@ -17,6 +17,12 @@ import { healthCheckRegistry, OIDCHealthCheckService } from '@obp/shared/health-
 import { redisService } from '$lib/redis/services/RedisService';
 import { RedisHealthCheckService } from '$lib/health-check/services/RedisHealthCheckService';
 
+if (!publicEnv.PUBLIC_OBP_BASE_URL) {
+	throw new Error(
+		'PUBLIC_OBP_BASE_URL is not set. Configure it on the running container before starting the portal.'
+	);
+}
+
 // Constants
 const DEFAULT_PORT = 5174;
 

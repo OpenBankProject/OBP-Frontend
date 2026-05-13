@@ -50,9 +50,15 @@
 		splash?: Snippet; // If set, will render the splash screen snippet until the first message is sent
 		// upon which the splash screen will dissapear
 	}
+	if (!env.PUBLIC_OPEY_BASE_URL) {
+		throw new Error(
+			'PUBLIC_OPEY_BASE_URL is not set. Configure it on the running container so the Opey chat can reach the backend.'
+		);
+	}
+
 	// Default chat options
 	const defaultChatOptions: OpeyChatOptions = {
-		baseUrl: env.PUBLIC_OPEY_BASE_URL || 'http://localhost:5000',
+		baseUrl: env.PUBLIC_OPEY_BASE_URL,
 		displayHeader: true,
 		currentlyActiveUserName: 'Guest',
 		displayConnectionPips: true,

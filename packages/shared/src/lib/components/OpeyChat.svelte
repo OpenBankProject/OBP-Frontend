@@ -50,9 +50,8 @@
 		splash?: Snippet; // If set, will render the splash screen snippet until the first message is sent
 		// upon which the splash screen will dissapear
 	}
-	// Default chat options
-	const defaultChatOptions: OpeyChatOptions = {
-		baseUrl: 'http://localhost:5000',
+	// Default chat options (baseUrl must be supplied by the consuming app)
+	const defaultChatOptions: Omit<OpeyChatOptions, 'baseUrl'> = {
 		displayHeader: true,
 		currentlyActiveUserName: 'Guest',
 		displayConnectionPips: true,
@@ -61,7 +60,13 @@
 
 	let { opeyChatOptions, userAuthenticated = false, splash }: Props = $props();
 	// Merge default options with the provided options
-	const options = { ...defaultChatOptions, ...opeyChatOptions };
+	const options = { ...defaultChatOptions, ...opeyChatOptions } as OpeyChatOptions;
+
+	if (!options.baseUrl) {
+		throw new Error(
+			'OpeyChat: opeyChatOptions.baseUrl is required. Pass the Opey backend URL from the consuming app.'
+		);
+	}
 
 	// Initialize session state and services
 

@@ -17,6 +17,12 @@ import { createOpeyNotebookDynamicEntityIfNeeded } from "$lib/server/opey/opeyNo
 
 declare const process: { env: Record<string, string | undefined>; argv: string[] };
 
+if (!publicEnv.PUBLIC_OBP_BASE_URL) {
+  throw new Error(
+    'PUBLIC_OBP_BASE_URL is not set. Configure it on the running container before starting api-manager.'
+  );
+}
+
 // Constants
 const DEFAULT_PORT = 3003;
 
