@@ -7,12 +7,12 @@ import { sveltekitSessionHandle } from 'svelte-kit-sessions';
 import RedisStore from 'svelte-kit-connect-redis';
 
 import { env } from '$env/dynamic/private';
+import { env as publicEnv } from '$env/dynamic/public';
 import { createOBPRequests } from '$lib/obp/requests';
 import { OAuth2ProviderManager } from '$lib/server/oauth/providerManager';
 import { OAuth2ProviderFactory, OBPOIDCStrategy } from '$lib/server/oauth/providerFactory';
 import { SessionOAuthHelper } from '$lib/server/oauth/sessionHelper';
 import { HealthCheckRegistry } from '$lib/health-check/HealthCheckRegistry';
-import { PUBLIC_OBP_BASE_URL } from '$env/static/public';
 
 import { RedisService } from '$lib/server/redis/RedisService';
 import { RedisHealthCheckService } from '$lib/server/health-check/RedisHealthCheckService';
@@ -53,7 +53,7 @@ const oauth2ProviderFactory = new OAuth2ProviderFactory([
 ]);
 
 // Init OAuth2 provider manager
-const obpRequests = createOBPRequests(PUBLIC_OBP_BASE_URL);
+const obpRequests = createOBPRequests(publicEnv.PUBLIC_OBP_BASE_URL);
 const oauth2ProviderManager = new OAuth2ProviderManager(oauth2ProviderFactory, obpRequests);
 
 // Init session OAuth helper
@@ -67,7 +67,7 @@ const healthCheckRegistry = new HealthCheckRegistry();
 function initHealthChecks() {
 	healthCheckRegistry.register({
 		serviceName: 'OBP API',
-		url: `${PUBLIC_OBP_BASE_URL}/obp/v5.1.0/root`
+		url: `${publicEnv.PUBLIC_OBP_BASE_URL}/obp/v5.1.0/root`
 	});
 
 	if (env.OPEY_BASE_URL) {

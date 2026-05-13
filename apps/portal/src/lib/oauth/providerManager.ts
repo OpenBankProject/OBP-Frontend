@@ -1,7 +1,6 @@
 import { createLogger } from '@obp/shared/utils';
 import { obp_requests } from '$lib/obp/requests';
 import { oauth2ProviderFactory, type WellKnownUri } from '$lib/oauth/providerFactory';
-import { PUBLIC_OBP_BASE_URL } from '$env/static/public';
 
 const logger = createLogger('OAuthProviderManager');
 
