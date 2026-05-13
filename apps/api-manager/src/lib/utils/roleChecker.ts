@@ -202,6 +202,9 @@ export const SITE_MAP: Record<string, PageRoleConfig> = {
   "/aggregate-metrics": {
     required: [{ role: "CanReadAggregateMetrics" }],
   },
+  "/aggregate-metrics-trends": {
+    required: [{ role: "CanReadAggregateMetrics" }],
+  },
   "/connector-traces": {
     required: [{ role: "CanGetConnectorTrace" }],
   },
