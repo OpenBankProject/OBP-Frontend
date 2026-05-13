@@ -88,27 +88,47 @@
 		) as ToolMessage[];
 	});
 
-	// Track Opey connection status from health check API
-	let connectionStatus: 'healthy' | 'unhealthy' | 'degraded' | 'unknown' = $state('unknown');
+	// Server-side Opey connection status (does the app server reach OPEY_BASE_URL?)
+	let serverConnectionStatus: 'healthy' | 'unhealthy' | 'degraded' | 'unknown' = $state('unknown');
+	// Browser-side Opey connection status (can the user's browser reach options.baseUrl —
+	// which is what the chat itself uses to send messages?)
+	let browserConnectionStatus: 'healthy' | 'unhealthy' | 'unknown' = $state('unknown');
 	let healthCheckInterval: ReturnType<typeof setInterval> | null = null;
 
-	async function fetchHealthStatus() {
+	async function fetchServerHealthStatus() {
 		try {
 			const response = await fetch('/backend/status');
 			if (response.ok) {
 				const data = await response.json();
-				const opeySnapshot = data.services['Opey II'];
-
+				const opeySnapshot = data.services['Opey (server)'];
 				if (opeySnapshot) {
-					connectionStatus = opeySnapshot.status;
+					serverConnectionStatus = opeySnapshot.status;
 				} else {
-					connectionStatus = 'unknown';
+					serverConnectionStatus = 'unknown';
 				}
 			}
 		} catch (error) {
-			logger.error('Failed to fetch health status:', error);
-			connectionStatus = 'unknown';
+			logger.error('Failed to fetch server health status:', error);
+			serverConnectionStatus = 'unknown';
 		}
+	}
+
+	async function fetchBrowserHealthStatus() {
+		const controller = new AbortController();
+		const timeoutId = setTimeout(() => controller.abort('timeout'), 5000);
+		try {
+			const res = await fetch(`${options.baseUrl}/status`, { signal: controller.signal });
+			browserConnectionStatus = res.ok ? 'healthy' : 'unhealthy';
+		} catch (error) {
+			logger.error('Failed to fetch browser-side Opey status:', error);
+			browserConnectionStatus = 'unhealthy';
+		} finally {
+			clearTimeout(timeoutId);
+		}
+	}
+
+	async function fetchHealthStatus() {
+		await Promise.all([fetchServerHealthStatus(), fetchBrowserHealthStatus()]);
 	}
 
 	let splashScreenDisplay = $derived.by(() => {
@@ -252,23 +272,21 @@
 	});
 
 	// Derived colors for pips
-	let connectionPipColor: string = $derived.by(() => {
-		switch (connectionStatus) {
+	function pipColorFor(status: 'healthy' | 'unhealthy' | 'degraded' | 'unknown'): string {
+		switch (status) {
 			case 'healthy':
 				return 'preset-filled-success-500';
 			case 'unhealthy':
 				return 'preset-filled-error-500';
 			case 'degraded':
-				return 'preset-filled-warning-500';
 			case 'unknown':
-				return 'preset-filled-warning-500';
 			default:
 				return 'preset-filled-warning-500';
 		}
-	});
+	}
 
-	let connectionStatusString: string = $derived.by(() => {
-		switch (connectionStatus) {
+	function statusStringFor(status: 'healthy' | 'unhealthy' | 'degraded' | 'unknown'): string {
+		switch (status) {
 			case 'healthy':
 				return 'connected';
 			case 'unhealthy':
@@ -276,11 +294,15 @@
 			case 'degraded':
 				return 'degraded';
 			case 'unknown':
-				return 'unknown';
 			default:
 				return 'unknown';
 		}
-	});
+	}
+
+	let serverConnectionPipColor: string = $derived(pipColorFor(serverConnectionStatus));
+	let browserConnectionPipColor: string = $derived(pipColorFor(browserConnectionStatus));
+	let serverConnectionStatusString: string = $derived(statusStringFor(serverConnectionStatus));
+	let browserConnectionStatusString: string = $derived(statusStringFor(browserConnectionStatus));
 
 	let authPipColor: string = $derived.by(() => {
 		switch (session.status) {
@@ -600,15 +622,38 @@
 {#snippet statusPips(session: SessionSnapshot, consentInfo?: OBPConsentInfo)}
 	{#if options.displayConnectionPips}
 		<div class="flex flex-row items-center gap-1.5">
-			<!-- Connection Pip with Tooltip -->
+			<!-- Server-side Opey connection pip -->
 			<Tooltip>
 				<Tooltip.Trigger>
-					<div class="h-2 w-2 rounded-full {connectionPipColor} cursor-pointer transition-all hover:scale-125"></div>
+					<div
+						class="h-2 w-2 rounded-full {serverConnectionPipColor} cursor-pointer transition-all hover:scale-125"
+						data-testid="opey-pip-server"
+					></div>
 				</Tooltip.Trigger>
 				<Portal>
 					<Tooltip.Positioner class="z-10">
 						<Tooltip.Content class="card bg-primary-200-800 text-xs p-2">
-							Opey Connection Status: {connectionStatusString}
+							Opey (server) — app server → Opey: {serverConnectionStatusString}
+							<Tooltip.Arrow class="[--arrow-size:--spacing(2)] [--arrow-background:var(--color-primary-200-800)]">
+								<Tooltip.ArrowTip />
+							</Tooltip.Arrow>
+						</Tooltip.Content>
+					</Tooltip.Positioner>
+				</Portal>
+			</Tooltip>
+
+			<!-- Browser-side Opey connection pip -->
+			<Tooltip>
+				<Tooltip.Trigger>
+					<div
+						class="h-2 w-2 rounded-full {browserConnectionPipColor} cursor-pointer transition-all hover:scale-125"
+						data-testid="opey-pip-browser"
+					></div>
+				</Tooltip.Trigger>
+				<Portal>
+					<Tooltip.Positioner class="z-10">
+						<Tooltip.Content class="card bg-primary-200-800 text-xs p-2">
+							Opey (browser) — your browser → Opey: {browserConnectionStatusString}
 							<Tooltip.Arrow class="[--arrow-size:--spacing(2)] [--arrow-background:var(--color-primary-200-800)]">
 								<Tooltip.ArrowTip />
 							</Tooltip.Arrow>

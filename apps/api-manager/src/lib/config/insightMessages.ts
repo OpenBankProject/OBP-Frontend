@@ -14,7 +14,7 @@ const routeDescriptions: Array<{ pattern: RegExp; description: string }> = [
   { pattern: /^\/consumers\/[^/]+/, description: "API Consumer" },
   { pattern: /^\/consumers$/, description: "API Consumers list" },
   { pattern: /^\/aggregate-metrics-trends/, description: "Aggregate Metrics Over Time" },
-  { pattern: /^\/aggregate-metrics/, description: "Live Aggregate Metrics" },
+  { pattern: /^\/aggregate-metrics-live/, description: "Live Aggregate Metrics" },
   { pattern: /^\/connector-metrics/, description: "Connector Metrics" },
   { pattern: /^\/connector-traces/, description: "Connector Traces" },
   { pattern: /^\/connector-counts/, description: "Connector Counts" },

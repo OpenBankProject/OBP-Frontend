@@ -113,8 +113,11 @@ healthCheckRegistry.register({
   }
 });
 if (env.OPEY_BASE_URL) {
+  // Server-side check: tests connectivity from the api-manager server to OPEY_BASE_URL
+  // (private env). Does NOT prove the user's browser can reach Opey — see the
+  // 'Opey (server)' / 'Opey (browser)' split on the /status page.
   healthCheckRegistry.register({
-    serviceName: 'Opey II',
+    serviceName: 'Opey (server)',
     url: `${env.OPEY_BASE_URL}/status`,
     details: {
       OPEY_BASE_URL: env.OPEY_BASE_URL,

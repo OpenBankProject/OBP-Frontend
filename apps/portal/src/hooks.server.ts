@@ -86,7 +86,7 @@ function initHealthChecks() {
 	// which is verified by a separate browser-side check on the /status page.
 	if (env.OPEY_BASE_URL) {
 		healthCheckRegistry.register({
-			serviceName: 'Opey II (server)',
+			serviceName: 'Opey (server)',
 			url: `${env.OPEY_BASE_URL}/status`,
 			details: {
 				OPEY_BASE_URL: env.OPEY_BASE_URL

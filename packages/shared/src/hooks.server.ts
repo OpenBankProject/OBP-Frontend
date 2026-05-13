@@ -72,7 +72,7 @@ function initHealthChecks() {
 
 	if (env.OPEY_BASE_URL) {
 		healthCheckRegistry.register({
-			serviceName: 'Opey II',
+			serviceName: 'Opey (server)',
 			url: `${env.OPEY_BASE_URL}/status`
 		});
 	}

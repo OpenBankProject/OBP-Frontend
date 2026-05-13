@@ -15,7 +15,7 @@
 
 	// Browser-side Opey check: fetches PUBLIC_OPEY_BASE_URL/status from the user's
 	// network, mirroring the path the Opey chat actually uses. Different from the
-	// 'Opey II (server)' check which runs on the portal server.
+	// 'Opey (server)' check which runs on the portal server.
 	type BrowserCheck = {
 		status: 'healthy' | 'unhealthy' | 'unknown';
 		responseTimeMs?: number;
@@ -390,7 +390,7 @@
 						{getStatusIcon(opeyBrowserCheck.status)}
 					</div>
 					<div class="flex-1">
-						<h3 class="text-xl font-semibold mb-1">Opey II (browser)</h3>
+						<h3 class="text-xl font-semibold mb-1">Opey (browser)</h3>
 						<p class="text-xs text-gray-500 dark:text-gray-400 mb-2">
 							Fetched directly from your browser to PUBLIC_OPEY_BASE_URL — mirrors the path the Opey chat uses.
 						</p>
