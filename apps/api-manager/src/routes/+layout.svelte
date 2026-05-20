@@ -105,6 +105,7 @@
       logger.info("🔄 Pre-warming browser resource docs cache...");
       resourceDocsCache.preWarmCache(undefined as any);
       currentBank.fetchBanks();
+      currentBank.loadFromOBP();
       userPreferences.loadFromOBP();
     }
   });

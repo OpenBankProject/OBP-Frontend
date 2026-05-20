@@ -33,12 +33,20 @@
 	];
 
 	import { env } from '$env/dynamic/public';
+	import { onMount } from 'svelte';
 	import { unreadCount } from '$lib/stores/unreadCount.svelte';
+	import { currentBank } from '$lib/stores/currentBank.svelte';
 	let { data, children } = $props();
 
 	// Initialize unread count store from server data
 	$effect(() => {
 		unreadCount.set(data.totalUnreadCount || 0);
+	});
+
+	onMount(() => {
+		if (data.userId) {
+			currentBank.loadFromOBP();
+		}
 	});
 
 	// Undocumented feature flag - accepts string values (env vars are always strings in SvelteKit)
@@ -172,7 +180,10 @@
 		collapsedLogoUrl={env.PUBLIC_MINIMAL_LOGO_URL || env.PUBLIC_DARK_LOGO_URL}
 	/>
 	<div
-		class="h-full bg-conic-250 from-30% via-40% to-50% dark:from-primary-950 dark:via-secondary-500/70 dark:to-primary-950"
+		class={page.url.pathname.startsWith('/user/accounts')
+			? 'h-full bg-surface-50-950'
+			: 'h-full bg-conic-250 from-30% via-40% to-50% dark:from-primary-950 dark:via-secondary-500/70 dark:to-primary-950'}
+		data-plain-bg={page.url.pathname.startsWith('/user/accounts')}
 	>
 		<div class="flex flex-col backdrop-blur-2xl" style="height: calc(100vh - 48px);">
 			<div

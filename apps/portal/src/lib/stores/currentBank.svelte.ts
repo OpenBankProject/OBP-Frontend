@@ -5,11 +5,15 @@ import type { OBPBank } from "$lib/obp/types";
 const logger = createLogger("CurrentBank");
 
 const STORAGE_KEY = "currentBank";
+const ATTR_ID_STORAGE_KEY = "currentBankAttributeId";
+const OBP_FIELD_NAME = "CURRENT_BANK_ID";
 
 class CurrentBankStore {
   bank = $state<OBPBank | null>(null);
   banks = $state<OBPBank[]>([]);
   loading = $state(false);
+  private attributeId: string | null = null;
+  private suppressRemoteWrite = false;
 
   get bankId(): string {
     return this.bank?.bank_id ?? "";
@@ -23,6 +27,7 @@ class CurrentBankStore {
           this.bank = JSON.parse(stored);
           logger.info(`Restored bank from localStorage: ${this.bank?.bank_id}`);
         }
+        this.attributeId = localStorage.getItem(ATTR_ID_STORAGE_KEY);
       } catch (e) {
         logger.error("Failed to restore bank from localStorage:", e);
       }
@@ -30,6 +35,8 @@ class CurrentBankStore {
   }
 
   select(bank: OBPBank | null): void {
+    const prevBankId = this.bank?.bank_id ?? null;
+    const nextBankId = bank?.bank_id ?? null;
     this.bank = bank;
     if (browser) {
       if (bank) {
@@ -38,7 +45,10 @@ class CurrentBankStore {
         localStorage.removeItem(STORAGE_KEY);
       }
     }
-    logger.info(`Selected bank: ${bank?.bank_id ?? "none"}`);
+    logger.info(`Selected bank: ${nextBankId ?? "none"}`);
+    if (browser && !this.suppressRemoteWrite && prevBankId !== nextBankId) {
+      void this.saveToOBP(nextBankId);
+    }
   }
 
   selectById(bankId: string): void {
@@ -110,9 +120,94 @@ class CurrentBankStore {
     }
   }
 
+  async loadFromOBP(): Promise<void> {
+    if (!browser) return;
+    try {
+      const res = await fetch("/proxy/obp/v6.0.0/my/personal-data-fields");
+      if (!res.ok) {
+        logger.warn("Failed to load current bank from OBP:", res.status);
+        return;
+      }
+      const data = await res.json();
+      const attrs: { user_attribute_id: string; name: string; value: string }[] =
+        data.user_attributes || [];
+      const attr = attrs.find((a) => a.name === OBP_FIELD_NAME);
+
+      this.suppressRemoteWrite = true;
+      try {
+        if (attr) {
+          this.attributeId = attr.user_attribute_id;
+          localStorage.setItem(ATTR_ID_STORAGE_KEY, this.attributeId);
+          const remoteBankId = attr.value;
+          if (remoteBankId && remoteBankId !== this.bank?.bank_id) {
+            const found = this.banks.find((b) => b.bank_id === remoteBankId);
+            this.select(found ?? ({ bank_id: remoteBankId } as OBPBank));
+          }
+          logger.info(`Loaded current bank from OBP: ${remoteBankId}`);
+        } else if (this.bank) {
+          this.suppressRemoteWrite = false;
+          await this.saveToOBP(this.bank.bank_id);
+        }
+      } finally {
+        this.suppressRemoteWrite = false;
+      }
+    } catch (e) {
+      logger.error("Error loading current bank from OBP:", e);
+    }
+  }
+
+  private async saveToOBP(bankId: string | null): Promise<void> {
+    if (!browser) return;
+    try {
+      if (this.attributeId) {
+        const res = await fetch(
+          `/proxy/obp/v6.0.0/my/personal-data-fields/${encodeURIComponent(this.attributeId)}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name: OBP_FIELD_NAME,
+              value: bankId ?? "",
+              type: "STRING",
+            }),
+          },
+        );
+        if (!res.ok) {
+          logger.error(`Failed to update ${OBP_FIELD_NAME}:`, res.status);
+        }
+      } else if (bankId) {
+        const res = await fetch("/proxy/obp/v6.0.0/my/personal-data-fields", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: OBP_FIELD_NAME,
+            value: bankId,
+            type: "STRING",
+          }),
+        });
+        if (!res.ok) {
+          logger.error(`Failed to create ${OBP_FIELD_NAME}:`, res.status);
+          return;
+        }
+        const data = await res.json();
+        const newId = data.user_attribute_id;
+        if (newId) {
+          this.attributeId = newId;
+          localStorage.setItem(ATTR_ID_STORAGE_KEY, newId);
+        }
+      }
+    } catch (e) {
+      logger.error(`Error saving ${OBP_FIELD_NAME} to OBP:`, e);
+    }
+  }
+
   clear(): void {
     this.select(null);
     this.banks = [];
+    this.attributeId = null;
+    if (browser) {
+      localStorage.removeItem(ATTR_ID_STORAGE_KEY);
+    }
     logger.info("Cleared current bank and bank list");
   }
 }

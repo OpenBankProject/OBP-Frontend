@@ -46,7 +46,7 @@
 		<div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
 			{#each sortedProducts as product (product.bank_id + '/' + product.product_code)}
 				<a
-					href="/financial-products/{product.product_code}"
+					href="/financial-products/{encodeURIComponent(product.bank_id)}/{encodeURIComponent(product.product_code)}"
 					class="block rounded-lg bg-white p-6 shadow transition-shadow hover:shadow-lg dark:bg-gray-800"
 				>
 					<h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
