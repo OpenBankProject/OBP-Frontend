@@ -1,6 +1,6 @@
 <script lang="ts">
   import { page } from "$app/state";
-  import { ArrowLeft, UserRound, Loader2, FileSignature, Plus, GitBranch, Link, Landmark } from "@lucide/svelte";
+  import { ArrowLeft, UserRound, Loader2, FileSignature, Plus, GitBranch, Link } from "@lucide/svelte";
   import { trackedFetch } from "$lib/utils/trackedFetch";
   import MissingRoleAlert from "$lib/components/MissingRoleAlert.svelte";
 
@@ -238,13 +238,9 @@
         {/if}
       {:else if customer}
         <!-- Customer Info -->
-        <section class="detail-section">
+        <section class="detail-section detail-section--info">
           <h2 class="section-title">Customer Information</h2>
           <div class="info-grid" data-testid="customer-info">
-            <div class="info-item">
-              <span class="info-label">Customer ID</span>
-              <span class="info-value mono">{customer.customer_id}</span>
-            </div>
             <div class="info-item">
               <span class="info-label">Customer Number</span>
               <span class="info-value">{customer.customer_number || "—"}</span>
@@ -320,7 +316,7 @@
 
         {#if !isCorporate}
           <!-- Personal Details (Individual customers only) -->
-          <section class="detail-section">
+          <section class="detail-section detail-section--personal">
             <h2 class="section-title">Personal Details</h2>
             <div class="info-grid">
               <div class="info-item">
@@ -350,7 +346,7 @@
         {/if}
 
         <!-- Credit Info -->
-        <section class="detail-section">
+        <section class="detail-section detail-section--credit">
           <h2 class="section-title">Credit Information</h2>
           <div class="info-grid">
             <div class="info-item">
@@ -375,7 +371,7 @@
         </section>
 
         <!-- Customer Attributes -->
-        <section class="detail-section">
+        <section class="detail-section detail-section--attributes">
           <div class="section-header-row">
             <h2 class="section-title" style="margin:0">
               Customer Attributes ({customer.customer_attributes?.length || 0})
@@ -481,9 +477,8 @@
         </section>
 
         <!-- Linked Accounts -->
-        <section class="detail-section">
+        <section class="detail-section detail-section--accounts">
           <h2 class="section-title">
-            <Landmark size={16} />
             Linked Accounts
             {#if !accountLinksLoading && !accountLinksError}
               ({accountLinks.length})
@@ -708,6 +703,32 @@
   :global([data-mode="dark"]) .section-title {
     color: var(--color-surface-300);
   }
+
+  .detail-section--info,
+  .detail-section--personal,
+  .detail-section--credit,
+  .detail-section--attributes,
+  .detail-section--accounts {
+    border-left: 4px solid transparent;
+    padding-left: 1rem;
+  }
+  .detail-section--info       { border-left-color: #3b82f6; }
+  .detail-section--personal   { border-left-color: #8b5cf6; }
+  .detail-section--credit     { border-left-color: #f59e0b; }
+  .detail-section--attributes { border-left-color: #ec4899; }
+  .detail-section--accounts   { border-left-color: #10b981; }
+
+  .detail-section--info .section-title       { color: #1d4ed8; }
+  .detail-section--personal .section-title   { color: #6d28d9; }
+  .detail-section--credit .section-title     { color: #b45309; }
+  .detail-section--attributes .section-title { color: #be185d; }
+  .detail-section--accounts .section-title   { color: #047857; }
+
+  :global([data-mode="dark"]) .detail-section--info .section-title       { color: #93c5fd; }
+  :global([data-mode="dark"]) .detail-section--personal .section-title   { color: #c4b5fd; }
+  :global([data-mode="dark"]) .detail-section--credit .section-title     { color: #fcd34d; }
+  :global([data-mode="dark"]) .detail-section--attributes .section-title { color: #f9a8d4; }
+  :global([data-mode="dark"]) .detail-section--accounts .section-title   { color: #6ee7b7; }
 
   /* Info grid */
   .info-grid {
