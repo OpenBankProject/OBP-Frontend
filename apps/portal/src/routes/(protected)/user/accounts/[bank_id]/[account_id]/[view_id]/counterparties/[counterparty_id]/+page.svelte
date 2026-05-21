@@ -31,8 +31,8 @@
 	</div>
 {:else if data.counterparty}
 	{@const cp = data.counterparty}
-	<section class="mb-6 border-l-4 border-blue-500 pl-4" data-testid="counterparty-info">
-		<h3 class="mb-2 text-sm font-semibold uppercase text-blue-700 dark:text-blue-300">Counterparty information</h3>
+	<section class="section-accent section-accent--info mb-6" data-testid="counterparty-info">
+		<h3 class="section-accent-title mb-2 text-sm font-semibold uppercase">Counterparty information</h3>
 		<dl class="grid grid-cols-1 gap-3 sm:grid-cols-2">
 			<div>
 				<dt class="text-xs uppercase text-surface-600-400">Counterparty ID</dt>
@@ -69,8 +69,8 @@
 		</dl>
 	</section>
 
-	<section class="mb-6 border-l-4 border-amber-500 pl-4" data-testid="counterparty-routing">
-		<h3 class="mb-2 text-sm font-semibold uppercase text-amber-700 dark:text-amber-300">Routing</h3>
+	<section class="section-accent section-accent--routing mb-6" data-testid="counterparty-routing">
+		<h3 class="section-accent-title mb-2 text-sm font-semibold uppercase">Routing</h3>
 		<dl class="grid grid-cols-1 gap-3 sm:grid-cols-2">
 			<div>
 				<dt class="text-xs uppercase text-surface-600-400">Bank routing</dt>
@@ -114,8 +114,8 @@
 	</section>
 
 	{#if cp.metadata}
-		<section class="mb-6 border-l-4 border-pink-500 pl-4" data-testid="counterparty-metadata">
-			<h3 class="mb-2 text-sm font-semibold uppercase text-pink-700 dark:text-pink-300">Metadata</h3>
+		<section class="section-accent section-accent--metadata mb-6" data-testid="counterparty-metadata">
+			<h3 class="section-accent-title mb-2 text-sm font-semibold uppercase">Metadata</h3>
 			<dl class="grid grid-cols-1 gap-3 sm:grid-cols-2">
 				<div>
 					<dt class="text-xs uppercase text-surface-600-400">Public alias</dt>
@@ -164,8 +164,8 @@
 	{/if}
 
 	{#if cp.bespoke && cp.bespoke.length > 0}
-		<section class="mb-6 border-l-4 border-violet-500 pl-4" data-testid="counterparty-bespoke">
-			<h3 class="mb-2 text-sm font-semibold uppercase text-violet-700 dark:text-violet-300">Bespoke</h3>
+		<section class="section-accent section-accent--bespoke mb-6" data-testid="counterparty-bespoke">
+			<h3 class="section-accent-title mb-2 text-sm font-semibold uppercase">Bespoke</h3>
 			<div class="table-container">
 				<table class="table">
 					<thead>

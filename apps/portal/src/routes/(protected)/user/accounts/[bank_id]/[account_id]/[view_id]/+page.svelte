@@ -87,12 +87,12 @@
 </div>
 
 <section
-	class="mb-6 border-l-4 border-emerald-500 bg-surface-50-900 p-4"
+	class="section-accent section-accent--access mb-6 bg-surface-50-900 py-2"
 	data-testid="your-access"
 	data-current-view-accessible={currentViewAccessible}
 >
 	<div class="mb-3 flex flex-wrap items-center gap-3">
-		<h3 class="text-sm font-semibold uppercase text-emerald-700 dark:text-emerald-300">Your access</h3>
+		<h3 class="section-accent-title text-sm font-semibold uppercase">Your access</h3>
 		{#if currentViewAccessible}
 			<span class="chip variant-soft-success text-xs" data-testid="current-view-access-badge">✓ accessible via "{data.view_id}"</span>
 		{:else}
@@ -165,8 +165,8 @@
 {/if}
 
 {#if data.account}
-	<section class="mb-6 border-l-4 border-blue-500 pl-4" data-testid="account-summary">
-		<h2 class="text-2xl font-semibold text-blue-700 dark:text-blue-300">{data.account.label}</h2>
+	<section class="section-accent section-accent--info mb-6" data-testid="account-summary">
+		<h2 class="section-accent-title text-2xl font-semibold">{data.account.label}</h2>
 		<dl class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
 			<div>
 				<dt class="text-xs uppercase text-surface-600-400">Bank</dt>
@@ -209,8 +209,8 @@
 	</section>
 {/if}
 
-<section class="mb-6 border-l-4 border-amber-500 pl-4" data-testid="recent-transactions">
-	<h3 class="mb-2 text-xl font-semibold text-amber-700 dark:text-amber-300">Recent transactions</h3>
+<section class="section-accent section-accent--transactions mb-6" data-testid="recent-transactions">
+	<h3 class="section-accent-title mb-2 text-xl font-semibold">Recent transactions</h3>
 
 	{#if data.transactionsError}
 		<div
