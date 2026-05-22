@@ -73,7 +73,11 @@ export type StreamEvent =
         requiredRoles: string[],
         timestamp: number,
         toolCallCount: number,
-        bankId?: string | null
+        bankId?: string | null,
+        accountId?: string | null,
+        viewId?: string | null,
+        requiresViewAccess?: boolean,
+        isUserScoped?: boolean
       }
     | { type: 'thread_sync', threadId: string }
     | { type: 'error', messageId?: string, error: string }

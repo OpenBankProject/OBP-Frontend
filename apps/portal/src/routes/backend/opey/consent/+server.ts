@@ -46,8 +46,19 @@ export async function POST(event: RequestEvent) {
 		}
 
 		const body = await event.request.json();
-		const { required_roles, bank_id } = body;
+		const { required_roles, bank_id, views: requestedViews } = body;
 		const normalizedRequiredRoles = required_roles == null ? [] : required_roles;
+
+		// Views the user picked in the Account Scope panel. Forwarded into the consent
+		// body so view-based endpoints (e.g. /accounts/ACCOUNT_ID/views/VIEW_ID/...) can be
+		// called via the resulting JWT without a separate prompt.
+		const normalizedViews: Array<{ bank_id: string; account_id: string; view_id: string }> =
+			Array.isArray(requestedViews)
+				? requestedViews.filter(
+					(v: any) =>
+						v && typeof v.bank_id === 'string' && typeof v.account_id === 'string' && typeof v.view_id === 'string'
+				)
+				: [];
 
 		logger.info(`Consent request received:`, { required_roles, bank_id });
 
@@ -149,7 +160,7 @@ export async function POST(event: RequestEvent) {
 			everything: false,
 			entitlements,
 			consumer_id: opeyConsumerId,
-			views: [],
+			views: normalizedViews,
 			valid_from: now,
 			time_to_live: 3600 // 1 hour
 		};

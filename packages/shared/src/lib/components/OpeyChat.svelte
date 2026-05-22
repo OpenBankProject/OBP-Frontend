@@ -49,6 +49,7 @@
 		userAuthenticated?: boolean; // Optional prop to indicate if the user is authenticated
 		splash?: Snippet; // If set, will render the splash screen snippet until the first message is sent
 		// upon which the splash screen will dissapear
+		belowSuggestions?: Snippet; // If set, rendered directly below the suggested-question pills
 	}
 	// Default chat options (baseUrl must be supplied by the consuming app)
 	const defaultChatOptions: Omit<OpeyChatOptions, 'baseUrl'> = {
@@ -58,7 +59,7 @@
 		suggestedQuestions: []
 	};
 
-	let { opeyChatOptions, userAuthenticated = false, splash }: Props = $props();
+	let { opeyChatOptions, userAuthenticated = false, splash, belowSuggestions }: Props = $props();
 	// Merge default options with the provided options
 	const options = { ...defaultChatOptions, ...opeyChatOptions } as OpeyChatOptions;
 
@@ -93,6 +94,9 @@
 	// Browser-side Opey connection status (can the user's browser reach options.baseUrl —
 	// which is what the chat itself uses to send messages?)
 	let browserConnectionStatus: 'healthy' | 'unhealthy' | 'unknown' = $state('unknown');
+	// OBP-MCP outbound auth mode (oauth | consent | none) — reported by Opey's /status,
+	// originally sourced from OBP-MCP's own /status. null until the first probe completes.
+	let obpMcpAuthMode: string | null = $state(null);
 	let healthCheckInterval: ReturnType<typeof setInterval> | null = null;
 
 	async function fetchServerHealthStatus() {
@@ -117,8 +121,20 @@
 		const controller = new AbortController();
 		const timeoutId = setTimeout(() => controller.abort('timeout'), 5000);
 		try {
-			const res = await fetch(`${options.baseUrl}/status`, { signal: controller.signal });
+			const res = await fetch(`${options.baseUrl}/status`, {
+				headers: { Accept: 'application/json' },
+				signal: controller.signal,
+			});
 			browserConnectionStatus = res.ok ? 'healthy' : 'unhealthy';
+			if (res.ok) {
+				try {
+					const data = await res.json();
+					const mode = data?.components?.mcp?.obp_mcp_outbound_auth_via;
+					obpMcpAuthMode = typeof mode === 'string' ? mode : null;
+				} catch {
+					obpMcpAuthMode = null;
+				}
+			}
 		} catch (error) {
 			logger.error('Failed to fetch browser-side Opey status:', error);
 			browserConnectionStatus = 'unhealthy';
@@ -692,6 +708,38 @@
 					</Tooltip.Positioner>
 				</Portal>
 			</Tooltip>
+
+			<!-- OBP-MCP outbound auth mode badge -->
+			{#if obpMcpAuthMode}
+				<Tooltip>
+					<Tooltip.Trigger>
+						<span
+							class="ml-1 rounded-full bg-primary-200-800 px-2 py-0.5 text-[10px] font-mono uppercase tracking-wide cursor-help"
+							data-testid="obp-mcp-auth-mode"
+						>
+							{obpMcpAuthMode}
+						</span>
+					</Tooltip.Trigger>
+					<Portal>
+						<Tooltip.Positioner class="z-10">
+							<Tooltip.Content class="card bg-primary-200-800 text-xs p-2 max-w-xs">
+								OBP-MCP → OBP-API auth mode: <strong>{obpMcpAuthMode}</strong>.
+								{#if obpMcpAuthMode === 'consent'}
+									Opey calls OBP-API using user-granted Consent-JWTs (scope-limited).
+								{:else if obpMcpAuthMode === 'oauth'}
+									Opey forwards your OBP-OIDC bearer token directly to OBP-API.
+								{:else}
+									Unrecognised mode — OBP-API calls will be rejected. Set
+									OBP_AUTHORIZATION_VIA to 'oauth' or 'consent' on the MCP server.
+								{/if}
+								<Tooltip.Arrow class="[--arrow-size:--spacing(2)] [--arrow-background:var(--color-primary-200-800)]">
+									<Tooltip.ArrowTip />
+								</Tooltip.Arrow>
+							</Tooltip.Content>
+						</Tooltip.Positioner>
+					</Portal>
+				</Tooltip>
+			{/if}
 		</div>
 	{/if}
 {/snippet}
@@ -810,6 +858,7 @@
 				</div>
 
 				{@render suggestedQuestions()}
+				{@render belowSuggestions?.()}
 			</div>
 		{:else}
 			<!--Main Chat Layout: messages fill space, input at bottom-->
@@ -824,6 +873,8 @@
 					{@render inputField()}
 				</div>
 			</div>
+
+			{@render belowSuggestions?.()}
 		{/if}
 	</div>
 </div>

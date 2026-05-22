@@ -14,10 +14,11 @@
   import OpeyInsightBar from "$lib/components/OpeyInsightBar.svelte";
   import { describeRoute } from "$lib/config/insightMessages";
   import { createLogger } from '@obp/shared/utils';
+  import { CurrentBankPicker } from '@obp/shared/components';
   import { resourceDocsCache } from "$lib/stores/resourceDocsCache";
   import { currentBank } from "$lib/stores/currentBank.svelte";
   import { userPreferences } from "$lib/stores/userPreferences.svelte";
-  import { onMount, tick } from "svelte";
+  import { onMount } from "svelte";
 
   const logger = createLogger("LayoutClient");
   const layoutStartTime = performance.now();
@@ -53,14 +54,6 @@
   let expandedSections = $state<Record<string, boolean>>({});
   let displayMode: "dark" | "light" = $state(userPreferences.theme);
   let userMenuOpen = $state(false);
-  let bankSelectorOpen = $state(false);
-  let bankSelectEl: HTMLSelectElement | undefined = $state();
-
-  async function openBankSelector() {
-    bankSelectorOpen = true;
-    await tick();
-    try { bankSelectEl?.showPicker(); } catch {}
-  }
   let systemDynamicEntities = $state<any[]>([]);
 
   async function clearCache() {
@@ -553,36 +546,7 @@
       >
         <div>
           {#if isAuthenticated}
-            {#if bankSelectorOpen}
-              <div class="flex items-center gap-2">
-                <select
-                  bind:this={bankSelectEl}
-                  class="rounded-md border border-surface-300-700 bg-surface-100-900 px-2 py-1 text-sm"
-                  value={currentBank.bankId}
-                  onchange={(e) => {
-                    currentBank.selectById(e.currentTarget.value);
-                    bankSelectorOpen = false;
-                  }}
-                >
-                  <option value="">-- Select a bank --</option>
-                  {#each currentBank.banks as bank}
-                    <option value={bank.bank_id}>
-                      {bank.bank_id} — {bank.bank_code} — {bank.full_name}
-                    </option>
-                  {/each}
-                </select>
-                <button
-                  type="button"
-                  class="text-sm opacity-60 hover:opacity-100"
-                  onclick={() => bankSelectorOpen = false}
-                  title="Close"
-                >&times;</button>
-              </div>
-            {:else if currentBank.bank}
-              <span class="text-sm" class:bank-changed={currentBank.justChanged}>{currentBank.bank.full_name}: {currentBank.bank.bank_id} ({currentBank.bank.bank_code}) <button type="button" class="hover:text-tertiary-400" onclick={openBankSelector} title="Change current bank">&#9998;</button></span>
-            {:else}
-              <button type="button" class="text-sm opacity-70 hover:text-tertiary-400 hover:opacity-100" onclick={openBankSelector}>Select Bank &#9998;</button>
-            {/if}
+            <CurrentBankPicker store={currentBank} />
           {/if}
         </div>
         {#if isAuthenticated}
@@ -658,17 +622,3 @@
 <!-- Global API Activity Indicator -->
 <ApiActivityIndicator />
 
-<style>
-  @keyframes bank-highlight {
-    0%   { color: #22c55e; }  /* green */
-    25%  { color: #3b82f6; }  /* blue */
-    50%  { color: #a855f7; }  /* purple */
-    75%  { color: #f59e0b; }  /* amber */
-    100% { color: inherit; }
-  }
-
-  :global(.bank-changed) {
-    animation: bank-highlight 1.5s ease-in-out;
-    font-weight: 700;
-  }
-</style>

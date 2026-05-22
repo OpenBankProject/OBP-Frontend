@@ -1,13 +1,6 @@
 <script lang="ts">
   import type { PageData } from "./$types";
-  import {
-    Eye,
-    Search,
-    Shield,
-    CheckCircle,
-    XCircle,
-    Plus,
-  } from "@lucide/svelte";
+  import { Eye, Search, Plus } from "@lucide/svelte";
 
   let { data } = $props<{ data: PageData }>();
 
@@ -19,17 +12,57 @@
   let searchQuery = $state("");
 
   let filteredViews = $derived.by(() => {
-    if (!searchQuery.trim()) {
-      return views;
-    }
-    const query = searchQuery.toLowerCase();
-    return views.filter(
-      (view: any) =>
-        view.short_name?.toLowerCase().includes(query) ||
-        view.description?.toLowerCase().includes(query) ||
-        view.view_id?.toLowerCase().includes(query),
-    );
+    const matched = !searchQuery.trim()
+      ? views
+      : (() => {
+          const query = searchQuery.toLowerCase();
+          return views.filter(
+            (view: any) =>
+              view.bank_id?.toLowerCase().includes(query) ||
+              view.account_id?.toLowerCase().includes(query) ||
+              view.view_id?.toLowerCase().includes(query),
+          );
+        })();
+    return [...matched].sort((a: any, b: any) => {
+      const cmp = (a.bank_id || "").localeCompare(b.bank_id || "");
+      if (cmp !== 0) return cmp;
+      const acc = (a.account_id || "").localeCompare(b.account_id || "");
+      if (acc !== 0) return acc;
+      return (a.view_id || "").localeCompare(b.view_id || "");
+    });
   });
+
+  // Palette cycles through a fixed set of distinct hues. Bank ids encountered
+  // in sorted order get assigned palette[0], palette[1], ... (wrapping).
+  const bankPalette = [
+    "#3b82f6", // blue
+    "#10b981", // emerald
+    "#f59e0b", // amber
+    "#ec4899", // pink
+    "#8b5cf6", // violet
+    "#14b8a6", // teal
+    "#ef4444", // red
+    "#6366f1", // indigo
+    "#f97316", // orange
+    "#22c55e", // green
+  ];
+
+  const bankColors = $derived.by(() => {
+    const map = new Map<string, string>();
+    let i = 0;
+    for (const v of filteredViews) {
+      const id = v.bank_id || "";
+      if (!map.has(id)) {
+        map.set(id, bankPalette[i % bankPalette.length]);
+        i += 1;
+      }
+    }
+    return map;
+  });
+
+  function bankColor(bankId: string | undefined): string {
+    return bankColors.get(bankId || "") || "#9ca3af";
+  }
 </script>
 
 <svelte:head>
@@ -86,7 +119,7 @@
           <input
             type="text"
             class="search-input"
-            placeholder="Search views by name, description, or ID..."
+            placeholder="Search by bank_id, account_id, or view_id..."
             bind:value={searchQuery}
           />
         </div>
@@ -98,18 +131,12 @@
             <div class="stat-value">{views.length}</div>
           </div>
           <div class="stat-item">
-            <div class="stat-label">Public Views</div>
-            <div class="stat-value">
-              {views.filter((v: any) => v.is_public).length}
-            </div>
-          </div>
-          <div class="stat-item">
             <div class="stat-label">Showing</div>
             <div class="stat-value">{filteredViews.length}</div>
           </div>
         </div>
 
-        <!-- Views Grid -->
+        <!-- Views Table -->
         {#if filteredViews.length === 0}
           <div class="empty-state">
             <div class="empty-icon">
@@ -119,51 +146,40 @@
             <p class="empty-description">Try adjusting your search query</p>
           </div>
         {:else}
-          <div class="views-grid">
-            {#each filteredViews as view}
-              <a
-                href="/account-access/custom-views/{view.bank_id}/{view.account_id}/{view.view_id}"
-                class="view-card"
-              >
-                <div class="view-card-header">
-                  <div class="view-icon">
-                    <Eye size={24} />
-                  </div>
-                  <div class="view-status">
-                    {#if view.is_public}
-                      <span class="status-badge status-public">
-                        <CheckCircle size={14} />
-                        Public
-                      </span>
-                    {:else}
-                      <span class="status-badge status-private">
-                        <XCircle size={14} />
-                        Private
-                      </span>
-                    {/if}
-                  </div>
-                </div>
-                <div class="view-card-body">
-                  <h3 class="view-name">{view.short_name}</h3>
-                  <p class="view-description">{view.description}</p>
-                  {#if view.alias}
-                    <div class="view-alias">
-                      <span class="alias-label">Alias:</span>
-                      <span class="alias-value">{view.alias}</span>
-                    </div>
-                  {/if}
-                </div>
-                <div class="view-card-footer">
-                  <div class="view-meta">
-                    <div class="meta-item">
-                      <Shield size={14} />
-                      <span>ID: {view.id}</span>
-                    </div>
-                  </div>
-                </div>
-              </a>
-            {/each}
-          </div>
+          <table class="views-table" data-testid="custom-views-table">
+            <thead>
+              <tr>
+                <th>Bank ID</th>
+                <th>Account ID</th>
+                <th>View ID</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              {#each filteredViews as view}
+                <tr
+                  data-testid="view-row-{view.view_id}"
+                  data-bank-id={view.bank_id}
+                >
+                  <td
+                    class="cell-mono cell-bank"
+                    style="border-left: 4px solid {bankColor(view.bank_id)}; color: {bankColor(view.bank_id)};"
+                  >{view.bank_id}</td>
+                  <td class="cell-mono">{view.account_id}</td>
+                  <td class="cell-mono">
+                    <a
+                      href="/account-access/custom-views/{view.bank_id}/{view.account_id}/{view.view_id}"
+                      class="view-link"
+                      data-testid="view-link-{view.view_id}"
+                    >
+                      {view.view_id}
+                    </a>
+                  </td>
+                  <td class="cell-description">{view.description}</td>
+                </tr>
+              {/each}
+            </tbody>
+          </table>
         {/if}
       {/if}
     </div>
@@ -433,197 +449,92 @@
     color: var(--color-surface-100);
   }
 
-  .views-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 1.5rem;
+  .views-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.813rem;
   }
 
-  .view-card {
-    display: flex;
-    flex-direction: column;
-    padding: 1.5rem;
-    background: #fafafa;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    transition: all 0.2s;
-    text-decoration: none;
-    color: inherit;
+  .views-table thead {
+    border-bottom: 2px solid #e5e7eb;
   }
 
-  .view-card:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    transform: translateY(-2px);
-    border-color: #3b82f6;
+  :global([data-mode="dark"]) .views-table thead {
+    border-bottom-color: rgb(var(--color-surface-600));
   }
 
-  :global([data-mode="dark"]) .view-card {
+  .views-table th {
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    font-weight: 600;
+    color: #6b7280;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+  }
+
+  :global([data-mode="dark"]) .views-table th {
+    color: var(--color-surface-400);
+  }
+
+  .views-table td {
+    padding: 0.5rem 0.75rem;
+    color: #374151;
+    border-bottom: 1px solid #f3f4f6;
+    vertical-align: top;
+  }
+
+  :global([data-mode="dark"]) .views-table td {
+    color: var(--color-surface-200);
+    border-bottom-color: rgb(var(--color-surface-700));
+  }
+
+  .views-table tbody tr:hover {
+    background: #f9fafb;
+  }
+
+  :global([data-mode="dark"]) .views-table tbody tr:hover {
     background: rgb(var(--color-surface-900));
-    border-color: rgb(var(--color-surface-700));
   }
 
-  :global([data-mode="dark"]) .view-card:hover {
-    border-color: rgb(var(--color-primary-500));
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  .view-link {
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 500;
+    white-space: nowrap;
   }
 
-  .view-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 1rem;
+  .view-link:hover {
+    text-decoration: underline;
   }
 
-  .view-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 48px;
-    height: 48px;
-    background: #eff6ff;
-    color: #3b82f6;
-    border-radius: 8px;
-  }
-
-  :global([data-mode="dark"]) .view-icon {
-    background: rgba(59, 130, 246, 0.2);
+  :global([data-mode="dark"]) .view-link {
     color: rgb(var(--color-primary-400));
   }
 
-  .view-status {
-    flex-shrink: 0;
-  }
-
-  .status-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
-    padding: 0.25rem 0.75rem;
-    border-radius: 9999px;
-    font-size: 0.75rem;
-    font-weight: 600;
-  }
-
-  .status-public {
-    background: #d1fae5;
-    color: #065f46;
-  }
-
-  :global([data-mode="dark"]) .status-public {
-    background: rgba(16, 185, 129, 0.2);
-    color: rgb(var(--color-success-300));
-  }
-
-  .status-private {
-    background: #fee2e2;
-    color: #991b1b;
-  }
-
-  :global([data-mode="dark"]) .status-private {
-    background: rgba(239, 68, 68, 0.2);
-    color: rgb(var(--color-error-300));
-  }
-
-  .view-card-body {
-    flex: 1;
-    margin-bottom: 1rem;
-  }
-
-  .view-name {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: #111827;
-    margin: 0 0 0.5rem 0;
-  }
-
-  :global([data-mode="dark"]) .view-name {
-    color: var(--color-surface-100);
-  }
-
-  .view-description {
-    font-size: 0.875rem;
-    color: #6b7280;
-    margin: 0 0 0.75rem 0;
-    line-height: 1.5;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  :global([data-mode="dark"]) .view-description {
-    color: var(--color-surface-400);
-  }
-
-  .view-alias {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.75rem;
-    padding: 0.5rem;
-    background: #f3f4f6;
-    border-radius: 4px;
-  }
-
-  :global([data-mode="dark"]) .view-alias {
-    background: rgb(var(--color-surface-800));
-  }
-
-  .alias-label {
-    color: #6b7280;
-    font-weight: 600;
-  }
-
-  :global([data-mode="dark"]) .alias-label {
-    color: var(--color-surface-400);
-  }
-
-  .alias-value {
-    color: #111827;
-    font-weight: 500;
+  .cell-mono {
     font-family: monospace;
-  }
-
-  :global([data-mode="dark"]) .alias-value {
-    color: var(--color-surface-200);
-  }
-
-  .view-card-footer {
-    border-top: 1px solid #e5e7eb;
-    padding-top: 1rem;
-  }
-
-  :global([data-mode="dark"]) .view-card-footer {
-    border-top-color: rgb(var(--color-surface-700));
-  }
-
-  .view-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
-
-  .meta-item {
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
     font-size: 0.75rem;
-    color: #6b7280;
+    white-space: nowrap;
   }
 
-  :global([data-mode="dark"]) .meta-item {
-    color: var(--color-surface-400);
+  .cell-bank {
+    padding-left: 0.5rem;
+    font-weight: 600;
+  }
+
+  .cell-description {
+    max-width: 400px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   @media (max-width: 768px) {
     .header-content {
       flex-direction: column;
       align-items: flex-start;
-    }
-
-    .views-grid {
-      grid-template-columns: 1fr;
     }
 
     .stats {

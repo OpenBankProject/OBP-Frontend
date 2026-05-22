@@ -346,7 +346,11 @@ export class RestChatService implements ChatService {
 					requiredRoles: eventData.required_roles || [],
 					timestamp: eventData.timestamp || Date.now() / 1000,
 					toolCallCount: eventData.tool_call_count ?? 1,
-					bankId: eventData.bank_id || null
+					bankId: eventData.bank_id || null,
+					accountId: eventData.account_id || null,
+					viewId: eventData.view_id || null,
+					requiresViewAccess: eventData.requires_view_access ?? false,
+					isUserScoped: eventData.is_user_scoped ?? false
 				});
 				break;
 			default:

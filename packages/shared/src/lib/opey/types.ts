@@ -58,6 +58,10 @@ export interface ToolMessage extends BaseMessage {
 	consentRequiredRoles?: string[]; // OBP roles the user must consent to
 	consentToolCallCount?: number; // Number of pending tool calls this consent will cover
 	consentBankId?: string; // Bank ID for bank-scoped consent roles
+	consentAccountId?: string; // Account ID for account/view-scoped consent
+	consentViewId?: string; // View ID for view-scoped consent
+	consentRequiresViewAccess?: boolean; // True when the endpoint is gated by account-access-to-a-view
+	consentIsUserScoped?: boolean; // True when the endpoint is identity-bound (e.g. /my/*)
 }
 
 /**

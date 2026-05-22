@@ -318,12 +318,21 @@
           </div>
         </div>
         <div class="header-controls">
-          <button
-            class="refresh-button"
-            onclick={fetchChannels}
-            disabled={isLoading}
-            aria-label="Refresh signal channels"
-          >
+          <div class="header-actions">
+            <a
+              href="/system/signal-publish"
+              class="publish-link"
+              data-testid="signal-publish-link"
+            >
+              + Publish signal
+            </a>
+            <button
+              class="refresh-button"
+              onclick={fetchChannels}
+              disabled={isLoading}
+              aria-label="Refresh signal channels"
+              data-testid="signal-channels-refresh"
+            >
             <svg
               class="refresh-icon"
               class:spinning={isLoading}
@@ -339,8 +348,9 @@
                 d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"
               />
             </svg>
-            {isLoading ? "Refreshing..." : "Refresh"}
-          </button>
+              {isLoading ? "Refreshing..." : "Refresh"}
+            </button>
+          </div>
           {#if lastUpdated}
             <div class="last-updated">
               Last updated: <span class="timestamp">{lastUpdated}</span>
@@ -586,6 +596,37 @@
     flex-direction: column;
     gap: 0.5rem;
     align-items: flex-end;
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .publish-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background: #16a34a;
+    color: white;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color 0.2s;
+  }
+
+  .publish-link:hover {
+    background: #15803d;
+  }
+
+  :global([data-mode="dark"]) .publish-link {
+    background: rgb(var(--color-success-600));
+  }
+
+  :global([data-mode="dark"]) .publish-link:hover {
+    background: rgb(var(--color-success-500));
   }
 
   .refresh-button {

@@ -225,7 +225,11 @@ export class ChatState {
 		operationId: string | null,
 		requiredRoles: string[],
 		toolCallCount: number,
-		bankId?: string
+		bankId?: string,
+		accountId?: string,
+		viewId?: string,
+		requiresViewAccess: boolean = false,
+		isUserScoped: boolean = false
 	): void {
 		const toolMessage = this.getToolMessageByCallId(toolCallId);
 
@@ -236,6 +240,10 @@ export class ChatState {
 			toolMessage.consentRequiredRoles = requiredRoles;
 			toolMessage.consentToolCallCount = toolCallCount;
 			if (bankId) toolMessage.consentBankId = bankId;
+			if (accountId) toolMessage.consentAccountId = accountId;
+			if (viewId) toolMessage.consentViewId = viewId;
+			toolMessage.consentRequiresViewAccess = requiresViewAccess;
+			toolMessage.consentIsUserScoped = isUserScoped;
 		} else {
 			logger.warn(`No tool message found for consent request: ${toolCallId}, creating new one`);
 			this.addToolMessage({
@@ -252,7 +260,11 @@ export class ChatState {
 				consentOperationId: operationId ?? undefined,
 				consentRequiredRoles: requiredRoles,
 				consentToolCallCount: toolCallCount,
-				consentBankId: bankId
+				consentBankId: bankId,
+				consentAccountId: accountId,
+				consentViewId: viewId,
+				consentRequiresViewAccess: requiresViewAccess,
+				consentIsUserScoped: isUserScoped
 			} as ToolMessage);
 		}
 

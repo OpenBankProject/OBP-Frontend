@@ -1,8 +1,9 @@
 <script lang="ts">
 	import type { ToolMessage } from '$shared/opey/types';
 	import { createLogger } from '$shared/utils/logger';
-	import { Shield, CheckCircle, XCircle, KeyRound, Loader2 } from '@lucide/svelte';
+	import { Shield, CheckCircle, XCircle, KeyRound, Loader2, Eye, CreditCard, User } from '@lucide/svelte';
 	import { expandRoleRequirements, deduplicateRoles } from '$shared/opey/utils/roles';
+	import { getSelectedConsentViews } from '$shared/opey/utils/consentScope';
 
 	const logger = createLogger('ConsentRequestCard');
 
@@ -59,7 +60,8 @@
 			);
 
 			const bankId = resolveBankId();
-			logger.info(`Creating consent with roles:`, normalizedRoles, `bank_id:`, bankId);
+			const selectedViews = getSelectedConsentViews();
+			logger.info(`Creating consent with roles:`, normalizedRoles, `bank_id:`, bankId, `views:`, selectedViews);
 			logger.info(`Original roles from toolMessage:`, toolMessage.consentRequiredRoles);
 
 			// Call our server-side API to create the consent at OBP
@@ -68,7 +70,8 @@
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
 					required_roles: normalizedRoles,
-					bank_id: bankId
+					bank_id: bankId,
+					views: selectedViews
 				})
 			});
 
@@ -123,7 +126,36 @@
 		{:else}
 			Grant a temporary consent (1 hr) for this action.
 		{/if}
+		{#if toolMessage.consentRequiresViewAccess && (!toolMessage.consentRequiredRoles || toolMessage.consentRequiredRoles.length === 0)}
+			This endpoint uses account-access-to-a-view (no system role required).
+		{:else if toolMessage.consentIsUserScoped && (!toolMessage.consentRequiredRoles || toolMessage.consentRequiredRoles.length === 0)}
+			This is a user-scoped endpoint — it returns data tied to your identity.
+		{/if}
 	</p>
+
+	<!-- Account / View / User-scope chips -->
+	{#if toolMessage.consentAccountId || toolMessage.consentViewId || toolMessage.consentIsUserScoped}
+		<div class="mb-2 flex flex-wrap items-center gap-1">
+			{#if toolMessage.consentIsUserScoped}
+				<span class="inline-flex items-center gap-1 rounded-full bg-tertiary-100 px-2 py-0.5 text-[11px] font-medium dark:bg-tertiary-800" title="Identity-bound endpoint">
+					<User size={10} />
+					User-scoped
+				</span>
+			{/if}
+			{#if toolMessage.consentAccountId}
+				<span class="inline-flex items-center gap-1 rounded-full bg-tertiary-100 px-2 py-0.5 text-[11px] font-medium dark:bg-tertiary-800" title="Account ID">
+					<CreditCard size={10} />
+					Account: <code class="font-mono">{toolMessage.consentAccountId}</code>
+				</span>
+			{/if}
+			{#if toolMessage.consentViewId}
+				<span class="inline-flex items-center gap-1 rounded-full bg-tertiary-100 px-2 py-0.5 text-[11px] font-medium dark:bg-tertiary-800" title="View ID">
+					<Eye size={10} />
+					View: <code class="font-mono">{toolMessage.consentViewId}</code>
+				</span>
+			{/if}
+		</div>
+	{/if}
 
 	<!-- Required Roles (inline chips) -->
 	{#if toolMessage.consentRequiredRoles && toolMessage.consentRequiredRoles.length > 0}
