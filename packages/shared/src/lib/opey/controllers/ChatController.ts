@@ -50,6 +50,7 @@ export class ChatController {
 					case 'assistant_complete':
 						logger.debug('Marking assistant message as complete:', event);
 						state.markMessageComplete(event.messageId);
+						state.setTokenUsage(event.usage);
 						break;
 					case 'tool_start':
 						// Remove the approval request message now that the tool is starting

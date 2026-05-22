@@ -203,3 +203,15 @@
 	--color-surface-contrast-900: var(--color-surface-contrast-light);
 	--color-surface-contrast-950: var(--color-surface-contrast-light);
 }
+
+/* Text selection — deliberately high-contrast so a selection is unmistakable.
+   Light mode: strong blue + white. Dark mode: bright yellow + black. */
+::selection {
+	background: #2563eb;
+	color: #ffffff;
+}
+
+[data-mode='dark'] ::selection {
+	background: #fde047;
+	color: #000000;
+}

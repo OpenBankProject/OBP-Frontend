@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import { ShieldUserIcon } from '@lucide/svelte';
-	import { Tooltip, Dialog, Portal, Menu } from '@skeletonlabs/skeleton-svelte';
+	import { Tooltip, Dialog, Portal } from '@skeletonlabs/skeleton-svelte';
 	import { createLogger } from '$shared/utils/logger';
 
 	const logger = createLogger('OpeyChat');
@@ -20,8 +20,7 @@
 	// Import other components
 	import { ToolError, ObpApiResponse, DefaultToolResponse } from './tool-messages';
 	import ChatMessage from './ChatMessage.svelte';
-	import { CircleArrowUp, StopCircle, Copy, type Icon as IconType } from '@lucide/svelte';
-	import { chatToMarkdown } from '$shared/opey/utils/chatToMarkdown';
+	import { CircleArrowUp, StopCircle, type Icon as IconType } from '@lucide/svelte';
 	import { toast } from '$shared/utils/toastService';
 	import type { Snippet } from 'svelte';
 
@@ -50,6 +49,7 @@
 		splash?: Snippet; // If set, will render the splash screen snippet until the first message is sent
 		// upon which the splash screen will dissapear
 		belowSuggestions?: Snippet; // If set, rendered directly below the suggested-question pills
+		currentBankId?: string; // UI-selected bank, sent to Opey as default-bank context per message
 	}
 	// Default chat options (baseUrl must be supplied by the consuming app)
 	const defaultChatOptions: Omit<OpeyChatOptions, 'baseUrl'> = {
@@ -59,7 +59,7 @@
 		suggestedQuestions: []
 	};
 
-	let { opeyChatOptions, userAuthenticated = false, splash, belowSuggestions }: Props = $props();
+	let { opeyChatOptions, userAuthenticated = false, splash, belowSuggestions, currentBankId = '' }: Props = $props();
 	// Merge default options with the provided options
 	const options = { ...defaultChatOptions, ...opeyChatOptions } as OpeyChatOptions;
 
@@ -76,11 +76,16 @@
 	const sessionController = new SessionController(sessionService, sessionState);
 
 	const chatState = new ChatState();
-	const chatService = new RestChatService(options.baseUrl, new CookieAuthStrategy());
+	const chatService = new RestChatService(
+		options.baseUrl,
+		new CookieAuthStrategy(),
+		// Resolved per message — closure reads the current prop value at send time.
+		() => (currentBankId ? { current_bank_id: currentBankId } : {})
+	);
 	const chatController = new ChatController(chatService, chatState);
 
 	let session: SessionSnapshot = $state({ isAuthenticated: userAuthenticated, status: 'ready' });
-	let chat: ChatStateSnapshot = $state({ threadId: '', messages: [] });
+	let chat: ChatStateSnapshot = $state({ threadId: '', messages: [], tokenUsage: null });
 
 	// Track pending approvals for batch handling
 	let pendingApprovalTools = $derived.by(() => {
@@ -461,15 +466,6 @@
 		}
 	}
 
-	async function handleCopyChat() {
-		try {
-			const md = chatToMarkdown(chat.messages);
-			await navigator.clipboard.writeText(md);
-			toast.success('Chat copied to clipboard');
-		} catch {
-			toast.error('Failed to copy chat');
-		}
-	}
 
 	// TEMPORARY: Test function to manually trigger a single approval message
 	function addTestApprovalMessage() {
@@ -574,46 +570,30 @@
 {/snippet}
 
 {#snippet body()}
-	<Menu onSelect={(details) => { if (details.value === 'copy-chat') handleCopyChat(); }}>
-		<Menu.ContextTrigger
-			class="block h-full w-full"
-		>
-			<article
-				bind:this={messagesContainer}
-				onscroll={handleScroll}
-				class="h-full w-full overflow-y-auto overflow-x-hidden py-4 {options.bodyClasses || ''}"
-			>
-				<div class="space-y-4 min-w-0">
-					{#each chat.messages as message, index (message.id)}
-						<ChatMessage
-							{message}
-							previousMessageRole={index > 0 ? chat.messages[index - 1].role : undefined}
-							userName={options.currentlyActiveUserName}
-							onApprove={handleApprove}
-							onDeny={handleDeny}
-							onBatchSubmit={handleBatchApprovalSubmit}
-							onRegenerate={handleRegenerate}
-							onRetry={handleRetry}
-							batchApprovalGroup={pendingApprovalTools.length > 1 ? pendingApprovalTools : undefined}
-							onConsent={handleConsent}
-							onConsentDeny={handleConsentDeny}
-							allMessages={chat.messages}
-						/>
-					{/each}
-				</div>
-			</article>
-		</Menu.ContextTrigger>
-		<Portal>
-			<Menu.Positioner>
-				<Menu.Content class="card bg-surface-100-900 p-1 shadow-xl">
-					<Menu.Item value="copy-chat" disabled={chat.messages.length === 0}>
-						<Copy class="mr-2 h-4 w-4" />
-						<Menu.ItemText>Copy chat as markdown</Menu.ItemText>
-					</Menu.Item>
-				</Menu.Content>
-			</Menu.Positioner>
-		</Portal>
-	</Menu>
+	<article
+		bind:this={messagesContainer}
+		onscroll={handleScroll}
+		class="h-full w-full overflow-y-auto overflow-x-hidden py-4 {options.bodyClasses || ''}"
+	>
+		<div class="space-y-4 min-w-0">
+			{#each chat.messages as message, index (message.id)}
+				<ChatMessage
+					{message}
+					previousMessageRole={index > 0 ? chat.messages[index - 1].role : undefined}
+					userName={options.currentlyActiveUserName}
+					onApprove={handleApprove}
+					onDeny={handleDeny}
+					onBatchSubmit={handleBatchApprovalSubmit}
+					onRegenerate={handleRegenerate}
+					onRetry={handleRetry}
+					batchApprovalGroup={pendingApprovalTools.length > 1 ? pendingApprovalTools : undefined}
+					onConsent={handleConsent}
+					onConsentDeny={handleConsentDeny}
+					allMessages={chat.messages}
+				/>
+			{/each}
+		</div>
+	</article>
 {/snippet}
 
 {#snippet suggestedQuestions()}
@@ -631,6 +611,22 @@
 					{question.pillTitle}
 				</button>
 			{/each}
+		</div>
+	{/if}
+{/snippet}
+
+{#snippet tokenIndicator()}
+	{#if chat.tokenUsage}
+		{@const inp = chat.tokenUsage.inputTokens}
+		{@const colorClass =
+			inp > 190000
+				? 'text-error-500'
+				: inp > 160000
+					? 'text-warning-600-400'
+					: 'text-surface-600-400'}
+		<div class="mt-1 text-center text-xs {colorClass}" data-testid="opey-token-usage">
+			Context: {Math.round(inp / 1000)}K / 200K tokens
+			<span class="text-surface-500">· {chat.tokenUsage.outputTokens} out</span>
 		</div>
 	{/if}
 {/snippet}
@@ -857,6 +853,7 @@
 					{@render inputField()}
 				</div>
 
+				{@render tokenIndicator()}
 				{@render suggestedQuestions()}
 				{@render belowSuggestions?.()}
 			</div>
@@ -872,6 +869,7 @@
 				<div class="relative flex items-center justify-center">
 					{@render inputField()}
 				</div>
+				{@render tokenIndicator()}
 			</div>
 
 			{@render belowSuggestions?.()}

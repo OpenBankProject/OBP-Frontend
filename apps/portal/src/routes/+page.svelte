@@ -69,7 +69,7 @@
 
 <div class="flex h-full w-full items-start justify-center px-4 pb-4">
 	<div class="flex h-full w-full max-w-4xl flex-col gap-3 xl:max-w-6xl 2xl:max-w-7xl">
-		<OpeyChat {opeyChatOptions} userAuthenticated={isAuthenticated}>
+		<OpeyChat {opeyChatOptions} userAuthenticated={isAuthenticated} currentBankId={currentBank.bankId}>
 			{#snippet splash()}
 				<div class="flex w-2/3 flex-col items-center justify-center text-center">
 					<h1 class="h3 text-surface-700-300 mb-2">{welcomeTitle}</h1>

@@ -27,6 +27,43 @@ const displayConsent = (consent: OBPConsent): boolean => {
 
 const VALID_STATUSES = ['INITIATED', 'ACCEPTED', 'REJECTED', 'REVOKED'] as const;
 
+/** Decode a JWT's payload segment (no signature check — display only). */
+function decodeJwtPayload(jwt: string | undefined): Record<string, any> | null {
+	const segment = jwt?.split('.')[1];
+	if (!segment) return null;
+	try {
+		const base64 = segment.replace(/-/g, '+').replace(/_/g, '/');
+		return JSON.parse(Buffer.from(base64, 'base64').toString('utf-8'));
+	} catch {
+		return null;
+	}
+}
+
+/**
+ * OBP returns `jwt_payload` as a JSON *string* (alongside the raw `jwt`). Normalise it
+ * to a parsed object so the page can show which roles/views the consent actually grants.
+ * Falls back to decoding the `jwt` itself for API versions that omit `jwt_payload`.
+ */
+function normalizeConsentPayload(consent: OBPConsent): OBPConsent {
+	const raw = consent.jwt_payload as unknown;
+	let payload: Record<string, any> | null = null;
+	if (typeof raw === 'string') {
+		try {
+			payload = JSON.parse(raw);
+		} catch {
+			payload = null;
+		}
+	} else if (raw && typeof raw === 'object') {
+		payload = raw as Record<string, any>;
+	}
+	if (!payload) {
+		payload = decodeJwtPayload(consent.jwt) ?? {};
+	}
+	payload.entitlements = Array.isArray(payload.entitlements) ? payload.entitlements : [];
+	payload.views = Array.isArray(payload.views) ? payload.views : [];
+	return { ...consent, jwt_payload: payload as OBPConsent['jwt_payload'] };
+}
+
 export async function load(event: RequestEvent) {
 	const token = event.locals.session.data.oauth?.access_token;
 	if (!token) {
@@ -69,6 +106,9 @@ export async function load(event: RequestEvent) {
 			consents = consents.filter((c) => c.consent_id !== consent.consent_id);
 		}
 	}
+
+	// Parse each consent's jwt_payload so the page can render its roles/views.
+	consents = consents.map(normalizeConsentPayload);
 
 	// Split consents into Opey and Other consents
 	const opeyConsents = consents.filter((consent: OBPConsent) =>

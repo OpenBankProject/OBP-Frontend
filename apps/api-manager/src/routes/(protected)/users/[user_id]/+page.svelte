@@ -11,6 +11,12 @@
   let hasApiAccess = $derived(data.hasApiAccess);
   let pageError = $derived(data.error);
 
+  // from_date for the "View API Metrics" link: one week ago, in the
+  // datetime-local format (yyyy-MM-ddTHH:mm) the metrics query form expects.
+  const metricsFromDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+    .toISOString()
+    .slice(0, 16);
+
   $effect(() => {
     if (user) {
       const entitlements = user.entitlements?.length || 0;
@@ -71,7 +77,20 @@
         <div class="info-grid">
           <div class="info-item">
             <div class="info-label">User ID</div>
-            <div class="info-value font-mono">{user.user_id || "N/A"}</div>
+            <div class="info-value">
+              <span class="font-mono">{user.user_id || "N/A"}</span>
+              {#if user.user_id}
+                <a
+                  href="/metrics?user_id={encodeURIComponent(
+                    user.user_id,
+                  )}&from_date={encodeURIComponent(metricsFromDate)}"
+                  class="action-link"
+                  data-testid="user-metrics-link"
+                >
+                  View API Metrics
+                </a>
+              {/if}
+            </div>
           </div>
           <div class="info-item">
             <div class="info-label">Email</div>

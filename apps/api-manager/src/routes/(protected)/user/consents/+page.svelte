@@ -1,5 +1,5 @@
 <script lang="ts">
-  import ConsentCard from "$lib/components/ConsentCard.svelte";
+  import { ConsentCard } from "@obp/shared/components";
 
   let { data } = $props();
 

@@ -9,6 +9,65 @@
 
     let { consent, showDeleteButton = false }: Props = $props();
 
+    interface NormalisedPayload {
+        entitlements: any[];
+        views: any[];
+        exp?: number;
+        [k: string]: any;
+    }
+
+    /**
+     * OBP returns `jwt_payload` as a JSON string in some responses and as a
+     * parsed object in others. Some call sites pass it through untouched.
+     * Normalise it here so the component never depends on the consumer:
+     *   - string  -> JSON.parse
+     *   - object  -> use as-is
+     *   - missing/unparseable -> decode the JWT payload segment browser-side
+     * Always returns an object with `entitlements` and `views` arrays.
+     */
+    function decodeJwtPayload(jwt: string | undefined): any {
+        if (!jwt) return undefined;
+        try {
+            const segment = jwt.split('.')[1];
+            if (!segment) return undefined;
+            const base64 = segment.replace(/-/g, '+').replace(/_/g, '/');
+            return JSON.parse(atob(base64));
+        } catch {
+            return undefined;
+        }
+    }
+
+    function normalisePayload(): NormalisedPayload {
+        let payload: any;
+
+        const raw = consent.jwt_payload;
+        if (typeof raw === 'string') {
+            try {
+                payload = JSON.parse(raw);
+            } catch {
+                payload = undefined;
+            }
+        } else if (raw && typeof raw === 'object') {
+            payload = raw;
+        }
+
+        if (!payload || typeof payload !== 'object') {
+            payload = decodeJwtPayload(consent.jwt);
+        }
+
+        if (!payload || typeof payload !== 'object') {
+            payload = {};
+        }
+
+        return {
+            ...payload,
+            entitlements: Array.isArray(payload.entitlements) ? payload.entitlements : [],
+            views: Array.isArray(payload.views) ? payload.views : []
+        };
+    }
+
+    const payload = $derived(normalisePayload());
+
     function formatDate(dateString: string): string {
         if (!dateString) return 'Not available';
         const date = new Date(dateString);
@@ -23,13 +82,13 @@
     }
 
     function formatJwtExpiration(): { formatted: string; isExpired: boolean } {
-        if (!consent.jwt_payload?.exp) {
+        if (!payload.exp) {
             return { formatted: 'Not available', isExpired: true };
         }
-        
-        const expDate = new Date(consent.jwt_payload.exp * 1000);
+
+        const expDate = new Date(payload.exp * 1000);
         const isExpired = expDate < new Date();
-        
+
         return {
             formatted: expDate.toLocaleDateString(undefined, {
                 year: 'numeric',
@@ -41,42 +100,6 @@
             }),
             isExpired
         };
-    }
-
-    function formatRoles(entitlements: any[]): string {
-        if (!entitlements || entitlements.length === 0) {
-            return 'None';
-        }
-        
-        return entitlements
-            .map((entitlement) => {
-                if (typeof entitlement === 'string') {
-                    return entitlement;
-                } else if (entitlement.role_name) {
-                    return entitlement.role_name;
-                }
-                return 'Unknown role';
-            })
-            .join(', ');
-    }
-
-    function formatViews(views: any[]): string {
-        if (!views || views.length === 0) {
-            return 'None';
-        }
-        
-        return views
-            .map((view) => {
-                if (typeof view === 'string') {
-                    return view;
-                } else if (view.view_id) {
-                    return view.view_id;
-                } else if (view.id) {
-                    return view.id;
-                }
-                return 'Unknown view';
-            })
-            .join(', ');
     }
 
     function getStatusColor(status: string): string {
@@ -130,7 +153,7 @@
                 {/if}
             </div>
         </div>
-        
+
         <!-- Copy button for consent ID -->
         <button
             class="btn-icon btn-sm preset-filled-tertiary ml-2"
@@ -208,24 +231,52 @@
     </div>
 
     <!-- Permissions Section -->
-    {#if consent.jwt_payload?.entitlements?.length || consent.jwt_payload?.views?.length}
+    {#if consent.everything || payload.entitlements.length || payload.views.length}
         <div class="mt-4 border-t pt-4 dark:border-gray-700">
             <h4 class="mb-2 font-medium text-gray-900 dark:text-gray-100">Permissions</h4>
-            
-            <!-- Roles/Entitlements -->
-            <div class="mb-2">
-                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Roles:</span>
-                <span class="ml-2 text-sm text-gray-600 dark:text-gray-400">
-                    {formatRoles(consent.jwt_payload?.entitlements || [])}
-                </span>
+
+            {#if consent.everything}
+                <p class="mb-3 text-sm text-gray-600 dark:text-gray-400">
+                    Full access — this consent grants <strong>everything</strong>.
+                </p>
+            {/if}
+
+            <!-- Roles / Entitlements -->
+            <div class="mb-3">
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Roles</span>
+                {#if payload.entitlements.length}
+                    <div class="mt-1 flex flex-wrap gap-1">
+                        {#each payload.entitlements as ent}
+                            <span class="inline-flex items-center gap-1 rounded-full bg-tertiary-100 px-2 py-0.5 text-xs font-medium dark:bg-tertiary-800">
+                                {typeof ent === 'string' ? ent : (ent.role_name ?? 'Unknown role')}
+                                {#if ent?.bank_id}
+                                    <span class="font-mono opacity-60">@ {ent.bank_id}</span>
+                                {/if}
+                            </span>
+                        {/each}
+                    </div>
+                {:else}
+                    <span class="ml-2 text-sm text-gray-500">None</span>
+                {/if}
             </div>
-            
+
             <!-- Views -->
             <div>
-                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Views:</span>
-                <span class="ml-2 text-sm text-gray-600 dark:text-gray-400">
-                    {formatViews(consent.jwt_payload?.views || [])}
-                </span>
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Views</span>
+                {#if payload.views.length}
+                    <div class="mt-1 flex flex-wrap gap-1">
+                        {#each payload.views as view}
+                            <span class="inline-flex items-center gap-1 rounded-full bg-tertiary-100 px-2 py-0.5 text-xs font-medium dark:bg-tertiary-800">
+                                {typeof view === 'string' ? view : (view.view_id ?? view.id ?? 'Unknown view')}
+                                {#if view?.account_id}
+                                    <span class="font-mono opacity-60">on {view.account_id}</span>
+                                {/if}
+                            </span>
+                        {/each}
+                    </div>
+                {:else}
+                    <span class="ml-2 text-sm text-gray-500">None</span>
+                {/if}
             </div>
         </div>
     {/if}
@@ -253,7 +304,7 @@
         <div class="mt-4 border-t pt-4 dark:border-gray-700">
             <form method="post" action="?/delete">
                 <input type="hidden" name="consent_id" value={consent.consent_id} />
-                <button 
+                <button
                     type="submit"
                     class="btn preset-filled-error-500 text-sm hover:preset-filled-error-600"
                 >

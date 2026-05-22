@@ -193,12 +193,11 @@
 				<div class="mt-1 flex justify-start opacity-60 transition-opacity hover:opacity-100 group-hover:opacity-100">
 					<button
 						onclick={handleCopyAsMarkdown}
-						class="inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs transition-transform hover:scale-105"
+						class="rounded-full p-1.5 transition-transform hover:scale-120"
 						title="Copy message"
 						aria-label="Copy message"
 					>
 						<Copy class="h-4 w-4 text-surface-700 dark:text-surface-200" />
-						<span class="text-surface-700 dark:text-surface-200">Copy</span>
 					</button>
 				</div>
 			{/if}

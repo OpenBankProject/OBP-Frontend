@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Accordion } from "@skeletonlabs/skeleton-svelte";
   import { type SessionData } from "svelte-kit-sessions";
-  import ConsentCard from "$lib/components/ConsentCard.svelte";
+  import { ConsentCard } from "@obp/shared/components";
   import { toast } from "$lib/utils/toastService.js";
   import { Clock } from "@lucide/svelte";
   import { userPreferences, DATE_FORMAT_OPTIONS, THEME_OPTIONS, type DateFormat, type Theme } from "$lib/stores/userPreferences.svelte";
