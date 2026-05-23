@@ -197,16 +197,6 @@
 						</div>
 					{/if}
 				</div>
-				<div class="mt-1 flex justify-start opacity-0 transition-opacity group-hover:opacity-100">
-					<button
-						onclick={handleCopyAsMarkdown}
-						class="rounded-full p-1.5 transition-transform hover:scale-120"
-						title="Copy message"
-						aria-label="Copy message"
-					>
-						<Copy class="h-4 w-4 text-surface-700 dark:text-surface-200" />
-					</button>
-				</div>
 			{/if}
 		{:else if message.role === 'tool'}
 			<ToolMessage

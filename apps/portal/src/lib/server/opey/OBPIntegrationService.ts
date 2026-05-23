@@ -6,6 +6,7 @@ import { obp_requests } from '$lib/obp/requests';
 import type { OBPConsent, OBPConsentInfo } from '$lib/obp/types';
 import { env } from '$env/dynamic/private';
 import { getOpeyConsentTtlSeconds } from '$lib/server/userPreferences';
+import { capConsentTtlSeconds } from '@obp/shared/server/obp';
 
 export interface OBPIntegrationService {
   getOrCreateOpeyConsent(session: Session): Promise<OBPConsent>;
@@ -109,9 +110,19 @@ export class DefaultOBPIntegrationService implements OBPIntegrationService {
 		const now = new Date().toISOString().split('.')[0] + 'Z';
 
 		// Per-user TTL preference (OBP personal data field) overrides the env default
-		// which overrides the built-in 7-day fallback. OBP rejects values above its
-		// `consents.max_time_to_live` prop with OBP-35020, so the value must be ≤ that.
-		const ttl = await getOpeyConsentTtlSeconds(accessToken, Number(env.OPEY_CONSENT_TTL_SECONDS));
+		// which overrides the built-in 7-day fallback. The result is then clamped
+		// against OBP's `consents.max_time_to_live` (via /obp/v7.0.0/consents/config)
+		// to avoid OBP-35020 (consent TTL exceeds server maximum).
+		const desiredTtl = await getOpeyConsentTtlSeconds(accessToken, Number(env.OPEY_CONSENT_TTL_SECONDS));
+		const { ttl, max: serverMaxTtl, capped: ttlWasCapped } = await capConsentTtlSeconds(
+			desiredTtl,
+			(p, t) => obp_requests.get(p, t)
+		);
+		if (ttlWasCapped) {
+			logger.info(
+				`createImplicitConsent: TTL capped to OBP max — requested ${desiredTtl}s, server max ${serverMaxTtl}s, using ${ttl}s`
+			);
+		}
 
 		const body = {
 			// Baseline session consent: authenticates the user with Opey but grants

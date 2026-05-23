@@ -57,7 +57,7 @@
   {#if data.opeyConsents && data.opeyConsents.length > 0}
     <div class="space-y-4">
       {#each data.opeyConsents as consent (consent.consent_id)}
-        <ConsentCard {consent} showDeleteButton={true} />
+        <ConsentCard {consent} showDeleteButton={true} metricsHref="/metrics" />
       {/each}
     </div>
   {:else}
@@ -75,7 +75,7 @@
   {#if data.otherConsents && data.otherConsents.length > 0}
     <div class="space-y-4">
       {#each data.otherConsents as consent (consent.consent_id)}
-        <ConsentCard {consent} showDeleteButton={true} />
+        <ConsentCard {consent} showDeleteButton={true} metricsHref="/metrics" />
       {/each}
     </div>
   {:else}

@@ -5,9 +5,14 @@
     interface Props {
         consent: OBPConsent;
         showDeleteButton?: boolean;
+        // Optional base path for the consuming app's metrics search page.
+        // When set, the Consent Reference ID renders as a link to
+        // `${metricsHref}?consent_reference_id=<value>` so users can jump
+        // straight to metrics filtered by this consent.
+        metricsHref?: string;
     }
 
-    let { consent, showDeleteButton = false }: Props = $props();
+    let { consent, showDeleteButton = false, metricsHref }: Props = $props();
 
     interface NormalisedPayload {
         entitlements: any[];
@@ -218,6 +223,41 @@
             </div>
         </div>
 
+        <!-- Consent Reference ID -->
+        {#if consent.consent_reference_id}
+            <div class="flex items-center justify-between">
+                <span class="font-medium text-gray-700 dark:text-gray-300">Consent Reference ID:</span>
+                <div class="flex items-center gap-2">
+                    {#if metricsHref}
+                        <a
+                            href={`${metricsHref}?consent_reference_id=${encodeURIComponent(consent.consent_reference_id)}`}
+                            class="text-tertiary-600 underline-offset-2 hover:underline dark:text-tertiary-400"
+                            title="Search metrics for this consent reference"
+                            data-testid="consent-reference-id-metrics-link"
+                        >
+                            {consent.consent_reference_id}
+                        </a>
+                    {:else}
+                        <span
+                            class="text-gray-900 dark:text-gray-100"
+                            data-testid="consent-reference-id"
+                        >{consent.consent_reference_id}</span>
+                    {/if}
+                    <button
+                        class="btn-icon btn-sm preset-filled-tertiary"
+                        onclick={() => copyToClipboard(consent.consent_reference_id!, 'Consent Reference ID')}
+                        title="Copy consent reference ID"
+                        aria-label="Copy consent reference ID"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+                            <path d="M4 16c-1.1 0-2-.9-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        {/if}
+
         <!-- Created Date -->
         {#if consent.created_date}
             <div class="flex items-center justify-between">
@@ -262,67 +302,69 @@
             </span>
         </div>
 
-        <!-- Everything Access -->
-        {#if consent.everything !== undefined}
-            <div class="flex items-center justify-between">
-                <span class="font-medium text-gray-700 dark:text-gray-300">Everything Access:</span>
-                <span class={consent.everything ? 'text-green-600 dark:text-green-400' : 'text-gray-500'}>
-                    {consent.everything ? 'Yes' : 'No'}
-                </span>
-            </div>
-        {/if}
     </div>
 
     <!-- Permissions Section -->
-    {#if consent.everything || payload.entitlements.length || payload.views.length}
-        <div class="mt-4 border-t pt-4 dark:border-gray-700">
-            <h4 class="mb-2 font-medium text-gray-900 dark:text-gray-100">Permissions</h4>
+    <div class="mt-4 border-t pt-4 dark:border-gray-700">
+        <h4 class="mb-2 font-medium text-gray-900 dark:text-gray-100">Permissions</h4>
 
+        <!-- Everything -->
+        <div class="mb-3 flex items-center gap-2">
+            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Everything:</span>
+            <span class={`text-sm font-medium ${consent.everything ? 'text-green-600 dark:text-green-400' : 'text-gray-500'}`}>
+                {consent.everything ? 'True' : 'False'}
+            </span>
             {#if consent.everything}
-                <p class="mb-3 text-sm text-gray-600 dark:text-gray-400">
-                    Full access — this consent grants <strong>everything</strong>.
-                </p>
+                <span class="text-xs text-gray-500 dark:text-gray-400">
+                    — this consent grants full access
+                </span>
             {/if}
-
-            <!-- Roles / Entitlements -->
-            <div class="mb-3">
-                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Roles</span>
-                {#if payload.entitlements.length}
-                    <div class="mt-1 flex flex-wrap gap-1">
-                        {#each payload.entitlements as ent}
-                            <span class="inline-flex items-center gap-1 rounded-full bg-tertiary-100 px-2 py-0.5 text-xs font-medium dark:bg-tertiary-800">
-                                {typeof ent === 'string' ? ent : (ent.role_name ?? 'Unknown role')}
-                                {#if ent?.bank_id}
-                                    <span class="font-mono opacity-60">@ {ent.bank_id}</span>
-                                {/if}
-                            </span>
-                        {/each}
-                    </div>
-                {:else}
-                    <span class="ml-2 text-sm text-gray-500">None</span>
-                {/if}
-            </div>
-
-            <!-- Views -->
-            <div>
-                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Views</span>
-                {#if payload.views.length}
-                    <div class="mt-1 flex flex-wrap gap-1">
-                        {#each payload.views as view}
-                            <span class="inline-flex items-center gap-1 rounded-full bg-tertiary-100 px-2 py-0.5 text-xs font-medium dark:bg-tertiary-800">
-                                {typeof view === 'string' ? view : (view.view_id ?? view.id ?? 'Unknown view')}
-                                {#if view?.account_id}
-                                    <span class="font-mono opacity-60">on {view.account_id}</span>
-                                {/if}
-                            </span>
-                        {/each}
-                    </div>
-                {:else}
-                    <span class="ml-2 text-sm text-gray-500">None</span>
-                {/if}
-            </div>
         </div>
-    {/if}
+
+        <!-- Roles / Entitlements -->
+        <div class="mb-3">
+            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Roles</span>
+            {#if payload.entitlements.length}
+                <div class="mt-1 flex flex-wrap gap-1">
+                    {#each payload.entitlements as ent}
+                        <span class="inline-flex items-center gap-1 rounded-full bg-tertiary-100 px-2 py-0.5 text-xs font-medium dark:bg-tertiary-800">
+                            {typeof ent === 'string' ? ent : (ent.role_name ?? 'Unknown role')}
+                            {#if ent?.bank_id}
+                                <span class="font-mono opacity-60">@ {ent.bank_id}</span>
+                            {/if}
+                        </span>
+                    {/each}
+                </div>
+            {:else}
+                <span class="ml-2 text-sm text-gray-500">None</span>
+            {/if}
+        </div>
+
+        <!-- Views -->
+        <div>
+            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Views</span>
+            {#if payload.views.length}
+                <div class="mt-1 flex flex-col gap-1">
+                    {#each payload.views as view}
+                        <div
+                            class="rounded bg-tertiary-100 px-2 py-1 text-xs dark:bg-tertiary-800"
+                            data-testid="consent-view-row"
+                        >
+                            {#if typeof view === 'string'}
+                                <code class="font-mono">{view}</code>
+                            {:else}
+                                <div><span class="opacity-70">bank_id:</span> <code class="font-mono">{view.bank_id ?? '—'}</code></div>
+                                <div><span class="opacity-70">account_id:</span> <code class="font-mono">{view.account_id ?? '—'}</code></div>
+                                <div><span class="opacity-70">view_id:</span> <code class="font-mono">{view.view_id ?? view.id ?? '—'}</code></div>
+                            {/if}
+                        </div>
+                    {/each}
+                </div>
+            {:else}
+                <span class="ml-2 text-sm text-gray-500">None</span>
+            {/if}
+        </div>
+    </div>
 
     <!-- JWT Section -->
     <div class="mt-4 border-t pt-4 dark:border-gray-700">

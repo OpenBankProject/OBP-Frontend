@@ -22,6 +22,7 @@
       duration: string;
       include_app_names: string;
       http_status_code: string;
+      consent_reference_id: string;
     };
     autoRefresh?: string;
     onFieldChange?: () => void;
@@ -137,6 +138,9 @@
     </label>
     <label class="qf-inline"><span>Fn</span>
       <input type="text" bind:value={queryForm.implemented_by_partial_function} onblur={handleFieldChange} onchange={handleFieldChange} placeholder="partial fn" name="implemented_by_partial_function" />
+    </label>
+    <label class="qf-inline"><span>Consent Ref</span>
+      <input type="text" bind:value={queryForm.consent_reference_id} onblur={handleFieldChange} onchange={handleFieldChange} placeholder="ID" name="consent_reference_id" data-testid="metric-filter-consent-reference-id" />
     </label>
   </div>
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount, onDestroy } from 'svelte';
+	import { onMount, onDestroy, tick } from 'svelte';
 	import { RefreshCw } from '@lucide/svelte';
 	import {
 		getSelectedConsentViews,
@@ -38,6 +38,10 @@
 	let error = $state<string | null>(null);
 	let open = $state(false);
 	let selected = $state<ConsentViewSelection[]>([]);
+	// Top-level element ref (either branch of {#if open} binds to it) so external
+	// triggers — e.g. a consent prompt that needs view scope — can scroll the
+	// picker into view and force it open.
+	let wrapperEl = $state<HTMLElement | null>(null);
 
 	function selectionKey(bankId: string, accountId: string, viewId: string): string {
 		return `${bankId}::${accountId}::${viewId}`;
@@ -96,15 +100,25 @@
 		selected = getSelectedConsentViews();
 	}
 
+	// Open the picker and scroll it into view in response to a global request
+	// (fired by the ConsentRequestCard when a view-scoped consent has no scope yet).
+	async function focusFromExternal() {
+		open = true;
+		await tick();
+		wrapperEl?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+	}
+
 	onMount(() => {
 		syncFromStorage();
 		fetchAccounts();
 		window.addEventListener('obp:consent-scope-changed', syncFromStorage);
+		window.addEventListener('obp:open-account-scope-picker', focusFromExternal);
 	});
 
 	onDestroy(() => {
 		if (typeof window !== 'undefined') {
 			window.removeEventListener('obp:consent-scope-changed', syncFromStorage);
+			window.removeEventListener('obp:open-account-scope-picker', focusFromExternal);
 		}
 	});
 
@@ -113,6 +127,7 @@
 
 {#if open}
 	<div
+		bind:this={wrapperEl}
 		class="inline-block rounded-md border border-surface-300-700 bg-surface-100-900 p-3 text-left min-w-[18rem] max-w-md"
 		data-testid="account-scope-picker-open"
 	>
@@ -208,7 +223,7 @@
 		{/if}
 	</div>
 {:else}
-	<span class="text-sm" data-testid="account-scope-picker">
+	<span bind:this={wrapperEl} class="text-sm" data-testid="account-scope-picker">
 		Working accounts: {summary}
 		<button
 			type="button"

@@ -7,6 +7,7 @@ import { obpErrorResponse } from '@obp/shared/obp';
 import { env } from '$env/dynamic/private';
 import { deduplicateRoles, pickConsentRole } from '@obp/shared/opey';
 import { getOpeyConsentTtlSeconds } from '$lib/server/userPreferences';
+import { capConsentTtlSeconds } from '@obp/shared/server/obp';
 
 /**
  * POST /backend/opey/consent
@@ -157,11 +158,22 @@ export async function POST(event: RequestEvent) {
 
 		const now = new Date().toISOString().split('.')[0] + 'Z';
 
-		// Per-user TTL preference (OBP personal data field) → env default → built-in 7 days.
-		const consentTtl = await getOpeyConsentTtlSeconds(
+		// Per-user TTL preference (OBP personal data field) → env default → built-in 7 days,
+		// then clamped against OBP's `consents.max_time_to_live` (via /obp/v7.0.0/consents/config)
+		// to avoid OBP-35020 (consent TTL exceeds server maximum).
+		const desiredTtl = await getOpeyConsentTtlSeconds(
 			accessToken,
 			Number(env.OPEY_CONSENT_TTL_SECONDS)
 		);
+		const { ttl: consentTtl, max: serverMaxTtl, capped: ttlWasCapped } = await capConsentTtlSeconds(
+			desiredTtl,
+			(p, t) => obp_requests.get(p, t)
+		);
+		if (ttlWasCapped) {
+			logger.info(
+				`Per-tool consent TTL capped to OBP max — requested ${desiredTtl}s, server max ${serverMaxTtl}s, using ${consentTtl}s`
+			);
+		}
 
 		const consentBody = {
 			everything: false,

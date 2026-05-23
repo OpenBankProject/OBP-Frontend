@@ -598,7 +598,7 @@
       <h1 class="h4 text-center">Consent for Opey</h1>
     </header>
     <div class="mx-auto w-4/6">
-      <ConsentCard consent={opeyConsentInfo.consent} showDeleteButton={false} />
+      <ConsentCard consent={opeyConsentInfo.consent} showDeleteButton={false} metricsHref="/metrics" />
     </div>
   {/if}
   <!-- <div

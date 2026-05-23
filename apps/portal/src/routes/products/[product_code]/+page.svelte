@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Zap, Check, ArrowLeft, ExternalLink } from '@lucide/svelte';
-	import EndpointCard from '$lib/components/EndpointCard.svelte';
+	import { EndpointCard } from '@obp/shared/components';
 
 	let { data } = $props();
 

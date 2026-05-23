@@ -134,6 +134,7 @@
     duration: "",
     include_app_names: "",
     http_status_code: "",
+    consent_reference_id: "",
   });
 
   // Initialize on mount - run only once
@@ -172,6 +173,7 @@
         duration: urlParams.get("duration") || "",
         include_app_names: urlParams.get("include_app_names") || "",
         http_status_code: urlParams.get("http_status_code") || "",
+        consent_reference_id: urlParams.get("consent_reference_id") || "",
       };
 
       // Sync URL with form values
@@ -265,6 +267,12 @@
     }
     if (queryForm.correlation_id && queryForm.correlation_id.trim() !== "") {
       params.set("correlation_id", queryForm.correlation_id);
+    }
+    if (
+      queryForm.consent_reference_id &&
+      queryForm.consent_reference_id.trim() !== ""
+    ) {
+      params.set("consent_reference_id", queryForm.consent_reference_id);
     }
 
     params.set("limit", String(queryForm.limit));
@@ -365,6 +373,8 @@
         queryForm.implemented_by_partial_function,
       );
     if (queryForm.app_name) params.set("app_name", queryForm.app_name);
+    if (queryForm.consent_reference_id)
+      params.set("consent_reference_id", queryForm.consent_reference_id);
     return `/backend/metrics/stream?${params.toString()}`;
   }
 
@@ -490,6 +500,7 @@
       duration: "",
       include_app_names: "",
       http_status_code: "",
+      consent_reference_id: "",
     };
 
     // Reset default date range
@@ -688,7 +699,7 @@
                   <th>Method</th>
                   <th>Status</th>
                   <th>Duration</th>
-                  <th>Correlation ID</th>
+                  <th>Correlation ID / Consent Ref ID</th>
                 </tr>
               </thead>
               <tbody>
@@ -736,6 +747,11 @@
                     <td class="correlation-cell">
                       <code class="correlation-id"
                         >{metric.correlation_id || "N/A"}</code
+                      >
+                      <code
+                        class="consent-reference-id"
+                        data-testid="metric-consent-reference-id"
+                        >{metric.consent_reference_id || "---"}</code
                       >
                     </td>
                   </tr>
@@ -1730,9 +1746,20 @@
     font-family: monospace;
     font-size: 0.75rem;
     max-width: 200px;
+  }
+
+  .correlation-cell .correlation-id,
+  .correlation-cell .consent-reference-id {
+    display: block;
+    max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  .correlation-cell .consent-reference-id {
+    margin-top: 0.25rem;
+    margin-left: 0;
   }
 
   .correlation-id {
@@ -1796,6 +1823,21 @@
 
   .consumer-id-missing {
     opacity: 0.6;
+  }
+
+  .consent-reference-id {
+    margin-left: 0.5rem;
+    background: var(--color-warning-100);
+    color: var(--color-warning-800);
+    padding: 0.125rem 0.375rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+
+  :global([data-mode="dark"]) .consent-reference-id {
+    background: var(--color-warning-900);
+    color: var(--color-warning-200);
   }
 
   .table-wrapper {
