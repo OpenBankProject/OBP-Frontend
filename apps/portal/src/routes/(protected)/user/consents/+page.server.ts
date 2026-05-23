@@ -152,6 +152,85 @@ export const actions = {
 		};
 	},
 
+	deleteAll: async ({ locals }) => {
+		const token = locals.session.data.oauth?.access_token;
+		if (!token) {
+			return { message: 'No access token found in session.' };
+		}
+
+		// Page through /my/consents so we delete every record, not just the
+		// 10 the load function fetches for display.
+		const pageLimit = 50;
+		const all: OBPConsent[] = [];
+		try {
+			let offset = 0;
+			while (true) {
+				const resp: { consents?: OBPConsent[] } = await obp_requests.get(
+					`/obp/v5.1.0/my/consents?limit=${pageLimit}&offset=${offset}`,
+					token
+				);
+				const batch = resp?.consents ?? [];
+				all.push(...batch);
+				if (batch.length < pageLimit) break;
+				offset += pageLimit;
+			}
+		} catch (err) {
+			logger.error('deleteAll: failed to list consents:', err);
+			const msg =
+				err instanceof OBPRequestError
+					? err.message
+					: err instanceof Error
+						? err.message
+						: 'Failed to list consents for deletion.';
+			return { message: msg };
+		}
+
+		// Only ACCEPTED or INITIATED consents are meaningfully deletable via
+		// DELETE /my/consents/{ID} — REVOKED/REJECTED/EXPIRED rows can't be
+		// revoked again. Skip them so the response stays clean instead of
+		// surfacing one error per skipped row.
+		const DELETABLE_STATUSES = new Set(['ACCEPTED', 'INITIATED']);
+		const deletable = all.filter((c) => DELETABLE_STATUSES.has(c.status));
+		const skipped = all.length - deletable.length;
+
+		if (deletable.length === 0) {
+			return {
+				success: true,
+				message:
+					skipped > 0
+						? `No ACCEPTED or INITIATED consents to delete (${skipped} skipped).`
+						: 'No consents to delete.'
+			};
+		}
+
+		let deleted = 0;
+		const errors: string[] = [];
+		for (const c of deletable) {
+			try {
+				await obp_requests.delete(`/obp/v5.1.0/my/consents/${c.consent_id}`, token);
+				deleted++;
+			} catch (err) {
+				const msg = err instanceof Error ? err.message : String(err);
+				errors.push(`${String(c.consent_id ?? 'unknown').slice(0, 8)}: ${msg}`);
+			}
+		}
+
+		const skippedNote = skipped > 0 ? ` (${skipped} skipped — not ACCEPTED or INITIATED)` : '';
+
+		if (errors.length > 0) {
+			const sample = errors.slice(0, 3).join('; ');
+			const more = errors.length > 3 ? ` (and ${errors.length - 3} more)` : '';
+			return {
+				message: `Deleted ${deleted} consent${deleted === 1 ? '' : 's'}${skippedNote}. ${errors.length} failed: ${sample}${more}`
+			};
+		}
+
+		return {
+			success: true,
+			message: `Deleted ${deleted} consent${deleted === 1 ? '' : 's'}${skippedNote}.`
+		};
+	},
+
 	setConsentTtl: async ({ request, locals }) => {
 		const data = await request.formData();
 		const rawSeconds = data.get('seconds');

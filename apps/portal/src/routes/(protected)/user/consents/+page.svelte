@@ -17,7 +17,32 @@
     );
     let selectedTtl = $state<number>(data.currentConsentTtlSeconds ?? 604800);
     let savingTtl = $state(false);
+    let deletingAll = $state(false);
 </script>
+
+<div class="mb-6 flex items-center justify-between gap-4">
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">My Consents</h1>
+    <form
+        method="post"
+        action="?/deleteAll"
+        use:enhance={() => {
+            deletingAll = true;
+            return async ({ update }) => {
+                await update({ reset: false });
+                deletingAll = false;
+            };
+        }}
+    >
+        <button
+            type="submit"
+            class="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-60 dark:bg-red-700 dark:hover:bg-red-800"
+            disabled={deletingAll}
+            data-testid="delete-all-consents"
+        >
+            {deletingAll ? 'Deleting all consents…' : 'Delete all consents'}
+        </button>
+    </form>
+</div>
 
 {#if form?.success}
     <div class="mb-8 rounded-lg border border-green-200 bg-green-50 p-4 text-center dark:border-green-800 dark:bg-green-900/20">

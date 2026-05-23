@@ -6,6 +6,7 @@ import { obpRequests } from '../../../../hooks.server';
 import { env } from '$env/dynamic/private';
 import { deduplicateRoles, pickConsentRole } from '$lib/opey/utils/roles';
 import { capConsentTtlSeconds } from '$lib/server/obp/consentsConfig';
+import { findReusableConsent } from '$lib/server/obp/consentReuse';
 
 /**
  * POST /api/opey/consent
@@ -115,6 +116,27 @@ export async function POST(event: RequestEvent) {
 			role_name: roleName,
 			bank_id: bank_id || ''
 		}));
+
+		// Try to reuse an existing consent that already covers this scope. Without
+		// this, every consent_request from Opey mints a new consent at OBP — even
+		// when an identical one already exists for the user, leading to consent
+		// proliferation and "asking the same view again and again" UX.
+		const reusable = await findReusableConsent({
+			obpGet: (p, t) => obpRequests.get(p, t),
+			accessToken,
+			opeyConsumerId,
+			requiredEntitlements: entitlements,
+			requiredViews: normalizedViews
+		});
+		if (reusable) {
+			return json({
+				consent_jwt: reusable.jwt,
+				consent_id: reusable.consent_id,
+				status: reusable.status,
+				roles: normalizedRequiredRoles,
+				reused: true
+			});
+		}
 
 		const now = new Date().toISOString().split('.')[0] + 'Z';
 
