@@ -104,21 +104,37 @@
 	let obpMcpAuthMode: string | null = $state(null);
 	let healthCheckInterval: ReturnType<typeof setInterval> | null = null;
 
+	// Underlying error text per check, surfaced in the click-pip debug popovers below
+	// (so the user sees the *real* failure, not a generic "after N attempts" message).
+	let serverHealthError: string | null = $state(null);
+	let browserHealthError: string | null = $state(null);
+	// Which pip's debug popover is currently open (mutually exclusive).
+	let openPip: 'server' | 'browser' | 'auth' | null = $state(null);
+
 	async function fetchServerHealthStatus() {
 		try {
 			const response = await fetch('/backend/status');
-			if (response.ok) {
-				const data = await response.json();
-				const opeySnapshot = data.services['Opey (server)'];
-				if (opeySnapshot) {
-					serverConnectionStatus = opeySnapshot.status;
-				} else {
-					serverConnectionStatus = 'unknown';
-				}
+			if (!response.ok) {
+				serverConnectionStatus = 'unknown';
+				serverHealthError = `HTTP ${response.status} ${response.statusText}`;
+				return;
+			}
+			const data = await response.json();
+			const opeySnapshot = data.services?.['Opey (server)'];
+			if (opeySnapshot) {
+				serverConnectionStatus = opeySnapshot.status;
+				serverHealthError =
+					opeySnapshot.status === 'healthy'
+						? null
+						: (opeySnapshot.detail || opeySnapshot.error || `status: ${opeySnapshot.status}`);
+			} else {
+				serverConnectionStatus = 'unknown';
+				serverHealthError = "No 'Opey (server)' entry in /backend/status response";
 			}
 		} catch (error) {
 			logger.error('Failed to fetch server health status:', error);
 			serverConnectionStatus = 'unknown';
+			serverHealthError = error instanceof Error ? error.message : String(error);
 		}
 	}
 
@@ -131,6 +147,7 @@
 				signal: controller.signal,
 			});
 			browserConnectionStatus = res.ok ? 'healthy' : 'unhealthy';
+			browserHealthError = res.ok ? null : `HTTP ${res.status} ${res.statusText}`;
 			if (res.ok) {
 				try {
 					const data = await res.json();
@@ -143,6 +160,7 @@
 		} catch (error) {
 			logger.error('Failed to fetch browser-side Opey status:', error);
 			browserConnectionStatus = 'unhealthy';
+			browserHealthError = error instanceof Error ? error.message : String(error);
 		} finally {
 			clearTimeout(timeoutId);
 		}
@@ -380,6 +398,7 @@
 
 	// Add retry logic with exponential backoff
 	async function initializeOpeySessionWithRetry(maxRetries = 3, baseDelay = 1000) {
+		let lastError: string | null = null;
 		for (let attempt = 1; attempt <= maxRetries; attempt++) {
 			try {
 				await initializeOpeySession();
@@ -387,7 +406,11 @@
 					logger.debug(`Opey session initialized successfully on attempt ${attempt}`);
 					return;
 				}
+				// Init didn't throw but the session isn't ready — capture whatever
+				// session.error was set to internally so it isn't swallowed.
+				if (session.error) lastError = session.error;
 			} catch (error) {
+				lastError = error instanceof Error ? error.message : String(error);
 				logger.warn(`Session initialization attempt ${attempt} failed:`, error);
 			}
 
@@ -398,8 +421,12 @@
 			}
 		}
 
-		logger.error(`Failed to initialize session after ${maxRetries} attempts`);
-		sessionState.setStatus('error', `Failed to initialize after ${maxRetries} attempts`);
+		// Surface the real underlying cause rather than just "after N attempts".
+		const finalMessage = lastError
+			? `Failed to initialize after ${maxRetries} attempts: ${lastError}`
+			: `Failed to initialize after ${maxRetries} attempts`;
+		logger.error(finalMessage);
+		sessionState.setStatus('error', finalMessage);
 	}
 
 	/**
@@ -634,76 +661,121 @@
 {#snippet statusPips(session: SessionSnapshot, consentInfo?: OBPConsentInfo)}
 	{#if options.displayConnectionPips}
 		<div class="flex flex-row items-center gap-1.5">
-			<!-- Server-side Opey connection pip -->
-			<Tooltip>
-				<Tooltip.Trigger>
+			<!-- Server-side Opey connection pip — click for debug detail -->
+			<div class="relative">
+				<button
+					type="button"
+					class="block h-2 w-2 rounded-full {serverConnectionPipColor} cursor-pointer transition-all hover:scale-125"
+					data-testid="opey-pip-server"
+					onclick={() => (openPip = openPip === 'server' ? null : 'server')}
+					aria-expanded={openPip === 'server'}
+					aria-label="Opey server connection — click for details"
+					title="Opey (server) — app server → Opey: {serverConnectionStatusString}"
+				></button>
+				{#if openPip === 'server'}
 					<div
-						class="h-2 w-2 rounded-full {serverConnectionPipColor} cursor-pointer transition-all hover:scale-125"
-						data-testid="opey-pip-server"
-					></div>
-				</Tooltip.Trigger>
-				<Portal>
-					<Tooltip.Positioner class="z-10">
-						<Tooltip.Content class="card bg-primary-200-800 text-xs p-2">
-							Opey (server) — app server → Opey: {serverConnectionStatusString}
-							<Tooltip.Arrow class="[--arrow-size:--spacing(2)] [--arrow-background:var(--color-primary-200-800)]">
-								<Tooltip.ArrowTip />
-							</Tooltip.Arrow>
-						</Tooltip.Content>
-					</Tooltip.Positioner>
-				</Portal>
-			</Tooltip>
+						class="absolute right-0 top-4 z-20 w-80 max-w-[calc(100vw-2rem)] rounded-md border border-surface-300-700 bg-surface-100-900 p-3 text-xs shadow-lg text-surface-900-100"
+						role="dialog"
+						aria-label="Opey server connection debug"
+						data-testid="opey-pip-server-popover"
+					>
+						<div class="mb-1 flex items-center justify-between">
+							<span class="font-semibold">Opey (server)</span>
+							<button type="button" class="text-base leading-none opacity-60 hover:opacity-100" onclick={() => (openPip = null)} aria-label="Close">&times;</button>
+						</div>
+						<p class="mb-2 opacity-70">App server → Opey: <strong>{serverConnectionStatusString}</strong></p>
+						{#if serverHealthError}
+							<p class="mb-2 break-words text-error-500 dark:text-error-400">{serverHealthError}</p>
+						{/if}
+						<a href="/backend/status" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-tertiary-600-400 hover:underline">
+							<code class="font-mono text-[11px]">/backend/status</code>
+							<span aria-hidden="true">↗</span>
+						</a>
+					</div>
+				{/if}
+			</div>
 
-			<!-- Browser-side Opey connection pip -->
-			<Tooltip>
-				<Tooltip.Trigger>
+			<!-- Browser-side Opey connection pip — click for debug detail -->
+			<div class="relative">
+				<button
+					type="button"
+					class="block h-2 w-2 rounded-full {browserConnectionPipColor} cursor-pointer transition-all hover:scale-125"
+					data-testid="opey-pip-browser"
+					onclick={() => (openPip = openPip === 'browser' ? null : 'browser')}
+					aria-expanded={openPip === 'browser'}
+					aria-label="Opey browser connection — click for details"
+					title="Opey (browser) — your browser → Opey: {browserConnectionStatusString}"
+				></button>
+				{#if openPip === 'browser'}
 					<div
-						class="h-2 w-2 rounded-full {browserConnectionPipColor} cursor-pointer transition-all hover:scale-125"
-						data-testid="opey-pip-browser"
-					></div>
-				</Tooltip.Trigger>
-				<Portal>
-					<Tooltip.Positioner class="z-10">
-						<Tooltip.Content class="card bg-primary-200-800 text-xs p-2">
-							Opey (browser) — your browser → Opey: {browserConnectionStatusString}
-							<Tooltip.Arrow class="[--arrow-size:--spacing(2)] [--arrow-background:var(--color-primary-200-800)]">
-								<Tooltip.ArrowTip />
-							</Tooltip.Arrow>
-						</Tooltip.Content>
-					</Tooltip.Positioner>
-				</Portal>
-			</Tooltip>
+						class="absolute right-0 top-4 z-20 w-80 max-w-[calc(100vw-2rem)] rounded-md border border-surface-300-700 bg-surface-100-900 p-3 text-xs shadow-lg text-surface-900-100"
+						role="dialog"
+						aria-label="Opey browser connection debug"
+						data-testid="opey-pip-browser-popover"
+					>
+						<div class="mb-1 flex items-center justify-between">
+							<span class="font-semibold">Opey (browser)</span>
+							<button type="button" class="text-base leading-none opacity-60 hover:opacity-100" onclick={() => (openPip = null)} aria-label="Close">&times;</button>
+						</div>
+						<p class="mb-2 opacity-70">Your browser → Opey: <strong>{browserConnectionStatusString}</strong></p>
+						{#if browserHealthError}
+							<p class="mb-2 break-words text-error-500 dark:text-error-400">{browserHealthError}</p>
+						{/if}
+						<a href={`${options.baseUrl}/status`} target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-tertiary-600-400 hover:underline">
+							<code class="font-mono text-[11px] break-all">{options.baseUrl}/status</code>
+							<span aria-hidden="true">↗</span>
+						</a>
+					</div>
+				{/if}
+			</div>
 
-			<!-- Authentication/Consent Pip with Tooltip -->
-			<Tooltip>
-				<Tooltip.Trigger>
-					<a
-						href="/user#opey-consent"
-						class="h-2 w-2 rounded-full {authPipColor} cursor-pointer transition-all hover:scale-125 block"
-						aria-label="View Opey consent"
-					></a>
-				</Tooltip.Trigger>
-				<Portal>
-					<Tooltip.Positioner class="z-10">
-						<Tooltip.Content class="card bg-primary-200-800 text-xs p-2">
+			<!-- Authentication / Consent pip — click for debug detail -->
+			<div class="relative">
+				<button
+					type="button"
+					class="block h-2 w-2 rounded-full {authPipColor} cursor-pointer transition-all hover:scale-125"
+					data-testid="opey-pip-auth"
+					onclick={() => (openPip = openPip === 'auth' ? null : 'auth')}
+					aria-expanded={openPip === 'auth'}
+					aria-label="Opey session — click for details"
+				></button>
+				{#if openPip === 'auth'}
+					<div
+						class="absolute right-0 top-4 z-20 w-80 max-w-[calc(100vw-2rem)] rounded-md border border-surface-300-700 bg-surface-100-900 p-3 text-xs shadow-lg text-surface-900-100"
+						role="dialog"
+						aria-label="Opey session debug"
+						data-testid="opey-pip-auth-popover"
+					>
+						<div class="mb-1 flex items-center justify-between">
+							<span class="font-semibold">Opey session</span>
+							<button type="button" class="text-base leading-none opacity-60 hover:opacity-100" onclick={() => (openPip = null)} aria-label="Close">&times;</button>
+						</div>
+						<p class="mb-2 opacity-70">
 							{#if session.status === 'loading'}
-								Authenticating...
+								Authenticating…
 							{:else if session.status === 'error'}
-								Error: {session.error}
+								Error
 							{:else if session.isAuthenticated && consentInfo}
-								Click to view consent
+								Authenticated (consent available)
 							{:else if session.isAuthenticated}
 								Authenticated (no consent info)
 							{:else}
-								Not Authenticated
+								Not authenticated
 							{/if}
-							<Tooltip.Arrow class="[--arrow-size:--spacing(2)] [--arrow-background:var(--color-primary-200-800)]">
-								<Tooltip.ArrowTip />
-							</Tooltip.Arrow>
-						</Tooltip.Content>
-					</Tooltip.Positioner>
-				</Portal>
-			</Tooltip>
+						</p>
+						{#if session.error}
+							<p class="mb-2 break-words text-error-500 dark:text-error-400">{session.error}</p>
+						{/if}
+						<a href="/backend/opey/auth" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-tertiary-600-400 hover:underline">
+							<code class="font-mono text-[11px]">/backend/opey/auth</code>
+							<span aria-hidden="true">↗</span>
+						</a>
+						<div class="mt-2">
+							<a href="/user#opey-consent" class="text-tertiary-600-400 hover:underline">View consent →</a>
+						</div>
+					</div>
+				{/if}
+			</div>
 
 			<!-- OBP-MCP outbound auth mode badge -->
 			{#if obpMcpAuthMode}

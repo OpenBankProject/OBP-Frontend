@@ -146,8 +146,11 @@
       <label class="qf-inline"><span>Apps</span>
         <input type="text" bind:value={queryForm.include_app_names} onblur={handleFieldChange} onchange={handleFieldChange} placeholder="csv" name="include_app_names" />
       </label>
-      <label class="qf-inline"><span>User</span>
-        <input type="text" bind:value={queryForm.username} onblur={handleFieldChange} onchange={handleFieldChange} placeholder="ID" name="username" />
+      <label class="qf-inline"><span>User ID</span>
+        <input type="text" bind:value={queryForm.user_id} onblur={handleFieldChange} onchange={handleFieldChange} placeholder="user_id" name="user_id" />
+      </label>
+      <label class="qf-inline"><span>Username</span>
+        <input type="text" bind:value={queryForm.username} onblur={handleFieldChange} onchange={handleFieldChange} placeholder="username" name="username" />
       </label>
       <label class="qf-inline qf-sm"><span>Ver</span>
         <input type="text" bind:value={queryForm.implemented_in_version} onblur={handleFieldChange} onchange={handleFieldChange} placeholder="ver" name="implemented_in_version" />

@@ -1,20 +1,73 @@
 <script lang="ts">
     import { ConsentCard } from "@obp/shared/components";
+    import { enhance } from "$app/forms";
 
     let { data, form } = $props();
-</script>
 
-{#if form?.message}
-    <div class="bg-error-500/10 border-error-500 mb-8 rounded-lg border p-4 text-center">
-        <p class="text-error-500 font-semibold">{form.message}</p>
-    </div>
-{/if}
+    const TTL_OPTIONS: { seconds: number; label: string }[] = [
+        { seconds: 3600, label: '1 hour' },
+        { seconds: 86400, label: '1 day' },
+        { seconds: 604800, label: '7 days' },
+        { seconds: 2592000, label: '30 days' },
+        { seconds: 7776000, label: '90 days' }
+    ];
+
+    let visibleTtlOptions = $derived(
+        TTL_OPTIONS.filter((o) => o.seconds <= (data.maxConsentTtlSeconds ?? 7776000))
+    );
+    let selectedTtl = $state<number>(data.currentConsentTtlSeconds ?? 604800);
+    let savingTtl = $state(false);
+</script>
 
 {#if form?.success}
     <div class="mb-8 rounded-lg border border-green-200 bg-green-50 p-4 text-center dark:border-green-800 dark:bg-green-900/20">
         <p class="font-semibold text-green-600 dark:text-green-400">{form.message}</p>
     </div>
+{:else if form?.message}
+    <div class="bg-error-500/10 border-error-500 mb-8 rounded-lg border p-4 text-center">
+        <p class="text-error-500 font-semibold">{form.message}</p>
+    </div>
 {/if}
+
+<!-- Consent duration preference -->
+<div class="mb-8 rounded-lg bg-white p-6 shadow-md dark:bg-gray-800">
+    <h2 class="mb-2 text-xl font-semibold text-gray-900 dark:text-gray-100">Consent duration</h2>
+    <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">
+        How long new consents should last. Only affects consents created from now on —
+        existing consents keep their original duration until they expire.
+    </p>
+    <form
+        method="post"
+        action="?/setConsentTtl"
+        use:enhance={() => {
+            savingTtl = true;
+            return async ({ update }) => {
+                await update({ reset: false });
+                savingTtl = false;
+            };
+        }}
+        class="flex items-center gap-3"
+    >
+        <label class="flex items-center gap-2 text-sm">
+            <span class="font-medium text-gray-700 dark:text-gray-300">Default duration</span>
+            <select
+                name="seconds"
+                class="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                bind:value={selectedTtl}
+                disabled={savingTtl}
+                onchange={(e) => e.currentTarget.form?.requestSubmit()}
+                data-testid="consent-ttl-select"
+            >
+                {#each visibleTtlOptions as opt}
+                    <option value={opt.seconds}>{opt.label}</option>
+                {/each}
+            </select>
+        </label>
+        {#if savingTtl}
+            <span class="text-xs text-gray-500">Saving…</span>
+        {/if}
+    </form>
+</div>
 
 <!-- Consents for Opey Section -->
 <div class="mb-10">

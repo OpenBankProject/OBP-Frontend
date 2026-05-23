@@ -6,6 +6,12 @@ import type { OBPConsent } from '$lib/obp/types';
 import { obp_requests } from '$lib/obp/requests';
 import { OBPRequestError } from '@obp/shared/obp';
 import { env } from '$env/dynamic/private';
+import {
+	getPersonalDataField,
+	setPersonalDataField,
+	OPEY_CONSENT_TTL_FIELD,
+	DEFAULT_OPEY_CONSENT_TTL_SECONDS
+} from '$lib/server/userPreferences';
 
 const displayConsent = (consent: OBPConsent): boolean => {
 	// We want to display the consent if it is revoked and not more than a day old
@@ -26,43 +32,6 @@ const displayConsent = (consent: OBPConsent): boolean => {
 };
 
 const VALID_STATUSES = ['INITIATED', 'ACCEPTED', 'REJECTED', 'REVOKED'] as const;
-
-/** Decode a JWT's payload segment (no signature check — display only). */
-function decodeJwtPayload(jwt: string | undefined): Record<string, any> | null {
-	const segment = jwt?.split('.')[1];
-	if (!segment) return null;
-	try {
-		const base64 = segment.replace(/-/g, '+').replace(/_/g, '/');
-		return JSON.parse(Buffer.from(base64, 'base64').toString('utf-8'));
-	} catch {
-		return null;
-	}
-}
-
-/**
- * OBP returns `jwt_payload` as a JSON *string* (alongside the raw `jwt`). Normalise it
- * to a parsed object so the page can show which roles/views the consent actually grants.
- * Falls back to decoding the `jwt` itself for API versions that omit `jwt_payload`.
- */
-function normalizeConsentPayload(consent: OBPConsent): OBPConsent {
-	const raw = consent.jwt_payload as unknown;
-	let payload: Record<string, any> | null = null;
-	if (typeof raw === 'string') {
-		try {
-			payload = JSON.parse(raw);
-		} catch {
-			payload = null;
-		}
-	} else if (raw && typeof raw === 'object') {
-		payload = raw as Record<string, any>;
-	}
-	if (!payload) {
-		payload = decodeJwtPayload(consent.jwt) ?? {};
-	}
-	payload.entitlements = Array.isArray(payload.entitlements) ? payload.entitlements : [];
-	payload.views = Array.isArray(payload.views) ? payload.views : [];
-	return { ...consent, jwt_payload: payload as OBPConsent['jwt_payload'] };
-}
 
 export async function load(event: RequestEvent) {
 	const token = event.locals.session.data.oauth?.access_token;
@@ -97,18 +66,7 @@ export async function load(event: RequestEvent) {
 		});
 	}
 
-	let consents = consentResponse.consents;
-
-	for (let consent of consents) {
-		// Filter out consents that should not be displayed
-		if (!displayConsent(consent)) {
-			// If the consent should not be displayed, set it to null
-			consents = consents.filter((c) => c.consent_id !== consent.consent_id);
-		}
-	}
-
-	// Parse each consent's jwt_payload so the page can render its roles/views.
-	consents = consents.map(normalizeConsentPayload);
+	const consents = consentResponse.consents.filter(displayConsent);
 
 	// Split consents into Opey and Other consents
 	const opeyConsents = consents.filter((consent: OBPConsent) =>
@@ -129,10 +87,26 @@ export async function load(event: RequestEvent) {
 	opeyConsents.sort(sortByCreatedDate);
 	otherConsents.sort(sortByCreatedDate);
 
+	// Load the user's preferred consent TTL (OBP personal data field), falling back
+	// to env / built-in default. Surface seconds + an env-configurable max so the UI
+	// can render only options that won't be rejected by OBP-35020.
+	const ttlField = await getPersonalDataField(token, OPEY_CONSENT_TTL_FIELD);
+	const envDefault = Number(env.OPEY_CONSENT_TTL_SECONDS);
+	const parsed = ttlField ? Number(ttlField.value) : NaN;
+	const currentConsentTtlSeconds: number =
+		Number.isFinite(parsed) && parsed > 0
+			? parsed
+			: Number.isFinite(envDefault) && envDefault > 0
+				? envDefault
+				: DEFAULT_OPEY_CONSENT_TTL_SECONDS;
+	const maxConsentTtlSeconds: number = Number(env.OPEY_CONSENT_TTL_MAX_SECONDS) || 7776000; // 90 days
+
 	return {
 		opeyConsents,
 		otherConsents,
-		activeStatus: status
+		activeStatus: status,
+		currentConsentTtlSeconds,
+		maxConsentTtlSeconds
 	};
 }
 
@@ -176,5 +150,39 @@ export const actions = {
 			success: true,
 			message: 'Consent deleted successfully.'
 		};
+	},
+
+	setConsentTtl: async ({ request, locals }) => {
+		const data = await request.formData();
+		const rawSeconds = data.get('seconds');
+		const seconds = Number(rawSeconds);
+		if (!Number.isFinite(seconds) || seconds <= 0) {
+			return { message: 'Invalid consent duration.' };
+		}
+
+		const max = Number(env.OPEY_CONSENT_TTL_MAX_SECONDS) || 7776000;
+		if (seconds > max) {
+			return { message: `Duration exceeds the configured max (${max}s).` };
+		}
+
+		const token = locals.session.data.oauth?.access_token;
+		if (!token) {
+			return { message: 'No access token found in session.' };
+		}
+
+		try {
+			await setPersonalDataField(token, OPEY_CONSENT_TTL_FIELD, String(Math.floor(seconds)));
+		} catch (err) {
+			logger.error('Error saving consent TTL preference:', err);
+			const errorMessage =
+				err instanceof OBPRequestError
+					? err.message
+					: err instanceof Error
+						? err.message
+						: 'Failed to save consent duration.';
+			return { message: errorMessage };
+		}
+
+		return { success: true, message: 'Consent duration saved.' };
 	}
 } satisfies Actions;

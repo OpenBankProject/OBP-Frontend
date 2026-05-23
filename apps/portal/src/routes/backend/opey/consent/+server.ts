@@ -6,6 +6,7 @@ import { obp_requests } from '$lib/obp/requests';
 import { obpErrorResponse } from '@obp/shared/obp';
 import { env } from '$env/dynamic/private';
 import { deduplicateRoles, pickConsentRole } from '@obp/shared/opey';
+import { getOpeyConsentTtlSeconds } from '$lib/server/userPreferences';
 
 /**
  * POST /backend/opey/consent
@@ -156,13 +157,19 @@ export async function POST(event: RequestEvent) {
 
 		const now = new Date().toISOString().split('.')[0] + 'Z';
 
+		// Per-user TTL preference (OBP personal data field) → env default → built-in 7 days.
+		const consentTtl = await getOpeyConsentTtlSeconds(
+			accessToken,
+			Number(env.OPEY_CONSENT_TTL_SECONDS)
+		);
+
 		const consentBody = {
 			everything: false,
 			entitlements,
 			consumer_id: opeyConsumerId,
 			views: normalizedViews,
 			valid_from: now,
-			time_to_live: 3600 // 1 hour
+			time_to_live: consentTtl
 		};
 
 		logger.info(`Creating role-specific consent with ${pickedRoles.length} roles: ${pickedRoles.join(', ')}`);

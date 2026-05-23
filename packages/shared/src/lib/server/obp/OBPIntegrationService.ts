@@ -110,12 +110,15 @@ export class DefaultOBPIntegrationService implements OBPIntegrationService {
 		const now = new Date().toISOString().split('.')[0] + 'Z';
 
 		const body = {
-			everything: true,
+			// Baseline session consent: authenticates the user with Opey but grants
+			// no elevated access. Specific roles are granted on demand by the
+			// per-tool-call flow (/api/opey/consent).
+			everything: false,
 			entitlements: [],
 			consumer_id: this.opeyConsumerId,
 			views: [],
 			valid_from: now,
-			time_to_live: 3600
+			time_to_live: 18000 // 5 hours
 		};
 
 		const consent = await this.obpRequests.post('/obp/v5.1.0/my/consents/IMPLICIT', body, accessToken);

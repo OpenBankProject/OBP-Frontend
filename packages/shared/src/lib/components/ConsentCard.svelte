@@ -81,13 +81,34 @@
         });
     }
 
-    function formatJwtExpiration(): { formatted: string; isExpired: boolean } {
+    /** Human phrase for a duration, rounded to hours: "5 hours", "less than an hour". */
+    function formatDuration(totalSeconds: number): string {
+        const totalHours = totalSeconds / 3600;
+        if (totalHours < 1) {
+            return 'less than an hour';
+        }
+        if (totalHours < 24) {
+            const hours = Math.round(totalHours);
+            return `${hours} ${hours === 1 ? 'hour' : 'hours'}`;
+        }
+        const days = Math.round(totalHours / 24);
+        return `${days} ${days === 1 ? 'day' : 'days'}`;
+    }
+
+    function formatJwtExpiration(): {
+        formatted: string;
+        relative: string;
+        isExpired: boolean;
+    } {
         if (!payload.exp) {
-            return { formatted: 'Not available', isExpired: true };
+            return { formatted: 'Not available', relative: '', isExpired: true };
         }
 
-        const expDate = new Date(payload.exp * 1000);
-        const isExpired = expDate < new Date();
+        const expMs = payload.exp * 1000;
+        const expDate = new Date(expMs);
+        // Computed once at render — no ticking timer. Accuracy is hour-level.
+        const diffSeconds = Math.round((expMs - Date.now()) / 1000);
+        const isExpired = diffSeconds <= 0;
 
         return {
             formatted: expDate.toLocaleDateString(undefined, {
@@ -98,6 +119,9 @@
                 minute: '2-digit',
                 timeZoneName: 'short'
             }),
+            relative: isExpired
+                ? `expired ${formatDuration(-diffSeconds)} ago`
+                : `expires in ${formatDuration(diffSeconds)}`,
             isExpired
         };
     }
@@ -109,6 +133,7 @@
             case 'PENDING':
                 return 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/20 dark:text-yellow-400';
             case 'REJECTED':
+            case 'REVOKED':
                 return 'text-red-600 bg-red-100 dark:bg-red-900/20 dark:text-red-400';
             case 'EXPIRED':
                 return 'text-gray-600 bg-gray-100 dark:bg-gray-900/20 dark:text-gray-400';
@@ -116,6 +141,8 @@
                 return 'text-gray-600 bg-gray-100 dark:bg-gray-900/20 dark:text-gray-400';
         }
     }
+
+    const isRevoked = $derived(consent.status?.toUpperCase() === 'REVOKED');
 
     async function copyToClipboard(text: string, label: string) {
         try {
@@ -142,7 +169,9 @@
                 <span class={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(consent.status)}`}>
                     {consent.status}
                 </span>
-                {#if jwtExpInfo.isExpired}
+                {#if isRevoked}
+                    <!-- consent.status already shows REVOKED in red; a JWT-active badge here would contradict it -->
+                {:else if jwtExpInfo.isExpired}
                     <span class="inline-flex rounded-full bg-red-100 px-2 py-1 text-xs font-medium text-red-600 dark:bg-red-900/20 dark:text-red-400">
                         JWT Expired
                     </span>
@@ -212,10 +241,24 @@
         {/if}
 
         <!-- JWT Expiration -->
-        <div class="flex items-center justify-between">
+        <div class="flex items-start justify-between">
             <span class="font-medium text-gray-700 dark:text-gray-300">JWT Expires:</span>
-            <span class={jwtExpInfo.isExpired ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}>
-                {jwtExpInfo.formatted}
+            <span class="flex flex-col items-end text-right">
+                <span class={isRevoked
+                    ? 'text-gray-500 line-through dark:text-gray-400'
+                    : jwtExpInfo.isExpired
+                        ? 'text-red-600 dark:text-red-400'
+                        : 'text-green-600 dark:text-green-400'}>
+                    {jwtExpInfo.formatted}
+                </span>
+                {#if jwtExpInfo.relative}
+                    <span
+                        class="text-xs text-gray-500 dark:text-gray-400"
+                        data-testid="consent-jwt-expires-relative"
+                    >
+                        {jwtExpInfo.relative}
+                    </span>
+                {/if}
             </span>
         </div>
 
@@ -300,13 +343,14 @@
     </div>
 
     <!-- Delete Action -->
-    {#if showDeleteButton}
+    {#if showDeleteButton && !isRevoked}
         <div class="mt-4 border-t pt-4 dark:border-gray-700">
             <form method="post" action="?/delete">
                 <input type="hidden" name="consent_id" value={consent.consent_id} />
                 <button
                     type="submit"
                     class="btn preset-filled-error-500 text-sm hover:preset-filled-error-600"
+                    data-testid="consent-delete-button"
                 >
                     Delete Consent
                 </button>
