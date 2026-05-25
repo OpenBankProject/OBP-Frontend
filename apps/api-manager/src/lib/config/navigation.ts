@@ -43,6 +43,7 @@ import {
   Zap,
   ShieldOff,
   MessageSquare,
+  Mail,
 } from "@lucide/svelte";
 import { env } from "$env/dynamic/public";
 
@@ -143,6 +144,11 @@ function buildSystemItems(): NavigationItem[] {
       href: "/system/migrations",
       label: "Migrations",
       iconComponent: GitBranch,
+    },
+    {
+      href: "/system/self-test-emails",
+      label: "Self Test Email",
+      iconComponent: Mail,
     },
     {
       href: "/system/webui-props",

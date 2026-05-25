@@ -126,6 +126,9 @@ export const SITE_MAP: Record<string, PageRoleConfig> = {
   "/system/webui-props/[id]/delete": {
     required: [{ role: "CanDeleteWebUiProps" }],
   },
+  "/system/self-test-emails": {
+    required: [{ role: "CanCreateTestEmail" }],
+  },
   "/system/signal-channels": {
     required: [],
   },
