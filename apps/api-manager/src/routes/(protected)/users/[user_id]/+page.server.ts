@@ -16,6 +16,7 @@ interface UserDetail {
   last_login_date?: string;
   is_locked?: boolean;
   is_deleted?: boolean;
+  email_validated?: boolean;
   entitlements?: any;
 }
 

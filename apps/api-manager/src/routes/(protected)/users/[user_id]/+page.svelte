@@ -111,7 +111,16 @@
           </div>
           <div class="info-item">
             <div class="info-label">Email</div>
-            <div class="info-value">{user.email || "N/A"}</div>
+            <div class="info-value">
+              {user.email || "N/A"}
+              {#if user.email_validated === true && user.user_id}
+                <a
+                  href="/users/{encodeURIComponent(user.user_id)}/reset-password"
+                  class="action-link"
+                  data-testid="user-send-reset-password-link"
+                >Send Password Reset Email</a>
+              {/if}
+            </div>
           </div>
           <div class="info-item">
             <div class="info-label">Username</div>
@@ -154,6 +163,26 @@
                 <span class="badge badge-error">Yes</span>
               {:else}
                 <span class="badge badge-success">No</span>
+              {/if}
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Email Validated</div>
+            <div class="info-value" data-testid="user-email-validated">
+              {#if user.email_validated === true}
+                <span class="badge badge-success">Yes</span>
+              {:else if user.email_validated === false}
+                <span class="badge badge-error">No</span>
+                {#if user.user_id}
+                  <a
+                    href="/users/{encodeURIComponent(user.user_id)}/validate-email"
+                    class="action-link"
+                    style="color: #059669;"
+                    data-testid="user-send-validation-email-link"
+                  >Send Validation Email</a>
+                {/if}
+              {:else}
+                <span class="badge badge-default">Unknown</span>
               {/if}
             </div>
           </div>

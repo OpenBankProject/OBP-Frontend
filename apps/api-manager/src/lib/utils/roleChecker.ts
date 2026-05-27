@@ -307,6 +307,12 @@ export const SITE_MAP: Record<string, PageRoleConfig> = {
   "/users/[provider]/[username]/lock": {
     required: [{ role: "CanLockUser" }],
   },
+  "/users/[user_id]/validate-email": {
+    required: [{ role: "CanGetAnyUser" }],
+  },
+  "/users/[user_id]/reset-password": {
+    required: [{ role: "CanCreateResetPasswordUrl" }],
+  },
 
   // ── Integration ─────────────────────────────────────
   "/integration/method-routings": {
