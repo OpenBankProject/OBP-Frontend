@@ -181,12 +181,15 @@
     const target = event.target as HTMLInputElement;
     searchQuery = target.value;
 
-    // Clear previous timer
+    if (selectedUserId) {
+      selectedUserId = "";
+      selectedUsername = "";
+    }
+
     if (debounceTimer) {
       clearTimeout(debounceTimer);
     }
 
-    // Debounce search
     debounceTimer = window.setTimeout(() => {
       searchUsers(searchQuery);
     }, 300);
@@ -242,7 +245,12 @@
       <Search class="search-icon" size={18} />
       <input
         type="text"
+        name="user-search"
+        data-testid="user-search-input"
+        data-state={selectedUserId ? "selected" : searchQuery.trim() ? "unselected" : "empty"}
         class="search-input"
+        class:search-input--unselected={!selectedUserId && !!searchQuery.trim()}
+        class:search-input--selected={!!selectedUserId}
         placeholder="Enter username, email, or user ID..."
         value={searchQuery}
         oninput={handleSearchInput}
@@ -269,8 +277,10 @@
     </div>
 
     {#if searchQuery.trim() && !selectedUserId}
-      <div class="search-type-indicator">
-        {#if selectedProvider && searchType === "username"}
+      <div class="search-type-indicator" data-testid="user-search-hint">
+        {#if showResults && searchResults.length > 0}
+          Click a user below to select.
+        {:else if selectedProvider && searchType === "username"}
           Searching by provider ({selectedProvider}) + username
         {:else}
           {searchTypeLabels[searchType]}
@@ -413,6 +423,36 @@
     outline: none;
     border-color: #667eea;
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+
+  .search-input--unselected {
+    border-color: #f59e0b;
+    background: #fffbeb;
+  }
+
+  .search-input--unselected:focus {
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+  }
+
+  :global([data-mode="dark"]) .search-input--unselected {
+    border-color: #f59e0b;
+    background: rgba(245, 158, 11, 0.1);
+  }
+
+  .search-input--selected {
+    border-color: #10b981;
+    background: #f0fdf4;
+  }
+
+  .search-input--selected:focus {
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+  }
+
+  :global([data-mode="dark"]) .search-input--selected {
+    border-color: #10b981;
+    background: rgba(16, 185, 129, 0.1);
   }
 
   .search-input:disabled {

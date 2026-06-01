@@ -9,32 +9,38 @@ export interface OBPBank {
   attributes?: { name: string; value: string }[];
 }
 
+// OBP returns `jwt_payload` as a JSON string in some responses and as a
+// parsed object in others, so the type allows both. ConsentCard self-normalises.
+export interface OBPConsentJwtPayload {
+    createdByUserId?: string;
+    sub?: string;
+    iss?: string;
+    aud?: string;
+    jti?: string;
+    iat?: number;
+    nbf?: number;
+    exp?: number;
+    request_headers?: any[];
+    entitlements?: any[];
+    views?: any[];
+    [k: string]: any;
+}
+
 export interface OBPConsent {
-    consent_reference_id: string;
+    consent_reference_id?: string;
     consent_id: string;
     consumer_id: string;
-    created_by_user_id: string;
+    created_by_user_id?: string;
     status: string;
     created_date?: string;
-    last_action_date: string;
-    last_usage_date: string;
+    last_action_date?: string;
+    last_usage_date?: string;
     everything?: boolean;
     jwt: string;
-    jwt_payload: {
-        createdByUserId: string;
-        sub: string;
-        iss: string;
-        aud: string;
-        jti: string;
-        iat: number;
-        nbf: number;
-        exp: number;
-        request_headers: any[];
-        entitlements: any[];
-        views: any[];
-    };
-    api_standard: string;
-    api_version: string;
+    jwt_expires_at?: string;
+    jwt_payload: string | OBPConsentJwtPayload;
+    api_standard?: string;
+    api_version?: string;
 }
 
 export interface OBPConsentInfo {

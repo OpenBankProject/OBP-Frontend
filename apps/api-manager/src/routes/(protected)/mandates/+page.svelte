@@ -4,6 +4,84 @@
   import { trackedFetch } from "$lib/utils/trackedFetch";
   import { currentBank } from "$lib/stores/currentBank.svelte";
   import { pageDataSummary } from "$lib/stores/pageDataSummary.svelte";
+  import MissingRoleAlert from "$lib/components/MissingRoleAlert.svelte";
+
+  interface AccountListItem {
+    id: string;
+    label?: string;
+  }
+  interface CustomerListItem {
+    customer_id: string;
+    customer_number?: string;
+    legal_name?: string;
+  }
+
+  let availableAccounts = $state<AccountListItem[]>([]);
+  let availableCustomers = $state<CustomerListItem[]>([]);
+  let accountsListError = $state<string | null>(null);
+  let customersListError = $state<string | null>(null);
+  let accountsListLoading = $state(false);
+  let customersListLoading = $state(false);
+
+  async function fetchAvailableAccounts(bankId: string) {
+    if (!bankId) { availableAccounts = []; return; }
+    accountsListLoading = true;
+    accountsListError = null;
+    try {
+      const res = await trackedFetch(`/proxy/obp/v6.0.0/banks/${encodeURIComponent(bankId)}/accounts`);
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.message ?? `HTTP ${res.status}`);
+      }
+      const data = await res.json();
+      availableAccounts = data.accounts || [];
+    } catch (err) {
+      accountsListError = err instanceof Error ? err.message : String(err);
+      availableAccounts = [];
+    } finally {
+      accountsListLoading = false;
+    }
+  }
+
+  async function fetchAvailableCustomers(bankId: string) {
+    if (!bankId) { availableCustomers = []; return; }
+    customersListLoading = true;
+    customersListError = null;
+    try {
+      const res = await trackedFetch(`/proxy/obp/v6.0.0/banks/${encodeURIComponent(bankId)}/customers?limit=200`);
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.message ?? `HTTP ${res.status}`);
+      }
+      const data = await res.json();
+      availableCustomers = data.customers || [];
+    } catch (err) {
+      customersListError = err instanceof Error ? err.message : String(err);
+      availableCustomers = [];
+    } finally {
+      customersListLoading = false;
+    }
+  }
+
+  function parseMissingRole(msg: string | null) {
+    if (!msg) return null;
+    const m = msg.match(/OBP-(\d+):.*missing one or more roles:\s*(.+)/i);
+    if (!m) return null;
+    return {
+      code: m[1],
+      roles: m[2].split(",").map((r) => r.trim()),
+      message: msg,
+    };
+  }
+
+  let accountsListMissingRole = $derived(parseMissingRole(accountsListError));
+  let customersListMissingRole = $derived(parseMissingRole(customersListError));
+
+  $effect(() => {
+    const bankId = currentBank.bankId;
+    fetchAvailableAccounts(bankId);
+    fetchAvailableCustomers(bankId);
+  });
 
   // Read query params for pre-population
   let qAccountId = $derived(page.url.searchParams.get("account_id") || "");
@@ -201,20 +279,58 @@
           <p>Select a bank using the bank selector to search for mandates.</p>
         </div>
       {:else}
+        {#if accountsListMissingRole}
+          <MissingRoleAlert
+            roles={accountsListMissingRole.roles}
+            errorCode={accountsListMissingRole.code}
+            message={accountsListMissingRole.message}
+            bankId={currentBank.bankId}
+          />
+        {:else if accountsListError}
+          <div class="list-warning" data-testid="accounts-list-error">
+            Could not load accounts list: {accountsListError}
+          </div>
+        {/if}
+        {#if customersListMissingRole}
+          <MissingRoleAlert
+            roles={customersListMissingRole.roles}
+            errorCode={customersListMissingRole.code}
+            message={customersListMissingRole.message}
+            bankId={currentBank.bankId}
+          />
+        {:else if customersListError}
+          <div class="list-warning" data-testid="customers-list-error">
+            Could not load customers list: {customersListError}
+          </div>
+        {/if}
+
         <!-- Search forms -->
         <div class="search-forms">
           <form class="search-row" onsubmit={(e) => { e.preventDefault(); handleAccountSearch(); }} data-testid="account-search-form">
             <div class="search-field">
-              <label for="account-id-search" class="search-label">Account ID</label>
+              <label for="account-id-search" class="search-label">
+                Account
+                {#if accountsListLoading}
+                  <Loader2 size={12} class="spinner-icon" />
+                {:else if availableAccounts.length > 0}
+                  <span class="list-count">({availableAccounts.length} at bank)</span>
+                {/if}
+              </label>
               <input
                 type="text"
                 id="account-id-search"
                 name="account_id"
                 class="search-input"
                 data-testid="account-id-input"
-                placeholder="Enter account ID"
+                list="account-list"
+                placeholder={availableAccounts.length > 0 ? "Pick or type an account ID" : "Enter account ID"}
                 bind:value={accountIdInput}
               />
+              <datalist id="account-list">
+                {#each availableAccounts as a}
+                  <option value={a.id}>{a.label ? `${a.label} (${a.id})` : a.id}</option>
+                {/each}
+              </datalist>
             </div>
             <button type="submit" class="btn-search" data-testid="search-by-account" disabled={!accountIdInput.trim() || loading}>
               <Search size={14} />
@@ -228,16 +344,31 @@
 
           <form class="search-row" onsubmit={(e) => { e.preventDefault(); handleCustomerSearch(); }} data-testid="customer-search-form">
             <div class="search-field">
-              <label for="customer-id-search" class="search-label">Customer ID</label>
+              <label for="customer-id-search" class="search-label">
+                Customer
+                {#if customersListLoading}
+                  <Loader2 size={12} class="spinner-icon" />
+                {:else if availableCustomers.length > 0}
+                  <span class="list-count">({availableCustomers.length} at bank)</span>
+                {/if}
+              </label>
               <input
                 type="text"
                 id="customer-id-search"
                 name="customer_id"
                 class="search-input"
                 data-testid="customer-id-input"
-                placeholder="Enter customer ID"
+                list="customer-list"
+                placeholder={availableCustomers.length > 0 ? "Pick or type a customer ID" : "Enter customer ID"}
                 bind:value={customerIdInput}
               />
+              <datalist id="customer-list">
+                {#each availableCustomers as c}
+                  <option value={c.customer_id}>
+                    {(c.legal_name || c.customer_number || c.customer_id) + (c.legal_name ? ` (${c.customer_id})` : "")}
+                  </option>
+                {/each}
+              </datalist>
             </div>
             <button type="submit" class="btn-search" data-testid="search-by-customer" disabled={!customerIdInput.trim() || loading}>
               <Search size={14} />
@@ -440,10 +571,45 @@
     color: #6b7280;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
   }
 
   :global([data-mode="dark"]) .search-label {
     color: var(--color-surface-400);
+  }
+
+  .search-label :global(.spinner-icon) {
+    animation: spin 1s linear infinite;
+  }
+
+  .list-count {
+    font-weight: 400;
+    font-size: 0.7rem;
+    color: #9ca3af;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  :global([data-mode="dark"]) .list-count {
+    color: var(--color-surface-500);
+  }
+
+  .list-warning {
+    padding: 0.625rem 0.875rem;
+    margin-bottom: 0.75rem;
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 6px;
+    color: #92400e;
+    font-size: 0.813rem;
+  }
+
+  :global([data-mode="dark"]) .list-warning {
+    background: rgba(245, 158, 11, 0.1);
+    border-color: rgba(245, 158, 11, 0.3);
+    color: rgb(var(--color-warning-300));
   }
 
   .search-input {

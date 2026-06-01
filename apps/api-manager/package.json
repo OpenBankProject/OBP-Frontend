@@ -45,7 +45,7 @@
     "prettier": "^3.4.2",
     "prettier-plugin-svelte": "^3.3.3",
     "prettier-plugin-tailwindcss": "^0.6.11",
-    "svelte": "5.33.2",
+    "svelte": "^5.55.5",
     "svelte-check": "^4.0.0",
     "tailwindcss": "^4.0.0",
     "typescript": "^5.0.0",
@@ -56,6 +56,7 @@
   "dependencies": {
     "@grpc/grpc-js": "^1.14.3",
     "@grpc/proto-loader": "^0.8.0",
+    "@internationalized/date": "^3.12.1",
     "@langchain/core": "^0.3.57",
     "@lucide/svelte": "^0.513.0",
     "@obp/shared": "*",

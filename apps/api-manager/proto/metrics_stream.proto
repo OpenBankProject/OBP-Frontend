@@ -13,6 +13,7 @@ message StreamMetricsRequest {
   string url_substring = 4;
   string implemented_by_partial_function = 5;
   string app_name = 6;
+  string consent_reference_id = 7;
 }
 
 message MetricEvent {
@@ -33,4 +34,5 @@ message MetricEvent {
   string target_ip = 15;
   string api_instance_id = 16;
   string operation_id = 17;
+  string consent_reference_id = 18;
 }

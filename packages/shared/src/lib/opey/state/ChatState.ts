@@ -2,9 +2,16 @@ import { createLogger } from '$shared/utils/logger';
 const logger = createLogger('ChatState');
 import type { BaseMessage, ToolMessage } from '../types';
 
+export interface TokenUsage {
+	inputTokens: number;
+	outputTokens: number;
+	totalTokens: number;
+}
+
 export interface ChatStateSnapshot {
 	threadId: string;
 	messages: BaseMessage[];
+	tokenUsage: TokenUsage | null;
 }
 
 export class ChatState {
@@ -12,6 +19,8 @@ export class ChatState {
 	private messages: BaseMessage[] = [];
 	private subscribers: Array<(snapshot: ChatStateSnapshot) => void> = [];
 	private sessionStartTime: Date = new Date();
+	// Token usage from the most recent assistant turn (Anthropic's real counts).
+	private tokenUsage: TokenUsage | null = null;
 
 	constructor(threadId?: string) {
 		this.threadId = threadId || crypto.randomUUID(); // Generate a new thread ID if not provided
@@ -28,7 +37,21 @@ export class ChatState {
 		this.threadId = newId;
 		this.messages = [];
 		this.sessionStartTime = new Date();
+		this.tokenUsage = null;
 		this.emit(); // Notify subscribers about the change
+	}
+
+	/** Record token usage from the latest assistant turn (raw counts from the backend). */
+	setTokenUsage(usage?: { input_tokens?: number; output_tokens?: number; total_tokens?: number }): void {
+		if (!usage) return;
+		const inputTokens = usage.input_tokens ?? 0;
+		const outputTokens = usage.output_tokens ?? 0;
+		this.tokenUsage = {
+			inputTokens,
+			outputTokens,
+			totalTokens: usage.total_tokens ?? inputTokens + outputTokens
+		};
+		this.emit();
 	}
 
 	/** synchronizes thread_id with backend without clearing messages */
@@ -225,7 +248,11 @@ export class ChatState {
 		operationId: string | null,
 		requiredRoles: string[],
 		toolCallCount: number,
-		bankId?: string
+		bankId?: string,
+		accountId?: string,
+		viewId?: string,
+		requiresViewAccess: boolean = false,
+		isUserScoped: boolean = false
 	): void {
 		const toolMessage = this.getToolMessageByCallId(toolCallId);
 
@@ -236,6 +263,10 @@ export class ChatState {
 			toolMessage.consentRequiredRoles = requiredRoles;
 			toolMessage.consentToolCallCount = toolCallCount;
 			if (bankId) toolMessage.consentBankId = bankId;
+			if (accountId) toolMessage.consentAccountId = accountId;
+			if (viewId) toolMessage.consentViewId = viewId;
+			toolMessage.consentRequiresViewAccess = requiresViewAccess;
+			toolMessage.consentIsUserScoped = isUserScoped;
 		} else {
 			logger.warn(`No tool message found for consent request: ${toolCallId}, creating new one`);
 			this.addToolMessage({
@@ -252,7 +283,11 @@ export class ChatState {
 				consentOperationId: operationId ?? undefined,
 				consentRequiredRoles: requiredRoles,
 				consentToolCallCount: toolCallCount,
-				consentBankId: bankId
+				consentBankId: bankId,
+				consentAccountId: accountId,
+				consentViewId: viewId,
+				consentRequiresViewAccess: requiresViewAccess,
+				consentIsUserScoped: isUserScoped
 			} as ToolMessage);
 		}
 
@@ -387,7 +422,7 @@ export class ChatState {
 	subscribe(fn: (msgs: ChatStateSnapshot) => void): void {
 		this.subscribers.push(fn);
 		logger.debug('ChatState: Subscribed to messages');
-		fn({ threadId: this.threadId, messages: this.messages }); // Send current state immediately
+		fn({ threadId: this.threadId, messages: this.messages, tokenUsage: this.tokenUsage }); // Send current state immediately
 	}
 
 	/**
@@ -451,7 +486,8 @@ export class ChatState {
 	private emit(): void {
 		const snapshot = {
 			threadId: this.threadId,
-			messages: this.messages
+			messages: this.messages,
+			tokenUsage: this.tokenUsage
 		};
 		this.subscribers.forEach((fn) => fn(snapshot));
 	}

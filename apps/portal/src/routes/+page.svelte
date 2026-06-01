@@ -1,9 +1,10 @@
 <script lang="ts">
-	import { OpeyChat } from '@obp/shared/components';
+	import { OpeyChat, CurrentBankPicker, AccountScopePicker } from '@obp/shared/components';
 	import type { OpeyChatOptions, SuggestedQuestion } from '@obp/shared/components';
     import { CheckCheck, Layers, Rocket, UserLock, HelpCircle } from '@lucide/svelte';
 	import { env } from '$env/dynamic/public';
 	import { page } from '$app/stores';
+	import { currentBank } from '$lib/stores/currentBank.svelte';
 
 	let { data } = $props();
 
@@ -54,6 +55,7 @@
 
 
 	let opeyChatOptions: Partial<OpeyChatOptions> = $derived({
+		baseUrl: env.PUBLIC_OPEY_BASE_URL,
 		displayHeader: false,
 		currentlyActiveUserName: name,
 		suggestedQuestions: suggestedQuestions,
@@ -66,8 +68,8 @@
 </script>
 
 <div class="flex h-full w-full items-start justify-center px-4 pb-4">
-	<div class="h-full w-full max-w-4xl xl:max-w-6xl 2xl:max-w-7xl">
-		<OpeyChat {opeyChatOptions} userAuthenticated={isAuthenticated}>
+	<div class="flex h-full w-full max-w-4xl flex-col gap-3 xl:max-w-6xl 2xl:max-w-7xl">
+		<OpeyChat {opeyChatOptions} userAuthenticated={isAuthenticated} currentBankId={currentBank.bankId}>
 			{#snippet splash()}
 				<div class="flex w-2/3 flex-col items-center justify-center text-center">
 					<h1 class="h3 text-surface-700-300 mb-2">{welcomeTitle}</h1>
@@ -75,6 +77,14 @@
 					<p class="text-surface-700-300 mb-7 text-sm">
 						{welcomeDescription}
 					</p>
+				</div>
+			{/snippet}
+			{#snippet belowSuggestions()}
+				<div class="flex flex-col items-center gap-2 px-4 pb-2 text-surface-950-50">
+					<CurrentBankPicker store={currentBank} />
+					{#if isAuthenticated}
+						<AccountScopePicker bankStore={currentBank} />
+					{/if}
 				</div>
 			{/snippet}
 		</OpeyChat>

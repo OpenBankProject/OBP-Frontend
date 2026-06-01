@@ -43,6 +43,7 @@ import {
   Zap,
   ShieldOff,
   MessageSquare,
+  Mail,
 } from "@lucide/svelte";
 import { env } from "$env/dynamic/public";
 
@@ -145,6 +146,11 @@ function buildSystemItems(): NavigationItem[] {
       iconComponent: GitBranch,
     },
     {
+      href: "/system/self-test-emails",
+      label: "Self Test Email",
+      iconComponent: Mail,
+    },
+    {
       href: "/system/webui-props",
       label: "WebUI Props",
       iconComponent: Settings,
@@ -236,8 +242,13 @@ function buildMetricsItems(): NavigationItem[] {
   const items: NavigationItem[] = [
     { href: "/metrics", label: "API Metrics", iconComponent: BarChart3 },
     {
-      href: "/aggregate-metrics",
-      label: "Aggregate Metrics",
+      href: "/aggregate-metrics-live",
+      label: "Live Aggregate Metrics",
+      iconComponent: BarChart3,
+    },
+    {
+      href: "/aggregate-metrics-trends",
+      label: "Aggregate Metrics Over Time",
       iconComponent: BarChart3,
     },
     {
@@ -737,7 +748,7 @@ export const navSections: NavigationSection[] = [
   { id: "system", label: "System", iconComponent: Server, items: systemItems, basePaths: ["/system"] },
   { id: "signals", label: "Signals", iconComponent: Radio, items: signalsItems, basePaths: ["/system/signal-publish", "/system/signal-channels", "/system/signal-channels-stats"] },
   { id: "integration", label: "Integration", iconComponent: Plug, items: integrationItems, basePaths: ["/integration"] },
-  { id: "metrics", label: "Metrics", iconComponent: BarChart3, items: metricsItems, basePaths: ["/metrics", "/aggregate-metrics", "/connector-metrics", "/connector-traces", "/connector-counts"] },
+  { id: "metrics", label: "Metrics", iconComponent: BarChart3, items: metricsItems, basePaths: ["/metrics", "/aggregate-metrics", "/aggregate-metrics-live", "/aggregate-metrics-trends", "/connector-metrics", "/connector-traces", "/connector-counts"] },
   { id: "abac", label: "ABAC", iconComponent: Lock, items: abacItems, basePaths: ["/abac"] },
   { id: "products", label: "API Products", iconComponent: Package, items: productsItems, basePaths: ["/products"] },
   { id: "financial-products", label: "Financial Products", iconComponent: Banknote, items: financialProductsItems, basePaths: ["/products/financial", "/products/collections"] },

@@ -11,7 +11,12 @@ export class RestChatService implements ChatService {
 
 	constructor(
 		private baseUrl: string,
-		private auth: AuthStrategy = new CookieAuthStrategy()
+		private auth: AuthStrategy = new CookieAuthStrategy(),
+		/**
+		 * Optional provider of extra per-message context (e.g. the UI-selected bank).
+		 * Called at send time so it always reflects the current value.
+		 */
+		private contextProvider?: () => Record<string, unknown>
 	) {
 
 		logger.info("Initialized Opey Chat with baseUrl:", baseUrl)
@@ -118,12 +123,16 @@ export class RestChatService implements ChatService {
 	}
 
 	async send(msg: UserMessage, threadId?: string): Promise<void> {
+		// Extra context (e.g. current_bank_id) resolved fresh at send time.
+		const context = this.contextProvider?.() ?? {};
+
 		// Create StreamInput with thread_id and correlation_id included
 		const streamInput = {
 			message: msg.message,
 			thread_id: threadId,
 			correlation_id: msg.correlationId, // Add correlation ID for tracking
-			stream_tokens: true
+			stream_tokens: true,
+			...context
 		};
 
 		// Create new AbortController for this request
@@ -265,7 +274,8 @@ export class RestChatService implements ChatService {
 			case 'assistant_complete':
 				this.streamEventCallback?.({
 					type: 'assistant_complete',
-					messageId: eventData.message_id
+					messageId: eventData.message_id,
+					usage: eventData.usage || undefined
 				});
 				break;
 			case 'tool_start':
@@ -346,7 +356,11 @@ export class RestChatService implements ChatService {
 					requiredRoles: eventData.required_roles || [],
 					timestamp: eventData.timestamp || Date.now() / 1000,
 					toolCallCount: eventData.tool_call_count ?? 1,
-					bankId: eventData.bank_id || null
+					bankId: eventData.bank_id || null,
+					accountId: eventData.account_id || null,
+					viewId: eventData.view_id || null,
+					requiresViewAccess: eventData.requires_view_access ?? false,
+					isUserScoped: eventData.is_user_scoped ?? false
 				});
 				break;
 			default:

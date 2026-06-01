@@ -12,6 +12,7 @@ export interface HealthCheckOptions {
     expectedStatus?: number[]; // Expected HTTP status code for a healthy response
     body?: any; // Optional body for POST requests
     serviceName: string; // Name of the service being checked
+    details?: Record<string, string | number>; // Static metadata surfaced on the status page (e.g. resolved URLs)
 }
 
 export class HealthCheckService {
@@ -36,6 +37,7 @@ export class HealthCheckService {
         this.state.setSnapshot({
             service: this.options.serviceName,
             status: 'unknown',
+            ...(this.options.details ? { details: this.options.details } : {})
         })
 
         logger.info(`HealthCheckService for ${this.options.serviceName} initialized. First check in ${this.options.interval} ms`);

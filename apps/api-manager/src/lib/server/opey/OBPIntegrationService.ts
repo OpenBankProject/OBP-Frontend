@@ -5,6 +5,7 @@ import type { Session } from 'svelte-kit-sessions';
 import { obp_requests } from '$lib/obp/requests';
 import type { OBPConsent, OBPConsentInfo } from '$lib/obp/types';
 import { env } from '$env/dynamic/private';
+import { capConsentTtlSeconds } from '@obp/shared/server/obp';
 
 export interface OBPIntegrationService {
   getOrCreateOpeyConsent(session: Session): Promise<OBPConsent>;
@@ -107,13 +108,31 @@ export class DefaultOBPIntegrationService implements OBPIntegrationService {
 	private async createImplicitConsent(accessToken: string): Promise<OBPConsent> {
 		const now = new Date().toISOString().split('.')[0] + 'Z';
 
+		// Cap the desired TTL against OBP's `consents.max_time_to_live` (via the
+		// public /obp/v7.0.0/consents/config endpoint) to avoid OBP-35020 on
+		// consent creation. The helper returns the desired value unchanged when
+		// the endpoint isn't available (older OBP versions).
+		const desiredTtl = 18000; // 5 hours
+		const { ttl, max: serverMaxTtl, capped: ttlWasCapped } = await capConsentTtlSeconds(
+			desiredTtl,
+			(p, t) => obp_requests.get(p, t)
+		);
+		if (ttlWasCapped) {
+			logger.info(
+				`createImplicitConsent: TTL capped to OBP max — requested ${desiredTtl}s, server max ${serverMaxTtl}s, using ${ttl}s`
+			);
+		}
+
 		const body = {
-			everything: true,
+			// Baseline session consent: authenticates the user with Opey but grants
+			// no elevated access. Specific roles are granted on demand by the
+			// per-tool-call flow (/backend/opey/consent).
+			everything: false,
 			entitlements: [],
 			consumer_id: this.opeyConsumerId,
 			views: [],
 			valid_from: now,
-			time_to_live: 3600
+			time_to_live: ttl
 		};
 
 		const consent = await obp_requests.post('/obp/v5.1.0/my/consents/IMPLICIT', body, accessToken);
@@ -125,10 +144,12 @@ export class DefaultOBPIntegrationService implements OBPIntegrationService {
 	}
 
 	private isConsentExpired(consent: any): boolean {
-		const exp = consent.jwt_payload?.exp;
-		if (!exp) return true;
-		const now = Math.floor(Date.now() / 1000);
-		return exp < now;
+		// OBP returns `jwt_payload` as a JSON string in this listing, so reading
+		// `.exp` off it silently yields undefined. Use the dedicated
+		// `jwt_expires_at` field (ISO timestamp) instead — that's what makes
+		// reuse via checkExistingOpeyConsent() actually work.
+		if (!consent.jwt_expires_at) return true;
+		return new Date(consent.jwt_expires_at) < new Date();
 	}
 }
 

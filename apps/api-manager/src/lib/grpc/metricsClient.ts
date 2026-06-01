@@ -56,6 +56,7 @@ export interface MetricEventShape {
   target_ip: string;
   api_instance_id: string;
   operation_id: string;
+  consent_reference_id: string;
 }
 
 export interface MetricsStreamFilters {
@@ -65,6 +66,7 @@ export interface MetricsStreamFilters {
   url_substring?: string;
   implemented_by_partial_function?: string;
   app_name?: string;
+  consent_reference_id?: string;
 }
 
 export function streamMetrics(filters: MetricsStreamFilters, accessToken?: string) {
@@ -82,6 +84,7 @@ export function streamMetrics(filters: MetricsStreamFilters, accessToken?: strin
     url_substring: filters.url_substring || "",
     implemented_by_partial_function: filters.implemented_by_partial_function || "",
     app_name: filters.app_name || "",
+    consent_reference_id: filters.consent_reference_id || "",
   };
   return client.StreamMetrics(request, metadata);
 }
@@ -105,5 +108,6 @@ export function formatMetricEvent(event: any): MetricEventShape {
     target_ip: event.target_ip,
     api_instance_id: event.api_instance_id,
     operation_id: event.operation_id,
+    consent_reference_id: event.consent_reference_id,
   };
 }

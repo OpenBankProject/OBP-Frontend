@@ -22,6 +22,7 @@
       duration: string;
       include_app_names: string;
       http_status_code: string;
+      consent_reference_id: string;
     };
     autoRefresh?: string;
     onFieldChange?: () => void;
@@ -138,6 +139,9 @@
     <label class="qf-inline"><span>Fn</span>
       <input type="text" bind:value={queryForm.implemented_by_partial_function} onblur={handleFieldChange} onchange={handleFieldChange} placeholder="partial fn" name="implemented_by_partial_function" />
     </label>
+    <label class="qf-inline"><span>Consent Ref</span>
+      <input type="text" bind:value={queryForm.consent_reference_id} onblur={handleFieldChange} onchange={handleFieldChange} placeholder="ID" name="consent_reference_id" data-testid="metric-filter-consent-reference-id" />
+    </label>
   </div>
 
   <!-- Row 3: extra filters -->
@@ -146,8 +150,11 @@
       <label class="qf-inline"><span>Apps</span>
         <input type="text" bind:value={queryForm.include_app_names} onblur={handleFieldChange} onchange={handleFieldChange} placeholder="csv" name="include_app_names" />
       </label>
-      <label class="qf-inline"><span>User</span>
-        <input type="text" bind:value={queryForm.username} onblur={handleFieldChange} onchange={handleFieldChange} placeholder="ID" name="username" />
+      <label class="qf-inline"><span>User ID</span>
+        <input type="text" bind:value={queryForm.user_id} onblur={handleFieldChange} onchange={handleFieldChange} placeholder="user_id" name="user_id" />
+      </label>
+      <label class="qf-inline"><span>Username</span>
+        <input type="text" bind:value={queryForm.username} onblur={handleFieldChange} onchange={handleFieldChange} placeholder="username" name="username" />
       </label>
       <label class="qf-inline qf-sm"><span>Ver</span>
         <input type="text" bind:value={queryForm.implemented_in_version} onblur={handleFieldChange} onchange={handleFieldChange} placeholder="ver" name="implemented_in_version" />
@@ -221,7 +228,6 @@
     font-size: 0.8rem;
     font-weight: 500;
     white-space: nowrap;
-    user-select: none;
   }
 
   :global([data-mode="dark"]) .qf-inline span {

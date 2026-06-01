@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Accordion } from '@skeletonlabs/skeleton-svelte';
 	import { type SessionData } from 'svelte-kit-sessions';
-	import ConsentCard from '$lib/components/ConsentCard.svelte';
+	import { ConsentCard } from '@obp/shared/components';
 	import { toast } from '@obp/shared/utils';
 	import { currentBank } from '$lib/stores/currentBank.svelte';
 	import { onMount } from 'svelte';

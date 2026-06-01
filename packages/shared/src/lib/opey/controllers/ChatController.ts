@@ -50,6 +50,7 @@ export class ChatController {
 					case 'assistant_complete':
 						logger.debug('Marking assistant message as complete:', event);
 						state.markMessageComplete(event.messageId);
+						state.setTokenUsage(event.usage);
 						break;
 					case 'tool_start':
 						// Remove the approval request message now that the tool is starting
@@ -148,14 +149,18 @@ export class ChatController {
 						state.addBatchApprovalRequest(event.toolCalls);
 						break;
 					case 'consent_request':
-						logger.debug(`Received consent request for tool ${event.toolCallId}, operation: ${event.operationId}, roles: ${JSON.stringify(event.requiredRoles)}, count: ${event.toolCallCount}, bankId: ${event.bankId}`);
+						logger.debug(`Received consent request for tool ${event.toolCallId}, operation: ${event.operationId}, roles: ${JSON.stringify(event.requiredRoles)}, count: ${event.toolCallCount}, bankId: ${event.bankId}, accountId: ${event.accountId}, viewId: ${event.viewId}, requiresViewAccess: ${event.requiresViewAccess}, isUserScoped: ${event.isUserScoped}`);
 						state.addConsentRequest(
 							event.toolCallId,
 							event.toolName,
 							event.operationId,
 							event.requiredRoles,
 							event.toolCallCount,
-							event.bankId ?? undefined
+							event.bankId ?? undefined,
+							event.accountId ?? undefined,
+							event.viewId ?? undefined,
+							event.requiresViewAccess ?? false,
+							event.isUserScoped ?? false
 						);
 						break;
 				}

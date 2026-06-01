@@ -1,0 +1,43 @@
+/*
+ * Shared section-accent styling for detail pages across portal + api-manager.
+ *
+ * Usage:
+ *   <section class="section-accent section-accent--info">
+ *     <h2 class="section-accent-title">Customer Information</h2>
+ *     ...
+ *   </section>
+ *
+ * Variants map to the kind of content the section holds, not to a colour.
+ * That way the colour palette can evolve in one place.
+ */
+
+.section-accent {
+	border-left: 4px solid var(--section-accent, transparent);
+	padding-left: 1rem;
+}
+
+.section-accent-title {
+	color: var(--section-accent-title, currentColor);
+}
+
+.section-accent--info         { --section-accent: #3b82f6; --section-accent-title: #1d4ed8; }
+.section-accent--personal     { --section-accent: #8b5cf6; --section-accent-title: #6d28d9; }
+.section-accent--credit       { --section-accent: #f59e0b; --section-accent-title: #b45309; }
+.section-accent--attributes   { --section-accent: #ec4899; --section-accent-title: #be185d; }
+.section-accent--accounts     { --section-accent: #10b981; --section-accent-title: #047857; }
+.section-accent--routing      { --section-accent: #f59e0b; --section-accent-title: #b45309; }
+.section-accent--metadata     { --section-accent: #ec4899; --section-accent-title: #be185d; }
+.section-accent--bespoke      { --section-accent: #8b5cf6; --section-accent-title: #6d28d9; }
+.section-accent--access       { --section-accent: #10b981; --section-accent-title: #047857; }
+.section-accent--transactions { --section-accent: #f59e0b; --section-accent-title: #b45309; }
+
+[data-mode="dark"] .section-accent--info         { --section-accent-title: #93c5fd; }
+[data-mode="dark"] .section-accent--personal     { --section-accent-title: #c4b5fd; }
+[data-mode="dark"] .section-accent--credit       { --section-accent-title: #fcd34d; }
+[data-mode="dark"] .section-accent--attributes   { --section-accent-title: #f9a8d4; }
+[data-mode="dark"] .section-accent--accounts     { --section-accent-title: #6ee7b7; }
+[data-mode="dark"] .section-accent--routing      { --section-accent-title: #fcd34d; }
+[data-mode="dark"] .section-accent--metadata     { --section-accent-title: #f9a8d4; }
+[data-mode="dark"] .section-accent--bespoke      { --section-accent-title: #c4b5fd; }
+[data-mode="dark"] .section-accent--access       { --section-accent-title: #6ee7b7; }
+[data-mode="dark"] .section-accent--transactions { --section-accent-title: #fcd34d; }

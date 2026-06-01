@@ -6,6 +6,8 @@ import { obp_requests } from '$lib/obp/requests';
 import { obpErrorResponse } from '@obp/shared/obp';
 import { env } from '$env/dynamic/private';
 import { deduplicateRoles, pickConsentRole } from '@obp/shared/opey';
+import { getOpeyConsentTtlSeconds } from '$lib/server/userPreferences';
+import { capConsentTtlSeconds, findReusableConsent } from '@obp/shared/server/obp';
 
 /**
  * POST /backend/opey/consent
@@ -46,8 +48,19 @@ export async function POST(event: RequestEvent) {
 		}
 
 		const body = await event.request.json();
-		const { required_roles, bank_id } = body;
+		const { required_roles, bank_id, views: requestedViews } = body;
 		const normalizedRequiredRoles = required_roles == null ? [] : required_roles;
+
+		// Views the user picked in the Account Scope panel. Forwarded into the consent
+		// body so view-based endpoints (e.g. /accounts/ACCOUNT_ID/views/VIEW_ID/...) can be
+		// called via the resulting JWT without a separate prompt.
+		const normalizedViews: Array<{ bank_id: string; account_id: string; view_id: string }> =
+			Array.isArray(requestedViews)
+				? requestedViews.filter(
+					(v: any) =>
+						v && typeof v.bank_id === 'string' && typeof v.account_id === 'string' && typeof v.view_id === 'string'
+				)
+				: [];
 
 		logger.info(`Consent request received:`, { required_roles, bank_id });
 
@@ -143,15 +156,53 @@ export async function POST(event: RequestEvent) {
 			entitlements.push({ role_name: preferred.role_name, bank_id: preferred.bank_id });
 		}
 
+		// Try to reuse an existing consent that already covers this scope. Without
+		// this, every consent_request from Opey mints a new consent at OBP — even
+		// when an identical one already exists for the user, leading to consent
+		// proliferation and "asking the same view again and again" UX.
+		const reusable = await findReusableConsent({
+			obpGet: (p, t) => obp_requests.get(p, t),
+			accessToken,
+			opeyConsumerId,
+			requiredEntitlements: entitlements,
+			requiredViews: normalizedViews
+		});
+		if (reusable) {
+			return json({
+				consent_jwt: reusable.jwt,
+				consent_id: reusable.consent_id,
+				status: reusable.status,
+				roles: normalizedRequiredRoles,
+				reused: true
+			});
+		}
+
 		const now = new Date().toISOString().split('.')[0] + 'Z';
+
+		// Per-user TTL preference (OBP personal data field) → env default → built-in 7 days,
+		// then clamped against OBP's `consents.max_time_to_live` (via /obp/v7.0.0/consents/config)
+		// to avoid OBP-35020 (consent TTL exceeds server maximum).
+		const desiredTtl = await getOpeyConsentTtlSeconds(
+			accessToken,
+			Number(env.OPEY_CONSENT_TTL_SECONDS)
+		);
+		const { ttl: consentTtl, max: serverMaxTtl, capped: ttlWasCapped } = await capConsentTtlSeconds(
+			desiredTtl,
+			(p, t) => obp_requests.get(p, t)
+		);
+		if (ttlWasCapped) {
+			logger.info(
+				`Per-tool consent TTL capped to OBP max — requested ${desiredTtl}s, server max ${serverMaxTtl}s, using ${consentTtl}s`
+			);
+		}
 
 		const consentBody = {
 			everything: false,
 			entitlements,
 			consumer_id: opeyConsumerId,
-			views: [],
+			views: normalizedViews,
 			valid_from: now,
-			time_to_live: 3600 // 1 hour
+			time_to_live: consentTtl
 		};
 
 		logger.info(`Creating role-specific consent with ${pickedRoles.length} roles: ${pickedRoles.join(', ')}`);

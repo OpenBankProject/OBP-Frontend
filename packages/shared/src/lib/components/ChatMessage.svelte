@@ -56,6 +56,15 @@
 		}
 	}
 
+	async function handleCopyError(text: string) {
+		try {
+			await navigator.clipboard.writeText(text);
+			toast.success('Error copied');
+		} catch {
+			toast.error('Failed to copy');
+		}
+	}
+
 	// Format error messages - can be extended to handle specific error types
 	function getErrorMessage(error?: string): string {
 		if (!error) return 'Something went wrong. Please try again.';
@@ -181,7 +190,7 @@
 						</div>
 					{/if}
 				</div>
-				<div class="mt-1 flex justify-start opacity-0 transition-opacity group-hover:opacity-100">
+				<div class="mt-1 flex justify-start opacity-60 transition-opacity hover:opacity-100 group-hover:opacity-100">
 					<button
 						onclick={handleCopyAsMarkdown}
 						class="rounded-full p-1.5 transition-transform hover:scale-120"
@@ -207,10 +216,21 @@
 				<div class="flex items-start gap-3">
 					<AlertTriangle class="mt-0.5 h-5 w-5 flex-shrink-0 text-error-500" />
 					<div class="flex-1">
-						<p class="text-sm font-medium text-error-700 dark:text-error-300">
-							Something went wrong
-						</p>
-						<p class="mt-1 text-sm text-error-600 dark:text-error-400">
+						<div class="flex items-start justify-between gap-2">
+							<p class="text-sm font-medium text-error-700 dark:text-error-300">
+								Something went wrong
+							</p>
+							<button
+								type="button"
+								onclick={() => handleCopyError(getErrorMessage(message.error || message.message))}
+								class="flex-shrink-0 rounded p-1 text-error-600 transition-colors hover:bg-error-100 dark:text-error-400 dark:hover:bg-error-900/50"
+								title="Copy error message"
+								aria-label="Copy error message"
+							>
+								<Copy class="h-3.5 w-3.5" />
+							</button>
+						</div>
+						<p class="mt-1 text-sm text-error-600 dark:text-error-400 whitespace-pre-wrap break-words select-text">
 							{getErrorMessage(message.error || message.message)}
 						</p>
 						{#if onRetry}

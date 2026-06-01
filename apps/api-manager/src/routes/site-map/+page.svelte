@@ -357,10 +357,13 @@
   .search-box input {
     flex: 1;
     border: none;
-    outline: none;
     background: transparent;
     font-size: 0.875rem;
     color: #111827;
+  }
+
+  .search-box:focus-within {
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
   }
 
   :global([data-mode="dark"]) .search-box input {

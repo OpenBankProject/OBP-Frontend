@@ -79,12 +79,14 @@
     event.preventDefault();
 
     if (!userId.trim()) {
-      toast.error("Validation Error", "User ID is required");
+      setFormError(
+        "No user selected. Type a username, email, or user ID, then click a result from the dropdown to select it.",
+      );
       return;
     }
 
     if (!roleName) {
-      toast.error("Validation Error", "Role is required");
+      setFormError("No role selected. Pick a role from the list below.");
       return;
     }
 

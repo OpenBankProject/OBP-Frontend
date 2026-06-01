@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Accordion } from "@skeletonlabs/skeleton-svelte";
   import { type SessionData } from "svelte-kit-sessions";
-  import ConsentCard from "$lib/components/ConsentCard.svelte";
+  import { ConsentCard } from "@obp/shared/components";
   import { toast } from "$lib/utils/toastService.js";
   import { Clock } from "@lucide/svelte";
   import { userPreferences, DATE_FORMAT_OPTIONS, THEME_OPTIONS, type DateFormat, type Theme } from "$lib/stores/userPreferences.svelte";
@@ -598,7 +598,7 @@
       <h1 class="h4 text-center">Consent for Opey</h1>
     </header>
     <div class="mx-auto w-4/6">
-      <ConsentCard consent={opeyConsentInfo.consent} showDeleteButton={false} />
+      <ConsentCard consent={opeyConsentInfo.consent} showDeleteButton={false} metricsHref="/metrics" />
     </div>
   {/if}
   <!-- <div

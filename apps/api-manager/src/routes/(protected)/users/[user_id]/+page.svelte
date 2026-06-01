@@ -11,6 +11,12 @@
   let hasApiAccess = $derived(data.hasApiAccess);
   let pageError = $derived(data.error);
 
+  // from_date for the "View API Metrics" link: one week ago, in the
+  // datetime-local format (yyyy-MM-ddTHH:mm) the metrics query form expects.
+  const metricsFromDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+    .toISOString()
+    .slice(0, 16);
+
   $effect(() => {
     if (user) {
       const entitlements = user.entitlements?.length || 0;
@@ -62,20 +68,59 @@
     <!-- User Info Panel -->
     <div class="panel mb-6">
       <div class="panel-header">
-        <h1 class="text-2xl font-bold">{user.username || "Unknown User"}</h1>
-        <div class="text-sm text-gray-500 mt-1">
-          {user.provider || "Unknown"} Provider
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="text-2xl font-bold">{user.username || "Unknown User"}</h1>
+            <div class="text-sm text-gray-500 mt-1">
+              {user.provider || "Unknown"} Provider
+            </div>
+          </div>
+          {#if user.user_id}
+            <a
+              href="/metrics?user_id={encodeURIComponent(
+                user.user_id,
+              )}&from_date={encodeURIComponent(metricsFromDate)}"
+              class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+              data-testid="user-metrics-link"
+            >
+              <svg
+                class="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                />
+              </svg>
+              View API Metrics
+            </a>
+          {/if}
         </div>
       </div>
       <div class="panel-content">
         <div class="info-grid">
           <div class="info-item">
             <div class="info-label">User ID</div>
-            <div class="info-value font-mono">{user.user_id || "N/A"}</div>
+            <div class="info-value">
+              <span class="font-mono">{user.user_id || "N/A"}</span>
+            </div>
           </div>
           <div class="info-item">
             <div class="info-label">Email</div>
-            <div class="info-value">{user.email || "N/A"}</div>
+            <div class="info-value">
+              {user.email || "N/A"}
+              {#if user.email_validated === true && user.user_id}
+                <a
+                  href="/users/{encodeURIComponent(user.user_id)}/reset-password"
+                  class="action-link"
+                  data-testid="user-send-reset-password-link"
+                >Send Password Reset Email</a>
+              {/if}
+            </div>
           </div>
           <div class="info-item">
             <div class="info-label">Username</div>
@@ -118,6 +163,26 @@
                 <span class="badge badge-error">Yes</span>
               {:else}
                 <span class="badge badge-success">No</span>
+              {/if}
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Email Validated</div>
+            <div class="info-value" data-testid="user-email-validated">
+              {#if user.email_validated === true}
+                <span class="badge badge-success">Yes</span>
+              {:else if user.email_validated === false}
+                <span class="badge badge-error">No</span>
+                {#if user.user_id}
+                  <a
+                    href="/users/{encodeURIComponent(user.user_id)}/validate-email"
+                    class="action-link"
+                    style="color: #059669;"
+                    data-testid="user-send-validation-email-link"
+                  >Send Validation Email</a>
+                {/if}
+              {:else}
+                <span class="badge badge-default">Unknown</span>
               {/if}
             </div>
           </div>

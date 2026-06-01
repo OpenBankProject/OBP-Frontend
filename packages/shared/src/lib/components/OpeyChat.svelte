@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import { ShieldUserIcon } from '@lucide/svelte';
-	import { Tooltip, Dialog, Portal, Menu } from '@skeletonlabs/skeleton-svelte';
+	import { Tooltip, Dialog, Portal } from '@skeletonlabs/skeleton-svelte';
 	import { createLogger } from '$shared/utils/logger';
 
 	const logger = createLogger('OpeyChat');
@@ -20,8 +20,7 @@
 	// Import other components
 	import { ToolError, ObpApiResponse, DefaultToolResponse } from './tool-messages';
 	import ChatMessage from './ChatMessage.svelte';
-	import { CircleArrowUp, StopCircle, Copy, type Icon as IconType } from '@lucide/svelte';
-	import { chatToMarkdown } from '$shared/opey/utils/chatToMarkdown';
+	import { CircleArrowUp, StopCircle, type Icon as IconType } from '@lucide/svelte';
 	import { toast } from '$shared/utils/toastService';
 	import type { Snippet } from 'svelte';
 
@@ -49,19 +48,26 @@
 		userAuthenticated?: boolean; // Optional prop to indicate if the user is authenticated
 		splash?: Snippet; // If set, will render the splash screen snippet until the first message is sent
 		// upon which the splash screen will dissapear
+		belowSuggestions?: Snippet; // If set, rendered directly below the suggested-question pills
+		currentBankId?: string; // UI-selected bank, sent to Opey as default-bank context per message
 	}
-	// Default chat options
-	const defaultChatOptions: OpeyChatOptions = {
-		baseUrl: 'http://localhost:5000',
+	// Default chat options (baseUrl must be supplied by the consuming app)
+	const defaultChatOptions: Omit<OpeyChatOptions, 'baseUrl'> = {
 		displayHeader: true,
 		currentlyActiveUserName: 'Guest',
 		displayConnectionPips: true,
 		suggestedQuestions: []
 	};
 
-	let { opeyChatOptions, userAuthenticated = false, splash }: Props = $props();
+	let { opeyChatOptions, userAuthenticated = false, splash, belowSuggestions, currentBankId = '' }: Props = $props();
 	// Merge default options with the provided options
-	const options = { ...defaultChatOptions, ...opeyChatOptions };
+	const options = { ...defaultChatOptions, ...opeyChatOptions } as OpeyChatOptions;
+
+	if (!options.baseUrl) {
+		throw new Error(
+			'OpeyChat: opeyChatOptions.baseUrl is required. Pass the Opey backend URL from the consuming app.'
+		);
+	}
 
 	// Initialize session state and services
 
@@ -70,11 +76,16 @@
 	const sessionController = new SessionController(sessionService, sessionState);
 
 	const chatState = new ChatState();
-	const chatService = new RestChatService(options.baseUrl, new CookieAuthStrategy());
+	const chatService = new RestChatService(
+		options.baseUrl,
+		new CookieAuthStrategy(),
+		// Resolved per message — closure reads the current prop value at send time.
+		() => (currentBankId ? { current_bank_id: currentBankId } : {})
+	);
 	const chatController = new ChatController(chatService, chatState);
 
 	let session: SessionSnapshot = $state({ isAuthenticated: userAuthenticated, status: 'ready' });
-	let chat: ChatStateSnapshot = $state({ threadId: '', messages: [] });
+	let chat: ChatStateSnapshot = $state({ threadId: '', messages: [], tokenUsage: null });
 
 	// Track pending approvals for batch handling
 	let pendingApprovalTools = $derived.by(() => {
@@ -83,27 +94,80 @@
 		) as ToolMessage[];
 	});
 
-	// Track Opey connection status from health check API
-	let connectionStatus: 'healthy' | 'unhealthy' | 'degraded' | 'unknown' = $state('unknown');
+	// Server-side Opey connection status (does the app server reach OPEY_BASE_URL?)
+	let serverConnectionStatus: 'healthy' | 'unhealthy' | 'degraded' | 'unknown' = $state('unknown');
+	// Browser-side Opey connection status (can the user's browser reach options.baseUrl —
+	// which is what the chat itself uses to send messages?)
+	let browserConnectionStatus: 'healthy' | 'unhealthy' | 'unknown' = $state('unknown');
+	// OBP-MCP outbound auth mode (oauth | consent | none) — reported by Opey's /status,
+	// originally sourced from OBP-MCP's own /status. null until the first probe completes.
+	let obpMcpAuthMode: string | null = $state(null);
 	let healthCheckInterval: ReturnType<typeof setInterval> | null = null;
 
-	async function fetchHealthStatus() {
+	// Underlying error text per check, surfaced in the click-pip debug popovers below
+	// (so the user sees the *real* failure, not a generic "after N attempts" message).
+	let serverHealthError: string | null = $state(null);
+	let browserHealthError: string | null = $state(null);
+	// Which pip's debug popover is currently open (mutually exclusive).
+	let openPip: 'server' | 'browser' | 'auth' | null = $state(null);
+
+	async function fetchServerHealthStatus() {
 		try {
 			const response = await fetch('/backend/status');
-			if (response.ok) {
-				const data = await response.json();
-				const opeySnapshot = data.services['Opey II'];
+			if (!response.ok) {
+				serverConnectionStatus = 'unknown';
+				serverHealthError = `HTTP ${response.status} ${response.statusText}`;
+				return;
+			}
+			const data = await response.json();
+			const opeySnapshot = data.services?.['Opey (server)'];
+			if (opeySnapshot) {
+				serverConnectionStatus = opeySnapshot.status;
+				serverHealthError =
+					opeySnapshot.status === 'healthy'
+						? null
+						: (opeySnapshot.detail || opeySnapshot.error || `status: ${opeySnapshot.status}`);
+			} else {
+				serverConnectionStatus = 'unknown';
+				serverHealthError = "No 'Opey (server)' entry in /backend/status response";
+			}
+		} catch (error) {
+			logger.error('Failed to fetch server health status:', error);
+			serverConnectionStatus = 'unknown';
+			serverHealthError = error instanceof Error ? error.message : String(error);
+		}
+	}
 
-				if (opeySnapshot) {
-					connectionStatus = opeySnapshot.status;
-				} else {
-					connectionStatus = 'unknown';
+	async function fetchBrowserHealthStatus() {
+		const controller = new AbortController();
+		const timeoutId = setTimeout(() => controller.abort('timeout'), 5000);
+		try {
+			const res = await fetch(`${options.baseUrl}/status`, {
+				headers: { Accept: 'application/json' },
+				signal: controller.signal,
+			});
+			browserConnectionStatus = res.ok ? 'healthy' : 'unhealthy';
+			browserHealthError = res.ok ? null : `HTTP ${res.status} ${res.statusText}`;
+			if (res.ok) {
+				try {
+					const data = await res.json();
+					const mode = data?.components?.mcp?.obp_mcp_outbound_auth_via;
+					obpMcpAuthMode = typeof mode === 'string' ? mode : null;
+				} catch {
+					obpMcpAuthMode = null;
 				}
 			}
 		} catch (error) {
-			logger.error('Failed to fetch health status:', error);
-			connectionStatus = 'unknown';
+			logger.error('Failed to fetch browser-side Opey status:', error);
+			browserConnectionStatus = 'unhealthy';
+			browserHealthError = error instanceof Error ? error.message : String(error);
+		} finally {
+			clearTimeout(timeoutId);
 		}
+	}
+
+	async function fetchHealthStatus() {
+		await Promise.all([fetchServerHealthStatus(), fetchBrowserHealthStatus()]);
 	}
 
 	let splashScreenDisplay = $derived.by(() => {
@@ -247,23 +311,21 @@
 	});
 
 	// Derived colors for pips
-	let connectionPipColor: string = $derived.by(() => {
-		switch (connectionStatus) {
+	function pipColorFor(status: 'healthy' | 'unhealthy' | 'degraded' | 'unknown'): string {
+		switch (status) {
 			case 'healthy':
 				return 'preset-filled-success-500';
 			case 'unhealthy':
 				return 'preset-filled-error-500';
 			case 'degraded':
-				return 'preset-filled-warning-500';
 			case 'unknown':
-				return 'preset-filled-warning-500';
 			default:
 				return 'preset-filled-warning-500';
 		}
-	});
+	}
 
-	let connectionStatusString: string = $derived.by(() => {
-		switch (connectionStatus) {
+	function statusStringFor(status: 'healthy' | 'unhealthy' | 'degraded' | 'unknown'): string {
+		switch (status) {
 			case 'healthy':
 				return 'connected';
 			case 'unhealthy':
@@ -271,11 +333,15 @@
 			case 'degraded':
 				return 'degraded';
 			case 'unknown':
-				return 'unknown';
 			default:
 				return 'unknown';
 		}
-	});
+	}
+
+	let serverConnectionPipColor: string = $derived(pipColorFor(serverConnectionStatus));
+	let browserConnectionPipColor: string = $derived(pipColorFor(browserConnectionStatus));
+	let serverConnectionStatusString: string = $derived(statusStringFor(serverConnectionStatus));
+	let browserConnectionStatusString: string = $derived(statusStringFor(browserConnectionStatus));
 
 	let authPipColor: string = $derived.by(() => {
 		switch (session.status) {
@@ -332,6 +398,7 @@
 
 	// Add retry logic with exponential backoff
 	async function initializeOpeySessionWithRetry(maxRetries = 3, baseDelay = 1000) {
+		let lastError: string | null = null;
 		for (let attempt = 1; attempt <= maxRetries; attempt++) {
 			try {
 				await initializeOpeySession();
@@ -339,7 +406,11 @@
 					logger.debug(`Opey session initialized successfully on attempt ${attempt}`);
 					return;
 				}
+				// Init didn't throw but the session isn't ready — capture whatever
+				// session.error was set to internally so it isn't swallowed.
+				if (session.error) lastError = session.error;
 			} catch (error) {
+				lastError = error instanceof Error ? error.message : String(error);
 				logger.warn(`Session initialization attempt ${attempt} failed:`, error);
 			}
 
@@ -350,8 +421,12 @@
 			}
 		}
 
-		logger.error(`Failed to initialize session after ${maxRetries} attempts`);
-		sessionState.setStatus('error', `Failed to initialize after ${maxRetries} attempts`);
+		// Surface the real underlying cause rather than just "after N attempts".
+		const finalMessage = lastError
+			? `Failed to initialize after ${maxRetries} attempts: ${lastError}`
+			: `Failed to initialize after ${maxRetries} attempts`;
+		logger.error(finalMessage);
+		sessionState.setStatus('error', finalMessage);
 	}
 
 	/**
@@ -418,15 +493,6 @@
 		}
 	}
 
-	async function handleCopyChat() {
-		try {
-			const md = chatToMarkdown(chat.messages);
-			await navigator.clipboard.writeText(md);
-			toast.success('Chat copied to clipboard');
-		} catch {
-			toast.error('Failed to copy chat');
-		}
-	}
 
 	// TEMPORARY: Test function to manually trigger a single approval message
 	function addTestApprovalMessage() {
@@ -531,46 +597,30 @@
 {/snippet}
 
 {#snippet body()}
-	<Menu onSelect={(details) => { if (details.value === 'copy-chat') handleCopyChat(); }}>
-		<Menu.ContextTrigger
-			class="block h-full w-full"
-		>
-			<article
-				bind:this={messagesContainer}
-				onscroll={handleScroll}
-				class="h-full w-full overflow-y-auto overflow-x-hidden py-4 {options.bodyClasses || ''}"
-			>
-				<div class="space-y-4 min-w-0">
-					{#each chat.messages as message, index (message.id)}
-						<ChatMessage
-							{message}
-							previousMessageRole={index > 0 ? chat.messages[index - 1].role : undefined}
-							userName={options.currentlyActiveUserName}
-							onApprove={handleApprove}
-							onDeny={handleDeny}
-							onBatchSubmit={handleBatchApprovalSubmit}
-							onRegenerate={handleRegenerate}
-							onRetry={handleRetry}
-							batchApprovalGroup={pendingApprovalTools.length > 1 ? pendingApprovalTools : undefined}
-							onConsent={handleConsent}
-							onConsentDeny={handleConsentDeny}
-							allMessages={chat.messages}
-						/>
-					{/each}
-				</div>
-			</article>
-		</Menu.ContextTrigger>
-		<Portal>
-			<Menu.Positioner>
-				<Menu.Content class="card bg-surface-100-900 p-1 shadow-xl">
-					<Menu.Item value="copy-chat" disabled={chat.messages.length === 0}>
-						<Copy class="mr-2 h-4 w-4" />
-						<Menu.ItemText>Copy chat as markdown</Menu.ItemText>
-					</Menu.Item>
-				</Menu.Content>
-			</Menu.Positioner>
-		</Portal>
-	</Menu>
+	<article
+		bind:this={messagesContainer}
+		onscroll={handleScroll}
+		class="h-full w-full overflow-y-auto overflow-x-hidden py-4 {options.bodyClasses || ''}"
+	>
+		<div class="space-y-4 min-w-0">
+			{#each chat.messages as message, index (message.id)}
+				<ChatMessage
+					{message}
+					previousMessageRole={index > 0 ? chat.messages[index - 1].role : undefined}
+					userName={options.currentlyActiveUserName}
+					onApprove={handleApprove}
+					onDeny={handleDeny}
+					onBatchSubmit={handleBatchApprovalSubmit}
+					onRegenerate={handleRegenerate}
+					onRetry={handleRetry}
+					batchApprovalGroup={pendingApprovalTools.length > 1 ? pendingApprovalTools : undefined}
+					onConsent={handleConsent}
+					onConsentDeny={handleConsentDeny}
+					allMessages={chat.messages}
+				/>
+			{/each}
+		</div>
+	</article>
 {/snippet}
 
 {#snippet suggestedQuestions()}
@@ -592,56 +642,172 @@
 	{/if}
 {/snippet}
 
+{#snippet tokenIndicator()}
+	{#if chat.tokenUsage}
+		{@const inp = chat.tokenUsage.inputTokens}
+		{@const colorClass =
+			inp > 190000
+				? 'text-error-500'
+				: inp > 160000
+					? 'text-warning-600-400'
+					: 'text-surface-600-400'}
+		<div class="mt-1 text-center text-xs {colorClass}" data-testid="opey-token-usage">
+			Context: {Math.round(inp / 1000)}K / 200K tokens
+			<span class="text-surface-500">· {chat.tokenUsage.outputTokens} out</span>
+		</div>
+	{/if}
+{/snippet}
+
 {#snippet statusPips(session: SessionSnapshot, consentInfo?: OBPConsentInfo)}
 	{#if options.displayConnectionPips}
 		<div class="flex flex-row items-center gap-1.5">
-			<!-- Connection Pip with Tooltip -->
-			<Tooltip>
-				<Tooltip.Trigger>
-					<div class="h-2 w-2 rounded-full {connectionPipColor} cursor-pointer transition-all hover:scale-125"></div>
-				</Tooltip.Trigger>
-				<Portal>
-					<Tooltip.Positioner class="z-10">
-						<Tooltip.Content class="card bg-primary-200-800 text-xs p-2">
-							Opey Connection Status: {connectionStatusString}
-							<Tooltip.Arrow class="[--arrow-size:--spacing(2)] [--arrow-background:var(--color-primary-200-800)]">
-								<Tooltip.ArrowTip />
-							</Tooltip.Arrow>
-						</Tooltip.Content>
-					</Tooltip.Positioner>
-				</Portal>
-			</Tooltip>
+			<!-- Server-side Opey connection pip — click for debug detail -->
+			<div class="relative">
+				<button
+					type="button"
+					class="block h-2 w-2 rounded-full {serverConnectionPipColor} cursor-pointer transition-all hover:scale-125"
+					data-testid="opey-pip-server"
+					onclick={() => (openPip = openPip === 'server' ? null : 'server')}
+					aria-expanded={openPip === 'server'}
+					aria-label="Opey server connection — click for details"
+					title="Opey (server) — app server → Opey: {serverConnectionStatusString}"
+				></button>
+				{#if openPip === 'server'}
+					<div
+						class="absolute right-0 top-4 z-20 w-80 max-w-[calc(100vw-2rem)] rounded-md border border-surface-300-700 bg-surface-100-900 p-3 text-xs shadow-lg text-surface-900-100"
+						role="dialog"
+						aria-label="Opey server connection debug"
+						data-testid="opey-pip-server-popover"
+					>
+						<div class="mb-1 flex items-center justify-between">
+							<span class="font-semibold">Opey (server)</span>
+							<button type="button" class="text-base leading-none opacity-60 hover:opacity-100" onclick={() => (openPip = null)} aria-label="Close">&times;</button>
+						</div>
+						<p class="mb-2 opacity-70">App server → Opey: <strong>{serverConnectionStatusString}</strong></p>
+						{#if serverHealthError}
+							<p class="mb-2 break-words text-error-500 dark:text-error-400">{serverHealthError}</p>
+						{/if}
+						<a href="/backend/status" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-tertiary-600-400 hover:underline">
+							<code class="font-mono text-[11px]">/backend/status</code>
+							<span aria-hidden="true">↗</span>
+						</a>
+					</div>
+				{/if}
+			</div>
 
-			<!-- Authentication/Consent Pip with Tooltip -->
-			<Tooltip>
-				<Tooltip.Trigger>
-					<a
-						href="/user#opey-consent"
-						class="h-2 w-2 rounded-full {authPipColor} cursor-pointer transition-all hover:scale-125 block"
-						aria-label="View Opey consent"
-					></a>
-				</Tooltip.Trigger>
-				<Portal>
-					<Tooltip.Positioner class="z-10">
-						<Tooltip.Content class="card bg-primary-200-800 text-xs p-2">
+			<!-- Browser-side Opey connection pip — click for debug detail -->
+			<div class="relative">
+				<button
+					type="button"
+					class="block h-2 w-2 rounded-full {browserConnectionPipColor} cursor-pointer transition-all hover:scale-125"
+					data-testid="opey-pip-browser"
+					onclick={() => (openPip = openPip === 'browser' ? null : 'browser')}
+					aria-expanded={openPip === 'browser'}
+					aria-label="Opey browser connection — click for details"
+					title="Opey (browser) — your browser → Opey: {browserConnectionStatusString}"
+				></button>
+				{#if openPip === 'browser'}
+					<div
+						class="absolute right-0 top-4 z-20 w-80 max-w-[calc(100vw-2rem)] rounded-md border border-surface-300-700 bg-surface-100-900 p-3 text-xs shadow-lg text-surface-900-100"
+						role="dialog"
+						aria-label="Opey browser connection debug"
+						data-testid="opey-pip-browser-popover"
+					>
+						<div class="mb-1 flex items-center justify-between">
+							<span class="font-semibold">Opey (browser)</span>
+							<button type="button" class="text-base leading-none opacity-60 hover:opacity-100" onclick={() => (openPip = null)} aria-label="Close">&times;</button>
+						</div>
+						<p class="mb-2 opacity-70">Your browser → Opey: <strong>{browserConnectionStatusString}</strong></p>
+						{#if browserHealthError}
+							<p class="mb-2 break-words text-error-500 dark:text-error-400">{browserHealthError}</p>
+						{/if}
+						<a href={`${options.baseUrl}/status`} target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-tertiary-600-400 hover:underline">
+							<code class="font-mono text-[11px] break-all">{options.baseUrl}/status</code>
+							<span aria-hidden="true">↗</span>
+						</a>
+					</div>
+				{/if}
+			</div>
+
+			<!-- Authentication / Consent pip — click for debug detail -->
+			<div class="relative">
+				<button
+					type="button"
+					class="block h-2 w-2 rounded-full {authPipColor} cursor-pointer transition-all hover:scale-125"
+					data-testid="opey-pip-auth"
+					onclick={() => (openPip = openPip === 'auth' ? null : 'auth')}
+					aria-expanded={openPip === 'auth'}
+					aria-label="Opey session — click for details"
+				></button>
+				{#if openPip === 'auth'}
+					<div
+						class="absolute right-0 top-4 z-20 w-80 max-w-[calc(100vw-2rem)] rounded-md border border-surface-300-700 bg-surface-100-900 p-3 text-xs shadow-lg text-surface-900-100"
+						role="dialog"
+						aria-label="Opey session debug"
+						data-testid="opey-pip-auth-popover"
+					>
+						<div class="mb-1 flex items-center justify-between">
+							<span class="font-semibold">Opey session</span>
+							<button type="button" class="text-base leading-none opacity-60 hover:opacity-100" onclick={() => (openPip = null)} aria-label="Close">&times;</button>
+						</div>
+						<p class="mb-2 opacity-70">
 							{#if session.status === 'loading'}
-								Authenticating...
+								Authenticating…
 							{:else if session.status === 'error'}
-								Error: {session.error}
+								Error
 							{:else if session.isAuthenticated && consentInfo}
-								Click to view consent
+								Authenticated (consent available)
 							{:else if session.isAuthenticated}
 								Authenticated (no consent info)
 							{:else}
-								Not Authenticated
+								Not authenticated
 							{/if}
-							<Tooltip.Arrow class="[--arrow-size:--spacing(2)] [--arrow-background:var(--color-primary-200-800)]">
-								<Tooltip.ArrowTip />
-							</Tooltip.Arrow>
-						</Tooltip.Content>
-					</Tooltip.Positioner>
-				</Portal>
-			</Tooltip>
+						</p>
+						{#if session.error}
+							<p class="mb-2 break-words text-error-500 dark:text-error-400">{session.error}</p>
+						{/if}
+						<a href="/backend/opey/auth" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-tertiary-600-400 hover:underline">
+							<code class="font-mono text-[11px]">/backend/opey/auth</code>
+							<span aria-hidden="true">↗</span>
+						</a>
+						<div class="mt-2">
+							<a href="/user#opey-consent" class="text-tertiary-600-400 hover:underline">View consent →</a>
+						</div>
+					</div>
+				{/if}
+			</div>
+
+			<!-- OBP-MCP outbound auth mode badge -->
+			{#if obpMcpAuthMode}
+				<Tooltip>
+					<Tooltip.Trigger>
+						<span
+							class="ml-1 rounded-full bg-primary-200-800 px-2 py-0.5 text-[10px] font-mono uppercase tracking-wide cursor-help"
+							data-testid="obp-mcp-auth-mode"
+						>
+							{obpMcpAuthMode}
+						</span>
+					</Tooltip.Trigger>
+					<Portal>
+						<Tooltip.Positioner class="z-10">
+							<Tooltip.Content class="card bg-primary-200-800 text-xs p-2 max-w-xs">
+								OBP-MCP → OBP-API auth mode: <strong>{obpMcpAuthMode}</strong>.
+								{#if obpMcpAuthMode === 'consent'}
+									Opey calls OBP-API using user-granted Consent-JWTs (scope-limited).
+								{:else if obpMcpAuthMode === 'oauth'}
+									Opey forwards your OBP-OIDC bearer token directly to OBP-API.
+								{:else}
+									Unrecognised mode — OBP-API calls will be rejected. Set
+									OBP_AUTHORIZATION_VIA to 'oauth' or 'consent' on the MCP server.
+								{/if}
+								<Tooltip.Arrow class="[--arrow-size:--spacing(2)] [--arrow-background:var(--color-primary-200-800)]">
+									<Tooltip.ArrowTip />
+								</Tooltip.Arrow>
+							</Tooltip.Content>
+						</Tooltip.Positioner>
+					</Portal>
+				</Tooltip>
+			{/if}
 		</div>
 	{/if}
 {/snippet}
@@ -759,7 +925,9 @@
 					{@render inputField()}
 				</div>
 
+				{@render tokenIndicator()}
 				{@render suggestedQuestions()}
+				{@render belowSuggestions?.()}
 			</div>
 		{:else}
 			<!--Main Chat Layout: messages fill space, input at bottom-->
@@ -773,7 +941,10 @@
 				<div class="relative flex items-center justify-center">
 					{@render inputField()}
 				</div>
+				{@render tokenIndicator()}
 			</div>
+
+			{@render belowSuggestions?.()}
 		{/if}
 	</div>
 </div>

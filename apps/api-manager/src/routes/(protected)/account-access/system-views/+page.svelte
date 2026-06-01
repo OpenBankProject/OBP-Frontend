@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import type { PageData } from "./$types";
-  import { Search, CheckCircle } from "@lucide/svelte";
+  import { Search } from "@lucide/svelte";
 
   let { data } = $props<{ data: PageData }>();
 
@@ -97,10 +97,6 @@
               <tr>
                 <th>View ID</th>
                 <th>Description</th>
-                <th>Alias</th>
-                <th>Bank ID</th>
-                <th>Account ID</th>
-                <th>Public</th>
               </tr>
             </thead>
             <tbody>
@@ -112,16 +108,6 @@
                     </a>
                   </td>
                   <td class="cell-description">{view.description}</td>
-                  <td class="cell-mono">{view.alias || "—"}</td>
-                  <td class="cell-mono">{view.bank_id || "—"}</td>
-                  <td class="cell-mono">{view.account_id || "—"}</td>
-                  <td class="cell-center">
-                    {#if view.is_public}
-                      <CheckCircle size={16} class="icon-public" />
-                    {:else}
-                      <span class="text-muted">—</span>
-                    {/if}
-                  </td>
                 </tr>
               {/each}
             </tbody>

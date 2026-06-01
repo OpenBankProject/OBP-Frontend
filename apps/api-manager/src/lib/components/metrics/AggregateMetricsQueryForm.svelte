@@ -167,7 +167,6 @@
     font-size: 0.8rem;
     font-weight: 500;
     white-space: nowrap;
-    user-select: none;
   }
 
   :global([data-mode="dark"]) .qf-inline span {

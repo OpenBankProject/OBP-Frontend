@@ -1,14 +1,50 @@
 <script lang="ts">
+	interface Entitlement {
+		entitlement_id: string;
+		role_name: string;
+		bank_id: string;
+	}
+
 	const { data, form } = $props();
-	const userEntitlements = data.userEntitlements;
+	const userEntitlements = data.userEntitlements as Entitlement[];
 	const allEntitlements = data.allAvailableEntitlements;
 	const allBanks = data.allBanks;
 
-	const canCreateEntitlements = userEntitlements.some((entitlement: { role_name: string }) =>
-			['CanCreateEntitlementAtAnyBank', 'CanCreateEntitlementAtOneBank'].includes(
-				entitlement.role_name
-			)
-		);
+	const canCreateEntitlements = userEntitlements.some((entitlement) =>
+		['CanCreateEntitlementAtAnyBank', 'CanCreateEntitlementAtOneBank'].includes(
+			entitlement.role_name
+		)
+	);
+
+	const bankNameById = new Map<string, string>(
+		allBanks.map((b: { bank_id: string; name: string }) => [b.bank_id, b.name])
+	);
+
+	const groupedEntitlements = (() => {
+		const byBank = new Map<string, Entitlement[]>();
+		for (const e of userEntitlements) {
+			const key = e.bank_id || '';
+			if (!byBank.has(key)) byBank.set(key, []);
+			byBank.get(key)!.push(e);
+		}
+		for (const list of byBank.values()) {
+			list.sort((a, b) => a.role_name.localeCompare(b.role_name));
+		}
+		const groups: { bank_id: string; label: string; entitlements: Entitlement[] }[] = [];
+		if (byBank.has('')) {
+			groups.push({ bank_id: '', label: 'System-wide', entitlements: byBank.get('')! });
+		}
+		const bankKeys = Array.from(byBank.keys()).filter((k) => k !== '');
+		bankKeys.sort((a, b) => {
+			const na = bankNameById.get(a) || a;
+			const nb = bankNameById.get(b) || b;
+			return na.localeCompare(nb);
+		});
+		for (const k of bankKeys) {
+			groups.push({ bank_id: k, label: bankNameById.get(k) || k, entitlements: byBank.get(k)! });
+		}
+		return groups;
+	})();
 
 	let selectedEntitlementRole = $state('');
 	let selectedBankId = $state('');
@@ -32,35 +68,43 @@
 		selectedEntitlementRole = '';
 		selectedBankId = '';
 	}
-
-	// console.debug('User Entitlements:', userEntitlements);
-	// console.debug('All Entitlements:', allEntitlements);
-	console.log('Can Create Entitlements:', canCreateEntitlements);
 </script>
 
 <h2 class="mb-4 text-xl font-semibold">Your Entitlements</h2>
 
 {#if userEntitlements.length > 0}
-	<div class="table-container">
-		<!-- Native Table Element -->
-		<table class="table-hover table">
-			<thead>
-				<tr>
-					<th>Name</th>
-					<th>ID</th>
-					<th>Bank ID</th>
-				</tr>
-			</thead>
-			<tbody>
-				{#each userEntitlements as row, i}
-					<tr>
-						<td>{row.role_name}</td>
-						<td>{row.entitlement_id}</td>
-						<td>{row.bank_id}</td>
-					</tr>
-				{/each}
-			</tbody>
-		</table>
+	<div class="space-y-6" data-testid="entitlement-groups">
+		{#each groupedEntitlements as group (group.bank_id || 'system')}
+			<section data-testid="entitlement-group" data-bank-id={group.bank_id}>
+				<header class="mb-2 flex flex-wrap items-baseline gap-2">
+					<h3 class="text-sm font-semibold uppercase tracking-wide text-surface-700-300">
+						{group.label}
+					</h3>
+					{#if group.bank_id}
+						<code class="text-xs text-surface-600-400">{group.bank_id}</code>
+					{/if}
+					<span class="text-xs text-surface-600-400">
+						{group.entitlements.length} role{group.entitlements.length === 1 ? '' : 's'}
+					</span>
+				</header>
+				<ul
+					class="columns-1 gap-x-6 sm:columns-2 md:columns-3"
+					data-testid="entitlement-list"
+				>
+					{#each group.entitlements as e (e.entitlement_id)}
+						<li
+							class="break-inside-avoid py-0.5"
+							data-testid="entitlement-item"
+							data-role-name={e.role_name}
+							data-entitlement-id={e.entitlement_id}
+							title={`entitlement_id: ${e.entitlement_id}`}
+						>
+							<span class="text-sm" data-testid="entitlement-role-name">{e.role_name}</span>
+						</li>
+					{/each}
+				</ul>
+			</section>
+		{/each}
 	</div>
 {/if}
 

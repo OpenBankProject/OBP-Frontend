@@ -21,6 +21,12 @@ export type { SessionSnapshot } from './state/SessionState.js';
 // Utils
 export { expandRoleRequirements, pickConsentRole, deduplicateRoles } from './utils/roles.js';
 export { chatToMarkdown, messageToMarkdown } from './utils/chatToMarkdown.js';
+export {
+	getSelectedConsentViews,
+	setSelectedConsentViews,
+	clearSelectedConsentViews
+} from './utils/consentScope.js';
+export type { ConsentViewSelection } from './utils/consentScope.js';
 
 // Types
 export type {

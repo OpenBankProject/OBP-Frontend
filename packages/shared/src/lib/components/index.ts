@@ -1,7 +1,10 @@
 export { default as OpeyChat } from './OpeyChat.svelte';
 export type { OpeyChatOptions, SuggestedQuestion } from './OpeyChat.svelte';
+export { default as CurrentBankPicker } from './CurrentBankPicker.svelte';
+export { default as AccountScopePicker } from './AccountScopePicker.svelte';
 export { default as ChatMessage } from './ChatMessage.svelte';
 export { default as ConsentCard } from './ConsentCard.svelte';
+export { default as EndpointCard } from './EndpointCard.svelte';
 export { default as LegalDocumentModal } from './LegalDocumentModal.svelte';
 export { default as LightSwitch } from './LightSwitch.svelte';
 export { default as Toast } from './Toast.svelte';

@@ -18,6 +18,7 @@ interface MetricRecord {
   implemented_by_partial_function: string;
   implemented_in_version: string;
   user_id?: string;
+  consent_reference_id?: string;
 }
 
 interface MetricsResponse {
@@ -151,6 +152,12 @@ export const load: PageServerLoad = async ({ locals, url, depends }) => {
       url.searchParams.get("http_status_code")?.trim()
     ) {
       params.http_status_code = url.searchParams.get("http_status_code")!;
+    }
+    if (
+      url.searchParams.has("consent_reference_id") &&
+      url.searchParams.get("consent_reference_id")?.trim()
+    ) {
+      params.consent_reference_id = url.searchParams.get("consent_reference_id")!;
     }
 
     // Fetch metrics with the constructed parameters

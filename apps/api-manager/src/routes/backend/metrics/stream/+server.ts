@@ -31,6 +31,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
     implemented_by_partial_function:
       url.searchParams.get("implemented_by_partial_function") ?? "",
     app_name: url.searchParams.get("app_name") ?? "",
+    consent_reference_id: url.searchParams.get("consent_reference_id") ?? "",
   };
 
   let grpcStream: any;

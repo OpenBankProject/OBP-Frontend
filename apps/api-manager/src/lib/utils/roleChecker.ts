@@ -126,6 +126,9 @@ export const SITE_MAP: Record<string, PageRoleConfig> = {
   "/system/webui-props/[id]/delete": {
     required: [{ role: "CanDeleteWebUiProps" }],
   },
+  "/system/self-test-emails": {
+    required: [{ role: "CanCreateTestEmail" }],
+  },
   "/system/signal-channels": {
     required: [],
   },
@@ -199,7 +202,10 @@ export const SITE_MAP: Record<string, PageRoleConfig> = {
   "/metrics": {
     required: [{ role: "CanReadMetrics" }],
   },
-  "/aggregate-metrics": {
+  "/aggregate-metrics-live": {
+    required: [{ role: "CanReadAggregateMetrics" }],
+  },
+  "/aggregate-metrics-trends": {
     required: [{ role: "CanReadAggregateMetrics" }],
   },
   "/connector-traces": {
@@ -300,6 +306,12 @@ export const SITE_MAP: Record<string, PageRoleConfig> = {
   },
   "/users/[provider]/[username]/lock": {
     required: [{ role: "CanLockUser" }],
+  },
+  "/users/[user_id]/validate-email": {
+    required: [{ role: "CanGetAnyUser" }],
+  },
+  "/users/[user_id]/reset-password": {
+    required: [{ role: "CanCreateResetPasswordUrl" }],
   },
 
   // ── Integration ─────────────────────────────────────

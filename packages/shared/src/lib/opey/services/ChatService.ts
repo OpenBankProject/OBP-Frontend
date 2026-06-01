@@ -27,7 +27,7 @@ export type StreamEvent =
     | { type: 'user_message_confirmed', messageId: string, correlationId: string, content: string, timestamp: number }
     | { type: 'assistant_start', messageId: string, timestamp: Date }
     | { type: 'assistant_token', messageId: string, token: string }
-    | { type: 'assistant_complete', messageId: string }
+    | { type: 'assistant_complete', messageId: string, usage?: { input_tokens?: number, output_tokens?: number, total_tokens?: number } }
     | { type: 'tool_start', toolCallId: string, toolName: string, toolInput: Record<string, any> }
     | { type: 'tool_token', toolCallId: string, token: string }
     | { type: 'tool_complete', toolCallId: string, toolName: string, toolOutput: any, status: 'success' | 'error' }
@@ -73,7 +73,11 @@ export type StreamEvent =
         requiredRoles: string[],
         timestamp: number,
         toolCallCount: number,
-        bankId?: string | null
+        bankId?: string | null,
+        accountId?: string | null,
+        viewId?: string | null,
+        requiresViewAccess?: boolean,
+        isUserScoped?: boolean
       }
     | { type: 'thread_sync', threadId: string }
     | { type: 'error', messageId?: string, error: string }

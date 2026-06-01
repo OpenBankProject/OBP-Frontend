@@ -159,6 +159,9 @@
               </thead>
               <tbody>
                 {#each filteredAccounts as account}
+                  {@const nonEmptyRoutings = (account.account_routings ?? []).filter(
+                    (r) => (r.scheme && r.scheme.trim()) || (r.address && r.address.trim())
+                  )}
                   <tr>
                     <td class="cell-mono cell-id">
                       <a href="/account-access/accounts/{encodeURIComponent(account.bank_id)}/{encodeURIComponent(account.account_id)}/public" class="account-link">
@@ -176,9 +179,9 @@
                     <td class="cell-mono">{account.account_number || "—"}</td>
                     <td>{account.branch_id || "—"}</td>
                     <td>
-                      {#if account.account_routings?.length}
+                      {#if nonEmptyRoutings.length}
                         <div class="routings">
-                          {#each account.account_routings as routing}
+                          {#each nonEmptyRoutings as routing}
                             <span class="routing-tag">
                               {routing.scheme}: {routing.address}
                             </span>

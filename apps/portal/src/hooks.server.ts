@@ -8,14 +8,20 @@ import RedisStore from 'svelte-kit-connect-redis';
 import { RateLimiter } from 'sveltekit-rate-limiter/server';
 
 import { env } from '$env/dynamic/private';
+import { env as publicEnv } from '$env/dynamic/public';
 import { obp_requests } from '$lib/obp/requests';
 import { oauth2ProviderManager } from '$lib/oauth/providerManager';
 import { SessionOAuthHelper } from '$lib/oauth/sessionHelper';
 import { healthCheckRegistry, OIDCHealthCheckService } from '@obp/shared/health-check';
-import { PUBLIC_OBP_BASE_URL } from '$env/static/public';
 
 import { redisService } from '$lib/redis/services/RedisService';
 import { RedisHealthCheckService } from '$lib/health-check/services/RedisHealthCheckService';
+
+if (!publicEnv.PUBLIC_OBP_BASE_URL) {
+	throw new Error(
+		'PUBLIC_OBP_BASE_URL is not set. Configure it on the running container before starting the portal.'
+	);
+}
 
 // Constants
 const DEFAULT_PORT = 5174;
@@ -48,8 +54,15 @@ function checkServerPort() {
 }
 
 // Startup scripts
-if (!env.SESSION_SECRET) {
-	throw new Error('SESSION_SECRET environment variable is required but not set.');
+if (!env.SESSION_SECRET || typeof env.SESSION_SECRET !== 'string') {
+	throw new Error(
+		'SESSION_SECRET environment variable is required but not set (or not a string). ' +
+			'Set it to a long random string in the runtime environment (e.g. in your .env file, ' +
+			"docker-compose 'environment:' block, or 'docker run -e SESSION_SECRET=...'). " +
+			'Note: this is a dynamic env var read at runtime — it must be present when the ' +
+			'container starts, not only at build time. Without it, svelte-kit-sessions will ' +
+			"crash later inside unsign() with 'Cannot read properties of undefined (reading map)'."
+	);
 }
 
 // Check server port
@@ -61,13 +74,25 @@ const redisClient = redisService.getClient();
 function initHealthChecks() {
 	healthCheckRegistry.register({
 		serviceName: 'OBP API',
-		url: `${PUBLIC_OBP_BASE_URL}/obp/v5.1.0/root`
+		url: `${publicEnv.PUBLIC_OBP_BASE_URL}/obp/v5.1.0/root`,
+		details: {
+			PUBLIC_OBP_BASE_URL: publicEnv.PUBLIC_OBP_BASE_URL
+		}
 	});
 
-	healthCheckRegistry.register({
-		serviceName: 'Opey II',
-		url: `${env.OPEY_BASE_URL}/status`
-	});
+	// Server-side check: tests connectivity from the portal server to OPEY_BASE_URL
+	// (private env, usually an internal/private network address). This does NOT prove
+	// the user's browser can reach Opey — the browser uses PUBLIC_OPEY_BASE_URL,
+	// which is verified by a separate browser-side check on the /status page.
+	if (env.OPEY_BASE_URL) {
+		healthCheckRegistry.register({
+			serviceName: 'Opey (server)',
+			url: `${env.OPEY_BASE_URL}/status`,
+			details: {
+				OPEY_BASE_URL: env.OPEY_BASE_URL
+			}
+		});
+	}
 
 	const redisHealthCheck = new RedisHealthCheckService();
 	healthCheckRegistry.register(redisHealthCheck);

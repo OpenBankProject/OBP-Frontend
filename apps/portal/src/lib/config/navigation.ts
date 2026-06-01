@@ -13,6 +13,7 @@ export interface NavigationItem {
 function buildMyAccountItems(): NavigationItem[] {
     const items: NavigationItem[] = [
         { href: '/user', label: 'Profile', iconComponent: User },
+        { href: '/user/accounts', label: 'Accounts', iconComponent: Wallet, description: 'Your bank accounts and recent activity.' },
         { href: '/user/consents', label: 'Consents', iconComponent: ShieldUser },
         { href: '/user/consumers', label: 'Consumers (Applications)', iconComponent: KeyRound },
         { href: '/user/entitlements', label: 'Entitlements', iconComponent: IdCardLanyard },
