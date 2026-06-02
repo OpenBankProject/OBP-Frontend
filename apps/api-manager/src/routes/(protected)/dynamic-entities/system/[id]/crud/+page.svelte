@@ -179,6 +179,14 @@
     return idField ? recordData[idField] : null;
   }
 
+  // Render a field value for display. Objects/arrays (json fields) are
+  // stringified so they don't show as "[object Object]".
+  function displayValue(value: any): string {
+    if (value === undefined || value === null) return "-";
+    if (typeof value === "object") return JSON.stringify(value);
+    return String(value);
+  }
+
   let dataRecords = $state(data.dataRecords || []);
   let searchQuery = $state("");
   let showCreateModal = $state(false);
@@ -217,7 +225,14 @@
     formData = {};
     const recordData = record ? getRecordData(record) : null;
     Object.keys(properties).forEach((fieldName) => {
-      formData[fieldName] = recordData ? recordData[fieldName] : "";
+      const rawValue = recordData ? recordData[fieldName] : "";
+      // json fields are edited as text, so render existing objects/arrays as
+      // pretty-printed JSON for the textarea.
+      if (properties[fieldName].type === "json" && rawValue && typeof rawValue === "object") {
+        formData[fieldName] = JSON.stringify(rawValue, null, 2);
+      } else {
+        formData[fieldName] = rawValue;
+      }
     });
     validationErrors = {};
   }
@@ -275,6 +290,18 @@
           break;
         case "boolean":
           // Accept true/false or convert from string
+          break;
+        case "json":
+          // Must parse to a JSON object or array (OBP rejects bare strings/numbers)
+          if (typeof value === "object") break;
+          try {
+            const parsed = JSON.parse(value);
+            if (typeof parsed !== "object" || parsed === null) {
+              return "Must be a JSON object or array";
+            }
+          } catch (e) {
+            return e instanceof Error ? `Invalid JSON: ${e.message}` : "Invalid JSON";
+          }
           break;
         case "DATE_WITH_DAY":
           if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
@@ -338,6 +365,13 @@
         case "number":
           // Convert to number (JavaScript/JSON doesn't distinguish int vs float)
           converted[fieldName] = Number(value);
+          break;
+        case "json":
+          // Parse the textarea contents into a real JSON object/array.
+          // If the value is already an object (e.g. loaded from an existing
+          // record), pass it through unchanged.
+          converted[fieldName] =
+            typeof value === "string" ? JSON.parse(value) : value;
           break;
         default:
           // Keep as string
@@ -576,6 +610,8 @@
       case "integer":
       case "number":
         return "number";
+      case "json":
+        return "textarea";
       case "DATE_WITH_DAY":
         return "text";
       default:
@@ -939,10 +975,7 @@
                   <td
                     class="max-w-xs truncate px-6 py-4 text-sm text-gray-900 dark:text-gray-100"
                   >
-                    {recordData[fieldName] !== undefined &&
-                    recordData[fieldName] !== null
-                      ? String(recordData[fieldName])
-                      : "-"}
+                    {displayValue(recordData[fieldName])}
                   </td>
                 {/each}
                 <td class="whitespace-nowrap px-6 py-4 text-right text-sm">
@@ -1037,7 +1070,7 @@
         class="sticky top-0 flex items-center justify-between border-b border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800"
       >
         <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100">
-          Create New Record
+          Create New {entityName} Record
         </h2>
         <button
           type="button"
@@ -1100,6 +1133,16 @@
                     class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
                 </div>
+              {:else if inputType === "textarea"}
+                <textarea
+                  id="create-{fieldName}"
+                  bind:value={formData[fieldName]}
+                  rows="8"
+                  placeholder={fieldDef.example
+                    ? JSON.stringify(fieldDef.example, null, 2)
+                    : '{ }'}
+                  class="mt-2 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 font-mono text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                ></textarea>
               {:else}
                 <input
                   type={inputType}
@@ -1233,6 +1276,16 @@
                     class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
                 </div>
+              {:else if inputType === "textarea"}
+                <textarea
+                  id="edit-{fieldName}"
+                  bind:value={formData[fieldName]}
+                  rows="8"
+                  placeholder={fieldDef.example
+                    ? JSON.stringify(fieldDef.example, null, 2)
+                    : '{ }'}
+                  class="mt-2 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 font-mono text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                ></textarea>
               {:else}
                 <input
                   type={inputType}
@@ -1337,11 +1390,12 @@
                   <span class="ml-1 text-xs text-red-600">(Required)</span>
                 {/if}
               </dt>
-              <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">
-                {recordData[fieldName] !== undefined &&
-                recordData[fieldName] !== null
-                  ? String(recordData[fieldName])
-                  : "-"}
+              <dd class="mt-1 whitespace-pre-wrap break-words font-mono text-sm text-gray-900 dark:text-gray-100">
+                {properties[fieldName].type === "json" &&
+                recordData[fieldName] &&
+                typeof recordData[fieldName] === "object"
+                  ? JSON.stringify(recordData[fieldName], null, 2)
+                  : displayValue(recordData[fieldName])}
               </dd>
             </div>
           {/each}
