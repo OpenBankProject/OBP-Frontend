@@ -1,5 +1,13 @@
 <script lang="ts">
   import { env } from "$env/dynamic/public";
+
+  function formatBuildTime(isoString: string): string {
+    try {
+      return new Date(isoString).toLocaleString();
+    } catch {
+      return isoString;
+    }
+  }
 </script>
 
 <div class="mx-auto max-w-3xl px-6 py-10">
@@ -50,5 +58,26 @@
         — source code
       </li>
     </ul>
+
+    <!-- Version Information Footer -->
+    <div class="mt-12 border-t border-surface-200-800 pt-8" data-testid="build-info">
+      <div class="text-sm text-surface-600-400">
+        <span class="font-medium">Version:</span>
+        <span class="font-mono text-surface-900-100" data-testid="build-version">{__APP_VERSION__}</span>
+        {#if __GIT_COMMIT__ !== 'unknown'}
+          <span class="mx-2">•</span>
+          <span class="font-medium">Commit:</span>
+          <span class="font-mono text-surface-900-100" data-testid="build-commit">{__GIT_COMMIT__}</span>
+        {/if}
+        {#if __GIT_BRANCH__ !== 'unknown'}
+          <span class="mx-2">•</span>
+          <span class="font-medium">Branch:</span>
+          <span class="font-mono text-surface-900-100" data-testid="build-branch">{__GIT_BRANCH__}</span>
+        {/if}
+        <span class="mx-2">•</span>
+        <span class="font-medium">Built:</span>
+        <span class="font-mono text-surface-900-100" data-testid="build-time">{formatBuildTime(__BUILD_TIME__)}</span>
+      </div>
+    </div>
   </div>
 </div>
