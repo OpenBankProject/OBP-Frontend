@@ -217,6 +217,9 @@ export const SITE_MAP: Record<string, PageRoleConfig> = {
   "/connector-counts": {
     required: [{ role: "CanGetConnectorMetrics" }],
   },
+  "/metrics-diagnostics": {
+    required: [{ role: "CanGetMetricsDiagnostics" }],
+  },
 
   // ── ABAC ──────────────────────────────────────────────
   "/abac/rules": {
