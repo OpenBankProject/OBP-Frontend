@@ -220,6 +220,9 @@ export const SITE_MAP: Record<string, PageRoleConfig> = {
   "/metrics-diagnostics": {
     required: [{ role: "CanGetMetricsDiagnostics" }],
   },
+  "/metrics-archive-run": {
+    required: [{ role: "CanCreateMetricsArchiveRun" }],
+  },
 
   // ── ABAC ──────────────────────────────────────────────
   "/abac/rules": {

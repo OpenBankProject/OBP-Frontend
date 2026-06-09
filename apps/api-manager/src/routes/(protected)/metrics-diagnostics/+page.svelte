@@ -38,6 +38,34 @@
     return `${days.toLocaleString()} day${days === 1 ? "" : "s"}`;
   }
 
+  // Check names are descriptive slugs, not OBP props — drop the underscores so
+  // they don't masquerade as prop names. Actual props are printed verbatim.
+  function humanize(name: string): string {
+    const s = name.replace(/_/g, " ");
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+
+  // The props each derived integrity check is computed from, so every statement
+  // on the page is traceable to a real field in the API response. Keyed by the
+  // backend check.name; "+7d grace" in the messages is a hardcoded constant.
+  const checkProps: Record<string, string[]> = {
+    write_metrics_enabled: ["config.write_metrics"],
+    metrics_scheduler_enabled: ["config.enable_metrics_scheduler"],
+    metric_oldest_within_retention: [
+      "metric.oldest_record_age_days",
+      "config.retain_metrics_days_effective",
+    ],
+    archive_oldest_within_retention: [
+      "metric_archive.oldest_record_age_days",
+      "config.retain_archive_metrics_days_effective",
+    ],
+    archive_recently_updated: [
+      "metric.oldest_record_age_days",
+      "metric_archive.newest_record_age_days",
+      "config.retain_metrics_days_effective",
+    ],
+  };
+
   function checkBadgeColor(status: string): string {
     if (status === "OK")
       return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400";
@@ -166,23 +194,18 @@
         </h2>
       </div>
       <div class="grid grid-cols-1 gap-px overflow-hidden rounded-b-lg bg-gray-200 dark:bg-gray-700 sm:grid-cols-2 lg:grid-cols-3">
-        {#each [{ key: "write_metrics", label: "Write Metrics", value: config?.write_metrics }, { key: "enable_metrics_scheduler", label: "Scheduler Enabled", value: config?.enable_metrics_scheduler }, { key: "retain_metrics_move_limit", label: "Move Batch Limit", value: config?.retain_metrics_move_limit }, { key: "retain_metrics_days", label: "Retain Metrics (days)", value: config?.retain_metrics_days, effective: config?.retain_metrics_days_effective }, { key: "retain_archive_metrics_days", label: "Retain Archive (days)", value: config?.retain_archive_metrics_days, effective: config?.retain_archive_metrics_days_effective }] as item (item.key)}
-          <div class="bg-white p-4 dark:bg-gray-800" data-testid="config-item" data-config-key={item.key}>
-            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">
-              {item.label}
-            </p>
+        {#each Object.entries(config) as [key, value] (key)}
+          <div class="bg-white p-4 dark:bg-gray-800" data-testid="config-item" data-config-key={key}>
+            <code class="text-sm font-mono text-gray-600 dark:text-gray-400">
+              {key}
+            </code>
             <p class="mt-1 text-lg font-semibold text-gray-900 dark:text-gray-100">
-              {#if typeof item.value === "boolean"}
-                {item.value ? "Yes" : "No"}
+              {#if typeof value === "boolean"}
+                {value ? "true" : "false"}
               {:else}
-                {item.value ?? "—"}
+                {value}
               {/if}
             </p>
-            {#if item.effective !== undefined && item.effective !== item.value}
-              <p class="text-xs text-gray-500 dark:text-gray-400">
-                effective: {item.effective}
-              </p>
-            {/if}
           </div>
         {/each}
       </div>
@@ -211,9 +234,9 @@
             </div>
             <div class="flex-1">
               <div class="flex items-center gap-2">
-                <code class="text-sm font-mono font-semibold text-gray-900 dark:text-gray-100">
-                  {check.name}
-                </code>
+                <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                  {humanize(check.name)}
+                </span>
                 <span class="rounded-full px-2.5 py-0.5 text-xs font-medium {checkBadgeColor(check.status)}">
                   {check.status}
                 </span>
@@ -221,6 +244,14 @@
               <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
                 {check.message}
               </p>
+              {#if checkProps[check.name]}
+                <div class="mt-2 flex flex-wrap items-center gap-1.5" data-testid="check-props">
+                  <span class="text-xs text-gray-500 dark:text-gray-400">props:</span>
+                  {#each checkProps[check.name] as prop (prop)}
+                    <code class="rounded bg-gray-100 px-1.5 py-0.5 text-xs font-mono text-gray-700 dark:bg-gray-900 dark:text-gray-300">{prop}</code>
+                  {/each}
+                </div>
+              {/if}
             </div>
           </li>
         {/each}
