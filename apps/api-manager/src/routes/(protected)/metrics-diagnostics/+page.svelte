@@ -16,6 +16,8 @@
   const config = $derived(diagnostics?.config);
   const metric = $derived(diagnostics?.metric);
   const metricArchive = $derived(diagnostics?.metric_archive);
+  const lastRun = $derived(diagnostics?.last_run);
+  const lastSuccessfulRun = $derived(diagnostics?.last_successful_run);
   const checks = $derived(diagnostics?.checks ?? []);
   const everythingAsExpected = $derived(
     diagnostics?.everything_as_expected ?? false,
@@ -38,31 +40,58 @@
     return `${days.toLocaleString()} day${days === 1 ? "" : "s"}`;
   }
 
-  // Check names are descriptive slugs, not OBP props — drop the underscores so
-  // they don't masquerade as prop names. Actual props are printed verbatim.
-  function humanize(name: string): string {
-    const s = name.replace(/_/g, " ");
-    return s.charAt(0).toUpperCase() + s.slice(1);
+  // Each field of an archive run, paired with its prop path under the given
+  // prefix (last_run / last_successful_run) so every value stays traceable.
+  function runFields(run: any, prefix: string) {
+    return [
+      { prop: `${prefix}.run_id`, value: run.run_id },
+      { prop: `${prefix}.api_instance_id`, value: run.api_instance_id },
+      { prop: `${prefix}.started_at`, value: formatDate(run.started_at) },
+      { prop: `${prefix}.ended_at`, value: formatDate(run.ended_at) },
+      { prop: `${prefix}.duration_ms`, value: formatCount(run.duration_ms) },
+      { prop: `${prefix}.rows_moved_to_archive`, value: formatCount(run.rows_moved_to_archive) },
+      { prop: `${prefix}.rows_deleted_from_archive`, value: formatCount(run.rows_deleted_from_archive) },
+      { prop: `${prefix}.success`, value: String(run.success) },
+      { prop: `${prefix}.remark`, value: run.remark === "" ? "—" : run.remark },
+    ];
   }
+
+  // Explicit display label per check id — no string munging. An unmapped id
+  // falls back to its literal value rather than being reworded.
+  const checkLabels: Record<string, string> = {
+    check_metrics_are_being_written: "Metrics are being written",
+    check_archive_scheduler_is_enabled: "Archive scheduler is enabled",
+    check_metric_retention_policy_is_respected: "Metric retention policy is respected",
+    check_all_old_metrics_can_be_archived: "All old metrics can be archived",
+    check_archive_retention_policy_is_respected: "Archive retention policy is respected",
+    check_archive_metrics_is_fresh_enough: "Archive metrics is fresh enough",
+    check_last_archive_run_succeeded: "Last archive run succeeded",
+  };
 
   // The props each derived integrity check is computed from, so every statement
   // on the page is traceable to a real field in the API response. Keyed by the
-  // backend check.name; "+7d grace" in the messages is a hardcoded constant.
+  // backend check id; "+7d grace" in the messages is a hardcoded constant.
+  // check_all_old_metrics_can_be_archived has no matching prop (the blocked-row
+  // count is computed server-side and not in the response), so it is omitted.
   const checkProps: Record<string, string[]> = {
-    write_metrics_enabled: ["config.write_metrics"],
-    metrics_scheduler_enabled: ["config.enable_metrics_scheduler"],
-    metric_oldest_within_retention: [
+    check_metrics_are_being_written: ["config.write_metrics"],
+    check_archive_scheduler_is_enabled: ["config.enable_metrics_scheduler"],
+    check_metric_retention_policy_is_respected: [
       "metric.oldest_record_age_days",
       "config.retain_metrics_days_effective",
     ],
-    archive_oldest_within_retention: [
+    check_archive_retention_policy_is_respected: [
       "metric_archive.oldest_record_age_days",
       "config.retain_archive_metrics_days_effective",
     ],
-    archive_recently_updated: [
+    check_archive_metrics_is_fresh_enough: [
       "metric.oldest_record_age_days",
       "metric_archive.newest_record_age_days",
       "config.retain_metrics_days_effective",
+    ],
+    check_last_archive_run_succeeded: [
+      "last_run.success",
+      "last_run.started_at",
     ],
   };
 
@@ -190,7 +219,7 @@
       <div class="flex items-center gap-2 border-b border-gray-200 p-6 dark:border-gray-700">
         <Settings class="h-5 w-5 text-gray-500" />
         <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
-          Archiving Configuration
+          Metrics Configuration
         </h2>
       </div>
       <div class="grid grid-cols-1 gap-px overflow-hidden rounded-b-lg bg-gray-200 dark:bg-gray-700 sm:grid-cols-2 lg:grid-cols-3">
@@ -210,6 +239,38 @@
         {/each}
       </div>
     </div>
+
+    <!-- Last Run / Last Successful Run -->
+    {#each [{ title: "Last Run", prefix: "last_run", run: lastRun }, { title: "Last Successful Run", prefix: "last_successful_run", run: lastSuccessfulRun }] as section (section.prefix)}
+      <div
+        class="mb-6 rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
+        data-testid="archive-run"
+        data-prefix={section.prefix}
+      >
+        <div class="border-b border-gray-200 p-6 dark:border-gray-700">
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            {section.title}
+          </h2>
+          <code class="text-xs font-mono text-gray-500 dark:text-gray-400">{section.prefix}</code>
+        </div>
+        {#if section.run}
+          <div class="grid grid-cols-1 gap-px overflow-hidden rounded-b-lg bg-gray-200 dark:bg-gray-700 sm:grid-cols-2 lg:grid-cols-3">
+            {#each runFields(section.run, section.prefix) as field (field.prop)}
+              <div class="bg-white p-4 dark:bg-gray-800" data-testid="run-field" data-prop={field.prop}>
+                <code class="text-sm font-mono text-gray-600 dark:text-gray-400">{field.prop}</code>
+                <p class="mt-1 text-lg font-semibold break-words text-gray-900 dark:text-gray-100">
+                  {field.value}
+                </p>
+              </div>
+            {/each}
+          </div>
+        {:else}
+          <p class="p-6 text-sm text-gray-600 dark:text-gray-400">
+            No archive run recorded.
+          </p>
+        {/if}
+      </div>
+    {/each}
 
     <!-- Integrity Checks -->
     <div
@@ -235,12 +296,13 @@
             <div class="flex-1">
               <div class="flex items-center gap-2">
                 <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                  {humanize(check.name)}
+                  {checkLabels[check.name] ?? check.name}
                 </span>
                 <span class="rounded-full px-2.5 py-0.5 text-xs font-medium {checkBadgeColor(check.status)}">
                   {check.status}
                 </span>
               </div>
+              <code class="text-xs font-mono text-gray-500 dark:text-gray-400">{check.name}</code>
               <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
                 {check.message}
               </p>
