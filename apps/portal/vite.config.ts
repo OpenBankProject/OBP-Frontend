@@ -3,7 +3,7 @@ import tailwindcss from '@tailwindcss/vite';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
 import { readFileSync } from 'fs';
-import { buildInfoDefine } from '../../packages/shared/build/build-info.js';
+import { buildInfoDefine } from '../../packages/shared/build-info.js';
 
 // Get version from package.json
 const packageJson = JSON.parse(readFileSync('./package.json', 'utf-8'));
