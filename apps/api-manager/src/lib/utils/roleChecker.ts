@@ -126,6 +126,12 @@ export const SITE_MAP: Record<string, PageRoleConfig> = {
   "/system/webui-props/[id]/delete": {
     required: [{ role: "CanDeleteWebUiProps" }],
   },
+  "/system/scheduler-job-locks": {
+    required: [{ role: "CanGetSchedulerJobLocks" }],
+  },
+  "/system/scheduler-job-locks/[job_id]/delete": {
+    required: [{ role: "CanDeleteSchedulerJobLock" }],
+  },
   "/system/self-test-emails": {
     required: [{ role: "CanCreateTestEmail" }],
   },

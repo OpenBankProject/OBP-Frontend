@@ -46,6 +46,7 @@ import {
   Mail,
   Stethoscope,
   Play,
+  Clock,
 } from "@lucide/svelte";
 import { env } from "$env/dynamic/public";
 
@@ -146,6 +147,11 @@ function buildSystemItems(): NavigationItem[] {
       href: "/system/migrations",
       label: "Migrations",
       iconComponent: GitBranch,
+    },
+    {
+      href: "/system/scheduler-job-locks",
+      label: "Scheduler Job Locks",
+      iconComponent: Clock,
     },
     {
       href: "/system/self-test-emails",
