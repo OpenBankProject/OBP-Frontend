@@ -14,7 +14,7 @@
 
 ## Page layout & width
 
-Follow [`docs/page-layout.md`](docs/page-layout.md) for content width on pages:
+Follow [`page-layout.md`](../../page-layout.md) (repo root — shared with Portal) for content width on pages:
 
 - Default config/dashboard page wrapper is `container mx-auto max-w-7xl px-4 py-8`.
 - These are API configuration pages, not prose — caps exist to limit eye-scan distance and center content, not to fit small screens.
