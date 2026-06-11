@@ -14,7 +14,7 @@
 
 ## Page layout & width
 
-Follow [`page-layout.md`](../../page-layout.md) (repo root — shared with Portal) for content width on pages:
+Follow [`docs/page-layout.md`](../../docs/page-layout.md) (repo root — shared with Portal) for content width on pages:
 
 - Default config/dashboard page wrapper is `container mx-auto max-w-7xl px-4 py-8`.
 - These are API configuration pages, not prose — caps exist to limit eye-scan distance and center content, not to fit small screens.
@@ -22,7 +22,7 @@ Follow [`page-layout.md`](../../page-layout.md) (repo root — shared with Porta
 
 ## HTML best practices
 
-Follow the guidelines in [`docs/playwright-friendly-html.md`](docs/playwright-friendly-html.md) when writing or modifying Svelte components:
+Follow the guidelines in [`docs/playwright-friendly-html.md`](../../docs/playwright-friendly-html.md) (repo root — shared with Portal) when writing or modifying Svelte components:
 
 - Add `data-testid` attributes to interactive and assertable elements
 - Use semantic HTML and ARIA labels

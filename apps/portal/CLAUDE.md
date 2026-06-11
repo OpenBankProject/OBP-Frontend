@@ -6,7 +6,7 @@ When making client-side calls to the OBP-API, use the generic proxy at `/proxy/o
 
 ## Page Layout & Width
 
-Follow [page-layout.md](../../page-layout.md) (repo root — shared with API Manager) for content width on pages:
+Follow [docs/page-layout.md](../../docs/page-layout.md) (repo root — shared with API Manager) for content width on pages:
 
 - Default config/dashboard page wrapper is `container mx-auto max-w-7xl px-4 py-8`.
 - These are configuration pages, not prose — caps exist to limit eye-scan distance and center content, not to fit small screens.
@@ -14,7 +14,7 @@ Follow [page-layout.md](../../page-layout.md) (repo root — shared with API Man
 
 ## HTML Best Practices
 
-Follow the guidelines in [docs/playwright-friendly-html.md](docs/playwright-friendly-html.md) when writing HTML. Key points:
+Follow the guidelines in [docs/playwright-friendly-html.md](../../docs/playwright-friendly-html.md) (repo root — shared with API Manager) when writing HTML. Key points:
 
 - Add `data-testid` attributes to interactive and assertable elements
 - Use semantic HTML and ARIA attributes for accessibility and testability
