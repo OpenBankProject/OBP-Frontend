@@ -71,23 +71,23 @@
   // The props each derived integrity check is computed from, so every statement
   // on the page is traceable to a real field in the API response. Keyed by the
   // backend check id; "+7d grace" in the messages is a hardcoded constant.
-  // check_all_old_metrics_can_be_archived has no matching prop (the blocked-row
-  // count is computed server-side and not in the response), so it is omitted.
+  // check_all_old_metrics_can_be_archived has no matching prop (the backend
+  // always reports OK since un-archivable rows no longer exist), so it is omitted.
   const checkProps: Record<string, string[]> = {
     check_metrics_are_being_written: ["config.write_metrics"],
     check_archive_scheduler_is_enabled: ["config.enable_metrics_scheduler"],
     check_metric_retention_policy_is_respected: [
       "metric.oldest_record_age_days",
-      "config.retain_metrics_days_effective",
+      "config.retain_metrics_days",
     ],
     check_archive_retention_policy_is_respected: [
       "metric_archive.oldest_record_age_days",
-      "config.retain_archive_metrics_days_effective",
+      "config.retain_archive_metrics_days",
     ],
     check_archive_metrics_is_fresh_enough: [
       "metric.oldest_record_age_days",
       "metric_archive.newest_record_age_days",
-      "config.retain_metrics_days_effective",
+      "config.retain_metrics_days",
     ],
     check_last_archive_run_succeeded: [
       "last_run.success",
