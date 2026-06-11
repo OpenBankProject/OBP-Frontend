@@ -470,6 +470,11 @@ const JIT_EXCLUDED_ROLES = new Set([
  * - User holds CanCreateEntitlementAtAnyBank (system-wide), OR
  *   CanCreateEntitlementAtOneBank for the relevant bank (bank-scoped roles)
  * - The missing role is not one of the excluded meta-roles
+ *
+ * Only real (database) entitlements count as grant-capable. /users/current also
+ * returns virtual entitlements (super_admin_user_ids / oidc_operator_user_ids props)
+ * with an empty entitlement_id; the OBP JIT grant logic only honours real
+ * entitlements, so counting virtual ones here would promise a grant that never happens.
  */
 function canJitGrant(
   requirement: RoleRequirement,
@@ -478,8 +483,10 @@ function canJitGrant(
 ): boolean {
   if (JIT_EXCLUDED_ROLES.has(requirement.role)) return false;
 
+  const realEntitlements = userEntitlements.filter((e) => e.entitlement_id);
+
   // CanCreateEntitlementAtAnyBank covers everything
-  const hasAnyBank = userEntitlements.some(
+  const hasAnyBank = realEntitlements.some(
     (e) => e.role_name === "CanCreateEntitlementAtAnyBank",
   );
   if (hasAnyBank) return true;
@@ -488,7 +495,7 @@ function canJitGrant(
   if (requirement.bankScoped || requirement.bankId) {
     const bankId = requirement.bankId || currentBankId;
     if (!bankId) return false;
-    return userEntitlements.some(
+    return realEntitlements.some(
       (e) => e.role_name === "CanCreateEntitlementAtOneBank" && e.bank_id === bankId,
     );
   }

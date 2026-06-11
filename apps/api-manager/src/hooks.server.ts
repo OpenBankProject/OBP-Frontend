@@ -332,5 +332,7 @@ declare module "svelte-kit-sessions" {
     authInfo?: {
       authenticated: boolean;
     };
+    /** Epoch ms of the last /users/current fetch (set at login and by the layout's silent refresh) */
+    userRefreshedAt?: number;
   }
 }

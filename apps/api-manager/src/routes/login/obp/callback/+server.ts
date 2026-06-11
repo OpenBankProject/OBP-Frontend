@@ -214,6 +214,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
     const { session } = event.locals;
     await session.setData({
       user: user,
+      userRefreshedAt: Date.now(),
       oauth: {
         access_token: obpAccessToken,
         refresh_token: tokens.refreshToken(),

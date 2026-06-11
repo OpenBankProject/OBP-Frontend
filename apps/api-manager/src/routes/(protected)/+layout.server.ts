@@ -1,9 +1,8 @@
 import type { LayoutServerLoad } from "./$types";
 
-export const load: LayoutServerLoad = async ({ locals }) => {
-  const session = locals.session;
-  const userEntitlements =
-    (session?.data?.user as any)?.entitlements?.list || [];
-  const userId = (session?.data?.user as any)?.user_id || "";
-  return { userEntitlements, userId };
+// Derive from the root layout load (rather than reading the session directly) so
+// this load reruns when invalidate("app:session-user") refreshes the session user.
+export const load: LayoutServerLoad = async ({ parent }) => {
+  const { userEntitlements, userId } = await parent();
+  return { userEntitlements: userEntitlements || [], userId: userId || "" };
 };

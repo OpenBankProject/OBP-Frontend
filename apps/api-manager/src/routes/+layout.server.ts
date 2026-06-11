@@ -1,7 +1,9 @@
 import { createLogger } from "@obp/shared/utils";
 const logger = createLogger("LayoutServer");
-import type { RequestEvent } from "@sveltejs/kit";
+import type { ServerLoadEvent } from "@sveltejs/kit";
+import type { Session } from "svelte-kit-sessions";
 import { obpIntegrationService } from "$lib/server/opey/OBPIntegrationService";
+import { OBP_API_URL } from "$lib/config";
 import type { OBPConsentInfo } from "$lib/obp/types";
 // import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
 // import { storePopup } from '@skeletonlabs/skeleton';
@@ -22,9 +24,60 @@ export interface RootLayoutData {
   jitEnabled: boolean;
 }
 
-export async function load(event: RequestEvent) {
+// Session user (incl. entitlements) is a login-time snapshot. Refresh it from
+// /users/current when older than this, so granted roles (manual or JIT) show up
+// without logout/login. The client layout re-polls via invalidate() every 5 min;
+// keeping the base threshold below the poll interval guarantees each poll refreshes.
+// Users with very large entitlement lists (JIT accumulation can reach thousands of
+// rows) get a several-hundred-KB /users/current response, so back off for them —
+// see security_TODO.md "Prune JIT-accumulated entitlements".
+const USER_REFRESH_STALE_MS = 4 * 60 * 1000;
+const USER_REFRESH_STALE_LARGE_MS = 15 * 60 * 1000;
+const LARGE_ENTITLEMENT_COUNT = 500;
+
+async function refreshSessionUser(session: Session) {
+  const lastRefresh = session.data.userRefreshedAt ?? 0;
+  const entitlementCount =
+    (session.data.user as any)?.entitlements?.list?.length ?? 0;
+  const staleMs =
+    entitlementCount > LARGE_ENTITLEMENT_COUNT
+      ? USER_REFRESH_STALE_LARGE_MS
+      : USER_REFRESH_STALE_MS;
+  if (Date.now() - lastRefresh < staleMs) return;
+
+  try {
+    const response = await fetch(`${OBP_API_URL}/users/current`, {
+      headers: { Authorization: `Bearer ${session.data.oauth!.access_token}` },
+    });
+    if (!response.ok) {
+      logger.warn(`Failed to refresh /users/current: ${response.status}`);
+      return;
+    }
+    const freshUser = await response.json();
+    if (!freshUser.user_id) {
+      logger.warn("Refresh of /users/current returned no user_id, keeping session user");
+      return;
+    }
+    await session.setData({
+      ...session.data,
+      user: freshUser,
+      userRefreshedAt: Date.now(),
+    });
+    await session.save();
+    logger.info(
+      `Refreshed session user from /users/current (${freshUser.entitlements?.list?.length ?? 0} entitlements)`,
+    );
+  } catch (error) {
+    logger.warn("Failed to refresh /users/current, keeping session user:", error);
+  }
+}
+
+export async function load(event: ServerLoadEvent) {
   const startTime = performance.now();
   logger.info("🚀 Layout server load started");
+
+  // Rerun this load (and dependants) when the client calls invalidate("app:session-user")
+  event.depends("app:session-user");
 
   const { session } = event.locals;
 
@@ -59,6 +112,7 @@ export async function load(event: RequestEvent) {
   // User is only considered logged in if they have both user data AND a valid access token
   logger.info("👤 Checking user session");
   if (session?.data?.user && session?.data?.oauth?.access_token) {
+    await refreshSessionUser(session);
     data.userId = session.data.user.user_id;
     data.email = session.data.user.email;
     data.username = session.data.user.username;
