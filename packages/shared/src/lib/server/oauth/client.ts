@@ -133,6 +133,12 @@ export class OAuth2ClientWithConfig extends OAuth2Client {
 		return {
 			accessToken: () => tokens.access_token,
 			refreshToken: () => tokens.refresh_token,
+			idToken: () => {
+				if ('id_token' in tokens && typeof tokens.id_token === 'string') {
+					return tokens.id_token;
+				}
+				throw new Error("Missing or invalid field 'id_token'");
+			},
 			accessTokenExpiresAt: () =>
 				tokens.expires_in ? new Date(Date.now() + tokens.expires_in * 1000) : null
 		};
@@ -219,6 +225,12 @@ export class OAuth2ClientWithConfig extends OAuth2Client {
 				return {
 					accessToken: () => retryTokens.access_token,
 					refreshToken: () => retryTokens.refresh_token,
+					idToken: () => {
+						if ('id_token' in retryTokens && typeof retryTokens.id_token === 'string') {
+							return retryTokens.id_token;
+						}
+						throw new Error("Missing or invalid field 'id_token'");
+					},
 					accessTokenExpiresAt: () =>
 						retryTokens.expires_in ? new Date(Date.now() + retryTokens.expires_in * 1000) : null
 				};
@@ -233,6 +245,12 @@ export class OAuth2ClientWithConfig extends OAuth2Client {
 		return {
 			accessToken: () => tokens.access_token,
 			refreshToken: () => tokens.refresh_token,
+			idToken: () => {
+				if ('id_token' in tokens && typeof tokens.id_token === 'string') {
+					return tokens.id_token;
+				}
+				throw new Error("Missing or invalid field 'id_token'");
+			},
 			accessTokenExpiresAt: () =>
 				tokens.expires_in ? new Date(Date.now() + tokens.expires_in * 1000) : null
 		};
