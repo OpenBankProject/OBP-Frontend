@@ -86,9 +86,11 @@ export class SessionOAuthHelper {
 			logger.debug(`Refreshing access token for provider: ${provider}...`);
 			const tokens = await client.refreshAccessToken(refreshEndpoint, refreshToken, ['openid']);
 
+			// Google access tokens are opaque and can't be validated by OBP;
+			// the id_token is the JWT that OBP verifies against Google's JWKS.
 			await this.updateTokensInSession(
 				session,
-				tokens.accessToken(),
+				provider === 'google' ? tokens.idToken() : tokens.accessToken(),
 				tokens.refreshToken() || refreshToken,
 				tokens.idToken()
 			);

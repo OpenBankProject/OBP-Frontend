@@ -158,7 +158,6 @@ export async function GET(event: RequestEvent): Promise<Response> {
 		path: '/'
 	});
 
-	const obpAccessToken = tokens.accessToken();
 	let idToken;
 	try {
 		idToken = tokens.idToken();
@@ -166,6 +165,10 @@ export async function GET(event: RequestEvent): Promise<Response> {
 		// ID token might not be available for all providers/flows
 		idToken = undefined;
 	}
+
+	// Google access tokens are opaque and can't be validated by OBP;
+	// the id_token is the JWT that OBP verifies against Google's JWKS.
+	const obpAccessToken = provider === 'google' ? idToken : tokens.accessToken();
 
 	logger.debug(`PUBLIC_OBP_BASE_URL from env: ${env.PUBLIC_OBP_BASE_URL}`);
 	const currentUserUrl = `${env.PUBLIC_OBP_BASE_URL}/obp/v5.1.0/users/current`;

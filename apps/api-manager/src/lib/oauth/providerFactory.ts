@@ -72,6 +72,36 @@ class OBPOIDCStrategy implements OAuth2ProviderStrategy {
   }
 }
 
+class GoogleStrategy implements OAuth2ProviderStrategy {
+  providerName = "google";
+
+  supports(provider: string): boolean {
+    return provider === this.providerName;
+  }
+
+  getProviderName(): string {
+    return this.providerName;
+  }
+
+  async initialize(config: WellKnownUri): Promise<OAuth2ClientWithConfig> {
+    if (!env.GOOGLE_OAUTH_CLIENT_ID || !env.GOOGLE_OAUTH_CLIENT_SECRET) {
+      throw new Error(
+        "GOOGLE_OAUTH_CLIENT_ID and GOOGLE_OAUTH_CLIENT_SECRET must be set",
+      );
+    }
+
+    const client = new OAuth2ClientWithConfig(
+      env.GOOGLE_OAUTH_CLIENT_ID,
+      env.GOOGLE_OAUTH_CLIENT_SECRET,
+      env.APP_CALLBACK_URL,
+    );
+
+    await client.initOIDCConfig(config.url);
+
+    return client;
+  }
+}
+
 export class OAuth2ProviderFactory {
   private strategies: OAuth2ProviderStrategy[] = [];
   private initializedClients = new Map<string, OAuth2ClientWithConfig>();
@@ -80,7 +110,7 @@ export class OAuth2ProviderFactory {
     // Register any available strategies
     this.registerStrategy(new KeyCloakStrategy());
     this.registerStrategy(new OBPOIDCStrategy());
-    // Add more as needed i.e. this.registerStrategy(new GoogleStrategy());
+    this.registerStrategy(new GoogleStrategy());
   }
 
   registerStrategy(strategy: OAuth2ProviderStrategy): void {
