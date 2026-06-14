@@ -913,7 +913,6 @@
 {#if showCreateModal}
   <div
     class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
-    onclick={(e) => e.target === e.currentTarget && closeModals()}
   >
     <div
       class="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white dark:bg-gray-800"
@@ -1046,7 +1045,6 @@
 {#if showEditModal && selectedRecord}
   <div
     class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
-    onclick={(e) => e.target === e.currentTarget && closeModals()}
   >
     <div
       class="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white dark:bg-gray-800"
@@ -1179,7 +1177,6 @@
 {#if showViewModal && selectedRecord}
   <div
     class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
-    onclick={(e) => e.target === e.currentTarget && closeModals()}
   >
     <div
       class="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white dark:bg-gray-800"
