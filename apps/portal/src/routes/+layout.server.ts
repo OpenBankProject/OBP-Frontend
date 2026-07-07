@@ -16,12 +16,42 @@ export interface RootLayoutData {
     externalLinks: Record<string, string>;
     showEarlyAccess?: boolean;
     totalUnreadCount?: number;
+    publicObpMcpUrl?: string;
+}
+
+// The app-directory endpoint is public and its values change rarely, so cache
+// it briefly instead of hitting OBP on every page load.
+const APP_DIRECTORY_CACHE_TTL_MS = 5 * 60 * 1000;
+let appDirectoryCache: { values: Record<string, string>; fetchedAt: number } | null = null;
+
+async function getAppDirectory(): Promise<Record<string, string>> {
+	if (appDirectoryCache && Date.now() - appDirectoryCache.fetchedAt < APP_DIRECTORY_CACHE_TTL_MS) {
+		return appDirectoryCache.values;
+	}
+	try {
+		const response = await obp_requests.get('/obp/v6.0.0/app-directory');
+		const values: Record<string, string> = {};
+		for (const entry of response.app_directory || []) {
+			if (entry.name && entry.value) {
+				values[entry.name] = entry.value;
+			}
+		}
+		appDirectoryCache = { values, fetchedAt: Date.now() };
+		return values;
+	} catch (error) {
+		logger.warn('Failed to fetch app-directory:', error);
+		// Serve stale values if we have them, otherwise nothing
+		return appDirectoryCache?.values ?? {};
+	}
 }
 
 export async function load(event: RequestEvent) {
 	const { session } = event.locals;
 
 	let data: Partial<RootLayoutData> = {};
+
+	// Kick off the (cached) app-directory fetch early; awaited before returning
+	const appDirectoryPromise = getAppDirectory();
 
 	let externalLinks = {
 		API_EXPLORER_URL: env.API_EXPLORER_URL,
@@ -79,10 +109,13 @@ export async function load(event: RequestEvent) {
 		}
 	}
 
+	const appDirectory = await appDirectoryPromise;
+
 	return {
 		...data,
 		externalLinks: validExternalLinks,
 		showEarlyAccess,
-		totalUnreadCount
+		totalUnreadCount,
+		publicObpMcpUrl: appDirectory['public_obp_mcp_url']
 	} as RootLayoutData
 }

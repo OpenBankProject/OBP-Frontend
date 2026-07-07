@@ -1,41 +1,6 @@
 import type { PageServerLoad } from './$types';
-import { healthCheckRegistry } from '@obp/shared/health-check';
-import { get } from 'svelte/store';
+import { healthCheckRegistry, summarizeHealth } from '@obp/shared/health-check';
 
 export const load: PageServerLoad = async () => {
-	const healthSnapshots = get(healthCheckRegistry.getStore());
-	
-	const services = Object.values(healthSnapshots);
-	const hasUnhealthy = services.some(s => s.status === 'unhealthy');
-	const hasUnknown = services.some(s => s.status === 'unknown');
-	const allHealthy = services.every(s => s.status === 'healthy');
-	
-	let overallStatus: 'healthy' | 'degraded' | 'unhealthy' | 'unknown';
-	
-	if (allHealthy) {
-		overallStatus = 'healthy';
-	} else if (hasUnhealthy) {
-		overallStatus = 'unhealthy';
-	} else if (hasUnknown) {
-		overallStatus = 'unknown';
-	} else {
-		overallStatus = 'degraded';
-	}
-	
-	const healthyCount = services.filter(s => s.status === 'healthy').length;
-	const totalCount = services.length;
-	const healthPercentage = totalCount > 0 ? Math.round((healthyCount / totalCount) * 100) : 0;
-	
-	return {
-		timestamp: new Date().toISOString(),
-		overallStatus,
-		healthPercentage,
-		services: healthSnapshots,
-		summary: {
-			total: totalCount,
-			healthy: healthyCount,
-			unhealthy: services.filter(s => s.status === 'unhealthy').length,
-			unknown: services.filter(s => s.status === 'unknown').length,
-		}
-	};
+	return summarizeHealth(healthCheckRegistry.getSnapshots());
 };
