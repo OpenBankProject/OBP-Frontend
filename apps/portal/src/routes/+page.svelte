@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { OpeyChat, CurrentBankPicker, AccountScopePicker } from '@obp/shared/components';
+	import { renderTextWithLinks } from '@obp/shared/markdown';
 	import type { OpeyChatOptions, SuggestedQuestion } from '@obp/shared/components';
     import { CheckCheck, Layers, Rocket, UserLock, HelpCircle } from '@lucide/svelte';
 	import { env } from '$env/dynamic/public';
@@ -17,6 +18,12 @@
 	const welcomeTitle = env.PUBLIC_WELCOME_TITLE || 'Welcome!';
 	const helpQuestion = env.PUBLIC_HELP_QUESTION || 'How can I help?';
 	const welcomeDescription = env.PUBLIC_WELCOME_DESCRIPTION || 'Welcome to the Open Bank Project sandbox — where developers, Fintechs, and banks can build and test innovative open banking ++ solutions.';
+	// Supports markdown-style links, e.g. "See [the docs](https://example.com)";
+	// everything else is escaped, so the result is safe for {@html}
+	const welcomeDescriptionHtml = renderTextWithLinks(welcomeDescription, {
+		// primary-* is near-black in the OBP theme, so use tertiary for a visible hover
+		linkClass: 'underline hover:text-tertiary-600 dark:hover:text-tertiary-400'
+	});
 
 	// Icon mapping for configurable questions
     const iconMap: Record<string, typeof Rocket> = {
@@ -75,7 +82,7 @@
 					<h1 class="h3 text-surface-700-300 mb-2">{welcomeTitle}</h1>
 					<h1 class="h3 mb-4">{helpQuestion}</h1>
 					<p class="text-surface-700-300 mb-7 text-sm">
-						{welcomeDescription}
+						{@html welcomeDescriptionHtml}
 					</p>
 				</div>
 			{/snippet}
