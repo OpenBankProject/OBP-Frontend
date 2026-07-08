@@ -7,6 +7,13 @@
     extractErrorFromResponse,
     formatErrorForDisplay,
   } from "$lib/utils/errorHandler";
+  import {
+    validateDynamicEntityFields,
+    convertDynamicEntityFormData,
+    initialDynamicEntityFormData,
+    dynamicEntityInputType,
+    type DynamicEntityFieldDef,
+  } from "@obp/shared/obp";
 
   let { data }: { data: PageData } = $props();
 
@@ -32,17 +39,9 @@
   // Make all derived values reactive
   let schema = $derived(getSchema(entity));
   let entityName = $derived(getEntityName(entity));
-  interface FieldDef {
-    type?: string;
-    description?: string;
-    example?: unknown;
-    minimum?: number;
-    maximum?: number;
-    minLength?: number;
-    maxLength?: number;
-  }
-
-  let properties = $derived<Record<string, FieldDef>>(schema?.properties || {});
+  let properties = $derived<Record<string, DynamicEntityFieldDef>>(
+    schema?.properties || {},
+  );
   let requiredFields = $derived<string[]>(schema?.required || []);
 
   // Define required roles for CRUD operations on this dynamic entity
@@ -222,18 +221,10 @@
   );
 
   function initializeFormData(record?: any) {
-    formData = {};
-    const recordData = record ? getRecordData(record) : null;
-    Object.keys(properties).forEach((fieldName) => {
-      const rawValue = recordData ? recordData[fieldName] : "";
-      // json fields are edited as text, so render existing objects/arrays as
-      // pretty-printed JSON for the textarea.
-      if (properties[fieldName].type === "json" && rawValue && typeof rawValue === "object") {
-        formData[fieldName] = JSON.stringify(rawValue, null, 2);
-      } else {
-        formData[fieldName] = rawValue;
-      }
-    });
+    formData = initialDynamicEntityFormData(
+      properties,
+      record ? getRecordData(record) : null,
+    );
     validationErrors = {};
   }
 
@@ -262,125 +253,13 @@
     validationErrors = {};
   }
 
-  function validateField(fieldName: string, value: any): string | null {
-    const fieldDef = properties[fieldName];
-    const isRequired = requiredFields.includes(fieldName);
-
-    if (isRequired && (!value || value === "")) {
-      return "This field is required";
-    }
-
-    if (value !== null && value !== undefined && value !== "") {
-      switch (fieldDef.type) {
-        case "integer":
-        case "number":
-          const num = Number(value);
-          if (isNaN(num)) {
-            return "Must be a valid number";
-          }
-          if (fieldDef.type === "integer" && !Number.isInteger(num)) {
-            return "Must be an integer";
-          }
-          if (fieldDef.minimum !== undefined && num < fieldDef.minimum) {
-            return `Must be at least ${fieldDef.minimum}`;
-          }
-          if (fieldDef.maximum !== undefined && num > fieldDef.maximum) {
-            return `Must be at most ${fieldDef.maximum}`;
-          }
-          break;
-        case "boolean":
-          // Accept true/false or convert from string
-          break;
-        case "json":
-          // Must parse to a JSON object or array (OBP rejects bare strings/numbers)
-          if (typeof value === "object") break;
-          try {
-            const parsed = JSON.parse(value);
-            if (typeof parsed !== "object" || parsed === null) {
-              return "Must be a JSON object or array";
-            }
-          } catch (e) {
-            return e instanceof Error ? `Invalid JSON: ${e.message}` : "Invalid JSON";
-          }
-          break;
-        case "DATE_WITH_DAY":
-          if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-            return "Must be in format YYYY-MM-DD";
-          }
-          break;
-        default:
-          // String validation
-          if (fieldDef.minLength && String(value).length < fieldDef.minLength) {
-            return `Must be at least ${fieldDef.minLength} characters`;
-          }
-          if (fieldDef.maxLength && String(value).length > fieldDef.maxLength) {
-            return `Must be at most ${fieldDef.maxLength} characters`;
-          }
-          break;
-      }
-    }
-
-    return null;
-  }
-
   function validateAllFields(): boolean {
-    let isValid = true;
-    validationErrors = {};
-
-    Object.keys(properties).forEach((fieldName) => {
-      const error = validateField(fieldName, formData[fieldName]);
-      if (error) {
-        validationErrors[fieldName] = error;
-        isValid = false;
-      }
-    });
-
-    return isValid;
-  }
-
-  function convertFormDataToApiFormat(
-    data: Record<string, any>,
-  ): Record<string, any> {
-    const converted: Record<string, any> = {};
-
-    Object.keys(properties).forEach((fieldName) => {
-      const fieldDef = properties[fieldName];
-      const value = data[fieldName];
-
-      // Skip empty values
-      if (value === "" || value === null || value === undefined) {
-        return;
-      }
-
-      switch (fieldDef.type) {
-        case "boolean":
-          // Convert boolean to string "true" or "false"
-          converted[fieldName] = value ? "true" : "false";
-          break;
-        case "integer":
-          // Convert to integer number
-          const intValue = Number(value);
-          converted[fieldName] = Math.round(intValue);
-          break;
-        case "number":
-          // Convert to number (JavaScript/JSON doesn't distinguish int vs float)
-          converted[fieldName] = Number(value);
-          break;
-        case "json":
-          // Parse the textarea contents into a real JSON object/array.
-          // If the value is already an object (e.g. loaded from an existing
-          // record), pass it through unchanged.
-          converted[fieldName] =
-            typeof value === "string" ? JSON.parse(value) : value;
-          break;
-        default:
-          // Keep as string
-          converted[fieldName] = String(value);
-          break;
-      }
-    });
-
-    return converted;
+    validationErrors = validateDynamicEntityFields(
+      properties,
+      requiredFields,
+      formData,
+    );
+    return Object.keys(validationErrors).length === 0;
   }
 
   async function handleCreate() {
@@ -392,7 +271,7 @@
     isSubmitting = true;
 
     try {
-      const convertedData = convertFormDataToApiFormat(formData);
+      const convertedData = convertDynamicEntityFormData(properties, formData);
       console.log("Original formData:", formData);
       console.log("Converted data being sent:", convertedData);
       console.log(
@@ -475,7 +354,7 @@
     isSubmitting = true;
 
     try {
-      const convertedData = convertFormDataToApiFormat(formData);
+      const convertedData = convertDynamicEntityFormData(properties, formData);
 
       const response = await fetch(
         `/backend/dynamic-entities/${entity.dynamic_entity_id}/data/${recordId}`,
@@ -600,24 +479,6 @@
     }
   }
 
-  function renderFieldInput(fieldName: string, fieldDef: any) {
-    const type = fieldDef.type;
-    const value = formData[fieldName] ?? "";
-
-    switch (type) {
-      case "boolean":
-        return "checkbox";
-      case "integer":
-      case "number":
-        return "number";
-      case "json":
-        return "textarea";
-      case "DATE_WITH_DAY":
-        return "text";
-      default:
-        return "text";
-    }
-  }
 </script>
 
 <svelte:head>
@@ -1102,7 +963,7 @@
         <div class="space-y-4">
           {#each Object.entries(properties) as [fieldName, fieldDef]}
             {@const isRequired = requiredFields.includes(fieldName)}
-            {@const inputType = renderFieldInput(fieldName, fieldDef)}
+            {@const inputType = dynamicEntityInputType(fieldDef)}
             <div>
               <label
                 for="create-{fieldName}"
@@ -1244,7 +1105,7 @@
         <div class="space-y-4">
           {#each Object.entries(properties) as [fieldName, fieldDef]}
             {@const isRequired = requiredFields.includes(fieldName)}
-            {@const inputType = renderFieldInput(fieldName, fieldDef)}
+            {@const inputType = dynamicEntityInputType(fieldDef)}
             <div>
               <label
                 for="edit-{fieldName}"
