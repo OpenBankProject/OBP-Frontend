@@ -520,6 +520,7 @@
     <button
       type="button"
       onclick={openCreateModal}
+      data-testid="open-create-record"
       class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
     >
       <svg
@@ -831,7 +832,10 @@
           >
             {#each filteredRecords as record, index}
               {@const recordData = getRecordData(record)}
-              <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+              <tr
+                data-testid="record-row-{index}"
+                class="hover:bg-gray-50 dark:hover:bg-gray-700/50"
+              >
                 {#each Object.keys(properties).slice(0, 4) as fieldName}
                   <td
                     class="max-w-xs truncate px-6 py-4 text-sm text-gray-900 dark:text-gray-100"
@@ -870,6 +874,7 @@
                     <button
                       type="button"
                       onclick={() => openEditModal(record)}
+                      data-testid="edit-record-{index}"
                       class="text-yellow-600 hover:text-yellow-900 dark:text-yellow-400 dark:hover:text-yellow-300"
                       title="Edit"
                     >
@@ -890,6 +895,7 @@
                     <button
                       type="button"
                       onclick={() => handleDelete(record)}
+                      data-testid="delete-record-{index}"
                       class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
                       title="Delete"
                     >
@@ -1031,7 +1037,10 @@
                 />
               {/if}
               {#if validationErrors[fieldName]}
-                <p class="mt-1 text-sm text-red-600 dark:text-red-400">
+                <p
+                  data-testid="create-error-{fieldName}"
+                  class="mt-1 text-sm text-red-600 dark:text-red-400"
+                >
                   {validationErrors[fieldName]}
                 </p>
               {/if}
@@ -1050,6 +1059,7 @@
           <button
             type="submit"
             disabled={isSubmitting}
+            data-testid="submit-create-record"
             class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
           >
             {isSubmitting ? "Creating..." : "Create Record"}
@@ -1173,7 +1183,10 @@
                 />
               {/if}
               {#if validationErrors[fieldName]}
-                <p class="mt-1 text-sm text-red-600 dark:text-red-400">
+                <p
+                  data-testid="edit-error-{fieldName}"
+                  class="mt-1 text-sm text-red-600 dark:text-red-400"
+                >
                   {validationErrors[fieldName]}
                 </p>
               {/if}
@@ -1192,6 +1205,7 @@
           <button
             type="submit"
             disabled={isSubmitting}
+            data-testid="submit-edit-record"
             class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
           >
             {isSubmitting ? "Updating..." : "Update Record"}
