@@ -4,6 +4,13 @@
     extractErrorFromResponse,
     formatErrorForDisplay,
   } from "$lib/utils/errorHandler";
+  import {
+    validateDynamicEntityFields,
+    convertDynamicEntityFormData,
+    initialDynamicEntityFormData,
+    dynamicEntityInputType,
+    type DynamicEntityFieldDef,
+  } from "@obp/shared/obp";
 
   let { data }: { data: PageData } = $props();
 
@@ -16,17 +23,9 @@
   let schema = $derived(getSchema(entity));
   let entityName = $derived(entity.entity_name || "Unknown");
 
-  interface FieldDef {
-    type?: string;
-    description?: string;
-    example?: unknown;
-    minimum?: number;
-    maximum?: number;
-    minLength?: number;
-    maxLength?: number;
-  }
-
-  let properties = $derived<Record<string, FieldDef>>(schema?.properties || {});
+  let properties = $derived<Record<string, DynamicEntityFieldDef>>(
+    schema?.properties || {},
+  );
   let requiredFields = $derived<string[]>(schema?.required || []);
   let description = $derived(schema?.description || "No description available");
 
@@ -118,11 +117,10 @@
   let schemaCollapsed = $state(true);
 
   function initializeFormData(record?: any) {
-    formData = {};
-    const recordData = record ? getRecordData(record) : null;
-    Object.keys(properties).forEach((fieldName) => {
-      formData[fieldName] = recordData ? recordData[fieldName] : "";
-    });
+    formData = initialDynamicEntityFormData(
+      properties,
+      record ? getRecordData(record) : null,
+    );
     validationErrors = {};
   }
 
@@ -151,110 +149,13 @@
     validationErrors = {};
   }
 
-  function validateField(fieldName: string, value: any): string | null {
-    const fieldDef = properties[fieldName];
-    const isRequired = requiredFields.includes(fieldName);
-
-    if (isRequired && (!value || value === "")) {
-      return "This field is required";
-    }
-
-    if (value !== null && value !== undefined && value !== "") {
-      switch (fieldDef.type) {
-        case "integer":
-        case "number":
-          const num = Number(value);
-          if (isNaN(num)) {
-            return "Must be a valid number";
-          }
-          if (fieldDef.type === "integer" && !Number.isInteger(num)) {
-            return "Must be an integer";
-          }
-          if (fieldDef.minimum !== undefined && num < fieldDef.minimum) {
-            return `Must be at least ${fieldDef.minimum}`;
-          }
-          if (fieldDef.maximum !== undefined && num > fieldDef.maximum) {
-            return `Must be at most ${fieldDef.maximum}`;
-          }
-          break;
-        case "boolean":
-          break;
-        case "DATE_WITH_DAY":
-          if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-            return "Must be in format YYYY-MM-DD";
-          }
-          break;
-        default:
-          if (fieldDef.minLength && String(value).length < fieldDef.minLength) {
-            return `Must be at least ${fieldDef.minLength} characters`;
-          }
-          if (fieldDef.maxLength && String(value).length > fieldDef.maxLength) {
-            return `Must be at most ${fieldDef.maxLength} characters`;
-          }
-          break;
-      }
-    }
-
-    return null;
-  }
-
   function validateAllFields(): boolean {
-    let isValid = true;
-    validationErrors = {};
-
-    Object.keys(properties).forEach((fieldName) => {
-      const error = validateField(fieldName, formData[fieldName]);
-      if (error) {
-        validationErrors[fieldName] = error;
-        isValid = false;
-      }
-    });
-
-    return isValid;
-  }
-
-  function convertFormDataToApiFormat(
-    data: Record<string, any>,
-  ): Record<string, any> {
-    const converted: Record<string, any> = {};
-
-    Object.keys(properties).forEach((fieldName) => {
-      const fieldDef = properties[fieldName];
-      const value = data[fieldName];
-
-      if (value === "" || value === null || value === undefined) {
-        return;
-      }
-
-      switch (fieldDef.type) {
-        case "boolean":
-          converted[fieldName] = value ? "true" : "false";
-          break;
-        case "integer":
-          converted[fieldName] = Math.round(Number(value));
-          break;
-        case "number":
-          converted[fieldName] = Number(value);
-          break;
-        default:
-          converted[fieldName] = String(value);
-          break;
-      }
-    });
-
-    return converted;
-  }
-
-  function renderFieldInput(fieldName: string, fieldDef: any) {
-    switch (fieldDef.type) {
-      case "boolean":
-        return "checkbox";
-      case "integer":
-      case "number":
-        return "number";
-      default:
-        return "text";
-    }
+    validationErrors = validateDynamicEntityFields(
+      properties,
+      requiredFields,
+      formData,
+    );
+    return Object.keys(validationErrors).length === 0;
   }
 
   // Extract records from response (client-side refetch)
@@ -296,7 +197,7 @@
     isSubmitting = true;
 
     try {
-      const convertedData = convertFormDataToApiFormat(formData);
+      const convertedData = convertDynamicEntityFormData(properties, formData);
 
       const response = await fetch(
         `/proxy/obp/dynamic-entity/my/${entityName}`,
@@ -346,7 +247,7 @@
     isSubmitting = true;
 
     try {
-      const convertedData = convertFormDataToApiFormat(formData);
+      const convertedData = convertDynamicEntityFormData(properties, formData);
 
       const response = await fetch(
         `/proxy/obp/dynamic-entity/my/${entityName}/${recordId}`,
@@ -913,7 +814,6 @@
 {#if showCreateModal}
   <div
     class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
-    onclick={(e) => e.target === e.currentTarget && closeModals()}
   >
     <div
       class="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white dark:bg-gray-800"
@@ -955,7 +855,7 @@
         <div class="space-y-4">
           {#each Object.entries(properties) as [fieldName, fieldDef]}
             {@const isRequired = requiredFields.includes(fieldName)}
-            {@const inputType = renderFieldInput(fieldName, fieldDef)}
+            {@const inputType = dynamicEntityInputType(fieldDef)}
             <div>
               <label
                 for="create-{fieldName}"
@@ -985,6 +885,16 @@
                     class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
                 </div>
+              {:else if inputType === "textarea"}
+                <textarea
+                  id="create-{fieldName}"
+                  bind:value={formData[fieldName]}
+                  rows="8"
+                  placeholder={fieldDef.example
+                    ? JSON.stringify(fieldDef.example, null, 2)
+                    : '{ }'}
+                  class="mt-2 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 font-mono text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                ></textarea>
               {:else}
                 <input
                   type={inputType}
@@ -1046,7 +956,6 @@
 {#if showEditModal && selectedRecord}
   <div
     class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
-    onclick={(e) => e.target === e.currentTarget && closeModals()}
   >
     <div
       class="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white dark:bg-gray-800"
@@ -1088,7 +997,7 @@
         <div class="space-y-4">
           {#each Object.entries(properties) as [fieldName, fieldDef]}
             {@const isRequired = requiredFields.includes(fieldName)}
-            {@const inputType = renderFieldInput(fieldName, fieldDef)}
+            {@const inputType = dynamicEntityInputType(fieldDef)}
             <div>
               <label
                 for="edit-{fieldName}"
@@ -1118,6 +1027,16 @@
                     class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
                 </div>
+              {:else if inputType === "textarea"}
+                <textarea
+                  id="edit-{fieldName}"
+                  bind:value={formData[fieldName]}
+                  rows="8"
+                  placeholder={fieldDef.example
+                    ? JSON.stringify(fieldDef.example, null, 2)
+                    : '{ }'}
+                  class="mt-2 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 font-mono text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                ></textarea>
               {:else}
                 <input
                   type={inputType}
@@ -1179,7 +1098,6 @@
 {#if showViewModal && selectedRecord}
   <div
     class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
-    onclick={(e) => e.target === e.currentTarget && closeModals()}
   >
     <div
       class="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white dark:bg-gray-800"

@@ -17,8 +17,8 @@ jobs:
       - name: Build the Docker images with latest tag
         run: |
           echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin docker.io
-          docker build . -f Dockerfile_portal --tag docker.io/${{ env.DOCKER_HUB_ORGANIZATION }}/obp-portal:$GITHUB_SHA --tag docker.io/${{ env.DOCKER_HUB_ORGANIZATION }}/obp-portal:main --tag docker.io/${{ env.DOCKER_HUB_ORGANIZATION }}/obp-portal:latest
-          docker build . -f Dockerfile_apimanager  --tag docker.io/${{ env.DOCKER_HUB_ORGANIZATION }}/api-manager-ii:$GITHUB_SHA --tag docker.io/${{ env.DOCKER_HUB_ORGANIZATION }}/api-manager-ii:main --tag docker.io/${{ env.DOCKER_HUB_ORGANIZATION }}/api-manager-ii:latest
+          docker build . -f Dockerfile_portal --build-arg GIT_COMMIT=$GITHUB_SHA --build-arg GIT_BRANCH=${{ github.ref_name }} --tag docker.io/${{ env.DOCKER_HUB_ORGANIZATION }}/obp-portal:$GITHUB_SHA --tag docker.io/${{ env.DOCKER_HUB_ORGANIZATION }}/obp-portal:main --tag docker.io/${{ env.DOCKER_HUB_ORGANIZATION }}/obp-portal:latest
+          docker build . -f Dockerfile_apimanager  --build-arg GIT_COMMIT=$GITHUB_SHA --build-arg GIT_BRANCH=${{ github.ref_name }} --tag docker.io/${{ env.DOCKER_HUB_ORGANIZATION }}/api-manager-ii:$GITHUB_SHA --tag docker.io/${{ env.DOCKER_HUB_ORGANIZATION }}/api-manager-ii:main --tag docker.io/${{ env.DOCKER_HUB_ORGANIZATION }}/api-manager-ii:latest
           docker push docker.io/${{ env.DOCKER_HUB_ORGANIZATION }}/obp-portal --all-tags
           docker push docker.io/${{ env.DOCKER_HUB_ORGANIZATION }}/api-manager-ii --all-tags
           echo docker obp-portal with latest tag done

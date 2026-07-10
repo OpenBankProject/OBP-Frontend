@@ -89,6 +89,36 @@ export class OBPOIDCStrategy implements OAuth2ProviderStrategy {
 	}
 }
 
+export class GoogleStrategy implements OAuth2ProviderStrategy {
+	providerName = 'google';
+	private config: OAuthProviderConfig;
+
+	constructor(config: OAuthProviderConfig) {
+		this.config = config;
+	}
+
+	supports(provider: string): boolean {
+		return provider === this.providerName;
+	}
+
+	getProviderName(): string {
+		return this.providerName;
+	}
+
+	async initialize(config: WellKnownUri): Promise<OAuth2ClientWithConfig> {
+		const client = new OAuth2ClientWithConfig(
+			this.config.clientId,
+			this.config.clientSecret,
+			this.config.callbackUrl,
+			'google'
+		);
+
+		await client.initOIDCConfig(config.url);
+
+		return client;
+	}
+}
+
 export class OAuth2ProviderFactory {
 	private strategies: OAuth2ProviderStrategy[] = [];
 	private initializedClients = new Map<string, OAuth2ClientWithConfig>();

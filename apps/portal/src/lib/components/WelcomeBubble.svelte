@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { X } from '@lucide/svelte';
 	import { env } from '$env/dynamic/public';
+	import { renderTextWithLinks } from '@obp/shared/markdown';
 
 	let showBubble = $state(false);
 	let isClosing = $state(false);
@@ -11,6 +12,12 @@
 
 	// Get welcome message from environment variable
 	const welcomeMessage = env.PUBLIC_WELCOME_MESSAGE || '';
+	// Supports markdown-style links, e.g. "See [the docs](https://example.com)";
+	// everything else is escaped, so the result is safe for {@html}
+	const welcomeMessageHtml = renderTextWithLinks(welcomeMessage, {
+		// primary-* is near-black in the OBP theme, so use tertiary for a visible hover
+		linkClass: 'underline hover:text-tertiary-600 dark:hover:text-tertiary-400'
+	});
 
 	onMount(() => {
 		// Don't show bubble if welcome message is not set or empty
@@ -85,7 +92,7 @@
 
 			<!-- Welcome message -->
 			<div class="pr-6 text-sm leading-relaxed text-surface-900 dark:text-surface-100">
-				{welcomeMessage}
+				{@html welcomeMessageHtml}
 			</div>
 
 			<!-- Decorative accent -->

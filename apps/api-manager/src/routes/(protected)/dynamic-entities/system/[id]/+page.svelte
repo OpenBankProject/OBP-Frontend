@@ -593,6 +593,26 @@
                   >
                     {getTypeDisplayName(fieldDefTyped.type)}
                   </span>
+                  {#if fieldDefTyped.writeRoleRequired || fieldDefTyped.writeRole}
+                    <span
+                      class="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900 dark:text-amber-200"
+                      title={fieldDefTyped.writeRole
+                        ? `Write-restricted — requires role: ${fieldDefTyped.writeRole}`
+                        : "Write-restricted — set only via PATCH by a holder of the auto-generated field write role"}
+                    >
+                      Write-restricted
+                    </span>
+                  {/if}
+                  {#if fieldDefTyped.readRoleRequired || fieldDefTyped.readRole}
+                    <span
+                      class="inline-flex items-center rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900 dark:text-purple-200"
+                      title={fieldDefTyped.readRole
+                        ? `Read-restricted — requires role: ${fieldDefTyped.readRole}`
+                        : "Read-restricted — omitted from GET unless the caller holds the auto-generated field read role"}
+                    >
+                      Read-restricted
+                    </span>
+                  {/if}
                 </div>
                 {#if fieldDefTyped.description}
                   <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">

@@ -76,6 +76,12 @@
       "type": "boolean",
       "description": "Is active",
       "example": true
+    },
+    "internal_note": {
+      "type": "string",
+      "description": "Write-restricted: settable only via PATCH by a holder of the field's write role",
+      "example": "set by a privileged service",
+      "writeRoleRequired": true
     }
   },
   "required": ["name"]
@@ -471,6 +477,15 @@
           </li>
           <li>
             <strong>description:</strong> Human-readable description of the field (optional)
+          </li>
+          <li>
+            <strong>writeRoleRequired / writeRole:</strong> Make a field <em>write-restricted</em> — it cannot be
+            set via POST/PUT (its value is preserved), only via PATCH by a caller holding the field's write role.
+            Use the boolean to auto-generate a per-field role, or name an explicit role to share across fields.
+          </li>
+          <li>
+            <strong>readRoleRequired / readRole:</strong> Make a field <em>read-restricted</em> — it is omitted
+            from GET responses unless the caller holds the field's read role.
           </li>
           <li>
             <strong>has_personal_entity:</strong> Allow each user to create their own private records (optional, default true)

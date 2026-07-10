@@ -44,6 +44,9 @@ import {
   ShieldOff,
   MessageSquare,
   Mail,
+  Stethoscope,
+  Play,
+  Clock,
 } from "@lucide/svelte";
 import { env } from "$env/dynamic/public";
 
@@ -144,6 +147,11 @@ function buildSystemItems(): NavigationItem[] {
       href: "/system/migrations",
       label: "Migrations",
       iconComponent: GitBranch,
+    },
+    {
+      href: "/system/scheduler-job-locks",
+      label: "Scheduler Job Locks",
+      iconComponent: Clock,
     },
     {
       href: "/system/self-test-emails",
@@ -266,6 +274,16 @@ function buildMetricsItems(): NavigationItem[] {
       label: "Connector Counts",
       iconComponent: Hash,
     },
+    {
+      href: "/metrics-diagnostics",
+      label: "Diagnostics",
+      iconComponent: Stethoscope,
+    },
+    {
+      href: "/metrics-archive-run",
+      label: "Trigger Archive Run",
+      iconComponent: Play,
+    },
   ];
 
   return items;
@@ -279,7 +297,8 @@ export function getActiveMetricsMenuItem(pathname: string) {
     if (item.external) {
       return false;
     }
-    return pathname.startsWith(item.href);
+    // Match on path boundaries so e.g. /metrics-diagnostics is not treated as /metrics
+    return pathname === item.href || pathname.startsWith(item.href + "/");
   });
 
   return found || metricsItems[0]; // fallback to first item
@@ -748,7 +767,7 @@ export const navSections: NavigationSection[] = [
   { id: "system", label: "System", iconComponent: Server, items: systemItems, basePaths: ["/system"] },
   { id: "signals", label: "Signals", iconComponent: Radio, items: signalsItems, basePaths: ["/system/signal-publish", "/system/signal-channels", "/system/signal-channels-stats"] },
   { id: "integration", label: "Integration", iconComponent: Plug, items: integrationItems, basePaths: ["/integration"] },
-  { id: "metrics", label: "Metrics", iconComponent: BarChart3, items: metricsItems, basePaths: ["/metrics", "/aggregate-metrics", "/aggregate-metrics-live", "/aggregate-metrics-trends", "/connector-metrics", "/connector-traces", "/connector-counts"] },
+  { id: "metrics", label: "Metrics", iconComponent: BarChart3, items: metricsItems, basePaths: ["/metrics", "/aggregate-metrics", "/aggregate-metrics-live", "/aggregate-metrics-trends", "/connector-metrics", "/connector-traces", "/connector-counts", "/metrics-diagnostics", "/metrics-archive-run"] },
   { id: "abac", label: "ABAC", iconComponent: Lock, items: abacItems, basePaths: ["/abac"] },
   { id: "products", label: "API Products", iconComponent: Package, items: productsItems, basePaths: ["/products"] },
   { id: "financial-products", label: "Financial Products", iconComponent: Banknote, items: financialProductsItems, basePaths: ["/products/financial", "/products/collections"] },

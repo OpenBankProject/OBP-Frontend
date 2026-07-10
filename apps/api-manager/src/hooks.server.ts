@@ -13,6 +13,8 @@ import { oauth2ProviderManager } from "$lib/oauth/providerManager";
 import { SessionOAuthHelper } from "$lib/oauth/sessionHelper";
 import { resourceDocsCache } from "$lib/stores/resourceDocsCache";
 import { healthCheckRegistry, OIDCHealthCheckService } from '@obp/shared/health-check';
+import { RedisHealthCheckService } from '@obp/shared/server/health-check';
+import { redisService } from '$lib/redis/services/RedisService';
 import { createOpeyNotebookDynamicEntityIfNeeded } from "$lib/server/opey/opeyNotebook";
 
 declare const process: { env: Record<string, string | undefined>; argv: string[] };
@@ -112,6 +114,8 @@ healthCheckRegistry.register({
     PUBLIC_OBP_BASE_URL: publicEnv.PUBLIC_OBP_BASE_URL
   }
 });
+// Sessions are stored in Redis, so its health belongs on the status page too
+healthCheckRegistry.register(new RedisHealthCheckService(redisService));
 if (env.OPEY_BASE_URL) {
   // Server-side check: tests connectivity from the api-manager server to OPEY_BASE_URL
   // (private env). Does NOT prove the user's browser can reach Opey — see the
@@ -332,5 +336,7 @@ declare module "svelte-kit-sessions" {
     authInfo?: {
       authenticated: boolean;
     };
+    /** Epoch ms of the last /users/current fetch (set at login and by the layout's silent refresh) */
+    userRefreshedAt?: number;
   }
 }

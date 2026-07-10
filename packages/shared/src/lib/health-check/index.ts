@@ -5,3 +5,5 @@ export { OIDCHealthCheckService } from './services/OIDCHealthCheckService.js';
 export type { OIDCHealthCheckOptions } from './services/OIDCHealthCheckService.js';
 export { HealthCheckState } from './state/HealthCheckState.js';
 export type { HealthCheckSnapshot } from './state/HealthCheckState.js';
+export { summarizeHealth } from './summarize.js';
+export type { HealthSummary, ServiceHealthView, OverallStatus } from './summarize.js';

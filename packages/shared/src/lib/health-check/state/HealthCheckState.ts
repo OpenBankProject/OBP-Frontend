@@ -5,6 +5,7 @@ export interface HealthCheckSnapshot {
     error?: string;
     lastChecked: string; // ISO timestamp
     conecutiveFailures: number;
+    intervalMs?: number; // How often this check runs — lets consumers detect stale results
     details?: Record<string, string | number>;
 }
 

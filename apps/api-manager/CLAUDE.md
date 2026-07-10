@@ -12,9 +12,17 @@
 
 - Do not add patronising or condescending warnings, tooltips, or helper text (e.g. "Use with caution", "Are you sure?", "This action cannot be undone"). Trust that users understand what they are doing.
 
+## Page layout & width
+
+Follow [`docs/page-layout.md`](../../docs/page-layout.md) (repo root — shared with Portal) for content width on pages:
+
+- Default config/dashboard page wrapper is `container mx-auto max-w-7xl px-4 py-8`.
+- These are API configuration pages, not prose — caps exist to limit eye-scan distance and center content, not to fit small screens.
+- Wide tables / code blocks should break out to full width (and use `overflow-x-auto`) rather than widening the whole page.
+
 ## HTML best practices
 
-Follow the guidelines in [`docs/playwright-friendly-html.md`](docs/playwright-friendly-html.md) when writing or modifying Svelte components:
+Follow the guidelines in [`docs/playwright-friendly-html.md`](../../docs/playwright-friendly-html.md) (repo root — shared with Portal) when writing or modifying Svelte components:
 
 - Add `data-testid` attributes to interactive and assertable elements
 - Use semantic HTML and ARIA labels

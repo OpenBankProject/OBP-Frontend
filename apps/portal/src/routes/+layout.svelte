@@ -19,24 +19,39 @@
 		DatabaseZap,
 		CreditCard,
 		MessageSquare,
-		Code
+		Code,
+		Plug
 	} from '@lucide/svelte';
-
-	const sections: NavigationSection[] = [
-		{
-			id: 'developers',
-			label: 'Developers',
-			iconComponent: Code,
-			items: developerItems,
-			basePaths: ['/developers']
-		}
-	];
 
 	import { env } from '$env/dynamic/public';
 	import { onMount } from 'svelte';
 	import { unreadCount } from '$lib/stores/unreadCount.svelte';
 	import { currentBank } from '$lib/stores/currentBank.svelte';
 	let { data, children } = $props();
+
+	const sections: NavigationSection[] = [
+		{
+			id: 'developers',
+			label: 'Developers',
+			iconComponent: Code,
+			items: [
+				...developerItems,
+				// Only shown when the OBP API advertises an MCP server via app-directory
+				...(data.publicObpMcpUrl
+					? [
+							{
+								href: data.publicObpMcpUrl,
+								label: 'MCP',
+								iconComponent: Plug,
+								external: true,
+								description: 'Model Context Protocol server for OBP.'
+							}
+						]
+					: [])
+			],
+			basePaths: ['/developers']
+		}
+	];
 
 	// Initialize unread count store from server data
 	$effect(() => {
@@ -158,7 +173,7 @@
 </script>
 
 <div
-	class="grid h-screen w-full grid-cols-[auto_1fr] divide-x divide-solid divide-surface-100-900 overflow-hidden"
+	class="grid h-screen w-full grid-cols-[auto_1fr] grid-rows-[minmax(0,1fr)] divide-x divide-solid divide-surface-100-900 overflow-hidden"
 >
 	<NavigationSidebar
 		{menuItems}

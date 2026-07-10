@@ -1,5 +1,13 @@
 export { OBPRequests, createOBPRequests } from './requests.js';
 export { OBPErrorBase, OBPRequestError, OBPRateLimitError, OBPTimeoutError, obpErrorResponse } from './errors.js';
+export {
+	validateDynamicEntityField,
+	validateDynamicEntityFields,
+	convertDynamicEntityFormData,
+	initialDynamicEntityFormData,
+	dynamicEntityInputType
+} from './dynamicEntityForm.js';
+export type { DynamicEntityFieldDef, DynamicEntityProperties } from './dynamicEntityForm.js';
 export type {
 	OBPBank,
 	OBPConsent,

@@ -22,11 +22,18 @@ ARG OBP_OAUTH_CLIENT_SECRET
 ARG APP_CALLBACK_URL
 ARG ORIGIN
 
+# Build provenance: the .git directory is not copied into the image, so the commit
+# and branch must be passed in (CI sets these from $GITHUB_SHA / the ref name).
+ARG GIT_COMMIT
+ARG GIT_BRANCH
+
 # Set environment variables for build
 ENV OBP_OAUTH_CLIENT_ID=$OBP_OAUTH_CLIENT_ID
 ENV OBP_OAUTH_CLIENT_SECRET=$OBP_OAUTH_CLIENT_SECRET
 ENV APP_CALLBACK_URL=$APP_CALLBACK_URL
 ENV ORIGIN=$ORIGIN
+ENV GIT_COMMIT=$GIT_COMMIT
+ENV GIT_BRANCH=$GIT_BRANCH
 
 # Generate .svelte-kit/ for shared package so its tsconfig.json can resolve during the app build
 RUN npm run prepare --workspace=packages/shared

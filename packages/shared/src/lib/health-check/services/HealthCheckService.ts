@@ -37,10 +37,11 @@ export class HealthCheckService {
         this.state.setSnapshot({
             service: this.options.serviceName,
             status: 'unknown',
+            intervalMs: this.options.interval,
             ...(this.options.details ? { details: this.options.details } : {})
         })
 
-        logger.info(`HealthCheckService for ${this.options.serviceName} initialized. First check in ${this.options.interval} ms`);
+        logger.info(`HealthCheckService for ${this.options.serviceName} initialized. Checks every ${this.options.interval} ms once started`);
     }
 
     subscribe(callback: (snapshot: HealthCheckSnapshot) => void): void {

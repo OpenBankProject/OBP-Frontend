@@ -2,7 +2,8 @@ export { OAuth2ClientWithConfig } from './client.js';
 export {
 	OAuth2ProviderFactory,
 	KeyCloakStrategy,
-	OBPOIDCStrategy
+	OBPOIDCStrategy,
+	GoogleStrategy
 } from './providerFactory.js';
 export type { WellKnownUri, OAuthProviderConfig } from './providerFactory.js';
 export { OAuth2ProviderManager } from './providerManager.js';

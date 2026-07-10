@@ -15,7 +15,7 @@ import { SessionOAuthHelper } from '$lib/oauth/sessionHelper';
 import { healthCheckRegistry, OIDCHealthCheckService } from '@obp/shared/health-check';
 
 import { redisService } from '$lib/redis/services/RedisService';
-import { RedisHealthCheckService } from '$lib/health-check/services/RedisHealthCheckService';
+import { RedisHealthCheckService } from '@obp/shared/server/health-check';
 
 if (!publicEnv.PUBLIC_OBP_BASE_URL) {
 	throw new Error(
@@ -94,7 +94,7 @@ function initHealthChecks() {
 		});
 	}
 
-	const redisHealthCheck = new RedisHealthCheckService();
+	const redisHealthCheck = new RedisHealthCheckService(redisService);
 	healthCheckRegistry.register(redisHealthCheck);
 
 	const testTokenDisabled = env.OIDC_HEALTHCHECK_TEST_TOKEN === 'false';

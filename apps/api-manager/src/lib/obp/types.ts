@@ -129,3 +129,20 @@ export interface OBPChatRoomParticipant {
   last_read_at: string;
   is_muted: boolean;
 }
+
+/**
+ * A scheduler job-lock row from the `jobscheduler` table.
+ * GET /obp/v7.0.0/management/system/scheduler/job-locks
+ */
+export interface OBPSchedulerJob {
+  job_id: string;
+  name: string;
+  api_instance_id: string;
+  started_at: string;
+  age_seconds: number;
+}
+
+export interface OBPSchedulerJobsResponse {
+  jobs: OBPSchedulerJob[];
+  count: number;
+}

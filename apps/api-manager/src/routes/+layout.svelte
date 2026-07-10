@@ -19,6 +19,7 @@
   import { currentBank } from "$lib/stores/currentBank.svelte";
   import { userPreferences } from "$lib/stores/userPreferences.svelte";
   import { onMount } from "svelte";
+  import { invalidate } from "$app/navigation";
 
   const logger = createLogger("LayoutClient");
   const layoutStartTime = performance.now();
@@ -101,6 +102,19 @@
       currentBank.loadFromOBP();
       userPreferences.loadFromOBP();
     }
+  });
+
+  // Silently re-fetch the session user (incl. entitlements) every 5 minutes so
+  // newly granted roles show up without logout/login. The server layout load
+  // throttles the actual /users/current call, so this is cheap when fresh.
+  const USER_REFRESH_POLL_MS = 5 * 60 * 1000;
+  onMount(() => {
+    const interval = setInterval(() => {
+      if (isAuthenticated) {
+        invalidate("app:session-user");
+      }
+    }, USER_REFRESH_POLL_MS);
+    return () => clearInterval(interval);
   });
 
   // Fetch system dynamic entities for shortcuts

@@ -155,7 +155,7 @@
   <title>{info.title} - System Dynamic Endpoint - API Manager</title>
 </svelte:head>
 
-<div class="container mx-auto max-w-5xl px-4 py-8">
+<div class="container mx-auto max-w-7xl px-4 py-8">
   <!-- Breadcrumb -->
   <div class="mb-6">
     <a
