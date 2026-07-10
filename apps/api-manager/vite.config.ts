@@ -14,6 +14,8 @@ export default defineConfig({
 	define: buildInfoDefine(version),
 	plugins: [tailwindcss(), sveltekit()],
 	test: {
+		// This app has no unit tests yet; don't fail the suite (or CI) on an empty run.
+		passWithNoTests: true,
 		workspace: [
 			{
 				extends: './vite.config.ts',
