@@ -235,8 +235,17 @@ const checkAuthorization: Handle = async ({ event, resolve }) => {
 	return response;
 };
 
+// Routes that carry a single-use secret token in the URL path — analytics must not
+// see these paths (gtag reports page_location, which would exfiltrate the token).
+const TOKEN_IN_URL_ROUTE_PREFIXES = ['/reset-password/', '/user_mgt/reset_password/'];
+
+function pathCarriesUrlToken(pathname: string): boolean {
+	return TOKEN_IN_URL_ROUTE_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+}
+
 const transformHTML: Handle = async ({ event, resolve }) => {
-	const analyticsScript = env.ENABLE_ANALYTICS === "true" && env.GTAG_ID
+	const skipAnalytics = pathCarriesUrlToken(event.url.pathname);
+	const analyticsScript = env.ENABLE_ANALYTICS === "true" && env.GTAG_ID && !skipAnalytics
 		? `<script async src="https://www.googletagmanager.com/gtag/js?id=${env.GTAG_ID}"></script>
 	<script>
 		window.dataLayer = window.dataLayer || [];
@@ -251,6 +260,11 @@ const transformHTML: Handle = async ({ event, resolve }) => {
 			return html.replace('%ANALYTICS_SCRIPT%', analyticsScript);
 		}
 	});
+
+	// strict-origin-when-cross-origin drops the path/query on cross-origin requests
+	// (e.g. outbound links, third-party scripts), preventing URL-embedded tokens from
+	// leaking via the Referer header.
+	response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
 	return response;
 }
 

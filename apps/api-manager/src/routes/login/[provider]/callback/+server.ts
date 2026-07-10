@@ -1,4 +1,4 @@
-import { createLogger } from "@obp/shared/utils";
+import { createLogger, isSafeRelativeRedirect } from "@obp/shared/utils";
 const logger = createLogger("ProviderLoginCallback");
 import { oauth2ProviderFactory } from "$lib/oauth/providerFactory";
 import type { OAuth2Tokens } from "arctic";
@@ -243,8 +243,8 @@ export async function GET(event: RequestEvent): Promise<Response> {
     // Redirect to the originally requested URL if available
     let redirectTo = event.cookies.get("obp_redirect_to") || "/";
     event.cookies.delete("obp_redirect_to", { path: "/" });
-    // Validate: must start with / to prevent open redirect
-    if (!redirectTo.startsWith("/")) {
+    // Validate: must be a same-origin relative path to prevent open redirect
+    if (!isSafeRelativeRedirect(redirectTo)) {
       redirectTo = "/";
     }
 

@@ -47,7 +47,18 @@ export function GET(event: RequestEvent) {
     // Preserve OBP consent flow params across the OAuth login round-trip
     const consentRequestId = event.url.searchParams.get('consent_request_id');
     const bankId = event.url.searchParams.get('bank_id');
-    const oidcReturnUrl = event.url.searchParams.get('oidc_return_url');
+    const requestedOidcReturnUrl = event.url.searchParams.get('oidc_return_url');
+
+    // oidc_return_url must point back to a configured OIDC provider host — otherwise
+    // it becomes an open redirect that also leaks consent_id/user_id on completion.
+    let oidcReturnUrl: string | null = null;
+    if (requestedOidcReturnUrl) {
+        if (oauth2ProviderFactory.isTrustedOidcReturnUrl(requestedOidcReturnUrl)) {
+            oidcReturnUrl = requestedOidcReturnUrl;
+        } else {
+            logger.warn(`Rejected untrusted oidc_return_url: ${requestedOidcReturnUrl}`);
+        }
+    }
 
     logger.info(`Login request for provider: ${provider}, URL params: consent_request_id=${consentRequestId}, bank_id=${bankId}, oidc_return_url=${oidcReturnUrl}`);
 

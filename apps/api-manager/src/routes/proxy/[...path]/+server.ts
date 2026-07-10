@@ -5,6 +5,8 @@ import { createLogger } from '@obp/shared/utils';
 
 const logger = createLogger("Proxy");
 
+const TIMEOUT_MS = 15_000;
+
 /**
  * Generic catch-all proxy for OBP API.
  *
@@ -34,7 +36,23 @@ export const fallback: RequestHandler = async ({ params, request, locals, url })
 		});
 	}
 
-	const obpPath = params.path;
+	const obpPath = params.path ?? '';
+
+	// Reject path-traversal and absolute-URL attempts before joining into the OBP URL.
+	if (
+		obpPath === '' ||
+		obpPath.includes('..') ||
+		obpPath.startsWith('/') ||
+		obpPath.includes('://') ||
+		obpPath.includes('\0')
+	) {
+		logger.warn(`Rejected proxy path: ${obpPath}`);
+		return new Response(JSON.stringify({ message: "Invalid path" }), {
+			status: 400,
+			headers: { "content-type": "application/json" },
+		});
+	}
+
 	const queryString = url.search;
 	const obpUrl = `${env.PUBLIC_OBP_BASE_URL}/${obpPath}${queryString}`;
 
@@ -62,7 +80,29 @@ export const fallback: RequestHandler = async ({ params, request, locals, url })
 
 	const startTime = performance.now();
 
-	const obpResponse = await fetch(obpUrl, fetchOptions);
+	const controller = new AbortController();
+	const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
+	fetchOptions.signal = controller.signal;
+
+	let obpResponse: Response;
+	try {
+		obpResponse = await fetch(obpUrl, fetchOptions);
+	} catch (error: any) {
+		if (error.name === 'AbortError') {
+			logger.error(`Timeout: ${request.method} /${obpPath}`);
+			return new Response(JSON.stringify({ message: `Request to ${obpPath} timed out` }), {
+				status: 504,
+				headers: { "content-type": "application/json" },
+			});
+		}
+		logger.error(`Error: ${request.method} /${obpPath}:`, error);
+		return new Response(JSON.stringify({ message: error.message || 'Bad Gateway' }), {
+			status: 502,
+			headers: { "content-type": "application/json" },
+		});
+	} finally {
+		clearTimeout(timeout);
+	}
 
 	const duration = performance.now() - startTime;
 	const correlationId = obpResponse.headers.get("Correlation-Id") || "";

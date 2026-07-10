@@ -201,6 +201,19 @@
 			.trim();
 	}
 
+	// Only allow http(s) and relative URLs as markdown link targets; anything else
+	// (javascript:, data:, vbscript:, ...) is neutralized to avoid script execution.
+	function sanitizeLinkHref(href: string): string {
+		const trimmed = href.trim();
+		const isSafe = /^(https?:\/\/|\/|#|\.\.?\/)/i.test(trimmed);
+		const safeHref = isSafe ? trimmed : '#';
+		return safeHref
+			.replace(/&/g, '&amp;')
+			.replace(/"/g, '&quot;')
+			.replace(/</g, '&lt;')
+			.replace(/>/g, '&gt;');
+	}
+
 	// Convert markdown to HTML (for rendering)
 	function markdownToHtml(markdown: string): string {
 		return markdown
@@ -212,7 +225,7 @@
 			.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>') // Bold
 			.replace(/\*([^*]+)\*/g, '<em>$1</em>') // Italic
 			.replace(/`([^`]+)`/g, '<code class="bg-gray-100 dark:bg-gray-700 px-1 rounded break-all">$1</code>') // Inline code
-			.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-primary-500 dark:text-primary-200 hover:underline">$1</a>') // Links
+			.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_match, text, href) => `<a href="${sanitizeLinkHref(href)}" class="text-primary-500 dark:text-primary-200 hover:underline">${text}</a>`) // Links
 			.replace(/^#{1,6}\s+(.+)$/gm, '<strong>$1</strong>') // Headings to bold
 			.replace(/\n\n+/g, '</p><p>') // Paragraph breaks
 			.replace(/\n/g, ' ') // Single newlines to spaces
