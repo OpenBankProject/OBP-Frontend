@@ -145,13 +145,16 @@ const credentialsForProvider = (provider: string): { clientId?: string; clientSe
   }
 };
 
-for (const p of oauth2ProviderManager.getAvailableProviders()) {
-  if (!p.url) continue;
+// Register every known provider — including ones that failed to initialize —
+// so /status shows the full OIDC picture, not only the working providers.
+// The providerStatus callback reads live manager state, so a provider that
+// comes up (or dies) after boot flips on the status page without a restart.
+for (const p of oauth2ProviderManager.getAllProviders()) {
   const { clientId, clientSecret } = credentialsForProvider(p.provider);
   healthCheckRegistry.register(
     new OIDCHealthCheckService({
       serviceName: `OAuth2: ${p.provider}`,
-      wellKnownUrl: p.url,
+      providerStatus: () => oauth2ProviderManager.getProviderStatus(p.provider),
       clientId,
       clientSecret,
       strictClientCredentials: testTokenStrict,

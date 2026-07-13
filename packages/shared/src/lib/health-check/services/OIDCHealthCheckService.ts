@@ -3,8 +3,29 @@ import { HealthCheckService, type HealthCheckOptions } from "./HealthCheckServic
 
 const logger = createLogger('OIDCHealthCheckService');
 
+/**
+ * Live status of a provider as tracked by an OAuth2 provider manager.
+ * `status: 'unavailable'` means the app could not initialize an OAuth client
+ * for it (missing credentials, unreachable endpoint, no strategy, ...) — the
+ * provider cannot be used for login even if its well-known URL is reachable.
+ */
+export interface OIDCProviderStatus {
+    status: 'available' | 'unavailable';
+    url?: string;
+    error?: string;
+}
+
 export interface OIDCHealthCheckOptions extends Omit<HealthCheckOptions, 'url' | 'method' | 'body' | 'expectedStatus'> {
-    wellKnownUrl: string;
+    wellKnownUrl?: string;
+    /**
+     * Called at the start of every check. When it reports the provider as
+     * unavailable, the check goes unhealthy with the initialization error and
+     * skips the network probes — a reachable discovery endpoint is meaningless
+     * if the app holds no usable client for it. When available, the reported
+     * url takes precedence over wellKnownUrl, so providers discovered after
+     * startup are probed at their live address.
+     */
+    providerStatus?: () => OIDCProviderStatus | undefined;
     clientId?: string;
     clientSecret?: string;
     /**
@@ -51,7 +72,8 @@ interface TokenTestOutcome {
 }
 
 export class OIDCHealthCheckService extends HealthCheckService {
-    private readonly wellKnownUrl: string;
+    private readonly wellKnownUrl?: string;
+    private readonly providerStatus?: () => OIDCProviderStatus | undefined;
     private readonly clientId?: string;
     private readonly clientSecret?: string;
     private readonly strictClientCredentials: boolean;
@@ -60,9 +82,12 @@ export class OIDCHealthCheckService extends HealthCheckService {
     private lastTokenTest: TokenTestOutcome | null = null;
 
     constructor(options: OIDCHealthCheckOptions) {
+        if (!options.wellKnownUrl && !options.providerStatus) {
+            throw new Error(`OIDCHealthCheckService for ${options.serviceName} needs wellKnownUrl or providerStatus`);
+        }
         super({
             serviceName: options.serviceName,
-            url: options.wellKnownUrl,
+            url: options.wellKnownUrl ?? '',
             method: 'GET',
             headers: options.headers,
             timeout: options.timeout ?? 5000,
@@ -70,6 +95,7 @@ export class OIDCHealthCheckService extends HealthCheckService {
             expectedStatus: [200]
         });
         this.wellKnownUrl = options.wellKnownUrl;
+        this.providerStatus = options.providerStatus;
         this.clientId = options.clientId;
         this.clientSecret = options.clientSecret;
         this.strictClientCredentials = options.strictClientCredentials ?? false;
@@ -81,8 +107,32 @@ export class OIDCHealthCheckService extends HealthCheckService {
         const startTime = performance.now();
         const timeoutMs = 5000;
 
+        const provider = this.providerStatus?.();
+        const wellKnownUrl = provider?.url ?? this.wellKnownUrl;
+
+        if (this.providerStatus && provider?.status !== 'available') {
+            this.setUnhealthy(
+                provider?.error ?? 'Provider not initialized',
+                performance.now() - startTime,
+                {
+                    provider_state: 'not initialized — login with this provider is unavailable',
+                    ...(wellKnownUrl ? { wellKnownUrl } : {})
+                }
+            );
+            return;
+        }
+
+        if (!wellKnownUrl) {
+            this.setUnhealthy(
+                'No well-known URL known for this provider',
+                performance.now() - startTime,
+                {}
+            );
+            return;
+        }
+
         try {
-            const discovery = await this.fetchJson<DiscoveryDoc>(this.wellKnownUrl, timeoutMs);
+            const discovery = await this.fetchJson<DiscoveryDoc>(wellKnownUrl, timeoutMs);
 
             const missing: string[] = [];
             if (!discovery.authorization_endpoint) missing.push('authorization_endpoint');
@@ -94,7 +144,7 @@ export class OIDCHealthCheckService extends HealthCheckService {
                 this.setUnhealthy(
                     `Discovery doc missing required fields: ${missing.join(', ')}`,
                     elapsed,
-                    { wellKnownUrl: this.wellKnownUrl }
+                    { wellKnownUrl }
                 );
                 return;
             }
@@ -167,7 +217,7 @@ export class OIDCHealthCheckService extends HealthCheckService {
             const elapsed = performance.now() - startTime;
             const message = err instanceof Error ? err.message : String(err);
             logger.warn(`OIDC check failed for ${this.getName()}: ${message}`);
-            this.setUnhealthy(message, elapsed, { wellKnownUrl: this.wellKnownUrl });
+            this.setUnhealthy(message, elapsed, { wellKnownUrl });
         }
     }
 
