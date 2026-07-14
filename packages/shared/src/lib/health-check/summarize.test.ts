@@ -41,6 +41,78 @@ describe('summarizeHealth', () => {
 		expect(result.summary.unhealthy).toBe(1);
 	});
 
+	it('reports partial when at least one OAuth2 provider is healthy and another is not', () => {
+		const result = summarizeHealth(
+			{
+				'OBP API': snapshot({ service: 'OBP API' }),
+				'OAuth2: obp-oidc': snapshot({ service: 'OAuth2: obp-oidc' }),
+				'OAuth2: google': snapshot({
+					service: 'OAuth2: google',
+					status: 'unhealthy',
+					error: 'GOOGLE_OAUTH_CLIENT_ID and GOOGLE_OAUTH_CLIENT_SECRET must be set'
+				})
+			},
+			NOW
+		);
+		expect(result.overallStatus).toBe('partial');
+		expect(result.summary.unhealthy).toBe(1);
+	});
+
+	it('reports unhealthy when no OAuth2 provider is healthy', () => {
+		const result = summarizeHealth(
+			{
+				'OBP API': snapshot({ service: 'OBP API' }),
+				'OAuth2: obp-oidc': snapshot({
+					service: 'OAuth2: obp-oidc',
+					status: 'unhealthy',
+					error: 'fetch failed'
+				}),
+				'OAuth2: google': snapshot({
+					service: 'OAuth2: google',
+					status: 'unhealthy',
+					error: 'missing credentials'
+				})
+			},
+			NOW
+		);
+		expect(result.overallStatus).toBe('unhealthy');
+	});
+
+	it('reports unhealthy when a core service is down even if OAuth2 is only partial', () => {
+		const result = summarizeHealth(
+			{
+				Redis: snapshot({ service: 'Redis', status: 'unhealthy', error: 'ECONNREFUSED' }),
+				'OAuth2: obp-oidc': snapshot({ service: 'OAuth2: obp-oidc' }),
+				'OAuth2: google': snapshot({
+					service: 'OAuth2: google',
+					status: 'unhealthy',
+					error: 'missing credentials'
+				})
+			},
+			NOW
+		);
+		expect(result.overallStatus).toBe('unhealthy');
+	});
+
+	it('does not report partial when a stale OAuth2 provider is the only healthy-looking one', () => {
+		const fiveMinutesAgo = new Date(NOW.getTime() - 5 * 60_000).toISOString();
+		const result = summarizeHealth(
+			{
+				'OAuth2: obp-oidc': snapshot({
+					service: 'OAuth2: obp-oidc',
+					lastChecked: fiveMinutesAgo
+				}),
+				'OAuth2: google': snapshot({
+					service: 'OAuth2: google',
+					status: 'unhealthy',
+					error: 'missing credentials'
+				})
+			},
+			NOW
+		);
+		expect(result.overallStatus).toBe('unhealthy');
+	});
+
 	it('reports unknown when a service has not yet been checked', () => {
 		const result = summarizeHealth({ a: snapshot(), b: snapshot({ status: 'unknown' }) }, NOW);
 		expect(result.overallStatus).toBe('unknown');

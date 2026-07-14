@@ -41,7 +41,7 @@
       </li>
       <li>
         <a href="/status" class="text-primary-600 dark:text-primary-400 underline hover:text-primary-800 dark:hover:text-primary-300" data-testid="link-status">
-          System Status
+          Status
         </a>
         — check the health of the API
       </li>

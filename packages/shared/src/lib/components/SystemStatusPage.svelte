@@ -143,6 +143,8 @@
 				return 'bg-green-500';
 			case 'unhealthy':
 				return 'bg-red-500';
+			case 'partial':
+				return 'bg-orange-500';
 			case 'degraded':
 				return 'bg-yellow-500';
 			case 'unknown':
@@ -158,6 +160,8 @@
 				return 'text-green-600 dark:text-green-400';
 			case 'unhealthy':
 				return 'text-red-600 dark:text-red-400';
+			case 'partial':
+				return 'text-orange-600 dark:text-orange-400';
 			case 'degraded':
 				return 'text-yellow-600 dark:text-yellow-400';
 			case 'unknown':
@@ -173,6 +177,7 @@
 				return '✓';
 			case 'unhealthy':
 				return '✗';
+			case 'partial':
 			case 'degraded':
 				return '⚠';
 			case 'unknown':

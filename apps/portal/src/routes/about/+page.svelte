@@ -20,42 +20,9 @@
 
 The Open Bank Project (OBP) Portal is a comprehensive developer portal that provides access to banking APIs and tools for building financial applications. It serves as the gateway for developers, fintech companies, and financial institutions to explore, integrate, and leverage open banking capabilities.
 
-## Key Features
-
-- API Explorer for testing and discovering banking APIs
-- Consumer management and API key generation
-- User account management and authentication
-- Comprehensive documentation and guides
-- OAuth2 compliance and security features
-- Developer tools and resources
-
 ## About Open Bank Project
 
-The Open Bank Project is an open source API and App store for banks that empowers financial institutions to securely and rapidly enhance their digital offerings using an ecosystem of 3rd party applications and services. The project provides a RESTful API that allows developers to build financial applications on top of banking data.
-
-## Technology
-
-This portal is built with modern web technologies including SvelteKit, TypeScript, and Skeleton UI. It follows best practices for security, accessibility, and user experience.
-
-## Get Involved
-
-The Open Bank Project is an open source initiative. You can contribute to the project, report issues, or explore the codebase on our [GitHub repository](https://github.com/OpenBankProject).
-
-## License
-
-This project is licensed under the GNU Affero General Public License v3.0 (AGPL-3.0).
-
-## Contact & Support
-
-For questions, support, or more information about the Open Bank Project, please visit:
-
-- [Official Website](https://www.openbankproject.com)
-- [GitHub Organization](https://github.com/OpenBankProject)
-- [Open Bank Project Chat](${env.PUBLIC_OBP_CHAT_URL || 'https://chat.openbankproject.com'})
-
----
-
-© TESOBE 2011-${Math.max(new Date().getFullYear(), 2026)}. All rights reserved.`;
+The Open Bank Project is an open source API and App store for banks that empowers financial institutions to securely and rapidly enhance their digital offerings using an ecosystem of 3rd party applications and services. The project provides a RESTful API that allows developers to build financial applications on top of banking data.`;
 
 	onMount(async () => {
 		// Dynamically import markdown-it to avoid SSR issues
@@ -90,6 +57,63 @@ For questions, support, or more information about the Open Bank Project, please 
 				<p class="text-surface-600-400">Loading...</p>
 			</div>
 		{/if}
+
+		<!-- Rendered outside the markdown so it survives PUBLIC_ABOUT_TEXT overrides -->
+		<h2 class="h3 mt-8" data-testid="useful-links-title">Useful Links</h2>
+		<ul class="mt-4 list-disc space-y-2 pl-5">
+			<li>
+				<a
+					href="/status"
+					class="text-primary-600 dark:text-primary-400 underline hover:text-primary-800 dark:hover:text-primary-300"
+					data-testid="link-status"
+				>
+					Status
+				</a>
+				— check the health of this portal and its services
+			</li>
+			<li>
+				<a
+					href="https://www.openbankproject.com"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="text-primary-600 dark:text-primary-400 underline hover:text-primary-800 dark:hover:text-primary-300"
+					data-testid="link-website"
+				>
+					Official Website
+				</a>
+			</li>
+			<li>
+				<a
+					href="https://github.com/OpenBankProject"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="text-primary-600 dark:text-primary-400 underline hover:text-primary-800 dark:hover:text-primary-300"
+					data-testid="link-github"
+				>
+					GitHub Organization
+				</a>
+			</li>
+			<li>
+				<a
+					href={env.PUBLIC_OBP_CHAT_URL || 'https://chat.openbankproject.com'}
+					target="_blank"
+					rel="noopener noreferrer"
+					class="text-primary-600 dark:text-primary-400 underline hover:text-primary-800 dark:hover:text-primary-300"
+					data-testid="link-chat"
+				>
+					Open Bank Project Chat
+				</a>
+			</li>
+		</ul>
+
+		<h2 class="h3 mt-8" data-testid="license-title">License</h2>
+		<p class="mt-4">
+			This project is licensed under the GNU Affero General Public License v3.0 (AGPL-3.0).
+		</p>
+
+		<p class="mt-8 border-t border-surface-200-800 pt-6 text-sm text-surface-600-400">
+			© TESOBE 2011-{Math.max(new Date().getFullYear(), 2026)}. All rights reserved.
+		</p>
 
 		<!-- Version Information Footer -->
 		<div class="mt-12 border-t border-surface-200-800 pt-8">

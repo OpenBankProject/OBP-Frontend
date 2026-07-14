@@ -28,10 +28,18 @@ export async function load(event: RequestEvent) {
 			returnUrl.searchParams.set('bank_id', bankId);
 		}
 
-		// Pass the authenticated user's ID so OBP-OIDC can generate the auth code for this user
-		const userId = event.locals.session.data.user?.user_id;
-		if (userId) {
-			returnUrl.searchParams.set('user_id', userId);
+		// Identify the authenticated user so OBP-OIDC can generate the auth code for them.
+		// username + provider let OBP-OIDC resolve the user via the OBP-API REST endpoint
+		// (GET /users/provider/PROVIDER/username/USERNAME); user_id is kept for reference.
+		const sessionUser = event.locals.session.data.user;
+		if (sessionUser?.user_id) {
+			returnUrl.searchParams.set('user_id', sessionUser.user_id);
+		}
+		if (sessionUser?.username) {
+			returnUrl.searchParams.set('username', sessionUser.username);
+		}
+		if (sessionUser?.provider) {
+			returnUrl.searchParams.set('provider', sessionUser.provider);
 		}
 
 		// Clean up the consent flow data from session
