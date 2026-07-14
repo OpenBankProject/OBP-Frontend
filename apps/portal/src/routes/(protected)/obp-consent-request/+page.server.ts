@@ -52,11 +52,17 @@ export async function load(event: RequestEvent) {
 
 		logger.info(`Consent request response: ${JSON.stringify(consentRequest)}`);
 
+		// OBP-API returns `payload` as an already-parsed JSON object (JValue on the
+		// server side), not a JSON string — do not JSON.parse it again.
 		let payload: any = {};
-		try {
-			payload = JSON.parse(consentRequest.payload || '{}');
-		} catch {
-			logger.warn('Could not parse consent request payload');
+		if (consentRequest.payload && typeof consentRequest.payload === 'object') {
+			payload = consentRequest.payload;
+		} else if (typeof consentRequest.payload === 'string' && consentRequest.payload) {
+			try {
+				payload = JSON.parse(consentRequest.payload);
+			} catch {
+				logger.warn('Could not parse consent request payload');
+			}
 		}
 		logger.info(`Parsed payload: ${JSON.stringify(payload)}`);
 
