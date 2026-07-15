@@ -9,10 +9,11 @@ import { oauth2ProviderFactory } from '$lib/oauth/providerFactory';
 /**
  * UK Open Banking consent approval.
  *
- * The TPP has already lodged an account-access consent (status AWAITINGAUTHORISATION) and
- * routed the PSU here via OBP-OIDC. On approval we call OBP-API to authorise the consent as
- * the current PSU (status -> AUTHORISED, bound to this user), then hand control back to
- * OBP-OIDC so it mints an auth code whose token carries the consent_id claim.
+ * The TPP has already lodged an account-access consent (status AWAITINGAUTHORISATION) and routed
+ * the PSU here via OBP-OIDC. On approval we start Strong Customer Authentication (OBP-API issues a
+ * one-time challenge to the PSU) and route to /uk-consent-request-sca to collect the OTP; the
+ * consent is only authorised (status -> AUTHORISED, bound to this user) once the correct OTP is
+ * submitted, after which control returns to OBP-OIDC to mint a consent-bound auth code.
  */
 export async function load(event: RequestEvent) {
 	const consentId = event.url.searchParams.get('CONSENT_ID');
@@ -64,40 +65,37 @@ export const actions = {
 			oidcReturnUrlRaw && oauth2ProviderFactory.isTrustedOidcReturnUrl(oidcReturnUrlRaw)
 				? oidcReturnUrlRaw
 				: '';
+		if (!oidcReturnUrl) {
+			logger.warn('No trusted OIDC return URL for UK consent flow');
+			return { message: 'No valid return URL was provided to complete the flow.' };
+		}
 
+		let challengeId = '';
 		try {
-			// Authorise the UK consent as the current PSU: OBP-API flips it to AUTHORISED and binds
-			// it to this user. This is the missing "authorisation binding" step of the UK flow.
-			await obp_requests.post(
-				`/obp/v5.1.0/banks/${bankId}/consents/${consentId}/authorise`,
+			// Start SCA: OBP-API issues a one-time challenge (OTP) to the PSU. The consent is only
+			// authorised on the /uk-consent-request-sca page once the correct OTP is submitted.
+			const challengeResponse = await obp_requests.post(
+				`/obp/v5.1.0/banks/${bankId}/consents/${consentId}/authorise/challenge`,
 				{},
 				token
 			);
+			challengeId = challengeResponse.challenge_id;
 		} catch (e) {
-			logger.error('Error authorising UK consent:', e);
-			let errorMessage = 'Failed to authorise consent.';
+			logger.error('Error starting UK consent SCA challenge:', e);
+			let errorMessage = 'Failed to start Strong Customer Authentication.';
 			if (e instanceof OBPRequestError) {
 				errorMessage = e.message;
 			}
 			return { message: errorMessage };
 		}
 
-		if (!oidcReturnUrl) {
-			logger.warn('No trusted OIDC return URL for UK consent redirect');
-			return { message: 'Consent authorised, but no valid return URL was provided to complete the flow.' };
-		}
-
-		// Hand control back to OBP-OIDC so it mints an auth code bound to this consent_id. We pass
-		// username + provider so OBP-OIDC's consent callback can resolve the PSU (via
-		// GET /users/provider/{provider}/username/{username}) and issue the code.
-		const returnUrl = new URL(oidcReturnUrl);
-		returnUrl.searchParams.set('consent_id', consentId);
-		returnUrl.searchParams.set('consent_status', 'ACCEPTED');
-		const username = locals.session.data.user?.username;
-		const provider = locals.session.data.user?.provider;
-		if (username) returnUrl.searchParams.set('username', username);
-		if (provider) returnUrl.searchParams.set('provider', provider);
-		redirect(303, returnUrl.toString());
+		const params = new URLSearchParams({
+			CONSENT_ID: consentId,
+			bank_id: bankId,
+			challenge_id: challengeId,
+			oidc_return_url: oidcReturnUrl
+		});
+		redirect(303, `/uk-consent-request-sca?${params.toString()}`);
 	},
 
 	deny: async ({ request }) => {
