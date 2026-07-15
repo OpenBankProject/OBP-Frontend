@@ -2,15 +2,31 @@ import { svelteTesting } from '@testing-library/svelte/vite';
 import tailwindcss from '@tailwindcss/vite';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
-import { readFileSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
 import { buildInfoDefine } from '../../packages/shared/build-info.js';
 
 // Get version from package.json
 const packageJson = JSON.parse(readFileSync('./package.json', 'utf-8'));
 const version = packageJson.version;
 
+// Walk up to the directory that actually holds the hoisted node_modules. In a
+// normal checkout this is the repo root; in a git worktree the dependencies live
+// above the worktree boundary, so Vite's default fs.allow can't serve them
+// (e.g. @testing-library/svelte's injected cleanup module) — allow that root.
+function findDepsRoot(start: string): string {
+	let dir = start;
+	while (dir !== dirname(dir)) {
+		if (existsSync(join(dir, 'node_modules', '@testing-library'))) return dir;
+		dir = dirname(dir);
+	}
+	return start;
+}
+const depsRoot = findDepsRoot(dirname(fileURLToPath(import.meta.url)));
+
 export default defineConfig({
-	server: { port: 5174 },
+	server: { port: 5174, fs: { allow: [depsRoot] } },
 	define: buildInfoDefine(version),
 	plugins: [tailwindcss(), sveltekit()],
 	test: {

@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { afterEach, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 
 // Mock the SvelteKit modules that are commonly used in tests
