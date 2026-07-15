@@ -46,6 +46,10 @@ export function GET(event: RequestEvent) {
 
     // Preserve OBP consent flow params across the OAuth login round-trip
     const consentRequestId = event.url.searchParams.get('consent_request_id');
+    // UK Open Banking flow: the TPP already lodged an account-access consent and passes its
+    // consent_id (plus api_standard) instead of a consent_request_id.
+    const consentId = event.url.searchParams.get('consent_id');
+    const apiStandard = event.url.searchParams.get('api_standard');
     const bankId = event.url.searchParams.get('bank_id');
     const requestedOidcReturnUrl = event.url.searchParams.get('oidc_return_url');
 
@@ -60,11 +64,13 @@ export function GET(event: RequestEvent) {
         }
     }
 
-    logger.info(`Login request for provider: ${provider}, URL params: consent_request_id=${consentRequestId}, bank_id=${bankId}, oidc_return_url=${oidcReturnUrl}`);
+    logger.info(`Login request for provider: ${provider}, URL params: consent_request_id=${consentRequestId}, consent_id=${consentId}, api_standard=${apiStandard}, bank_id=${bankId}, oidc_return_url=${oidcReturnUrl}`);
 
-    if (consentRequestId) {
+    if (consentRequestId || consentId) {
         const consentFlowData = JSON.stringify({
-            consent_request_id: consentRequestId,
+            consent_request_id: consentRequestId || '',
+            consent_id: consentId || '',
+            api_standard: apiStandard || '',
             bank_id: bankId || '',
             oidc_return_url: oidcReturnUrl || '',
         });
@@ -77,7 +83,7 @@ export function GET(event: RequestEvent) {
         });
         logger.info(`Set obp_consent_flow cookie: ${consentFlowData}`);
     } else {
-        logger.info('No consent_request_id in login request - normal login flow');
+        logger.info('No consent flow params in login request - normal login flow');
     }
 
     try {
