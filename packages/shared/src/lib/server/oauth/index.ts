@@ -7,7 +7,15 @@ export {
 } from './providerFactory.js';
 export type { WellKnownUri, OAuthProviderConfig } from './providerFactory.js';
 export { OAuth2ProviderManager } from './providerManager.js';
-export type { ProviderStatus } from './providerManager.js';
+export type {
+	ProviderStatus,
+	WellKnownRequests,
+	OAuth2ProviderManagerOptions
+} from './providerManager.js';
 export { SessionOAuthHelper } from './sessionHelper.js';
 export type { SessionOAuthData } from './sessionHelper.js';
-export type { OpenIdConnectConfiguration, OAuth2AccessTokenPayload } from './types.js';
+export type {
+	OpenIdConnectConfiguration,
+	OAuth2AccessTokenPayload,
+	SessionOAuthStorageData
+} from './types.js';

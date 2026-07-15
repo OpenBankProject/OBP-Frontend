@@ -1,8 +1,20 @@
 import { createLogger } from '$shared/utils/logger';
-import type { OBPRequests } from '$shared/obp/requests';
 import { type OAuth2ProviderFactory, type WellKnownUri } from './providerFactory';
 
 const logger = createLogger('OAuthProviderManager');
+
+/**
+ * Minimal request interface so apps can pass their own obp_requests
+ * instance without depending on a concrete class from this package
+ */
+export interface WellKnownRequests {
+	get(path: string): Promise<any>;
+}
+
+export interface OAuth2ProviderManagerOptions {
+	/** OBP endpoint listing the OIDC providers, e.g. '/obp/v6.0.0/well-known' */
+	wellKnownEndpoint?: string;
+}
 
 export interface ProviderStatus {
 	provider: string;
@@ -27,11 +39,14 @@ export class OAuth2ProviderManager {
 	private refreshIntervalId: NodeJS.Timeout | null = null;
 	private refreshIntervalMs: number = 60000; // Refresh provider status every 60 seconds
 	private definedProviders: string[] = [];
+	private wellKnownEndpoint: string;
 
 	constructor(
 		private factory: OAuth2ProviderFactory,
-		private obpRequests: OBPRequests
+		private obpRequests: WellKnownRequests,
+		options: OAuth2ProviderManagerOptions = {}
 	) {
+		this.wellKnownEndpoint = options.wellKnownEndpoint ?? '/obp/v5.1.0/well-known';
 		// Initialize with all known/configured providers from the factory
 		this.definedProviders = factory.getSupportedProviders();
 		this.initializeProviderStatuses();
@@ -53,10 +68,10 @@ export class OAuth2ProviderManager {
 	 */
 	async fetchWellKnownUris(): Promise<WellKnownUri[]> {
 		try {
-			const response = await this.obpRequests.get('/obp/v5.1.0/well-known');
+			const response = await this.obpRequests.get(this.wellKnownEndpoint);
 			return response.well_known_uris;
 		} catch (error) {
-			logger.error('Failed to fetch well-known URIs:', error);
+			logger.error(`Failed to fetch well-known URIs from ${this.wellKnownEndpoint}:`, error);
 			throw error;
 		}
 	}
@@ -249,6 +264,14 @@ export class OAuth2ProviderManager {
 	 */
 	getUnavailableProviders(): ProviderStatus[] {
 		return this.status.providers.filter((p) => p.status === 'unavailable');
+	}
+
+	/**
+	 * Returns the current status of a single provider, reflecting the latest
+	 * periodic refresh (lookup by name, not a snapshot taken at call-site setup)
+	 */
+	getProviderStatus(provider: string): ProviderStatus | undefined {
+		return this.status.providers.find((p) => p.provider === provider);
 	}
 
 	/**

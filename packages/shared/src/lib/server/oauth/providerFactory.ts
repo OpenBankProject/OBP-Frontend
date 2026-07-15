@@ -8,9 +8,29 @@ export interface WellKnownUri {
 }
 
 export interface OAuthProviderConfig {
-	clientId: string;
-	clientSecret: string;
-	callbackUrl: string;
+	clientId?: string;
+	clientSecret?: string;
+	callbackUrl?: string;
+}
+
+// Every consuming app uses the same env var names (KEYCLOAK_OAUTH_*, OBP_OAUTH_*,
+// GOOGLE_OAUTH_*, APP_CALLBACK_URL), so validation errors can name them literally —
+// they surface verbatim on the /login and /status pages.
+function requireConfig(
+	config: OAuthProviderConfig,
+	credentialEnvVars: string
+): { clientId: string; clientSecret: string; callbackUrl: string } {
+	if (!config.clientId || !config.clientSecret) {
+		throw new Error(`${credentialEnvVars} must be set`);
+	}
+	if (!config.callbackUrl) {
+		throw new Error('APP_CALLBACK_URL must be set');
+	}
+	return {
+		clientId: config.clientId,
+		clientSecret: config.clientSecret,
+		callbackUrl: config.callbackUrl
+	};
 }
 
 // Implement this for other OAuth2 providers as needed
@@ -39,12 +59,12 @@ export class KeyCloakStrategy implements OAuth2ProviderStrategy {
 	}
 
 	async initialize(config: WellKnownUri): Promise<OAuth2ClientWithConfig> {
-		const client = new OAuth2ClientWithConfig(
-			this.config.clientId,
-			this.config.clientSecret,
-			this.config.callbackUrl,
-			'keycloak'
+		const { clientId, clientSecret, callbackUrl } = requireConfig(
+			this.config,
+			'KEYCLOAK_OAUTH_CLIENT_ID and KEYCLOAK_OAUTH_CLIENT_SECRET'
 		);
+
+		const client = new OAuth2ClientWithConfig(clientId, clientSecret, callbackUrl, 'keycloak');
 
 		await client.initOIDCConfig(config.url);
 
@@ -76,12 +96,12 @@ export class OBPOIDCStrategy implements OAuth2ProviderStrategy {
 			configUrl: config.url
 		});
 
-		const client = new OAuth2ClientWithConfig(
-			this.config.clientId,
-			this.config.clientSecret,
-			this.config.callbackUrl,
-			'obp-oidc'
+		const { clientId, clientSecret, callbackUrl } = requireConfig(
+			this.config,
+			'OBP_OAUTH_CLIENT_ID and OBP_OAUTH_CLIENT_SECRET'
 		);
+
+		const client = new OAuth2ClientWithConfig(clientId, clientSecret, callbackUrl, 'obp-oidc');
 
 		await client.initOIDCConfig(config.url);
 
@@ -106,12 +126,12 @@ export class GoogleStrategy implements OAuth2ProviderStrategy {
 	}
 
 	async initialize(config: WellKnownUri): Promise<OAuth2ClientWithConfig> {
-		const client = new OAuth2ClientWithConfig(
-			this.config.clientId,
-			this.config.clientSecret,
-			this.config.callbackUrl,
-			'google'
+		const { clientId, clientSecret, callbackUrl } = requireConfig(
+			this.config,
+			'GOOGLE_OAUTH_CLIENT_ID and GOOGLE_OAUTH_CLIENT_SECRET'
 		);
+
+		const client = new OAuth2ClientWithConfig(clientId, clientSecret, callbackUrl, 'google');
 
 		await client.initOIDCConfig(config.url);
 
@@ -188,5 +208,30 @@ export class OAuth2ProviderFactory {
 	getFirstAvailableProvider(): string | null {
 		const providers = Array.from(this.initializedClients.keys());
 		return providers.length > 0 ? providers[0] : null;
+	}
+
+	// Origins of all configured OIDC providers' authorization endpoints — the only
+	// hosts a post-login/consent redirect (oidc_return_url) is allowed to target.
+	getTrustedOidcOrigins(): Set<string> {
+		const origins = new Set<string>();
+		for (const client of this.initializedClients.values()) {
+			const authEndpoint = client.OIDCConfig?.authorization_endpoint;
+			if (authEndpoint) {
+				try {
+					origins.add(new URL(authEndpoint).origin);
+				} catch {
+					// ignore malformed config
+				}
+			}
+		}
+		return origins;
+	}
+
+	isTrustedOidcReturnUrl(candidate: string): boolean {
+		try {
+			return this.getTrustedOidcOrigins().has(new URL(candidate).origin);
+		} catch {
+			return false;
+		}
 	}
 }

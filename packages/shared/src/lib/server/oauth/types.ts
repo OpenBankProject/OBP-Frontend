@@ -54,3 +54,10 @@ export interface OAuth2AccessTokenPayload {
     client_id?: string;
     [key: string]: any; // Allow additional properties
 }
+
+export interface SessionOAuthStorageData {
+    access_token: string;
+    refresh_token?: string;
+    id_token?: string;
+    provider: string;
+}
