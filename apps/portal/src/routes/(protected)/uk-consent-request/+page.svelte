@@ -32,7 +32,9 @@
 			<div class="grid gap-3 text-sm">
 				<div class="flex items-center justify-between">
 					<span class="font-medium text-gray-700 dark:text-gray-300">Standard:</span>
-					<span class="text-gray-900 dark:text-gray-100">UK Open Banking</span>
+					<span class="text-gray-900 dark:text-gray-100">
+						{data.apiStandard === 'UKOpenBankingV401' ? 'UK Open Banking v4.0.1' : 'UK Open Banking'}
+					</span>
 				</div>
 				{#if data.bankId}
 					<div class="flex items-center justify-between">
@@ -44,7 +46,32 @@
 					<span class="font-medium text-gray-700 dark:text-gray-300">Consent ID:</span>
 					<span class="font-mono text-xs text-gray-900 dark:text-gray-100">{data.consentId}</span>
 				</div>
+				{#if data.status}
+					<div class="flex items-center justify-between">
+						<span class="font-medium text-gray-700 dark:text-gray-300">Status:</span>
+						<span class="text-gray-900 dark:text-gray-100">{data.status}</span>
+					</div>
+				{/if}
+				{#if data.expirationDateTime}
+					<div class="flex items-center justify-between">
+						<span class="font-medium text-gray-700 dark:text-gray-300">Expires:</span>
+						<span class="text-gray-900 dark:text-gray-100">{data.expirationDateTime}</span>
+					</div>
+				{/if}
 			</div>
+
+			{#if data.permissions?.length}
+				<div class="mt-4 border-t border-gray-200 pt-4 dark:border-gray-600">
+					<h3 class="mb-2 text-sm font-semibold text-gray-900 dark:text-gray-100">
+						Permissions requested ({data.permissions.length})
+					</h3>
+					<ul class="grid grid-cols-2 gap-1 text-sm">
+						{#each data.permissions as permission}
+							<li class="text-gray-900 dark:text-gray-100">{permission}</li>
+						{/each}
+					</ul>
+				</div>
+			{/if}
 		</div>
 
 		<!-- Actions -->

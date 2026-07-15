@@ -15,21 +15,31 @@ import { oauth2ProviderFactory } from '$lib/oauth/providerFactory';
  * consent is only authorised (status -> AUTHORISED, bound to this user) once the correct OTP is
  * submitted, after which control returns to OBP-OIDC to mint a consent-bound auth code.
  */
+// UK consent GET endpoints are version-specific (v3.1 vs v4.0.1 aisp), but return the same
+// {Data: {Status, Permissions, ExpirationDateTime, ...}} shape — see OBP-API
+// Http4sUKOBv310AccountAccess#getAccountAccessConsentsConsentId / Http4sUKOBv401AccountInfo#getAccountAccessConsentsConsentId.
+function ukConsentGetPath(apiStandard: string, consentId: string): string {
+	return apiStandard === 'UKOpenBankingV401'
+		? `/open-banking/v4.0.1/aisp/account-access-consents/${consentId}`
+		: `/open-banking/v3.1/account-access-consents/${consentId}`;
+}
+
 export async function load(event: RequestEvent) {
 	const consentId = event.url.searchParams.get('CONSENT_ID');
 	const bankId = event.url.searchParams.get('bank_id');
+	const apiStandard = event.url.searchParams.get('api_standard') || 'UKOpenBanking';
 	const requestedOidcReturnUrl = event.url.searchParams.get('oidc_return_url');
 
 	if (!consentId) {
-		return { loadError: 'Missing required parameter: CONSENT_ID.', consentId: '', bankId: bankId || '', oidcReturnUrl: '' };
+		return { loadError: 'Missing required parameter: CONSENT_ID.', consentId: '', bankId: bankId || '', apiStandard, oidcReturnUrl: '' };
 	}
 	if (!bankId) {
-		return { loadError: 'Missing required parameter: bank_id.', consentId, bankId: '', oidcReturnUrl: '' };
+		return { loadError: 'Missing required parameter: bank_id.', consentId, bankId: '', apiStandard, oidcReturnUrl: '' };
 	}
 
 	const token = event.locals.session.data.oauth?.access_token;
 	if (!token) {
-		return { loadError: 'Unauthorized: No access token found in session.', consentId, bankId, oidcReturnUrl: '' };
+		return { loadError: 'Unauthorized: No access token found in session.', consentId, bankId, apiStandard, oidcReturnUrl: '' };
 	}
 
 	// oidc_return_url must point back to a configured OIDC provider host — otherwise it becomes
@@ -43,9 +53,23 @@ export async function load(event: RequestEvent) {
 	}
 
 	// The UK consent is still awaiting authorisation and not yet bound to this user, so it can't
-	// be fetched via user/current/consents. We show a generic approval; the requested permissions
-	// live inside the consent and are enforced by OBP-API on data access.
-	return { consentId, bankId, oidcReturnUrl };
+	// be fetched via user/current/consents (which requires ownership). The UK GET-consent-by-id
+	// endpoint has no ownership check — any authenticated caller may inspect a consent by its ID,
+	// matching the UK Open Banking spec's PSU-facing consent-status check before authorisation.
+	let status = '';
+	let permissions: string[] = [];
+	let expirationDateTime = '';
+	try {
+		const consent = await obp_requests.get(ukConsentGetPath(apiStandard, consentId), token);
+		status = consent?.Data?.Status || '';
+		permissions = consent?.Data?.Permissions || [];
+		expirationDateTime = consent?.Data?.ExpirationDateTime || '';
+	} catch (e) {
+		// Non-fatal: fall back to the generic approval screen without permission detail.
+		logger.warn('Could not fetch UK consent details:', e);
+	}
+
+	return { consentId, bankId, apiStandard, oidcReturnUrl, status, permissions, expirationDateTime };
 }
 
 export const actions = {

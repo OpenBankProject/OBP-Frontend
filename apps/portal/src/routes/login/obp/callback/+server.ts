@@ -227,11 +227,17 @@ export async function GET(event: RequestEvent): Promise<Response> {
 				// Clean up the cookie
 				event.cookies.delete('obp_consent_flow', { path: '/' });
 
-				// UK Open Banking: the consent already exists; route to the UK approval page
-				// which authorises it via OBP-API. Distinguished by api_standard + consent_id.
-				if (consentFlow.consent_id && consentFlow.api_standard === 'UKOpenBanking') {
+				// UK Open Banking (v3.1 or v4.0.1): the consent already exists; route to the UK
+				// approval page which authorises it via OBP-API. Distinguished by api_standard +
+				// consent_id.
+				if (
+					consentFlow.consent_id &&
+					(consentFlow.api_standard === 'UKOpenBanking' ||
+						consentFlow.api_standard === 'UKOpenBankingV401')
+				) {
 					const redirectUrl = new URL('/uk-consent-request', event.url.origin);
 					redirectUrl.searchParams.set('CONSENT_ID', consentFlow.consent_id);
+					redirectUrl.searchParams.set('api_standard', consentFlow.api_standard);
 					if (consentFlow.bank_id) {
 						redirectUrl.searchParams.set('bank_id', consentFlow.bank_id);
 					}
