@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { OAuth2Client } from 'arctic';
 import { OAuth2ClientWithConfig } from '$lib/oauth/client';
 import {
 	mockOIDCConfiguration,
@@ -15,6 +16,12 @@ describe('OAuth2ClientWithConfig', () => {
 	beforeEach(() => {
 		originalFetch = global.fetch;
 		mockEnvVars(mockEnvironment);
+
+		// arctic's OAuth2Client is globally mocked to return a plain object, which
+		// would hijack `this` in the subclass constructor and strip the subclass's
+		// prototype methods. Reset it to a no-op constructor so `super()` leaves the
+		// real OAuth2ClientWithConfig instance intact.
+		vi.mocked(OAuth2Client).mockImplementation(function () {} as never);
 
 		client = new OAuth2ClientWithConfig(
 			'test-client-id',
@@ -58,7 +65,7 @@ describe('OAuth2ClientWithConfig', () => {
 			);
 		});
 
-		it('should throw error when fetch fails', async () => {
+		it('should not set OIDC config when fetch returns a non-ok response', async () => {
 			const mockFetch = createMockFetch([
 				{
 					url: '/.well-known/openid-configuration',
@@ -68,12 +75,12 @@ describe('OAuth2ClientWithConfig', () => {
 			]);
 			global.fetch = mockFetch;
 
-			await expect(
-				client.initOIDCConfig('https://invalid-url/.well-known/openid-configuration')
-			).rejects.toThrow('Failed to fetch OIDC config: Error');
+			await client.initOIDCConfig('https://invalid-url/.well-known/openid-configuration');
+
+			expect(client.OIDCConfig).toBeUndefined();
 		});
 
-		it('should throw error when config is invalid (missing authorization_endpoint)', async () => {
+		it('should not set OIDC config when authorization_endpoint is missing', async () => {
 			const invalidConfig = { ...mockOIDCConfiguration };
 			delete invalidConfig.authorization_endpoint;
 
@@ -85,14 +92,14 @@ describe('OAuth2ClientWithConfig', () => {
 			]);
 			global.fetch = mockFetch;
 
-			await expect(
-				client.initOIDCConfig(
-					'https://test-oauth2.openbankproject.com/realms/obp-test/.well-known/openid-configuration'
-				)
-			).rejects.toThrow('Invalid OIDC config: Missing required endpoints.');
+			await client.initOIDCConfig(
+				'https://test-oauth2.openbankproject.com/realms/obp-test/.well-known/openid-configuration'
+			);
+
+			expect(client.OIDCConfig).toBeUndefined();
 		});
 
-		it('should throw error when config is invalid (missing token_endpoint)', async () => {
+		it('should not set OIDC config when token_endpoint is missing', async () => {
 			const invalidConfig = { ...mockOIDCConfiguration };
 			delete invalidConfig.token_endpoint;
 
@@ -104,11 +111,11 @@ describe('OAuth2ClientWithConfig', () => {
 			]);
 			global.fetch = mockFetch;
 
-			await expect(
-				client.initOIDCConfig(
-					'https://test-oauth2.openbankproject.com/realms/obp-test/.well-known/openid-configuration'
-				)
-			).rejects.toThrow('Invalid OIDC config: Missing required endpoints.');
+			await client.initOIDCConfig(
+				'https://test-oauth2.openbankproject.com/realms/obp-test/.well-known/openid-configuration'
+			);
+
+			expect(client.OIDCConfig).toBeUndefined();
 		});
 
 		it('should handle network errors gracefully', async () => {
@@ -138,10 +145,14 @@ describe('OAuth2ClientWithConfig', () => {
 			);
 
 			expect(consoleSpy).toHaveBeenCalledWith(
-				'OAuth2Client: Initializing OIDC configuration from OIDC Config URL:',
+				expect.stringContaining('[OAuth2Client]'),
+				'Initializing OIDC configuration from OIDC Config URL:',
 				'https://test-oauth2.openbankproject.com/realms/obp-test/.well-known/openid-configuration'
 			);
-			expect(consoleSpy).toHaveBeenCalledWith('OAuth2Client: OIDC config initialization success.');
+			expect(consoleSpy).toHaveBeenCalledWith(
+				expect.stringContaining('[OAuth2Client]'),
+				'OIDC config initialization success.'
+			);
 
 			consoleSpy.mockRestore();
 		});
@@ -164,7 +175,7 @@ describe('OAuth2ClientWithConfig', () => {
 			expect(isExpired).toBe(true);
 		});
 
-		it('should return false for token without expiration', async () => {
+		it('should treat a token without expiration as expired (fail closed)', async () => {
 			const tokenWithoutExp = createMockJWT({
 				...mockAccessTokenPayload,
 				exp: undefined
@@ -172,20 +183,20 @@ describe('OAuth2ClientWithConfig', () => {
 
 			const isExpired = await client.checkAccessTokenExpiration(tokenWithoutExp);
 
-			expect(isExpired).toBe(false);
+			expect(isExpired).toBe(true);
 		});
 
-		it('should throw error for invalid token format', async () => {
+		it('should treat an undecodable token as expired instead of throwing', async () => {
 			const invalidToken = 'invalid.token.format';
 
-			await expect(client.checkAccessTokenExpiration(invalidToken)).rejects.toThrow();
+			await expect(client.checkAccessTokenExpiration(invalidToken)).resolves.toBe(true);
 		});
 
-		it('should handle malformed JWT payload', async () => {
-			// Create a JWT with invalid base64 payload
+		it('should treat a malformed JWT payload as expired instead of throwing', async () => {
+			// A JWT with an invalid base64 payload cannot be decoded.
 			const invalidJWT = 'eyJhbGciOiJSUzI1NiJ9.invalid-payload.signature';
 
-			await expect(client.checkAccessTokenExpiration(invalidJWT)).rejects.toThrow();
+			await expect(client.checkAccessTokenExpiration(invalidJWT)).resolves.toBe(true);
 		});
 
 		it('should log debug information', async () => {
@@ -196,14 +207,18 @@ describe('OAuth2ClientWithConfig', () => {
 			await client.checkAccessTokenExpiration(validToken);
 
 			expect(consoleDebugSpy).toHaveBeenCalledWith(
-				'OAuth2Client: Checking access token expiration...'
+				expect.stringContaining('[OAuth2Client]'),
+				'Checking access token expiration...'
 			);
-			expect(consoleDebugSpy).toHaveBeenCalledWith('OAuth2Client: Access token is valid.');
+			expect(consoleDebugSpy).toHaveBeenCalledWith(
+				expect.stringContaining('[OAuth2Client]'),
+				'Access token is valid.'
+			);
 
 			consoleDebugSpy.mockRestore();
 		});
 
-		it('should warn about invalid payload', async () => {
+		it('should warn about and fail closed on an invalid payload', async () => {
 			const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
 			const tokenWithoutPayload = createMockJWT({});
@@ -211,9 +226,10 @@ describe('OAuth2ClientWithConfig', () => {
 			const isExpired = await client.checkAccessTokenExpiration(tokenWithoutPayload);
 
 			expect(consoleWarnSpy).toHaveBeenCalledWith(
-				'OAuth2Client: Access token payload is invalid or missing expiration.'
+				expect.stringContaining('[OAuth2Client]'),
+				'Access token payload is invalid or missing expiration.'
 			);
-			expect(isExpired).toBe(false);
+			expect(isExpired).toBe(true);
 
 			consoleWarnSpy.mockRestore();
 		});
@@ -336,9 +352,7 @@ describe('OAuth2ClientWithConfig', () => {
 	});
 
 	describe('error handling', () => {
-		it('should handle console errors gracefully', async () => {
-			const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
+		it('should wrap a fetch failure in a descriptive error', async () => {
 			const mockFetch = vi.fn().mockRejectedValue(new Error('Network failure'));
 			global.fetch = mockFetch;
 
@@ -346,14 +360,7 @@ describe('OAuth2ClientWithConfig', () => {
 				client.initOIDCConfig(
 					'https://test-oauth2.openbankproject.com/realms/obp-test/.well-known/openid-configuration'
 				)
-			).rejects.toThrow('Network failure');
-
-			expect(consoleErrorSpy).toHaveBeenCalledWith(
-				'OAuth2Client: Error fetching OIDC config:',
-				expect.any(Error)
-			);
-
-			consoleErrorSpy.mockRestore();
+			).rejects.toThrow('Error fetching OIDC config');
 		});
 
 		it('should handle JSON parsing errors', async () => {

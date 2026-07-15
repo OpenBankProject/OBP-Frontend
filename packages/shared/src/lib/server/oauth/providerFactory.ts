@@ -209,4 +209,29 @@ export class OAuth2ProviderFactory {
 		const providers = Array.from(this.initializedClients.keys());
 		return providers.length > 0 ? providers[0] : null;
 	}
+
+	// Origins of all configured OIDC providers' authorization endpoints — the only
+	// hosts a post-login/consent redirect (oidc_return_url) is allowed to target.
+	getTrustedOidcOrigins(): Set<string> {
+		const origins = new Set<string>();
+		for (const client of this.initializedClients.values()) {
+			const authEndpoint = client.OIDCConfig?.authorization_endpoint;
+			if (authEndpoint) {
+				try {
+					origins.add(new URL(authEndpoint).origin);
+				} catch {
+					// ignore malformed config
+				}
+			}
+		}
+		return origins;
+	}
+
+	isTrustedOidcReturnUrl(candidate: string): boolean {
+		try {
+			return this.getTrustedOidcOrigins().has(new URL(candidate).origin);
+		} catch {
+			return false;
+		}
+	}
 }

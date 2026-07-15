@@ -4,3 +4,5 @@ export { extractUsernameFromJWT, isJWTExpired, getJWTPayload } from './jwt.js';
 export type { JWTPayload } from './jwt.js';
 export { toaster, toast } from './toastService.js';
 export { getLegalMarkdownFromWebUIProps } from './loadLegalDocumentFromApi.js';
+export { isSafeRelativeRedirect } from './redirect.js';
+export { redactUrlEncodedBody } from './redact.js';

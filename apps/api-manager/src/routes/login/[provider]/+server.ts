@@ -1,4 +1,4 @@
-import { createLogger } from '@obp/shared/utils';
+import { createLogger, isSafeRelativeRedirect } from '@obp/shared/utils';
 const logger = createLogger('ProviderLogin');
 import { generateState } from 'arctic'
 import { oauth2ProviderFactory } from '$lib/oauth/providerFactory'
@@ -57,7 +57,7 @@ export function GET(event: RequestEvent) {
 
         // Store redirect_to in a separate cookie so we can redirect after login
         const redirectTo = event.url.searchParams.get('redirect_to');
-        if (redirectTo && redirectTo.startsWith('/')) {
+        if (isSafeRelativeRedirect(redirectTo)) {
             event.cookies.set('obp_redirect_to', redirectTo, {
                 httpOnly: true,
                 maxAge: 60 * 10,

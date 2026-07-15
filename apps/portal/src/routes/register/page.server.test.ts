@@ -1,161 +1,128 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { actions } from './+page.server.js';
+import { OBPRequestError } from '@obp/shared/obp';
 
-// Mock the obp_requests module
+// Mock the obp_requests module the action posts through
 vi.mock('$lib/obp/requests', () => ({
-    obp_requests: {
-        post: vi.fn()
-    }
+	obp_requests: {
+		post: vi.fn()
+	}
 }));
 
 import { obp_requests } from '$lib/obp/requests';
 
 describe('Register page actions', () => {
-    beforeEach(() => {
-        vi.clearAllMocks();
-    });
+	beforeEach(() => {
+		vi.clearAllMocks();
+	});
 
-    const createMockRequest = (formData: Record<string, string>) => {
-        const mockFormData = new FormData();
-        Object.entries(formData).forEach(([key, value]) => {
-            mockFormData.append(key, value);
-        });
+	const createMockRequest = (formData: Record<string, string>) => {
+		const mockFormData = new FormData();
+		Object.entries(formData).forEach(([key, value]) => {
+			mockFormData.append(key, value);
+		});
+		return {
+			formData: () => Promise.resolve(mockFormData)
+		};
+	};
 
-        return {
-            formData: () => Promise.resolve(mockFormData)
-        };
-    };
+	const validForm = {
+		email: 'test@example.com',
+		username: 'testuser', // 8 chars — passes the length guard
+		password: 'password123',
+		first_name: 'John',
+		last_name: 'Doe'
+	};
 
-    const createMockLocals = (hasToken = true) => ({
-        session: {
-            data: {
-                oauth: hasToken ? { access_token: 'mock-token-123' } : null
-            }
-        }
-    });
+	const mockCookies = { set: vi.fn() };
+	const mockLocals = { session: { data: {} } };
 
-    const mockCookies = {
-        set: vi.fn()
-    };
+	const run = (form: Record<string, string>) =>
+		actions.default({
+			request: createMockRequest(form),
+			locals: mockLocals,
+			cookies: mockCookies
+		} as never);
 
-    it('should successfully register a user with valid data', async () => {
-        // Arrange
-        const mockResponse = {
-            user_id: 'user-123',
-            username: 'testuser'
-        };
-        vi.mocked(obp_requests.post).mockResolvedValue(mockResponse);
+	it('registers a user and redirects to the success page on valid data', async () => {
+		const mockResponse = { user_id: 'user-123', username: 'testuser' };
+		vi.mocked(obp_requests.post).mockResolvedValue(mockResponse);
 
-        const request = createMockRequest({
-            email: 'test@example.com',
-            username: 'testuser',
-            password: 'password123',
-            first_name: 'John',
-            last_name: 'Doe'
-        });
+		// On success the action throws a SvelteKit redirect to the success page.
+		await expect(run(validForm)).rejects.toMatchObject({
+			status: 303,
+			location: '/register/success'
+		});
 
-        // Act
-        const result = await actions.default({
-            request,
-            locals: createMockLocals(),
-            cookies: mockCookies
-        } as any);
+		expect(obp_requests.post).toHaveBeenCalledWith('/obp/v6.0.0/users', {
+			email: 'test@example.com',
+			username: 'testuser',
+			password: 'password123',
+			first_name: 'John',
+			last_name: 'Doe'
+		});
+		// The action stores the response in a short-lived flash cookie.
+		expect(mockCookies.set).toHaveBeenCalledWith(
+			'user',
+			JSON.stringify(mockResponse),
+			expect.objectContaining({ path: '/', httpOnly: true })
+		);
+	});
 
-        // Assert
-        expect(obp_requests.post).toHaveBeenCalledWith(
-            '/obp/v5.1.0/users',
-            'mock-token-123',
-            {
-                email: 'test@example.com',
-                username: 'testuser',
-                password: 'password123',
-                first_name: 'John',
-                last_name: 'Doe'
-            }
-        );
-        expect(result).toBeUndefined();
-    });
+	it('rejects a username shorter than 8 characters without calling OBP', async () => {
+		const result = (await run({ ...validForm, username: 'short' })) as {
+			message: string;
+			formData: Record<string, string>;
+		};
 
-    it('should return error when no access token is found', async () => {
-        // Arrange
-        const request = createMockRequest({
-            email: 'test@example.com',
-            username: 'testuser',
-            password: 'password123',
-            first_name: 'John',
-            last_name: 'Doe'
-        });
+		expect(result.message).toBe('Username must be at least 8 characters long.');
+		expect(result.formData.username).toBe('short');
+		expect(result.formData).not.toHaveProperty('password');
+		expect(obp_requests.post).not.toHaveBeenCalled();
+	});
 
-        // Act
-        const result = await actions.default({
-            request,
-            locals: createMockLocals(false),
-            cookies: mockCookies
-        } as any);
+	it('returns the OBP error message when registration is rejected by OBP', async () => {
+		vi.mocked(obp_requests.post).mockRejectedValue(
+			new OBPRequestError(400, 'OBP-30208: Username already exists.')
+		);
 
-        // Assert
-        expect(result).toEqual({
-            error: "No access token found in session."
-        });
-        expect(obp_requests.post).not.toHaveBeenCalled();
-    });
+		const result = (await run(validForm)) as { message: string; formData: Record<string, string> };
 
-    it('should return error when OBP request fails', async () => {
-        // Arrange
-        vi.mocked(obp_requests.post).mockRejectedValue(new Error('API Error'));
+		expect(result.message).toBe('OBP-30208: Username already exists.');
+		expect(result.formData.email).toBe('test@example.com');
+	});
 
-        const request = createMockRequest({
-            email: 'test@example.com',
-            username: 'testuser',
-            password: 'password123',
-            first_name: 'John',
-            last_name: 'Doe'
-        });
+	it('wraps a generic failure in a descriptive message', async () => {
+		vi.mocked(obp_requests.post).mockRejectedValue(new Error('API Error'));
 
-        // Act
-        const result = await actions.default({
-            request,
-            locals: createMockLocals(),
-            cookies: mockCookies
-        } as any);
+		const result = (await run(validForm)) as { message: string; formData: Record<string, string> };
 
-        // Assert
-        expect(result).toEqual({
-            error: "Failed to create consumer"
-        });
-        expect(obp_requests.post).toHaveBeenCalled();
-    });
+		expect(result.message).toBe('Failed to register user: API Error');
+		expect(obp_requests.post).toHaveBeenCalled();
+	});
 
-    it('should handle form data with correct types', async () => {
-        // Arrange
-        vi.mocked(obp_requests.post).mockResolvedValue({ success: true });
+	it('passes the parsed form fields through to OBP verbatim', async () => {
+		vi.mocked(obp_requests.post).mockResolvedValue({ success: true });
 
-        const request = createMockRequest({
-            email: 'user@domain.com',
-            username: 'newuser',
-            password: 'securepass',
-            first_name: 'Jane',
-            last_name: 'Smith'
-        });
+		// Success throws the redirect; we only care that the post payload is correct.
+		await expect(
+			run({
+				email: 'user@domain.com',
+				username: 'newuser01', // 9 chars
+				password: 'securepass',
+				first_name: 'Jane',
+				last_name: 'Smith'
+			})
+		).rejects.toMatchObject({ status: 303 });
 
-        // Act
-        await actions.default({
-            request,
-            locals: createMockLocals(),
-            cookies: mockCookies
-        } as any);
-
-        // Assert
-        const [endpoint, token, requestBody] = vi.mocked(obp_requests.post).mock.calls[0];
-        
-        expect(endpoint).toBe('/obp/v5.1.0/users');
-        expect(token).toBe('mock-token-123');
-        expect(requestBody).toEqual({
-            email: 'user@domain.com',
-            username: 'newuser',
-            password: 'securepass',
-            first_name: 'Jane',
-            last_name: 'Smith'
-        });
-    });
+		const [endpoint, requestBody] = vi.mocked(obp_requests.post).mock.calls[0];
+		expect(endpoint).toBe('/obp/v6.0.0/users');
+		expect(requestBody).toEqual({
+			email: 'user@domain.com',
+			username: 'newuser01',
+			password: 'securepass',
+			first_name: 'Jane',
+			last_name: 'Smith'
+		});
+	});
 });

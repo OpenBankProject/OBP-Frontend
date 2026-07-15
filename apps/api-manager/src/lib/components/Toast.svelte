@@ -3,7 +3,7 @@
     import { toaster } from '$lib/utils/toastService';
 </script>
 
-<Toast.Group {toaster}>
+<Toast.Group {toaster} placement="top-end" class="fixed top-4 right-4 z-[9999] flex flex-col gap-2">
     {#snippet children(toast)}
         <Toast {toast}>
             <Toast.Message>

@@ -1,346 +1,328 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { refreshAccessTokenInSession } from '$lib/oauth/session';
-import { OAuth2ClientWithConfig } from '$lib/oauth/client';
-import {
-	mockOIDCConfiguration,
-	mockOAuth2Tokens,
-	mockAccessToken,
-	mockRefreshToken,
-	mockEnvironment
-} from '../../fixtures/oauth';
-import { createMockSession, createMockFetch, mockEnvVars, restoreAllMocks } from '../../helpers';
+import { mockEnvironment, mockAccessToken, mockRefreshToken } from '../../fixtures/oauth';
+import { createMockSession, restoreAllMocks } from '../../helpers';
 
-describe('OAuth Session Utilities', () => {
-	let client: OAuth2ClientWithConfig;
-	let session: any;
-	let originalFetch: typeof global.fetch;
+// sessionHelper -> providerFactory reads $env/dynamic/private at import time; the
+// server test setup does not mock $env, so provide it here before importing units.
+vi.mock('$env/dynamic/private', () => ({ env: mockEnvironment }));
 
-	beforeEach(() => {
-		originalFetch = global.fetch;
-		mockEnvVars(mockEnvironment);
+import { SessionOAuthHelper } from '$lib/oauth/sessionHelper';
+import { oauth2ProviderFactory } from '$lib/oauth/providerFactory';
+import type { OAuth2ClientWithConfig } from '$lib/oauth/client';
 
-		client = new OAuth2ClientWithConfig(
-			'test-client-id',
-			'test-client-secret',
-			'http://localhost:3000/callback'
-		);
+// The refresh path resolves the client from oauth2ProviderFactory.getClient(provider).
+// Register a hand-built client directly into the singleton factory so we fully control
+// its OIDCConfig and refreshAccessToken behaviour, with no network calls.
+const TOKEN_ENDPOINT =
+	'https://test-oauth2.openbankproject.com/realms/obp-test/protocol/openid-connect/token';
 
-		client.OIDCConfig = mockOIDCConfiguration;
+interface FakeTokens {
+	accessToken: () => string;
+	refreshToken: () => string | null;
+	idToken: () => string | undefined;
+}
 
-		session = createMockSession({
-			user: {
-				user_id: 'test-user-123',
-				email: 'test@example.com'
-			},
-			oauth: {
-				access_token: mockAccessToken,
-				refresh_token: mockRefreshToken
-			}
-		});
-	});
+function registerFakeClient(
+	provider: string,
+	options: {
+		tokenEndpoint?: string | undefined;
+		omitOIDCConfig?: boolean;
+		refresh?: () => Promise<FakeTokens>;
+	} = {}
+): { client: OAuth2ClientWithConfig; refreshAccessToken: ReturnType<typeof vi.fn> } {
+	const refreshAccessToken = vi.fn(
+		options.refresh ?? (async () => makeTokens('unused', null, undefined))
+	);
 
+	const client = {
+		OIDCConfig: options.omitOIDCConfig
+			? undefined
+			: { token_endpoint: options.tokenEndpoint },
+		refreshAccessToken
+	} as unknown as OAuth2ClientWithConfig;
+
+	// getClient(provider) simply reads the private initializedClients map by key.
+	(oauth2ProviderFactory as unknown as { initializedClients: Map<string, OAuth2ClientWithConfig> })
+		.initializedClients.set(provider, client);
+
+	return { client, refreshAccessToken };
+}
+
+function makeTokens(
+	accessToken: string,
+	refreshToken: string | null,
+	idToken: string | undefined
+): FakeTokens {
+	return {
+		accessToken: () => accessToken,
+		refreshToken: () => refreshToken,
+		idToken: () => idToken
+	};
+}
+
+function clearFactoryClients() {
+	(oauth2ProviderFactory as unknown as { initializedClients: Map<string, unknown> })
+		.initializedClients.clear();
+}
+
+describe('SessionOAuthHelper', () => {
 	afterEach(() => {
-		global.fetch = originalFetch;
+		clearFactoryClients();
 		restoreAllMocks();
 	});
 
-	describe('refreshAccessTokenInSession', () => {
-		beforeEach(() => {
-			// Mock the inherited refreshAccessToken method from Arctic OAuth2Client
-			Object.setPrototypeOf(client, {
-				...Object.getPrototypeOf(client),
-				refreshAccessToken: vi.fn()
-			});
-		});
-
-		it('should successfully refresh access token', async () => {
-			const newAccessToken = 'new-access-token-123';
-			const newRefreshToken = 'new-refresh-token-123';
-
-			// Mock the refreshAccessToken method
-			const mockRefreshTokens = {
-				accessToken: () => newAccessToken,
-				refreshToken: () => newRefreshToken,
-				accessTokenExpiresAt: () => new Date(Date.now() + 3600000),
-				refreshTokenExpiresAt: () => new Date(Date.now() + 86400000),
-				scopes: () => ['openid']
-			};
-
-			vi.spyOn(client, 'refreshAccessToken').mockResolvedValue(mockRefreshTokens);
-
-			await refreshAccessTokenInSession(session, client);
-
-			expect(client.refreshAccessToken).toHaveBeenCalledWith(
-				mockOIDCConfiguration.token_endpoint,
-				mockRefreshToken,
-				['openid']
-			);
-
-			expect(session.data.oauth).toEqual({
-				access_token: newAccessToken,
-				refresh_token: newRefreshToken
+	describe('getSessionOAuth', () => {
+		it('returns null when session oauth has no provider', () => {
+			const session = createMockSession({
+				oauth: { access_token: mockAccessToken, refresh_token: mockRefreshToken }
 			});
 
-			expect(session.save).toHaveBeenCalled();
+			expect(SessionOAuthHelper.getSessionOAuth(session as never)).toBeNull();
 		});
 
-		it('should keep existing refresh token if new one is not provided', async () => {
-			const newAccessToken = 'new-access-token-123';
-
-			// Mock the refreshAccessToken method without refresh token
-			const mockRefreshTokens = {
-				accessToken: () => newAccessToken,
-				refreshToken: () => null, // No new refresh token
-				accessTokenExpiresAt: () => new Date(Date.now() + 3600000),
-				refreshTokenExpiresAt: () => new Date(Date.now() + 86400000),
-				scopes: () => ['openid']
-			};
-
-			vi.spyOn(client, 'refreshAccessToken').mockResolvedValue(mockRefreshTokens);
-
-			await refreshAccessTokenInSession(session, client);
-
-			expect(session.data.oauth).toEqual({
-				access_token: newAccessToken,
-				refresh_token: mockRefreshToken // Keep original refresh token
+		it('returns null when session oauth has no access_token', () => {
+			const session = createMockSession({
+				oauth: { provider: 'test-idp', refresh_token: mockRefreshToken }
 			});
 
-			expect(session.save).toHaveBeenCalled();
+			expect(SessionOAuthHelper.getSessionOAuth(session as never)).toBeNull();
 		});
 
-		it('should throw error when no refresh endpoint is available', async () => {
-			// Remove token endpoint from OIDC config
-			client.OIDCConfig = { ...mockOIDCConfiguration };
-			delete client.OIDCConfig.token_endpoint;
+		it('returns null when no client is registered for the provider', () => {
+			const session = createMockSession({
+				oauth: { provider: 'unknown-idp', access_token: mockAccessToken }
+			});
 
-			await expect(refreshAccessTokenInSession(session, client)).rejects.toThrow(
-				'No refresh endpoint or refresh token found. Please log in again.'
-			);
-
-			expect(session.save).not.toHaveBeenCalled();
+			expect(SessionOAuthHelper.getSessionOAuth(session as never)).toBeNull();
 		});
 
-		it('should throw error when no refresh token is available', async () => {
-			// Remove refresh token from session
-			session.data.oauth = {
-				access_token: mockAccessToken
-				// No refresh_token
-			};
-
-			await expect(refreshAccessTokenInSession(session, client)).rejects.toThrow(
-				'No refresh endpoint or refresh token found. Please log in again.'
-			);
-
-			expect(session.save).not.toHaveBeenCalled();
-		});
-
-		it('should throw error when no oauth data exists in session', async () => {
-			// Remove oauth data from session
-			session.data = {
-				user: {
-					user_id: 'test-user-123',
-					email: 'test@example.com'
+		it('returns client and tokens for a valid session', () => {
+			const { client } = registerFakeClient('test-idp', { tokenEndpoint: TOKEN_ENDPOINT });
+			const session = createMockSession({
+				oauth: {
+					provider: 'test-idp',
+					access_token: mockAccessToken,
+					refresh_token: mockRefreshToken,
+					id_token: 'id-token-123'
 				}
-				// No oauth data
-			};
+			});
 
-			await expect(refreshAccessTokenInSession(session, client)).rejects.toThrow(
-				'No refresh endpoint or refresh token found. Please log in again.'
-			);
+			const result = SessionOAuthHelper.getSessionOAuth(session as never);
+
+			expect(result).toEqual({
+				client,
+				provider: 'test-idp',
+				accessToken: mockAccessToken,
+				refreshToken: mockRefreshToken,
+				idToken: 'id-token-123'
+			});
+		});
+	});
+
+	describe('updateTokensInSession', () => {
+		it('throws when the session has no oauth data to update', async () => {
+			const session = createMockSession({ user: { user_id: 'u1' } });
+
+			await expect(
+				SessionOAuthHelper.updateTokensInSession(session as never, 'new-access')
+			).rejects.toThrow('No OAuth data in session to update.');
 
 			expect(session.save).not.toHaveBeenCalled();
 		});
 
-		it('should throw error when refresh token request fails', async () => {
-			const refreshError = new Error('Token refresh failed');
-			vi.spyOn(client, 'refreshAccessToken').mockRejectedValue(refreshError);
+		it('updates the access token and saves the session', async () => {
+			const session = createMockSession({
+				oauth: {
+					provider: 'test-idp',
+					access_token: mockAccessToken,
+					refresh_token: mockRefreshToken,
+					id_token: 'old-id'
+				}
+			});
 
-			await expect(refreshAccessTokenInSession(session, client)).rejects.toThrow(
-				'Failed to refresh access token. Please log in again.'
+			await SessionOAuthHelper.updateTokensInSession(
+				session as never,
+				'new-access',
+				'new-refresh',
+				'new-id'
 			);
 
-			expect(session.save).not.toHaveBeenCalled();
+			expect(session.data.oauth).toEqual({
+				provider: 'test-idp',
+				access_token: 'new-access',
+				refresh_token: 'new-refresh',
+				id_token: 'new-id'
+			});
+			expect(session.save).toHaveBeenCalled();
 		});
 
-		it('should log debug information during refresh process', async () => {
-			const consoleDebugSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
-			const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+		it('keeps the existing refresh and id tokens when new ones are not provided', async () => {
+			const session = createMockSession({
+				oauth: {
+					provider: 'test-idp',
+					access_token: mockAccessToken,
+					refresh_token: mockRefreshToken,
+					id_token: 'old-id'
+				}
+			});
 
-			const newAccessToken = 'new-access-token-123';
-			const mockRefreshTokens = {
-				accessToken: () => newAccessToken,
-				refreshToken: () => 'new-refresh-token',
-				accessTokenExpiresAt: () => new Date(Date.now() + 3600000),
-				refreshTokenExpiresAt: () => new Date(Date.now() + 86400000),
-				scopes: () => ['openid']
-			};
+			await SessionOAuthHelper.updateTokensInSession(session as never, 'new-access');
 
-			vi.spyOn(client, 'refreshAccessToken').mockResolvedValue(mockRefreshTokens);
-
-			await refreshAccessTokenInSession(session, client);
-
-			expect(consoleDebugSpy).toHaveBeenCalledWith('Attempting to refresh access token...');
-			expect(consoleDebugSpy).toHaveBeenCalledWith('Refreshing access token...');
-			expect(consoleErrorSpy).not.toHaveBeenCalled();
-
-			consoleDebugSpy.mockRestore();
-			consoleErrorSpy.mockRestore();
-		});
-
-		it('should log error when refresh fails', async () => {
-			const consoleDebugSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
-			const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-			const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-
-			// Remove refresh endpoint
-			client.OIDCConfig = { ...mockOIDCConfiguration };
-			delete client.OIDCConfig.token_endpoint;
-
-			await expect(refreshAccessTokenInSession(session, client)).rejects.toThrow();
-
-			expect(consoleDebugSpy).toHaveBeenCalledWith('Attempting to refresh access token...');
-			expect(consoleWarnSpy).toHaveBeenCalledWith(
-				'No refresh endpoint or refresh token found. Redirecting to login.'
-			);
-
-			consoleDebugSpy.mockRestore();
-			consoleErrorSpy.mockRestore();
-			consoleWarnSpy.mockRestore();
-		});
-
-		it('should log error when token refresh API call fails', async () => {
-			const consoleDebugSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
-			const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
-			const refreshError = new Error('API call failed');
-			vi.spyOn(client, 'refreshAccessToken').mockRejectedValue(refreshError);
-
-			await expect(refreshAccessTokenInSession(session, client)).rejects.toThrow(
-				'Failed to refresh access token. Please log in again.'
-			);
-
-			expect(consoleDebugSpy).toHaveBeenCalledWith('Attempting to refresh access token...');
-			expect(consoleDebugSpy).toHaveBeenCalledWith('Refreshing access token...');
-			expect(consoleErrorSpy).toHaveBeenCalledWith('Error refreshing access token:', refreshError);
-
-			consoleDebugSpy.mockRestore();
-			consoleErrorSpy.mockRestore();
-		});
-
-		it('should handle session save failure gracefully', async () => {
-			const saveError = new Error('Session save failed');
-			session.save.mockRejectedValue(saveError);
-
-			const newAccessToken = 'new-access-token-123';
-			const mockRefreshTokens = {
-				accessToken: () => newAccessToken,
-				refreshToken: () => 'new-refresh-token',
-				accessTokenExpiresAt: () => new Date(Date.now() + 3600000),
-				refreshTokenExpiresAt: () => new Date(Date.now() + 86400000),
-				scopes: () => ['openid']
-			};
-
-			vi.spyOn(client, 'refreshAccessToken').mockResolvedValue(mockRefreshTokens);
-
-			// The function should still complete the refresh and only fail on save
-			await expect(refreshAccessTokenInSession(session, client)).rejects.toThrow(
-				'Failed to refresh access token. Please log in again.'
-			);
-
-			// Verify that the session data was updated even though save failed
-			expect(session.data.oauth.access_token).toBe(newAccessToken);
-		});
-
-		it('should work with minimal OIDC configuration', async () => {
-			// Use minimal OIDC config with just token endpoint
-			client.OIDCConfig = {
-				issuer: 'https://test.example.com',
-				authorization_endpoint: 'https://test.example.com/auth',
-				token_endpoint: 'https://test.example.com/token',
-				userinfo_endpoint: 'https://test.example.com/userinfo',
-				jwks_uri: 'https://test.example.com/certs',
-				response_types_supported: ['code'],
-				grant_types_supported: ['authorization_code'],
-				subject_types_supported: ['public'],
-				id_token_signing_alg_values_supported: ['RS256']
-			};
-
-			const newAccessToken = 'new-access-token-123';
-			const mockRefreshTokens = {
-				accessToken: () => newAccessToken,
-				refreshToken: () => 'new-refresh-token',
-				accessTokenExpiresAt: () => new Date(Date.now() + 3600000),
-				refreshTokenExpiresAt: () => new Date(Date.now() + 86400000),
-				scopes: () => ['openid']
-			};
-
-			vi.spyOn(client, 'refreshAccessToken').mockResolvedValue(mockRefreshTokens);
-
-			await refreshAccessTokenInSession(session, client);
-
-			expect(client.refreshAccessToken).toHaveBeenCalledWith(
-				'https://test.example.com/token',
-				mockRefreshToken,
-				['openid']
-			);
-
-			expect(session.data.oauth.access_token).toBe(newAccessToken);
+			expect(session.data.oauth).toEqual({
+				provider: 'test-idp',
+				access_token: 'new-access',
+				refresh_token: mockRefreshToken,
+				id_token: 'old-id'
+			});
 			expect(session.save).toHaveBeenCalled();
 		});
 	});
 
-	describe('edge cases', () => {
-		it('should handle undefined session data', async () => {
-			session.data = undefined;
-
-			await expect(refreshAccessTokenInSession(session, client)).rejects.toThrow(
-				'Cannot read properties of undefined'
-			);
-		});
-
-		it('should handle null session data', async () => {
-			session.data = null;
-
-			await expect(refreshAccessTokenInSession(session, client)).rejects.toThrow(
-				'Cannot read properties of null'
-			);
-		});
-
-		it('should handle empty session data', async () => {
-			session.data = {};
-
-			await expect(refreshAccessTokenInSession(session, client)).rejects.toThrow(
-				'No refresh endpoint or refresh token found. Please log in again.'
-			);
-		});
-
-		it('should handle session with oauth but no refresh token', async () => {
-			session.data = {
+	describe('refreshAccessToken', () => {
+		it('refreshes the access token, stores the new tokens and saves', async () => {
+			const { refreshAccessToken } = registerFakeClient('test-idp', {
+				tokenEndpoint: TOKEN_ENDPOINT,
+				refresh: async () => makeTokens('new-access-token', 'new-refresh-token', 'new-id-token')
+			});
+			const session = createMockSession({
 				oauth: {
-					access_token: mockAccessToken
-					// Missing refresh_token
+					provider: 'test-idp',
+					access_token: mockAccessToken,
+					refresh_token: mockRefreshToken
 				}
-			};
+			});
 
-			await expect(refreshAccessTokenInSession(session, client)).rejects.toThrow(
-				'No refresh endpoint or refresh token found. Please log in again.'
-			);
+			await SessionOAuthHelper.refreshAccessToken(session as never);
+
+			expect(refreshAccessToken).toHaveBeenCalledWith(TOKEN_ENDPOINT, mockRefreshToken, ['openid']);
+			expect(session.data.oauth).toEqual({
+				provider: 'test-idp',
+				access_token: 'new-access-token',
+				refresh_token: 'new-refresh-token',
+				id_token: 'new-id-token'
+			});
+			expect(session.save).toHaveBeenCalled();
 		});
 
-		it('should handle empty refresh token', async () => {
-			session.data.oauth.refresh_token = '';
+		it('keeps the existing refresh token when the refresh response omits one', async () => {
+			registerFakeClient('test-idp', {
+				tokenEndpoint: TOKEN_ENDPOINT,
+				refresh: async () => makeTokens('new-access-token', null, 'new-id-token')
+			});
+			const session = createMockSession({
+				oauth: {
+					provider: 'test-idp',
+					access_token: mockAccessToken,
+					refresh_token: mockRefreshToken
+				}
+			});
 
-			await expect(refreshAccessTokenInSession(session, client)).rejects.toThrow(
-				'No refresh endpoint or refresh token found. Please log in again.'
-			);
+			await SessionOAuthHelper.refreshAccessToken(session as never);
+
+			expect(session.data.oauth.refresh_token).toBe(mockRefreshToken);
+			expect(session.data.oauth.access_token).toBe('new-access-token');
 		});
 
-		it('should handle client without OIDC config', async () => {
-			client.OIDCConfig = undefined;
+		it('stores the id token as the access token for the google provider', async () => {
+			registerFakeClient('google', {
+				tokenEndpoint: TOKEN_ENDPOINT,
+				refresh: async () => makeTokens('opaque-google-access', 'new-refresh-token', 'google-id-token')
+			});
+			const session = createMockSession({
+				oauth: {
+					provider: 'google',
+					access_token: mockAccessToken,
+					refresh_token: mockRefreshToken
+				}
+			});
 
-			await expect(refreshAccessTokenInSession(session, client)).rejects.toThrow(
+			await SessionOAuthHelper.refreshAccessToken(session as never);
+
+			// Google access tokens are opaque; the id_token is what OBP verifies, so it is
+			// stored as the session access token.
+			expect(session.data.oauth.access_token).toBe('google-id-token');
+			expect(session.data.oauth.id_token).toBe('google-id-token');
+			expect(session.save).toHaveBeenCalled();
+		});
+
+		it('throws when there is no valid OAuth data in the session', async () => {
+			const session = createMockSession({ user: { user_id: 'u1' } });
+
+			await expect(SessionOAuthHelper.refreshAccessToken(session as never)).rejects.toThrow(
+				'No valid OAuth data found in session. Please log in again.'
+			);
+			expect(session.save).not.toHaveBeenCalled();
+		});
+
+		it('throws when the client is registered but has no token endpoint', async () => {
+			const { refreshAccessToken } = registerFakeClient('test-idp', {
+				tokenEndpoint: undefined
+			});
+			const session = createMockSession({
+				oauth: {
+					provider: 'test-idp',
+					access_token: mockAccessToken,
+					refresh_token: mockRefreshToken
+				}
+			});
+
+			await expect(SessionOAuthHelper.refreshAccessToken(session as never)).rejects.toThrow(
 				'No refresh endpoint or refresh token found. Please log in again.'
 			);
+			expect(refreshAccessToken).not.toHaveBeenCalled();
+			expect(session.save).not.toHaveBeenCalled();
+		});
+
+		it('throws when the client has no OIDC config at all', async () => {
+			registerFakeClient('test-idp', { omitOIDCConfig: true });
+			const session = createMockSession({
+				oauth: {
+					provider: 'test-idp',
+					access_token: mockAccessToken,
+					refresh_token: mockRefreshToken
+				}
+			});
+
+			await expect(SessionOAuthHelper.refreshAccessToken(session as never)).rejects.toThrow(
+				'No refresh endpoint or refresh token found. Please log in again.'
+			);
+			expect(session.save).not.toHaveBeenCalled();
+		});
+
+		it('throws when the session has no refresh token', async () => {
+			registerFakeClient('test-idp', { tokenEndpoint: TOKEN_ENDPOINT });
+			const session = createMockSession({
+				oauth: {
+					provider: 'test-idp',
+					access_token: mockAccessToken
+				}
+			});
+
+			await expect(SessionOAuthHelper.refreshAccessToken(session as never)).rejects.toThrow(
+				'No refresh endpoint or refresh token found. Please log in again.'
+			);
+			expect(session.save).not.toHaveBeenCalled();
+		});
+
+		it('throws a generic error when the token refresh request rejects', async () => {
+			registerFakeClient('test-idp', {
+				tokenEndpoint: TOKEN_ENDPOINT,
+				refresh: async () => {
+					throw new Error('Token refresh failed at the IdP');
+				}
+			});
+			const session = createMockSession({
+				oauth: {
+					provider: 'test-idp',
+					access_token: mockAccessToken,
+					refresh_token: mockRefreshToken
+				}
+			});
+
+			await expect(SessionOAuthHelper.refreshAccessToken(session as never)).rejects.toThrow(
+				'Failed to refresh access token. Please log in again.'
+			);
+			expect(session.save).not.toHaveBeenCalled();
 		});
 	});
 });

@@ -4,6 +4,7 @@ import type { RequestEvent, Actions } from '@sveltejs/kit';
 import { redirect, isRedirect } from '@sveltejs/kit';
 import { obp_requests } from '$lib/obp/requests';
 import { OBPRequestError } from '@obp/shared/obp';
+import { oauth2ProviderFactory } from '$lib/oauth/providerFactory';
 
 export async function load(event: RequestEvent) {
 	const consentRequestId = event.url.searchParams.get('CONSENT_REQUEST_ID');
@@ -51,11 +52,17 @@ export async function load(event: RequestEvent) {
 
 		logger.info(`Consent request response: ${JSON.stringify(consentRequest)}`);
 
+		// OBP-API returns `payload` as an already-parsed JSON object (JValue on the
+		// server side), not a JSON string — do not JSON.parse it again.
 		let payload: any = {};
-		try {
-			payload = JSON.parse(consentRequest.payload || '{}');
-		} catch {
-			logger.warn('Could not parse consent request payload');
+		if (consentRequest.payload && typeof consentRequest.payload === 'object') {
+			payload = consentRequest.payload;
+		} else if (typeof consentRequest.payload === 'string' && consentRequest.payload) {
+			try {
+				payload = JSON.parse(consentRequest.payload);
+			} catch {
+				logger.warn('Could not parse consent request payload');
+			}
 		}
 		logger.info(`Parsed payload: ${JSON.stringify(payload)}`);
 
@@ -73,8 +80,16 @@ export async function load(event: RequestEvent) {
 			}
 		}
 
-		// Store the OIDC return URL in session if present
-		const oidcReturnUrl = event.url.searchParams.get('oidc_return_url');
+		// Store the OIDC return URL in session if present — must point back to a
+		// configured OIDC provider host, otherwise it's an open redirect / data leak.
+		const requestedOidcReturnUrl = event.url.searchParams.get('oidc_return_url');
+		const oidcReturnUrl =
+			requestedOidcReturnUrl && oauth2ProviderFactory.isTrustedOidcReturnUrl(requestedOidcReturnUrl)
+				? requestedOidcReturnUrl
+				: null;
+		if (requestedOidcReturnUrl && !oidcReturnUrl) {
+			logger.warn(`Rejected untrusted oidc_return_url: ${requestedOidcReturnUrl}`);
+		}
 		if (oidcReturnUrl) {
 			await event.locals.session.setData({
 				...event.locals.session.data,

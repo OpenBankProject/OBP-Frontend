@@ -34,17 +34,12 @@
 					Consent Details
 				</h2>
 
-				<div class="mb-4 rounded bg-gray-50 p-4 dark:bg-gray-700">
-					<pre
-						class="whitespace-pre-wrap text-sm text-gray-700 dark:text-gray-300">{JSON.stringify(data.payload, null, 2)}</pre>
-				</div>
-
 				<div class="grid gap-3 text-sm">
 					{#if data.payload.everything !== undefined}
 						<div class="flex items-center justify-between">
 							<span class="font-medium text-gray-700 dark:text-gray-300">Access Level:</span>
 							<span class="text-gray-900 dark:text-gray-100">
-								{data.payload.everything ? 'Full access' : 'Limited access'}
+								{data.payload.everything ? 'Full access to all your accounts' : 'Limited access'}
 							</span>
 						</div>
 					{/if}
@@ -72,6 +67,46 @@
 						</div>
 					{/if}
 				</div>
+
+				{#if !data.payload.everything && data.payload.account_access?.length}
+					<div class="mt-4 border-t border-gray-200 pt-4 dark:border-gray-600">
+						<h3 class="mb-2 text-sm font-semibold text-gray-900 dark:text-gray-100">
+							Accounts requested ({data.payload.account_access.length})
+						</h3>
+						<ul class="space-y-2">
+							{#each data.payload.account_access as access}
+								<li class="rounded bg-gray-50 p-3 text-sm dark:bg-gray-700">
+									<div class="flex items-center justify-between">
+										<span class="font-medium text-gray-700 dark:text-gray-300">Account:</span>
+										<span class="text-gray-900 dark:text-gray-100"
+											>{access.account_routing?.address}
+											({access.account_routing?.scheme})</span
+										>
+									</div>
+									<div class="flex items-center justify-between">
+										<span class="font-medium text-gray-700 dark:text-gray-300">Permission:</span>
+										<span class="text-gray-900 dark:text-gray-100">{access.view_id}</span>
+									</div>
+								</li>
+							{/each}
+						</ul>
+					</div>
+				{/if}
+
+				{#if data.payload.entitlements?.length}
+					<div class="mt-4 border-t border-gray-200 pt-4 dark:border-gray-600">
+						<h3 class="mb-2 text-sm font-semibold text-gray-900 dark:text-gray-100">
+							Roles requested ({data.payload.entitlements.length})
+						</h3>
+						<ul class="space-y-1 text-sm">
+							{#each data.payload.entitlements as entitlement}
+								<li class="text-gray-900 dark:text-gray-100">
+									{entitlement.role_name} <span class="text-gray-500">({entitlement.bank_id})</span>
+								</li>
+							{/each}
+						</ul>
+					</div>
+				{/if}
 			</div>
 
 			<!-- Actions -->

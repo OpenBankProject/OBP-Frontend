@@ -26,13 +26,6 @@ export class SessionOAuthHelper {
     logger.debug(`  Access token present: ${!!oauthData?.access_token}`);
     logger.debug(`  Refresh token present: ${!!oauthData?.refresh_token}`);
 
-    if (oauthData?.access_token) {
-      logger.debug(`  Access token length: ${oauthData.access_token.length}`);
-      logger.debug(
-        `  Access token preview: ${oauthData.access_token.substring(0, 30)}...`,
-      );
-    }
-
     if (!oauthData?.provider || !oauthData?.access_token) {
       logger.warn("🔐 SESSION OAUTH - Missing provider or access token");
       return null;

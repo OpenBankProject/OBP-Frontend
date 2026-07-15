@@ -1,4 +1,5 @@
 import { createLogger } from '$shared/utils/logger';
+import { redactUrlEncodedBody } from '$shared/utils/redact';
 const logger = createLogger('OAuth2Client');
 import { OAuth2Client } from 'arctic';
 import type { OpenIdConnectConfiguration, OAuth2AccessTokenPayload } from './types';
@@ -58,20 +59,23 @@ export class OAuth2ClientWithConfig extends OAuth2Client {
 	}
 
 	async checkAccessTokenExpiration(accessToken: string): Promise<boolean> {
-		// Returns true if the access token is expired, false if it is valid
+		// Returns true if the access token is expired (or its validity can't be
+		// determined — treated as expired so the caller attempts a refresh rather
+		// than either 500ing or treating an unverifiable token as eternally valid),
+		// false if it is confirmed valid.
 		logger.debug('Checking access token expiration...');
 		try {
 			const payload = jwtDecode(accessToken) as OAuth2AccessTokenPayload;
 			if (!payload || !payload.exp) {
 				logger.warn('Access token payload is invalid or missing expiration.');
-				return false;
+				return true;
 			}
 			const isExpired = Date.now() >= payload.exp * 1000;
 			logger.debug(`Access token is ${isExpired ? 'expired' : 'valid'}.`);
 			return isExpired;
 		} catch (error) {
-			logger.error('Error decoding access token:', error);
-			throw error;
+			logger.warn('Could not decode access token; treating as expired:', error);
+			return true;
 		}
 	}
 
@@ -110,7 +114,7 @@ export class OAuth2ClientWithConfig extends OAuth2Client {
 			body.set('code_verifier', codeVerifier);
 		}
 
-		logger.debug(`Token request body: ${body.toString()}`);
+		logger.debug(`Token request body: ${redactUrlEncodedBody(body)}`);
 
 		const response = await fetch(tokenEndpoint, {
 			method: 'POST',
@@ -179,7 +183,7 @@ export class OAuth2ClientWithConfig extends OAuth2Client {
 			body.set('code_verifier', codeVerifier);
 		}
 
-		logger.debug(`Token request body: ${body.toString()}`);
+		logger.debug(`Token request body: ${redactUrlEncodedBody(body)}`);
 
 		const response = await fetch(tokenEndpoint, {
 			method: 'POST',

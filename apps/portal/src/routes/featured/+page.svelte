@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Copy, Check } from '@lucide/svelte';
+	import { markdownToHtml } from '$lib/markdown/featuredMarkdown';
 
 	let { data } = $props();
 
@@ -184,41 +185,6 @@
 	function buildTellMeMoreUrl(operationId: string): string {
 		const question = `Tell me more about the API endpoint with operation ID: ${operationId}`;
 		return `/?ask=${encodeURIComponent(question)}`;
-	}
-
-	// Convert markdown to clean text (for finding cut points)
-	function markdownToText(markdown: string): string {
-		return markdown
-			.replace(/^#{1,6}\s+/gm, '') // Remove heading markers
-			.replace(/\*\*([^*]+)\*\*/g, '$1') // Bold
-			.replace(/\*([^*]+)\*/g, '$1') // Italic
-			.replace(/`([^`]+)`/g, '$1') // Inline code
-			.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // Links
-			.replace(/^\s*[-*+]\s+/gm, '') // List markers
-			.replace(/^\s*\d+\.\s+/gm, '') // Numbered list markers
-			.replace(/\n+/g, ' ') // Newlines to spaces
-			.replace(/\s+/g, ' ')
-			.trim();
-	}
-
-	// Convert markdown to HTML (for rendering)
-	function markdownToHtml(markdown: string): string {
-		return markdown
-			// Escape HTML first
-			.replace(/&/g, '&amp;')
-			.replace(/</g, '&lt;')
-			.replace(/>/g, '&gt;')
-			// Then apply markdown formatting
-			.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>') // Bold
-			.replace(/\*([^*]+)\*/g, '<em>$1</em>') // Italic
-			.replace(/`([^`]+)`/g, '<code class="bg-gray-100 dark:bg-gray-700 px-1 rounded break-all">$1</code>') // Inline code
-			.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-primary-500 dark:text-primary-200 hover:underline">$1</a>') // Links
-			.replace(/^#{1,6}\s+(.+)$/gm, '<strong>$1</strong>') // Headings to bold
-			.replace(/\n\n+/g, '</p><p>') // Paragraph breaks
-			.replace(/\n/g, ' ') // Single newlines to spaces
-			.replace(/^/, '<p>') // Wrap in paragraph
-			.replace(/$/, '</p>')
-			.replace(/<p><\/p>/g, ''); // Remove empty paragraphs
 	}
 
 	// Get description preview as HTML, stopping at technical phrases
