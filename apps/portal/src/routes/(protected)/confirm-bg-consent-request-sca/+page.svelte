@@ -25,6 +25,7 @@
 
 			<form method="post" class="space-y-4">
 				<input type="hidden" name="consentId" value={data.consentId} />
+				<input type="hidden" name="authorisationId" value={data.authorisationId} />
 
 				<div>
 					<label

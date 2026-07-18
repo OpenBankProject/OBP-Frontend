@@ -4,20 +4,47 @@ import type { RequestEvent, Actions } from '@sveltejs/kit';
 import { redirect, isRedirect } from '@sveltejs/kit';
 import { obp_requests } from '$lib/obp/requests';
 import { OBPRequestError } from '@obp/shared/obp';
-import { env } from '$env/dynamic/private';
+import type {
+	OBPBGStartConsentAuthorisation,
+	OBPBGConsentAuthorisationResult
+} from '$lib/obp/types';
 
 export async function load(event: RequestEvent) {
 	const consentId = event.url.searchParams.get('CONSENT_ID');
-
 
 	if (!consentId) {
 		return {
 			loadError: 'Missing required parameter: CONSENT_ID.',
 			consentId: '',
-			};
+			authorisationId: ''
+		};
 	}
 
-	return { consentId };
+	const token = event.locals.session.data.oauth?.access_token;
+	if (!token) {
+		return {
+			loadError: 'No access token found in session.',
+			consentId,
+			authorisationId: ''
+		};
+	}
+
+	try {
+		const startResponse: OBPBGStartConsentAuthorisation = await obp_requests.post(
+			`/berlin-group/v1.3/consents/${consentId}/authorisations`,
+			{ scaAuthenticationData: '' },
+			token
+		);
+
+		return { consentId, authorisationId: startResponse.authorisationId };
+	} catch (e) {
+		logger.error('Error starting BG consent authorisation:', e);
+		let errorMessage = 'Failed to start consent authorisation.';
+		if (e instanceof OBPRequestError) {
+			errorMessage = e.message;
+		}
+		return { loadError: errorMessage, consentId, authorisationId: '' };
+	}
 }
 
 export const actions = {
@@ -25,9 +52,14 @@ export const actions = {
 		const formData = await request.formData();
 		const otp = formData.get('otp') as string;
 		const consentId = formData.get('consentId') as string;
+		const authorisationId = formData.get('authorisationId') as string;
 
 		if (!otp) {
 			return { message: 'Please enter the OTP code.' };
+		}
+
+		if (!authorisationId) {
+			return { message: 'Missing authorisation id. Please reload the page.' };
 		}
 
 		const token = locals.session.data.oauth?.access_token;
@@ -35,25 +67,19 @@ export const actions = {
 			return { message: 'No access token found in session.' };
 		}
 
-		const defaultBankId = env.DEFAULT_BANK_ID;
-		if (!defaultBankId) {
-			logger.error('DEFAULT_BANK_ID environment variable is not set');
-			return { message: 'Server configuration error: DEFAULT_BANK_ID is not set.' };
-		}
-
 		try {
-			const response = await obp_requests.post(
-				`/obp/v3.1.0/banks/${defaultBankId}/consents/${consentId}/challenge`,
-				{ answer: otp },
+			const response: OBPBGConsentAuthorisationResult = await obp_requests.put(
+				`/berlin-group/v1.3/consents/${consentId}/authorisations/${authorisationId}`,
+				{ scaAuthenticationData: otp },
 				token
 			);
 
-			if (response.status === 'ACCEPTED' || response.status === 'VALID') {
+			if (response.scaStatus === 'valid') {
 				redirect(303, `/confirm-bg-consent-request-redirect-uri?CONSENT_ID=${consentId}`);
 			}
 
 			return {
-				message: `Challenge was not accepted. Status: ${response.status}`
+				message: `Challenge was not accepted. Status: ${response.scaStatus}`
 			};
 		} catch (e) {
 			if (isRedirect(e)) throw e;

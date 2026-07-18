@@ -312,6 +312,18 @@ export interface OBPBGPaymentAuthorisation {
     sca_status: string;
 }
 
+// Berlin Group Consent Authorisation (SCA) types
+export interface OBPBGStartConsentAuthorisation {
+    scaStatus: string;
+    authorisationId: string;
+    pushMessage: string;
+    _links: { scaStatus: string };
+}
+export interface OBPBGConsentAuthorisationResult {
+    scaStatus: string;
+    _links?: { scaStatus?: { href?: string } };
+}
+
 // Personal Data Field (User Attribute)
 export interface OBPPersonalDataField {
     user_attribute_id: string;
