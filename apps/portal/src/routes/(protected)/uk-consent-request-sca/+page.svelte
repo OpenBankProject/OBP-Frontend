@@ -40,6 +40,7 @@
 			<input type="hidden" name="bankId" value={data.bankId} />
 			<input type="hidden" name="challengeId" value={data.challengeId} />
 			<input type="hidden" name="oidcReturnUrl" value={data.oidcReturnUrl} />
+			<input type="hidden" name="accountIds" value={data.accountIds} />
 
 			<button type="submit" class="btn preset-filled-primary-500 w-full">
 				Verify &amp; Authorise

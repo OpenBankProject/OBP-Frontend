@@ -74,13 +74,55 @@
 			{/if}
 		</div>
 
+		<!-- Account Selection -->
+		<div class="mb-6 rounded-lg bg-white p-6 shadow-md dark:bg-gray-800">
+			<h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
+				Select Accounts
+			</h2>
+			{#if data.userAccounts?.length}
+				<p class="mb-4 text-sm text-gray-700 dark:text-gray-300">
+					Choose which of your accounts the requested permissions apply to:
+				</p>
+				<div class="space-y-3" data-testid="uk-consent-account-list">
+					{#each data.userAccounts as account}
+						<label
+							class="flex cursor-pointer items-center gap-3 rounded-md border p-3 hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700"
+						>
+							<input
+								type="checkbox"
+								name="selectedAccountIds"
+								form="confirmForm"
+								value={account.accountId}
+								class="checkbox"
+								data-testid="uk-consent-account-checkbox"
+							/>
+							<div>
+								<span class="font-medium text-gray-900 dark:text-gray-100">{account.label}</span>
+								<span class="ml-2 font-mono text-xs text-gray-500 dark:text-gray-400"
+									>{account.accountId}</span
+								>
+							</div>
+						</label>
+					{/each}
+				</div>
+			{:else}
+				<p class="text-error-500 text-sm" data-testid="uk-consent-no-accounts">
+					You have no accounts at this bank, so this consent cannot be authorised.
+				</p>
+			{/if}
+		</div>
+
 		<!-- Actions -->
 		<div class="flex gap-4">
-			<form method="post" action="?/confirm" class="flex-1">
+			<form method="post" action="?/confirm" id="confirmForm" class="flex-1">
 				<input type="hidden" name="consentId" value={data.consentId} />
 				<input type="hidden" name="bankId" value={data.bankId} />
 				<input type="hidden" name="oidcReturnUrl" value={data.oidcReturnUrl} />
-				<button type="submit" class="btn preset-filled-primary-500 w-full">
+				<button
+					type="submit"
+					class="btn preset-filled-primary-500 w-full"
+					disabled={!data.userAccounts?.length}
+				>
 					Confirm Consent
 				</button>
 			</form>

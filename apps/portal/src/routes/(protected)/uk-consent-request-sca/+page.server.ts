@@ -18,6 +18,9 @@ export async function load(event: RequestEvent) {
 	const bankId = event.url.searchParams.get('bank_id');
 	const challengeId = event.url.searchParams.get('challenge_id');
 	const requestedOidcReturnUrl = event.url.searchParams.get('oidc_return_url');
+	// The accounts the PSU selected on /uk-consent-request, carried through as a comma-joined
+	// query param -- OBP-API's authorise endpoint requires account_ids in the final POST body.
+	const accountIds = event.url.searchParams.get('account_ids') || '';
 
 	if (!consentId || !bankId || !challengeId) {
 		return {
@@ -25,13 +28,21 @@ export async function load(event: RequestEvent) {
 			consentId: consentId || '',
 			bankId: bankId || '',
 			challengeId: challengeId || '',
-			oidcReturnUrl: ''
+			oidcReturnUrl: '',
+			accountIds: ''
 		};
 	}
 
 	const token = event.locals.session.data.oauth?.access_token;
 	if (!token) {
-		return { loadError: 'Unauthorized: No access token found in session.', consentId, bankId, challengeId, oidcReturnUrl: '' };
+		return {
+			loadError: 'Unauthorized: No access token found in session.',
+			consentId,
+			bankId,
+			challengeId,
+			oidcReturnUrl: '',
+			accountIds: ''
+		};
 	}
 
 	const oidcReturnUrl =
@@ -42,7 +53,7 @@ export async function load(event: RequestEvent) {
 		logger.warn(`Rejected untrusted oidc_return_url: ${requestedOidcReturnUrl}`);
 	}
 
-	return { consentId, bankId, challengeId, oidcReturnUrl };
+	return { consentId, bankId, challengeId, oidcReturnUrl, accountIds };
 }
 
 export const actions = {
@@ -53,9 +64,16 @@ export const actions = {
 		const bankId = formData.get('bankId') as string;
 		const challengeId = formData.get('challengeId') as string;
 		const oidcReturnUrlRaw = formData.get('oidcReturnUrl') as string;
+		const accountIds = ((formData.get('accountIds') as string) || '')
+			.split(',')
+			.map((id) => id.trim())
+			.filter(Boolean);
 
 		if (!otp) {
 			return { message: 'Please enter the OTP code.' };
+		}
+		if (accountIds.length === 0) {
+			return { message: 'No accounts were selected for this consent. Please start over.' };
 		}
 
 		const token = locals.session.data.oauth?.access_token;
@@ -76,7 +94,7 @@ export const actions = {
 			// the PSU only if the challenge answer is correct; a wrong answer leaves it unauthorised.
 			await obp_requests.post(
 				`/obp/v5.1.0/banks/${bankId}/consents/${consentId}/authorise`,
-				{ challenge_id: challengeId, answer: otp },
+				{ challenge_id: challengeId, answer: otp, account_ids: accountIds },
 				token
 			);
 		} catch (e) {
