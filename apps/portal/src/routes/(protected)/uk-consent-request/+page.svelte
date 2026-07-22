@@ -1,5 +1,20 @@
 <script lang="ts">
 	let { data, form } = $props();
+
+	// SvelteKit's `?/actionName` shorthand REPLACES the page's entire query string, not
+	// appends to it. Since load() requires CONSENT_ID/bank_id from the URL, submitting a
+	// bare "?/confirm" strips them -- on any non-redirecting action response (e.g. a
+	// validation failure) load() re-runs against the stripped URL and throws its own
+	// "Missing required parameter" error, masking the action's real message. Preserve the
+	// existing query string per SvelteKit's documented convention (append with "&").
+	let actionQuery = $derived(
+		new URLSearchParams({
+			CONSENT_ID: data.consentId,
+			bank_id: data.bankId,
+			api_standard: data.apiStandard,
+			oidc_return_url: data.oidcReturnUrl
+		}).toString()
+	);
 </script>
 
 <div class="mx-auto max-w-2xl p-8">
@@ -114,7 +129,7 @@
 
 		<!-- Actions -->
 		<div class="flex gap-4">
-			<form method="post" action="?/confirm" id="confirmForm" class="flex-1">
+			<form method="post" action="?{actionQuery}&/confirm" id="confirmForm" class="flex-1">
 				<input type="hidden" name="consentId" value={data.consentId} />
 				<input type="hidden" name="bankId" value={data.bankId} />
 				<input type="hidden" name="oidcReturnUrl" value={data.oidcReturnUrl} />
@@ -126,7 +141,7 @@
 					Confirm Consent
 				</button>
 			</form>
-			<form method="post" action="?/deny" class="flex-1">
+			<form method="post" action="?{actionQuery}&/deny" class="flex-1">
 				<input type="hidden" name="oidcReturnUrl" value={data.oidcReturnUrl} />
 				<button type="submit" class="btn preset-filled-error-500 w-full">
 					Deny
