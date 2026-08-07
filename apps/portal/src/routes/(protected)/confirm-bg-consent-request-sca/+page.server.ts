@@ -59,7 +59,12 @@ export const actions = {
 		}
 
 		if (!authorisationId) {
-			return { message: 'Missing authorisation id. Please reload the page.' };
+			// There is no authorisation to answer because starting one failed, and the reason is
+			// already on the page above. Telling the PSU to reload sends them round the same loop.
+			return {
+				message:
+					'This consent has no authorisation to confirm — starting one did not succeed. See the reason above.'
+			};
 		}
 
 		const token = locals.session.data.oauth?.access_token;

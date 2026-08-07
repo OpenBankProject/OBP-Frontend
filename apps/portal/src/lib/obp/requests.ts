@@ -19,6 +19,26 @@ class OBPRequests {
 		logger.info('Initialized.');
 	}
 
+	/**
+	 * The error the API actually reported, or null when the body carries none.
+	 *
+	 * Two shapes reach here. OBP's own endpoints answer `{code, message}`; Berlin Group answers
+	 * `{tppMessages: [{code, text}]}`, which is what NextGenPSD2 specifies. Only the first was
+	 * understood, so every Berlin Group failure fell through to a generic "Error posting OBP data"
+	 * and the reason never reached the PSU -- an account-ownership refusal reads exactly like a
+	 * transport fault.
+	 */
+	private static apiError(data: any): { code: string | number; message: string } | null {
+		if (data?.code && data?.message) {
+			return { code: data.code, message: data.message };
+		}
+		const tppMessage = data?.tppMessages?.[0];
+		if (tppMessage?.text) {
+			return { code: tppMessage.code ?? 'ERROR', message: tppMessage.text };
+		}
+		return null;
+	}
+
 	private logRateLimitInfo(response: Response, url: string): void {
 		const remaining = response.headers.get('X-Rate-Limit-Remaining');
 		if (remaining !== null && parseInt(remaining) < 0) {
@@ -70,8 +90,9 @@ class OBPRequests {
 				);
 			}
 
-			if (data && data.code && data.message) {
-				throw new OBPRequestError(data.code, data.message);
+			const apiError = OBPRequests.apiError(data);
+			if (apiError) {
+				throw new OBPRequestError(apiError.code as any, apiError.message);
 			} else {
 				throw new OBPErrorBase(`Error fetching OBP data from ${url}: ${response.statusText}`);
 			}
@@ -109,8 +130,9 @@ class OBPRequests {
 		if (!response.ok) {
 			logger.error('Failed to post OBP data:', { statusText: response.statusText, data });
 
-			if (data && data.code && data.message) {
-				throw new OBPRequestError(data.code, data.message);
+			const apiError = OBPRequests.apiError(data);
+			if (apiError) {
+				throw new OBPRequestError(apiError.code as any, apiError.message);
 			} else {
 				throw new OBPErrorBase(`Error posting OBP data to ${url}: ${response.statusText}`);
 			}
@@ -157,8 +179,9 @@ class OBPRequests {
 
 		if (!response.ok) {
 			logger.error('Failed to delete OBP data:', response.statusText, data);
-			if (data && data.code && data.message) {
-				throw new OBPRequestError(data.code, data.message);
+			const apiError = OBPRequests.apiError(data);
+			if (apiError) {
+				throw new OBPRequestError(apiError.code as any, apiError.message);
 			} else {
 				throw new OBPErrorBase(`Error deleting OBP data from ${url}: ${response.statusText}`);
 			}
@@ -195,8 +218,9 @@ class OBPRequests {
 
 		if (!response.ok) {
 			logger.error('Failed to put OBP data:', { statusText: response.statusText, data });
-			if (data && data.code && data.message) {
-				throw new OBPRequestError(data.code, data.message);
+			const apiError = OBPRequests.apiError(data);
+			if (apiError) {
+				throw new OBPRequestError(apiError.code as any, apiError.message);
 			} else {
 				throw new OBPErrorBase(`Error putting OBP data to ${url}: ${response.statusText}`);
 			}
@@ -233,8 +257,9 @@ class OBPRequests {
 
 		if (!response.ok) {
 			logger.error('Failed to patch OBP data:', { statusText: response.statusText, data });
-			if (data && data.code && data.message) {
-				throw new OBPRequestError(data.code, data.message);
+			const apiError = OBPRequests.apiError(data);
+			if (apiError) {
+				throw new OBPRequestError(apiError.code as any, apiError.message);
 			} else {
 				throw new OBPErrorBase(`Error patching OBP data to ${url}: ${response.statusText}`);
 			}
