@@ -23,7 +23,7 @@
 				</div>
 			{/if}
 
-			<form method="post" class="space-y-4">
+			<form method="post" action="?/confirm" class="space-y-4">
 				<input type="hidden" name="consentId" value={data.consentId} />
 				<input type="hidden" name="authorisationId" value={data.authorisationId} />
 
@@ -45,5 +45,17 @@
 				</div>
 
 				<button type="submit" class="btn preset-filled-primary-500 w-full">Verify</button>
+			</form>
+
+			<!--
+				A wrong code no longer replaces the challenge behind the PSU's back, so a code that
+				expired or never arrived needs an explicit way out. This is the only path that
+				invalidates the previous one.
+			-->
+			<form method="post" action="?/resend" class="mt-3">
+				<input type="hidden" name="consentId" value={data.consentId} />
+				<button type="submit" class="btn preset-tonal w-full text-sm">
+					Didn't get a code? Send a new one
+				</button>
 			</form>
 	</div>

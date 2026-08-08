@@ -91,6 +91,10 @@ export async function load(event: RequestEvent) {
 	// OBP-API only binds/grants access for accounts the authorising user actually holds
 	// (POST .../authorise requires account_ids, and rejects any account the PSU doesn't hold).
 	let userAccounts: { accountId: string; label: string }[] = [];
+	// "The list could not be loaded" and "there are no accounts" are different facts, and the second
+	// is a statement about the PSU that the page should not make on the strength of a failed call.
+	// An empty list with no error reads as "you hold nothing here"; this keeps the reason instead.
+	let accountsError = '';
 	try {
 		const accountsResponse = await obp_requests.get('/obp/v6.0.0/my/accounts', token);
 		userAccounts = (accountsResponse.accounts || [])
@@ -101,6 +105,10 @@ export async function load(event: RequestEvent) {
 			}));
 	} catch (e) {
 		logger.warn('Could not fetch user accounts:', e);
+		accountsError =
+			e instanceof OBPRequestError
+				? `Your accounts could not be loaded: ${e.message}`
+				: 'Your accounts could not be loaded. Please try again.';
 	}
 
 	return {
@@ -111,7 +119,8 @@ export async function load(event: RequestEvent) {
 		status,
 		permissions,
 		expirationDateTime,
-		userAccounts
+		userAccounts,
+		accountsError
 	};
 }
 
