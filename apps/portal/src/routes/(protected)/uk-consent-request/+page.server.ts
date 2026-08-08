@@ -91,6 +91,10 @@ export async function load(event: RequestEvent) {
 	// OBP-API only binds/grants access for accounts the authorising user actually holds
 	// (POST .../authorise requires account_ids, and rejects any account the PSU doesn't hold).
 	let userAccounts: { accountId: string; label: string }[] = [];
+	// "The list could not be loaded" and "there are no accounts" are different facts, and the second
+	// is a statement about the PSU that the page should not make on the strength of a failed call.
+	// An empty list with no error reads as "you hold nothing here"; this keeps the reason instead.
+	let accountsError = '';
 	try {
 		const accountsResponse = await obp_requests.get('/obp/v6.0.0/my/accounts', token);
 		userAccounts = (accountsResponse.accounts || [])
@@ -101,6 +105,10 @@ export async function load(event: RequestEvent) {
 			}));
 	} catch (e) {
 		logger.warn('Could not fetch user accounts:', e);
+		accountsError =
+			e instanceof OBPRequestError
+				? `Your accounts could not be loaded: ${e.message}`
+				: 'Your accounts could not be loaded. Please try again.';
 	}
 
 	return {
@@ -111,7 +119,8 @@ export async function load(event: RequestEvent) {
 		status,
 		permissions,
 		expirationDateTime,
-		userAccounts
+		userAccounts,
+		accountsError
 	};
 }
 
@@ -161,12 +170,27 @@ export const actions = {
 			return { message: errorMessage };
 		}
 
+		// The accounts the PSU ticked are held server-side against the challenge that was just
+		// minted, not passed through the URL. Carried in the query string they were editable
+		// between this screen and the answer, so the consent could end up naming accounts that
+		// never appeared on the screen the PSU consented from -- and the consent record is the
+		// artefact an audit reads. OBP-API still refuses accounts the PSU does not hold, so the
+		// exposure was bounded, but "bounded" is not the same as "what they agreed to".
+		await locals.session.setData({
+			...locals.session.data,
+			ukConsentFlow: { consentId, challengeId, accountIds: selectedAccountIds }
+		});
+		// setData alone only mutates the in-memory session -- it writes to the store only when
+		// saveUninitialized is set, which this app does not set. Without save() the selection would
+		// not survive the redirect below, and the SCA step would refuse a consent the PSU had just
+		// filled in correctly.
+		await locals.session.save();
+
 		const params = new URLSearchParams({
 			CONSENT_ID: consentId,
 			bank_id: bankId,
 			challenge_id: challengeId,
-			oidc_return_url: oidcReturnUrl,
-			account_ids: selectedAccountIds.join(',')
+			oidc_return_url: oidcReturnUrl
 		});
 		redirect(303, `/uk-consent-request-sca?${params.toString()}`);
 	},

@@ -363,5 +363,25 @@ declare module 'svelte-kit-sessions' {
 			consentRequestId: string;
 			bankId: string;
 		};
+		/**
+		 * The Berlin Group consent authorisation this PSU is currently answering.
+		 *
+		 * Held across renders because starting one mints a new challenge and delivers a new OTP, so
+		 * re-deriving it per render would invalidate the code the PSU is looking at.
+		 */
+		bgConsentAuthorisation?: {
+			consentId: string;
+			authorisationId: string;
+		};
+		/**
+		 * The accounts the PSU ticked on the UK consent screen, bound to the challenge minted for
+		 * that selection. Held here rather than round-tripped through the URL so the consent cannot
+		 * be authorised for accounts that never appeared on the screen they consented from.
+		 */
+		ukConsentFlow?: {
+			consentId: string;
+			challengeId: string;
+			accountIds: string[];
+		};
 	}
 }

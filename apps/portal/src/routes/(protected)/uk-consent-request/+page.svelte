@@ -120,6 +120,15 @@
 						</label>
 					{/each}
 				</div>
+			{:else if data.accountsError}
+				<!--
+					The list failed to load. "You have no accounts" is a claim about the PSU, and a
+					failed call is no evidence for it -- a PSU who does hold accounts here would be
+					told they do not, with no reason and no way to retry.
+				-->
+				<p class="text-error-500 text-sm" data-testid="uk-consent-accounts-error">
+					{data.accountsError}
+				</p>
 			{:else}
 				<p class="text-error-500 text-sm" data-testid="uk-consent-no-accounts">
 					You have no accounts at this bank, so this consent cannot be authorised.

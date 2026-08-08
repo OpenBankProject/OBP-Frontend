@@ -51,16 +51,17 @@ export async function load(event: RequestEvent) {
 		const jwtPayload = decodeJwtPayload(consent.jwt);
 		const requestHeaders = jwtPayload.request_headers || [];
 
-		let tppRedirectUri = '';
-		let tppNokRedirectUri = '';
-		for (const header of requestHeaders) {
-			if (header['TPP-Redirect-URI']) {
-				tppRedirectUri = header['TPP-Redirect-URI'];
-			}
-			if (header['TPP-Nok-Redirect-URI']) {
-				tppNokRedirectUri = header['TPP-Nok-Redirect-URI'];
-			}
-		}
+		// The consent JWT stores these as [{name, values}], the shape OBP's HTTPParam serialises to
+		// -- not as {"TPP-Redirect-URI": "..."}. Reading them the second way found nothing, ever, so
+		// the PSU was left on this page after a successful Berlin Group authorisation instead of
+		// being returned to the TPP that sent them. Under the Redirect approach that return is the
+		// last step of the ceremony, not a nicety.
+		const headerValue = (wanted: string): string => {
+			const match = requestHeaders.find((h: any) => h?.name === wanted);
+			return match?.values?.[0] ?? '';
+		};
+		const tppRedirectUri = headerValue('TPP-Redirect-URI');
+		const tppNokRedirectUri = headerValue('TPP-Nok-Redirect-URI');
 
 		return {
 			consentId,

@@ -1,0 +1,66 @@
+import type { RequestHandler } from './$types';
+import { healthCheckRegistry, summarizeHealth } from '@obp/shared/health-check';
+
+/**
+ * Services this app can serve its purpose without.
+ *
+ * Empty here: API Manager registers no optional dependency today. The list exists so that when one
+ * is added, excusing it from readiness is a decision written down in this file.
+ *
+ * Named exclusions rather than a list of required services on purpose: a service added later gates
+ * readiness by default, and someone has to decide, in this file, that it is safe to ignore. The
+ * other way round, a rename would silently drop a service from the required set and readiness would
+ * quietly start passing on less than it used to.
+ */
+const NOT_REQUIRED_TO_SERVE: string[] = [];
+
+const OAUTH2_PREFIX = 'OAuth2: ';
+
+/**
+ * Readiness probe: this instance can do useful work, so route traffic to it.
+ *
+ * The other half of the split /health introduced. /health is liveness -- "the process is serving
+ * HTTP" -- which is what an orchestrator should restart on. Readiness is what a load balancer should
+ * route on, and it needs a status code rather than a rendered page: /status shows the same picture
+ * to a human but is a +page and answers 200 whatever it finds.
+ *
+ * Deliberately not summarizeHealth's overall verdict. That treats every non-OAuth2 check as core, so
+ * it would report `unhealthy` for an optional dependency the app serves fine without -- exactly the
+ * judgement /health was changed to stop making. It stays right for the human view on /status.
+ *
+ * The rule here: every required dependency healthy, and at least one OAuth2 provider healthy. One
+ * dead provider beside a working one is degraded, not unready -- refusing traffic then turns a
+ * degraded login into no login at all. A check that has not reported yet counts as not ready, since
+ * claiming readiness on no evidence is how a starting instance takes traffic it cannot serve.
+ */
+export const GET: RequestHandler = async () => {
+	const summary = summarizeHealth(healthCheckRegistry.getSnapshots());
+	const entries = Object.entries(summary.services);
+
+	const required = entries.filter(
+		([name]) => !name.startsWith(OAUTH2_PREFIX) && !NOT_REQUIRED_TO_SERVE.includes(name)
+	);
+	const oauth2 = entries.filter(([name]) => name.startsWith(OAUTH2_PREFIX));
+
+	const blocking = required.filter(([, s]) => s.status !== 'healthy').map(([name]) => name);
+	const noProvider = oauth2.length > 0 && !oauth2.some(([, s]) => s.status === 'healthy');
+	if (noProvider) blocking.push('no OAuth2 provider is available');
+
+	// No checks at all is not evidence of readiness.
+	const ready = entries.length > 0 && blocking.length === 0;
+
+	return new Response(
+		JSON.stringify({
+			ready,
+			// summarizeHealth's own verdict, kept for continuity with /status even though readiness
+			// is decided above -- the two answer different questions and may legitimately differ.
+			status: summary.overallStatus,
+			blocking,
+			services: summary.services
+		}),
+		{
+			status: ready ? 200 : 503,
+			headers: { 'Content-Type': 'application/json' }
+		}
+	);
+};
