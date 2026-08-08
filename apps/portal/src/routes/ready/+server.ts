@@ -51,18 +51,14 @@ export const GET: RequestHandler = async () => {
 	// No checks at all is not evidence of readiness.
 	const ready = entries.length > 0 && blocking.length === 0;
 
-	return new Response(
-		JSON.stringify({
-			ready,
-			// summarizeHealth's own verdict, kept for continuity with /status even though readiness
-			// is decided above -- the two answer different questions and may legitimately differ.
-			status: summary.overallStatus,
-			blocking,
-			services: summary.services
-		}),
-		{
-			status: ready ? 200 : 503,
-			headers: { 'Content-Type': 'application/json' }
-		}
-	);
+	// Service names only. This endpoint is unauthenticated -- a probe has to be reachable before the
+	// app can prove anything about itself -- so it says whether to route traffic here and which
+	// dependency is holding that up, and nothing else. summarizeHealth's snapshots carry each
+	// service's configured URL and the text of its last error; returning those published the
+	// deployment's internal hostnames, ports and failure modes to anyone who asked. /status shows
+	// that detail to a signed-in human, which is where it belongs.
+	return new Response(JSON.stringify({ ready, blocking }), {
+		status: ready ? 200 : 503,
+		headers: { 'Content-Type': 'application/json' }
+	});
 };
