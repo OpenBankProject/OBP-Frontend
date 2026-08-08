@@ -1,5 +1,12 @@
 <script lang="ts">
 	let { data, form } = $props();
+
+	// SvelteKit's "?/name" shorthand REPLACES the page's query string rather than appending to it,
+	// and load() here needs CONSENT_ID from that query string. A bare "?/confirm" strips it, so a
+	// wrong OTP -- which does not redirect -- re-runs load() against a URL with no CONSENT_ID and
+	// the page answers "Missing required parameter" instead of showing why the code was rejected.
+	// Preserve it using SvelteKit's documented form: existing params first, then "&/name".
+	let actionQuery = $derived(new URLSearchParams({ CONSENT_ID: data.consentId }).toString());
 </script>
 
 <div class="mx-auto max-w-lg p-8">
@@ -23,7 +30,7 @@
 				</div>
 			{/if}
 
-			<form method="post" action="?/confirm" class="space-y-4">
+			<form method="post" action="?{actionQuery}&/confirm" class="space-y-4">
 				<input type="hidden" name="consentId" value={data.consentId} />
 				<input type="hidden" name="authorisationId" value={data.authorisationId} />
 
@@ -52,7 +59,7 @@
 				expired or never arrived needs an explicit way out. This is the only path that
 				invalidates the previous one.
 			-->
-			<form method="post" action="?/resend" class="mt-3">
+			<form method="post" action="?{actionQuery}&/resend" class="mt-3">
 				<input type="hidden" name="consentId" value={data.consentId} />
 				<button type="submit" class="btn preset-tonal w-full text-sm">
 					Didn't get a code? Send a new one
