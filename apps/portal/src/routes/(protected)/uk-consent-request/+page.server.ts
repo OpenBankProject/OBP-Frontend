@@ -180,6 +180,11 @@ export const actions = {
 			...locals.session.data,
 			ukConsentFlow: { consentId, challengeId, accountIds: selectedAccountIds }
 		});
+		// setData alone only mutates the in-memory session -- it writes to the store only when
+		// saveUninitialized is set, which this app does not set. Without save() the selection would
+		// not survive the redirect below, and the SCA step would refuse a consent the PSU had just
+		// filled in correctly.
+		await locals.session.save();
 
 		const params = new URLSearchParams({
 			CONSENT_ID: consentId,

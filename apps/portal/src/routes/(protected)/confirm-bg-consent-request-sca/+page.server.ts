@@ -31,13 +31,19 @@ async function startAuthorisation(event: RequestEvent, consentId: string, token:
 		...event.locals.session.data,
 		bgConsentAuthorisation: { consentId, authorisationId: startResponse.authorisationId }
 	});
+	// setData alone only mutates the in-memory session: it writes to the store only when
+	// saveUninitialized is set, which this app does not set. Without save() the id would be
+	// forgotten the moment this request ended, and the next render would start another
+	// authorisation -- the very thing this exists to prevent.
+	await event.locals.session.save();
 	return startResponse.authorisationId;
 }
 
 /** Forget the remembered authorisation, so the next consent starts its own. */
-async function forgetAuthorisation(event: { locals: App.Locals }) {
+async function forgetAuthorisation(event: { locals: App.Locals; cookies: unknown }) {
 	const { bgConsentAuthorisation, ...rest } = event.locals.session.data;
 	await event.locals.session.setData(rest);
+	await event.locals.session.save();
 }
 
 export async function load(event: RequestEvent) {
