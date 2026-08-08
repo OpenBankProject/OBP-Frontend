@@ -14,8 +14,10 @@ import type { RequestHandler } from './$types';
  * 503. And it counted "no checks registered" as healthy, the opposite of the rule summarizeHealth
  * states for that case ('unknown', never 'healthy').
  *
- * Ask /status for dependency health: it reports per-service detail and its own overall verdict.
- * This matches the /health that OBP-API and Hola serve.
+ * Ask /ready for dependency health -- it is the readiness half of this split and answers 503 when
+ * the dependencies are not there, so a load balancer can route on it. /status renders the same
+ * verdict for a human but is a page and always answers 200, so it cannot serve as a probe.
+ * This /health matches the one OBP-API and Hola serve.
  */
 export const GET: RequestHandler = async () => {
 	return new Response(JSON.stringify({ status: 'ok' }), {

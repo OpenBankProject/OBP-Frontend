@@ -170,12 +170,22 @@ export const actions = {
 			return { message: errorMessage };
 		}
 
+		// The accounts the PSU ticked are held server-side against the challenge that was just
+		// minted, not passed through the URL. Carried in the query string they were editable
+		// between this screen and the answer, so the consent could end up naming accounts that
+		// never appeared on the screen the PSU consented from -- and the consent record is the
+		// artefact an audit reads. OBP-API still refuses accounts the PSU does not hold, so the
+		// exposure was bounded, but "bounded" is not the same as "what they agreed to".
+		await locals.session.setData({
+			...locals.session.data,
+			ukConsentFlow: { consentId, challengeId, accountIds: selectedAccountIds }
+		});
+
 		const params = new URLSearchParams({
 			CONSENT_ID: consentId,
 			bank_id: bankId,
 			challenge_id: challengeId,
-			oidc_return_url: oidcReturnUrl,
-			account_ids: selectedAccountIds.join(',')
+			oidc_return_url: oidcReturnUrl
 		});
 		redirect(303, `/uk-consent-request-sca?${params.toString()}`);
 	},
