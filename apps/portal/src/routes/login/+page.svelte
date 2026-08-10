@@ -45,7 +45,19 @@
 
 
     onMount(() => {
-        // Auto-refresh every 60 seconds to show provider status changes
+        // Auto-refresh every 60 seconds to show provider status changes.
+        // Skipped whenever exactly one provider is available: that's precisely the
+        // condition +page.server.ts's load() uses to auto-redirect straight into
+        // `/login/{provider}` (which mints a fresh OAuth state cookie as a side
+        // effect). This page only renders with a single available provider when an
+        // error/success message is suppressing that auto-redirect (e.g. the user
+        // landed here after a failed login and is about to retry) — invalidateAll()
+        // racing a real click on the provider link here would silently overwrite the
+        // state cookie the click's own request just set, causing an intermittent
+        // "Security validation failed" state mismatch on the callback.
+        if (data.availableProviders.length === 1) {
+            return;
+        }
         refreshInterval = setInterval(() => {
             invalidateAll();
         }, 60000);
@@ -179,7 +191,7 @@
                 <p class="text-center text-sm text-gray-300">Choose your authentication provider:</p>
                 {#each data.availableProviders as provider}
                     <button type="button" class="btn preset-filled-primary-500 mx-auto w-full" data-testid="provider-{provider.provider}">
-                        <a href="/login/{provider.provider}" class="w-full flex items-center justify-between">
+                        <a href="/login/{provider.provider}" data-sveltekit-preload-data="off" class="w-full flex items-center justify-between">
                             <span class="flex items-center gap-2">
                                 <span class="text-green-400">●</span>
                                 {formatProviderName(provider.provider)}

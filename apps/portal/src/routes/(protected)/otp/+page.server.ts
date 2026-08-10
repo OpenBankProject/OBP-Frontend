@@ -81,7 +81,7 @@ export const actions = {
 
 				// Step 1: Create authorisation
 				const authResponse = await obp_requests.post(
-					`/obp/v1.3/berlin-group/${paymentService}/${paymentProduct}/${paymentId}/authorisations`,
+					`/berlin-group/v1.3/${paymentService}/${paymentProduct}/${paymentId}/authorisations`,
 					{},
 					token
 				);
@@ -90,7 +90,7 @@ export const actions = {
 
 				// Step 2: Submit OTP to authorisation
 				await obp_requests.put(
-					`/obp/v1.3/berlin-group/${paymentService}/${paymentProduct}/${paymentId}/authorisations/${authorisationId}`,
+					`/berlin-group/v1.3/${paymentService}/${paymentProduct}/${paymentId}/authorisations/${authorisationId}`,
 					{ scaAuthenticationData: otp },
 					token
 				);

@@ -31,15 +31,33 @@ export async function load(event: RequestEvent) {
 	const requestedOidcReturnUrl = event.url.searchParams.get('oidc_return_url');
 
 	if (!consentId) {
-		return { loadError: 'Missing required parameter: CONSENT_ID.', consentId: '', bankId: bankId || '', apiStandard, oidcReturnUrl: '' };
+		return {
+			loadError: 'Missing required parameter: CONSENT_ID.',
+			consentId: '',
+			bankId: bankId || '',
+			apiStandard,
+			oidcReturnUrl: ''
+		};
 	}
 	if (!bankId) {
-		return { loadError: 'Missing required parameter: bank_id.', consentId, bankId: '', apiStandard, oidcReturnUrl: '' };
+		return {
+			loadError: 'Missing required parameter: bank_id.',
+			consentId,
+			bankId: '',
+			apiStandard,
+			oidcReturnUrl: ''
+		};
 	}
 
 	const token = event.locals.session.data.oauth?.access_token;
 	if (!token) {
-		return { loadError: 'Unauthorized: No access token found in session.', consentId, bankId, apiStandard, oidcReturnUrl: '' };
+		return {
+			loadError: 'Unauthorized: No access token found in session.',
+			consentId,
+			bankId,
+			apiStandard,
+			oidcReturnUrl: ''
+		};
 	}
 
 	// oidc_return_url must point back to a configured OIDC provider host — otherwise it becomes
@@ -69,7 +87,41 @@ export async function load(event: RequestEvent) {
 		logger.warn('Could not fetch UK consent details:', e);
 	}
 
-	return { consentId, bankId, apiStandard, oidcReturnUrl, status, permissions, expirationDateTime };
+	// The PSU must pick which of their own accounts this consent's permissions apply to --
+	// OBP-API only binds/grants access for accounts the authorising user actually holds
+	// (POST .../authorise requires account_ids, and rejects any account the PSU doesn't hold).
+	let userAccounts: { accountId: string; label: string }[] = [];
+	// "The list could not be loaded" and "there are no accounts" are different facts, and the second
+	// is a statement about the PSU that the page should not make on the strength of a failed call.
+	// An empty list with no error reads as "you hold nothing here"; this keeps the reason instead.
+	let accountsError = '';
+	try {
+		const accountsResponse = await obp_requests.get('/obp/v6.0.0/my/accounts', token);
+		userAccounts = (accountsResponse.accounts || [])
+			.filter((account: any) => account.bank_id === bankId)
+			.map((account: any) => ({
+				accountId: account.id,
+				label: account.label || account.id
+			}));
+	} catch (e) {
+		logger.warn('Could not fetch user accounts:', e);
+		accountsError =
+			e instanceof OBPRequestError
+				? `Your accounts could not be loaded: ${e.message}`
+				: 'Your accounts could not be loaded. Please try again.';
+	}
+
+	return {
+		consentId,
+		bankId,
+		apiStandard,
+		oidcReturnUrl,
+		status,
+		permissions,
+		expirationDateTime,
+		userAccounts,
+		accountsError
+	};
 }
 
 export const actions = {
@@ -78,6 +130,7 @@ export const actions = {
 		const consentId = formData.get('consentId') as string;
 		const bankId = formData.get('bankId') as string;
 		const oidcReturnUrlRaw = formData.get('oidcReturnUrl') as string;
+		const selectedAccountIds = formData.getAll('selectedAccountIds') as string[];
 
 		const token = locals.session.data.oauth?.access_token;
 		if (!token) {
@@ -92,6 +145,10 @@ export const actions = {
 		if (!oidcReturnUrl) {
 			logger.warn('No trusted OIDC return URL for UK consent flow');
 			return { message: 'No valid return URL was provided to complete the flow.' };
+		}
+
+		if (selectedAccountIds.length === 0) {
+			return { message: 'Please select at least one account to grant access to.' };
 		}
 
 		let challengeId = '';
@@ -112,6 +169,22 @@ export const actions = {
 			}
 			return { message: errorMessage };
 		}
+
+		// The accounts the PSU ticked are held server-side against the challenge that was just
+		// minted, not passed through the URL. Carried in the query string they were editable
+		// between this screen and the answer, so the consent could end up naming accounts that
+		// never appeared on the screen the PSU consented from -- and the consent record is the
+		// artefact an audit reads. OBP-API still refuses accounts the PSU does not hold, so the
+		// exposure was bounded, but "bounded" is not the same as "what they agreed to".
+		await locals.session.setData({
+			...locals.session.data,
+			ukConsentFlow: { consentId, challengeId, accountIds: selectedAccountIds }
+		});
+		// setData alone only mutates the in-memory session -- it writes to the store only when
+		// saveUninitialized is set, which this app does not set. Without save() the selection would
+		// not survive the redirect below, and the SCA step would refuse a consent the PSU had just
+		// filled in correctly.
+		await locals.session.save();
 
 		const params = new URLSearchParams({
 			CONSENT_ID: consentId,

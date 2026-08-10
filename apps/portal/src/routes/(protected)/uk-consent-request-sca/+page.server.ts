@@ -31,7 +31,13 @@ export async function load(event: RequestEvent) {
 
 	const token = event.locals.session.data.oauth?.access_token;
 	if (!token) {
-		return { loadError: 'Unauthorized: No access token found in session.', consentId, bankId, challengeId, oidcReturnUrl: '' };
+		return {
+			loadError: 'Unauthorized: No access token found in session.',
+			consentId,
+			bankId,
+			challengeId,
+			oidcReturnUrl: ''
+		};
 	}
 
 	const oidcReturnUrl =
@@ -58,6 +64,19 @@ export const actions = {
 			return { message: 'Please enter the OTP code.' };
 		}
 
+		// The selection the PSU made on the previous screen, held server-side against the challenge
+		// that was minted for it. Read from the session rather than the request so what gets
+		// authorised is what was on the screen they consented from -- see the note where it is
+		// stored in uk-consent-request/+page.server.ts.
+		const ukConsentFlow = locals.session.data.ukConsentFlow;
+		const accountIds =
+			ukConsentFlow?.consentId === consentId && ukConsentFlow?.challengeId === challengeId
+				? ukConsentFlow.accountIds
+				: [];
+		if (accountIds.length === 0) {
+			return { message: 'No accounts were selected for this consent. Please start over.' };
+		}
+
 		const token = locals.session.data.oauth?.access_token;
 		if (!token) {
 			return { message: 'No access token found in session.' };
@@ -76,7 +95,7 @@ export const actions = {
 			// the PSU only if the challenge answer is correct; a wrong answer leaves it unauthorised.
 			await obp_requests.post(
 				`/obp/v5.1.0/banks/${bankId}/consents/${consentId}/authorise`,
-				{ challenge_id: challengeId, answer: otp },
+				{ challenge_id: challengeId, answer: otp, account_ids: accountIds },
 				token
 			);
 		} catch (e) {
@@ -94,7 +113,10 @@ export const actions = {
 		returnUrl.searchParams.set('consent_id', consentId);
 		returnUrl.searchParams.set('consent_status', 'ACCEPTED');
 		const username = locals.session.data.user?.username;
-		const provider = locals.session.data.user?.provider;
+		// oauth, not user: the session records the IdP that authenticated this PSU on the oauth
+		// entry, and `user` has no `provider` at all. This read was always undefined, so the param
+		// the comment above says OBP-OIDC needs to resolve the PSU was never actually sent.
+		const provider = locals.session.data.oauth?.provider;
 		if (username) returnUrl.searchParams.set('username', username);
 		if (provider) returnUrl.searchParams.set('provider', provider);
 		redirect(303, returnUrl.toString());
