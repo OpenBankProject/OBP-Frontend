@@ -9,12 +9,15 @@ import { healthCheckRegistry, summarizeHealth } from '@obp/shared/health-check';
  * degraded, not unready -- pulling it from rotation would take the whole Portal down to protect a
  * feature that was already unavailable.
  *
+ * OBP API (gRPC) powers live streaming (chat) only; every page renders and every REST call works
+ * while it is down, so it degrades the instance rather than unreadying it.
+ *
  * Named exclusions rather than a list of required services on purpose: a service added later gates
  * readiness by default, and someone has to decide, in this file, that it is safe to ignore. The
  * other way round, a rename would silently drop a service from the required set and readiness would
  * quietly start passing on less than it used to.
  */
-const NOT_REQUIRED_TO_SERVE = ['Opey (server)'];
+const NOT_REQUIRED_TO_SERVE = ['Opey (server)', 'OBP API (gRPC)'];
 
 const OAUTH2_PREFIX = 'OAuth2: ';
 

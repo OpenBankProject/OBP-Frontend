@@ -13,7 +13,7 @@ import { oauth2ProviderManager } from "$lib/oauth/providerManager";
 import { SessionOAuthHelper } from "$lib/oauth/sessionHelper";
 import { resourceDocsCache } from "$lib/stores/resourceDocsCache";
 import { healthCheckRegistry, OIDCHealthCheckService } from '@obp/shared/health-check';
-import { RedisHealthCheckService } from '@obp/shared/server/health-check';
+import { RedisHealthCheckService, GrpcHealthCheckService } from '@obp/shared/server/health-check';
 import { redisService } from '$lib/redis/services/RedisService';
 import { createOpeyNotebookDynamicEntityIfNeeded } from "$lib/server/opey/opeyNotebook";
 
@@ -108,12 +108,25 @@ await oauth2ProviderManager.start();
 
 // Register and start health checks
 healthCheckRegistry.register({
-  serviceName: 'OBP API',
+  serviceName: 'OBP API (REST)',
   url: `${publicEnv.PUBLIC_OBP_BASE_URL}/obp/v6.0.0/root`,
   details: {
     PUBLIC_OBP_BASE_URL: publicEnv.PUBLIC_OBP_BASE_URL
   }
 });
+// OBP-API's gRPC endpoint powers live streaming (metrics, log cache). Same
+// default host as the gRPC clients in $lib/grpc, which read OBP_GRPC_HOST at
+// call time.
+const grpcHost = env.OBP_GRPC_HOST || 'localhost:50051';
+healthCheckRegistry.register(
+  new GrpcHealthCheckService({
+    serviceName: 'OBP API (gRPC)',
+    host: grpcHost,
+    details: {
+      OBP_GRPC_HOST: env.OBP_GRPC_HOST || `${grpcHost} (default, env var unset)`
+    }
+  })
+);
 // Sessions are stored in Redis, so its health belongs on the status page too
 healthCheckRegistry.register(new RedisHealthCheckService(redisService));
 if (env.OPEY_BASE_URL) {

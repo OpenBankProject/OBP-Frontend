@@ -15,7 +15,7 @@ import { SessionOAuthHelper } from '$lib/oauth/sessionHelper';
 import { healthCheckRegistry, OIDCHealthCheckService } from '@obp/shared/health-check';
 
 import { redisService } from '$lib/redis/services/RedisService';
-import { RedisHealthCheckService } from '@obp/shared/server/health-check';
+import { RedisHealthCheckService, GrpcHealthCheckService } from '@obp/shared/server/health-check';
 
 if (!publicEnv.PUBLIC_OBP_BASE_URL) {
 	throw new Error(
@@ -73,12 +73,25 @@ const redisClient = redisService.getClient();
 
 function initHealthChecks() {
 	healthCheckRegistry.register({
-		serviceName: 'OBP API',
+		serviceName: 'OBP API (REST)',
 		url: `${publicEnv.PUBLIC_OBP_BASE_URL}/obp/v5.1.0/root`,
 		details: {
 			PUBLIC_OBP_BASE_URL: publicEnv.PUBLIC_OBP_BASE_URL
 		}
 	});
+
+	// OBP-API's gRPC endpoint powers live streaming (chat). Same default host as
+	// the gRPC clients in $lib/grpc, which read OBP_GRPC_HOST at call time.
+	const grpcHost = env.OBP_GRPC_HOST || 'localhost:50051';
+	healthCheckRegistry.register(
+		new GrpcHealthCheckService({
+			serviceName: 'OBP API (gRPC)',
+			host: grpcHost,
+			details: {
+				OBP_GRPC_HOST: env.OBP_GRPC_HOST || `${grpcHost} (default, env var unset)`
+			}
+		})
+	);
 
 	// Server-side check: tests connectivity from the portal server to OPEY_BASE_URL
 	// (private env, usually an internal/private network address). This does NOT prove

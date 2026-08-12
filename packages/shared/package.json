@@ -87,6 +87,7 @@
 		}
 	},
 	"dependencies": {
+		"@grpc/grpc-js": "^1.14.3",
 		"@internationalized/date": "^3.12.1",
 		"@lucide/svelte": "^0.513.0",
 		"@skeletonlabs/skeleton": "^4.0.0",

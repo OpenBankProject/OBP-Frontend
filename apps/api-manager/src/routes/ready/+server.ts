@@ -4,15 +4,15 @@ import { healthCheckRegistry, summarizeHealth } from '@obp/shared/health-check';
 /**
  * Services this app can serve its purpose without.
  *
- * Empty here: API Manager registers no optional dependency today. The list exists so that when one
- * is added, excusing it from readiness is a decision written down in this file.
+ * OBP API (gRPC) powers live streaming (metrics, log cache) only; every page renders and every
+ * REST call works while it is down, so it degrades the instance rather than unreadying it.
  *
  * Named exclusions rather than a list of required services on purpose: a service added later gates
  * readiness by default, and someone has to decide, in this file, that it is safe to ignore. The
  * other way round, a rename would silently drop a service from the required set and readiness would
  * quietly start passing on less than it used to.
  */
-const NOT_REQUIRED_TO_SERVE: string[] = [];
+const NOT_REQUIRED_TO_SERVE: string[] = ['OBP API (gRPC)'];
 
 const OAUTH2_PREFIX = 'OAuth2: ';
 
