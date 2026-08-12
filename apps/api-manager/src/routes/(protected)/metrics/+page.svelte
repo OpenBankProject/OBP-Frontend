@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { goto } from "$app/navigation";
+  import { goto, replaceState } from "$app/navigation";
   import { invalidate } from "$app/navigation";
   import { page } from "$app/stores";
   import type { PageData } from "./$types";
@@ -176,11 +176,19 @@
         consent_reference_id: urlParams.get("consent_reference_id") || "",
       };
 
+      // Transport: an explicit ?transport= param wins; otherwise default to
+      // gRPC when the 'OBP API (gRPC)' health check reported healthy at load.
+      // Decided before submitQuery so the URL it writes carries the right value.
+      const urlTransport = urlParams.get("transport");
+      if (urlTransport === "grpc" || (urlTransport !== "rest" && data.grpcAvailable)) {
+        setTransport("grpc");
+      } else {
+        // REST with polling; user can switch to gRPC.
+        startAutoRefresh();
+      }
+
       // Sync URL with form values
       submitQuery();
-
-      // Default transport is REST with polling; user can switch to gRPC.
-      startAutoRefresh();
 
       // Update current time every second
       timeUpdateInterval = setInterval(() => {
@@ -290,7 +298,9 @@
     lastRefreshTime = new Date().toLocaleString();
     timestampColorIndex = (timestampColorIndex + 1) % 2;
 
-    const newUrl = `/metrics?${currentQueryString}`;
+    // transport rides on the page URL only — currentQueryString is also shown
+    // as (and forwarded to) the OBP API call, which knows no such parameter.
+    const newUrl = `/metrics?${currentQueryString}&transport=${transport}`;
     console.log("Query:", newUrl);
     goto(newUrl, { replaceState: true, noScroll: true, invalidateAll: true });
   }
@@ -458,6 +468,10 @@
   function setTransport(next: "rest" | "grpc") {
     if (next === transport) return;
     transport = next;
+    // Keep the choice in the page URL so reloads and shared links preserve it.
+    const pageUrl = new URL(window.location.href);
+    pageUrl.searchParams.set("transport", next);
+    replaceState(pageUrl, {});
     if (next === "grpc") {
       stopAutoRefresh();
       connectStream();
@@ -568,7 +582,35 @@
   <div class="panel full-width-panel">
     <div class="panel-header-compact">
       <div class="panel-header-row">
-        <h2 class="panel-title">Metrics Query</h2>
+        <div class="panel-title-group">
+          <h2 class="panel-title">Metrics Query</h2>
+          <div class="transport-toggle" role="group" aria-label="Transport">
+            <button
+              type="button"
+              class="transport-toggle-btn"
+              data-active={transport === "rest"}
+              onclick={() => setTransport("rest")}
+              data-testid="transport-rest"
+            >
+              REST
+            </button>
+            <button
+              type="button"
+              class="transport-toggle-btn"
+              data-active={transport === "grpc"}
+              onclick={() => setTransport("grpc")}
+              data-testid="transport-grpc"
+            >
+              gRPC
+              {#if transport === "grpc"}
+                <span
+                  class="transport-dot {streamConnected ? 'transport-dot-on' : 'transport-dot-off'}"
+                  title={streamConnected ? "Connected" : transportReason || "Connecting..."}
+                ></span>
+              {/if}
+            </button>
+          </div>
+        </div>
         <div class="panel-meta">
           <button
             class="header-btn query-btn"
@@ -612,33 +654,6 @@
             </button>
             <span class="meta-separator">•</span>
           {/if}
-          <div class="transport-toggle" role="group" aria-label="Transport">
-            <button
-              type="button"
-              class="transport-toggle-btn"
-              data-active={transport === "rest"}
-              onclick={() => setTransport("rest")}
-              data-testid="transport-rest"
-            >
-              REST
-            </button>
-            <button
-              type="button"
-              class="transport-toggle-btn"
-              data-active={transport === "grpc"}
-              onclick={() => setTransport("grpc")}
-              data-testid="transport-grpc"
-            >
-              gRPC
-              {#if transport === "grpc"}
-                <span
-                  class="transport-dot {streamConnected ? 'transport-dot-on' : 'transport-dot-off'}"
-                  title={streamConnected ? "Connected" : transportReason || "Connecting..."}
-                ></span>
-              {/if}
-            </button>
-          </div>
-          <span class="meta-separator">•</span>
           <button
             class="freeze-btn"
             onclick={toggleFrozen}
@@ -1003,6 +1018,12 @@
     justify-content: space-between;
     gap: 1rem;
     flex-wrap: wrap;
+  }
+
+  .panel-title-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
   }
 
   .panel-meta {

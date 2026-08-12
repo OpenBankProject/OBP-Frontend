@@ -3,6 +3,7 @@ const logger = createLogger("MetricsPageServer");
 import type { PageServerLoad } from "./$types";
 import { obp_requests } from "$lib/obp/requests";
 import { SessionOAuthHelper } from "$lib/oauth/sessionHelper";
+import { healthCheckRegistry } from "@obp/shared/health-check";
 import { error } from "@sveltejs/kit";
 
 interface MetricRecord {
@@ -31,6 +32,12 @@ export const load: PageServerLoad = async ({ locals, url, depends }) => {
   depends("app:metrics");
   const session = locals.session;
 
+  // gRPC counts as enabled when the 'OBP API (gRPC)' health check (registered
+  // in hooks.server.ts) last reported healthy. The page uses this to pick the
+  // default transport: gRPC streaming when it's up, REST polling otherwise.
+  const grpcAvailable =
+    healthCheckRegistry.getSnapshot("OBP API (gRPC)")?.status === "healthy";
+
   if (!session?.data?.user) {
     throw error(401, "Unauthorized");
   }
@@ -45,6 +52,7 @@ export const load: PageServerLoad = async ({ locals, url, depends }) => {
       recentMetrics: null,
       queryMetrics: null,
       hasApiAccess: false,
+      grpcAvailable,
       error: "No API access token available",
     };
   }
@@ -174,6 +182,7 @@ export const load: PageServerLoad = async ({ locals, url, depends }) => {
     return {
       metrics: metricsData,
       hasApiAccess: true,
+      grpcAvailable,
       lastUpdated: new Date().toISOString(),
     };
   } catch (err) {
@@ -182,6 +191,7 @@ export const load: PageServerLoad = async ({ locals, url, depends }) => {
     return {
       metrics: null,
       hasApiAccess: false,
+      grpcAvailable,
       error: err instanceof Error ? err.message : "Failed to load metrics",
     };
   }
