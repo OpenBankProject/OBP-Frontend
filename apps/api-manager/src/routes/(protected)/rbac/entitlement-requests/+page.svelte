@@ -98,6 +98,12 @@
 
   let userId = $derived((data.userId as string) || "");
 
+  // from_date for the per-user Metrics link: 10 years ago (a very wide span),
+  // in the datetime-local format (yyyy-MM-ddTHH:mm) the metrics query form expects.
+  const metricsFromDate = new Date(Date.now() - 10 * 365 * 24 * 60 * 60 * 1000)
+    .toISOString()
+    .slice(0, 16);
+
   const GROUP_COLORS = ['#3b82f6','#8b5cf6','#f59e0b','#ec4899','#06b6d4'];
   let requestColors = $derived.by(() => {
     const result: string[] = [];
@@ -400,6 +406,22 @@
                       {#if request.user.user_id === userId}
                         <span class="you-badge">You</span>
                       {/if}
+                      <span class="user-links">
+                        <a
+                          href="/users/{encodeURIComponent(request.user.user_id)}"
+                          class="user-link"
+                          data-testid="user-detail-link-{request.entitlement_request_id}"
+                        >
+                          User Details
+                        </a>
+                        <a
+                          href="/metrics?user_id={encodeURIComponent(request.user.user_id)}&from_date={encodeURIComponent(metricsFromDate)}"
+                          class="user-link"
+                          data-testid="user-metrics-link-{request.entitlement_request_id}"
+                        >
+                          User Metrics
+                        </a>
+                      </span>
                     </div>
                     <div class="user-email">{request.user.email}</div>
                   </div>
@@ -873,6 +895,28 @@
   :global([data-mode="dark"]) .you-badge {
     background: rgba(34, 197, 94, 0.2);
     color: rgb(var(--color-success-300));
+  }
+
+  .user-links {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-left: 0.5rem;
+  }
+
+  .user-link {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #3b82f6;
+    text-decoration: none;
+  }
+
+  .user-link:hover {
+    text-decoration: underline;
+  }
+
+  :global([data-mode="dark"]) .user-link {
+    color: rgb(var(--color-primary-400));
   }
 
   .user-email {
