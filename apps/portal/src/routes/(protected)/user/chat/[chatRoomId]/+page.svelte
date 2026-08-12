@@ -638,6 +638,9 @@
                 } else {
                     messageInputEl.setSelectionRange(start + before.length, start + before.length + text.length);
                 }
+                // Programmatic value changes don't fire oninput, so grow the
+                // textarea here too (e.g. a code block spans three lines).
+                autoResize();
             }
         }, 0);
     }
