@@ -4,9 +4,10 @@ const logger = createLogger('ChatGrpcClient');
 import * as grpc from '@grpc/grpc-js';
 import * as protoLoader from '@grpc/proto-loader';
 import path from 'path';
+import { resolveGrpcHost } from '@obp/shared/obp';
 
 const PROTO_PATH = path.join(process.cwd(), 'proto', 'chat.proto');
-const GRPC_HOST = process.env.OBP_GRPC_HOST || 'localhost:50051';
+const GRPC_HOST = resolveGrpcHost(process.env);
 const GRPC_AUTH_METADATA_KEY = process.env.OBP_GRPC_AUTH_METADATA_KEY || 'authorization';
 // Use {token} as a placeholder for the access token. Default matches HTTP Authorization: Bearer.
 const GRPC_AUTH_METADATA_VALUE_TEMPLATE =

@@ -13,6 +13,7 @@ import { obp_requests } from '$lib/obp/requests';
 import { oauth2ProviderManager } from '$lib/oauth/providerManager';
 import { SessionOAuthHelper } from '$lib/oauth/sessionHelper';
 import { healthCheckRegistry, OIDCHealthCheckService } from '@obp/shared/health-check';
+import { resolveGrpcHost } from '@obp/shared/obp';
 
 import { redisService } from '$lib/redis/services/RedisService';
 import { RedisHealthCheckService, GrpcHealthCheckService } from '@obp/shared/server/health-check';
@@ -82,13 +83,14 @@ function initHealthChecks() {
 
 	// OBP-API's gRPC endpoint powers live streaming (chat). Same default host as
 	// the gRPC clients in $lib/grpc, which read OBP_GRPC_HOST at call time.
-	const grpcHost = env.OBP_GRPC_HOST || 'localhost:50051';
+	const grpcHost = resolveGrpcHost({ ...env, ...publicEnv });
 	healthCheckRegistry.register(
 		new GrpcHealthCheckService({
 			serviceName: 'OBP API (gRPC)',
 			host: grpcHost,
 			details: {
-				OBP_GRPC_HOST: env.OBP_GRPC_HOST || `${grpcHost} (default, env var unset)`
+				OBP_GRPC_HOST:
+					env.OBP_GRPC_HOST || `${grpcHost} (default from PUBLIC_OBP_BASE_URL, env var unset)`
 			}
 		})
 	);
