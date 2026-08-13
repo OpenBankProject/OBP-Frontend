@@ -1,10 +1,12 @@
 <script lang="ts">
 	import LegalDocumentModal from '$lib/components/LegalDocumentModal.svelte';
+	import PasswordPolicyFeedback from '$lib/components/PasswordPolicyFeedback.svelte';
 	import type { PageProps } from './$types';
 	import { Eye, EyeOff } from '@lucide/svelte';
 	import { env } from '$env/dynamic/public';
+	import { isPasswordAcceptable } from '@obp/shared/obp';
 
-	let { form }: PageProps = $props();
+	let { data, form }: PageProps = $props();
 
 	const registerHeadline = env.PUBLIC_REGISTER_TEXT || 'Register for the Open Bank Project';
 
@@ -29,24 +31,6 @@
 		showError = false;
 	}
 
-	function checkPasswordAgainstPolicy(password: string): boolean {
-		// Check if password meets policy: either strong (10+ chars with mixed case, numbers, special chars) or long (16-512 chars)
-		if (password.length > 16 && password.length <= 512) {
-			return true;
-		}
-
-		if (password.length >= 10) {
-			const hasUpperCase = /[A-Z]/.test(password);
-			const hasLowerCase = /[a-z]/.test(password);
-			const hasNumbers = /\d/.test(password);
-			const hasSpecialChars = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
-
-			return hasUpperCase && hasLowerCase && hasNumbers && hasSpecialChars;
-		}
-
-		return false;
-	}
-
 	function togglePasswordVisibility() {
 		showPassword = !showPassword;
 	}
@@ -58,7 +42,7 @@
 		return true;
 	}
 
-	let isPasswordValid = $derived(checkPasswordAgainstPolicy(password));
+	let isPasswordValid = $derived(isPasswordAcceptable(password, data.passwordPolicies));
 	let arePasswordsMatching = $derived(checkPasswordsMatching());
 	let isUsernameValid = $derived(username.length >= 8);
 
@@ -94,7 +78,12 @@
 	}
 
 	let canSubmit = $derived(
-		termsAccepted && privacyAccepted && password === repeatPassword && password.length > 0 && isUsernameValid
+		termsAccepted &&
+			privacyAccepted &&
+			password === repeatPassword &&
+			password.length > 0 &&
+			isUsernameValid &&
+			isPasswordValid
 	);
 </script>
 
@@ -167,12 +156,7 @@
 					</button>
 				</div>
 
-				{#if password.length > 0 && !isPasswordValid}
-					<p class="text-error-500 text-xs">
-						Password must be at least 10 characters long with mixed case, numbers, and special
-						characters, or between 16 and 512 characters long.
-					</p>
-				{/if}
+				<PasswordPolicyFeedback {password} policies={data.passwordPolicies} />
 
 				{#if password.length > 0 && repeatPassword.length > 0 && !arePasswordsMatching}
 					<p class="text-error-500 text-xs">Passwords do not match!</p>

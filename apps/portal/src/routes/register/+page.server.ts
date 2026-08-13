@@ -2,8 +2,16 @@ import { createLogger } from '@obp/shared/utils';
 const logger = createLogger('RegisterServer');
 import { type Actions, redirect } from "@sveltejs/kit";
 import { obp_requests } from "$lib/obp/requests";
+import { getPasswordPolicies } from "$lib/obp/passwordConfig";
 import type { OBPUserRegistrationRequestBody } from "$lib/obp/types";
 import { OBPRequestError } from "@obp/shared/obp";
+import type { PageServerLoad } from './$types';
+
+export const load: PageServerLoad = async () => {
+    return {
+        passwordPolicies: await getPasswordPolicies()
+    };
+};
 
 export const actions = {
     default: async ({ request, locals, cookies }) => {

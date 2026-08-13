@@ -8,6 +8,20 @@ export {
 	dynamicEntityInputType
 } from './dynamicEntityForm.js';
 export type { DynamicEntityFieldDef, DynamicEntityProperties } from './dynamicEntityForm.js';
+export {
+	evaluatePasswordPolicy,
+	evaluatePasswordPolicies,
+	isPasswordAcceptable,
+	closestPolicyEvaluation,
+	describeDisallowedCharacters
+} from './passwordPolicy.js';
+export type {
+	OBPRequiredCharacterClass,
+	OBPPasswordPolicy,
+	OBPPasswordPolicies,
+	PasswordRequirementResult,
+	PasswordPolicyEvaluation
+} from './passwordPolicy.js';
 export type {
 	OBPBank,
 	OBPConsent,

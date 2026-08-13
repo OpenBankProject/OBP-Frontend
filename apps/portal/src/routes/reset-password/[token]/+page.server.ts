@@ -2,8 +2,9 @@ import { createLogger } from '@obp/shared/utils';
 const logger = createLogger('PasswordResetServer');
 import { type Actions, redirect } from "@sveltejs/kit";
 import { obp_requests } from "$lib/obp/requests";
+import { getPasswordPolicies } from "$lib/obp/passwordConfig";
 import type { OBPPasswordResetRequestBody } from "$lib/obp/types";
-import { OBPRequestError } from "@obp/shared/obp";
+import { OBPRequestError, isPasswordAcceptable } from "@obp/shared/obp";
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ params }) => {
@@ -12,7 +13,8 @@ export const load: PageServerLoad = async ({ params }) => {
     logger.debug("Password reset page loaded");
 
     return {
-        token
+        token,
+        passwordPolicies: await getPasswordPolicies()
     };
 };
 
@@ -34,36 +36,15 @@ export const actions = {
             };
         }
 
-        // Validate password policy (two-tier rule)
-        if (newPassword.length < 10) {
+        // Validate against the policy published by the API; if the config is
+        // unavailable the API itself still enforces it (OBP-30207).
+        const passwordPolicies = await getPasswordPolicies();
+        if (!isPasswordAcceptable(newPassword, passwordPolicies)) {
             return {
-                message: 'Password must be at least 10 characters long',
+                message: passwordPolicies!.description,
                 success: false
             };
         }
-
-        if (newPassword.length > 512) {
-            return {
-                message: 'Password must be at most 512 characters long',
-                success: false
-            };
-        }
-
-        // For passwords under 17 characters, require complexity
-        if (newPassword.length < 17) {
-            const hasUpperCase = /[A-Z]/.test(newPassword);
-            const hasLowerCase = /[a-z]/.test(newPassword);
-            const hasNumbers = /\d/.test(newPassword);
-            const hasSpecialChars = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(newPassword);
-
-            if (!hasUpperCase || !hasLowerCase || !hasNumbers || !hasSpecialChars) {
-                return {
-                    message: 'Password must contain uppercase, lowercase, number, and special character',
-                    success: false
-                };
-            }
-        }
-        // Passwords 17+ characters only need to meet length requirements (already checked above)
 
         // Build request body for OBP API
         const requestBody: OBPPasswordResetRequestBody = {
