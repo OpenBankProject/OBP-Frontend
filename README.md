@@ -36,6 +36,30 @@ Key differences between the two `.env` files:
 
 Everything else (OBP API URL, OAuth credentials, Redis, Opey) can be shared.
 
+### gRPC connection (live streaming features)
+
+Portal chat and API Manager metrics/log streaming connect to OBP-API over gRPC.
+Both apps resolve the target the same way:
+
+- `OBP_GRPC_HOST` — explicit gRPC target as `host:port`; always wins when set.
+  When unset, the target is derived from `PUBLIC_OBP_BASE_URL`:
+  - `https://api.example.com` → `grpc.api.example.com:443` (TLS ingress convention)
+  - `http://api.example.com` → `grpc.api.example.com:50051`
+  - `http://localhost:8080` or an IP → `localhost:50051` / `<ip>:50051` (no `grpc.` prefix)
+- `OBP_GRPC_TLS` — `true` or `false`; forces TLS channel credentials on or off.
+  When unset, TLS is inferred from the port of the resolved host: `:443` → TLS on,
+  any other port → TLS off. 443 is virtually always a TLS ingress and raw gRPC
+  ports are virtually always plaintext, so the port is a reliable signal; set this
+  variable only for setups where it isn't (e.g. TLS on a non-443 port).
+- `OBP_GRPC_AUTH_METADATA_KEY` — metadata key carrying the user's access token on
+  gRPC calls. Default: `authorization`.
+- `OBP_GRPC_AUTH_METADATA_VALUE_TEMPLATE` — metadata value template, `{token}`
+  placeholder. Default: `Bearer {token}`.
+
+The `/status` page of each app shows the resolved `OBP_GRPC_HOST` and
+`OBP_GRPC_TLS` values, annotated with `(default …, env var unset)` when derived,
+and its gRPC health check dials exactly the way the streaming clients do.
+
 ## Development
 
 ```bash

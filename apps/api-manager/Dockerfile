@@ -27,6 +27,9 @@ WORKDIR /app
 COPY --from=builder /app/build build/
 COPY --from=builder /app/node_modules node_modules/
 COPY package.json .
+# gRPC clients load proto definitions from <cwd>/proto at runtime — without this
+# the metrics and log-cache stream endpoints 500 (ENOENT on proto/*.proto).
+COPY --from=builder /app/proto proto/
 EXPOSE 3003
 ENV NODE_ENV=production
 CMD [ "node", "build" ]

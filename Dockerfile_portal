@@ -48,6 +48,9 @@ WORKDIR /app
 COPY --from=builder /app/apps/portal/build ./build/
 COPY --from=builder /app/node_modules ./node_modules/
 COPY --from=builder /app/apps/portal/package.json ./package.json
+# gRPC clients load proto definitions from <cwd>/proto at runtime — without this
+# every /backend/chat/*/stream request 500s (ENOENT on proto/chat.proto).
+COPY --from=builder /app/apps/portal/proto ./proto/
 EXPOSE 3000
 ENV NODE_ENV=production
 CMD [ "node", "build" ]
