@@ -8,7 +8,7 @@
     import { userAvatarSeed, roomAvatarSeed } from '$lib/avatar/generate';
     import { messageSenderName } from '$lib/chat/sender';
     import { isDirectMessage } from '$lib/chat/room';
-    import { filterLinksByHost } from '@obp/shared/markdown';
+    import { filterLinksByHost, stripDangerousCharacters } from '@obp/shared/markdown';
 
     // Both renderMarkdown (Prism) and DOMPurify require browser globals — lazy-load them
     let renderMarkdown: ((content: string) => string) | null = $state(null);
@@ -535,7 +535,9 @@
      * Markdown is rendered first, then @mentions are highlighted in the HTML text nodes.
      */
     function renderChatMessage(message: any): string {
-        const content = message.content || '';
+        // The API strips control/bidi-override characters on input; stripping
+        // here too covers messages stored before that policy existed.
+        const content = stripDangerousCharacters(message.content || '');
         if (!content) return '';
 
         // Before markdown/DOMPurify are loaded, show plain text (escaped)
@@ -564,7 +566,6 @@
         }
 
         // Sanitize to prevent XSS — allow class attributes for styling
-        if (!DOMPurify) return html; // SSR fallback — will be re-rendered client-side with sanitization
         const sanitized = DOMPurify.sanitize(html, {
             ADD_ATTR: ['class'],
             ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'code', 'pre', 'a', 'ul', 'ol', 'li',
@@ -875,6 +876,7 @@
                                     use:autoResizeEdit
                                     class="w-full rounded border border-surface-400 bg-surface-50-900 px-2 py-1 text-sm text-inherit focus:outline-none focus:ring-1 focus:ring-primary-500 resize overflow-auto"
                                     rows="3"
+                                    maxlength={data.maxMessageLength}
                                     data-testid="edit-message-input"
                                 ></textarea>
                                 <div class="flex justify-end gap-1">
@@ -1018,8 +1020,14 @@
                 disabled={sending}
                 autocomplete="off"
                 rows="1"
+                maxlength={data.maxMessageLength}
                 data-testid="message-input"
             ></textarea>
+            {#if messageContent.length > data.maxMessageLength - 500}
+                <div class="text-xs text-surface-500 text-right" data-testid="message-length-counter">
+                    {messageContent.length}/{data.maxMessageLength}
+                </div>
+            {/if}
             <div class="flex gap-0.5 mt-1" data-testid="formatting-toolbar">
                 <button type="button" onclick={() => insertFormatting('**', '**', 'bold')} title="Bold" class="p-1 rounded text-surface-500 hover:text-surface-700 hover:bg-surface-200-700 transition-colors">
                     <Bold class="size-3.5" />

@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { collectLinkHosts, isAllowedLinkHref, filterLinksByHost } from './linkPolicy.js';
+import {
+	collectLinkHosts,
+	isAllowedLinkHref,
+	filterLinksByHost,
+	stripDangerousCharacters
+} from './linkPolicy.js';
 
 const HOSTS = ['openbankproject.com', 'k8s-portal.openbankproject.com'];
 
@@ -85,5 +90,21 @@ describe('filterLinksByHost', () => {
 		expect(filterLinksByHost(html, HOSTS)).toBe(
 			'<p><a href="/user">me</a> <strong>x</strong> <span class="blocked-link">bad</span></p>'
 		);
+	});
+});
+
+describe('stripDangerousCharacters', () => {
+	it('removes bidi override/isolate characters that can visually reverse text', () => {
+		expect(stripDangerousCharacters('see \u202Emoc.elgoog\u202C now')).toBe('see moc.elgoog now');
+		expect(stripDangerousCharacters('a\u2066b\u2067c\u2068d\u2069e')).toBe('abcde');
+	});
+
+	it('removes control characters but keeps newline, tab and CR', () => {
+		expect(stripDangerousCharacters('a\u0000\u0007b\u009Fc\u200Fd')).toBe('abcd');
+		expect(stripDangerousCharacters('line1\nline2\ttabbed\r')).toBe('line1\nline2\ttabbed\r');
+	});
+
+	it('leaves normal text including RTL scripts untouched', () => {
+		expect(stripDangerousCharacters('مرحبا Hello עברית')).toBe('مرحبا Hello עברית');
 	});
 });

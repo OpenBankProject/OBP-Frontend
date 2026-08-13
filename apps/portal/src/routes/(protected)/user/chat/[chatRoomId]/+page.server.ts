@@ -5,7 +5,7 @@ import { error } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
 import { env as publicEnv } from '$env/dynamic/public';
 import { obp_requests } from '$lib/obp/requests';
-import { getChatLinkAllowedHosts } from '$lib/obp/chatConfig';
+import { getChatConfig } from '$lib/obp/chatConfig';
 import { OBPRequestError } from '@obp/shared/obp';
 import { collectLinkHosts } from '@obp/shared/markdown';
 
@@ -17,9 +17,9 @@ import { collectLinkHosts } from '@obp/shared/markdown';
 // included. Everything else renders as inert text (anti-phishing) — see
 // linkPolicy in @obp/shared.
 const DEFAULT_LINK_HOSTS = ['tesobe.com', 'openbankproject.com'];
+const DEFAULT_MAX_MESSAGE_LENGTH = 10000;
 
-async function allowedLinkHosts(portalHost: string): Promise<string[]> {
-	const apiHosts = await getChatLinkAllowedHosts();
+function allowedLinkHosts(portalHost: string, apiHosts: string[] | null): string[] {
 	const fallback =
 		publicEnv.PUBLIC_CHAT_LINK_ALLOWED_HOSTS !== undefined
 			? publicEnv.PUBLIC_CHAT_LINK_ALLOWED_HOSTS.split(',')
@@ -46,6 +46,7 @@ export async function load(event: RequestEvent) {
 	}
 
 	const chatRoomId = event.params.chatRoomId;
+	const chatConfig = await getChatConfig();
 
 	try {
 		// Chat room is essential — fail if it can't be fetched
@@ -68,7 +69,8 @@ export async function load(event: RequestEvent) {
 			messages: messagesResponse.messages || [],
 			participants: participantsResponse.participants || [],
 			currentUserId: event.locals.session.data.user?.user_id || '',
-			allowedLinkHosts: await allowedLinkHosts(event.url.hostname)
+			allowedLinkHosts: allowedLinkHosts(event.url.hostname, chatConfig?.allowedLinkHosts ?? null),
+			maxMessageLength: chatConfig?.maxMessageLength ?? DEFAULT_MAX_MESSAGE_LENGTH
 		};
 	} catch (e) {
 		logger.error('Error fetching chat room:', e);
@@ -98,7 +100,8 @@ export async function load(event: RequestEvent) {
 					messages: messagesResponse.messages || [],
 					participants: participantsResponse.participants || [],
 					currentUserId: event.locals.session.data.user?.user_id || '',
-					allowedLinkHosts: await allowedLinkHosts(event.url.hostname)
+					allowedLinkHosts: allowedLinkHosts(event.url.hostname, chatConfig?.allowedLinkHosts ?? null),
+			maxMessageLength: chatConfig?.maxMessageLength ?? DEFAULT_MAX_MESSAGE_LENGTH
 				};
 			} catch (retryError) {
 				diagnostic = `OBP-API is reachable (/root OK) but chat room endpoint failed on retry: ${retryError instanceof Error ? retryError.message : String(retryError)}`;

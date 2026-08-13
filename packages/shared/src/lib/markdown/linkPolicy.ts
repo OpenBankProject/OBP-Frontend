@@ -12,6 +12,20 @@
  * not pass.
  */
 
+// C0 controls except \t \n \r, DEL + C1 controls, and the Unicode bidi
+// override/isolate/mark characters ("Trojan Source" family): none have a
+// legitimate use in chat, and the bidi ones can visually reverse text to
+// disguise what a URL or name says. Mirrors ChatContentPolicy in OBP-API,
+// which strips these on input; applying it at render time too covers
+// messages stored before that policy existed.
+const DANGEROUS_CHARACTERS =
+	// eslint-disable-next-line no-control-regex
+	/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F\u061C\u200E\u200F\u202A-\u202E\u2066-\u2069]/g;
+
+export function stripDangerousCharacters(content: string): string {
+	return content.replace(DANGEROUS_CHARACTERS, '');
+}
+
 /** Hostnames (lowercase) of the given config URLs — invalid/empty entries are skipped. */
 export function collectLinkHosts(urls: Array<string | undefined | null>): string[] {
 	const hosts = new Set<string>();
