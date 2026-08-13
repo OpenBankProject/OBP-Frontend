@@ -574,6 +574,7 @@
     background: #f9fafb;
     border: 1px solid #e5e7eb;
     border-radius: 6px;
+    min-width: 0;
   }
 
   :global([data-mode="dark"]) .entitlement-card {
@@ -586,6 +587,7 @@
     font-weight: 600;
     color: #111827;
     margin-bottom: 0.5rem;
+    overflow-wrap: anywhere;
   }
 
   :global([data-mode="dark"]) .entitlement-name {
@@ -642,6 +644,8 @@
     border-radius: 6px;
     font-size: 0.75rem;
     font-weight: 600;
+    overflow-wrap: anywhere;
+    max-width: 100%;
   }
 
   :global([data-mode="dark"]) .role-badge {
