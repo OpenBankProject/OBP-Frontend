@@ -5,17 +5,22 @@ import { error } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
 import { env as publicEnv } from '$env/dynamic/public';
 import { obp_requests } from '$lib/obp/requests';
+import { getChatLinkAllowedHosts } from '$lib/obp/chatConfig';
 import { OBPRequestError } from '@obp/shared/obp';
 import { collectLinkHosts } from '@obp/shared/markdown';
 
-// Hosts whose links stay clickable in rendered chat messages: this deployment's
-// own services plus a whitelist — PUBLIC_CHAT_LINK_ALLOWED_HOSTS when defined,
-// otherwise the default (tesobe.com, openbankproject.com). Everything else
-// renders as inert text (anti-phishing) — see linkPolicy in @obp/shared.
+// Hosts whose links stay clickable in rendered chat messages. The whitelist is
+// authoritative from the API (GET /public/chat-config — the same list it
+// enforces on message input); PUBLIC_CHAT_LINK_ALLOWED_HOSTS / the built-in
+// default (tesobe.com, openbankproject.com) only apply when the API doesn't
+// publish one (older API). The deployment's own service hosts are always
+// included. Everything else renders as inert text (anti-phishing) — see
+// linkPolicy in @obp/shared.
 const DEFAULT_LINK_HOSTS = ['tesobe.com', 'openbankproject.com'];
 
-function allowedLinkHosts(portalHost: string): string[] {
-	const whitelist =
+async function allowedLinkHosts(portalHost: string): Promise<string[]> {
+	const apiHosts = await getChatLinkAllowedHosts();
+	const fallback =
 		publicEnv.PUBLIC_CHAT_LINK_ALLOWED_HOSTS !== undefined
 			? publicEnv.PUBLIC_CHAT_LINK_ALLOWED_HOSTS.split(',')
 			: DEFAULT_LINK_HOSTS;
@@ -28,7 +33,7 @@ function allowedLinkHosts(portalHost: string): string[] {
 		env.API_EXPLORER_URL,
 		env.API_MANAGER_URL,
 		env.SANDBOX_POPULATOR_URL,
-		...whitelist
+		...(apiHosts ?? fallback)
 	]);
 }
 
@@ -63,7 +68,7 @@ export async function load(event: RequestEvent) {
 			messages: messagesResponse.messages || [],
 			participants: participantsResponse.participants || [],
 			currentUserId: event.locals.session.data.user?.user_id || '',
-			allowedLinkHosts: allowedLinkHosts(event.url.hostname)
+			allowedLinkHosts: await allowedLinkHosts(event.url.hostname)
 		};
 	} catch (e) {
 		logger.error('Error fetching chat room:', e);
@@ -93,7 +98,7 @@ export async function load(event: RequestEvent) {
 					messages: messagesResponse.messages || [],
 					participants: participantsResponse.participants || [],
 					currentUserId: event.locals.session.data.user?.user_id || '',
-					allowedLinkHosts: allowedLinkHosts(event.url.hostname)
+					allowedLinkHosts: await allowedLinkHosts(event.url.hostname)
 				};
 			} catch (retryError) {
 				diagnostic = `OBP-API is reachable (/root OK) but chat room endpoint failed on retry: ${retryError instanceof Error ? retryError.message : String(retryError)}`;
