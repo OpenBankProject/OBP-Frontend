@@ -2,6 +2,7 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { Copy, Check } from '@lucide/svelte';
 	import type { HealthSummary, ServiceHealthView } from '$shared/health-check/summarize';
+	import { runSseProbe, SSE_PROBE_PATH } from '$shared/health-check/sseProbe';
 
 	let {
 		data,
@@ -91,6 +92,31 @@
 		} finally {
 			clearTimeout(timeoutId);
 		}
+	}
+
+	// Browser-side SSE transport check: reads a probe stream from this app's own
+	// /backend/status/stream and verifies events arrive spaced, not buffered.
+	// Covers the browser → app-server hop of the live streaming features, which
+	// the server-side gRPC check cannot see.
+	let sseBrowserCheck = $state<BrowserCheck>({
+		status: 'unknown',
+		details: { Path: SSE_PROBE_PATH }
+	});
+
+	async function runSseBrowserCheck() {
+		const lastChecked = new Date().toISOString();
+		const result = await runSseProbe();
+		const details: Record<string, string> = { Path: SSE_PROBE_PATH };
+		if (result.eventSpreadMs !== undefined) {
+			details['Event spread'] = `${result.eventSpreadMs}ms`;
+		}
+		sseBrowserCheck = {
+			status: result.ok ? 'healthy' : 'unhealthy',
+			responseTimeMs: result.timeToFirstEventMs,
+			error: result.error,
+			lastChecked,
+			details
+		};
 	}
 
 	function buildServiceText(name: string, service: ServiceHealthView): string {
@@ -211,7 +237,7 @@
 			refreshError = `Refresh failed at ${new Date().toLocaleTimeString()}: ${msg}`;
 			console.error('Failed to refresh status:', error);
 		}
-		await runOpeyBrowserCheck();
+		await Promise.all([runOpeyBrowserCheck(), runSseBrowserCheck()]);
 	}
 
 	function startAutoRefresh() {
@@ -252,6 +278,7 @@
 
 	onMount(() => {
 		runOpeyBrowserCheck();
+		runSseBrowserCheck();
 	});
 
 	onDestroy(() => {
@@ -492,5 +519,57 @@
 				</div>
 			</div>
 		{/if}
+
+		<!-- Browser-side SSE transport check: runs in the user's browser against this app's own probe stream -->
+		<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:shadow-lg transition-shadow" data-testid="service-sse-browser">
+			<div class="flex items-start justify-between">
+				<div class="flex items-center gap-4 flex-1">
+					<div class="w-12 h-12 rounded-full {getStatusColor(sseBrowserCheck.status)} flex items-center justify-center text-white text-xl font-bold">
+						{getStatusIcon(sseBrowserCheck.status)}
+					</div>
+					<div class="flex-1">
+						<h3 class="text-xl font-semibold mb-1">SSE streaming (browser)</h3>
+						<p class="text-xs text-gray-500 dark:text-gray-400 mb-2">
+							Streamed from your browser via {SSE_PROBE_PATH} — the same transport the live streaming features use. Detects proxies that buffer server-sent events.
+						</p>
+						<div class="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+							<span class="flex items-center gap-1">
+								<span class="font-medium">Status:</span>
+								<span class="{getStatusTextColor(sseBrowserCheck.status)} font-semibold capitalize">
+									{sseBrowserCheck.status}
+								</span>
+							</span>
+							{#if sseBrowserCheck.responseTimeMs !== undefined}
+								<span class="flex items-center gap-1">
+									<span class="font-medium">First Event:</span>
+									<span class={sseBrowserCheck.responseTimeMs > 5000 ? 'text-red-600 dark:text-red-400' : sseBrowserCheck.responseTimeMs > 1000 ? 'text-yellow-600 dark:text-yellow-400' : 'text-green-600 dark:text-green-400'}>
+										{formatResponseTime(sseBrowserCheck.responseTimeMs)}
+									</span>
+								</span>
+							{/if}
+							{#if sseBrowserCheck.lastChecked}
+								<span class="flex items-center gap-1">
+									<span class="font-medium">Last Checked:</span>
+									<span>{formatTimestamp(sseBrowserCheck.lastChecked)}</span>
+								</span>
+							{/if}
+						</div>
+						<dl class="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs text-gray-600 dark:text-gray-400" data-testid="service-details-sse-browser">
+							{#each Object.entries(sseBrowserCheck.details) as [key, value]}
+								<dt class="font-medium">{key}:</dt>
+								<dd class="font-mono break-all">{value}</dd>
+							{/each}
+						</dl>
+						{#if sseBrowserCheck.error}
+							<div class="mt-2 p-3 bg-red-50 dark:bg-red-900/20 rounded border border-red-200 dark:border-red-800">
+								<p class="text-sm text-red-700 dark:text-red-300 font-mono">
+									<span class="font-semibold">Error:</span> {sseBrowserCheck.error}
+								</p>
+							</div>
+						{/if}
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 </div>
