@@ -1,3 +1,4 @@
+export { grpcChannelCredentials } from './grpcCredentials.js';
 export { DefaultOBPIntegrationService } from './OBPIntegrationService.js';
 export type { OBPIntegrationService } from './OBPIntegrationService.js';
 export { getOperationIds } from './operationIdsCache.js';

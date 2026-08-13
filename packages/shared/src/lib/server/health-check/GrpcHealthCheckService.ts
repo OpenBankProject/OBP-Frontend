@@ -8,6 +8,8 @@ export interface GrpcHealthCheckServiceOptions {
     serviceName: string;
     /** gRPC target as host:port (no scheme), e.g. "localhost:50051". */
     host: string;
+    /** Dial with TLS channel credentials — must match how the real clients dial. */
+    tls?: boolean;
     timeout?: number;
     interval?: number;
     details?: Record<string, string | number>;
@@ -17,6 +19,7 @@ const DEFAULT_TIMEOUT_MS = 5000;
 
 export class GrpcHealthCheckService extends HealthCheckService {
     private host: string;
+    private tls: boolean;
     private timeoutMs: number;
 
     constructor(options: GrpcHealthCheckServiceOptions) {
@@ -28,6 +31,7 @@ export class GrpcHealthCheckService extends HealthCheckService {
             ...(options.details ? { details: options.details } : {})
         } as HealthCheckOptions);
         this.host = options.host;
+        this.tls = options.tls ?? false;
         this.timeoutMs = options.timeout ?? DEFAULT_TIMEOUT_MS;
     }
 
@@ -39,7 +43,10 @@ export class GrpcHealthCheckService extends HealthCheckService {
      */
     async performCheck(): Promise<void> {
         const startTime = performance.now();
-        const client = new grpc.Client(this.host, grpc.credentials.createInsecure());
+        const client = new grpc.Client(
+            this.host,
+            this.tls ? grpc.credentials.createSsl() : grpc.credentials.createInsecure()
+        );
 
         try {
             await new Promise<void>((resolve, reject) => {

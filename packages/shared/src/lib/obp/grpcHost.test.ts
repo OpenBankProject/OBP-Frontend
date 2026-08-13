@@ -1,33 +1,54 @@
 import { describe, it, expect } from 'vitest';
-import { resolveGrpcHost, defaultGrpcHost } from './grpcHost.js';
+import { resolveGrpcTarget, defaultGrpcHost } from './grpcHost.js';
 
-describe('resolveGrpcHost', () => {
+describe('resolveGrpcTarget', () => {
 	it('prefers OBP_GRPC_HOST when set', () => {
 		expect(
-			resolveGrpcHost({
+			resolveGrpcTarget({
 				OBP_GRPC_HOST: 'grpc.example.com:9999',
 				PUBLIC_OBP_BASE_URL: 'https://api.example.com'
 			})
-		).toBe('grpc.example.com:9999');
+		).toEqual({ host: 'grpc.example.com:9999', tls: false });
 	});
 
-	it('derives grpc.<host> from PUBLIC_OBP_BASE_URL when OBP_GRPC_HOST is unset', () => {
-		expect(resolveGrpcHost({ PUBLIC_OBP_BASE_URL: 'https://api.example.com' })).toBe(
-			'grpc.api.example.com:50051'
-		);
+	it('derives grpc.<host>:443 with TLS from an https PUBLIC_OBP_BASE_URL', () => {
+		expect(resolveGrpcTarget({ PUBLIC_OBP_BASE_URL: 'https://api.example.com' })).toEqual({
+			host: 'grpc.api.example.com:443',
+			tls: true
+		});
 	});
 
-	it('falls back to localhost when neither is set', () => {
-		expect(resolveGrpcHost({})).toBe('localhost:50051');
+	it('derives grpc.<host>:50051 without TLS from an http PUBLIC_OBP_BASE_URL', () => {
+		expect(resolveGrpcTarget({ PUBLIC_OBP_BASE_URL: 'http://obp.internal:8080' })).toEqual({
+			host: 'grpc.obp.internal:50051',
+			tls: false
+		});
+	});
+
+	it('turns on TLS for an explicit host on port 443', () => {
+		expect(resolveGrpcTarget({ OBP_GRPC_HOST: 'grpc.example.com:443' })).toEqual({
+			host: 'grpc.example.com:443',
+			tls: true
+		});
+	});
+
+	it('lets OBP_GRPC_TLS override the port-based default in both directions', () => {
+		expect(
+			resolveGrpcTarget({ OBP_GRPC_HOST: 'grpc.example.com:443', OBP_GRPC_TLS: 'false' }).tls
+		).toBe(false);
+		expect(
+			resolveGrpcTarget({ OBP_GRPC_HOST: 'grpc.example.com:50051', OBP_GRPC_TLS: 'true' }).tls
+		).toBe(true);
+	});
+
+	it('falls back to localhost:50051 without TLS when nothing is set', () => {
+		expect(resolveGrpcTarget({})).toEqual({ host: 'localhost:50051', tls: false });
 	});
 });
 
 describe('defaultGrpcHost', () => {
-	it('prefixes grpc. onto the OBP-API hostname with the standard gRPC port', () => {
-		expect(defaultGrpcHost('https://api.example.com')).toBe('grpc.api.example.com:50051');
-	});
-
-	it('drops the REST port from the base URL', () => {
+	it('uses port 443 for https base URLs and 50051 for http ones', () => {
+		expect(defaultGrpcHost('https://api.example.com')).toBe('grpc.api.example.com:443');
 		expect(defaultGrpcHost('http://obp.internal:8080')).toBe('grpc.obp.internal:50051');
 	});
 
@@ -38,12 +59,9 @@ describe('defaultGrpcHost', () => {
 		expect(defaultGrpcHost('http://[::1]:8080')).toBe('[::1]:50051');
 	});
 
-	it('falls back to localhost when the base URL is unset', () => {
+	it('falls back to localhost when the base URL is unset or unparseable', () => {
 		expect(defaultGrpcHost(undefined)).toBe('localhost:50051');
 		expect(defaultGrpcHost('')).toBe('localhost:50051');
-	});
-
-	it('falls back to localhost when the base URL is unparseable', () => {
 		expect(defaultGrpcHost('not a url')).toBe('localhost:50051');
 	});
 });

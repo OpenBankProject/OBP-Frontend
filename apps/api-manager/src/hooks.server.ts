@@ -13,7 +13,7 @@ import { oauth2ProviderManager } from "$lib/oauth/providerManager";
 import { SessionOAuthHelper } from "$lib/oauth/sessionHelper";
 import { resourceDocsCache } from "$lib/stores/resourceDocsCache";
 import { healthCheckRegistry, OIDCHealthCheckService } from '@obp/shared/health-check';
-import { resolveGrpcHost } from '@obp/shared/obp';
+import { resolveGrpcTarget } from '@obp/shared/obp';
 import { RedisHealthCheckService, GrpcHealthCheckService } from '@obp/shared/server/health-check';
 import { redisService } from '$lib/redis/services/RedisService';
 import { createOpeyNotebookDynamicEntityIfNeeded } from "$lib/server/opey/opeyNotebook";
@@ -118,14 +118,17 @@ healthCheckRegistry.register({
 // OBP-API's gRPC endpoint powers live streaming (metrics, log cache). Same
 // default host as the gRPC clients in $lib/grpc, which read OBP_GRPC_HOST at
 // call time.
-const grpcHost = resolveGrpcHost({ ...env, ...publicEnv });
+const grpcTarget = resolveGrpcTarget({ ...env, ...publicEnv });
 healthCheckRegistry.register(
   new GrpcHealthCheckService({
     serviceName: 'OBP API (gRPC)',
-    host: grpcHost,
+    host: grpcTarget.host,
+    tls: grpcTarget.tls,
     details: {
       OBP_GRPC_HOST:
-        env.OBP_GRPC_HOST || `${grpcHost} (default from PUBLIC_OBP_BASE_URL, env var unset)`
+        env.OBP_GRPC_HOST ||
+        `${grpcTarget.host} (default from PUBLIC_OBP_BASE_URL, env var unset)`,
+      OBP_GRPC_TLS: env.OBP_GRPC_TLS || `${grpcTarget.tls} (default from port, env var unset)`
     }
   })
 );

@@ -4,10 +4,12 @@ const logger = createLogger("MetricsGrpcClient");
 import * as grpc from "@grpc/grpc-js";
 import * as protoLoader from "@grpc/proto-loader";
 import path from "path";
-import { resolveGrpcHost } from "@obp/shared/obp";
+import { resolveGrpcTarget } from "@obp/shared/obp";
+import { grpcChannelCredentials } from "@obp/shared/server/obp";
 
 const PROTO_PATH = path.join(process.cwd(), "proto", "metrics_stream.proto");
-const GRPC_HOST = resolveGrpcHost(process.env);
+const GRPC_TARGET = resolveGrpcTarget(process.env);
+const GRPC_HOST = GRPC_TARGET.host;
 const GRPC_AUTH_METADATA_KEY = process.env.OBP_GRPC_AUTH_METADATA_KEY || "authorization";
 const GRPC_AUTH_METADATA_VALUE_TEMPLATE =
   process.env.OBP_GRPC_AUTH_METADATA_VALUE_TEMPLATE || "Bearer {token}";
@@ -30,7 +32,7 @@ function getClient() {
     logger.info(`>>>>> gRPC >>>>> connecting to metrics service at ${GRPC_HOST}`);
     clientInstance = new metricsProto.MetricsStreamService(
       GRPC_HOST,
-      grpc.credentials.createInsecure(),
+      grpcChannelCredentials(GRPC_TARGET),
     );
   }
   return clientInstance;

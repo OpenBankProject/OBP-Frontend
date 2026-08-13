@@ -8,7 +8,13 @@ export {
 	dynamicEntityInputType
 } from './dynamicEntityForm.js';
 export type { DynamicEntityFieldDef, DynamicEntityProperties } from './dynamicEntityForm.js';
-export { resolveGrpcHost, defaultGrpcHost, DEFAULT_GRPC_PORT } from './grpcHost.js';
+export {
+	resolveGrpcTarget,
+	defaultGrpcHost,
+	DEFAULT_GRPC_PORT,
+	DEFAULT_GRPC_TLS_PORT
+} from './grpcHost.js';
+export type { GrpcTarget } from './grpcHost.js';
 export {
 	evaluatePasswordPolicy,
 	evaluatePasswordPolicies,
