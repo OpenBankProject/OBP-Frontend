@@ -87,6 +87,16 @@
 					}
 				]
 			: []),
+		// Chat is a protected route — only offer it to logged-in users
+		...(data.userId
+			? [
+					{
+						label: 'Chat',
+						href: '/user/chat',
+						iconComponent: MessageSquare
+					}
+				]
+			: []),
 		{
 			label: 'Featured',
 			href: '/featured',

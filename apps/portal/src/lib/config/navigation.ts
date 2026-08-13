@@ -1,4 +1,4 @@
-import { User, ShieldUser, KeyRound, IdCardLanyard, CreditCard, Database, FolderKanban, UserPlus, LayoutList, FileText, HandCoins, FileCheck, ArrowRightLeft, ScanEye, Code, Rocket, BookOpen, KeySquare, LogIn, ShieldCheck, Bot, Cpu, Workflow, SendHorizontal, Compass, ScrollText, Repeat, Eye, Wallet, AppWindow, Package, MessageSquare } from '@lucide/svelte';
+import { User, ShieldUser, KeyRound, IdCardLanyard, CreditCard, Database, FolderKanban, UserPlus, LayoutList, FileText, HandCoins, FileCheck, ArrowRightLeft, ScanEye, Code, Rocket, BookOpen, KeySquare, LogIn, ShieldCheck, Bot, Cpu, Workflow, SendHorizontal, Compass, ScrollText, Repeat, Eye, Wallet, AppWindow, Package } from '@lucide/svelte';
 import { env } from '$env/dynamic/public';
 
 export interface NavigationItem {
@@ -19,8 +19,7 @@ function buildMyAccountItems(): NavigationItem[] {
         { href: '/user/entitlements', label: 'Entitlements', iconComponent: IdCardLanyard },
         { href: '/user/my-data', label: 'My Data', iconComponent: Database, description: 'View my own data.' },
         { href: '/user/personal-data-fields', label: 'Personal Data Fields', iconComponent: FileText, description: 'Manage your personal attributes.' },
-        { href: '/user/api-collections', label: 'My API Collections', iconComponent: FolderKanban, description: 'Manage your API endpoint collections.' },
-        { href: '/user/chat', label: 'Chat', iconComponent: MessageSquare, description: 'Chat rooms and messaging.' }
+        { href: '/user/api-collections', label: 'My API Collections', iconComponent: FolderKanban, description: 'Manage your API endpoint collections.' }
     ];
 
     // Only add Subscriptions link if PUBLIC_SUBSCRIPTIONS_URL is set
