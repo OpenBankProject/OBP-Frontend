@@ -4,7 +4,8 @@ import { env } from '$env/dynamic/public';
 
 const logger = createLogger('OBPProxy');
 
-const OBP_BASE_URL = env.PUBLIC_OBP_API_URL || 'http://localhost:8080';
+// hooks.server.ts refuses to start without PUBLIC_OBP_BASE_URL, so no fallback here.
+const OBP_BASE_URL = env.PUBLIC_OBP_BASE_URL;
 const TIMEOUT_MS = 15_000;
 
 /**
