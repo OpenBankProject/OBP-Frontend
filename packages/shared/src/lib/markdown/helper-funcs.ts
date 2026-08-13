@@ -53,8 +53,12 @@ function _highlightCode(content: string, language: string) {
 	}
 }
 
-export function renderMarkdown(content: string) {
+export function renderMarkdown(content: string, options?: { linkify?: boolean }) {
 	const markdown = new MarkdownIt({
+		// Auto-link bare URLs (chat wants this; callers rendering trusted docs
+		// keep the default off). Combine with a link-host policy when the
+		// content is user-generated — see linkPolicy.ts.
+		linkify: options?.linkify ?? false,
 		highlight: (str: string, lang: string): string => {
 			if (lang && Prism?.languages[lang]) {
 				try {

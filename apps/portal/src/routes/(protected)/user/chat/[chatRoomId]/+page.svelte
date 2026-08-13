@@ -8,6 +8,7 @@
     import { userAvatarSeed, roomAvatarSeed } from '$lib/avatar/generate';
     import { messageSenderName } from '$lib/chat/sender';
     import { isDirectMessage } from '$lib/chat/room';
+    import { filterLinksByHost } from '@obp/shared/markdown';
 
     // Both renderMarkdown (Prism) and DOMPurify require browser globals — lazy-load them
     let renderMarkdown: ((content: string) => string) | null = $state(null);
@@ -17,7 +18,9 @@
             import('@obp/shared/markdown'),
             import('dompurify')
         ]).then(([mdModule, dpModule]) => {
-            renderMarkdown = mdModule.renderMarkdown;
+            // linkify: bare URLs become links; the link-host policy applied in
+            // renderChatMessage keeps disallowed hosts from being clickable.
+            renderMarkdown = (content: string) => mdModule.renderMarkdown(content, { linkify: true });
             DOMPurify = dpModule.default;
         });
     }
@@ -562,12 +565,15 @@
 
         // Sanitize to prevent XSS — allow class attributes for styling
         if (!DOMPurify) return html; // SSR fallback — will be re-rendered client-side with sanitization
-        return DOMPurify.sanitize(html, {
+        const sanitized = DOMPurify.sanitize(html, {
             ADD_ATTR: ['class'],
             ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'code', 'pre', 'a', 'ul', 'ol', 'li',
                            'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'span', 'del', 'hr', 'table', 'thead', 'tbody', 'tr', 'th', 'td'],
             ALLOWED_ATTR: ['href', 'target', 'rel', 'class']
         });
+        // Anti-phishing: links to hosts outside this deployment's own services
+        // stay as inert text (the author's words are kept, just not clickable).
+        return filterLinksByHost(sanitized, data.allowedLinkHosts);
     }
 
     // --- Read marker logic ---
