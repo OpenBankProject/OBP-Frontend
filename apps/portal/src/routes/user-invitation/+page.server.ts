@@ -187,7 +187,7 @@ export const actions = {
 
         try {
             // Option B: Create user account directly via REST API
-            // PUT /obp/v4.0.0/banks/{BANK_ID}/user-invitation
+            // POST /obp/v4.0.0/banks/{BANK_ID}/user-invitation
             const requestBody: OBPUserInvitationAcceptRequestBody = {
                 secret_key: parseInt(secretKey),
                 username: username.trim(),
@@ -205,15 +205,12 @@ export const actions = {
                 email: email
             });
 
-            const response = await obp_requests.put(
+            const response = await obp_requests.post(
                 `/obp/v4.0.0/banks/${effectiveBankId}/user-invitation`,
                 requestBody
             );
 
             logger.info("User account created successfully via invitation acceptance:", response);
-
-            // Redirect to login page with success message
-            throw redirect(303, '/login?invitation_accepted=true');
 
         } catch (err) {
             if (err instanceof OBPRequestError) {
@@ -260,5 +257,12 @@ export const actions = {
                 success: false
             };
         }
+
+        // Outside the try on purpose. `redirect()` signals by throwing, so a redirect
+        // raised inside the block above is caught by the same catch, falls through to its
+        // catch-all, and turns a successful account creation into
+        // "Failed to create account: Unknown error". The register action already returns
+        // its redirect after the try for this reason.
+        return redirect(303, '/login?invitation_accepted=true');
     }
 } satisfies Actions;
