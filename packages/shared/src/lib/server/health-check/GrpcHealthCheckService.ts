@@ -43,10 +43,22 @@ export class GrpcHealthCheckService extends HealthCheckService {
      */
     async performCheck(): Promise<void> {
         const startTime = performance.now();
-        const client = new grpc.Client(
-            this.host,
-            this.tls ? grpc.credentials.createSsl() : grpc.credentials.createInsecure()
-        );
+        let client: grpc.Client;
+        try {
+            client = new grpc.Client(
+                this.host,
+                this.tls ? grpc.credentials.createSsl() : grpc.credentials.createInsecure()
+            );
+        } catch (error) {
+            // e.g. an unparseable target — record it instead of throwing out of the check loop
+            this.state.setSnapshot({
+                status: 'unhealthy',
+                responseTimeMs: 0,
+                error: error instanceof Error ? error.message : String(error)
+            });
+            logger.error(`gRPC health check for ${this.getName()} (${this.host}) failed to create client:`, error);
+            return;
+        }
 
         try {
             await new Promise<void>((resolve, reject) => {

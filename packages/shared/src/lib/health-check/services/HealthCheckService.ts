@@ -58,12 +58,18 @@ export class HealthCheckService {
             return;
         }
 
-        // Perform an immediate check, then start interval
-        this.performCheck();
+        // Perform an immediate check, then start interval. A check that throws
+        // (rather than recording an unhealthy snapshot) must never become an
+        // unhandled rejection — that would kill the Node process.
+        const guardedCheck = () =>
+            Promise.resolve()
+                .then(() => this.performCheck())
+                .catch((err) =>
+                    logger.error(`Health check for ${this.options.serviceName} threw:`, err)
+                );
+        guardedCheck();
 
-        this.checkInterval = setInterval(() => {
-            this.performCheck()
-        }, this.options.interval);
+        this.checkInterval = setInterval(guardedCheck, this.options.interval);
     }
 
     /**

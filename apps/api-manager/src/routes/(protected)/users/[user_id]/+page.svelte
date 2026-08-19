@@ -75,6 +75,31 @@
               {user.provider || "Unknown"} Provider
             </div>
           </div>
+          <div class="flex items-center gap-2">
+          {#if user.user_id && data.portalUrl}
+            <a
+              href="{data.portalUrl}/user/chat/dm/{encodeURIComponent(user.user_id)}"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600"
+              data-testid="user-chat-link"
+            >
+              <svg
+                class="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                />
+              </svg>
+              Chat
+            </a>
+          {/if}
           {#if user.user_id}
             <a
               href="/metrics?user_id={encodeURIComponent(
@@ -99,6 +124,7 @@
               View API Metrics
             </a>
           {/if}
+          </div>
         </div>
       </div>
       <div class="panel-content">

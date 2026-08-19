@@ -1,0 +1,41 @@
+import { error, redirect } from '@sveltejs/kit';
+import type { PageServerLoad } from './$types';
+import { findOrCreateDm } from '$lib/chat/startDm';
+import { OBPRequestError } from '@obp/shared/obp';
+import { createLogger } from '@obp/shared/utils';
+
+const logger = createLogger('ChatDmDeepLink');
+
+/**
+ * Deep link to a direct message: /user/chat/dm/<user_id> finds or creates the
+ * 1-on-1 room with that user and redirects into it. Linkable from other apps
+ * (e.g. the API Manager's user detail page); an anonymous visitor goes
+ * through login first via the (protected) group.
+ */
+export const load: PageServerLoad = async (event) => {
+	const session = event.locals.session;
+	const accessToken = session.data.oauth?.access_token;
+	const currentUserId = session.data.user?.user_id;
+	if (!accessToken || !currentUserId) {
+		error(401, { message: 'Unauthorized: No access token found in session.' });
+	}
+
+	const targetUserId = event.params.user_id;
+	if (targetUserId === currentUserId) {
+		// A DM with yourself does not exist — land on the chat overview instead.
+		redirect(303, '/user/chat');
+	}
+
+	let chatRoomId: string;
+	try {
+		chatRoomId = await findOrCreateDm(accessToken, currentUserId, targetUserId);
+	} catch (e) {
+		logger.error(`Could not start DM with ${targetUserId}:`, e);
+		if (e instanceof OBPRequestError) {
+			error(502, { message: e.message });
+		}
+		error(500, { message: 'Could not start the direct message. Please try again later.' });
+	}
+
+	redirect(303, `/user/chat/${chatRoomId}`);
+};

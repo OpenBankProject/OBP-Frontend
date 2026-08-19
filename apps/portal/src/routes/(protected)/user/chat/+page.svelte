@@ -40,8 +40,8 @@
     }
 </script>
 
-{#if form?.message}
-    <div class="bg-error-500/10 border-error-500 mb-6 rounded-lg border p-4 text-center">
+{#if form?.message && !form?.success}
+    <div class="bg-error-500/10 border-error-500 mb-6 rounded-lg border p-4 text-center" data-testid="chat-room-error">
         <p class="text-error-500 font-semibold">{form.message}</p>
     </div>
 {/if}

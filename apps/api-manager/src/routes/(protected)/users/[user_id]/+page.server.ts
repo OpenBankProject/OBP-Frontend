@@ -2,6 +2,7 @@ import { createLogger } from "@obp/shared/utils";
 const logger = createLogger("UserDetailPageServer");
 import type { PageServerLoad } from "./$types";
 import { obp_requests } from "$lib/obp/requests";
+import { getPortalUrl } from "$lib/obp/appDirectory";
 import { SessionOAuthHelper } from "$lib/oauth/sessionHelper";
 import { error } from "@sveltejs/kit";
 
@@ -88,5 +89,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     user,
     user_id,
     hasApiAccess: true,
+    // Enables the "Chat" button linking to the Portal's DM deep link
+    portalUrl: await getPortalUrl(),
   };
 };
