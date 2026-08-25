@@ -36,13 +36,6 @@ export const POST: RequestHandler = async ({ locals, request }) => {
     return json({ message: "user_id is required", code: 400 }, { status: 400 });
   }
 
-  if (targetUserId === currentUserId) {
-    return json(
-      { message: "Cannot start a direct message with yourself", code: 400 },
-      { status: 400 },
-    );
-  }
-
   try {
     const chatRoomId = await findOrCreateDm(accessToken, currentUserId, targetUserId);
     return json({ chat_room_id: chatRoomId });

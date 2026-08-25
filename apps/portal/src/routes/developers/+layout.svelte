@@ -11,7 +11,8 @@
     setContext('developerContext', {
         get apiHost() { return data.apiHost; },
         get apiBaseUrl() { return data.apiBaseUrl; },
-        get apiExplorerUrl() { return data.apiExplorerUrl; }
+        get apiExplorerUrl() { return data.apiExplorerUrl; },
+        get mcpUrl() { return data.mcpUrl; }
     });
 </script>
 

@@ -3,6 +3,10 @@
     import CodeBlock from '$lib/components/CodeBlock.svelte';
 
     const ctx: any = getContext('developerContext');
+    // The OBP MCP server URL, advertised by the OBP backend via the app-directory
+    // (public_obp_mcp_url). Falls back to a clearly-labelled placeholder when the
+    // instance has not published one.
+    const mcpUrl: string = ctx.mcpUrl || 'https://YOUR_OBP_MCP_HOST/mcp';
 </script>
 
 <svelte:head>
@@ -83,34 +87,51 @@
         </tbody>
     </table>
 
-    <h3>Using with Claude</h3>
+    <h3>Connecting a client</h3>
 
     <p>
-        To connect Claude (or Claude Code) to the OBP API via MCP, add the OBP MCP server to your
-        configuration:
+        The OBP MCP server is a <strong>remote HTTP server</strong> &mdash; you connect to it by
+        URL, there is nothing to install.
+        {#if ctx.mcpUrl}
+            This instance's server is at:
+        {:else}
+            Use the URL of your OBP MCP deployment (it ends in <code>/mcp</code>):
+        {/if}
     </p>
 
-    <CodeBlock
-        code={`{
-  "mcpServers": {
-    "obp-mcp": {
-      "command": "npx",
-      "args": ["-y", "obp-mcp-server"],
-      "env": {
-        "OBP_API_HOST": "https://YOUR_OBP_HOST",
-        "OBP_TOKEN": "YOUR_DIRECT_LOGIN_TOKEN"
-      }
-    }
-  }
-}`}
-        apiHost={ctx.apiHost}
-        showHost={true}
-    />
+    <CodeBlock code={mcpUrl} />
+
+    <p>Add it to an MCP client such as Claude Code:</p>
+
+    <CodeBlock code={`claude mcp add --transport http obp ${mcpUrl}
+# then sign in (opens your browser):
+claude mcp login obp`} />
 
     <p>
-        Once configured, the AI agent can discover and call OBP API endpoints autonomously. For
-        example, you could ask Claude: "List the banks available on this OBP instance" and it will
-        use the MCP tools to make the API call and return the results.
+        Or add it directly to the client's configuration file (for example
+        <code>.mcp.json</code> for Claude Code / Claude Desktop):
+    </p>
+
+    <CodeBlock code={`{
+  "mcpServers": {
+    "obp": {
+      "type": "http",
+      "url": "${mcpUrl}"
+    }
+  }
+}`} />
+
+    <p>
+        Authentication uses OAuth with your OBP account. On first connect the client opens a
+        browser sign-in, then stores and refreshes the access token for you &mdash; there is no
+        token to paste into the configuration. The server then calls the OBP API <em>as you</em>,
+        limited to what your account is permitted to do.
+    </p>
+
+    <p>
+        Once connected, the AI agent can discover and call OBP API endpoints autonomously. For
+        example, you could ask Claude: &ldquo;List the banks available on this OBP instance&rdquo;
+        and it will use the MCP tools to make the API call and return the results.
     </p>
 
     <h3>Using with Other AI Agents</h3>
@@ -132,7 +153,7 @@
     </p>
 
     <ol>
-        <li>Setting up the OBP MCP server with your credentials</li>
+        <li>Connecting to the OBP MCP server by URL and signing in (see above)</li>
         <li>Using an MCP client library to connect your agent to the server</li>
         <li>Letting your agent discover available tools and make API calls</li>
     </ol>
@@ -148,7 +169,7 @@
         <li><a href="https://modelcontextprotocol.io" target="_blank" rel="noopener noreferrer">Model Context Protocol specification</a></li>
         <li><a href="https://github.com/OpenBankProject" target="_blank" rel="noopener noreferrer">OBP GitHub organisation</a></li>
         <li><a href="/developers/opey">Opey</a> &mdash; the built-in OBP AI assistant</li>
-        <li><a href="/developers/direct-login">Direct Login</a> &mdash; get a token for your MCP server</li>
+        <li><a href="/developers/oauth2-oidc">OAuth2 / OIDC</a> &mdash; how sign-in to the MCP server works</li>
         {#if ctx.apiExplorerUrl}
             <li><a href={ctx.apiExplorerUrl} target="_blank" rel="noopener noreferrer">API Explorer</a> &mdash; browse all available endpoints</li>
         {/if}

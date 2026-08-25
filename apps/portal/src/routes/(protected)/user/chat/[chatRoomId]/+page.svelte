@@ -366,7 +366,7 @@
     let startingDm = $state(false);
     let dmStatus = $state('');
     async function startDm(targetUserId: string) {
-        if (!targetUserId || targetUserId === data.currentUserId || startingDm) return;
+        if (!targetUserId || startingDm) return;
         startingDm = true;
         dmStatus = 'Opening chat…';
         try {

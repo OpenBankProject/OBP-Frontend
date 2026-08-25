@@ -20,11 +20,9 @@ export const load: PageServerLoad = async (event) => {
 		error(401, { message: 'Unauthorized: No access token found in session.' });
 	}
 
+	// The target may be the current user: a self-DM is a private room whose
+	// only participant is you, handled by the same find-or-create logic.
 	const targetUserId = event.params.user_id;
-	if (targetUserId === currentUserId) {
-		// A DM with yourself does not exist — land on the chat overview instead.
-		redirect(303, '/user/chat');
-	}
 
 	let chatRoomId: string;
 	try {

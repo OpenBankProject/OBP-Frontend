@@ -12,7 +12,7 @@ import { env as publicEnv } from '$env/dynamic/public';
 import { obp_requests } from '$lib/obp/requests';
 import { oauth2ProviderManager } from '$lib/oauth/providerManager';
 import { SessionOAuthHelper } from '$lib/oauth/sessionHelper';
-import { healthCheckRegistry, OIDCHealthCheckService } from '@obp/shared/health-check';
+import { healthCheckRegistry, OIDCHealthCheckService, OpeyToolsHealthCheckService } from '@obp/shared/health-check';
 import { resolveGrpcTarget } from '@obp/shared/obp';
 
 import { redisService } from '$lib/redis/services/RedisService';
@@ -110,6 +110,21 @@ function initHealthChecks() {
 				OPEY_BASE_URL: env.OPEY_BASE_URL
 			}
 		});
+
+		// Opey can be alive while its MCP tool layer is down — the chat then
+		// answers everything with "my API tools are currently unavailable"
+		// although the liveness check above stays green. This reads the mcp
+		// component of Opey's /status JSON; on Opey builds that don't report
+		// it yet, the check shows 'unknown' rather than a false green.
+		healthCheckRegistry.register(
+			new OpeyToolsHealthCheckService({
+				serviceName: 'Opey (tools)',
+				opeyBaseUrl: env.OPEY_BASE_URL,
+				details: {
+					OPEY_BASE_URL: env.OPEY_BASE_URL
+				}
+			})
+		);
 	}
 
 	const redisHealthCheck = new RedisHealthCheckService(redisService);
