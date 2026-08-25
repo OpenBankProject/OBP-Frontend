@@ -107,7 +107,7 @@
 				/>
 			{:else}
 				<Avatar class="h-7 w-7 border border-primary-500 bg-secondary-500 p-1">
-					<Avatar.Image src="/opey-icon-white.png" alt="opey" />
+					<Avatar.Image src="/images/opey-icon-white.png" alt="opey" />
 					<Avatar.Fallback>OP</Avatar.Fallback>
 				</Avatar>
 				<p class="text-s font-bold">Opey</p>

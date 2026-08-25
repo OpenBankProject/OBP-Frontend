@@ -571,7 +571,7 @@
 			class="align-center flex flex-shrink-0 justify-between preset-filled-secondary-300-700 {options.bodyClasses ||
 				''}"
 		>
-			<img src="/opey-logo-inv.png" alt="Opey Logo" class="mx-2 my-auto h-10 w-auto" />
+			<img src="/images/opey-logo-inv.png" alt="Opey Logo" class="mx-2 my-auto h-10 w-auto" />
 			<h1 class="p-2 h4">Chat With Opey</h1>
 			<!-- TEMPORARY: Test buttons for approval system -->
 			<div class="mx-2 flex gap-2">
@@ -821,7 +821,7 @@
 			aria-label="View Opey system diagram"
 		>
 			<img
-				src="/opey_avatar.png"
+				src="/images/opey_avatar.png"
 				alt="Opey Avatar"
 				class="h-full w-full rounded-full"
 			/>
