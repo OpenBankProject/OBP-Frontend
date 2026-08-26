@@ -5,7 +5,9 @@ export {
 	validateDynamicEntityFields,
 	convertDynamicEntityFormData,
 	initialDynamicEntityFormData,
-	dynamicEntityInputType
+	dynamicEntityInputType,
+	dynamicEntityListKey,
+	extractDynamicEntityRecords
 } from './dynamicEntityForm.js';
 export type { DynamicEntityFieldDef, DynamicEntityProperties } from './dynamicEntityForm.js';
 export {

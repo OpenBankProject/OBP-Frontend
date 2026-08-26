@@ -3,6 +3,7 @@
   import { page } from "$app/stores";
   import type { PageData } from "./$types";
   import { trackedFetch } from "$lib/utils/trackedFetch";
+  import MissingRoleAlert from "$lib/components/MissingRoleAlert.svelte";
   import {
     extractErrorFromResponse,
     formatErrorForDisplay,
@@ -12,6 +13,7 @@
     convertDynamicEntityFormData,
     initialDynamicEntityFormData,
     dynamicEntityInputType,
+    extractDynamicEntityRecords,
     type DynamicEntityFieldDef,
   } from "@obp/shared/obp";
 
@@ -187,6 +189,9 @@
   }
 
   let dataRecords = $state(data.dataRecords || []);
+  let dataFetchError = $state<{ status: number; message: string } | null>(
+    data.dataFetchError || null,
+  );
   let searchQuery = $state("");
   let showCreateModal = $state(false);
   let showEditModal = $state(false);
@@ -202,6 +207,7 @@
   $effect(() => {
     // Update dataRecords when data prop changes
     dataRecords = data.dataRecords || [];
+    dataFetchError = data.dataFetchError || null;
     // Reset search and close modals when switching entities
     searchQuery = "";
     showCreateModal = false;
@@ -262,6 +268,33 @@
     return Object.keys(validationErrors).length === 0;
   }
 
+  // Refetch all records (after create/update/delete) so the table reflects
+  // the server state. Failures are surfaced via the error banner, never
+  // rendered as an empty table.
+  async function reloadRecords() {
+    const refetchResponse = await fetch(
+      `/backend/dynamic-entities/${entity.dynamic_entity_id}/data`,
+      {
+        credentials: "include",
+      },
+    );
+
+    if (refetchResponse.ok) {
+      const refetchData = await refetchResponse.json();
+      dataRecords = extractDynamicEntityRecords(entityName, refetchData);
+      dataFetchError = null;
+    } else {
+      const errorDetails = await extractErrorFromResponse(
+        refetchResponse,
+        "Failed to reload records",
+      );
+      dataFetchError = {
+        status: refetchResponse.status,
+        message: formatErrorForDisplay(errorDetails),
+      };
+    }
+  }
+
   async function handleCreate() {
     if (!validateAllFields()) {
       alert("Please fix validation errors");
@@ -303,29 +336,7 @@
 
       await response.json();
 
-      // Refetch all records to ensure correct data structure
-      const refetchResponse = await fetch(
-        `/backend/dynamic-entities/${entity.dynamic_entity_id}/data`,
-        {
-          credentials: "include",
-        },
-      );
-
-      if (refetchResponse.ok) {
-        const refetchData = await refetchResponse.json();
-        // Handle the same data extraction logic as the server
-        if (Array.isArray(refetchData)) {
-          dataRecords = refetchData;
-        } else {
-          const snakeCaseKey = `${entityName.toLowerCase()}_list`;
-          dataRecords =
-            refetchData.data ||
-            refetchData.records ||
-            refetchData[entityName] ||
-            refetchData[snakeCaseKey] ||
-            [];
-        }
-      }
+      await reloadRecords();
 
       alert("Record created successfully");
       closeModals();
@@ -380,29 +391,7 @@
 
       await response.json();
 
-      // Refetch all records to ensure correct data structure
-      const refetchResponse = await fetch(
-        `/backend/dynamic-entities/${entity.dynamic_entity_id}/data`,
-        {
-          credentials: "include",
-        },
-      );
-
-      if (refetchResponse.ok) {
-        const refetchData = await refetchResponse.json();
-        // Handle the same data extraction logic as the server
-        if (Array.isArray(refetchData)) {
-          dataRecords = refetchData;
-        } else {
-          const snakeCaseKey = `${entityName.toLowerCase()}_list`;
-          dataRecords =
-            refetchData.data ||
-            refetchData.records ||
-            refetchData[entityName] ||
-            refetchData[snakeCaseKey] ||
-            [];
-        }
-      }
+      await reloadRecords();
 
       alert("Record updated successfully");
       closeModals();
@@ -446,29 +435,7 @@
         throw new Error(formatErrorForDisplay(errorDetails));
       }
 
-      // Refetch all records to ensure correct data structure
-      const refetchResponse = await fetch(
-        `/backend/dynamic-entities/${entity.dynamic_entity_id}/data`,
-        {
-          credentials: "include",
-        },
-      );
-
-      if (refetchResponse.ok) {
-        const refetchData = await refetchResponse.json();
-        // Handle the same data extraction logic as the server
-        if (Array.isArray(refetchData)) {
-          dataRecords = refetchData;
-        } else {
-          const snakeCaseKey = `${entityName.toLowerCase()}_list`;
-          dataRecords =
-            refetchData.data ||
-            refetchData.records ||
-            refetchData[entityName] ||
-            refetchData[snakeCaseKey] ||
-            [];
-        }
-      }
+      await reloadRecords();
 
       alert("Record deleted successfully");
     } catch (error) {
@@ -547,7 +514,7 @@
     >
       <div class="text-sm text-gray-600 dark:text-gray-400">Total Records</div>
       <div class="mt-1 text-2xl font-bold text-gray-900 dark:text-gray-100">
-        {dataRecords.length}
+        {dataFetchError ? "—" : dataRecords.length}
       </div>
     </div>
     <div
@@ -733,6 +700,58 @@
     </div>
   </div>
 
+  <!-- Records fetch error -->
+  {#if dataFetchError}
+    {#if dataFetchError.status === 403}
+      <!-- Missing per-entity read role: show the standard Request Entitlement
+           widget. This role is dynamic (derived from the entity name at
+           runtime) so it cannot live in the static SITE_MAP registry. -->
+      <div class="mb-6" data-testid="records-fetch-error">
+        <p class="mb-2 text-sm text-gray-600 dark:text-gray-400">
+          Records for this entity exist (the count on the entities list comes
+          from a management endpoint), but listing them here requires the
+          per-entity role below.
+        </p>
+        <MissingRoleAlert
+          roles={[`CanGetDynamicEntity_System${entityName}`]}
+          message={dataFetchError.message}
+        />
+      </div>
+    {:else}
+      <div
+        data-testid="records-fetch-error"
+        class="mb-6 rounded-lg border border-red-300 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20"
+      >
+        <div class="flex items-start gap-3">
+          <svg
+            class="mt-0.5 h-5 w-5 flex-shrink-0 text-red-600 dark:text-red-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+            />
+          </svg>
+          <div class="flex-1">
+            <h3 class="text-sm font-semibold text-red-800 dark:text-red-300">
+              Could not load {entityName} records
+            </h3>
+            <!-- Show the OBP error verbatim - never hide or simplify OBP error messages! -->
+            <p
+              class="mt-2 whitespace-pre-wrap break-words font-mono text-xs text-red-700 dark:text-red-400"
+            >
+              {dataFetchError.message}
+            </p>
+          </div>
+        </div>
+      </div>
+    {/if}
+  {/if}
+
   <!-- Search -->
   <div class="mb-6">
     <div class="relative">
@@ -778,14 +797,24 @@
           />
         </svg>
         <h3 class="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-100">
-          {dataRecords.length === 0 ? "No Records Yet" : "No Matching Records"}
+          {#if dataFetchError}
+            Records Unavailable
+          {:else if dataRecords.length === 0}
+            No Records Yet
+          {:else}
+            No Matching Records
+          {/if}
         </h3>
         <p class="mb-4 text-gray-600 dark:text-gray-400">
-          {dataRecords.length === 0
-            ? "Get started by creating your first record"
-            : "Try adjusting your search criteria"}
+          {#if dataFetchError}
+            The records could not be loaded — see the error above.
+          {:else if dataRecords.length === 0}
+            Get started by creating your first record
+          {:else}
+            Try adjusting your search criteria
+          {/if}
         </p>
-        {#if dataRecords.length === 0}
+        {#if dataRecords.length === 0 && !dataFetchError}
           <button
             type="button"
             onclick={openCreateModal}

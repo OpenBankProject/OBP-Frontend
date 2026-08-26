@@ -1,26 +1,11 @@
 import type { PageServerLoad } from "./$types";
 import { error } from "@sveltejs/kit";
 import { createLogger } from "@obp/shared/utils";
+import { extractDynamicEntityRecords } from "@obp/shared/obp";
 import { SessionOAuthHelper } from "$lib/oauth/sessionHelper";
 import { obp_requests } from "$lib/obp/requests";
 
 const logger = createLogger("PersonalDynamicEntityDetailPageServer");
-
-// Extract records from various OBP response formats
-function extractRecords(response: any, entityName: string): any[] {
-  if (Array.isArray(response)) {
-    return response;
-  }
-  // Try common patterns: data, records, entityName, or snake_case version (e.g., piano_list)
-  const snakeCaseKey = `${entityName.toLowerCase()}_list`;
-  return (
-    response.data ||
-    response.records ||
-    response[entityName] ||
-    response[snakeCaseKey] ||
-    []
-  );
-}
 
 export const load: PageServerLoad = async ({ params, locals }) => {
   const session = locals.session;
@@ -102,7 +87,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 
     // Extract records or errors
     const myResult = results.my;
-    const myRecords = myResult?._error ? [] : extractRecords(myResult, entityName);
+    const myRecords = myResult?._error ? [] : extractDynamicEntityRecords(entityName, myResult);
     const myError = myResult?._error || null;
 
     let communityRecords: any[] = [];
@@ -111,7 +96,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
       if (results.community._error) {
         communityError = results.community._error;
       } else {
-        communityRecords = extractRecords(results.community, entityName);
+        communityRecords = extractDynamicEntityRecords(entityName, results.community);
       }
     }
 
@@ -121,7 +106,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
       if (results.public._error) {
         publicError = results.public._error;
       } else {
-        publicRecords = extractRecords(results.public, entityName);
+        publicRecords = extractDynamicEntityRecords(entityName, results.public);
       }
     }
 

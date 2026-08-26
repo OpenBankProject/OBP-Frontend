@@ -1,6 +1,7 @@
 import type { PageServerLoad } from "./$types";
 import { error } from "@sveltejs/kit";
 import { createLogger } from "@obp/shared/utils";
+import { extractDynamicEntityRecords } from "@obp/shared/obp";
 import { SessionOAuthHelper } from "$lib/oauth/sessionHelper";
 import { obp_requests } from "$lib/obp/requests";
 
@@ -44,7 +45,12 @@ export const load: PageServerLoad = async ({ params, locals }) => {
     // Fetch data records for this entity
     // In v6.0.0, the entity name is in the entity_name field
     const entityName = entity.entity_name || null;
-    let dataRecords = [];
+    let dataRecords: unknown[] = [];
+    // GET /obp/dynamic-entity/<name> is gated by the per-entity role
+    // CanGetDynamicEntity_System<name> (unlike the management endpoint that
+    // supplied record_count), so a failure here is usually a 403 the user can
+    // fix by requesting the role. Surface it instead of rendering "0 records".
+    let dataFetchError: { status: number; message: string } | null = null;
 
     if (entityName) {
       try {
@@ -52,22 +58,16 @@ export const load: PageServerLoad = async ({ params, locals }) => {
           `/obp/dynamic-entity/${entityName}`,
           accessToken,
         );
-        // The response might be an array or an object with a data/records property
-        if (Array.isArray(dataResponse)) {
-          dataRecords = dataResponse;
-        } else {
-          // Try common patterns: data, records, entityName, or snake_case version (e.g., piano_list)
-          const snakeCaseKey = `${entityName.toLowerCase()}_list`;
-          dataRecords =
-            dataResponse.data ||
-            dataResponse.records ||
-            dataResponse[entityName] ||
-            dataResponse[snakeCaseKey] ||
-            [];
-        }
+        dataRecords = extractDynamicEntityRecords(entityName, dataResponse);
       } catch (dataErr) {
         logger.warn("Could not fetch data records:", dataErr);
-        // Not throwing error here, just returning empty records
+        dataFetchError = {
+          status: (dataErr as any)?.statusCode ?? 0,
+          message:
+            dataErr instanceof Error
+              ? dataErr.message
+              : "Failed to fetch data records",
+        };
       }
     }
 
@@ -78,6 +78,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
     return {
       entity,
       dataRecords,
+      dataFetchError,
       userEntitlements,
     };
   } catch (err) {

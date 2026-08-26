@@ -198,3 +198,51 @@ export function dynamicEntityInputType(
 			return 'text';
 	}
 }
+
+/**
+ * The wrapper key OBP-API uses for a dynamic entity list response.
+ *
+ * `GET /obp/dynamic-entity/<EntityName>` wraps the records as
+ * `{ "<key>_list": [...] }` where the key is Lift's StringHelpers.snakify of
+ * the entity name (CamelCase becomes snake_case, dashes are kept) with any
+ * trailing dashes/underscores stripped before the `_list` suffix. So
+ * "parcel" -> "parcel_list" but "PeronalFriends" -> "peronal_friends_list" —
+ * NOT `entityName.toLowerCase() + "_list"`.
+ */
+export function dynamicEntityListKey(entityName: string): string {
+	const snakified = entityName
+		.replace(/([A-Z]+)([A-Z][a-z])/g, '$1_$2')
+		.replace(/([a-z\d])([A-Z])/g, '$1_$2')
+		.toLowerCase();
+	return snakified.replace(/[-_]*$/, '') + '_list';
+}
+
+/**
+ * Extract the record array from an OBP dynamic entity list response,
+ * whatever the entity is named. Tries the exact wrapper key OBP uses, then
+ * legacy guesses, then falls back to the first array-valued property so an
+ * unanticipated naming scheme degrades to "found the records" rather than
+ * silently showing zero.
+ */
+export function extractDynamicEntityRecords(entityName: string, response: unknown): unknown[] {
+	if (Array.isArray(response)) return response;
+	if (!response || typeof response !== 'object') return [];
+	const obj = response as Record<string, unknown>;
+
+	const candidateKeys = [
+		dynamicEntityListKey(entityName),
+		`${entityName.toLowerCase()}_list`,
+		entityName,
+		'data',
+		'records'
+	];
+	for (const key of candidateKeys) {
+		if (Array.isArray(obj[key])) return obj[key] as unknown[];
+	}
+
+	const listKey = Object.keys(obj).find((k) => k.endsWith('_list') && Array.isArray(obj[k]));
+	if (listKey) return obj[listKey] as unknown[];
+
+	const arrayKey = Object.keys(obj).find((k) => Array.isArray(obj[k]));
+	return arrayKey ? (obj[arrayKey] as unknown[]) : [];
+}
