@@ -180,7 +180,7 @@ export async function POST(event: RequestEvent) {
 		const now = new Date().toISOString().split('.')[0] + 'Z';
 
 		// Per-user TTL preference (OBP personal data field) → env default → built-in 7 days,
-		// then clamped against OBP's `consents.max_time_to_live` (via /obp/v7.0.0/consents/config)
+		// then clamped against OBP's `consents.max_time_to_live` (via /obp/v7.0.0/public/consent-config)
 		// to avoid OBP-35020 (consent TTL exceeds server maximum).
 		const desiredTtl = await getOpeyConsentTtlSeconds(
 			accessToken,

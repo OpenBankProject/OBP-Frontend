@@ -3,7 +3,7 @@
  *
  * OBP rejects `POST /obp/.../my/consents/IMPLICIT` with OBP-35020 when
  * `time_to_live` exceeds the server prop `consents.max_time_to_live`. To avoid
- * that error we fetch the public endpoint `GET /obp/v7.0.0/consents/config`
+ * that error we fetch the public endpoint `GET /obp/v7.0.0/public/consent-config`
  * (which returns `max_time_to_live_in_seconds`) and clamp our requested TTL
  * against it before creating the consent.
  *
@@ -41,7 +41,7 @@ export async function getConsentsMaxTtlSeconds(obpGet: ObpGet): Promise<number |
 	if (cache && cache.expiresAt > now) return cache.value;
 
 	try {
-		const data = await obpGet('/obp/v7.0.0/consents/config');
+		const data = await obpGet('/obp/v7.0.0/public/consent-config');
 		const raw = data?.max_time_to_live_in_seconds;
 		const max = typeof raw === 'number' && raw > 0 ? raw : null;
 		cache = {
@@ -51,7 +51,7 @@ export async function getConsentsMaxTtlSeconds(obpGet: ObpGet): Promise<number |
 		if (max !== null) {
 			logger.debug(`OBP consents max TTL: ${max}s (~${(max / 86400).toFixed(1)} days)`);
 		} else {
-			logger.debug('OBP /consents/config returned no max_time_to_live_in_seconds — capping disabled.');
+			logger.debug('OBP /public/consent-config returned no max_time_to_live_in_seconds — capping disabled.');
 		}
 		return max;
 	} catch (err: unknown) {
@@ -59,7 +59,7 @@ export async function getConsentsMaxTtlSeconds(obpGet: ObpGet): Promise<number |
 		// Keep this at debug so it isn't noisy in production logs.
 		const msg = err instanceof Error ? err.message : String(err);
 		cache = { value: null, expiresAt: now + CACHE_MISS_TTL_MS };
-		logger.debug(`OBP /consents/config unavailable, TTL capping disabled: ${msg}`);
+		logger.debug(`OBP /public/consent-config unavailable, TTL capping disabled: ${msg}`);
 		return null;
 	}
 }

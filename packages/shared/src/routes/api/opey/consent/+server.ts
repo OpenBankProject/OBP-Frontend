@@ -140,7 +140,7 @@ export async function POST(event: RequestEvent) {
 
 		const now = new Date().toISOString().split('.')[0] + 'Z';
 
-		// Cap against OBP's `consents.max_time_to_live` (via /obp/v7.0.0/consents/config)
+		// Cap against OBP's `consents.max_time_to_live` (via /obp/v7.0.0/public/consent-config)
 		// to avoid OBP-35020 on creation. Per-tool consents stay short-lived (1h) by
 		// design; the cap only kicks in if the server max is lower than that.
 		const desiredTtl = 3600; // 1 hour

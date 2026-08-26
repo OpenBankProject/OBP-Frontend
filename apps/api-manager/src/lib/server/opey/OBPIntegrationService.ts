@@ -109,7 +109,7 @@ export class DefaultOBPIntegrationService implements OBPIntegrationService {
 		const now = new Date().toISOString().split('.')[0] + 'Z';
 
 		// Cap the desired TTL against OBP's `consents.max_time_to_live` (via the
-		// public /obp/v7.0.0/consents/config endpoint) to avoid OBP-35020 on
+		// public /obp/v7.0.0/public/consent-config endpoint) to avoid OBP-35020 on
 		// consent creation. The helper returns the desired value unchanged when
 		// the endpoint isn't available (older OBP versions).
 		const desiredTtl = 18000; // 5 hours

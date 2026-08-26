@@ -111,7 +111,7 @@ export class DefaultOBPIntegrationService implements OBPIntegrationService {
 
 		// Per-user TTL preference (OBP personal data field) overrides the env default
 		// which overrides the built-in 7-day fallback. The result is then clamped
-		// against OBP's `consents.max_time_to_live` (via /obp/v7.0.0/consents/config)
+		// against OBP's `consents.max_time_to_live` (via /obp/v7.0.0/public/consent-config)
 		// to avoid OBP-35020 (consent TTL exceeds server maximum).
 		const desiredTtl = await getOpeyConsentTtlSeconds(accessToken, Number(env.OPEY_CONSENT_TTL_SECONDS));
 		const { ttl, max: serverMaxTtl, capped: ttlWasCapped } = await capConsentTtlSeconds(
