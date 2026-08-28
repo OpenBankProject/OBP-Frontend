@@ -5,7 +5,7 @@ import { error, redirect } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
 import { sveltekitSessionHandle } from 'svelte-kit-sessions';
 import RedisStore from 'svelte-kit-connect-redis';
-import { RateLimiter } from 'sveltekit-rate-limiter/server';
+import { RetryAfterRateLimiter } from 'sveltekit-rate-limiter/server';
 
 import { env } from '$env/dynamic/private';
 import { env as publicEnv } from '$env/dynamic/public';
@@ -17,6 +17,12 @@ import { resolveGrpcTarget } from '@obp/shared/obp';
 
 import { redisService } from '$lib/redis/services/RedisService';
 import { RedisHealthCheckService, GrpcHealthCheckService } from '@obp/shared/server/health-check';
+import {
+	parseRateLimit,
+	formatRate,
+	checkClientAddress,
+	warnIfClientAddressUnconfigured
+} from '@obp/shared/server/rate-limit';
 
 if (!publicEnv.PUBLIC_OBP_BASE_URL) {
 	throw new Error(
@@ -306,18 +312,41 @@ const transformHTML: Handle = async ({ event, resolve }) => {
 // Rate limiters for sensitive routes. In-memory store: resets on restart,
 // not shared across nodes. Migrate to Redis-backed for horizontal scaling.
 // See sveltekit-rate-limiter docs for RedisStore adapter.
-const loginLimiter = new RateLimiter({ IP: [10, 'm'] });
-const resetLimiter = new RateLimiter({ IP: [5, '15m'] });
-const registerLimiter = new RateLimiter({ IP: [3, '15m'] });
+//
+// Limits are keyed on client IP, so everyone behind one NAT (a hackathon
+// room, an office) shares a bucket. Defaults are sized for a legitimate
+// onboarding burst; override per deployment with RATE_LIMIT_* (see
+// .env.example), e.g. RATE_LIMIT_REGISTER=50/15m for an event.
+//
+// NOTE: behind a reverse proxy adapter-node only sees the real client IP if
+// ADDRESS_HEADER (and XFF_DEPTH) are set; otherwise every user shares the
+// proxy's bucket.
+const loginLimit = parseRateLimit('RATE_LIMIT_LOGIN', env.RATE_LIMIT_LOGIN, [30, 'm']);
+const resetLimit = parseRateLimit('RATE_LIMIT_PASSWORD_RESET', env.RATE_LIMIT_PASSWORD_RESET, [10, '15m']);
+const registerLimit = parseRateLimit('RATE_LIMIT_REGISTER', env.RATE_LIMIT_REGISTER, [20, '15m']);
+logger.info(
+	`Rate limits per IP: login ${formatRate(loginLimit)}, password reset ${formatRate(resetLimit)}, register ${formatRate(registerLimit)}`
+);
+
+const loginLimiter = new RetryAfterRateLimiter({ IP: loginLimit });
+const resetLimiter = new RetryAfterRateLimiter({ IP: resetLimit });
+const registerLimiter = new RetryAfterRateLimiter({ IP: registerLimit });
+warnIfClientAddressUnconfigured();
 
 // Shared-secret bypass for automated tests. Leave unset in production so the
 // bypass path is physically unreachable there.
 const RATE_LIMIT_BYPASS_TOKEN = env.RATE_LIMIT_BYPASS_TOKEN;
 
-function tooManyRequests(): Response {
+function tooManyRequests(retryAfter: number): Response {
 	return new Response(
 		JSON.stringify({ code: 429, message: 'OBP API Portal says: Too many requests, please try again later.' }),
-		{ status: 429, headers: { 'Content-Type': 'application/json', 'Retry-After': '60' } }
+		{
+			status: 429,
+			headers: {
+				'Content-Type': 'application/json',
+				'Retry-After': String(Math.max(1, Math.ceil(retryAfter)))
+			}
+		}
 	);
 }
 
@@ -329,23 +358,51 @@ const rateLimit: Handle = async ({ event, resolve }) => {
 		return resolve(event);
 	}
 
-	const path = event.url.pathname;
+	if (event.request.method !== 'POST') return resolve(event);
 
-	if (
-		(path === '/login' || path === '/login/') &&
-		event.request.method === 'POST' &&
-		(await loginLimiter.isLimited(event))
-	) return tooManyRequests();
-	if (
-		(path.startsWith('/forgot-password') || path.startsWith('/reset-password')) &&
-		event.request.method === 'POST' &&
-		(await resetLimiter.isLimited(event))
-	) return tooManyRequests();
-	if (
-		(path === '/register' || path.startsWith('/consumers/register')) &&
-		event.request.method === 'POST' &&
-		(await registerLimiter.isLimited(event))
-	) return tooManyRequests();
+	const path = event.url.pathname;
+	const isLimitedRoute =
+		path === '/login' ||
+		path === '/login/' ||
+		path.startsWith('/forgot-password') ||
+		path.startsWith('/reset-password') ||
+		path === '/register' ||
+		path.startsWith('/consumers/register');
+	if (!isLimitedRoute) return resolve(event);
+
+	// Warns (once) if the proxy header isn't being honoured; null means the
+	// address can't be determined at all, in which case we log and let the
+	// request through rather than 500 every login/registration.
+	if (checkClientAddress(event) === null) return resolve(event);
+
+	// Login is an OAuth redirect flow with no form action of its own, so a
+	// limited POST here gets a bare 429 rather than a rendered page.
+	if (path === '/login' || path === '/login/') {
+		const status = await loginLimiter.check(event);
+		if (status.limited) return tooManyRequests(status.retryAfter);
+		return resolve(event);
+	}
+
+	// The remaining limited routes are plain (non-enhanced) HTML form POSTs.
+	// Returning a raw 429 here would leave the browser showing a JSON blob, so
+	// instead we flag the request on locals and let the action `fail(429, ...)`
+	// with a message the page renders in its usual error box. The action checks
+	// the flag before doing any work, so no upstream call is made.
+	let formLimiter: RetryAfterRateLimiter | null = null;
+	if (path.startsWith('/forgot-password') || path.startsWith('/reset-password')) {
+		formLimiter = resetLimiter;
+	} else if (path === '/register' || path.startsWith('/consumers/register')) {
+		formLimiter = registerLimiter;
+	}
+	if (formLimiter) {
+		const status = await formLimiter.check(event);
+		if (status.limited) {
+			logger.warn(
+				`Rate limited POST ${path} from ${event.getClientAddress()} (retry after ${status.retryAfter}s)`
+			);
+			event.locals.rateLimit = { retryAfter: status.retryAfter };
+		}
+	}
 
 	return resolve(event);
 };

@@ -1,12 +1,18 @@
 import { createLogger } from '@obp/shared/utils';
 const logger = createLogger('ForgotPasswordServer');
-import { type Actions } from "@sveltejs/kit";
+import { type Actions, fail } from "@sveltejs/kit";
 import { obp_requests } from "$lib/obp/requests";
 import type { OBPPasswordResetInitiateRequestBody } from "$lib/obp/types";
 import { OBPRequestError } from "@obp/shared/obp";
+import { rateLimitMessage } from "@obp/shared/server/rate-limit";
 
 export const actions = {
-    default: async ({ request }) => {
+    default: async ({ request, locals }) => {
+        // Flagged by the rate-limit hook: refuse before any API call.
+        if (locals.rateLimit) {
+            return fail(429, { message: rateLimitMessage(locals.rateLimit), success: false });
+        }
+
         const formData = await request.formData();
         const username = formData.get('username') as string;
         const email = formData.get('email') as string;

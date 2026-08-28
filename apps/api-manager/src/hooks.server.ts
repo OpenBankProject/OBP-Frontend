@@ -5,7 +5,7 @@ import { error } from "@sveltejs/kit";
 import { sequence } from "@sveltejs/kit/hooks";
 import { sveltekitSessionHandle } from "svelte-kit-sessions";
 import RedisStore from "svelte-kit-connect-redis";
-import { RateLimiter } from "sveltekit-rate-limiter/server";
+import { RetryAfterRateLimiter } from "sveltekit-rate-limiter/server";
 import { Redis } from "ioredis";
 import { env } from "$env/dynamic/private";
 import { env as publicEnv } from "$env/dynamic/public";
@@ -15,6 +15,12 @@ import { resourceDocsCache } from "$lib/stores/resourceDocsCache";
 import { healthCheckRegistry, OIDCHealthCheckService } from '@obp/shared/health-check';
 import { resolveGrpcTarget } from '@obp/shared/obp';
 import { RedisHealthCheckService, GrpcHealthCheckService } from '@obp/shared/server/health-check';
+import {
+  parseRateLimit,
+  formatRate,
+  checkClientAddress,
+  warnIfClientAddressUnconfigured
+} from '@obp/shared/server/rate-limit';
 import { redisService } from '$lib/redis/services/RedisService';
 import { createOpeyNotebookDynamicEntityIfNeeded } from "$lib/server/opey/opeyNotebook";
 
@@ -287,17 +293,33 @@ const checkAuthorization: Handle = async ({ event, resolve }) => {
 
 // Rate limiters for sensitive routes. In-memory store: resets on restart,
 // not shared across nodes. Migrate to Redis-backed for horizontal scaling.
-const loginLimiter = new RateLimiter({ IP: [10, 'm'] });
-const opeyLimiter = new RateLimiter({ IP: [30, 'm'] });
+//
+// Limits are keyed on client IP, so everyone behind one NAT (a hackathon
+// room, an office) shares a bucket. Override per deployment with
+// RATE_LIMIT_* (see .env.example). Behind a reverse proxy adapter-node only
+// sees the real client IP if ADDRESS_HEADER (and XFF_DEPTH) are set.
+const loginLimit = parseRateLimit('RATE_LIMIT_LOGIN', env.RATE_LIMIT_LOGIN, [30, 'm']);
+const opeyLimit = parseRateLimit('RATE_LIMIT_OPEY', env.RATE_LIMIT_OPEY, [30, 'm']);
+logger.info(`Rate limits per IP: login ${formatRate(loginLimit)}, opey ${formatRate(opeyLimit)}`);
+
+const loginLimiter = new RetryAfterRateLimiter({ IP: loginLimit });
+const opeyLimiter = new RetryAfterRateLimiter({ IP: opeyLimit });
+warnIfClientAddressUnconfigured();
 
 // Shared-secret bypass for automated tests. Leave unset in production so the
 // bypass path is physically unreachable there.
 const RATE_LIMIT_BYPASS_TOKEN = env.RATE_LIMIT_BYPASS_TOKEN;
 
-function tooManyRequests(): Response {
+function tooManyRequests(retryAfter: number): Response {
   return new Response(
     JSON.stringify({ code: 429, message: 'OBP API Manager says: Too many requests, please try again later.' }),
-    { status: 429, headers: { 'Content-Type': 'application/json', 'Retry-After': '60' } }
+    {
+      status: 429,
+      headers: {
+        'Content-Type': 'application/json',
+        'Retry-After': String(Math.max(1, Math.ceil(retryAfter)))
+      }
+    }
   );
 }
 
@@ -309,18 +331,28 @@ const rateLimit: Handle = async ({ event, resolve }) => {
     return resolve(event);
   }
 
+  if (event.request.method !== 'POST') return resolve(event);
+
   const path = event.url.pathname;
 
-  if (
-    (path === '/login' || path === '/login/') &&
-    event.request.method === 'POST' &&
-    (await loginLimiter.isLimited(event))
-  ) return tooManyRequests();
-  if (
-    path.startsWith('/backend/opey/') &&
-    event.request.method === 'POST' &&
-    (await opeyLimiter.isLimited(event))
-  ) return tooManyRequests();
+  let limiter: RetryAfterRateLimiter | null = null;
+  if (path === '/login' || path === '/login/') {
+    limiter = loginLimiter;
+  } else if (path.startsWith('/backend/opey/')) {
+    limiter = opeyLimiter;
+  }
+  // Warns (once) if the proxy header isn't being honoured; null means the
+  // address can't be determined at all, in which case we log and let the
+  // request through rather than 500 every login.
+  if (limiter && checkClientAddress(event) !== null) {
+    const status = await limiter.check(event);
+    if (status.limited) {
+      logger.warn(
+        `Rate limited POST ${path} from ${event.getClientAddress()} (retry after ${status.retryAfter}s)`
+      );
+      return tooManyRequests(status.retryAfter);
+    }
+  }
 
   return resolve(event);
 };

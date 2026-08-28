@@ -356,7 +356,7 @@
       data-testid="product-tags"
     />
     <div class="form-help">
-      Comma-separated list. Add <code>featured</code> to surface this product in the portal.
+      Comma-separated list. <strong>Add <code>featured</code> to surface this product in the portal.</strong>
     </div>
   </div>
 

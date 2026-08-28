@@ -69,6 +69,20 @@ describe('Register page actions', () => {
 		);
 	});
 
+	it('fails with 429 and keeps the typed fields when the rate-limit hook flagged the request', async () => {
+		const result = (await actions.default({
+			request: createMockRequest(validForm),
+			locals: { ...mockLocals, rateLimit: { retryAfter: 600 } },
+			cookies: mockCookies
+		} as never)) as { status: number; data: { message: string; formData: Record<string, string> } };
+
+		expect(result.status).toBe(429);
+		expect(result.data.message).toMatch(/Too many attempts.*about 10 minutes/);
+		expect(result.data.formData.username).toBe('testuser');
+		expect(result.data.formData).not.toHaveProperty('password');
+		expect(obp_requests.post).not.toHaveBeenCalled();
+	});
+
 	it('rejects a username shorter than 8 characters without calling OBP', async () => {
 		const result = (await run({ ...validForm, username: 'short' })) as {
 			message: string;

@@ -77,6 +77,10 @@
 			"types": "./src/lib/server/health-check/index.ts",
 			"default": "./src/lib/server/health-check/index.ts"
 		},
+		"./server/rate-limit": {
+			"types": "./src/lib/server/rate-limit/index.ts",
+			"default": "./src/lib/server/rate-limit/index.ts"
+		},
 		"./server/obp": {
 			"types": "./src/lib/server/obp/index.ts",
 			"default": "./src/lib/server/obp/index.ts"

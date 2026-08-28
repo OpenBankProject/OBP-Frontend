@@ -1,10 +1,11 @@
 import { createLogger } from '@obp/shared/utils';
 const logger = createLogger('PasswordResetServer');
-import { type Actions, redirect } from "@sveltejs/kit";
+import { type Actions, fail, redirect } from "@sveltejs/kit";
 import { obp_requests } from "$lib/obp/requests";
 import { getPasswordPolicies } from "$lib/obp/passwordConfig";
 import type { OBPPasswordResetRequestBody } from "$lib/obp/types";
 import { OBPRequestError, isPasswordAcceptable } from "@obp/shared/obp";
+import { rateLimitMessage } from "@obp/shared/server/rate-limit";
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ params }) => {
@@ -19,7 +20,12 @@ export const load: PageServerLoad = async ({ params }) => {
 };
 
 export const actions = {
-    default: async ({ request, params }) => {
+    default: async ({ request, params, locals }) => {
+        // Flagged by the rate-limit hook: refuse before any API call.
+        if (locals.rateLimit) {
+            return fail(429, { message: rateLimitMessage(locals.rateLimit), success: false });
+        }
+
         const { token } = params;
         const formData = await request.formData();
 

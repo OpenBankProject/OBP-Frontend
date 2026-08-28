@@ -1,10 +1,11 @@
 import { createLogger } from '@obp/shared/utils';
 const logger = createLogger('RegisterServer');
-import { type Actions, redirect } from "@sveltejs/kit";
+import { type Actions, fail, redirect } from "@sveltejs/kit";
 import { obp_requests } from "$lib/obp/requests";
 import { getPasswordPolicies } from "$lib/obp/passwordConfig";
 import type { OBPUserRegistrationRequestBody } from "$lib/obp/types";
 import { OBPRequestError } from "@obp/shared/obp";
+import { rateLimitMessage } from "@obp/shared/server/rate-limit";
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async () => {
@@ -35,6 +36,15 @@ export const actions = {
             email: formEntries.email as string,
             username: formEntries.username as string
         };
+
+        // Flagged by the rate-limit hook: refuse before any API call, but keep
+        // the typed fields so the user can resubmit later without retyping.
+        if (locals.rateLimit) {
+            return fail(429, {
+                message: rateLimitMessage(locals.rateLimit),
+                formData: formDataToReturn
+            });
+        }
 
         // Validate username length before hitting the API
         if (requestBody.username.length < 8) {

@@ -1,12 +1,18 @@
 import { createLogger } from '@obp/shared/utils';
 const logger = createLogger('ConsumerRegisterServer');
-import { type Actions, redirect } from "@sveltejs/kit";
+import { type Actions, fail, redirect } from "@sveltejs/kit";
 import { obp_requests } from "$lib/obp/requests";
 import type { OBPConsumerRequestBody } from "$lib/obp/types";
 import { OBPRequestError } from '@obp/shared/obp';
+import { rateLimitMessage } from "@obp/shared/server/rate-limit";
 
 export const actions = {
     default: async ({ request, locals, cookies }) => {
+        // Flagged by the rate-limit hook: refuse before any API call.
+        if (locals.rateLimit) {
+            return fail(429, { message: rateLimitMessage(locals.rateLimit) });
+        }
+
         const formData = await request.formData()
         
         logger.debug("Form Data:", Object.fromEntries(formData.entries()));
