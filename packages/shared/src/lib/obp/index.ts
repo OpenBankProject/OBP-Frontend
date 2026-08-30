@@ -90,3 +90,29 @@ export type {
 	MyMetricsConsumerSeen,
 	MyMetricsConsumerOption
 } from './metrics.js';
+export {
+	ACTIVITY_SNAP_MS,
+	ACTIVITY_STABLE_LAG_MS,
+	ACTIVITY_WINDOWS,
+	ACTIVITY_CREATED_WINDOW_KEYS,
+	activityWindowDefs,
+	snapAsOf,
+	windowFor,
+	comparisonWindowFor,
+	formatObpDate,
+	aggregateMetricsQuery,
+	oldestNeededFrom,
+	countCreatedWithin,
+	computeDelta,
+	buildWindowRow,
+	unwrapAggregateMetric
+} from './activitySummary.js';
+export type {
+	ActivityWindowKey,
+	ActivityCompare,
+	ActivityWindowDef,
+	ActivityWindow,
+	ActivityDelta,
+	ActivityWindowRow,
+	OBPAggregateMetric
+} from './activitySummary.js';

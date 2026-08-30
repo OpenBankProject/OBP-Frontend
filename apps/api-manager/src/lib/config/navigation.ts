@@ -10,6 +10,7 @@ import {
   GitBranch,
   Route,
   BarChart3,
+  LayoutDashboard,
   Shield,
   Users,
   FileCheck,
@@ -762,8 +763,22 @@ export function getActiveChatRoomsMenuItem(pathname: string) {
   return found || chatRoomsItems[0];
 }
 
+// Dashboard navigation items
+function buildDashboardItems(): NavigationItem[] {
+  return [
+    {
+      href: "/dashboard",
+      label: "Activity Summary",
+      iconComponent: LayoutDashboard,
+    },
+  ];
+}
+
+export const dashboardItems = buildDashboardItems();
+
 export const navSections: NavigationSection[] = [
   { id: "my-account", label: "My Profile", iconComponent: User, items: myAccountItems, basePaths: ["/user", "/account-access/accounts"] },
+  { id: "dashboard", label: "Dashboard", iconComponent: LayoutDashboard, items: dashboardItems, basePaths: ["/dashboard"] },
   { id: "system", label: "System", iconComponent: Server, items: systemItems, basePaths: ["/system"] },
   { id: "signals", label: "Signals", iconComponent: Radio, items: signalsItems, basePaths: ["/system/signal-publish", "/system/signal-channels", "/system/signal-channels-stats"] },
   { id: "integration", label: "Integration", iconComponent: Plug, items: integrationItems, basePaths: ["/integration"] },

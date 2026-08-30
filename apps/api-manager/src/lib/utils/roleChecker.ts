@@ -204,6 +204,18 @@ export const SITE_MAP: Record<string, PageRoleConfig> = {
     required: [{ role: "CanDeleteRateLimits" }],
   },
 
+  // ── Dashboard ─────────────────────────────────────────
+  // Renders for everyone; each tile needs one of the optional roles and shows the
+  // Request Entitlement widget itself when its fetch comes back 403.
+  "/dashboard": {
+    required: [],
+    optional: [
+      { role: "CanReadAggregateMetrics" },
+      { role: "CanGetAnyUser" },
+      { role: "CanGetConsumers" },
+    ],
+  },
+
   // ── Metrics ───────────────────────────────────────────
   "/metrics": {
     required: [{ role: "CanReadMetrics" }],
