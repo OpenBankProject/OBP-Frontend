@@ -88,6 +88,8 @@ export interface OBPUserRegistrationRequestBody {
     password: string;
     first_name: string;
     last_name: string;
+    // v7.0.0: optional; same regex as OBP's InvalidPhoneNumber check
+    mobile_phone_number?: string;
 }
 
 export interface OBPAddEntitlementBody {

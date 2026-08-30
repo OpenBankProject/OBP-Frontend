@@ -18,6 +18,11 @@ interface UserDetail {
   is_locked?: boolean;
   is_deleted?: boolean;
   email_validated?: boolean;
+  // v7.0.0: the user's own (global, OBP-verified) mobile number — distinct from
+  // the bank-scoped Customer.mobile_phone_number KYC field.
+  mobile_phone_number?: string;
+  mobile_phone_number_is_validated?: boolean;
+  mobile_phone_number_validated_date?: string;
   entitlements?: any;
 }
 
@@ -50,9 +55,10 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   let user: UserDetail | null = null;
 
   try {
-    // Fetch user details from OBP API using user_id endpoint
+    // Fetch user details from OBP API using user_id endpoint.
+    // v7.0.0 adds mobile_phone_number{,_is_validated,_validated_date}.
     logger.info("=== USER DETAIL API CALL ===");
-    const endpoint = `/obp/v6.0.0/users/user-id/${encodeURIComponent(user_id)}`;
+    const endpoint = `/obp/v7.0.0/users/user-id/${encodeURIComponent(user_id)}`;
     logger.info(`Request: ${endpoint}`);
 
     const response = await obp_requests.get(endpoint, accessToken);

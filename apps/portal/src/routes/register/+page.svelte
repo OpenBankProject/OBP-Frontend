@@ -4,7 +4,7 @@
 	import type { PageProps } from './$types';
 	import { Eye, EyeOff } from '@lucide/svelte';
 	import { env } from '$env/dynamic/public';
-	import { isPasswordAcceptable } from '@obp/shared/obp';
+	import { isPasswordAcceptable, passwordRulesAttribute, MOBILE_PHONE_NUMBER_PATTERN_SOURCE } from '@obp/shared/obp';
 
 	let { data, form }: PageProps = $props();
 
@@ -14,6 +14,7 @@
 	let lastName = $state(form?.formData?.last_name || '');
 	let email = $state(form?.formData?.email || '');
 	let username = $state(form?.formData?.username || '');
+	let mobilePhoneNumber = $state(form?.formData?.mobile_phone_number || '');
 	let password = $state('');
 	let repeatPassword = $state('');
 	let termsAccepted = $state(false);
@@ -43,6 +44,8 @@
 	}
 
 	let isPasswordValid = $derived(isPasswordAcceptable(password, data.passwordPolicies));
+	// Steers Safari/Chrome's generator to a 17+ character passphrase, which passes OBP's policy regardless of symbols.
+	let passwordRules = $derived(passwordRulesAttribute(data.passwordPolicies));
 	let arePasswordsMatching = $derived(checkPasswordsMatching());
 	let isUsernameValid = $derived(username.length >= 8);
 
@@ -103,12 +106,12 @@
 			<!-- --- -->
 			<label class="label">
 				<span class="label-text">First Name</span>
-				<input type="text" class="input" name="first_name" placeholder="Alfred" bind:value={firstName} required />
+				<input type="text" class="input" name="first_name" placeholder="Alfred" bind:value={firstName} autocomplete="given-name" required />
 			</label>
 			<!-- --- -->
 			<label class="label">
 				<span class="label-text">Last Name</span>
-				<input type="text" class="input" name="last_name" placeholder="Prufrock" bind:value={lastName} required />
+				<input type="text" class="input" name="last_name" placeholder="Prufrock" bind:value={lastName} autocomplete="family-name" required />
 			</label>
 
 			<label class="label">
@@ -119,13 +122,30 @@
 					name="email"
 					placeholder="alfred.j.prufrock@example.com"
 					bind:value={email}
+					autocomplete="email"
 					required
 				/>
 			</label>
 			<!-- --- -->
 			<label class="label">
+				<span class="label-text">Mobile Phone Number <span class="text-secondary-800-200 font-normal">(optional)</span></span>
+				<input
+					type="tel"
+					class="input"
+					name="mobile_phone_number"
+					placeholder="+44 7700 900123"
+					bind:value={mobilePhoneNumber}
+					autocomplete="tel"
+					pattern={MOBILE_PHONE_NUMBER_PATTERN_SOURCE}
+					maxlength="51"
+					data-testid="register-mobile-phone-number"
+				/>
+				<p class="text-secondary-800-200 text-xs">Include your country code, e.g. +44. You can verify it later from your profile.</p>
+			</label>
+			<!-- --- -->
+			<label class="label">
 				<span class="label-text">Username</span>
-				<input type="text" class="input" name="username" placeholder="coffeespoon123" bind:value={username} oninput={handleUsernameInput} minlength="8" required />
+				<input type="text" class="input" name="username" placeholder="coffeespoon123" bind:value={username} oninput={handleUsernameInput} autocomplete="username" minlength="8" required />
 				{#if username.length > 0 && !isUsernameValid}
 					<p class="text-error-500 text-xs">Username must be at least 8 characters long.</p>
 				{/if}
@@ -141,12 +161,17 @@
 						bind:value={password}
 						oninput={handlePasswordInput}
 						placeholder="Enter Password"
+						autocomplete="new-password"
+						passwordrules={passwordRules || undefined}
+						aria-describedby="password-hint password-policy-feedback"
 						required
 					/>
 					<button
 						type="button"
 						class="absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 hover:text-gray-700"
 						onclick={togglePasswordVisibility}
+						aria-label={showPassword ? 'Hide password' : 'Show password'}
+						aria-pressed={showPassword}
 					>
 						{#if showPassword}
 							<EyeOff class="h-5 w-5" />
@@ -155,6 +180,10 @@
 						{/if}
 					</button>
 				</div>
+
+				<p id="password-hint" class="text-secondary-800-200 text-xs">
+					Tip: your browser or password manager can suggest and save a strong password.
+				</p>
 
 				<PasswordPolicyFeedback {password} policies={data.passwordPolicies} />
 
@@ -172,12 +201,16 @@
 						name="repeat_password"
 						bind:value={repeatPassword}
 						placeholder="Confirm Password"
+						autocomplete="new-password"
+						passwordrules={passwordRules || undefined}
 						required
 					/>
 					<button
 						type="button"
 						class="absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 hover:text-gray-700"
 						onclick={togglePasswordVisibility}
+						aria-label={showPassword ? 'Hide password' : 'Show password'}
+						aria-pressed={showPassword}
 					>
 						{#if showPassword}
 							<EyeOff class="h-5 w-5" />

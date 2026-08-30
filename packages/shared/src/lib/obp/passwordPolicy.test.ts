@@ -5,6 +5,9 @@ import {
 	isPasswordAcceptable,
 	closestPolicyEvaluation,
 	describeDisallowedCharacters,
+	passphrasePolicy,
+	passwordRulesAttribute,
+	describePasswordPolicy,
 	type OBPPasswordPolicies,
 	type OBPPasswordPolicy
 } from './passwordPolicy.js';
@@ -29,7 +32,7 @@ const compositionPolicy: OBPPasswordPolicy = {
 	regex: ''
 };
 
-const passphrasePolicy: OBPPasswordPolicy = {
+const passphraseFixture: OBPPasswordPolicy = {
 	description: 'A passphrase of 17 to 512 characters (printable ASCII, no space), no composition rules.',
 	min_length: 17,
 	max_length: 512,
@@ -40,7 +43,7 @@ const passphrasePolicy: OBPPasswordPolicy = {
 
 const policies: OBPPasswordPolicies = {
 	description: 'A password must satisfy at least one of the policies.',
-	policies: [compositionPolicy, passphrasePolicy]
+	policies: [compositionPolicy, passphraseFixture]
 };
 
 describe('evaluatePasswordPolicy', () => {
@@ -71,7 +74,7 @@ describe('evaluatePasswordPolicy', () => {
 	});
 
 	it('accepts a long passphrase without composition rules', () => {
-		const result = evaluatePasswordPolicy('correcthorsebatterystaple', passphrasePolicy);
+		const result = evaluatePasswordPolicy('correcthorsebatterystaple', passphraseFixture);
 		expect(result.satisfied).toBe(true);
 	});
 });
@@ -104,7 +107,7 @@ describe('closestPolicyEvaluation', () => {
 		const best = closestPolicyEvaluation(
 			evaluatePasswordPolicies('correct horse battery staple', policies.policies)
 		);
-		expect(best?.policy).toBe(passphrasePolicy);
+		expect(best?.policy).toBe(passphraseFixture);
 	});
 
 	it('returns null for an empty evaluation list', () => {
@@ -115,5 +118,68 @@ describe('closestPolicyEvaluation', () => {
 describe('describeDisallowedCharacters', () => {
 	it('names the space character', () => {
 		expect(describeDisallowedCharacters([' ', '§'])).toBe('space, "§"');
+	});
+});
+
+describe('passphraseFixture', () => {
+	it('picks the policy with no composition rules', () => {
+		expect(passphrasePolicy(policies)).toBe(passphraseFixture);
+	});
+
+	it('returns null when every policy has composition rules, or there is no config', () => {
+		expect(passphrasePolicy({ description: '', policies: [compositionPolicy] })).toBeNull();
+		expect(passphrasePolicy(null)).toBeNull();
+	});
+});
+
+describe('passwordRulesAttribute', () => {
+	it('describes the passphrase policy when there is one, asking for every class so the result is strong by construction', () => {
+		expect(passwordRulesAttribute(policies)).toBe(
+			'minlength: 17; maxlength: 512; required: lower; required: upper; required: digit; required: [-!@#$%^&*_+=?.];'
+		);
+	});
+
+	it('falls back to the composition policy, mapping classes to grammar tokens', () => {
+		expect(passwordRulesAttribute({ description: '', policies: [compositionPolicy] })).toBe(
+			'minlength: 10; maxlength: 16; required: digit; required: lower; required: upper; required: [-!@#$%^&*_+=?.];'
+		);
+	});
+
+	it('only offers special characters the policy allows', () => {
+		const strict: OBPPasswordPolicy = {
+			...passphraseFixture,
+			allowed_characters: 'abcXYZ019-_'
+		};
+		expect(passwordRulesAttribute({ description: '', policies: [strict] })).toBe(
+			'minlength: 17; maxlength: 512; required: lower; required: upper; required: digit; required: [-_];'
+		);
+	});
+
+	it('is empty without a config so the attribute can be omitted', () => {
+		expect(passwordRulesAttribute(null)).toBe('');
+		expect(passwordRulesAttribute({ description: '', policies: [] })).toBe('');
+	});
+});
+
+describe('describePasswordPolicy', () => {
+	it('words the passphrase policy as a floor with no other rules', () => {
+		expect(describePasswordPolicy(passphraseFixture)).toBe('17 characters or more, no other rules');
+	});
+
+	it('lists the required classes of a composition policy', () => {
+		expect(describePasswordPolicy(compositionPolicy)).toBe(
+			'10 to 16 characters with at least one digit, lowercase letter, uppercase letter and special character'
+		);
+	});
+
+	it('handles a single class and a small max', () => {
+		expect(
+			describePasswordPolicy({
+				...compositionPolicy,
+				min_length: 8,
+				max_length: 64,
+				required_character_classes: [{ name: 'digit', regex: '[0-9]' }]
+			})
+		).toBe('8 to 64 characters with at least one digit');
 	});
 });

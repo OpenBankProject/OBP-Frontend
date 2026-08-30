@@ -4,9 +4,12 @@ import { type Actions, fail, redirect } from "@sveltejs/kit";
 import { obp_requests } from "$lib/obp/requests";
 import { getPasswordPolicies } from "$lib/obp/passwordConfig";
 import type { OBPUserRegistrationRequestBody } from "$lib/obp/types";
-import { OBPRequestError } from "@obp/shared/obp";
+import { OBPRequestError, isMobilePhoneNumberValid } from "@obp/shared/obp";
 import { rateLimitMessage } from "@obp/shared/server/rate-limit";
 import type { PageServerLoad } from './$types';
+
+// v7.0.0 is the first version whose Create User accepts mobile_phone_number
+const REGISTER_USER_ENDPOINT = '/obp/v7.0.0/users';
 
 export const load: PageServerLoad = async () => {
     return {
@@ -21,12 +24,15 @@ export const actions = {
         logger.debug("Form Data:", Object.fromEntries(formData.entries()));
 
         const formEntries = Object.fromEntries(formData.entries());
+        const mobilePhoneNumber = ((formEntries.mobile_phone_number as string) || '').trim();
         const requestBody: OBPUserRegistrationRequestBody = {
             email: formEntries.email as string,
             username: formEntries.username as string,
             password: formEntries.password as string,
             first_name: formEntries.first_name as string,
-            last_name: formEntries.last_name as string
+            last_name: formEntries.last_name as string,
+            // Optional: only sent when the user typed one
+            ...(mobilePhoneNumber ? { mobile_phone_number: mobilePhoneNumber } : {})
         };
 
         // Store form data to return on error (excluding password)
@@ -34,7 +40,8 @@ export const actions = {
             first_name: formEntries.first_name as string,
             last_name: formEntries.last_name as string,
             email: formEntries.email as string,
-            username: formEntries.username as string
+            username: formEntries.username as string,
+            mobile_phone_number: mobilePhoneNumber
         };
 
         // Flagged by the rate-limit hook: refuse before any API call, but keep
@@ -54,9 +61,17 @@ export const actions = {
             };
         }
 
+        // Mirror OBP's InvalidPhoneNumber check so the user gets a clear message
+        if (mobilePhoneNumber && !isMobilePhoneNumberValid(mobilePhoneNumber)) {
+            return {
+                message: 'Mobile phone number must be 5-50 characters: digits, spaces, dashes, dots, parentheses and an optional leading +.',
+                formData: formDataToReturn
+            };
+        }
+
         // Make request to OBP to register the consumer
         try {
-            const response = await obp_requests.post(`/obp/v6.0.0/users`, requestBody);
+            const response = await obp_requests.post(REGISTER_USER_ENDPOINT, requestBody);
 
             
             logger.info("User registered successfully:", response);

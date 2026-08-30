@@ -2,7 +2,7 @@
 	import type { PageData, ActionData } from './$types';
 	import { Eye, EyeOff } from '@lucide/svelte';
 	import PasswordPolicyFeedback from '$lib/components/PasswordPolicyFeedback.svelte';
-	import { isPasswordAcceptable } from '@obp/shared/obp';
+	import { isPasswordAcceptable, passwordRulesAttribute } from '@obp/shared/obp';
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
 
@@ -23,6 +23,7 @@
 	}
 
 	let isPasswordValid = $derived(isPasswordAcceptable(newPassword, data.passwordPolicies));
+	let passwordRules = $derived(passwordRulesAttribute(data.passwordPolicies));
 	let arePasswordsMatching = $derived(checkPasswordsMatching());
 
 	let canSubmit = $derived(
@@ -52,6 +53,8 @@
 						type={passwordVisibilityType}
 						class="input pr-10"
 						name="new_password"
+						autocomplete="new-password"
+						passwordrules={passwordRules || undefined}
 						bind:value={newPassword}
 						placeholder="Enter New Password"
 						required
@@ -79,6 +82,8 @@
 						type={passwordVisibilityType}
 						class="input pr-10"
 						name="confirm_password"
+						autocomplete="new-password"
+						passwordrules={passwordRules || undefined}
 						bind:value={confirmPassword}
 						placeholder="Confirm New Password"
 						required

@@ -54,7 +54,7 @@ describe('Register page actions', () => {
 			location: '/register/success'
 		});
 
-		expect(obp_requests.post).toHaveBeenCalledWith('/obp/v6.0.0/users', {
+		expect(obp_requests.post).toHaveBeenCalledWith('/obp/v7.0.0/users', {
 			email: 'test@example.com',
 			username: 'testuser',
 			password: 'password123',
@@ -115,6 +115,38 @@ describe('Register page actions', () => {
 		expect(obp_requests.post).toHaveBeenCalled();
 	});
 
+	it('sends mobile_phone_number (trimmed) when the user typed one', async () => {
+		vi.mocked(obp_requests.post).mockResolvedValue({ user_id: 'user-123' });
+
+		await expect(run({ ...validForm, mobile_phone_number: ' +44 7700 900123 ' })).rejects.toMatchObject({
+			status: 303
+		});
+
+		const [, requestBody] = vi.mocked(obp_requests.post).mock.calls[0];
+		expect(requestBody).toMatchObject({ mobile_phone_number: '+44 7700 900123' });
+	});
+
+	it('omits mobile_phone_number from the OBP body when the field is left blank', async () => {
+		vi.mocked(obp_requests.post).mockResolvedValue({ user_id: 'user-123' });
+
+		await expect(run({ ...validForm, mobile_phone_number: '   ' })).rejects.toMatchObject({ status: 303 });
+
+		const [, requestBody] = vi.mocked(obp_requests.post).mock.calls[0];
+		expect(requestBody).not.toHaveProperty('mobile_phone_number');
+	});
+
+	it('rejects a malformed mobile phone number without calling OBP, keeping the typed value', async () => {
+		const result = (await run({ ...validForm, mobile_phone_number: 'call me maybe' })) as {
+			message: string;
+			formData: Record<string, string>;
+		};
+
+		expect(result.message).toMatch(/Mobile phone number/);
+		expect(result.formData.mobile_phone_number).toBe('call me maybe');
+		expect(result.formData).not.toHaveProperty('password');
+		expect(obp_requests.post).not.toHaveBeenCalled();
+	});
+
 	it('passes the parsed form fields through to OBP verbatim', async () => {
 		vi.mocked(obp_requests.post).mockResolvedValue({ success: true });
 
@@ -130,7 +162,7 @@ describe('Register page actions', () => {
 		).rejects.toMatchObject({ status: 303 });
 
 		const [endpoint, requestBody] = vi.mocked(obp_requests.post).mock.calls[0];
-		expect(endpoint).toBe('/obp/v6.0.0/users');
+		expect(endpoint).toBe('/obp/v7.0.0/users');
 		expect(requestBody).toEqual({
 			email: 'user@domain.com',
 			username: 'newuser01',

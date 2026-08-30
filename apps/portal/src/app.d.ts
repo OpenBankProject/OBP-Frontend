@@ -22,4 +22,12 @@ declare global {
 	const __BUILD_TIME__: string;
 }
 
+// Apple's Password Rules attribute (https://developer.apple.com/password-rules/), honoured by
+// Safari's and Chrome's password generators. Not yet in Svelte's element typings.
+declare module 'svelte/elements' {
+	interface HTMLInputAttributes {
+		passwordrules?: string | undefined | null;
+	}
+}
+
 export {};

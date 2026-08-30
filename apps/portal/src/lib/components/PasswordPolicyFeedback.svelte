@@ -3,6 +3,7 @@
 		evaluatePasswordPolicies,
 		closestPolicyEvaluation,
 		describeDisallowedCharacters,
+		describePasswordPolicy,
 		type OBPPasswordPolicies
 	} from '@obp/shared/obp';
 
@@ -20,8 +21,8 @@
 </script>
 
 {#if password.length > 0 && closest && !satisfied}
-	<div class="text-error-500 mt-2 space-y-1 text-xs" data-testid="password-policy-feedback">
-		<p class="font-semibold">{closest.policy.description}</p>
+	<div id="password-policy-feedback" class="text-error-500 mt-2 space-y-1 text-xs" data-testid="password-policy-feedback">
+		<p class="font-semibold">{describePasswordPolicy(closest.policy)}</p>
 		<ul class="list-inside list-disc">
 			{#each closest.requirements as requirement}
 				<li class={requirement.met ? 'text-success-500' : ''}>{requirement.label}</li>
@@ -31,7 +32,7 @@
 			{/if}
 		</ul>
 		{#each alternatives as alternative}
-			<p class="mt-1 text-xs opacity-75">Alternatively: {alternative.policy.description}</p>
+			<p class="mt-1 text-xs opacity-75">Or: {describePasswordPolicy(alternative.policy)}</p>
 		{/each}
 	</div>
 {/if}

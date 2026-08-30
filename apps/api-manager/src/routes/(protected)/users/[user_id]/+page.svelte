@@ -25,7 +25,7 @@
     }
   });
 
-  function formatDate(dateString: string): string {
+  function formatDate(dateString?: string): string {
     if (!dateString) return "N/A";
     try {
       const date = new Date(dateString);
@@ -151,6 +151,30 @@
           <div class="info-item">
             <div class="info-label">Username</div>
             <div class="info-value">{user.username || "N/A"}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Mobile Phone Number</div>
+            <div class="info-value" data-testid="user-mobile-phone-number">
+              {user.mobile_phone_number || "N/A"}
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Mobile Phone Validated</div>
+            <div class="info-value" data-testid="user-mobile-phone-validated">
+              {#if user.mobile_phone_number_is_validated === true}
+                <span class="badge badge-success">Yes</span>
+              {:else if user.mobile_phone_number_is_validated === false}
+                <span class="badge badge-error">No</span>
+              {:else}
+                <span class="badge badge-default">Unknown</span>
+              {/if}
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Mobile Phone Validated Date</div>
+            <div class="info-value" data-testid="user-mobile-phone-validated-date">
+              {formatDate(user.mobile_phone_number_validated_date)}
+            </div>
           </div>
           <div class="info-item">
             <div class="info-label">Provider</div>
