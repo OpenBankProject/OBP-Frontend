@@ -307,11 +307,6 @@
 				</div>
 			</div>
 			<hr class="hr" />
-			{#if showError && form?.message}
-				<div class="bg-error-500/10 border-error-500 rounded-lg border p-4 text-center" data-testid="registration-error">
-					<p class="text-error-500 font-semibold">{form?.message}</p>
-				</div>
-			{/if}
 			<button
 				type="submit"
 				disabled={!canSubmit}
