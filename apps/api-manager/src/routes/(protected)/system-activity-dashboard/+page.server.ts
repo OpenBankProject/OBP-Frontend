@@ -110,7 +110,7 @@ function windowPairs(
 }
 
 export const load: PageServerLoad = async ({ locals, depends }) => {
-  depends("app:dashboard");
+  depends("app:system-activity-dashboard");
 
   const session = locals.session;
   if (!session?.data?.user) {

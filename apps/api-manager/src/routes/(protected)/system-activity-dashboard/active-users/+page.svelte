@@ -35,7 +35,7 @@
 
 <div class="container mx-auto max-w-7xl px-4 py-8">
   <div class="mb-6">
-    <a href="/dashboard" class="text-sm text-blue-600 hover:underline dark:text-blue-400">← Activity Summary Dashboard</a>
+    <a href="/system-activity-dashboard" class="text-sm text-blue-600 hover:underline dark:text-blue-400">← Activity Summary Dashboard</a>
     <h1 class="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-100">Active Users</h1>
     {#if data.window}
       <p class="mt-1 text-sm text-gray-600 dark:text-gray-400" data-testid="active-users-window">

@@ -20,7 +20,7 @@ function buildMyAccountItems(): NavigationItem[] {
         { href: '/user/my-data', label: 'My Data', iconComponent: Database, description: 'View my own data.' },
         { href: '/user/personal-data-fields', label: 'Personal Data Fields', iconComponent: FileText, description: 'Manage your personal attributes.' },
         { href: '/user/api-collections', label: 'My API Collections', iconComponent: FolderKanban, description: 'Manage your API endpoint collections.' },
-        { href: '/user/activity', label: 'Activity Dashboard', iconComponent: Activity, description: 'API calls you have made, most recent first.' }
+        { href: '/user/my-activity-dashboard', label: 'Activity Dashboard', iconComponent: Activity, description: 'API calls you have made, most recent first.' }
     ];
 
     // Only add Subscriptions link if PUBLIC_SUBSCRIPTIONS_URL is set

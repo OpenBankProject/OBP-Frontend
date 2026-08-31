@@ -14,7 +14,7 @@
   async function refresh() {
     refreshing = true;
     try {
-      await invalidate("app:dashboard");
+      await invalidate("app:system-activity-dashboard");
     } finally {
       refreshing = false;
     }
@@ -196,9 +196,9 @@
       "API Metrics",
       data.tiles.activeUsers,
       "Distinct humans. Calls made via consents (e.g. by agents) count for the granting user.",
-      (key) => `/dashboard/active-users?${windowQuery(key)}`,
+      (key) => `/system-activity-dashboard/active-users?${windowQuery(key)}`,
     )}
-    {@render statCard("Active consumers", "dashboard-active-consumers", "/consumers", "Consumers", data.tiles.activeConsumers, null, (key) => `/dashboard/active-consumers?${windowQuery(key)}`)}
+    {@render statCard("Active consumers", "dashboard-active-consumers", "/consumers", "Consumers", data.tiles.activeConsumers, null, (key) => `/system-activity-dashboard/active-consumers?${windowQuery(key)}`)}
 
     <div
       class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
@@ -241,7 +241,7 @@
       {/if}
     </div>
 
-    {@render statCard("New users", "dashboard-new-users", "/users", "Users", data.tiles.newUsers, null, (key) => `/dashboard/new-users?${windowQuery(key)}`)}
+    {@render statCard("New users", "dashboard-new-users", "/users", "Users", data.tiles.newUsers, null, (key) => `/system-activity-dashboard/new-users?${windowQuery(key)}`)}
     {@render statCard("New consumers", "dashboard-new-consumers", "/consumers", "Consumers", data.tiles.newConsumers, null, (key) => `/consumers?${windowQuery(key)}`)}
   </div>
 </div>

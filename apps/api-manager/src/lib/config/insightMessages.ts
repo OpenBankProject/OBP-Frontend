@@ -13,7 +13,7 @@ const routeDescriptions: Array<{ pattern: RegExp; description: string }> = [
   { pattern: /^\/customers\/account-links/, description: "Customer Account Links" },
   { pattern: /^\/consumers\/[^/]+/, description: "API Consumer" },
   { pattern: /^\/consumers$/, description: "API Consumers list" },
-  { pattern: /^\/dashboard/, description: "Activity Summary Dashboard" },
+  { pattern: /^\/system-activity-dashboard/, description: "Activity Summary Dashboard" },
   { pattern: /^\/aggregate-metrics-trends/, description: "Aggregate Metrics Over Time" },
   { pattern: /^\/aggregate-metrics-live/, description: "Live Aggregate Metrics" },
   { pattern: /^\/connector-metrics/, description: "Connector Metrics" },

@@ -12,7 +12,7 @@
 
   // Section grouping based on route prefix
   const SECTION_ORDER = [
-    { key: "dashboard", label: "Metrics: Activity Summary", prefix: "/dashboard" },
+    { key: "dashboard", label: "Metrics: Activity Summary", prefix: "/system-activity-dashboard" },
     { key: "rbac", label: "RBAC", prefix: "/rbac/" },
     { key: "system", label: "System", prefix: "/system/" },
     { key: "consumers", label: "Consumers", prefix: "/consumers" },

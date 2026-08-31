@@ -250,7 +250,7 @@ export function getActiveIntegrationMenuItem(pathname: string) {
 function buildMetricsItems(): NavigationItem[] {
   const items: NavigationItem[] = [
     {
-      href: "/dashboard",
+      href: "/system-activity-dashboard",
       label: "Dashboard",
       iconComponent: LayoutDashboard,
     },
@@ -773,7 +773,7 @@ export const navSections: NavigationSection[] = [
   { id: "system", label: "System", iconComponent: Server, items: systemItems, basePaths: ["/system"] },
   { id: "signals", label: "Signals", iconComponent: Radio, items: signalsItems, basePaths: ["/system/signal-publish", "/system/signal-channels", "/system/signal-channels-stats"] },
   { id: "integration", label: "Integration", iconComponent: Plug, items: integrationItems, basePaths: ["/integration"] },
-  { id: "metrics", label: "Metrics", iconComponent: BarChart3, items: metricsItems, basePaths: ["/dashboard", "/metrics", "/aggregate-metrics", "/aggregate-metrics-live", "/aggregate-metrics-trends", "/connector-metrics", "/connector-traces", "/connector-counts", "/metrics-diagnostics", "/metrics-archive-run"] },
+  { id: "metrics", label: "Metrics", iconComponent: BarChart3, items: metricsItems, basePaths: ["/system-activity-dashboard", "/metrics", "/aggregate-metrics", "/aggregate-metrics-live", "/aggregate-metrics-trends", "/connector-metrics", "/connector-traces", "/connector-counts", "/metrics-diagnostics", "/metrics-archive-run"] },
   { id: "abac", label: "ABAC", iconComponent: Lock, items: abacItems, basePaths: ["/abac"] },
   { id: "products", label: "API Products", iconComponent: Package, items: productsItems, basePaths: ["/products"] },
   { id: "financial-products", label: "Financial Products", iconComponent: Banknote, items: financialProductsItems, basePaths: ["/products/financial", "/products/collections"] },

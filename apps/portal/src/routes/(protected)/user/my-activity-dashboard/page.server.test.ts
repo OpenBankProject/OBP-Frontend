@@ -37,7 +37,7 @@ const metric = (i: number) => ({
 const run = (search = '', token: string | null = 'tok') =>
 	load({
 		locals: { session: { data: { oauth: token ? { access_token: token } : undefined } } },
-		url: new URL(`http://localhost/user/activity${search}`)
+		url: new URL(`http://localhost/user/my-activity-dashboard${search}`)
 	} as never);
 
 describe('Activity Dashboard load', () => {

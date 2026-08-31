@@ -71,14 +71,14 @@
 		if (pageNumber > 0) params.set('page', String(pageNumber));
 		else params.delete('page');
 		const qs = params.toString();
-		return qs ? `/user/activity?${qs}` : '/user/activity';
+		return qs ? `/user/my-activity-dashboard?${qs}` : '/user/my-activity-dashboard';
 	}
 
 	function widerRangeHref(): string {
 		const params = new URLSearchParams(page.url.searchParams);
 		params.set('range', '30d');
 		params.delete('page');
-		return `/user/activity?${params.toString()}`;
+		return `/user/my-activity-dashboard?${params.toString()}`;
 	}
 
 	/** 1284 → "1,284" in the viewer's locale; keeps tiles proportional, not tabular. */
@@ -109,7 +109,7 @@
 
 <form
 	method="GET"
-	action="/user/activity"
+	action="/user/my-activity-dashboard"
 	class="mb-6 rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800"
 	data-testid="activity-filter-form"
 >
@@ -174,7 +174,7 @@
 		<button type="submit" class="btn preset-filled-primary-500" data-testid="activity-filter-apply">
 			Apply
 		</button>
-		<a href="/user/activity" class="text-sm underline hover:text-gray-900 dark:hover:text-gray-100" data-testid="activity-filter-clear">
+		<a href="/user/my-activity-dashboard" class="text-sm underline hover:text-gray-900 dark:hover:text-gray-100" data-testid="activity-filter-clear">
 			Clear
 		</a>
 	</div>
