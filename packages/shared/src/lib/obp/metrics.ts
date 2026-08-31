@@ -47,6 +47,16 @@ export type MyMetricsRange = keyof typeof MY_METRICS_RANGES;
 export const MY_METRICS_DEFAULT_RANGE: MyMetricsRange = '7d';
 export const MY_METRICS_PAGE_SIZE = 50;
 
+/**
+ * from_date is quantised to this granularity. A millisecond-precision "now"
+ * mints a unique query string on every load, so OBP's query-keyed metrics
+ * cache (24h TTL once from_date is older than the stable boundary) can never
+ * hit. Flooring to 10-minute marks lets repeated loads share a cache entry;
+ * the cost is that calls made inside the current 10-minute slot can lag until
+ * the key rotates.
+ */
+export const MY_METRICS_FROM_DATE_SNAP_MS = 10 * 60 * 1000;
+
 export const MY_METRICS_VERBS = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'] as const;
 export type MyMetricsVerb = (typeof MY_METRICS_VERBS)[number];
 
@@ -135,7 +145,9 @@ export function buildMyMetricsQuery(
 	}
 
 	const query = new URLSearchParams();
-	query.set('from_date', new Date(now.getTime() - MY_METRICS_RANGES[range]).toISOString());
+	const quantisedNow =
+		Math.floor(now.getTime() / MY_METRICS_FROM_DATE_SNAP_MS) * MY_METRICS_FROM_DATE_SNAP_MS;
+	query.set('from_date', new Date(quantisedNow - MY_METRICS_RANGES[range]).toISOString());
 	query.set('limit', String(MY_METRICS_PAGE_SIZE));
 	query.set('offset', String(page * MY_METRICS_PAGE_SIZE));
 	query.set('sort_by', 'date');

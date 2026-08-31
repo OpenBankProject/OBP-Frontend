@@ -207,6 +207,17 @@ export const SITE_MAP: Record<string, PageRoleConfig> = {
   // ── Dashboard ─────────────────────────────────────────
   // Renders for everyone; each tile needs one of the optional roles and shows the
   // Request Entitlement widget itself when its fetch comes back 403.
+  "/dashboard/active-consumers": {
+    required: [{ role: "CanReadMetrics" }],
+    optional: [{ role: "CanReadAggregateMetrics" }],
+  },
+  "/dashboard/active-users": {
+    required: [{ role: "CanReadMetrics" }],
+    optional: [{ role: "CanReadAggregateMetrics" }],
+  },
+  "/dashboard/new-users": {
+    required: [{ role: "CanGetAnyUser" }],
+  },
   "/dashboard": {
     required: [],
     optional: [

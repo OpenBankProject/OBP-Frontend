@@ -4,6 +4,7 @@
   import ErrorMessage from "$lib/components/ErrorMessage.svelte";
   import { pageHeading } from "$lib/stores/pageHeading.svelte";
   import { pageDataSummary } from "$lib/stores/pageDataSummary.svelte";
+  import { ACTIVITY_WINDOWS, windowFor, formatObpDate } from "@obp/shared/obp";
   import type { ActivityDelta, ActivityWindowRow } from "@obp/shared/obp";
   import type { ConsentTile, ConsentTrafficRow, DashboardTile } from "./+page.server";
 
@@ -52,6 +53,15 @@
     }) + " UTC",
   );
 
+  // Drill-down links carry the EXACT snapped window the tile was computed from, so the
+  // target page provably shows the same query the number came from.
+  function windowQuery(key: string): string {
+    const def = ACTIVITY_WINDOWS.find((d) => d.key === key);
+    if (!def) return "";
+    const w = windowFor(new Date(data.asOf), def.ms);
+    return `from_date=${encodeURIComponent(formatObpDate(w.from))}&to_date=${encodeURIComponent(formatObpDate(w.to))}`;
+  }
+
   function okRow(tile: DashboardTile | ConsentTile, key: string): ActivityWindowRow | null {
     if (tile.status !== "ok") return null;
     return tile.rows.find((row: ActivityWindowRow) => row.key === key) ?? null;
@@ -71,7 +81,7 @@
   });
 
   $effect(() => {
-    pageHeading.set("Activity Summary");
+    pageHeading.set("Activity Summary Dashboard");
     pageDataSummary.set(summaryText);
     return () => {
       pageHeading.clear();
@@ -109,7 +119,7 @@
   {/if}
 {/snippet}
 
-{#snippet statCard(title: string, testId: string, href: string, hrefLabel: string, tile: DashboardTile, note: string | null)}
+{#snippet statCard(title: string, testId: string, href: string, hrefLabel: string, tile: DashboardTile, note: string | null, hrefForRow: ((key: string) => string) | null)}
   <div
     class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
     data-testid={testId}
@@ -126,7 +136,17 @@
       <div class="divide-y divide-gray-100 dark:divide-gray-700">
         {#each tile.rows as row (row.key)}
           <div class="flex items-baseline gap-3 py-2" data-testid="{testId}-{row.key}">
-            <div class="w-24 shrink-0 text-xs text-gray-600 dark:text-gray-400">{row.label}</div>
+            <div class="w-24 shrink-0 text-xs">
+              {#if hrefForRow}
+                <a
+                  href={hrefForRow(row.key)}
+                  class="text-blue-600 hover:underline dark:text-blue-400"
+                  data-testid="{testId}-{row.key}-link">{row.label}</a
+                >
+              {:else}
+                <span class="text-gray-600 dark:text-gray-400">{row.label}</span>
+              {/if}
+            </div>
             <div class="text-xl font-semibold" data-testid="{testId}-{row.key}-value">
               {formatCount(row.value)}{#if tile.truncated}+{/if}
             </div>
@@ -150,7 +170,7 @@
 <div class="container mx-auto max-w-7xl px-4 py-8">
   <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
     <div>
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Activity Summary</h1>
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Activity Summary Dashboard</h1>
       <p class="mt-1 text-sm text-gray-600 dark:text-gray-400" data-testid="dashboard-as-of">
         As of {asOfLabel} — figures lag 10 minutes so cached snapshots stay exact.
         Hour and day windows compare to the same window last week; longer windows to the previous period.
@@ -168,7 +188,7 @@
   </div>
 
   <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-    {@render statCard("API calls", "dashboard-api-calls", "/aggregate-metrics-trends", "Trends", data.tiles.apiCalls, null)}
+    {@render statCard("API calls", "dashboard-api-calls", "/aggregate-metrics-trends", "Trends", data.tiles.apiCalls, null, (key) => `/metrics?${windowQuery(key)}`)}
     {@render statCard(
       "Active users",
       "dashboard-active-users",
@@ -176,8 +196,9 @@
       "API Metrics",
       data.tiles.activeUsers,
       "Distinct humans. Calls made via consents (e.g. by agents) count for the granting user.",
+      (key) => `/dashboard/active-users?${windowQuery(key)}`,
     )}
-    {@render statCard("Active consumers", "dashboard-active-consumers", "/consumers", "Consumers", data.tiles.activeConsumers, null)}
+    {@render statCard("Active consumers", "dashboard-active-consumers", "/consumers", "Consumers", data.tiles.activeConsumers, null, (key) => `/dashboard/active-consumers?${windowQuery(key)}`)}
 
     <div
       class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
@@ -220,7 +241,7 @@
       {/if}
     </div>
 
-    {@render statCard("New users", "dashboard-new-users", "/users", "Users", data.tiles.newUsers, null)}
-    {@render statCard("New consumers", "dashboard-new-consumers", "/consumers", "Consumers", data.tiles.newConsumers, null)}
+    {@render statCard("New users", "dashboard-new-users", "/users", "Users", data.tiles.newUsers, null, (key) => `/dashboard/new-users?${windowQuery(key)}`)}
+    {@render statCard("New consumers", "dashboard-new-consumers", "/consumers", "Consumers", data.tiles.newConsumers, null, (key) => `/consumers?${windowQuery(key)}`)}
   </div>
 </div>

@@ -53,6 +53,42 @@ export async function findOrCreateDm(
 		);
 	}
 
+	// Best-effort friendly name. The generated name above exists only to satisfy the
+	// per-bank unique-name constraint at creation time; a room named after two UUIDs
+	// and a timestamp is disconcerting wherever it is displayed. Once the participants
+	// are known, rename to their usernames — and if that name is already taken
+	// (usernames are not unique across providers), suffix a slice of the room id.
+	// If renaming fails altogether the generated name simply remains.
+	try {
+		const participantsResponse = await obp_requests.get(
+			`/obp/v6.0.0/chat-rooms/${newRoomId}/participants`,
+			accessToken
+		);
+		const usernames = (participantsResponse.participants || [])
+			.map((participant: { username?: string }) => participant.username)
+			.filter((username: string | undefined): username is string => !!username);
+		if (usernames.length > 0) {
+			const friendly = usernames.join(' & ');
+			try {
+				await obp_requests.put(
+					`/obp/v6.0.0/chat-rooms/${newRoomId}`,
+					{ name: friendly, description: '' },
+					accessToken
+				);
+			} catch {
+				await obp_requests
+					.put(
+						`/obp/v6.0.0/chat-rooms/${newRoomId}`,
+						{ name: `${friendly} #${newRoomId.slice(0, 4)}`, description: '' },
+						accessToken
+					)
+					.catch(() => {});
+			}
+		}
+	} catch (e) {
+		logger.warn(`Could not give DM ${newRoomId} a friendly name (keeping generated name):`, e);
+	}
+
 	logger.info(`Created new DM ${newRoomId} between ${currentUserId} and ${targetUserId}`);
 	return newRoomId;
 }

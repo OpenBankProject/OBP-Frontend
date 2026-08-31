@@ -1,7 +1,9 @@
 <script lang="ts">
   let { data } = $props();
-  const consumers = data.consumers;
-  const errorMessage = data.error;
+  // $derived, not const: /consumers is re-loaded in place when the created-date window
+  // params change (dashboard drill-down / Clear filter), and a const would go stale.
+  const consumers = $derived(data.consumers);
+  const errorMessage = $derived(data.error);
 
   let searchQuery = $state("");
 
@@ -53,6 +55,18 @@
       </span>
     {/if}
   </div>
+
+  {#if data.createdWindow}
+    <div
+      class="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-900 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-200"
+      data-testid="consumers-created-window"
+    >
+      Showing consumers created between {formatDate(data.createdWindow.from)} and {formatDate(
+        data.createdWindow.to,
+      )} — {consumers ? consumers.length : 0} found.
+      <a href="/consumers" class="ml-1 underline">Clear filter</a>
+    </div>
+  {/if}
 
   <!-- Error Message -->
   {#if errorMessage}

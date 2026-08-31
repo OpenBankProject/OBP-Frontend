@@ -1,0 +1,95 @@
+import type { PageServerLoad } from "./$types";
+import { error } from "@sveltejs/kit";
+import { createLogger } from "@obp/shared/utils";
+import { SessionOAuthHelper } from "$lib/oauth/sessionHelper";
+import { obp_requests } from "$lib/obp/requests";
+import { OBPRequestError } from "$lib/obp/errors";
+import { unwrapAggregateMetric } from "@obp/shared/obp";
+
+const logger = createLogger("DashboardActiveUsersServer");
+
+const TOP_USERS_LIMIT = 1000;
+
+interface TopUserRow {
+  count: number;
+  user_id: string;
+  username: string;
+}
+
+export const load: PageServerLoad = async ({ locals, url }) => {
+  const session = locals.session;
+  if (!session?.data?.user) {
+    throw error(401, "Unauthorized");
+  }
+  const accessToken = SessionOAuthHelper.getSessionOAuth(session)?.accessToken;
+  if (!accessToken) {
+    throw error(401, "No API access token available");
+  }
+
+  const fromParam = url.searchParams.get("from_date");
+  const toParam = url.searchParams.get("to_date");
+  const fromValid = fromParam !== null && Number.isFinite(Date.parse(fromParam));
+  const toValid = toParam !== null && Number.isFinite(Date.parse(toParam));
+  if (!fromValid || !toValid) {
+    return {
+      window: null,
+      users: [] as TopUserRow[],
+      possiblyTruncated: false,
+      expectedDistinct: null as number | null,
+      fetchError: null as { httpStatus: number | null; message: string } | null,
+    };
+  }
+
+  const windowQuery = new URLSearchParams({ from_date: fromParam!, to_date: toParam! });
+  const topUsersEndpoint = `/obp/v7.0.0/management/metrics/top-users?${windowQuery.toString()}&limit=${TOP_USERS_LIMIT}`;
+  // The same window against aggregate-metrics: its distinct_user_count is computed by the
+  // same on-behalf-of consent resolution, so the two numbers must agree — the page shows
+  // the comparison as an explicit consistency check against the dashboard tile.
+  const aggregateEndpoint = `/obp/v6.0.0/management/aggregate-metrics?${windowQuery.toString()}`;
+
+  const [topUsersResult, aggregateResult] = await Promise.allSettled([
+    obp_requests.get(topUsersEndpoint, accessToken),
+    obp_requests.get(aggregateEndpoint, accessToken),
+  ]);
+
+  let users: TopUserRow[] = [];
+  let fetchError: { httpStatus: number | null; message: string } | null = null;
+  if (topUsersResult.status === "fulfilled") {
+    const body = topUsersResult.value;
+    if (!Array.isArray(body?.top_users)) {
+      fetchError = {
+        httpStatus: null,
+        message: `Unexpected top-users response shape: ${JSON.stringify(body).slice(0, 500)}`,
+      };
+    } else {
+      users = body.top_users;
+    }
+  } else {
+    const err = topUsersResult.reason;
+    logger.error("top-users fetch failed:", err);
+    // Repo rule: never hide or simplify OBP error messages.
+    fetchError = {
+      httpStatus: err instanceof OBPRequestError ? (err.statusCode ?? null) : null,
+      message: err instanceof Error ? err.message : String(err),
+    };
+  }
+
+  // The consistency reference degrades to absent on its own (different role).
+  let expectedDistinct: number | null = null;
+  if (aggregateResult.status === "fulfilled") {
+    const metric = unwrapAggregateMetric(aggregateResult.value);
+    if (metric && typeof metric.distinct_user_count === "number") {
+      expectedDistinct = metric.distinct_user_count;
+    }
+  } else {
+    logger.error("aggregate-metrics consistency fetch failed:", aggregateResult.reason);
+  }
+
+  return {
+    window: { from: fromParam!, to: toParam! },
+    users,
+    possiblyTruncated: users.length >= TOP_USERS_LIMIT,
+    expectedDistinct,
+    fetchError,
+  };
+};

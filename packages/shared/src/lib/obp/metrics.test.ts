@@ -16,6 +16,14 @@ const NOW = new Date('2026-08-29T12:00:00.000Z');
 const build = (qs: string) => buildMyMetricsQuery(new URLSearchParams(qs), NOW);
 
 describe('buildMyMetricsQuery', () => {
+	it('quantises from_date to 10-minute marks so the API can cache', () => {
+		// 12:07:31.123 floors to 12:00:00.000 before the range is subtracted —
+		// a raw "now" would mint a unique cache key on every page load.
+		const odd = new Date('2026-08-29T12:07:31.123Z');
+		const { query } = buildMyMetricsQuery(new URLSearchParams('range=1h'), odd);
+		expect(query.get('from_date')).toBe('2026-08-29T11:00:00.000Z');
+	});
+
 	it('always sets from_date, defaulting to the 7-day range', () => {
 		const { query, filters } = build('');
 		expect(filters.range).toBe('7d');

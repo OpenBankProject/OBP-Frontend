@@ -8,6 +8,7 @@
     import { userAvatarSeed, roomAvatarSeed } from '$lib/avatar/generate';
     import { messageSenderName } from '$lib/chat/sender';
     import { isDirectMessage } from '$lib/chat/room';
+    import { chatRoomDisplayName } from '$lib/chat/room';
     import { filterLinksByHost, stripDangerousCharacters } from '@obp/shared/markdown';
 
     // Both renderMarkdown (Prism) and DOMPurify require browser globals — lazy-load them
@@ -685,11 +686,11 @@
             seed={roomAvatarSeed(data.chatRoom.chat_room_id)}
             size={40}
             shape="square"
-            title="Icon for {data.chatRoom.name}"
+            title="Icon for {chatRoomDisplayName(data.chatRoom, data.participants, data.currentUserId)}"
         />
         <div class="min-w-0">
             <h2 class="text-lg font-semibold text-surface-900-50 truncate flex items-center gap-2" data-testid="chat-room-name">
-                {data.chatRoom.name}
+                {chatRoomDisplayName(data.chatRoom, data.participants, data.currentUserId)}
                 {#if isDirectMessage(data.chatRoom)}
                     <span class="inline-flex items-center rounded-full bg-tertiary-500/10 px-2 py-0.5 text-xs font-normal text-tertiary-600 dark:text-tertiary-400" data-testid="dm-badge">
                         DM

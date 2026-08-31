@@ -134,12 +134,13 @@
 			</select>
 		</label>
 		<label class="block">
-			<span class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">URL contains</span>
+			<span class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">URL (exact match)</span>
+			<!-- No placeholder: an example path here read as an active filter. Empty means no
+			     URL filter; the API matches the typed value against the full path exactly. -->
 			<input
 				type="text"
 				name="url"
 				class="input"
-				placeholder="/obp/v7.0.0/banks"
 				value={data.filters.url}
 				data-testid="activity-filter-url"
 			/>

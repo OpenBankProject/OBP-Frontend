@@ -442,6 +442,16 @@
       }
     };
 
+    eventSource.addEventListener("session-ended", () => {
+      // The server ended the stream because the session is gone (logout in another
+      // tab, or expiry). Never keep privileged data on screen past that point.
+      streamConnected = false;
+      closeStream();
+      window.location.href = `/login?redirect_to=${encodeURIComponent(
+        window.location.pathname + window.location.search,
+      )}`;
+    });
+
     eventSource.addEventListener("transport-error", (event: MessageEvent) => {
       try {
         const payload = JSON.parse(event.data);

@@ -3,7 +3,7 @@
     import { page } from '$app/state';
     import Avatar from '$lib/components/Avatar.svelte';
     import { roomAvatarSeed } from '$lib/avatar/generate';
-    import { isDirectMessage } from '$lib/chat/room';
+    import { isDirectMessage, chatRoomDisplayName } from '$lib/chat/room';
 
     let { data, form } = $props();
     let showCreateForm = $state(false);
@@ -158,11 +158,11 @@
                             seed={roomAvatarSeed(room.chat_room_id)}
                             size={36}
                             shape="square"
-                            title="Icon for {room.name}"
+                            title="Icon for {chatRoomDisplayName(room)}"
                         />
                         <div class="min-w-0">
                             <h3 class="font-semibold text-surface-900-50 truncate flex items-center gap-2">
-                                <span class="truncate">{room.name}</span>
+                                <span class="truncate">{chatRoomDisplayName(room)}</span>
                                 {#if isDm}
                                     <span class="inline-flex items-center gap-1 rounded-full bg-tertiary-500/10 px-2 py-0.5 text-xs font-normal text-tertiary-600 dark:text-tertiary-400 shrink-0" data-testid="dm-badge-{room.chat_room_id}">
                                         <User class="size-3" />

@@ -30,9 +30,19 @@ export async function load(event: RequestEvent) {
   let consumers: OBPConsumer[] = [];
   let errorMessage: string | null = null;
 
+  // Optional created-date window (used by the Dashboard's "New consumers" drill-down).
+  // The OBP endpoint filters on the consumer's creation date natively.
+  const fromParam = event.url.searchParams.get("from_date");
+  const toParam = event.url.searchParams.get("to_date");
+  const fromValid = fromParam !== null && Number.isFinite(Date.parse(fromParam));
+  const toValid = toParam !== null && Number.isFinite(Date.parse(toParam));
+  const createdWindow = fromValid && toValid ? { from: fromParam!, to: toParam! } : null;
+
   try {
     logger.info("=== GET ALL CONSUMERS API CALL ===");
-    const endpoint = `/obp/v6.0.0/management/consumers?limit=500&offset=0&from_date=1970-01-01T00:00:00.000Z`;
+    const fromDate = createdWindow ? createdWindow.from : "1970-01-01T00:00:00.000Z";
+    const toDateSuffix = createdWindow ? `&to_date=${encodeURIComponent(createdWindow.to)}` : "";
+    const endpoint = `/obp/v6.0.0/management/consumers?limit=500&offset=0&from_date=${encodeURIComponent(fromDate)}${toDateSuffix}`;
     logger.info(`Request: ${endpoint}`);
 
     const consumersResponse = await obp_requests.get(endpoint, accessToken);
@@ -54,6 +64,7 @@ export async function load(event: RequestEvent) {
 
   return {
     consumers,
+    createdWindow,
     hasApiAccess: true,
     error: errorMessage,
   };

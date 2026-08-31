@@ -249,6 +249,11 @@ export function getActiveIntegrationMenuItem(pathname: string) {
 // Metrics navigation items
 function buildMetricsItems(): NavigationItem[] {
   const items: NavigationItem[] = [
+    {
+      href: "/dashboard",
+      label: "Dashboard",
+      iconComponent: LayoutDashboard,
+    },
     { href: "/metrics", label: "API Metrics", iconComponent: BarChart3 },
     {
       href: "/aggregate-metrics-live",
@@ -763,26 +768,12 @@ export function getActiveChatRoomsMenuItem(pathname: string) {
   return found || chatRoomsItems[0];
 }
 
-// Dashboard navigation items
-function buildDashboardItems(): NavigationItem[] {
-  return [
-    {
-      href: "/dashboard",
-      label: "Activity Summary",
-      iconComponent: LayoutDashboard,
-    },
-  ];
-}
-
-export const dashboardItems = buildDashboardItems();
-
 export const navSections: NavigationSection[] = [
   { id: "my-account", label: "My Profile", iconComponent: User, items: myAccountItems, basePaths: ["/user", "/account-access/accounts"] },
-  { id: "dashboard", label: "Dashboard", iconComponent: LayoutDashboard, items: dashboardItems, basePaths: ["/dashboard"] },
   { id: "system", label: "System", iconComponent: Server, items: systemItems, basePaths: ["/system"] },
   { id: "signals", label: "Signals", iconComponent: Radio, items: signalsItems, basePaths: ["/system/signal-publish", "/system/signal-channels", "/system/signal-channels-stats"] },
   { id: "integration", label: "Integration", iconComponent: Plug, items: integrationItems, basePaths: ["/integration"] },
-  { id: "metrics", label: "Metrics", iconComponent: BarChart3, items: metricsItems, basePaths: ["/metrics", "/aggregate-metrics", "/aggregate-metrics-live", "/aggregate-metrics-trends", "/connector-metrics", "/connector-traces", "/connector-counts", "/metrics-diagnostics", "/metrics-archive-run"] },
+  { id: "metrics", label: "Metrics", iconComponent: BarChart3, items: metricsItems, basePaths: ["/dashboard", "/metrics", "/aggregate-metrics", "/aggregate-metrics-live", "/aggregate-metrics-trends", "/connector-metrics", "/connector-traces", "/connector-counts", "/metrics-diagnostics", "/metrics-archive-run"] },
   { id: "abac", label: "ABAC", iconComponent: Lock, items: abacItems, basePaths: ["/abac"] },
   { id: "products", label: "API Products", iconComponent: Package, items: productsItems, basePaths: ["/products"] },
   { id: "financial-products", label: "Financial Products", iconComponent: Banknote, items: financialProductsItems, basePaths: ["/products/financial", "/products/collections"] },

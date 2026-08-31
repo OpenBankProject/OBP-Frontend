@@ -461,6 +461,9 @@
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
+    /* Grid items default to min-width auto; without this a long unbroken value
+       forces the track wider and overlaps the neighbouring column. */
+    min-width: 0;
   }
 
   .info-label {
@@ -478,6 +481,8 @@
   .info-value {
     font-size: 0.875rem;
     color: #111827;
+    /* Long unbroken emails / usernames / ids wrap instead of overflowing. */
+    overflow-wrap: anywhere;
   }
 
   :global([data-mode="dark"]) .info-value {
