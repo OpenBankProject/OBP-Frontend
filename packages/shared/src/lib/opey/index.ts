@@ -36,5 +36,7 @@ export type {
 	AssistantMessage,
 	ErrorMessage,
 	ToolMessage,
-	ToolCall
+	ToolCall,
+	ClientToolHandler,
+	ClientToolOutcome
 } from './types.js';

@@ -16,6 +16,12 @@ const NOW = new Date('2026-08-29T12:00:00.000Z');
 const build = (qs: string) => buildMyMetricsQuery(new URLSearchParams(qs), NOW);
 
 describe('buildMyMetricsQuery', () => {
+	it('forwards consent_reference_id so a consent chip can filter the page', () => {
+		const { query, filters } = build('consent_reference_id=abc-123');
+		expect(query.get('consent_reference_id')).toBe('abc-123');
+		expect(filters.consent_reference_id).toBe('abc-123');
+	});
+
 	it('quantises from_date to 10-minute marks so the API can cache', () => {
 		// 12:07:31.123 floors to 12:00:00.000 before the range is subtracted —
 		// a raw "now" would mint a unique cache key on every page load.

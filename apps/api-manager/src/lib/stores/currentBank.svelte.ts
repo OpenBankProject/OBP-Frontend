@@ -5,6 +5,9 @@ import { trackedFetch } from "$lib/utils/trackedFetch";
 const logger = createLogger("CurrentBank");
 
 const STORAGE_KEY = "currentBank";
+// Banks change rarely; refresh the cached list at most this often. A stale picker
+// open still shows the cached list instantly and refreshes in the background.
+const BANKS_TTL_MS = 5 * 60 * 1000;
 const ATTR_ID_STORAGE_KEY = "currentBankAttributeId";
 const OBP_FIELD_NAME = "CURRENT_BANK_ID";
 
@@ -88,9 +91,16 @@ class CurrentBankStore {
   }
 
   private fetchPromise: Promise<Bank[]> | null = null;
+  private banksFetchedAt = 0;
 
   async fetchBanks(): Promise<Bank[]> {
     if (this.banks.length > 0) {
+      // Stale-while-revalidate: serve the cached list immediately; when it is
+      // older than the TTL, refresh in the background (_doFetch clears
+      // fetchPromise in its finally, so this re-arms after each refresh).
+      if (Date.now() - this.banksFetchedAt > BANKS_TTL_MS && !this.fetchPromise) {
+        this.fetchPromise = this._doFetch();
+      }
       return this.banks;
     }
 
@@ -117,6 +127,7 @@ class CurrentBankStore {
         .sort((a: Bank, b: Bank) => a.bank_id.localeCompare(b.bank_id));
 
       logger.info(`Fetched ${this.banks.length} banks`);
+      this.banksFetchedAt = Date.now();
 
       // Refresh stored bank with full data from API
       if (this.bank) {

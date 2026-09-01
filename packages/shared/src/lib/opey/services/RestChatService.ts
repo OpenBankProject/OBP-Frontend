@@ -22,6 +22,38 @@ export class RestChatService implements ChatService {
 		logger.info("Initialized Opey Chat with baseUrl:", baseUrl)
 	}
 
+	async sendClientToolResult(
+		toolCallId: string,
+		status: 'applied' | 'rejected' | 'error',
+		result: Record<string, unknown>,
+		threadId: string
+	): Promise<void> {
+		logger.info(`Sending client tool result for toolCallId=${toolCallId}, status=${status}, threadId=${threadId}`);
+
+		const payload = {
+			message: '',
+			thread_id: threadId,
+			tool_call_approval: {
+				client_tool_result: {
+					tool_call_id: toolCallId,
+					status,
+					result
+				}
+			},
+			// Re-declare client capabilities: the graph is rebuilt per request and the
+			// resumed tool batch re-executes inside it, so client_tools must be present.
+			...(this.contextProvider?.() ?? {})
+		};
+
+		const init = await this.buildInit({
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify(payload)
+		});
+
+		return this.handleStreamingResponse(`${this.baseUrl}/stream`, init);
+	}
+
 	async sendApproval(
 		toolCallId: string, 
 		approved: boolean, 
@@ -39,6 +71,10 @@ export class RestChatService implements ChatService {
 				level: approvalLevel || 'once',
 				tool_call_id: toolCallId
 			}
+		,
+			// Keep per-request context (client_tools, current_bank_id, ...) on resumes too:
+			// the graph is rebuilt per request, so declared client tools must be re-sent.
+			...(this.contextProvider?.() ?? {})
 		};
 		
 		const init = await this.buildInit({
@@ -62,6 +98,10 @@ export class RestChatService implements ChatService {
 			tool_call_approval: {
 				batch_decisions: decisions
 			}
+		,
+			// Keep per-request context (client_tools, current_bank_id, ...) on resumes too:
+			// the graph is rebuilt per request, so declared client tools must be re-sent.
+			...(this.contextProvider?.() ?? {})
 		};
 		
 		const init = await this.buildInit({
@@ -86,6 +126,10 @@ export class RestChatService implements ChatService {
 			tool_call_approval: consentJwt !== null
 				? { consent_jwt: consentJwt }
 				: { consent_denied: true }
+		,
+			// Keep per-request context (client_tools, current_bank_id, ...) on resumes too:
+			// the graph is rebuilt per request, so declared client tools must be re-sent.
+			...(this.contextProvider?.() ?? {})
 		};
 
 		logger.info(`Consent payload:`, JSON.stringify(payload, null, 2));
@@ -261,7 +305,8 @@ export class RestChatService implements ChatService {
 				this.streamEventCallback?.({
 					type: 'assistant_start',
 					messageId: eventData.message_id,
-					timestamp: new Date(eventData.timestamp)
+					// Opey SSE timestamps are epoch SECONDS (float); Date wants ms.
+					timestamp: new Date(eventData.timestamp * 1000)
 				});
 				break;
 			case 'assistant_token':
@@ -345,6 +390,14 @@ export class RestChatService implements ChatService {
 						method: tc.method
 					})),
 					options: eventData.options || []
+				});
+				break;
+			case 'client_tool_call':
+				this.streamEventCallback?.({
+					type: 'client_tool_call',
+					toolCallId: eventData.tool_call_id,
+					toolName: eventData.tool_name,
+					toolInput: eventData.tool_input || {}
 				});
 				break;
 			case 'consent_request':

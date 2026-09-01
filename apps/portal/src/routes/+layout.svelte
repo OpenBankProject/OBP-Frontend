@@ -20,7 +20,8 @@
 		CreditCard,
 		MessageSquare,
 		Code,
-		Plug
+		Plug,
+		GraduationCap
 	} from '@lucide/svelte';
 
 	import { env } from '$env/dynamic/public';
@@ -94,6 +95,11 @@
 						label: 'Chat',
 						href: '/user/chat',
 						iconComponent: MessageSquare
+					},
+					{
+						label: 'Training',
+						href: '/training',
+						iconComponent: GraduationCap
 					}
 				]
 			: []),

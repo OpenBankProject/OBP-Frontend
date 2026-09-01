@@ -17,7 +17,9 @@
 </script>
 
 <script lang="ts">
+  import { onMount } from "svelte";
   import type { Snippet } from "svelte";
+  import { formBridge } from "$lib/stores/formBridge.svelte";
   import {
     extractErrorFromResponse,
     formatErrorForDisplay,
@@ -65,12 +67,127 @@
   let tags = $state(initial.tags ?? "");
   let roles = $state(initial.roles ?? "");
 
+  // ---- Draft support (Opey via formBridge) --------------------------------
+  // Field registry: how an external draft (plain values, Scala un-encoded)
+  // maps onto the form's state. Each entry can read and write its field.
+  // NOTE: method_body arrives as PLAIN Scala; encoding happens on submit.
+  type FieldAccess = { get: () => string; set: (v: unknown) => void };
+  const draftFields: Record<string, FieldAccess> = {
+    partial_function_name: { get: () => partial_function_name, set: (v) => (partial_function_name = asText(v)) },
+    request_verb: {
+      get: () => request_verb,
+      set: (v) => {
+        const verb = asText(v).trim().toUpperCase();
+        if (VERBS.includes(verb)) request_verb = verb;
+        else throw new Error(`request_verb must be one of ${VERBS.join(", ")}`);
+      },
+    },
+    request_url: { get: () => request_url, set: (v) => (request_url = asText(v)) },
+    summary: { get: () => summary, set: (v) => (summary = asText(v)) },
+    description: { get: () => description, set: (v) => (description = asText(v)) },
+    method_body: { get: () => method_body_text, set: (v) => (method_body_text = asText(v)) },
+    example_request_body: { get: () => example_request_body_text, set: (v) => (example_request_body_text = asJsonText(v)) },
+    success_response_body: { get: () => success_response_body_text, set: (v) => (success_response_body_text = asJsonText(v)) },
+    error_response_bodies: { get: () => error_response_bodies, set: (v) => (error_response_bodies = asText(v)) },
+    tags: { get: () => tags, set: (v) => (tags = asText(v)) },
+    roles: { get: () => roles, set: (v) => (roles = asText(v)) },
+  };
+
+  function asText(v: unknown): string {
+    return typeof v === "string" ? v : v == null ? "" : String(v);
+  }
+  /** Body fields are edited as JSON text; accept an object or a string. */
+  function asJsonText(v: unknown): string {
+    if (typeof v === "string") return v;
+    if (v == null) return "";
+    return JSON.stringify(v, null, 2);
+  }
+
+  // field name -> value before Opey touched it (also marks "filled by Opey")
+  let opeyPrevious = $state<Record<string, string>>({});
+  let opeyFilledFields = $derived(Object.keys(opeyPrevious));
+
+  function applyDraft(fields: Record<string, unknown>): { applied: string[]; ignored: string[] } {
+    const applied: string[] = [];
+    const ignored: string[] = [];
+    for (const [name, value] of Object.entries(fields ?? {})) {
+      const access = draftFields[name];
+      if (!access) {
+        ignored.push(name);
+        continue;
+      }
+      const before = access.get();
+      try {
+        access.set(value);
+      } catch {
+        ignored.push(name);
+        continue;
+      }
+      // First touch wins: revert restores what the USER had, not Opey's own last draft.
+      if (!(name in opeyPrevious)) opeyPrevious = { ...opeyPrevious, [name]: before };
+      applied.push(name);
+    }
+    return { applied, ignored };
+  }
+
+  function revertField(name: string) {
+    const access = draftFields[name];
+    if (!access || !(name in opeyPrevious)) return;
+    access.set(opeyPrevious[name]);
+    const { [name]: _dropped, ...rest } = opeyPrevious;
+    opeyPrevious = rest;
+  }
+
+  function acceptAll() {
+    opeyPrevious = {};
+  }
+
+  /** Model-facing description of this form: fields, constraints, current values. */
+  function describeForm(): string {
+    const lines = [
+      "Form: Dynamic Resource Doc (defines a new OBP endpoint).",
+      "Fields settable via set_form_fields (values as plain text; method_body is PLAIN Scala, not URL-encoded):",
+      `- partial_function_name (string, camelCase Scala identifier, required)`,
+      `- request_verb (one of ${VERBS.join("/")}, required)`,
+      `- request_url (string, must start with /, UPPER_CASE segments are path params, required)`,
+      `- summary (string, one line)`,
+      `- description (string, prose, max 2000 chars)`,
+      `- method_body (Scala source, required; the body of the partial function handling the request)`,
+      `- example_request_body (JSON object; required for POST/PUT)`,
+      `- success_response_body (JSON object, required)`,
+      `- error_response_bodies (comma-separated OBP error names, e.g. $UserNotLoggedIn,$UnknownError)`,
+      `- tags (comma-separated)`,
+      `- roles (comma-separated OBP role names that guard the endpoint)`,
+      "Current values (empty means unset):",
+    ];
+    for (const [name, access] of Object.entries(draftFields)) {
+      let value = access.get();
+      if (name === "method_body" && value.length > 2000) {
+        value = value.slice(0, 2000) + `\n... (${access.get().length} chars total)`;
+      }
+      lines.push(`  ${name}: ${value === "" ? "(empty)" : JSON.stringify(value)}`);
+    }
+    return lines.join("\n");
+  }
+
+  const bridgeTarget = {
+    formName: "dynamic-resource-doc",
+    applyDraft,
+    describe: describeForm,
+  };
+  // ---- end draft support ---------------------------------------------------
+
   let isSubmitting = $state(false);
   let submitError = $state<string | null>(null);
   let fieldErrors = $state<Record<string, string>>({});
   let isGeneratingTemplate = $state(false);
 
   const VERBS = ["GET", "POST", "PUT", "DELETE"];
+
+  onMount(() => {
+    formBridge.register(bridgeTarget);
+    return () => formBridge.unregister(bridgeTarget);
+  });
   const methodHasBody = $derived(
     request_verb === "POST" || request_verb === "PUT",
   );
@@ -210,6 +327,40 @@
       data-testid="form-error"
     >
       {submitError}
+    </div>
+  {/if}
+
+  {#if opeyFilledFields.length > 0}
+    <div
+      class="rounded-lg border border-teal-300 bg-teal-50 p-3 text-sm dark:border-teal-700 dark:bg-teal-900/20"
+      data-testid="opey-filled-banner"
+    >
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="font-medium text-teal-800 dark:text-teal-200">
+          Opey filled {opeyFilledFields.length}
+          {opeyFilledFields.length === 1 ? "field" : "fields"} — review before submitting.
+        </span>
+        {#each opeyFilledFields as name (name)}
+          <button
+            type="button"
+            onclick={() => revertField(name)}
+            class="rounded-full border border-teal-400 px-2 py-0.5 text-xs text-teal-800 hover:bg-teal-100 dark:border-teal-600 dark:text-teal-200 dark:hover:bg-teal-800/40"
+            data-testid="opey-revert-{name}"
+            aria-label="Revert {name} to your previous value"
+          >{name} ×</button>
+        {/each}
+        <button
+          type="button"
+          onclick={acceptAll}
+          class="ml-auto text-xs text-teal-700 underline hover:text-teal-900 dark:text-teal-300"
+          data-testid="opey-accept-all"
+        >
+          Accept all
+        </button>
+      </div>
+      <p class="mt-1 text-xs text-teal-700 dark:text-teal-300">
+        Click a field name to restore your previous value.
+      </p>
     </div>
   {/if}
 

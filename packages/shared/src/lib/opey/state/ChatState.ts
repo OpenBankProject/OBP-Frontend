@@ -419,10 +419,14 @@ export class ChatState {
 		}
 	}
 
-	subscribe(fn: (msgs: ChatStateSnapshot) => void): void {
+	subscribe(fn: (msgs: ChatStateSnapshot) => void): () => void {
 		this.subscribers.push(fn);
 		logger.debug('ChatState: Subscribed to messages');
 		fn({ threadId: this.threadId, messages: this.messages, tokenUsage: this.tokenUsage }); // Send current state immediately
+		// Unsubscribe — call on component destroy or the subscriber leaks.
+		return () => {
+			this.subscribers = this.subscribers.filter((s) => s !== fn);
+		};
 	}
 
 	/**

@@ -1,12 +1,13 @@
 import { createLogger } from '$shared/utils/logger';
 const logger = createLogger('ChatController');
 import type { ChatService, StreamEvent } from '../services/ChatService';
-import type { ToolMessage, UserMessage } from '../types';
+import type { ClientToolHandler, ToolMessage, UserMessage } from '../types';
 import { ChatState } from '../state/ChatState';
 
 export class ChatController {
 	private toolInstanceCounts: Record<string, number> = {};
 	private authRefreshCallback?: () => Promise<void>;
+	private clientToolHandlers: Record<string, ClientToolHandler> = {};
 
 	constructor(
 		private service: ChatService,
@@ -148,6 +149,12 @@ export class ChatController {
 						logger.debug(`Received batch approval request for ${event.toolCalls.length} tools`);
 						state.addBatchApprovalRequest(event.toolCalls);
 						break;
+					case 'client_tool_call':
+						// The browser executes this tool; fire-and-forget so the
+						// (synchronous) event switch is not blocked. Errors are
+						// reported back to Opey inside the handler, never thrown.
+						void this.handleClientToolCall(event);
+						break;
 					case 'consent_request':
 						logger.debug(`Received consent request for tool ${event.toolCallId}, operation: ${event.operationId}, roles: ${JSON.stringify(event.requiredRoles)}, count: ${event.toolCallCount}, bankId: ${event.bankId}, accountId: ${event.accountId}, viewId: ${event.viewId}, requiresViewAccess: ${event.requiresViewAccess}, isUserScoped: ${event.isUserScoped}`);
 						state.addConsentRequest(
@@ -240,6 +247,88 @@ export class ChatController {
 	 * @param toolCallId - The tool call ID to approve
 	 * @param approvalLevel - Optional approval level (defaults to the tool's defaultApprovalLevel or 'user')
 	 */
+	/**
+	 * Register the client-executed tools this page can perform (e.g.
+	 * set_form_fields writing into a form). Called by OpeyChat with the
+	 * handlers the embedding page supplied; replaces any previous set.
+	 */
+	setClientToolHandlers(handlers: Record<string, ClientToolHandler> | undefined): void {
+		this.clientToolHandlers = handlers ?? {};
+	}
+
+	/**
+	 * Execute a client tool locally and resume the paused graph with its result.
+	 * ALWAYS sends a result — a missing handler or a throwing handler reports
+	 * status "error" so the interrupt never dangles.
+	 */
+	private async handleClientToolCall(event: {
+		toolCallId: string;
+		toolName: string;
+		toolInput: Record<string, any>;
+	}): Promise<void> {
+		const { toolCallId, toolName, toolInput } = event;
+		const threadId = this.state.getThreadId();
+
+		// tool_start normally created the message before the interrupt fired;
+		// cover the gap in case it was missed (e.g. reconnect).
+		if (this.state.getToolMessageByCallId(toolCallId)) {
+			this.state.updateToolMessage(toolCallId, { clientExecuted: true });
+		} else {
+			this.state.addToolMessage({
+				id: toolCallId,
+				role: 'tool',
+				message: '',
+				timestamp: new Date(),
+				toolName,
+				toolCallId,
+				toolInput,
+				clientExecuted: true,
+				isStreaming: true
+			});
+		}
+
+		const handler = this.clientToolHandlers[toolName];
+		if (!handler) {
+			const error = `This page has no handler for client tool '${toolName}'`;
+			logger.warn(error);
+			this.state.updateToolMessage(toolCallId, { clientResult: { status: 'error', error } });
+			await this.sendClientToolResultSafely(toolCallId, 'error', { error }, threadId);
+			return;
+		}
+
+		try {
+			const result = ((await handler(toolInput)) ?? {}) as Record<string, unknown>;
+			this.state.updateToolMessage(toolCallId, {
+				clientResult: { status: 'applied', ...result }
+			});
+			await this.sendClientToolResultSafely(toolCallId, 'applied', result, threadId);
+		} catch (e) {
+			const error = e instanceof Error ? e.message : String(e);
+			logger.error(`Client tool '${toolName}' failed:`, e);
+			this.state.updateToolMessage(toolCallId, { clientResult: { status: 'error', error } });
+			await this.sendClientToolResultSafely(toolCallId, 'error', { error }, threadId);
+		}
+	}
+
+	/** Send the result without letting a transport failure escape the fire-and-forget call. */
+	private async sendClientToolResultSafely(
+		toolCallId: string,
+		status: 'applied' | 'rejected' | 'error',
+		result: Record<string, unknown>,
+		threadId: string
+	): Promise<void> {
+		try {
+			await this.service.sendClientToolResult(toolCallId, status, result, threadId);
+		} catch (e) {
+			logger.error('Failed to send client tool result:', e);
+			this.state.updateToolMessage(toolCallId, {
+				status: 'error',
+				toolOutput: 'Failed to report the result back to Opey',
+				isStreaming: false
+			});
+		}
+	}
+
 	async approveToolCall(toolCallId: string, approvalLevel?: string): Promise<void> {
 		logger.debug(`Approving tool call: ${toolCallId} with level: ${approvalLevel || 'default'}`);
 

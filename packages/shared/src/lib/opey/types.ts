@@ -62,7 +62,31 @@ export interface ToolMessage extends BaseMessage {
 	consentViewId?: string; // View ID for view-scoped consent
 	consentRequiresViewAccess?: boolean; // True when the endpoint is gated by account-access-to-a-view
 	consentIsUserScoped?: boolean; // True when the endpoint is identity-bound (e.g. /my/*)
+	// Client-executed tool fields (for client_tool_call events, e.g. set_form_fields)
+	clientExecuted?: boolean; // True when this tool runs in the browser, not on the server
+	clientResult?: ClientToolOutcome; // Outcome of the local execution, for rendering
 }
+
+/**
+ * Outcome of executing a client tool in the browser. `status` mirrors what is
+ * reported back to Opey; everything else is tool-specific display data
+ * (e.g. set_form_fields adds `applied` and `ignored` field-name lists).
+ */
+export interface ClientToolOutcome {
+	status: 'applied' | 'rejected' | 'error';
+	error?: string;
+	[key: string]: unknown;
+}
+
+/**
+ * Executes one client tool locally (e.g. writes values into a form) and
+ * resolves with the result payload reported back to Opey. Throw to report
+ * failure — the controller converts it into a status:"error" result so the
+ * graph never hangs.
+ */
+export type ClientToolHandler = (
+	toolInput: Record<string, any>
+) => Promise<object | undefined>;
 
 /**
  * Represents a consent_request event from the backend.

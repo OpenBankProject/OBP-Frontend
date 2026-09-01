@@ -26,6 +26,9 @@ export interface OBPMetric {
 	operation_id?: string;
 	api_instance_id?: string;
 	consent_reference_id?: string;
+	/** Authentication scheme of the call (Consent / OAuth2 / OAuth1 / DirectLogin / ...).
+	 * Absent on rows written before OBP-API recorded it. */
+	auth_type?: string;
 	certificate_trust?: string;
 	certificate_trust_detail?: string;
 }
@@ -72,7 +75,9 @@ const PASS_THROUGH_FILTERS = [
 	'consumer_id',
 	'implemented_in_version',
 	'implemented_by_partial_function',
-	'correlation_id'
+	'correlation_id',
+	// One consent's calls — the "Via consent" chip on each agent-made row links here.
+	'consent_reference_id'
 ] as const;
 
 export interface MyMetricsFilters {
@@ -85,6 +90,7 @@ export interface MyMetricsFilters {
 	implemented_in_version: string;
 	implemented_by_partial_function: string;
 	correlation_id: string;
+	consent_reference_id: string;
 	/** Minimum duration in ms (the API returns calls slower than this). */
 	duration: string;
 }
@@ -138,6 +144,7 @@ export function buildMyMetricsQuery(
 		implemented_in_version: '',
 		implemented_by_partial_function: '',
 		correlation_id: '',
+		consent_reference_id: '',
 		duration
 	};
 	for (const key of PASS_THROUGH_FILTERS) {

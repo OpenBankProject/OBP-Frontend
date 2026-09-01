@@ -65,6 +65,22 @@
 		return `${data.apiExplorerUrl}/resource-docs/OBPv6.0.0?operationid=${encodeURIComponent(metric.operation_id)}`;
 	}
 
+	/** Filter this page down to one consent's calls — from a row's "Via consent" chip. */
+	function consentFilterHref(consentReferenceId: string): string {
+		const params = new URLSearchParams(page.url.searchParams);
+		params.set('consent_reference_id', consentReferenceId);
+		params.delete('page');
+		return `/user/my-activity-dashboard?${params.toString()}`;
+	}
+
+	function clearConsentFilterHref(): string {
+		const params = new URLSearchParams(page.url.searchParams);
+		params.delete('consent_reference_id');
+		params.delete('page');
+		const qs = params.toString();
+		return qs ? `/user/my-activity-dashboard?${qs}` : '/user/my-activity-dashboard';
+	}
+
 	/** Same filters, different page — keeps the URL shareable. */
 	function pageHref(pageNumber: number): string {
 		const params = new URLSearchParams(page.url.searchParams);
@@ -179,6 +195,14 @@
 		</a>
 	</div>
 </form>
+
+{#if data.filters.consent_reference_id}
+	<p class="mb-4 text-sm text-gray-600 dark:text-gray-400" data-testid="activity-consent-filter">
+		Showing only calls made under consent <code>{data.filters.consent_reference_id}</code>
+		— <a href={clearConsentFilterHref()} class="underline">show all</a>
+		· <a href="/user/consents" class="underline">my consents</a>
+	</p>
+{/if}
 
 {#if data.error}
 	<div class="alert variant-filled-error mb-4" role="alert" data-testid="activity-fetch-error">
@@ -316,6 +340,21 @@
 					</span>
 					{#if metric.correlation_id}
 						<span>Correlation ID: <code>{metric.correlation_id}</code></span>
+					{/if}
+					{#if metric.consent_reference_id}
+						<span data-testid="activity-consent" data-state="linked">
+							Consent:
+							<a
+								href={consentFilterHref(metric.consent_reference_id)}
+								class="text-primary-500 hover:underline dark:text-primary-200"
+								><code>{metric.consent_reference_id}</code></a
+							>
+						</span>
+					{:else}
+						<span data-testid="activity-consent" data-state="none">
+							<!-- auth_type is the scheme OBP recorded at call time; older rows predate it. -->
+							Consent: none{#if metric.auth_type}&nbsp;({metric.auth_type}){/if}
+						</span>
 					{/if}
 				</div>
 			</li>

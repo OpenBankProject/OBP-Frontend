@@ -13,7 +13,7 @@
 	import { SessionState, type SessionSnapshot } from '$shared/opey/state/SessionState';
 	import { OpeySessionService } from '$shared/opey/services/OpeySessionService';
 	import { SessionController } from '$shared/opey/controllers/SessionController';
-	import type { ToolMessage } from '$shared/opey/types';
+	import type { ToolMessage, ClientToolHandler } from '$shared/opey/types';
 	import type { OBPConsentInfo } from '$shared/obp/types';
 	import { healthCheckRegistry } from '$shared/health-check/HealthCheckRegistry';
 
@@ -50,6 +50,13 @@
 		// upon which the splash screen will dissapear
 		belowSuggestions?: Snippet; // If set, rendered directly below the suggested-question pills
 		currentBankId?: string; // UI-selected bank, sent to Opey as default-bank context per message
+		// Client-executed tools this page can perform (e.g. set_form_fields writing
+		// into a form). Keys are tool names; only declared tools are registered into
+		// Opey's graph, so pages without handlers never receive client_tool_call events.
+		clientTools?: Record<string, ClientToolHandler>;
+		// Live description of the page (form fields, types, current values). Called
+		// per message so it always reflects what the user currently sees.
+		clientContext?: () => string;
 	}
 	// Default chat options (baseUrl must be supplied by the consuming app)
 	const defaultChatOptions: Omit<OpeyChatOptions, 'baseUrl'> = {
@@ -59,7 +66,15 @@
 		suggestedQuestions: []
 	};
 
-	let { opeyChatOptions, userAuthenticated = false, splash, belowSuggestions, currentBankId = '' }: Props = $props();
+	let {
+		opeyChatOptions,
+		userAuthenticated = false,
+		splash,
+		belowSuggestions,
+		currentBankId = '',
+		clientTools,
+		clientContext
+	}: Props = $props();
 	// Merge default options with the provided options
 	const options = { ...defaultChatOptions, ...opeyChatOptions } as OpeyChatOptions;
 
@@ -79,13 +94,29 @@
 	const chatService = new RestChatService(
 		options.baseUrl,
 		new CookieAuthStrategy(),
-		// Resolved per message — closure reads the current prop value at send time.
-		() => (currentBankId ? { current_bank_id: currentBankId } : {})
+		// Resolved per message — closure reads the current prop values at send time.
+		() => {
+			const context: Record<string, unknown> = {};
+			if (currentBankId) context.current_bank_id = currentBankId;
+			const toolNames = Object.keys(clientTools ?? {});
+			if (toolNames.length > 0) {
+				context.client_tools = toolNames;
+				const pageContext = clientContext?.();
+				if (pageContext) context.client_context = pageContext;
+			}
+			return context;
+		}
 	);
 	const chatController = new ChatController(chatService, chatState);
+	// Handlers are read through the controller at event time; keep them current.
+	$effect(() => {
+		chatController.setClientToolHandlers(clientTools);
+	});
 
 	let session: SessionSnapshot = $state({ isAuthenticated: userAuthenticated, status: 'ready' });
 	let chat: ChatStateSnapshot = $state({ threadId: '', messages: [], tokenUsage: null });
+	let unsubscribeSession: (() => void) | undefined;
+	let unsubscribeChat: (() => void) | undefined;
 
 	// Track pending approvals for batch handling
 	let pendingApprovalTools = $derived.by(() => {
@@ -260,6 +291,8 @@
 		if (healthCheckInterval) {
 			clearInterval(healthCheckInterval);
 		}
+		unsubscribeSession?.();
+		unsubscribeChat?.();
 	});
 
 	// Watch for message changes and auto-scroll
@@ -277,8 +310,8 @@
 
 	onMount(async () => {
 		logger.debug('OpeyChat component mounted with options:', options);
-		sessionState.subscribe((s) => (session = s));
-		chatState.subscribe((c) => {
+		unsubscribeSession = sessionState.subscribe((s) => (session = s));
+		unsubscribeChat = chatState.subscribe((c) => {
 			chat = c;
 		});
 
@@ -558,10 +591,47 @@
 		]);
 	}
 
+	/**
+	 * Dev helper: simulate a client_tool_call from Opey without a live backend.
+	 * Runs the page's registered handler and records the outcome locally, but
+	 * does NOT post a result upstream (there is no interrupt to resume).
+	 * Usage from the browser console:
+	 *   addTestClientToolCall({ fields: { summary: 'Hello' } })
+	 */
+	async function addTestClientToolCall(toolInput: Record<string, any> = { fields: {} }) {
+		const toolCallId = `client-test-${Date.now()}`;
+		const handler = clientTools?.['set_form_fields'];
+		chatState.addToolMessage({
+			id: toolCallId,
+			role: 'tool',
+			message: '',
+			timestamp: new Date(),
+			toolName: 'set_form_fields',
+			toolCallId,
+			toolInput,
+			clientExecuted: true
+		});
+		if (!handler) {
+			chatState.updateToolMessage(toolCallId, {
+				clientResult: { status: 'error', error: 'No set_form_fields handler on this page' }
+			});
+			return;
+		}
+		try {
+			const result = ((await handler(toolInput)) ?? {}) as Record<string, unknown>;
+			chatState.updateToolMessage(toolCallId, { clientResult: { status: 'applied', ...result } });
+		} catch (e) {
+			chatState.updateToolMessage(toolCallId, {
+				clientResult: { status: 'error', error: e instanceof Error ? e.message : String(e) }
+			});
+		}
+	}
+
 	// TEMPORARY: Expose test functions globally for debugging
 	if (typeof window !== 'undefined') {
 		(window as any).addTestApprovalMessage = addTestApprovalMessage;
 		(window as any).addTestBatchApprovalMessage = addTestBatchApprovalMessage;
+		(window as any).addTestClientToolCall = addTestClientToolCall;
 	}
 </script>
 

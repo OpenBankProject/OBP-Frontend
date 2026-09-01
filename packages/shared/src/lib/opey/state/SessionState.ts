@@ -17,9 +17,13 @@ export class SessionState {
     }
     private subscribers: Array<(snapshot: SessionSnapshot) => void> = [];
 
-    subscribe(fn: (snapshot: SessionSnapshot) => void): void {
+    subscribe(fn: (snapshot: SessionSnapshot) => void): () => void {
         this.subscribers.push(fn);
         fn(this.snapshot);
+        // Unsubscribe — call on component destroy or the subscriber leaks.
+        return () => {
+            this.subscribers = this.subscribers.filter((s) => s !== fn);
+        };
     }
 
     setAuth(isAuthenticated: boolean): void {

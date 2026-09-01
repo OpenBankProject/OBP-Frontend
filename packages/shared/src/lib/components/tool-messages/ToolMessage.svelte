@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { ToolMessage } from '$shared/opey/types';
-    import { ToolError, ObpApiResponse, DefaultToolResponse } from '.';
+    import { ToolError, ObpApiResponse, DefaultToolResponse, FormFillCard } from '.';
     import {
         Check,
         LoaderCircle,
@@ -54,6 +54,8 @@
                 return 'List Endpoints by Tag';
             case 'obp_requests':
                 return 'OBP API Request';
+            case 'set_form_fields':
+                return 'Fill Form Fields';
             default:
                 return toolName.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
         }
@@ -384,6 +386,8 @@
                         <h4 class="text-sm font-semibold text-surface-950-50">Tool Output</h4>
                         {#if message.status === 'error'}
                             <ToolError {message} />
+                        {:else if message.clientExecuted || message.toolName === 'set_form_fields'}
+                            <FormFillCard {message} />
                         {:else if message.toolName === 'obp_requests'}
                             <ObpApiResponse {message} />
                         {:else}

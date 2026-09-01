@@ -62,18 +62,22 @@ export function createOpeyAuthHandler(config: OpeyAuthHandlerConfig): {
 
 		const consent = await getOrCreateOpeyConsent(portalSession);
 		const consentId = consent.consent_id;
-		const accessToken = portalSession.data?.oauth?.access_token;
 
 		const userIdentifier = extractUsernameFromJWT(consent.jwt);
 		logger.info(
-			`Sending consent JWT to Opey - Making request to ${opeyBaseUrl}/create-session - Primary user: ${userIdentifier}`
+			`Sending Consent-Id to Opey - Making request to ${opeyBaseUrl}/create-session - Primary user: ${userIdentifier}`
 		);
 
+		// Consent only — deliberately NO Authorization header. The consent carries the
+		// user identity and scope (roles/views/TTL, consumer via its aud); handing Opey
+		// the user's full-power access token alongside it made the consent ceremony
+		// decorative (Opey preferred the bearer at every branch). Opey authenticates
+		// itself to MCP servers with its own client-credentials token.
+		// See OBP-Frontend/for_team_opey_mcp_auth_contract.md.
 		const opeyResponse = await fetch(`${opeyBaseUrl}/create-session`, {
 			method: 'POST',
 			headers: {
 				'Consent-Id': consentId,
-				'Authorization': `Bearer ${accessToken}`,
 				'Content-Type': 'application/json'
 			}
 		});

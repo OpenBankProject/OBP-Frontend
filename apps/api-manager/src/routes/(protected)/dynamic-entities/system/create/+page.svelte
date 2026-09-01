@@ -1,6 +1,8 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
+  import { page } from "$app/state";
   import type { PageData } from "./$types";
+  import { dynamicEntityTemplates } from "$lib/data/dynamicEntityTemplates";
   import {
     extractErrorFromResponse,
     formatErrorForDisplay,
@@ -56,9 +58,13 @@
     })
   );
 
-  let entityName = $state("");
-  let entityDescription = $state("");
-  let schemaJson = $state(`{
+  // Prefill from a named template, e.g. /dynamic-entities/system/create?template=training-progress
+  const templateKey = page.url.searchParams.get("template");
+  const template = templateKey ? dynamicEntityTemplates[templateKey] : undefined;
+
+  let entityName = $state(template?.entityName ?? "");
+  let entityDescription = $state(template?.description ?? "");
+  let schemaJson = $state(template?.schemaJson ?? `{
   "properties": {
     "name": {
       "type": "string",
@@ -86,10 +92,10 @@
   },
   "required": ["name"]
 }`);
-  let hasPersonalEntity = $state(false);
-  let hasPublicAccess = $state(false);
-  let hasCommunityAccess = $state(false);
-  let personalRequiresRole = $state(false);
+  let hasPersonalEntity = $state(template?.hasPersonalEntity ?? false);
+  let hasPublicAccess = $state(template?.hasPublicAccess ?? false);
+  let hasCommunityAccess = $state(template?.hasCommunityAccess ?? false);
+  let personalRequiresRole = $state(template?.personalRequiresRole ?? false);
   let isSubmitting = $state(false);
   let schemaError = $state("");
 
@@ -223,6 +229,21 @@
     <p class="mt-1 text-gray-600 dark:text-gray-400">
       Define a new dynamic entity schema
     </p>
+    {#if template}
+      <p
+        class="mt-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-800 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-200"
+        data-testid="template-applied"
+      >
+        Form prefilled from the <code>{templateKey}</code> template.
+      </p>
+    {:else if templateKey}
+      <p
+        class="mt-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:border-amber-700 dark:bg-amber-900/20 dark:text-amber-200"
+        data-testid="template-unknown"
+      >
+        Unknown template <code>{templateKey}</code> — starting from the default example.
+      </p>
+    {/if}
   </div>
 
   <!-- Form -->
