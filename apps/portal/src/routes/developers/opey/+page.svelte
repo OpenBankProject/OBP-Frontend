@@ -71,6 +71,7 @@
     <h3>Related</h3>
 
     <ul>
+        <li><a href="/developers/opey-permissions">What Opey Can Do</a> &mdash; consents, entitlements and what Opey may do on your behalf</li>
         <li><a href="/developers/agents-and-mcp">Agents and MCP</a> &mdash; connect your own AI agents to the OBP API</li>
         {#if ctx.apiExplorerUrl}
             <li><a href={ctx.apiExplorerUrl} target="_blank" rel="noopener noreferrer">API Explorer</a> &mdash; browse and test endpoints</li>

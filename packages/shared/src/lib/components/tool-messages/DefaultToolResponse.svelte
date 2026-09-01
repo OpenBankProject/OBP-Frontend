@@ -1,7 +1,6 @@
 <script lang="ts">
     import type { ToolMessage } from "$shared/opey/types";
-    import { toast } from '$shared/utils/toastService';
-    import { Copy, CheckCircle } from '@lucide/svelte';
+    import { CheckCircle } from '@lucide/svelte';
 
     let { message }: { message: ToolMessage } = $props();
 
@@ -15,15 +14,6 @@
 
     let showOutput = $state(false);
 
-    async function copyToClipboard() {
-        try {
-            await navigator.clipboard.writeText(outputContent);
-            toast.info('Output copied to clipboard!');
-        } catch (err) {
-            console.error('Failed to copy: ', err);
-            toast.error('Failed to copy to clipboard.');
-        }
-    }
 </script>
 
 <div class="card rounded-lg border border-surface-300-700 bg-surface-50-950 p-4 text-left">
@@ -33,16 +23,6 @@
             <CheckCircle class="text-success-600-400" size={20} />
             <h4 class="text-sm font-semibold">Tool Output</h4>
         </div>
-        <button
-            type="button"
-            class="btn btn-sm preset-tonal-primary"
-            onclick={copyToClipboard}
-            title="Copy output"
-            aria-label="Copy output"
-        >
-            <Copy size={16} />
-            <span class="hidden sm:inline">Copy</span>
-        </button>
     </div>
 
     <!-- Tool Name -->

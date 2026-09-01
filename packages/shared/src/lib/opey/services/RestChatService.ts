@@ -116,7 +116,8 @@ export class RestChatService implements ChatService {
 	async sendConsentResponse(
 		toolCallId: string,
 		consentJwt: string | null,
-		threadId: string
+		threadId: string,
+		denialReason?: string
 	): Promise<void> {
 		logger.info(`Sending consent response for toolCallId=${toolCallId}, threadId=${threadId}, hasJwt=${!!consentJwt}`);
 
@@ -125,7 +126,7 @@ export class RestChatService implements ChatService {
 			thread_id: threadId,
 			tool_call_approval: consentJwt !== null
 				? { consent_jwt: consentJwt }
-				: { consent_denied: true }
+				: { consent_denied: true, ...(denialReason ? { consent_denial_reason: denialReason } : {}) }
 		,
 			// Keep per-request context (client_tools, current_bank_id, ...) on resumes too:
 			// the graph is rebuilt per request, so declared client tools must be re-sent.

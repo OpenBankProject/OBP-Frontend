@@ -76,6 +76,7 @@
     suggestedQuestions,
     currentConsentInfo: page.data.opeyConsentInfo || undefined,
     displayConnectionPips: true,
+    consentMetricsHref: '/metrics',
     initialAssistantMessage:
       "I can draft this Resource Doc for you — tell me what the endpoint should do and I'll fill in the fields, including the Scala method body. You review every value before creating it.",
   };

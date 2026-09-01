@@ -64,12 +64,14 @@ export const developerItems: NavigationItem[] = [
     { href: '/developers/transaction-requests', label: 'Transaction Requests', iconComponent: SendHorizontal, description: 'Make payments using Transaction Requests.' },
     { href: '/developers/api-explorer', label: 'API Explorer', iconComponent: Compass, description: 'Browse and test all OBP API endpoints.' },
     { href: '/developers/opey', label: 'Opey', iconComponent: Bot, description: 'The OBP AI assistant for exploring the API.' },
+    { href: '/developers/opey-permissions', label: 'What Opey Can Do', iconComponent: ShieldUser, description: 'Consents, entitlements and the accountable user: what Opey may do for you.' },
     { href: '/developers/agents-and-mcp', label: 'Agents and MCP', iconComponent: Workflow, description: 'Use AI agents and the Model Context Protocol with OBP.' },
     { href: '/developers/sdks', label: 'SDKs', iconComponent: Package, description: 'Client SDKs for the OBP API in multiple programming languages.' },
 ];
 
 export function getActiveDeveloperItem(pathname: string) {
-    return developerItems.find(item => pathname.startsWith(item.href)) || developerItems[0];
+    // Segment-aware: '/developers/opey-permissions' must not light up '/developers/opey'.
+    return developerItems.find(item => pathname === item.href || pathname.startsWith(item.href + '/')) || developerItems[0];
 }
 
 export function getActiveMenuItem(pathname: string) {
@@ -81,7 +83,7 @@ export function getActiveMenuItem(pathname: string) {
         if (item.href === '/user' && pathname === '/user') {
             return true;
         }
-        return pathname.startsWith(item.href) && item.href !== '/user';
+        return (pathname === item.href || pathname.startsWith(item.href + '/')) && item.href !== '/user';
     });
     
     return found || myAccountItems[0]; // fallback to first item

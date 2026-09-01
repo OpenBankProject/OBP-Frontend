@@ -5,7 +5,7 @@ import type { RequestEvent } from './$types';
 import { obp_requests } from '$lib/obp/requests';
 import { obpErrorResponse } from '@obp/shared/obp';
 import { env } from '$env/dynamic/private';
-import { deduplicateRoles, pickConsentRole } from '@obp/shared/opey';
+import { pickConsentEntitlement, selectConsentEntitlements, CONSENT_FORBIDDEN_ROLES } from '@obp/shared/opey';
 import { getOpeyConsentTtlSeconds } from '$lib/server/userPreferences';
 import { capConsentTtlSeconds, findReusableConsent } from '@obp/shared/server/obp';
 
@@ -49,7 +49,23 @@ export async function POST(event: RequestEvent) {
 
 		const body = await event.request.json();
 		const { required_roles, bank_id, views: requestedViews } = body;
-		const normalizedRequiredRoles = required_roles == null ? [] : required_roles;
+		if (required_roles != null && !Array.isArray(required_roles)) {
+			logger.warn('Invalid required_roles:', required_roles);
+			return json({ message: 'required_roles must be an array when provided', code: 400 }, { status: 400 });
+		}
+		// Accept both plain role names and {role|role_name} objects (the MCP's
+		// consent_required payload uses objects). A role that normalizes to nothing is a
+		// bug upstream — fail loudly rather than minting a consent with fewer roles than
+		// were asked for.
+		const normalizedRequiredRoles: string[] = (required_roles ?? []).map((r: unknown) => {
+			if (typeof r === 'string') return r;
+			const obj = r as { role?: string; role_name?: string; name?: string } | null;
+			return obj?.role || obj?.role_name || obj?.name || '';
+		});
+		if (normalizedRequiredRoles.some((r) => r === '')) {
+			logger.error('required_roles contained an entry with no recognizable role name:', required_roles);
+			return json({ message: 'required_roles contained an unrecognizable entry', code: 400 }, { status: 400 });
+		}
 
 		// Views the user picked in the Account Scope panel. Forwarded into the consent
 		// body so view-based endpoints (e.g. /accounts/ACCOUNT_ID/views/VIEW_ID/...) can be
@@ -63,11 +79,6 @@ export async function POST(event: RequestEvent) {
 				: [];
 
 		logger.info(`Consent request received:`, { required_roles, bank_id });
-
-		if (!Array.isArray(normalizedRequiredRoles)) {
-			logger.warn('Invalid required_roles:', required_roles);
-			return json({ message: 'required_roles must be an array when provided', code: 400 }, { status: 400 });
-		}
 
 		const opeyConsumerId = env.OPEY_CONSUMER_ID;
 		if (!opeyConsumerId) {
@@ -90,7 +101,6 @@ export async function POST(event: RequestEvent) {
 		logger.debug('Raw entitlements response:', JSON.stringify(userEntitlements));
 		const userEntitlementList: Array<{ role_name: string; bank_id: string }> = userEntitlements.list || [];
 		const userRoleNames: string[] = userEntitlementList.map((e) => e.role_name);
-		const userRolesSet = new Set(userRoleNames);
 		logger.info(`User has ${userRoleNames.length} roles:`, userRoleNames);
 
 		// Fetch the role catalogue purely as a sanity check: warn if a stored entitlement
@@ -110,51 +120,55 @@ export async function POST(event: RequestEvent) {
 			}
 		}
 
-		// Collapse any role that is superseded by another role already in the list
-		// e.g. ["CanCreateEntitlementAtOneBank", "CanCreateEntitlementAtAnyBank"] → ["CanCreateEntitlementAtAnyBank"]
-		const deduped = deduplicateRoles(normalizedRequiredRoles);
-		logger.info(`Deduplicated required roles: ${deduped.join(', ')}`);
-
-		// For each deduplicated role, pick the best role the user actually holds
-		// (exact match first, then a broader superseding role)
-		const pickedRoles: string[] = [];
-		const unsatisfiable: string[] = [];
-		for (const requiredRole of deduped) {
-			const picked = pickConsentRole(requiredRole, userRolesSet);
-			if (picked === null) {
-				unsatisfiable.push(requiredRole);
-			} else {
-				pickedRoles.push(picked);
-			}
-		}
+		// Pick the exact stored (role_name, bank_id) pair for each required role. OBP
+		// executes the consent as a shadow user holding exactly these pairs, so a pair at
+		// the wrong bank mints a consent that fails at call time with a role error —
+		// refuse up front instead, naming the role AND bank that are missing. A
+		// superseding chain in the list (e.g. CanCreateEntitlementAtOneBank |
+		// CanCreateEntitlementAtAnyBank) is OBP's "X or Y": holding either suffices.
+		const requestedBankId = bank_id || '';
+		const { entitlements, unsatisfiable, unknown } = selectConsentEntitlements(
+			normalizedRequiredRoles,
+			requestedBankId,
+			userEntitlementList,
+			(r) => requiresBankIdByRole.get(r)
+		);
+		logger.info(`Required roles ${normalizedRequiredRoles.join(', ')} → embedding ${entitlements.map((e) => `${e.role_name}@${e.bank_id || '(system)'}`).join(', ') || 'nothing'}`);
 
 		if (unsatisfiable.length > 0) {
 			logger.error(`User cannot satisfy roles:`, unsatisfiable);
 			logger.error(`User has roles:`, userRoleNames);
+			// The bank's creator can usually fix this themself: bank creation auto-grants
+			// CanCreateEntitlementAtOneBank, and that role IS allowed in a consent, so Opey
+			// can do the grant. Say so instead of pointing at "an admin".
+			const canSelfGrant =
+				pickConsentEntitlement(
+					'CanCreateEntitlementAtOneBank',
+					requestedBankId,
+					userEntitlementList,
+					(r) => requiresBankIdByRole.get(r)
+				) !== null;
+			// Holding the system-wide granting role does not help: OBP never lets a consent
+			// carry it (OBP-35033), so the user must grant themself the bank-scoped one first.
+			const heldForbidden = userEntitlementList
+				.filter((e) => CONSENT_FORBIDDEN_ROLES.includes(e.role_name))
+				.map((e) => e.role_name);
+			const nextStep = unknown.length > 0
+				? `OBP has no role named ${unknown.join(', ')}. Opey asked for a role that does not exist — it should look up the endpoint's real required roles (resource docs) and retry with one of those.`
+				: heldForbidden.length > 0
+				? `You hold ${heldForbidden.join(', ')}, but OBP does not allow that role in a consent (OBP-35033), so Opey cannot use it. Grant yourself CanCreateEntitlementAtOneBank${requestedBankId ? ` for bank ${requestedBankId}` : ''} on the Entitlements page (/user/entitlements), then retry — Opey can use the bank-scoped role.`
+				: canSelfGrant
+				? `You hold CanCreateEntitlementAtOneBank${requestedBankId ? ` for bank ${requestedBankId}` : ''}, so you can grant it to yourself — ask Opey to add the missing entitlement${requestedBankId ? ` at ${requestedBankId}` : ''} (it will ask for a consent carrying that role), then retry this call.`
+				: 'Ask an admin to grant the missing entitlement, then try again.';
 			return json({
-				message: `You don't have the required roles. Missing: ${unsatisfiable.join(', ')}. You have: ${userRoleNames.join(', ')}`,
+				message: `You don't have the required roles. Missing: ${unsatisfiable.join(', ')}. ${nextStep}`,
 				code: 403
 			}, { status: 403 });
 		}
 
-		logger.info(`Using picked roles for consent JWT: ${pickedRoles.join(', ')}`);
-
-		// Build entitlements array by copying (role_name, bank_id) verbatim from the user's
-		// stored entitlements. This guarantees every pair matches the backend check exactly.
-		// When the user holds the same role at multiple banks, prefer the one whose bank_id
-		// matches the request's bank_id; otherwise fall back to the first stored entitlement
-		// for that role (the common case for system-level roles, where only one exists).
-		const requestedBankId = bank_id || '';
-		const entitlements: Array<{ role_name: string; bank_id: string }> = [];
-		for (const roleName of pickedRoles) {
-			const matches = userEntitlementList.filter((e) => e.role_name === roleName);
-			if (matches.length === 0) {
-				logger.error(`No stored entitlement found for picked role '${roleName}' — this should be impossible since pickConsentRole only selects from the user's own roles.`);
-				return json({ message: `Internal error building consent for role ${roleName}`, code: 500 }, { status: 500 });
-			}
-			const preferred = matches.find((e) => e.bank_id === requestedBankId) ?? matches[0];
-			entitlements.push({ role_name: preferred.role_name, bank_id: preferred.bank_id });
-		}
+		logger.info(
+			`Using picked entitlements for consent JWT: ${entitlements.map((e) => `${e.role_name}@${e.bank_id || '(system)'}`).join(', ')}`
+		);
 
 		// Try to reuse an existing consent that already covers this scope. Without
 		// this, every consent_request from Opey mints a new consent at OBP — even
@@ -205,7 +219,7 @@ export async function POST(event: RequestEvent) {
 			time_to_live: consentTtl
 		};
 
-		logger.info(`Creating role-specific consent with ${pickedRoles.length} roles: ${pickedRoles.join(', ')}`);
+		logger.info(`Creating role-specific consent with ${entitlements.length} entitlement pair(s)`);
 		logger.info(`Consent body:`, JSON.stringify(consentBody, null, 2));
 
 		const consent = await obp_requests.post(

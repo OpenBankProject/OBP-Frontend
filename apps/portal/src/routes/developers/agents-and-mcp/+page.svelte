@@ -169,6 +169,7 @@ claude mcp login obp`} />
         <li><a href="https://modelcontextprotocol.io" target="_blank" rel="noopener noreferrer">Model Context Protocol specification</a></li>
         <li><a href="https://github.com/OpenBankProject" target="_blank" rel="noopener noreferrer">OBP GitHub organisation</a></li>
         <li><a href="/developers/opey">Opey</a> &mdash; the built-in OBP AI assistant</li>
+        <li><a href="/developers/opey-permissions">What Opey Can Do</a> &mdash; consent-based authorisation for agents, explained</li>
         <li><a href="/developers/oauth2-oidc">OAuth2 / OIDC</a> &mdash; how sign-in to the MCP server works</li>
         {#if ctx.apiExplorerUrl}
             <li><a href={ctx.apiExplorerUrl} target="_blank" rel="noopener noreferrer">API Explorer</a> &mdash; browse all available endpoints</li>

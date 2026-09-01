@@ -470,19 +470,21 @@ export class ChatController {
 	/**
 	 * Deny consent — sends null consent_jwt to the backend.
 	 * The backend will handle the denial and the stream will continue.
+	 * `reason` (e.g. the consent-creation failure message) travels with the denial
+	 * so the agent learns WHY and can propose a fix instead of just seeing a refusal.
 	 */
-	async denyConsent(toolCallId: string): Promise<void> {
-		logger.debug(`Denying consent for tool call: ${toolCallId}`);
+	async denyConsent(toolCallId: string, reason?: string): Promise<void> {
+		logger.debug(`Denying consent for tool call: ${toolCallId}`, reason ? { reason } : undefined);
 
 		// Update state
 		this.state.updateConsentRequest(toolCallId, false);
 		this.state.updateToolMessage(toolCallId, {
 			status: 'error',
-			toolOutput: 'Consent was denied by user'
+			toolOutput: reason ? `Consent could not be granted: ${reason}` : 'Consent was denied by user'
 		});
 
 		try {
-			await this.service.sendConsentResponse(toolCallId, null, this.state.getThreadId());
+			await this.service.sendConsentResponse(toolCallId, null, this.state.getThreadId(), reason);
 		} catch (error) {
 			logger.error(`Failed to send consent denial for ${toolCallId}:`, error);
 			this.state.updateToolMessage(toolCallId, {

@@ -4,15 +4,25 @@
 	import type { HealthSummary, ServiceHealthView } from '$shared/health-check/summarize';
 	import { runSseProbe, SSE_PROBE_PATH } from '$shared/health-check/sseProbe';
 
+	interface BuildInfo {
+		version: string;
+		commit: string;
+		branch: string;
+		buildTime: string;
+	}
+
 	let {
 		data,
 		title,
-		opeyPublicUrl
+		opeyPublicUrl,
+		buildInfo
 	}: {
 		data: HealthSummary;
 		title: string;
 		/** PUBLIC_OPEY_BASE_URL of the consuming app; pass undefined when unset. */
 		opeyPublicUrl?: string;
+		/** The consuming app's build provenance (__APP_VERSION__ etc.); 'unknown' fields are hidden. */
+		buildInfo?: BuildInfo;
 	} = $props();
 
 	let autoRefresh = $state(true);
@@ -296,6 +306,14 @@
 		<p class="text-gray-600 dark:text-gray-400">
 			Periodic server-side health checks of monitored services — each card shows when its check last ran
 		</p>
+		{#if buildInfo}
+			<p class="mt-2 text-sm text-gray-500 dark:text-gray-400 font-mono" data-testid="build-info">
+				<span data-testid="build-version">v{buildInfo.version}</span>{#if buildInfo.commit !== 'unknown'}
+					· commit <span data-testid="build-commit">{buildInfo.commit}</span>{/if}{#if buildInfo.branch !== 'unknown'}
+					· branch <span data-testid="build-branch">{buildInfo.branch}</span>{/if}
+				· built <span data-testid="build-time">{formatTimestamp(buildInfo.buildTime)}</span>
+			</p>
+		{/if}
 	</div>
 
 	{#if refreshError}

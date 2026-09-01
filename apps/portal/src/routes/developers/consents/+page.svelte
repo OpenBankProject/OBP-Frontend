@@ -146,6 +146,7 @@
         <li><a href="/developers/account-access">Account Access</a> &mdash; how Views control data access</li>
         <li><a href="/developers/oauth2-oidc">OAuth2 / OIDC</a> &mdash; authentication flows for third-party apps</li>
         <li><a href="/developers/transaction-requests">Transaction Requests</a> &mdash; making payments</li>
+        <li><a href="/developers/opey-permissions">What Opey Can Do</a> &mdash; how the AI assistant uses consents built from your entitlements</li>
         <li><a href="/user/consents">My Consents</a> &mdash; manage your active consents</li>
         {#if ctx.apiExplorerUrl}
             <li><a href="{ctx.apiExplorerUrl}/resource-docs?tags=Consent" target="_blank" rel="noopener noreferrer">Consent endpoints</a> in the API Explorer</li>

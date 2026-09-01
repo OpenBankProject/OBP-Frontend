@@ -1,7 +1,6 @@
 <script lang="ts">
 	import type { ToolMessage } from '$shared/opey/types';
-	import { XCircle, AlertTriangle, Copy } from '@lucide/svelte';
-	import { toast } from '$shared/utils/toastService';
+	import { XCircle, AlertTriangle } from '@lucide/svelte';
 
 	let { message }: { message: ToolMessage } = $props();
 
@@ -15,15 +14,6 @@
 
 	let showDetails = $state(false);
 
-	async function copyToClipboard() {
-		try {
-			await navigator.clipboard.writeText(errorOutput);
-			toast.info('Error details copied to clipboard!');
-		} catch (err) {
-			console.error('Failed to copy: ', err);
-			toast.error('Failed to copy to clipboard.');
-		}
-	}
 </script>
 
 <div class="card rounded-lg border-2 border-error-500 bg-error-50-950 p-4 text-left">
@@ -33,16 +23,6 @@
 			<XCircle class="text-error-600-400" size={24} />
 			<h4 class="text-base font-semibold text-error-900-100">Tool Execution Failed</h4>
 		</div>
-		<button
-			type="button"
-			class="btn btn-sm preset-tonal-error"
-			onclick={copyToClipboard}
-			title="Copy error details"
-			aria-label="Copy error details"
-		>
-			<Copy size={16} />
-			<span class="hidden sm:inline">Copy</span>
-		</button>
 	</div>
 
 	<!-- Tool Name -->

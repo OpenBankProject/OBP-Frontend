@@ -19,7 +19,8 @@ export { SessionState } from './state/SessionState.js';
 export type { SessionSnapshot } from './state/SessionState.js';
 
 // Utils
-export { expandRoleRequirements, pickConsentRole, deduplicateRoles } from './utils/roles.js';
+export { expandRoleRequirements, pickConsentRole, pickConsentEntitlement, deduplicateRoles, selectConsentEntitlements, narrowestRoles, forbiddenConsentRoles, CONSENT_FORBIDDEN_ROLES } from './utils/roles.js';
+export type { StoredEntitlement, ConsentEntitlementSelection } from './utils/roles.js';
 export { chatToMarkdown, messageToMarkdown } from './utils/chatToMarkdown.js';
 export {
 	getSelectedConsentViews,
@@ -40,3 +41,11 @@ export type {
 	ClientToolHandler,
 	ClientToolOutcome
 } from './types.js';
+export {
+	summariseConsentJwt,
+	addGrantedConsent,
+	activeConsents,
+	consentsCover,
+	setConsentReferenceId
+} from './utils/consentSummary.js';
+export type { GrantedConsentSummary, ConsentEntitlement, ConsentView } from './utils/consentSummary.js';

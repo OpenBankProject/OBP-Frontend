@@ -3,7 +3,12 @@
 	import type { ToolMessage } from '$shared/opey/types';
 	import { createLogger } from '$shared/utils/logger';
 	import { Shield, CheckCircle, XCircle, KeyRound, Loader2, Eye, CreditCard, User } from '@lucide/svelte';
-	import { expandRoleRequirements, deduplicateRoles } from '$shared/opey/utils/roles';
+	import {
+		narrowestRoles,
+		selectConsentEntitlements,
+		forbiddenConsentRoles,
+		type StoredEntitlement
+	} from '$shared/opey/utils/roles';
 	import { getSelectedConsentViews, type ConsentViewSelection } from '$shared/opey/utils/consentScope';
 
 	const logger = createLogger('ConsentRequestCard');
@@ -11,13 +16,68 @@
 	interface Props {
 		toolMessage: ToolMessage;
 		onConsent: (toolCallId: string, consentJwt: string) => Promise<void>;
-		onDeny: (toolCallId: string) => Promise<void>;
+		onDeny: (toolCallId: string, reason?: string) => Promise<void>;
 	}
 
 	let { toolMessage, onConsent, onDeny }: Props = $props();
 
 	let isProcessing = $state(false);
 	let consentError = $state<string | null>(null);
+
+	// The user's stored (role_name, bank_id) pairs, fetched once via the generic OBP
+	// proxy so the card can preview EXACTLY which pairs the consent will embed —
+	// the same selection the endpoint makes — instead of listing every alternative
+	// Opey reported. null until loaded (or if the fetch fails): then the chips fall
+	// back to the narrowest role names.
+	let userEntitlements = $state<StoredEntitlement[] | null>(null);
+	async function loadUserEntitlements() {
+		try {
+			const res = await fetch('/proxy/obp/v5.1.0/my/entitlements', { headers: { Accept: 'application/json' } });
+			if (!res.ok) return;
+			const data = await res.json();
+			if (!Array.isArray(data?.list)) return;
+			userEntitlements = data.list
+				.filter((e: any) => e && typeof e.role_name === 'string')
+				.map((e: any) => ({ role_name: e.role_name, bank_id: e.bank_id ?? '' }));
+		} catch (error) {
+			logger.debug('Entitlements preview fetch failed:', error);
+		}
+	}
+
+	// Role names as Opey reported them (strings or {role, requires_bank_id} objects).
+	let rawRoleNames = $derived(
+		((toolMessage.consentRequiredRoles || []) as any[])
+			.map((r) => (typeof r === 'string' ? r : r?.role || r?.role_name || r?.name || ''))
+			.filter(Boolean) as string[]
+	);
+	// Bank-scoping per role, from the consent_required payload; unknown otherwise.
+	let requiresBankIdOf = $derived.by(() => {
+		const m = new Map<string, boolean>();
+		for (const r of (toolMessage.consentRequiredRoles || []) as any[]) {
+			if (typeof r === 'object' && r && typeof r.requires_bank_id === 'boolean') {
+				m.set(r.role || r.role_name || r.name, r.requires_bank_id);
+			}
+		}
+		return (role: string) => m.get(role);
+	});
+	// Illogical request: EVERY role Opey wants is one OBP never allows in a consent
+	// (the system-wide granting role, OBP-35033). When it is merely one alternative
+	// beside the bank-scoped role this is fine — the bank-scoped pair gets embedded.
+	// No amount of granting can make the all-forbidden case work, so say so up
+	// front, block Grant, and let the user send the reason to Opey with one click.
+	let forbiddenRoles = $derived(forbiddenConsentRoles(rawRoleNames));
+	let illogicalReason = $derived(
+		rawRoleNames.length > 0 && forbiddenRoles.length === new Set(rawRoleNames).size
+			? `OBP does not allow ${forbiddenRoles.join(' or ')} in a consent (OBP-35033), so no consent can authorise this call for Opey. Use the bank-scoped role instead, or do this yourself with your own session.`
+			: null
+	);
+
+	// What the consent WILL carry (and what it can't), or null before entitlements load.
+	let embedPreview = $derived(
+		userEntitlements
+			? selectConsentEntitlements(rawRoleNames, resolveBankId() ?? '', userEntitlements, requiresBankIdOf)
+			: null
+	);
 
 	// Reactive count of (bank, account, view) tuples the user has pre-picked in
 	// the Account Scope Picker. Refreshed off the picker's
@@ -29,6 +89,7 @@
 	}
 	onMount(() => {
 		syncSelectedScope();
+		void loadUserEntitlements();
 		if (typeof window !== 'undefined') {
 			window.addEventListener('obp:consent-scope-changed', syncSelectedScope);
 		}
@@ -60,7 +121,10 @@
 
 	/**
 	 * Resolve the bank_id for bank-scoped consent roles.
-	 * Priority: explicit consentBankId from backend > extracted from toolInput path_params.
+	 * Priority: explicit consentBankId from backend > toolInput path_params >
+	 * toolInput body / query params (e.g. addEntitlement carries bank_id in the body).
+	 * Getting this wrong scopes the consent to the wrong bank, and OBP then rejects
+	 * the call with a role error even though the user holds the role.
 	 */
 	function resolveBankId(): string | undefined {
 		// 1. Explicit bank_id from the consent_request event
@@ -77,6 +141,13 @@
 		if (pathParams?.BANK_ID) return pathParams.BANK_ID;
 		if (pathParams?.bank_id) return pathParams.bank_id;
 
+		// 4. Extract from the request body or query params — some endpoints
+		// (e.g. Add Entitlement) take the target bank there, not in the path.
+		const bodyBankId = toolMessage.toolInput?.body?.bank_id;
+		if (typeof bodyBankId === 'string' && bodyBankId) return bodyBankId;
+		const queryBankId = toolMessage.toolInput?.query_params?.bank_id;
+		if (typeof queryBankId === 'string' && queryBankId) return queryBankId;
+
 		return undefined;
 	}
 
@@ -88,12 +159,21 @@
 		bank_id?: string;
 		views: ConsentViewSelection[];
 	} {
-		const normalizedRoles = deduplicateRoles(
-			(toolMessage.consentRequiredRoles || []).map((role: any) => {
-				if (typeof role === 'string') return role;
-				// Handle object format: {role: "CanCreateBank", requires_bank_id: false}
-				return role?.role || role?.role_name || role?.name || '';
-			}).filter(Boolean)
+		// Send EVERY role Opey reported, uncollapsed. A superseding chain in the list
+		// (e.g. CanCreateEntitlementAtOneBank | CanCreateEntitlementAtAnyBank) is OBP's
+		// "X or Y"; the consent endpoint picks whichever the user actually holds.
+		// Collapsing here to the broader role used to make the mint demand a role a
+		// bank creator never has.
+		const normalizedRoles = Array.from(
+			new Set(
+				(toolMessage.consentRequiredRoles || [])
+					.map((role: any) => {
+						if (typeof role === 'string') return role;
+						// Handle object format: {role: "CanCreateBank", requires_bank_id: false}
+						return role?.role || role?.role_name || role?.name || '';
+					})
+					.filter(Boolean) as string[]
+			)
 		);
 		const bankId = resolveBankId();
 		// Views: the (bank, account, view) tuple the consent_request event itself
@@ -174,6 +254,15 @@
 					console.log('Response:', errorData);
 					console.groupEnd();
 				}
+				if (response.status === 403) {
+					// Roles unsatisfiable — retrying the Grant cannot succeed. Resolve the
+					// interrupt now with the reason so the agent learns WHY and can propose
+					// the fix (e.g. granting the missing entitlement) instead of just
+					// seeing "user denied consent".
+					consentError = errMsg;
+					await onDeny(toolMessage.toolCallId, errMsg);
+					return;
+				}
 				throw new Error(errMsg);
 			}
 
@@ -206,10 +295,11 @@
 	async function handleDenyConsent() {
 		if (isProcessing) return;
 		isProcessing = true;
-		consentError = null;
 
 		try {
-			await onDeny(toolMessage.toolCallId);
+			// If a Grant already failed, forward that failure as the denial reason so
+			// the agent knows why instead of just "user denied consent".
+			await onDeny(toolMessage.toolCallId, illogicalReason ?? consentError ?? undefined);
 		} finally {
 			isProcessing = false;
 		}
@@ -262,28 +352,42 @@
 		</div>
 	{/if}
 
-	<!-- Required Roles (inline chips) -->
-	{#if toolMessage.consentRequiredRoles && toolMessage.consentRequiredRoles.length > 0}
-		{@const rawRoles = (toolMessage.consentRequiredRoles || []).map((r: any) =>
-			typeof r === 'string' ? r : (r?.role || r?.role_name || r?.name || JSON.stringify(r))
-		)}
-		{@const roleRequirements = expandRoleRequirements(deduplicateRoles(rawRoles))}
-		<div class="mb-2 flex flex-wrap items-center gap-1">
-			{#each roleRequirements as req}
-				<span class="inline-flex items-center gap-1 rounded-full bg-tertiary-100 px-2 py-0.5 text-[11px] font-medium dark:bg-tertiary-800">
-					<Shield size={10} />
-					{req.role}
-				</span>
-				{#if req.alternatives.length > 0}
-					<span class="text-[11px] text-surface-500">or</span>
-					{#each req.alternatives as alt}
-						<span class="inline-flex items-center gap-1 rounded-full border border-tertiary-300 px-2 py-0.5 text-[11px] font-medium text-surface-600 dark:border-tertiary-600 dark:text-surface-400">
-							<Shield size={10} />
-							{alt}
-						</span>
-					{/each}
-				{/if}
-			{/each}
+	<!-- Roles: the exact pairs this consent will embed (preview from the user's own
+	     entitlements), or the narrowest required role names until those load. -->
+	{#if rawRoleNames.length > 0}
+		<div class="mb-2 flex flex-wrap items-center gap-1" data-testid="consent-role-chips">
+			{#if embedPreview}
+				{#each embedPreview.entitlements as e (`${e.role_name}|${e.bank_id}`)}
+					<span
+						class="inline-flex items-center gap-1 rounded-full bg-tertiary-100 px-2 py-0.5 text-[11px] font-medium dark:bg-tertiary-800"
+						data-testid="consent-role-chip"
+					>
+						<Shield size={10} />
+						{e.role_name}
+						{#if e.bank_id}
+							<span class="font-mono opacity-60">@ {e.bank_id}</span>
+						{:else}
+							<span class="opacity-60">(system-wide)</span>
+						{/if}
+					</span>
+				{/each}
+				{#each embedPreview.unsatisfiable as label (label)}
+					<span
+						class="inline-flex items-center gap-1 rounded-full border border-warning-500 px-2 py-0.5 text-[11px] font-medium text-warning-700 dark:text-warning-300"
+						data-testid="consent-role-chip-missing"
+					>
+						<Shield size={10} />
+						not held: {label}
+					</span>
+				{/each}
+			{:else}
+				{#each narrowestRoles(rawRoleNames) as role (role)}
+					<span class="inline-flex items-center gap-1 rounded-full bg-tertiary-100 px-2 py-0.5 text-[11px] font-medium dark:bg-tertiary-800">
+						<Shield size={10} />
+						{role}
+					</span>
+				{/each}
+			{/if}
 		</div>
 	{/if}
 
@@ -335,6 +439,26 @@
 		</details>
 	{/if}
 
+	<!-- Illogical request: a role OBP never allows in a consent -->
+	{#if illogicalReason}
+		<div
+			class="mb-2 rounded border border-error-500/60 bg-error-50 px-2 py-2 text-xs dark:bg-error-900/20"
+			role="alert"
+			data-testid="consent-illogical"
+		>
+			<p class="mb-1 font-semibold text-error-800 dark:text-error-200">This consent can't be granted</p>
+			<p class="mb-2 text-error-800 dark:text-error-200">
+				{#each forbiddenRoles as r (r)}<code class="font-mono">{r}</code>{' '}{/each}
+				is the system-wide role-granting role. OBP never lets a consent carry it
+				(OBP-35033), so no consent can authorise this call for Opey. Opey can act with
+				the bank-scoped <code class="font-mono">CanCreateEntitlementAtOneBank</code> instead,
+				or do this yourself on the
+				<a href="/user/entitlements" class="underline">Entitlements page</a>. Use
+				<strong>Tell Opey</strong> so it stops trying.
+			</p>
+		</div>
+	{/if}
+
 	<!-- Safeguard: this consent_request needs view scope but none is available yet -->
 	{#if promptForScope}
 		<div
@@ -362,7 +486,7 @@
 		<button
 			class="btn btn-sm flex-1 preset-filled-tertiary-500"
 			onclick={handleGrantConsent}
-			disabled={isProcessing || promptForScope}
+			disabled={isProcessing || promptForScope || !!illogicalReason}
 			data-testid="consent-grant-button"
 		>
 			{#if isProcessing}
@@ -374,12 +498,13 @@
 			{/if}
 		</button>
 		<button
-			class="btn btn-sm preset-outlined-error-500"
+			class="btn btn-sm {illogicalReason ? 'flex-1 preset-filled-error-500' : 'preset-outlined-error-500'}"
 			onclick={handleDenyConsent}
 			disabled={isProcessing}
+			data-testid="consent-deny-button"
 		>
 			<XCircle size={14} />
-			<span>Deny</span>
+			<span>{illogicalReason ? 'Tell Opey' : 'Deny'}</span>
 		</button>
 	</div>
 </div>

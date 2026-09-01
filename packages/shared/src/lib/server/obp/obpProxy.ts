@@ -1,0 +1,115 @@
+/**
+ * Generic authenticated proxy to the OBP-API, shared by Portal and API Manager.
+ *
+ * Forwards the request to the OBP-API with the user's OAuth token. The OBP
+ * path is taken from the route's rest parameter:
+ *   /proxy/obp/v6.0.0/foo → GET {obpBaseUrl}/obp/v6.0.0/foo
+ *
+ * Responses are passed through unmodified (same status, same JSON body).
+ * The app route stays a thin file: it supplies the base URL from its own env
+ * and re-exports the handler for each method.
+ */
+
+import { createLogger } from '$shared/utils/logger';
+
+const logger = createLogger('OBPProxy');
+
+const TIMEOUT_MS = 15_000;
+
+/** Structural subset of SvelteKit's RequestEvent that the proxy needs. */
+export interface ObpProxyRequestEvent {
+	locals: {
+		session?: {
+			data?: { user?: unknown; oauth?: { access_token?: string } };
+		} | null;
+	};
+	params: Partial<Record<string, string>>;
+	url: URL;
+	request: Request;
+}
+
+export function createObpProxyHandler(obpBaseUrl: string) {
+	return async function proxyRequest(event: ObpProxyRequestEvent): Promise<Response> {
+		const session = event.locals.session;
+		if (!session?.data?.user) {
+			return new Response(JSON.stringify({ code: 401, message: 'Unauthorized' }), {
+				status: 401,
+				headers: { 'Content-Type': 'application/json' }
+			});
+		}
+
+		const accessToken = session.data.oauth?.access_token;
+
+		// Reject path-traversal and absolute-URL attempts before joining into the OBP URL.
+		const rawPath = event.params.path ?? '';
+		if (
+			rawPath === '' ||
+			rawPath.includes('..') ||
+			rawPath.startsWith('/') ||
+			rawPath.includes('://') ||
+			rawPath.includes('\0')
+		) {
+			logger.warn(`Rejected proxy path: ${rawPath}`);
+			return new Response(JSON.stringify({ code: 400, message: 'Invalid path' }), {
+				status: 400,
+				headers: { 'Content-Type': 'application/json' }
+			});
+		}
+
+		const obpPath = `/obp/${rawPath}`;
+		const queryString = event.url.search;
+		const url = `${obpBaseUrl}${obpPath}${queryString}`;
+
+		const headers: Record<string, string> = {
+			'Content-Type': 'application/json'
+		};
+		if (accessToken) {
+			headers['Authorization'] = `Bearer ${accessToken}`;
+		}
+
+		const method = event.request.method;
+		const hasBody = method === 'POST' || method === 'PUT' || method === 'PATCH';
+
+		logger.debug(`${method} ${obpPath}`);
+
+		const controller = new AbortController();
+		const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
+
+		try {
+			const fetchOptions: RequestInit = {
+				method,
+				headers,
+				signal: controller.signal
+			};
+
+			if (hasBody) {
+				fetchOptions.body = await event.request.text();
+			}
+
+			const response = await fetch(url, fetchOptions);
+			clearTimeout(timeout);
+
+			// Pass through the OBP-API response as-is
+			const responseBody = await response.text();
+
+			return new Response(responseBody, {
+				status: response.status,
+				headers: { 'Content-Type': response.headers.get('Content-Type') || 'application/json' }
+			});
+		} catch (error: any) {
+			clearTimeout(timeout);
+			if (error.name === 'AbortError') {
+				logger.error(`Timeout: ${method} ${obpPath}`);
+				return new Response(
+					JSON.stringify({ code: 504, message: `Request to ${obpPath} timed out` }),
+					{ status: 504, headers: { 'Content-Type': 'application/json' } }
+				);
+			}
+			logger.error(`Error: ${method} ${obpPath}:`, error);
+			return new Response(JSON.stringify({ code: 502, message: error.message || 'Bad Gateway' }), {
+				status: 502,
+				headers: { 'Content-Type': 'application/json' }
+			});
+		}
+	};
+}

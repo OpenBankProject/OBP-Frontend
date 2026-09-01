@@ -11,7 +11,7 @@ export interface ChatService {
     send(msg: UserMessage, threadId?: string): Promise<void>
     sendApproval(toolCallId: string, approved: boolean, threadId: string, approvalLevel?: string): Promise<void>
     sendBatchApproval(decisions: Record<string, { approved: boolean; level: string }>, threadId: string): Promise<void>
-    sendConsentResponse(toolCallId: string, consentJwt: string | null, threadId: string): Promise<void>
+    sendConsentResponse(toolCallId: string, consentJwt: string | null, threadId: string, denialReason?: string): Promise<void>
     /** Resume a client_tool_call interrupt with the outcome of the local execution. */
     sendClientToolResult(
         toolCallId: string,

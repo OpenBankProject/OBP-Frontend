@@ -10,6 +10,8 @@ export {
 } from './consentsConfig.js';
 export type { ObpGet } from './consentsConfig.js';
 export { findReusableConsent } from './consentReuse.js';
+export { createObpProxyHandler } from './obpProxy.js';
+export type { ObpProxyRequestEvent } from './obpProxy.js';
 export type {
 	RequiredEntitlement,
 	RequiredView,

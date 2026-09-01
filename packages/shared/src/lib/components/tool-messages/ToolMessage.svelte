@@ -19,7 +19,7 @@
         batchApprovalGroup?: ToolMessage[];  // Other tools in the same batch
         onBatchSubmit?: (decisions: Map<string, { approved: boolean; level: string }>) => Promise<void>;
         onConsent?: (toolCallId: string, consentJwt: string) => Promise<void>;
-        onConsentDeny?: (toolCallId: string) => Promise<void>;
+        onConsentDeny?: (toolCallId: string, reason?: string) => Promise<void>;
     }
 
     let { message, onApprove, onDeny, batchApprovalGroup, onBatchSubmit, onConsent, onConsentDeny }: Props = $props();

@@ -62,6 +62,7 @@
 		bodyClasses: 'bg-opacity-0',
 		footerClasses: 'bg-opacity-0',
 		displayConnectionPips: true,
+		consentMetricsHref: '/metrics',
 		initialUserMessage: askParam || undefined,
 	});
 </script>

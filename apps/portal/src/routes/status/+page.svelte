@@ -6,4 +6,14 @@
 	let { data }: { data: PageData } = $props();
 </script>
 
-<SystemStatusPage {data} title="System Status - OBP Portal" opeyPublicUrl={env.PUBLIC_OPEY_BASE_URL} />
+<SystemStatusPage
+	{data}
+	title="System Status - OBP Portal"
+	opeyPublicUrl={env.PUBLIC_OPEY_BASE_URL}
+	buildInfo={{
+		version: __APP_VERSION__,
+		commit: __GIT_COMMIT__,
+		branch: __GIT_BRANCH__,
+		buildTime: __BUILD_TIME__
+	}}
+/>

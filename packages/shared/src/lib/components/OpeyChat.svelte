@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
-	import { ShieldUserIcon } from '@lucide/svelte';
+	import { ShieldUserIcon, ShieldCheck } from '@lucide/svelte';
 	import { Tooltip, Dialog, Portal } from '@skeletonlabs/skeleton-svelte';
 	import { createLogger } from '$shared/utils/logger';
 
@@ -20,6 +20,14 @@
 	// Import other components
 	import { ToolError, ObpApiResponse, DefaultToolResponse } from './tool-messages';
 	import ChatMessage from './ChatMessage.svelte';
+	import NewEntitlementsNotice from './NewEntitlementsNotice.svelte';
+	import {
+		summariseConsentJwt,
+		addGrantedConsent,
+		activeConsents,
+		setConsentReferenceId,
+		type GrantedConsentSummary
+	} from '$shared/opey/utils/consentSummary';
 	import { CircleArrowUp, StopCircle, type Icon as IconType } from '@lucide/svelte';
 	import { toast } from '$shared/utils/toastService';
 	import type { Snippet } from 'svelte';
@@ -39,6 +47,16 @@
 		initialAssistantMessage?: string;
 		initialUserMessage?: string; // Auto-send this message when session is ready
 		currentConsentInfo?: OBPConsentInfo; // Consent info for the status pip
+		// Endpoint for the new-entitlements notice (defaults to the generic OBP
+		// proxy both apps serve). Set to '' to disable the notice entirely.
+		entitlementsUrl?: string;
+		// Browser-reachable OBP /my/consents listing, used to resolve the
+		// consent_reference_id of consents granted to Opey (it is not a JWT claim).
+		// Defaults to the generic OBP proxy. Set to '' to skip the lookup.
+		consentsUrl?: string;
+		// Metrics page that accepts ?consent_reference_id=...; when set, the consent
+		// indicator under the input links each reference id to its call log.
+		consentMetricsHref?: string;
 		headerClasses?: string; // Optional classes for the header
 		footerClasses?: string;
 		bodyClasses?: string;
@@ -124,6 +142,51 @@
 			(m) => m.role === 'tool' && (m as ToolMessage).waitingForApproval
 		) as ToolMessage[];
 	});
+
+	// Successful tool calls are the moments the user can gain entitlements
+	// mid-session (e.g. creating a bank auto-grants CanCreateEntitlementAtOneBank
+	// at that bank). The count feeds NewEntitlementsNotice as its re-check signal.
+	let completedToolCallCount = $derived(
+		chat.messages.filter((m) => m.role === 'tool' && (m as ToolMessage).status === 'success')
+			.length
+	);
+
+	// Consents Opey has been granted in this chat, decoded from the JWTs as they
+	// pass through handleConsent. Shown beside NewEntitlementsNotice so the user
+	// can see what each frozen consent actually embeds versus what they now hold.
+	let grantedConsents: GrantedConsentSummary[] = $state([]);
+	let liveConsents = $derived(activeConsents(grantedConsents));
+	// Most recent grant = the consent Opey is using for its current work.
+	let currentConsent = $derived(liveConsents.length > 0 ? liveConsents[liveConsents.length - 1] : null);
+	let consentIndicatorOpen = $state(false);
+
+	/**
+	 * consent_reference_id is not in the JWT, only in the /my/consents listing
+	 * (jti == consent_id, so the match is exact). Best effort: the indicator
+	 * falls back to the consent_id until this resolves.
+	 */
+	async function resolveConsentReferenceId(consentId: string) {
+		const url = options.consentsUrl ?? '/proxy/obp/v5.1.0/my/consents';
+		if (url === '') return;
+		try {
+			const res = await fetch(url, { headers: { Accept: 'application/json' } });
+			if (!res.ok) return;
+			const data = await res.json();
+			const match = (Array.isArray(data?.consents) ? data.consents : []).find(
+				(c: any) => c?.consent_id === consentId
+			);
+			if (typeof match?.consent_reference_id === 'string' && match.consent_reference_id) {
+				grantedConsents = setConsentReferenceId(grantedConsents, consentId, match.consent_reference_id);
+			}
+		} catch (error) {
+			logger.debug('consent_reference_id lookup failed:', error);
+		}
+	}
+
+	function formatConsentExpiry(ms: number | null): string {
+		if (ms === null) return 'unknown';
+		return new Date(ms).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+	}
 
 	// Server-side Opey connection status (does the app server reach OPEY_BASE_URL?)
 	let serverConnectionStatus: 'healthy' | 'unhealthy' | 'degraded' | 'unknown' = $state('unknown');
@@ -495,10 +558,20 @@
 
 	async function handleConsent(toolCallId: string, consentJwt: string) {
 		await chatController.grantConsent(toolCallId, consentJwt);
+		const summary = summariseConsentJwt(consentJwt);
+		if (summary) {
+			// Keep a previously resolved reference id when the same consent is reused.
+			const previous = grantedConsents.find((c) => c.id === summary.id);
+			grantedConsents = addGrantedConsent(grantedConsents, {
+				...summary,
+				referenceId: previous?.referenceId
+			});
+			if (!previous?.referenceId) void resolveConsentReferenceId(summary.id);
+		}
 	}
 
-	async function handleConsentDeny(toolCallId: string) {
-		await chatController.denyConsent(toolCallId);
+	async function handleConsentDeny(toolCallId: string, reason?: string) {
+		await chatController.denyConsent(toolCallId, reason);
 	}
 
 	async function handleBatchApprovalSubmit(
@@ -686,7 +759,6 @@
 					batchApprovalGroup={pendingApprovalTools.length > 1 ? pendingApprovalTools : undefined}
 					onConsent={handleConsent}
 					onConsentDeny={handleConsentDeny}
-					allMessages={chat.messages}
 				/>
 			{/each}
 		</div>
@@ -724,6 +796,62 @@
 		<div class="mt-1 text-center text-xs {colorClass}" data-testid="opey-token-usage">
 			Context: {Math.round(inp / 1000)}K / 200K tokens
 			<span class="text-surface-500">· {chat.tokenUsage.outputTokens} out</span>
+		</div>
+	{/if}
+{/snippet}
+
+{#snippet consentIndicator()}
+	{#if currentConsent}
+		<div class="relative mt-1 flex justify-end text-xs text-surface-600-400">
+			<button
+				type="button"
+				class="flex items-center gap-1 rounded px-1 hover:text-surface-900-100"
+				onclick={() => (consentIndicatorOpen = !consentIndicatorOpen)}
+				aria-expanded={consentIndicatorOpen}
+				aria-label="Consent Opey is currently using — click for details"
+				data-testid="opey-consent-indicator"
+			>
+				<ShieldCheck class="h-3.5 w-3.5" aria-hidden="true" />
+				<span>consent</span>
+				<code class="font-mono" data-testid="opey-consent-indicator-id"
+					>{currentConsent.referenceId ?? 'resolving…'}</code
+				>
+			</button>
+			{#if consentIndicatorOpen}
+				<div
+					class="absolute right-0 bottom-full z-20 mb-1 w-80 max-w-[90vw] rounded-md border border-surface-300-700 bg-surface-50-950 p-3 text-left shadow-lg"
+					data-testid="opey-consent-indicator-popover"
+				>
+					<p class="mb-2 font-semibold text-surface-900-100">Consent Opey is using now</p>
+					<div class="space-y-0.5" data-testid="opey-consent-row-{currentConsent.id}">
+						<div>
+							<span class="opacity-70">consent_reference_id</span>
+							{#if currentConsent.referenceId && options.consentMetricsHref}
+								<a
+									href={`${options.consentMetricsHref}?consent_reference_id=${encodeURIComponent(currentConsent.referenceId)}`}
+									class="text-tertiary-600-400 hover:underline"
+									><code class="font-mono">{currentConsent.referenceId}</code></a
+								>
+							{:else}
+								<code class="font-mono">{currentConsent.referenceId ?? 'resolving…'}</code>
+							{/if}
+						</div>
+						{#each currentConsent.entitlements as e (`${e.role_name}|${e.bank_id}`)}
+							<div>
+								<code class="font-mono">{e.role_name}</code>
+								{#if e.bank_id}<span class="opacity-70">at bank</span> <code class="font-mono">{e.bank_id}</code>{:else}<span class="opacity-70">(system-wide)</span>{/if}
+							</div>
+						{/each}
+						{#each currentConsent.views as v (`${v.bank_id}|${v.account_id}|${v.view_id}`)}
+							<div>
+								<span class="opacity-70">view</span> <code class="font-mono">{v.view_id}</code>
+								<span class="opacity-70">on</span> <code class="font-mono">{v.bank_id}/{v.account_id}</code>
+							</div>
+						{/each}
+						<div class="opacity-70">expires {formatConsentExpiry(currentConsent.expiresAt)}</div>
+					</div>
+				</div>
+			{/if}
 		</div>
 	{/if}
 {/snippet}
@@ -1008,10 +1136,20 @@
 			{@render suggestedQuestions()}
 
 			<div class="flex-shrink-0 px-4 pb-2 {options.footerClasses || ''}">
+				{#if options.entitlementsUrl !== ''}
+					<NewEntitlementsNotice
+						entitlementsUrl={options.entitlementsUrl}
+						refreshTrigger={completedToolCallCount}
+						enabled={userAuthenticated}
+						consents={grantedConsents}
+						consentMetricsHref={options.consentMetricsHref}
+					/>
+				{/if}
 				<div class="relative flex items-center justify-center">
 					{@render inputField()}
 				</div>
 				{@render tokenIndicator()}
+				{@render consentIndicator()}
 			</div>
 
 			{@render belowSuggestions?.()}
