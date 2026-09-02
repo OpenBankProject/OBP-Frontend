@@ -13,3 +13,6 @@ export { default as NavigationSidebar } from './NavigationSidebar.svelte';
 export { default as NewEntitlementsNotice } from './NewEntitlementsNotice.svelte';
 export { ToolMessage, ToolError, ObpApiResponse, DefaultToolResponse } from './tool-messages/index.js';
 export { default as SystemStatusPage } from './SystemStatusPage.svelte';
+export { default as AppStudioPreview } from './AppStudioPreview.svelte';
+export { buildAppStudioSrcdoc, appStudioPathToProxyPath, APP_STUDIO_SHIM_SOURCE } from './appStudioShim.js';
+export type { AppStudioProxyResult, AppStudioRequestMessage, AppStudioLogMessage } from './appStudioShim.js';

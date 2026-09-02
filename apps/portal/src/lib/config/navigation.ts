@@ -1,5 +1,4 @@
 import { Activity, User, ShieldUser, KeyRound, IdCardLanyard, CreditCard, Database, FolderKanban, UserPlus, LayoutList, FileText, HandCoins, FileCheck, ArrowRightLeft, ScanEye, Code, Rocket, BookOpen, KeySquare, LogIn, ShieldCheck, Bot, Cpu, Workflow, SendHorizontal, Compass, ScrollText, Repeat, Eye, Wallet, AppWindow, Package } from '@lucide/svelte';
-import { env } from '$env/dynamic/public';
 
 export interface NavigationItem {
     href: string;
@@ -23,15 +22,14 @@ function buildMyAccountItems(): NavigationItem[] {
         { href: '/user/my-activity-dashboard', label: 'Activity Dashboard', iconComponent: Activity, description: 'API calls you have made, most recent first.' }
     ];
 
-    // Only add Subscriptions link if PUBLIC_SUBSCRIPTIONS_URL is set
-    if (env.PUBLIC_SUBSCRIPTIONS_URL) {
-        items.push({
-            href: env.PUBLIC_SUBSCRIPTIONS_URL,
-            label: 'Subscriptions',
-            iconComponent: CreditCard,
-            external: true
-        });
-    }
+    // The Portal's own subscriptions page (apply for / cancel API Product Subscriptions).
+    // It also links to the external billing service when PUBLIC_SUBSCRIPTIONS_URL is set.
+    items.push({
+        href: '/subscriptions',
+        label: 'Subscriptions',
+        iconComponent: CreditCard,
+        description: 'Subscribe your applications to API products.'
+    });
 
     return items;
 }

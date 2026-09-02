@@ -335,3 +335,40 @@ export interface OBPPersonalDataField {
     is_personal: boolean;
     insert_date: string;
 }
+// API Product Subscription (v7.0.0): one Consumer holding one API Product for a period, with a status.
+export type OBPApiProductSubscriptionStatus =
+    | 'requested'
+    | 'active'
+    | 'past_due'
+    | 'suspended'
+    | 'cancelled';
+
+export interface OBPApiProductSubscriptionAttribute {
+    api_product_subscription_id: string;
+    api_product_subscription_attribute_id: string;
+    name: string;
+    type: string;
+    value: string;
+    is_active?: boolean;
+}
+
+export interface OBPApiProductSubscription {
+    api_product_subscription_id: string;
+    bank_id: string;
+    api_product_code: string;
+    consumer_id: string;
+    status: OBPApiProductSubscriptionStatus;
+    start_date: string;
+    end_date?: string | null;
+    created_by_user_id: string;
+    rate_limiting_id?: string | null;
+    created_at: string;
+    updated_at: string;
+    attributes?: OBPApiProductSubscriptionAttribute[] | null;
+}
+
+export interface OBPPostApiProductSubscription {
+    consumer_id: string;
+    start_date?: string;
+    end_date?: string;
+}

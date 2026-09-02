@@ -48,7 +48,7 @@
             </tr>
             <tr>
                 <td><strong>Accountable user</strong></td>
-                <td>The human who granted the consent. OBP attributes side effects to this user, not to the consent user: things Opey creates are yours, and roles Opey grants land on humans.</td>
+                <td>The human who granted the consent: the owner of anything durable the call creates. Endpoints that have been made consent-aware attribute their side effects to this user rather than to the consent user; not every endpoint has been, see <em>Three Identities, One Job Each</em> and <em>Attribution is not yet universal</em> below.</td>
             </tr>
             <tr>
                 <td><strong>Consent reference id</strong></td>
@@ -73,7 +73,7 @@
         <li><strong>Anything your entitlements allow</strong> at the moment you grant the consent, limited to the pairs that consent embeds. If you hold <code>CanCreateBank</code>, Opey can create a bank. If you hold <code>CanCreateAccount</code> at <code>bank-a</code>, it can open accounts there and nowhere else.</li>
         <li><strong>Read or act on accounts you picked.</strong> View-scoped endpoints (balances, transactions, account details) work only for the <code>(bank, account, view)</code> triples you selected in the Working accounts picker. No pick, no data.</li>
         <li><strong>Grant roles at a bank you administer.</strong> If you hold <code>CanCreateEntitlementAtOneBank</code> at a bank, Opey can add roles to users at that bank under a consent carrying that pair. Creating a bank grants you this role there automatically.</li>
-        <li><strong>Create things that belong to you.</strong> Accounts Opey opens are held by you, roles Opey grants go to humans, and audit trails show the accountable user.</li>
+        <li><strong>Create things that belong to you, where the endpoint supports it.</strong> Roles Opey grants always go to humans, a bank Opey creates grants its admin role to you, and an account opened through the v7 endpoint is held by you. Every call is logged against your user and the consent's reference id.</li>
         <li><strong>Reuse a consent.</strong> Repeat actions needing the same roles reuse the same consent for up to an hour, so you are not asked again and again.</li>
     </ul>
 
@@ -85,8 +85,114 @@
         <li><strong>Hold the system-wide granting role.</strong> <code>CanCreateEntitlementAtAnyBank</code> is never allowed in a consent (<code>OBP-35033</code>), even if you hold it. Grant yourself the bank-scoped <code>CanCreateEntitlementAtOneBank</code> first, then Opey can grant roles at that bank.</li>
         <li><strong>Use virtual roles.</strong> Super admin powers are not stored entitlements, so they cannot be embedded in a consent. Opey acting for a super admin has only that admin's stored pairs.</li>
         <li><strong>See your login.</strong> Opey never receives your session, OAuth token, or DirectLogin token, and it will never ask for one. If it appears to, deny the request.</li>
-        <li><strong>Hold roles itself.</strong> The consent user cannot be granted durable roles. A grant that names it is either redirected to you or rejected, so nothing accumulates on the agent identity.</li>
+        <li><strong>Hold roles itself.</strong> The consent user cannot be granted durable roles. A grant that names it is either redirected to you or rejected, so nothing accumulates on the agent identity. Other kinds of durable object can still end up attached to it, see above.</li>
     </ul>
+
+    <h3>Three Identities, One Job Each</h3>
+
+    <p>
+        Every call Opey makes involves three identities, and the design is easiest to reason about
+        when each is given exactly one job.
+    </p>
+
+    <ul>
+        <li><strong>The consent user is the actor.</strong> It authenticates the call, its embedded entitlements and views are what OBP checks, and it is what the API metrics record as <code>user_id</code>. That is correct and deliberate: the log says truthfully that this agent identity made this call.</li>
+        <li><strong>The consent reference id is the link.</strong> It is stamped on every metric row for the call, and it is how you get from the actor back to the human who granted the consent and to the exact scope they granted.</li>
+        <li><strong>The accountable user is the owner.</strong> Anything durable the call creates for a person, grants to a person, or links to a person records this id, never the consent user's.</li>
+    </ul>
+
+    <p>
+        The agent owns nothing durable. The only rows that belong to the consent user are the
+        consent's own authorisation, its views and its copied entitlements, and they belong to it
+        precisely so that they die with it. Everything else is the human's.
+    </p>
+
+    <p>
+        There is no single switch that makes this true, because OBP was written with one user id
+        doing all three jobs. Every place that stores a user reference has to be visited once and
+        told which job it is doing. That is a one-time sort rather than an ongoing judgement call,
+        and it is what the section after next tracks.
+    </p>
+
+    <h3>An Old Pattern: Real and Effective Identity</h3>
+
+    <p>
+        This split is not new. Systems that take delegation seriously have carried two identities
+        per request for decades. OBP is adopting the same model: the consent user is the
+        <em>effective</em> identity, the accountable user is the <em>real</em> one, and the consent
+        reference id is the audit link between them.
+    </p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>System</th>
+                <th>Effective identity (permissions)</th>
+                <th>Real identity (ownership, audit)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Unix</td>
+                <td><code>euid</code> after <code>setuid</code>, or the target user under <code>sudo</code></td>
+                <td><code>ruid</code>, and <code>SUDO_USER</code> in the log</td>
+            </tr>
+            <tr>
+                <td>PostgreSQL</td>
+                <td><code>current_user</code> after <code>SET ROLE</code></td>
+                <td><code>session_user</code></td>
+            </tr>
+            <tr>
+                <td>SQL Server</td>
+                <td>the principal named in <code>EXECUTE AS</code></td>
+                <td><code>ORIGINAL_LOGIN()</code></td>
+            </tr>
+            <tr>
+                <td>OAuth token exchange (RFC 8693)</td>
+                <td><code>act</code>, the acting party</td>
+                <td><code>sub</code>, the party acted for</td>
+            </tr>
+            <tr>
+                <td><strong>OBP under a consent</strong></td>
+                <td><strong>consent user</strong>: embedded entitlements and views, metrics <code>user_id</code></td>
+                <td><strong>accountable user</strong>: creator, holder, grant target; linked by <code>consent_reference_id</code></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p>
+        In each of these, permission checks use the effective identity and anything durable is
+        recorded against the real one, and the storage layer applies that default so individual
+        code paths do not have to remember it. That is the direction OBP is taking: the consent
+        user keeps the isolation that makes authorisation watertight, and the persistence layer
+        resolves the accountable user for everything it creates on a person's behalf. The
+        alternatives, letting the agent act fully as the human or making the agent a durable
+        principal of its own, are not open here: the first would bypass the consent's scope, and
+        the second would leave objects owned by an identity that expires in an hour.
+    </p>
+
+    <h3>Attribution Is Not Yet Universal</h3>
+
+    <p>
+        Calls run as the consent user so that authorisation is watertight. The flip side is that any
+        endpoint which stores "who did this" or "who owns this" has to choose the accountable human
+        deliberately, and only some do today. What is guaranteed:
+    </p>
+
+    <ul>
+        <li><strong>Entitlement grants.</strong> A grant aimed at a consent user is redirected to the human who granted the consent, or rejected outright by the newer endpoints. The consent user can never accumulate roles.</li>
+        <li><strong>Bank creation.</strong> The automatic <code>CanCreateEntitlementAtOneBank</code> grant goes to you.</li>
+        <li><strong>Account creation on v7.</strong> The holder defaults to you, and naming the consent user explicitly is rejected.</li>
+        <li><strong>Account applications on v3.1.</strong> The applicant is you, and the holder on approval is the applicant.</li>
+        <li><strong>Dynamic entity roles.</strong> The automatic grants on creating a dynamic entity go to you.</li>
+    </ul>
+
+    <p>
+        Anything else that records a user, such as older account-creation endpoints, customer links,
+        auth contexts or the creator of a transaction request, may still name the consent user. Prefer
+        the newest API version for actions that create durable objects, check the owner or holder in
+        the response, and treat a consent user id where a human was expected as a bug to report.
+    </p>
 
     <h3>Identity Under a Consent</h3>
 
@@ -118,7 +224,7 @@ Consent-JWT: <the consent JWT>
         <li>"Create a bank called <code>friday.bank</code>." Opey needs <code>CanCreateBank</code>. You grant a consent carrying it. The bank is created and OBP grants <em>you</em> <code>CanCreateEntitlementAtOneBank</code> at <code>friday.bank</code>. The chat shows a "you gained a new entitlement" notice.</li>
         <li>"Now create an account there." Opey needs <code>CanCreateAccount</code> at <code>friday.bank</code>, which you do not hold. The consent card refuses and says you can grant it to yourself.</li>
         <li>Opey offers to grant it. You approve a consent carrying <code>CanCreateEntitlementAtOneBank</code> at <code>friday.bank</code>. The role lands on you.</li>
-        <li>Opey retries the account creation. A fresh consent now carries <code>CanCreateAccount</code> at <code>friday.bank</code>, and the account is created with you as holder.</li>
+        <li>Opey retries the account creation. A fresh consent now carries <code>CanCreateAccount</code> at <code>friday.bank</code>, and the v7 endpoint creates the account with you as holder.</li>
     </ol>
 
     <p>
@@ -151,7 +257,7 @@ Consent-JWT: <the consent JWT>
             <tr>
                 <td>Open an account at a bank</td>
                 <td><code>CanCreateAccount</code> at that bank</td>
-                <td>Yes. You become the holder.</td>
+                <td>Yes. On the v7 endpoint you become the holder.</td>
             </tr>
             <tr>
                 <td>Read balances or transactions</td>

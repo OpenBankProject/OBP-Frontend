@@ -28,6 +28,7 @@ import {
   FolderOpen,
   Star,
   Plug,
+  Smartphone,
   Package,
   CircleHelp,
   Rocket,
@@ -538,7 +539,19 @@ function buildDynamicResourceDocsItems(): NavigationItem[] {
   ];
 }
 
+// App Studio: Opey writes a phone-sized web app that calls OBP from a sandboxed preview
+function buildAppStudioItems(): NavigationItem[] {
+  return [
+    {
+      href: "/app-studio",
+      label: "App Studio",
+      iconComponent: Smartphone,
+    },
+  ];
+}
+
 export const dynamicResourceDocsItems = buildDynamicResourceDocsItems();
+export const appStudioItems = buildAppStudioItems();
 
 export function getActiveDynamicResourceDocsMenuItem(pathname: string) {
   const found = dynamicResourceDocsItems.find((item) => {
@@ -785,6 +798,7 @@ export const navSections: NavigationSection[] = [
   { id: "dynamic-entities", label: "Dynamic Entities", iconComponent: Box, items: dynamicEntitiesItems, basePaths: ["/dynamic-entities"] },
   { id: "dynamic-endpoints", label: "Dynamic Endpoints", iconComponent: Plug, items: dynamicEndpointsItems, basePaths: ["/dynamic-endpoints"] },
   { id: "dynamic-resource-docs", label: "Dynamic Resource Docs", iconComponent: FileText, items: dynamicResourceDocsItems, basePaths: ["/dynamic-resource-docs"] },
+  { id: "app-studio", label: "App Studio", iconComponent: Smartphone, items: appStudioItems, basePaths: ["/app-studio"] },
   { id: "chat-rooms", label: "Chat Rooms", iconComponent: MessageSquare, items: chatRoomsItems, basePaths: ["/chat-rooms"] },
   { id: "management-docs", label: "Management Docs", iconComponent: BookOpen, items: managementDocsItems, basePaths: ["/management-docs"] },
 ];
