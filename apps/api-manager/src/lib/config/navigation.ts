@@ -29,6 +29,7 @@ import {
   Star,
   Plug,
   Smartphone,
+  LayoutTemplate,
   Package,
   CircleHelp,
   Rocket,
@@ -546,6 +547,11 @@ function buildAppStudioItems(): NavigationItem[] {
       href: "/app-studio",
       label: "App Studio",
       iconComponent: Smartphone,
+    },
+    {
+      href: "/app-studio/blocks",
+      label: "Page Blocks",
+      iconComponent: LayoutTemplate,
     },
   ];
 }

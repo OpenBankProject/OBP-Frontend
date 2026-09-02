@@ -11,8 +11,11 @@
   const navSections = allNavSections.filter(s => s.id !== "my-account" && s.id !== "banks");
   import Toast from "$lib/components/Toast.svelte";
   import ApiActivityIndicator from "$lib/components/ApiActivityIndicator.svelte";
-  import OpeyInsightBar from "$lib/components/OpeyInsightBar.svelte";
-  import { describeRoute } from "$lib/config/insightMessages";
+  // Opey Insights bar (top of every page) disabled 2026-09-03: the Opey pane on the right of
+  // individual pages, with explicit access to that page's fields, is the preferred integration.
+  // The component, InsightService and the notebook bootstrap in hooks.server.ts stay for reference.
+  // import OpeyInsightBar from "$lib/components/OpeyInsightBar.svelte";
+  // import { describeRoute } from "$lib/config/insightMessages"; // only used by the disabled Opey Insights bar
   import { createLogger } from '@obp/shared/utils';
   import { CurrentBankPicker } from '@obp/shared/components';
   import { resourceDocsCache } from "$lib/stores/resourceDocsCache";
@@ -40,7 +43,7 @@
   import CurrentBankSelector from "$lib/components/CurrentBankSelector.svelte";
   import type { RootLayoutData } from "./+layout.server";
 
-  const notebookEnabled = env.PUBLIC_OPEY_NOTEBOOK_ENABLED === 'true';
+  // const notebookEnabled = env.PUBLIC_OPEY_NOTEBOOK_ENABLED === 'true'; // Opey Insights bar disabled, see above
 
   logger.info("📦 All imports loaded");
   const importsLoadedTime = performance.now();
@@ -564,6 +567,7 @@
           {/if}
         </div>
         {#if isAuthenticated}
+          <!-- Opey Insights bar toggle, disabled (see the note at the top of the script)
           {#if notebookEnabled && !userPreferences.opeyInsightsOpen && page.url.pathname !== '/'}
             <button
               type="button"
@@ -576,6 +580,7 @@
               <ChevronRight class="size-4" />
             </button>
           {/if}
+          -->
           <div class="relative mx-4">
             <button
               type="button"
@@ -619,11 +624,13 @@
         class="flex flex-col overflow-auto"
         style="height: calc(100vh - 80px);"
       >
-        {#if isAuthenticated && page.url.pathname !== '/'}
+        <!-- Opey Insights bar, disabled (see the note at the top of the script)
+        {#if notebookEnabled && isAuthenticated && page.url.pathname !== '/'}
           {#key page.url.pathname}
             <OpeyInsightBar pathname={page.url.pathname} pageContext={describeRoute(page.url.pathname)} bind:opey_insights_is_open={userPreferences.opeyInsightsOpen} />
           {/key}
         {/if}
+        -->
         {@render children()}
       </main>
     </div>

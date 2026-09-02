@@ -28,7 +28,16 @@ export interface ObpProxyRequestEvent {
 	request: Request;
 }
 
-export function createObpProxyHandler(obpBaseUrl: string) {
+export interface ObpProxyOptions {
+	/**
+	 * Supply the OBP auth headers for this request instead of the session's bearer
+	 * token (e.g. `Consent-JWT` + `Consumer-Key`). Return null to refuse the request
+	 * with 401. The caller must still be logged in to the app.
+	 */
+	authHeaders?: (event: ObpProxyRequestEvent) => Record<string, string> | null;
+}
+
+export function createObpProxyHandler(obpBaseUrl: string, options: ObpProxyOptions = {}) {
 	return async function proxyRequest(event: ObpProxyRequestEvent): Promise<Response> {
 		const session = event.locals.session;
 		if (!session?.data?.user) {
@@ -38,7 +47,20 @@ export function createObpProxyHandler(obpBaseUrl: string) {
 			});
 		}
 
-		const accessToken = session.data.oauth?.access_token;
+		let authHeaders: Record<string, string>;
+		if (options.authHeaders) {
+			const supplied = options.authHeaders(event);
+			if (!supplied) {
+				return new Response(JSON.stringify({ code: 401, message: 'No OBP credentials supplied for this request' }), {
+					status: 401,
+					headers: { 'Content-Type': 'application/json' }
+				});
+			}
+			authHeaders = supplied;
+		} else {
+			const accessToken = session.data.oauth?.access_token;
+			authHeaders = accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
+		}
 
 		// Reject path-traversal and absolute-URL attempts before joining into the OBP URL.
 		const rawPath = event.params.path ?? '';
@@ -61,11 +83,9 @@ export function createObpProxyHandler(obpBaseUrl: string) {
 		const url = `${obpBaseUrl}${obpPath}${queryString}`;
 
 		const headers: Record<string, string> = {
-			'Content-Type': 'application/json'
+			'Content-Type': 'application/json',
+			...authHeaders
 		};
-		if (accessToken) {
-			headers['Authorization'] = `Bearer ${accessToken}`;
-		}
 
 		const method = event.request.method;
 		const hasBody = method === 'POST' || method === 'PUT' || method === 'PATCH';

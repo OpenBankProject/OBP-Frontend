@@ -22,7 +22,7 @@ import {
   warnIfClientAddressUnconfigured
 } from '@obp/shared/server/rate-limit';
 import { redisService } from '$lib/redis/services/RedisService';
-import { createOpeyNotebookDynamicEntityIfNeeded } from "$lib/server/opey/opeyNotebook";
+// import { createOpeyNotebookDynamicEntityIfNeeded } from "$lib/server/opey/opeyNotebook"; // Opey notebook disabled, see below
 
 declare const process: { env: Record<string, string | undefined>; argv: string[] };
 
@@ -188,20 +188,26 @@ for (const p of oauth2ProviderManager.getAllProviders()) {
 
 healthCheckRegistry.startAll();
 
-// Bootstrap: ensure opey_notebook dynamic entity exists (using application access)
-if (env.PUBLIC_OPEY_NOTEBOOK_ENABLED === 'true') {
-  createOpeyNotebookDynamicEntityIfNeeded().then((ok: boolean) => {
-    if (!ok) {
-      logger.warn(
-        "opey_notebook entity could not be created at startup. " +
-          "Ensure the API Manager consumer has the CanCreateSystemLevelDynamicEntity scope " +
-          "and supports the client_credentials grant. Opey notebook features will not work without it."
-      );
-    }
-  });
-} else {
-  logger.info("Opey notebook is disabled (PUBLIC_OPEY_NOTEBOOK_ENABLED != 'true').");
-}
+// Opey notebook disabled 2026-09-03, together with the Opey Insights bar it fed (src/routes/+layout.svelte).
+// The notebook was a system-level dynamic entity (opey_notebook) that Opey read and wrote per page so the
+// top-of-page insights bar could summarise activity. The per-page Opey pane with explicit form access
+// (dynamic resource docs, App Studio) replaced it. Code kept for reference: $lib/server/opey/opeyNotebook.ts,
+// $lib/services/InsightService.ts, $lib/components/OpeyInsightBar.svelte. PUBLIC_OPEY_NOTEBOOK_ENABLED is no longer read.
+//
+// // Bootstrap: ensure opey_notebook dynamic entity exists (using application access)
+// if (env.PUBLIC_OPEY_NOTEBOOK_ENABLED === 'true') {
+//   createOpeyNotebookDynamicEntityIfNeeded().then((ok: boolean) => {
+//     if (!ok) {
+//       logger.warn(
+//         "opey_notebook entity could not be created at startup. " +
+//           "Ensure the API Manager consumer has the CanCreateSystemLevelDynamicEntity scope " +
+//           "and supports the client_credentials grant. Opey notebook features will not work without it."
+//       );
+//     }
+//   });
+// } else {
+//   logger.info("Opey notebook is disabled (PUBLIC_OPEY_NOTEBOOK_ENABLED != 'true').");
+// }
 
 function needsAuthorization(routeId: string): boolean {
   // protected routes are put in the /(protected)/ route group

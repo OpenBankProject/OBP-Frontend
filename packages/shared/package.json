@@ -57,6 +57,10 @@
 			"types": "./src/lib/markdown/index.ts",
 			"svelte": "./src/lib/markdown/index.ts"
 		},
+		"./landing": {
+			"types": "./src/lib/landing/index.ts",
+			"svelte": "./src/lib/landing/index.ts"
+		},
 		"./config": {
 			"types": "./src/lib/config/index.ts",
 			"svelte": "./src/lib/config/index.ts"
