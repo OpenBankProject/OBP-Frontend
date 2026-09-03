@@ -12,7 +12,7 @@ import { env as publicEnv } from '$env/dynamic/public';
 import { obp_requests } from '$lib/obp/requests';
 import { oauth2ProviderManager } from '$lib/oauth/providerManager';
 import { SessionOAuthHelper } from '$lib/oauth/sessionHelper';
-import { healthCheckRegistry, OIDCHealthCheckService, OpeyToolsHealthCheckService } from '@obp/shared/health-check';
+import { healthCheckRegistry, OIDCHealthCheckService, OpeyToolsHealthCheckService, ObpConsumerHealthCheckService } from '@obp/shared/health-check';
 import { resolveGrpcTarget } from '@obp/shared/obp';
 
 import { redisService } from '$lib/redis/services/RedisService';
@@ -166,6 +166,22 @@ function initHealthChecks() {
 				strictClientCredentials: testTokenStrict
 			})
 		);
+		// Which OBP Consumer this app is, for this client: consumer_id and consumer_name from
+		// GET /obp/v7.0.0/consumers/current/identity, shown on /status.
+		if (clientId && clientSecret) {
+			healthCheckRegistry.register(
+				new ObpConsumerHealthCheckService({
+					serviceName: `OBP consumer: ${p.provider}`,
+					obpBaseUrl: publicEnv.PUBLIC_OBP_BASE_URL,
+					providerStatus: () => oauth2ProviderManager.getProviderStatus(p.provider),
+					clientId,
+					clientSecret,
+					...(env.API_MANAGER_URL
+						? { consumerUrl: (id: string) => `${env.API_MANAGER_URL.replace(/\/$/, '')}/consumers/${encodeURIComponent(id)}` }
+						: {})
+				})
+			);
+		}
 	}
 
 	healthCheckRegistry.startAll();

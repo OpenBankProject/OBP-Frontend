@@ -1,0 +1,77 @@
+{
+  "entity_name": "obp_portal_page",
+  "has_personal_entity": false,
+  "has_public_access": false,
+  "has_community_access": false,
+  "personal_requires_role": false,
+  "auth_mode": "UserOrApplication",
+  "schema": {
+    "description": "A page or app authored in App Studio for the OBP Portal. kind=page is HTML+CSS with live-data tags and behaviours (no script); kind=app is a self-contained web app run in a sandboxed iframe. Only status=published records are served by the Portal.",
+    "required": [
+      "slug",
+      "title",
+      "kind",
+      "status",
+      "source",
+      "updated_at"
+    ],
+    "properties": {
+      "slug": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 120,
+        "example": "hackathon-2026",
+        "description": "URL segment under /pages/ on the Portal. Lower-case letters, digits and hyphens."
+      },
+      "title": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 200,
+        "example": "Open Banking Hackathon 2026",
+        "description": "Display title."
+      },
+      "kind": {
+        "type": "string",
+        "minLength": 3,
+        "maxLength": 4,
+        "example": "page",
+        "description": "page or app."
+      },
+      "status": {
+        "type": "string",
+        "minLength": 5,
+        "maxLength": 9,
+        "example": "draft",
+        "description": "draft or published."
+      },
+      "summary": {
+        "type": "string",
+        "minLength": 0,
+        "maxLength": 500,
+        "example": "48-hour hackathon on the sandbox APIs.",
+        "description": "One or two sentences for listings."
+      },
+      "source": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 500000,
+        "example": "<style>…</style><div class=\"lp obp-landing\">…</div>",
+        "description": "The page or app source as written in App Studio."
+      },
+      "author": {
+        "type": "string",
+        "minLength": 0,
+        "maxLength": 200,
+        "example": "marketing.team",
+        "description": "Username of the last editor."
+      },
+      "updated_at": {
+        "type": "string",
+        "minLength": 20,
+        "maxLength": 30,
+        "example": "2026-09-03T10:15:00Z",
+        "description": "ISO 8601 time of the last save."
+      }
+    }
+  }
+}

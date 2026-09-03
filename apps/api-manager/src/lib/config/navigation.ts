@@ -553,6 +553,11 @@ function buildAppStudioItems(): NavigationItem[] {
       label: "Page Blocks",
       iconComponent: LayoutTemplate,
     },
+    {
+      href: "/app-studio/help",
+      label: "Help",
+      iconComponent: CircleHelp,
+    },
   ];
 }
 

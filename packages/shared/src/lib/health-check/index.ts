@@ -2,6 +2,8 @@ export { HealthCheckRegistry, healthCheckRegistry } from './HealthCheckRegistry.
 export { HealthCheckService } from './services/HealthCheckService.js';
 export type { HealthCheckOptions } from './services/HealthCheckService.js';
 export { OIDCHealthCheckService } from './services/OIDCHealthCheckService.js';
+export { ObpConsumerHealthCheckService } from './services/ObpConsumerHealthCheckService.js';
+export type { ObpConsumerHealthCheckOptions } from './services/ObpConsumerHealthCheckService.js';
 export type { OIDCHealthCheckOptions, OIDCProviderStatus } from './services/OIDCHealthCheckService.js';
 export { OpeyToolsHealthCheckService, evaluateOpeyToolsStatus } from './services/OpeyToolsHealthCheckService.js';
 export type { OpeyToolsHealthCheckOptions, OpeyToolsEvaluation } from './services/OpeyToolsHealthCheckService.js';

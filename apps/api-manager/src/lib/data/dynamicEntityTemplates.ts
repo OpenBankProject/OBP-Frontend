@@ -7,6 +7,8 @@
  * entitlements. Entity names must satisfy the form's naming rule
  * (lowercase letters, numbers, underscores).
  */
+import portalPageEntity from "./portalPageEntity.json";
+
 export interface DynamicEntityTemplate {
 	entityName: string;
 	description: string;
@@ -16,9 +18,24 @@ export interface DynamicEntityTemplate {
 	hasPublicAccess: boolean;
 	hasCommunityAccess: boolean;
 	personalRequiresRole: boolean;
+	/** OBP-API v6.0.0 auth_mode: UserOnly (default) | ApplicationOnly | UserOrApplication | UserAndApplication. */
+	authMode?: string;
 }
 
+/** The App Studio pages entity, kept in one place: the API Manager bootstraps it from the same definition. */
+const portalPageTemplate: DynamicEntityTemplate = {
+	entityName: portalPageEntity.entity_name,
+	description: portalPageEntity.schema.description,
+	schemaJson: JSON.stringify({ properties: portalPageEntity.schema.properties, required: portalPageEntity.schema.required }, null, 2),
+	hasPersonalEntity: portalPageEntity.has_personal_entity,
+	hasPublicAccess: portalPageEntity.has_public_access,
+	hasCommunityAccess: portalPageEntity.has_community_access,
+	personalRequiresRole: portalPageEntity.personal_requires_role,
+	authMode: portalPageEntity.auth_mode
+};
+
 export const dynamicEntityTemplates: Record<string, DynamicEntityTemplate> = {
+	"obp-portal-page": portalPageTemplate,
 	"training-progress": {
 		entityName: "training_progress",
 		description:

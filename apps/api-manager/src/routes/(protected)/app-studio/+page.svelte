@@ -6,7 +6,7 @@
   import { appStudioPathToProxyPath } from "@obp/shared/components";
   import type { OpeyChatOptions, SuggestedQuestion, AppStudioProxyResult } from "@obp/shared/components";
   import { describeLandingBlocksForOpey, initLandingBehaviours, LANDING_BASE_CSS } from "@obp/shared/landing";
-  import { Smartphone, LayoutTemplate, Monitor, Play, Copy, Download, RotateCcw, Landmark, ListOrdered, Wand2, Megaphone, Handshake, KeyRound, ShieldCheck } from "@lucide/svelte";
+  import { Smartphone, LayoutTemplate, Monitor, Play, Copy, Download, RotateCcw, Landmark, ListOrdered, Wand2, Megaphone, Handshake, KeyRound, ShieldCheck, Save, Globe, FolderOpen, Trash2 } from "@lucide/svelte";
   import { formBridge } from "$lib/stores/formBridge.svelte";
   import { STARTER_APP_TITLE, STARTER_APP_HTML, STARTER_LANDING_TITLE, STARTER_LANDING_HTML } from "./starters";
 
@@ -72,6 +72,7 @@
   function switchMode(next: Mode) {
     if (next === mode) return;
     mode = next;
+    startNewPage();
     opeyPreviousSource = null;
     opeyPreviousTitle = null;
     if (next === "page") {
@@ -360,6 +361,131 @@
     }
   }
 
+  // The app asked the host to navigate (obp.navigate). In the studio we only record it;
+  // the Portal, when it hosts a published app, follows it.
+  function handleAppNavigate(url: string) {
+    pushLog({ level: "log", message: `App asked to navigate to ${url} (not followed in the studio)` });
+  }
+
+  // ---- Saving and publishing (obp_portal_page dynamic entity) ----------------------------
+  interface SavedPage {
+    id: string;
+    slug: string;
+    title: string;
+    kind: "page" | "app";
+    status: "draft" | "published";
+    summary: string;
+    author: string;
+    updated_at: string;
+    source_length?: number;
+  }
+  let currentPage = $state<SavedPage | null>(null);
+  let savedPages = $state<SavedPage[]>([]);
+  let savedPagesError = $state("");
+  let slug = $state("");
+  let summary = $state("");
+  let saving = $state(false);
+  let saveError = $state("");
+  let saveMessage = $state("");
+  let openId = $state("");
+
+  const slugFromTitle = (t: string) => t.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 120);
+
+  async function loadSavedPages() {
+    savedPagesError = "";
+    try {
+      const response = await fetch("/backend/app-studio/pages", { credentials: "include" });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data?.message ?? `HTTP ${response.status}`);
+      savedPages = data.pages ?? [];
+    } catch (e) {
+      savedPagesError = e instanceof Error ? e.message : String(e);
+    }
+  }
+
+  async function savePage(status: "draft" | "published") {
+    saveError = "";
+    saveMessage = "";
+    const effectiveSlug = slug.trim() || slugFromTitle(title);
+    if (!title.trim()) { saveError = "Give the page a title first."; return; }
+    if (!effectiveSlug) { saveError = "Give the page a slug."; return; }
+    slug = effectiveSlug;
+    saving = true;
+    try {
+      const body = { slug: effectiveSlug, title: title.trim(), kind: mode, status, summary: summary.trim(), source };
+      const isUpdate = !!currentPage;
+      const response = await fetch(isUpdate ? `/backend/app-studio/pages/${encodeURIComponent(currentPage!.id)}` : "/backend/app-studio/pages", {
+        method: isUpdate ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(body),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data?.message ?? `HTTP ${response.status}`);
+      currentPage = data.page;
+      saveMessage = status === "published" ? `Published as /pages/${data.page.slug}` : `Saved draft ${data.page.slug}`;
+      await loadSavedPages();
+    } catch (e) {
+      saveError = e instanceof Error ? e.message : String(e);
+    } finally {
+      saving = false;
+    }
+  }
+
+  async function openSavedPage(id: string) {
+    if (!id) return;
+    saveError = "";
+    saveMessage = "";
+    try {
+      const response = await fetch(`/backend/app-studio/pages/${encodeURIComponent(id)}`, { credentials: "include" });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data?.message ?? `HTTP ${response.status}`);
+      const page: SavedPage & { source: string } = data.page;
+      if (page.kind !== mode) {
+        mode = page.kind;
+        previewWidth = page.kind === "page" ? "desktop" : "phone";
+      }
+      opeyPreviousSource = null;
+      opeyPreviousTitle = null;
+      source = page.source;
+      title = page.title;
+      slug = page.slug;
+      summary = page.summary;
+      currentPage = page;
+      openId = "";
+      run();
+    } catch (e) {
+      saveError = e instanceof Error ? e.message : String(e);
+    }
+  }
+
+  async function deleteCurrentPage() {
+    if (!currentPage) return;
+    saveError = "";
+    try {
+      const response = await fetch(`/backend/app-studio/pages/${encodeURIComponent(currentPage.id)}`, { method: "DELETE", credentials: "include" });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data?.message ?? `HTTP ${response.status}`);
+      saveMessage = `Deleted ${currentPage.slug}`;
+      currentPage = null;
+      await loadSavedPages();
+    } catch (e) {
+      saveError = e instanceof Error ? e.message : String(e);
+    }
+  }
+
+  function startNewPage() {
+    currentPage = null;
+    slug = "";
+    summary = "";
+    saveMessage = "";
+    saveError = "";
+  }
+
+  onMount(() => {
+    void loadSavedPages();
+  });
+
   // ---- Opey: the page is a one-field form Opey fills via set_form_fields -----------
   const MAX_SOURCE_IN_CONTEXT = 14000;
 
@@ -412,7 +538,10 @@
       "- title (string, short app name)",
       "",
       "Runtime the app runs in:",
-      "- A 390x780 phone-sized sandboxed iframe. No cookies, no localStorage across runs, no access to the host page.",
+      previewWidth === "phone"
+        ? "- A 390x780 phone-sized sandboxed iframe. No cookies, no localStorage across runs, no access to the host page."
+        : "- A page-width sandboxed iframe whose height follows the app's content (the shim reports it). No cookies, no localStorage across runs, no access to the host page. Design responsively; it is also shown on phones.",
+      "- obp.navigate(url) asks the hosting page to navigate (e.g. to /login or a product page); use it for links that must leave the app. Ordinary <a href> links stay inside the iframe.",
       "- A global `obp` object is injected before the app's scripts:",
       "    await obp.get('/obp/v6.0.0/banks')            -> parsed JSON, throws Error(message) with .status on non-2xx",
       "    await obp.post(path, bodyObject) / obp.put(path, bodyObject) / obp.delete(path)",
@@ -524,7 +653,7 @@
       <p class="mt-1 text-gray-600 dark:text-gray-400">
         {#if mode === "page"}
           Page: no code, lives in the Portal. Opey writes HTML and CSS; live-data tags are filled from the catalogue on the server and
-          behaviours come from data attributes. See the <a href="/app-studio/blocks" class="underline">blocks</a> demo.
+          behaviours come from data attributes. See the <a href="/app-studio/blocks" class="underline">blocks</a> demo and the <a href="/app-studio/help" class="underline">help</a>.
         {:else}
           App: runs code, sealed off from the Portal. Opey writes a phone-sized web app that calls the OBP API through the API Manager,
           using your access. Reads run unattended; writes ask you first.
@@ -554,7 +683,7 @@
     </div>
   {/if}
 
-  <div class="grid gap-6 {mode === 'page' && previewWidth === 'desktop' ? 'xl:grid-cols-[minmax(0,1fr)_minmax(20rem,26rem)]' : 'xl:grid-cols-[minmax(0,1fr)_auto_minmax(20rem,26rem)]'}">
+  <div class="grid gap-6 {previewWidth === 'desktop' ? 'xl:grid-cols-[minmax(0,1fr)_minmax(20rem,26rem)]' : 'xl:grid-cols-[minmax(0,1fr)_auto_minmax(20rem,26rem)]'}">
     <div class="flex min-w-0 flex-col gap-6">
       {#if mode === "app"}
         <!-- Access: whose credentials the app's OBP calls use -->
@@ -733,6 +862,67 @@
         {/if}
       </section>
 
+      <!-- Save / publish to the Portal -->
+      <section class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800" data-testid="app-studio-publish" data-state={currentPage ? currentPage.status : "unsaved"}>
+        <div class="flex flex-wrap items-end gap-3">
+          <label class="flex flex-col gap-1 text-sm">
+            <span class="font-medium text-gray-700 dark:text-gray-300">Slug</span>
+            <input type="text" name="slug" class="w-56 rounded-md border border-gray-300 px-2 py-1 font-mono text-sm dark:border-gray-600 dark:bg-gray-900" placeholder={slugFromTitle(title) || "my-page"} bind:value={slug} data-testid="app-studio-slug" />
+          </label>
+          <label class="flex min-w-[16rem] flex-1 flex-col gap-1 text-sm">
+            <span class="font-medium text-gray-700 dark:text-gray-300">Summary</span>
+            <input type="text" name="summary" class="rounded-md border border-gray-300 px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-900" placeholder="One line for listings" bind:value={summary} data-testid="app-studio-summary" />
+          </label>
+          <div class="flex flex-wrap gap-2">
+            <button type="button" class="inline-flex items-center gap-1 rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-60 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700" disabled={saving} onclick={() => savePage("draft")} data-testid="app-studio-save-draft">
+              <Save class="h-4 w-4" /> {currentPage ? "Save" : "Save draft"}
+            </button>
+            <button type="button" class="inline-flex items-center gap-1 rounded-md bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-60" disabled={saving} onclick={() => savePage("published")} data-testid="app-studio-publish-btn">
+              <Globe class="h-4 w-4" /> {currentPage?.status === "published" ? "Republish" : "Publish to Portal"}
+            </button>
+            {#if currentPage?.status === "published"}
+              <button type="button" class="inline-flex items-center gap-1 rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-60 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700" disabled={saving} onclick={() => savePage("draft")} data-testid="app-studio-unpublish">Unpublish</button>
+            {/if}
+            {#if currentPage}
+              <button type="button" class="inline-flex items-center gap-1 rounded-md border border-red-300 px-3 py-1.5 text-sm text-red-700 hover:bg-red-50 dark:border-red-700 dark:text-red-300 dark:hover:bg-red-900/20" onclick={deleteCurrentPage} data-testid="app-studio-delete">
+                <Trash2 class="h-4 w-4" /> Delete
+              </button>
+            {/if}
+          </div>
+        </div>
+        <div class="mt-3 flex flex-wrap items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+          {#if currentPage}
+            <span data-testid="app-studio-current-page">Editing <code>{currentPage.slug}</code> ({currentPage.kind}, {currentPage.status}, saved {currentPage.updated_at} by {currentPage.author || "unknown"})</span>
+            <button type="button" class="underline" onclick={startNewPage}>Start a new one</button>
+          {:else}
+            <span>Not saved yet. Saved as a <code>obp_portal_page</code> record in OBP; the Portal serves records with status published at <code>/pages/SLUG</code>.</span>
+          {/if}
+          <label class="ml-auto flex items-center gap-1">
+            <FolderOpen class="h-3.5 w-3.5" />
+            <select class="rounded-md border border-gray-300 px-2 py-1 text-xs dark:border-gray-600 dark:bg-gray-900" bind:value={openId} onchange={() => openSavedPage(openId)} data-testid="app-studio-open-saved">
+              <option value="">Open saved…</option>
+              {#each savedPages as sp (sp.id)}
+                <option value={sp.id}>{sp.title} · {sp.kind} · {sp.status}</option>
+              {/each}
+            </select>
+          </label>
+          {#if saveMessage}<span class="text-emerald-700 dark:text-emerald-300" data-testid="app-studio-save-message">{saveMessage}</span>{/if}
+          {#if saveError}<span class="text-red-700 dark:text-red-300" data-testid="app-studio-save-error">{saveError}</span>{/if}
+          {#if savedPagesError}<span class="text-red-700 dark:text-red-300">{savedPagesError}</span>{/if}
+        </div>
+      </section>
+
+      <!-- App at page width sits under the editor; height follows the app's content -->
+      {#if mode === "app" && previewWidth === "desktop"}
+        <section data-testid="app-studio-preview" data-state="ready">
+          <div class="mb-2 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+            <span>{title || "Untitled app"} · run {runId} · page width</span>
+            <button type="button" class="inline-flex items-center gap-1 rounded-md border border-gray-300 px-2 py-1 dark:border-gray-600" onclick={() => (previewWidth = "phone")} data-testid="app-studio-width-phone"><Smartphone class="h-3.5 w-3.5" /> Phone width</button>
+          </div>
+          <AppStudioPreview {source} {runId} layout="fill" onRequest={handleAppRequest} onLog={pushLog} onNavigate={handleAppNavigate} />
+        </section>
+      {/if}
+
       <!-- Landing preview at desktop width sits under the editor, full column width -->
       {#if mode === "page" && previewWidth === "desktop"}
         <section data-testid="app-studio-preview" data-state={expanding ? "rendering" : expandError ? "error" : "ready"}>
@@ -753,12 +943,15 @@
       {/if}
     </div>
 
-    <!-- Phone-sized preview column (app mode, or landing at phone width) -->
-    {#if mode === "app" || previewWidth === "phone"}
+    <!-- Phone-sized preview column (either mode at phone width) -->
+    {#if previewWidth === "phone"}
       <section class="xl:sticky xl:top-4 xl:self-start" data-testid="app-studio-preview" data-state={mode === "page" ? (expanding ? "rendering" : expandError ? "error" : "ready") : "ready"}>
         {#if mode === "app"}
-          <AppStudioPreview {source} {runId} onRequest={handleAppRequest} onLog={pushLog} />
-          <p class="mt-2 text-center text-xs text-gray-500 dark:text-gray-400">{title || "Untitled app"} · run {runId}</p>
+          <AppStudioPreview {source} {runId} onRequest={handleAppRequest} onLog={pushLog} onNavigate={handleAppNavigate} />
+          <p class="mt-2 flex items-center justify-center gap-3 text-center text-xs text-gray-500 dark:text-gray-400">
+            <span>{title || "Untitled app"} · run {runId}</span>
+            <button type="button" class="inline-flex items-center gap-1 rounded-md border border-gray-300 px-2 py-1 dark:border-gray-600" onclick={() => (previewWidth = "desktop")} data-testid="app-studio-width-desktop"><Monitor class="h-3.5 w-3.5" /> Page width</button>
+          </p>
         {:else}
           {#if expandError}
             <div class="mb-2 w-[410px] max-w-full rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-800 dark:border-red-700 dark:bg-red-900/20 dark:text-red-200">{expandError}</div>

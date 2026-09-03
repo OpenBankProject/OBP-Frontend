@@ -13,6 +13,8 @@
  *   { type: 'obp-studio:request', id, method, path, body? }
  *   { type: 'obp-studio:log', level: 'log'|'warn'|'error', message }
  *   { type: 'obp-studio:ready' }
+ *   { type: 'obp-studio:resize', height }        content height, so the host can size the frame
+ *   { type: 'obp-studio:navigate', url }         the app asks the host page to navigate
  * Messages (host -> iframe):
  *   { type: 'obp-studio:response', id, ok, status, body?, error? }
  */
@@ -31,6 +33,16 @@ export interface AppStudioLogMessage {
 	type: 'obp-studio:log';
 	level: 'log' | 'warn' | 'error';
 	message: string;
+}
+
+export interface AppStudioResizeMessage {
+	type: 'obp-studio:resize';
+	height: number;
+}
+
+export interface AppStudioNavigateMessage {
+	type: 'obp-studio:navigate';
+	url: string;
 }
 
 export interface AppStudioResponseMessage {
@@ -84,8 +96,20 @@ export const APP_STUDIO_SHIM_SOURCE = `(function () {
     get: function (path) { return unwrap(request('GET', path)); },
     post: function (path, body) { return unwrap(request('POST', path, body)); },
     put: function (path, body) { return unwrap(request('PUT', path, body)); },
-    delete: function (path) { return unwrap(request('DELETE', path)); }
+    delete: function (path) { return unwrap(request('DELETE', path)); },
+    navigate: function (url) { post({ type: 'obp-studio:navigate', url: String(url || '') }); }
   };
+  // Report content height so a host that shows the app at page size can fit the frame to it.
+  var lastHeight = 0;
+  function reportHeight() {
+    var h = Math.max(document.documentElement.scrollHeight, document.body ? document.body.scrollHeight : 0);
+    if (h && h !== lastHeight) { lastHeight = h; post({ type: 'obp-studio:resize', height: h }); }
+  }
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(reportHeight).observe(document.documentElement);
+  }
+  window.addEventListener('load', reportHeight);
+  setInterval(reportHeight, 1000);
   function fmt(args) {
     return Array.prototype.map.call(args, function (a) {
       if (typeof a === 'string') return a;

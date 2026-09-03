@@ -12,7 +12,7 @@ import { env as publicEnv } from "$env/dynamic/public";
 import { oauth2ProviderManager } from "$lib/oauth/providerManager";
 import { SessionOAuthHelper } from "$lib/oauth/sessionHelper";
 import { resourceDocsCache } from "$lib/stores/resourceDocsCache";
-import { healthCheckRegistry, OIDCHealthCheckService } from '@obp/shared/health-check';
+import { healthCheckRegistry, OIDCHealthCheckService, ObpConsumerHealthCheckService } from '@obp/shared/health-check';
 import { resolveGrpcTarget } from '@obp/shared/obp';
 import { RedisHealthCheckService, GrpcHealthCheckService } from '@obp/shared/server/health-check';
 import {
@@ -23,6 +23,7 @@ import {
 } from '@obp/shared/server/rate-limit';
 import { redisService } from '$lib/redis/services/RedisService';
 // import { createOpeyNotebookDynamicEntityIfNeeded } from "$lib/server/opey/opeyNotebook"; // Opey notebook disabled, see below
+import { createPortalPageDynamicEntityIfNeeded } from "$lib/server/portalPages/portalPageEntity";
 
 declare const process: { env: Record<string, string | undefined>; argv: string[] };
 
@@ -184,9 +185,31 @@ for (const p of oauth2ProviderManager.getAllProviders()) {
       strictClientCredentials: testTokenStrict,
     })
   );
+  // Which OBP Consumer this app is, for this client: consumer_id and consumer_name from
+  // GET /obp/v7.0.0/consumers/current/identity, shown on /status.
+  if (clientId && clientSecret) {
+    healthCheckRegistry.register(
+      new ObpConsumerHealthCheckService({
+        serviceName: `OBP consumer: ${p.provider}`,
+        obpBaseUrl: publicEnv.PUBLIC_OBP_BASE_URL,
+        providerStatus: () => oauth2ProviderManager.getProviderStatus(p.provider),
+        clientId,
+        clientSecret,
+        consumerUrl: (id: string) => `/consumers/${encodeURIComponent(id)}`,
+      })
+    );
+  }
 }
 
 healthCheckRegistry.startAll();
+
+// Bootstrap: the obp_portal_page system dynamic entity that App Studio saves pages and apps into.
+// Needs the API Manager consumer to support client_credentials and hold CanCreateSystemLevelDynamicEntity.
+createPortalPageDynamicEntityIfNeeded().then((ok: boolean) => {
+  if (!ok) {
+    logger.warn("obp_portal_page entity could not be created at startup; App Studio cannot save pages until it exists.");
+  }
+});
 
 // Opey notebook disabled 2026-09-03, together with the Opey Insights bar it fed (src/routes/+layout.svelte).
 // The notebook was a system-level dynamic entity (opey_notebook) that Opey read and wrote per page so the

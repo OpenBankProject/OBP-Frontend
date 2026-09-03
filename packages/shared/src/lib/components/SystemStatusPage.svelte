@@ -46,6 +46,7 @@
 		responseTimeMs?: number;
 		error?: string;
 		lastChecked?: string;
+		// A detail `X` renders as a link when the service also reports `X_url`; the `_url` entry itself is not listed.
 		details: Record<string, string>;
 	};
 	let opeyBrowserCheck = $state<BrowserCheck>({
@@ -458,8 +459,16 @@
 							{#if service.details && Object.keys(service.details).length > 0}
 								<dl class="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs text-gray-600 dark:text-gray-400" data-testid="service-details-{serviceName}">
 									{#each Object.entries(service.details) as [key, value]}
-										<dt class="font-medium">{key}:</dt>
-										<dd class="font-mono break-all">{value}</dd>
+										{#if !(key.endsWith('_url') && key.slice(0, -4) in service.details)}
+											<dt class="font-medium">{key}:</dt>
+											<dd class="font-mono break-all">
+												{#if service.details[`${key}_url`]}
+													<a href={String(service.details[`${key}_url`])} class="underline hover:text-gray-900 dark:hover:text-gray-100" data-testid="service-detail-link-{key}">{value}</a>
+												{:else}
+													{value}
+												{/if}
+											</dd>
+										{/if}
 									{/each}
 								</dl>
 							{/if}
