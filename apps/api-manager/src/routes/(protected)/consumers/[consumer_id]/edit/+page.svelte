@@ -114,6 +114,34 @@
     availableRoles.find((r: any) => r.role === selectedRole)?.requires_bank_id ?? false
   );
 
+  // Add Scope: type to search the role list (OBP has well over a thousand roles, including
+  // the generated dynamic-entity ones). Matching is case-insensitive on any part of the name;
+  // words separated by spaces must all match, so "get dynamic portal" finds
+  // CanGetDynamicEntity_Systemobp_portal_page.
+  let roleSearch = $state("");
+  const ROLE_RESULTS_MAX = 30;
+  let roleMatches = $derived.by(() => {
+    const terms = roleSearch.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    if (terms.length === 0) return [] as any[];
+    return availableRoles
+      .filter((r: any) => terms.every((t) => String(r.role).toLowerCase().includes(t)))
+      .slice(0, ROLE_RESULTS_MAX);
+  });
+  let roleMatchTotal = $derived.by(() => {
+    const terms = roleSearch.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    if (terms.length === 0) return 0;
+    return availableRoles.filter((r: any) => terms.every((t) => String(r.role).toLowerCase().includes(t))).length;
+  });
+  function chooseRole(role: string) {
+    selectedRole = role;
+    roleSearch = role;
+  }
+  function onRoleSearchInput() {
+    // Typing again clears the choice unless the text is exactly a role name.
+    const exact = availableRoles.find((r: any) => r.role === roleSearch.trim());
+    selectedRole = exact ? exact.role : "";
+  }
+
   function startEditing(field: string) {
     editingField = field;
     if (field === "name") editAppName = consumer.app_name || "";
@@ -641,6 +669,7 @@
             await invalidateAll();
             isSubmitting = false;
             selectedRole = "";
+            roleSearch = "";
             showAddScopeForm = false;
           };
         }}
@@ -650,20 +679,55 @@
           <label for="role_name" class="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">
             Role <span class="text-red-500">*</span>
           </label>
-          <select
+          <input type="hidden" name="role_name" value={selectedRole} />
+          <input
             id="role_name"
-            name="role_name"
-            bind:value={selectedRole}
-            required
-            class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
-          >
-            <option value="">Select a role</option>
-            {#each availableRoles as role}
-              <option value={role.role}>
-                {role.role} {role.requires_bank_id ? "(Bank)" : "(System)"}
-              </option>
-            {/each}
-          </select>
+            type="search"
+            autocomplete="off"
+            spellcheck="false"
+            placeholder="Type part of the role name, e.g. get consumer, or dynamic portal"
+            bind:value={roleSearch}
+            oninput={onRoleSearchInput}
+            class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 font-mono text-sm text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+            data-testid="scope-role-search"
+            aria-controls="role-search-results"
+            aria-describedby="role-search-hint"
+          />
+          <p id="role-search-hint" class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            {#if selectedRole}
+              Selected <code>{selectedRole}</code>{selectedRoleRequiresBank ? " (bank-level)" : " (system-level)"}.
+            {:else if roleSearch.trim()}
+              {roleMatchTotal} of {availableRoles.length} roles match{roleMatchTotal > ROLE_RESULTS_MAX ? `, showing the first ${ROLE_RESULTS_MAX}` : ""}. Pick one below.
+            {:else}
+              {availableRoles.length} roles available. Words separated by spaces must all appear in the name.
+            {/if}
+          </p>
+          {#if !selectedRole && roleMatches.length > 0}
+            <ul
+              id="role-search-results"
+              role="listbox"
+              class="mt-2 max-h-64 divide-y divide-gray-100 overflow-auto rounded-lg border border-gray-300 bg-white dark:divide-gray-700 dark:border-gray-600 dark:bg-gray-700"
+              data-testid="scope-role-results"
+            >
+              {#each roleMatches as role (role.role)}
+                <li role="option" aria-selected="false">
+                  <button
+                    type="button"
+                    class="flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-sm hover:bg-blue-50 focus:bg-blue-50 focus:outline-none dark:hover:bg-gray-600 dark:focus:bg-gray-600"
+                    onclick={() => chooseRole(role.role)}
+                    data-testid="scope-role-option"
+                  >
+                    <span class="font-mono text-gray-900 dark:text-gray-100">{role.role}</span>
+                    <span class="flex-shrink-0 rounded-full px-2 py-0.5 text-xs {role.requires_bank_id ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200' : 'bg-gray-100 text-gray-700 dark:bg-gray-600 dark:text-gray-200'}">
+                      {role.requires_bank_id ? "Bank" : "System"}
+                    </span>
+                  </button>
+                </li>
+              {/each}
+            </ul>
+          {:else if !selectedRole && roleSearch.trim() && roleMatches.length === 0}
+            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">No role matches. Dynamic-entity roles look like <code>CanGetDynamicEntity_System&lt;entity&gt;</code>.</p>
+          {/if}
         </div>
 
         {#if selectedRoleRequiresBank}
@@ -704,7 +768,7 @@
           </button>
           <button
             type="button"
-            onclick={() => { showAddScopeForm = false; selectedRole = ""; }}
+            onclick={() => { showAddScopeForm = false; selectedRole = ""; roleSearch = ""; }}
             class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
           >
             Cancel

@@ -12,7 +12,7 @@ import { env as publicEnv } from "$env/dynamic/public";
 import { oauth2ProviderManager } from "$lib/oauth/providerManager";
 import { SessionOAuthHelper } from "$lib/oauth/sessionHelper";
 import { resourceDocsCache } from "$lib/stores/resourceDocsCache";
-import { healthCheckRegistry, OIDCHealthCheckService, ObpConsumerHealthCheckService } from '@obp/shared/health-check';
+import { healthCheckRegistry, OIDCHealthCheckService } from '@obp/shared/health-check';
 import { resolveGrpcTarget } from '@obp/shared/obp';
 import { RedisHealthCheckService, GrpcHealthCheckService } from '@obp/shared/server/health-check';
 import {
@@ -183,22 +183,12 @@ for (const p of oauth2ProviderManager.getAllProviders()) {
       clientId,
       clientSecret,
       strictClientCredentials: testTokenStrict,
+      // Which OBP Consumer this client is (consumer_id, consumer_name), read with the test token
+      // and shown in this row; the id links to the consumer's page here.
+      obpBaseUrl: publicEnv.PUBLIC_OBP_BASE_URL,
+      consumerUrl: (id: string) => `/consumers/${encodeURIComponent(id)}/edit`,
     })
   );
-  // Which OBP Consumer this app is, for this client: consumer_id and consumer_name from
-  // GET /obp/v7.0.0/consumers/current/identity, shown on /status.
-  if (clientId && clientSecret) {
-    healthCheckRegistry.register(
-      new ObpConsumerHealthCheckService({
-        serviceName: `OBP consumer: ${p.provider}`,
-        obpBaseUrl: publicEnv.PUBLIC_OBP_BASE_URL,
-        providerStatus: () => oauth2ProviderManager.getProviderStatus(p.provider),
-        clientId,
-        clientSecret,
-        consumerUrl: (id: string) => `/consumers/${encodeURIComponent(id)}`,
-      })
-    );
-  }
 }
 
 healthCheckRegistry.startAll();

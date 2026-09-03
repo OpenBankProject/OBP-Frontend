@@ -43,6 +43,15 @@ export interface OIDCHealthCheckOptions extends Omit<HealthCheckOptions, 'url' |
      * this often. Default: 1 hour.
      */
     clientCredentialsIntervalMs?: number;
+    /**
+     * OBP-API base URL. When set, a successful client_credentials token is used once to ask
+     * GET /obp/v7.0.0/consumers/current/identity which OBP Consumer this client is; the answer
+     * (consumer_id, consumer_name) is added to the details. The client id itself is never shown:
+     * it is the Consumer key, a credential. Skipped when unset.
+     */
+    obpBaseUrl?: string;
+    /** Where the consumer can be inspected (the API Manager's consumer page); rendered as a link on /status. */
+    consumerUrl?: (consumerId: string) => string;
 }
 
 interface DiscoveryDoc {
@@ -69,6 +78,18 @@ interface TokenTestOutcome {
     message: string;
     responseTimeMs: number;
     ranAt: number;
+    /** The issued token, kept in memory only, so the consumer identity can be read with it. */
+    accessToken?: string;
+    /** Which OBP Consumer the client is, read once per token. */
+    consumer?: ConsumerIdentity;
+}
+
+/** The calling Consumer as OBP reports it: id and name only. */
+interface ConsumerIdentity {
+    consumer_id?: string;
+    consumer_name?: string;
+    /** Set when the OBP-API has no identity endpoint yet, or refused the token. */
+    note?: string;
 }
 
 export class OIDCHealthCheckService extends HealthCheckService {
@@ -79,6 +100,8 @@ export class OIDCHealthCheckService extends HealthCheckService {
     private readonly strictClientCredentials: boolean;
     private readonly clientCredentialsScope?: string;
     private readonly clientCredentialsIntervalMs: number;
+    private readonly obpBaseUrl?: string;
+    private readonly consumerUrl?: (consumerId: string) => string;
     private lastTokenTest: TokenTestOutcome | null = null;
 
     constructor(options: OIDCHealthCheckOptions) {
@@ -101,6 +124,8 @@ export class OIDCHealthCheckService extends HealthCheckService {
         this.strictClientCredentials = options.strictClientCredentials ?? false;
         this.clientCredentialsScope = options.clientCredentialsScope;
         this.clientCredentialsIntervalMs = options.clientCredentialsIntervalMs ?? 60 * 60 * 1000;
+        this.obpBaseUrl = options.obpBaseUrl?.replace(/\/$/, '');
+        this.consumerUrl = options.consumerUrl;
     }
 
     async performCheck(): Promise<void> {
@@ -191,6 +216,13 @@ export class OIDCHealthCheckService extends HealthCheckService {
                     details.token_test_error = outcome.message;
                     tokenTestFailed = true;
                 }
+                if (outcome.consumer?.consumer_id) {
+                    details.consumer_id = outcome.consumer.consumer_id;
+                    if (this.consumerUrl) details.consumer_id_url = this.consumerUrl(outcome.consumer.consumer_id);
+                    details.consumer_name = outcome.consumer.consumer_name ?? '';
+                } else if (outcome.consumer?.note) {
+                    details.consumer = outcome.consumer.note;
+                }
             } else {
                 details.token_test = 'skipped (no credentials configured)';
             }
@@ -252,7 +284,17 @@ export class OIDCHealthCheckService extends HealthCheckService {
             const ranAt = Date.now();
 
             if (response.ok) {
-                return { ok: true, message: 'token issued', responseTimeMs: Math.round(elapsed), ranAt };
+                let accessToken: string | undefined;
+                try {
+                    accessToken = ((await response.json()) as { access_token?: string }).access_token;
+                } catch {
+                    // Token body not JSON: the test still passed, only the identity lookup is skipped
+                }
+                const outcome: TokenTestOutcome = { ok: true, message: 'token issued', responseTimeMs: Math.round(elapsed), ranAt, accessToken };
+                if (accessToken && this.obpBaseUrl) {
+                    outcome.consumer = await this.readConsumerIdentity(accessToken, timeoutMs);
+                }
+                return outcome;
             }
 
             let errDesc = `${response.status} ${response.statusText}`;
@@ -269,6 +311,33 @@ export class OIDCHealthCheckService extends HealthCheckService {
             const elapsed = performance.now() - start;
             const message = err instanceof Error ? (err.name === 'AbortError' ? 'timeout' : err.message) : String(err);
             return { ok: false, message, responseTimeMs: Math.round(elapsed), ranAt: Date.now() };
+        } finally {
+            clearTimeout(timeoutId);
+        }
+    }
+
+    /**
+     * Which OBP Consumer the token belongs to. GET /obp/v7.0.0/consumers/current/identity needs no
+     * role and returns only consumer_id and consumer_name.
+     */
+    private async readConsumerIdentity(accessToken: string, timeoutMs: number): Promise<ConsumerIdentity> {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort('timeout'), timeoutMs);
+        try {
+            const response = await fetch(`${this.obpBaseUrl}/obp/v7.0.0/consumers/current/identity`, {
+                headers: { Accept: 'application/json', Authorization: `Bearer ${accessToken}` },
+                signal: controller.signal
+            });
+            const body = (await response.json().catch(() => ({}))) as { consumer_id?: string; consumer_name?: string; message?: string };
+            if (response.ok && body.consumer_id) {
+                return { consumer_id: body.consumer_id, consumer_name: body.consumer_name ?? '' };
+            }
+            if (response.status === 404) {
+                return { note: 'not available: this OBP-API has no GET /obp/v7.0.0/consumers/current/identity' };
+            }
+            return { note: `OBP did not identify the application (${response.status}): ${body.message ?? response.statusText}` };
+        } catch (err) {
+            return { note: err instanceof Error ? (err.name === 'AbortError' ? 'timeout' : err.message) : String(err) };
         } finally {
             clearTimeout(timeoutId);
         }
