@@ -178,11 +178,17 @@
             // Optimistic remove
             reactions[messageId] = existing.filter(r => !(r.emoji === emoji && r.user_id === data.currentUserId));
             try {
-                await fetch(`/proxy/obp/v6.0.0/chat-rooms/${data.chatRoom.chat_room_id}/messages/${messageId}/reactions`, {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ emoji })
+                // The emoji is the last path segment on DELETE, not a body field -- the API
+                // serves .../reactions/{emoji}, and .../reactions is only POST and GET.
+                const res = await fetch(`/proxy/obp/v6.0.0/chat-rooms/${data.chatRoom.chat_room_id}/messages/${messageId}/reactions/${encodeURIComponent(emoji)}`, {
+                    method: 'DELETE'
                 });
+                if (!res.ok) {
+                    // Revert on failure. fetch only rejects on a network error, so without
+                    // this check a 4xx left the reaction gone from the UI, still in the
+                    // database, and back again on reload -- with nothing logged anywhere.
+                    reactions[messageId] = [...(reactions[messageId] || []), myReaction];
+                }
             } catch {
                 // Revert on failure
                 reactions[messageId] = [...(reactions[messageId] || []), myReaction];
