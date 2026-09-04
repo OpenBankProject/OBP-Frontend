@@ -49,6 +49,10 @@ export async function load(event: RequestEvent) {
 		logger.error('Error joining chat room:', e);
 		if (e instanceof OBPRequestError) {
 			if (e.message.includes('already a participant')) {
+				// Someone who already joined (e.g. from the FAQ link) should land in the room, not on this form.
+				const mine = await obp_requests.get('/obp/v6.0.0/users/current/chat-rooms', token).catch(() => null);
+				const room = (mine?.chat_rooms ?? []).find((r: { joining_key?: string }) => r.joining_key === joiningKey);
+				if (room?.chat_room_id) redirect(303, `/user/chat/${room.chat_room_id}`);
 				return { showForm: true, alreadyJoined: true, errorMessage: e.message };
 			}
 			return { showForm: true, errorMessage: e.message };

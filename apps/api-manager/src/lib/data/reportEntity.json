@@ -1,0 +1,21 @@
+{
+  "entity_name": "obp_report",
+  "has_personal_entity": false,
+  "has_public_access": false,
+  "has_community_access": false,
+  "personal_requires_role": false,
+  "auth_mode": "UserOnly",
+  "schema": {
+    "description": "A report authored on the API Manager's Reports page. definition is JavaScript that runs in a sandboxed frame in the viewer's browser, calls OBP through the API Manager with the viewer's own access, and emits rows; parameters describes the inputs the viewer fills in before a run. Never served to the public.",
+    "required": ["slug", "title", "definition", "parameters", "updated_at"],
+    "properties": {
+      "slug": { "type": "string", "minLength": 1, "maxLength": 120, "example": "accounts-per-bank", "description": "Short identifier. Lower-case letters, digits and hyphens." },
+      "title": { "type": "string", "minLength": 1, "maxLength": 200, "example": "Accounts per bank", "description": "Display title." },
+      "description": { "type": "string", "minLength": 0, "maxLength": 2000, "example": "Counts the accounts the viewer can see at each bank.", "description": "What the report shows and who it is for." },
+      "definition": { "type": "string", "minLength": 1, "maxLength": 200000, "example": "async function run(params, obp) { const b = await obp.get('/obp/v6.0.0/banks'); return { columns: ['bank_id', 'name'], rows: b.banks.map(x => [x.bank_id, x.full_name]) }; }", "description": "JavaScript defining async function run(params, obp) that returns { columns, rows } or { items }." },
+      "parameters": { "type": "string", "minLength": 2, "maxLength": 20000, "example": "[{\"name\": \"bank_id\", \"label\": \"Bank\", \"type\": \"bank_id\", \"required\": true}]", "description": "JSON array of parameter fields: name, label, type (string | number | date | bank_id | boolean), default, required." },
+      "author": { "type": "string", "minLength": 0, "maxLength": 200, "example": "ops.team", "description": "Username of the last editor." },
+      "updated_at": { "type": "string", "minLength": 20, "maxLength": 30, "example": "2026-09-04T10:15:00Z", "description": "ISO 8601 time of the last save." }
+    }
+  }
+}

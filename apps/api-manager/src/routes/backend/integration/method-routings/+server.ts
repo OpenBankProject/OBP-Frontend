@@ -251,3 +251,28 @@ export const PUT: RequestHandler = async ({ request, locals }) => {
     return json(body, { status });
   }
 };
+
+/** DELETE /backend/integration/method-routings?method_routing_id=ID */
+export const DELETE: RequestHandler = async ({ locals, url }) => {
+  const session = locals.session;
+  if (!session?.data?.user) {
+    return json({ message: "Unauthorized - No user in session", code: 401 }, { status: 401 });
+  }
+  const accessToken = SessionOAuthHelper.getSessionOAuth(session)?.accessToken;
+  if (!accessToken) {
+    return json({ message: "No API access token available", code: 401 }, { status: 401 });
+  }
+  const methodRoutingId = url.searchParams.get("method_routing_id") ?? "";
+  if (!methodRoutingId) {
+    return json({ message: "method_routing_id is required", code: 400 }, { status: 400 });
+  }
+  try {
+    await obp_requests.delete(`/obp/v3.1.0/management/method_routings/${encodeURIComponent(methodRoutingId)}`, accessToken);
+    logger.info(`Deleted method routing ${methodRoutingId}`);
+    return json({ deleted: methodRoutingId });
+  } catch (err) {
+    logger.error(`Error deleting method routing ${methodRoutingId}:`, err);
+    const { body, status } = obpErrorResponse(err);
+    return json(body, { status });
+  }
+};

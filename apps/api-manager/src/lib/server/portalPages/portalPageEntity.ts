@@ -1,56 +1,13 @@
-import { obp_requests } from "$lib/obp/requests";
-import { createLogger } from "@obp/shared/utils";
-import { getApplicationAccessToken } from "$lib/server/oauth/applicationToken";
 import PORTAL_PAGE from "$lib/data/portalPageEntity.json";
-
-const logger = createLogger("PortalPageEntity");
+import { ensureSystemDynamicEntity, recordsFromListResponse as recordsFromList, slugify as slugifyShared } from "$lib/server/dynamicEntities/ensure";
 
 export const PORTAL_PAGE_ENTITY = PORTAL_PAGE.entity_name; // "obp_portal_page"
 export const PORTAL_PAGE_DATA_PATH = `/obp/dynamic-entity/${PORTAL_PAGE_ENTITY}`;
 export const PORTAL_PAGE_ID_FIELD = `${PORTAL_PAGE_ENTITY}_id`;
 
-/**
- * Ensure the obp_portal_page system dynamic entity exists in OBP. Runs at startup with
- * application access; a missing scope only logs a warning, the API Manager still starts.
- * Users then need CanCreate/CanGet/CanUpdateDynamicEntity_Systemobp_portal_page to save pages.
- */
-export async function createPortalPageDynamicEntityIfNeeded(): Promise<boolean> {
-  const accessToken = await getApplicationAccessToken();
-  if (!accessToken) {
-    logger.warn(`Cannot bootstrap '${PORTAL_PAGE_ENTITY}': no application access token (client_credentials).`);
-    return false;
-  }
-  try {
-    const response = await obp_requests.get("/obp/v6.0.0/management/system-dynamic-entities", accessToken);
-    const existing = (response?.dynamic_entities ?? []).find((e: { entity_name: string }) => e.entity_name === PORTAL_PAGE_ENTITY);
-    if (existing) {
-      // The Portal reads this entity as an application (Consumer Scope), which needs auth_mode
-      // UserOrApplication. An entity created before that field existed is UserOnly: upgrade it.
-      const currentMode = existing.auth_mode ?? "UserOnly";
-      if (currentMode !== PORTAL_PAGE.auth_mode && existing.dynamic_entity_id) {
-        try {
-          await obp_requests.put(`/obp/v6.0.0/management/system-dynamic-entities/${existing.dynamic_entity_id}`, PORTAL_PAGE, accessToken);
-          logger.info(`Dynamic entity '${PORTAL_PAGE_ENTITY}' auth_mode updated ${currentMode} -> ${PORTAL_PAGE.auth_mode}.`);
-        } catch (err) {
-          logger.warn(`Dynamic entity '${PORTAL_PAGE_ENTITY}' exists with auth_mode ${currentMode}; could not update it (an OBP-API without auth_mode ignores the field): ${err}`);
-        }
-      } else {
-        logger.info(`Dynamic entity '${PORTAL_PAGE_ENTITY}' already exists (auth_mode ${currentMode}).`);
-      }
-      return true;
-    }
-  } catch (err) {
-    logger.warn(`Could not list system dynamic entities (needs CanCreateSystemLevelDynamicEntity scope): ${err}`);
-    return false;
-  }
-  try {
-    await obp_requests.post("/obp/v6.0.0/management/system-dynamic-entities", PORTAL_PAGE, accessToken);
-    logger.info(`Dynamic entity '${PORTAL_PAGE_ENTITY}' created.`);
-    return true;
-  } catch (err) {
-    logger.warn(`Failed to create dynamic entity '${PORTAL_PAGE_ENTITY}': ${err}`);
-    return false;
-  }
+/** Ensure the obp_portal_page system dynamic entity exists (created at startup with application access). */
+export function createPortalPageDynamicEntityIfNeeded(): Promise<boolean> {
+  return ensureSystemDynamicEntity(PORTAL_PAGE);
 }
 
 /** A saved page as the studio sees it. */
@@ -85,16 +42,9 @@ export function toPortalPageRecord(input: any): PortalPageRecord {
   };
 }
 
-/** The list endpoint answers `{ "<entity>_list": [...] }`; be tolerant about the key. */
-export function recordsFromListResponse(response: any): any[] {
-  if (Array.isArray(response)) return response;
-  const listKey = Object.keys(response ?? {}).find((k) => Array.isArray(response[k]));
-  return listKey ? response[listKey] : [];
-}
+export const recordsFromListResponse = recordsFromList;
 
-export function slugify(text: string): string {
-  return text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 120);
-}
+export const slugify = slugifyShared;
 
 /** Validate and normalise a page body from the studio. */
 export function normalisePageBody(body: any, username: string): { ok: true; data: Record<string, string> } | { ok: false; message: string } {

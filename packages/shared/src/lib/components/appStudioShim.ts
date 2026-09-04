@@ -15,6 +15,7 @@
  *   { type: 'obp-studio:ready' }
  *   { type: 'obp-studio:resize', height }        content height, so the host can size the frame
  *   { type: 'obp-studio:navigate', url }         the app asks the host page to navigate
+ *   { type: 'obp-studio:emit', name, data }      an application-level message (e.g. a report's result)
  * Messages (host -> iframe):
  *   { type: 'obp-studio:response', id, ok, status, body?, error? }
  */
@@ -43,6 +44,12 @@ export interface AppStudioResizeMessage {
 export interface AppStudioNavigateMessage {
 	type: 'obp-studio:navigate';
 	url: string;
+}
+
+export interface AppStudioEmitMessage {
+	type: 'obp-studio:emit';
+	name: string;
+	data?: unknown;
 }
 
 export interface AppStudioResponseMessage {
@@ -97,7 +104,8 @@ export const APP_STUDIO_SHIM_SOURCE = `(function () {
     post: function (path, body) { return unwrap(request('POST', path, body)); },
     put: function (path, body) { return unwrap(request('PUT', path, body)); },
     delete: function (path) { return unwrap(request('DELETE', path)); },
-    navigate: function (url) { post({ type: 'obp-studio:navigate', url: String(url || '') }); }
+    navigate: function (url) { post({ type: 'obp-studio:navigate', url: String(url || '') }); },
+    emit: function (name, data) { post({ type: 'obp-studio:emit', name: String(name || ''), data: data }); }
   };
   // Report content height so a host that shows the app at page size can fit the frame to it.
   var lastHeight = 0;

@@ -21,6 +21,7 @@
 	import { ToolError, ObpApiResponse, DefaultToolResponse } from './tool-messages';
 	import ChatMessage from './ChatMessage.svelte';
 	import NewEntitlementsNotice from './NewEntitlementsNotice.svelte';
+	import { ConversationRecorder, type ConversationRecordStatus } from '$shared/opey/services/ConversationRecorder';
 	import {
 		summariseConsentJwt,
 		addGrantedConsent,
@@ -57,6 +58,11 @@
 		// Metrics page that accepts ?consent_reference_id=...; when set, the consent
 		// indicator under the input links each reference id to its call log.
 		consentMetricsHref?: string;
+		// Personal dynamic entity the app records this chat into, as the logged-in user,
+		// after each message completes (one row per thread; visible under My Data). Unset
+		// means no recording. The entity must exist on the instance; if it does not, the
+		// chat says so once and carries on unrecorded.
+		conversationEntityName?: string;
 		headerClasses?: string; // Optional classes for the header
 		footerClasses?: string;
 		bodyClasses?: string;
@@ -156,6 +162,20 @@
 	// can see what each frozen consent actually embeds versus what they now hold.
 	let grantedConsents: GrantedConsentSummary[] = $state([]);
 	let liveConsents = $derived(activeConsents(grantedConsents));
+
+	// Conversation recording (see OpeyChatOptions.conversationEntityName).
+	let conversationRecordStatus: ConversationRecordStatus = $state('idle');
+	let conversationRecordDetail: string = $state('');
+	const conversationRecorder: ConversationRecorder | null =
+		options.conversationEntityName && userAuthenticated
+			? new ConversationRecorder({
+					entityName: options.conversationEntityName,
+					onStatus: (status, detail) => {
+						conversationRecordStatus = status;
+						conversationRecordDetail = detail ?? '';
+					}
+				})
+			: null;
 	// Most recent grant = the consent Opey is using for its current work.
 	let currentConsent = $derived(liveConsents.length > 0 ? liveConsents[liveConsents.length - 1] : null);
 	let consentIndicatorOpen = $state(false);
@@ -376,6 +396,12 @@
 		unsubscribeSession = sessionState.subscribe((s) => (session = s));
 		unsubscribeChat = chatState.subscribe((c) => {
 			chat = c;
+			// Record completed messages as the user; the recorder ignores unchanged snapshots.
+			void conversationRecorder?.record(
+				c.threadId,
+				c.messages,
+				grantedConsents.map((g) => g.referenceId ?? '').filter(Boolean)
+			);
 		});
 
 		if (options.initialAssistantMessage) {
@@ -1148,6 +1174,17 @@
 				<div class="relative flex items-center justify-center">
 					{@render inputField()}
 				</div>
+				{#if conversationRecorder && conversationRecordStatus !== 'idle'}
+					<p class="mt-1 text-[11px] text-surface-500 dark:text-surface-400" data-testid="conversation-record-status">
+						{#if conversationRecordStatus === 'saved'}
+							This conversation is saved to your data as it goes.
+						{:else if conversationRecordStatus === 'unavailable'}
+							Conversation recording is not set up on this instance ({options.conversationEntityName} is not defined), so this chat is not saved.
+						{:else}
+							Saving this conversation failed: {conversationRecordDetail}. It will be retried after the next message.
+						{/if}
+					</p>
+				{/if}
 				{@render tokenIndicator()}
 				{@render consentIndicator()}
 			</div>

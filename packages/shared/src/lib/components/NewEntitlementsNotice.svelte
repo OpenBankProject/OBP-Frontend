@@ -230,8 +230,19 @@
 									<code class="font-mono text-xs">{v.bank_id}/{v.account_id}</code>
 								</div>
 							{/each}
-							{#if currentConsent.entitlements.length === 0 && currentConsent.views.length === 0}
-								<div class="text-xs opacity-70">Identity only — no roles or views</div>
+							{#each currentConsent.myResources ?? [] as r (`${r.bank_id}|${r.entity_name}`)}
+								<div data-testid="opey-current-consent-my-resource">
+									<span class="opacity-70">{r.actions.join(' and ')} your</span>
+									<code class="font-mono text-xs">{r.entity_name}</code>
+									<span class="opacity-70">records</span>
+									{#if r.bank_id}
+										<span class="opacity-70">at bank</span>
+										<code class="font-mono text-xs">{r.bank_id}</code>
+									{/if}
+								</div>
+							{/each}
+							{#if currentConsent.entitlements.length === 0 && currentConsent.views.length === 0 && (currentConsent.myResources ?? []).length === 0}
+								<div class="text-xs opacity-70">Identity only — no roles, views or personal resources</div>
 							{/if}
 							<div class="text-xs opacity-70">expires {formatTime(currentConsent.expiresAt)}</div>
 						</div>

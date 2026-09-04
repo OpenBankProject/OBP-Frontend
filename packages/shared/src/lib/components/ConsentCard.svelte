@@ -17,6 +17,7 @@
     interface NormalisedPayload {
         entitlements: any[];
         views: any[];
+        myResources: any[];
         exp?: number;
         [k: string]: any;
     }
@@ -67,7 +68,10 @@
         return {
             ...payload,
             entitlements: Array.isArray(payload.entitlements) ? payload.entitlements : [],
-            views: Array.isArray(payload.views) ? payload.views : []
+            views: Array.isArray(payload.views) ? payload.views : [],
+            myResources: Array.isArray(payload.my_resources?.personal_dynamic_entities)
+                ? payload.my_resources.personal_dynamic_entities
+                : []
         };
     }
 
@@ -339,6 +343,23 @@
                 <span class="ml-2 text-sm text-gray-500">None</span>
             {/if}
         </div>
+
+        <!-- My resources: the user's own personal dynamic entities the consent may act on -->
+        {#if payload.myResources.length}
+            <div class="mb-3">
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">My resources</span>
+                <div class="mt-1 flex flex-wrap gap-1">
+                    {#each payload.myResources as r}
+                        <span class="inline-flex items-center gap-1 rounded-full bg-tertiary-100 px-2 py-0.5 text-xs font-medium dark:bg-tertiary-800" data-testid="consent-my-resource-row">
+                            {Array.isArray(r?.actions) ? r.actions.join(' and ') : ''} {r?.entity_name ?? 'Unknown entity'}
+                            {#if r?.bank_id}
+                                <span class="font-mono opacity-60">@ {r.bank_id}</span>
+                            {/if}
+                        </span>
+                    {/each}
+                </div>
+            </div>
+        {/if}
 
         <!-- Views -->
         <div>

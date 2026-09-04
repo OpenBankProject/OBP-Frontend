@@ -1,0 +1,75 @@
+{
+  "entity_name": "obp_portal_opey_conversation",
+  "has_personal_entity": true,
+  "has_public_access": false,
+  "has_community_access": false,
+  "personal_requires_role": false,
+  "auth_mode": "UserOnly",
+  "schema": {
+    "description": "A conversation between a User and Opey in the Portal, written by the Portal as the User after each message completes. Personal: each User sees only their own conversations under My Data.",
+    "required": [
+      "thread_id",
+      "title",
+      "status",
+      "started_at",
+      "updated_at",
+      "message_count",
+      "messages_json"
+    ],
+    "properties": {
+      "thread_id": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "example": "3f6a2c0e-1b2d-4c3e-9f4a-5b6c7d8e9f00",
+        "description": "Opey thread id of the conversation."
+      },
+      "title": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 200,
+        "example": "Create a bank called example.bank",
+        "description": "The first user message, shortened."
+      },
+      "status": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 20,
+        "example": "active",
+        "description": "active or closed."
+      },
+      "started_at": {
+        "type": "string",
+        "minLength": 19,
+        "maxLength": 30,
+        "example": "2026-09-04T10:00:00Z",
+        "description": "When the first message completed (ISO 8601, UTC)."
+      },
+      "updated_at": {
+        "type": "string",
+        "minLength": 19,
+        "maxLength": 30,
+        "example": "2026-09-04T10:05:00Z",
+        "description": "When the record was last written (ISO 8601, UTC)."
+      },
+      "message_count": {
+        "type": "integer",
+        "example": 4,
+        "description": "Number of completed user and assistant messages in messages_json."
+      },
+      "messages_json": {
+        "type": "string",
+        "minLength": 2,
+        "maxLength": 500000,
+        "example": "[{\"id\":\"u1\",\"role\":\"user\",\"text\":\"Create a bank\",\"at\":\"2026-09-04T10:00:00Z\"}]",
+        "description": "The completed messages as a JSON array of {id, role, text, at}."
+      },
+      "consent_reference_ids": {
+        "type": "string",
+        "maxLength": 4000,
+        "example": "c822f56a-3a3e-47f8-b2ec-3afe314ffe7c",
+        "description": "Comma-separated consent_reference_ids of the consents Opey used in this conversation; filter the metrics dashboards by them."
+      }
+    }
+  }
+}

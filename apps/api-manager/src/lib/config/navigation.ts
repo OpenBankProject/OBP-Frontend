@@ -29,6 +29,7 @@ import {
   Star,
   Plug,
   Smartphone,
+  FileSpreadsheet,
   LayoutTemplate,
   Package,
   CircleHelp,
@@ -227,6 +228,11 @@ function buildIntegrationItems(): NavigationItem[] {
     {
       href: "/integration/method-routings",
       label: "Method Routings",
+      iconComponent: Route,
+    },
+    {
+      href: "/integration/method-routings/create",
+      label: "Create Method Routing",
       iconComponent: Route,
     },
   ];
@@ -564,6 +570,12 @@ function buildAppStudioItems(): NavigationItem[] {
 export const dynamicResourceDocsItems = buildDynamicResourceDocsItems();
 export const appStudioItems = buildAppStudioItems();
 
+// Reports: Opey-written report definitions that run in the browser against OBP
+export const reportsItems: NavigationItem[] = [
+  { href: "/reports", label: "Reports", iconComponent: FileSpreadsheet },
+  { href: "/reports/new", label: "New Report", iconComponent: FileSpreadsheet },
+];
+
 export function getActiveDynamicResourceDocsMenuItem(pathname: string) {
   const found = dynamicResourceDocsItems.find((item) => {
     if (item.external) return false;
@@ -810,6 +822,8 @@ export const navSections: NavigationSection[] = [
   { id: "dynamic-endpoints", label: "Dynamic Endpoints", iconComponent: Plug, items: dynamicEndpointsItems, basePaths: ["/dynamic-endpoints"] },
   { id: "dynamic-resource-docs", label: "Dynamic Resource Docs", iconComponent: FileText, items: dynamicResourceDocsItems, basePaths: ["/dynamic-resource-docs"] },
   { id: "app-studio", label: "App Studio", iconComponent: Smartphone, items: appStudioItems, basePaths: ["/app-studio"] },
+  { id: "reports", label: "Reports", iconComponent: FileSpreadsheet, items: reportsItems, basePaths: ["/reports"] },
+  { id: "developer-faq", label: "Developer FAQ", iconComponent: CircleHelp, items: [{ href: "/developer-faq", label: "Questions", iconComponent: CircleHelp }], basePaths: ["/developer-faq"] },
   { id: "chat-rooms", label: "Chat Rooms", iconComponent: MessageSquare, items: chatRoomsItems, basePaths: ["/chat-rooms"] },
   { id: "management-docs", label: "Management Docs", iconComponent: BookOpen, items: managementDocsItems, basePaths: ["/management-docs"] },
 ];

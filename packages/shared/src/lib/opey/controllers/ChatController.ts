@@ -167,7 +167,8 @@ export class ChatController {
 							event.accountId ?? undefined,
 							event.viewId ?? undefined,
 							event.requiresViewAccess ?? false,
-							event.isUserScoped ?? false
+							event.isUserScoped ?? false,
+							event.myResources ?? null
 						);
 						break;
 				}

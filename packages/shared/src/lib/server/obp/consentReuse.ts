@@ -39,6 +39,65 @@ export interface RequiredView {
 	view_id: string;
 }
 
+/** One personal dynamic entity a consent lists (OBP my_resources.personal_dynamic_entities). */
+export interface RequiredPersonalDynamicEntity {
+	/** Empty string for system-level entities. */
+	bank_id: string;
+	entity_name: string;
+	actions: string[];
+}
+
+export interface RequiredMyResources {
+	personal_dynamic_entities: RequiredPersonalDynamicEntity[];
+}
+
+const MY_RESOURCE_ACTIONS = new Set(['read', 'write']);
+
+/**
+ * Normalise a client-supplied `my_resources` block. Returns null for "none" (absent or
+ * empty), the cleaned block when valid, and undefined when the shape is wrong.
+ */
+export function normalizeMyResources(raw: unknown): RequiredMyResources | null | undefined {
+	if (raw == null) return null;
+	if (typeof raw !== 'object') return undefined;
+	const list = (raw as any).personal_dynamic_entities;
+	if (list == null) return null;
+	if (!Array.isArray(list)) return undefined;
+	const entries: RequiredPersonalDynamicEntity[] = [];
+	for (const e of list) {
+		if (!e || typeof e !== 'object') return undefined;
+		const entityName = (e as any).entity_name;
+		const actions = (e as any).actions;
+		if (typeof entityName !== 'string' || entityName.length === 0) return undefined;
+		if (!Array.isArray(actions) || actions.length === 0 || !actions.every((a: unknown) => typeof a === 'string' && MY_RESOURCE_ACTIONS.has(a))) return undefined;
+		const bankId = (e as any).bank_id;
+		entries.push({
+			bank_id: typeof bankId === 'string' ? bankId : '',
+			entity_name: entityName,
+			actions: Array.from(new Set(actions as string[]))
+		});
+	}
+	return entries.length ? { personal_dynamic_entities: entries } : null;
+}
+
+/** Does an existing consent's my_resources block cover every required entry (entity match, actions superset)? */
+export function myResourcesCovered(existing: unknown, required: RequiredMyResources | null): boolean {
+	if (!required) return true;
+	const existingEntries: any[] = Array.isArray((existing as any)?.personal_dynamic_entities)
+		? (existing as any).personal_dynamic_entities
+		: [];
+	return required.personal_dynamic_entities.every((req) =>
+		existingEntries.some(
+			(e: any) =>
+				typeof e === 'object' &&
+				e?.entity_name === req.entity_name &&
+				(e?.bank_id ?? '') === (req.bank_id ?? '') &&
+				Array.isArray(e?.actions) &&
+				req.actions.every((a) => e.actions.includes(a))
+		)
+	);
+}
+
 export interface ReusableConsent {
 	consent_id: string;
 	jwt: string;
@@ -51,6 +110,7 @@ export async function findReusableConsent(opts: {
 	opeyConsumerId: string;
 	requiredEntitlements: RequiredEntitlement[];
 	requiredViews: RequiredView[];
+	requiredMyResources?: RequiredMyResources | null;
 }): Promise<ReusableConsent | null> {
 	const {
 		obpGet,
@@ -59,6 +119,7 @@ export async function findReusableConsent(opts: {
 		requiredEntitlements,
 		requiredViews
 	} = opts;
+	const requiredMyResources = opts.requiredMyResources ?? null;
 
 	logger.info(
 		`findReusableConsent: scanning for reuse — consumer=${opeyConsumerId}, required entitlements=${JSON.stringify(requiredEntitlements)}, required views=${JSON.stringify(requiredViews)}`
@@ -142,6 +203,11 @@ export async function findReusableConsent(opts: {
 		);
 		if (!viewsOk) {
 			reasons.push(`${cid}: views mismatch — existing=${JSON.stringify(existingViews)}`);
+			continue;
+		}
+
+		if (!myResourcesCovered(payload?.my_resources, requiredMyResources)) {
+			reasons.push(`${cid}: my_resources mismatch — existing=${JSON.stringify(payload?.my_resources ?? null)}`);
 			continue;
 		}
 

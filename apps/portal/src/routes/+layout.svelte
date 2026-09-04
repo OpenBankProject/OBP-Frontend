@@ -21,8 +21,7 @@
 		MessageSquare,
 		Code,
 		Plug,
-		GraduationCap
-	} from '@lucide/svelte';
+		GraduationCap, FileText, CircleHelp } from '@lucide/svelte';
 
 	import { env } from '$env/dynamic/public';
 	import { onMount } from 'svelte';
@@ -107,6 +106,16 @@
 			label: 'Featured',
 			href: '/featured',
 			iconComponent: Star
+		},
+		{
+			label: 'Pages',
+			href: '/pages',
+			iconComponent: FileText
+		},
+		{
+			label: 'FAQ',
+			href: '/faq',
+			iconComponent: CircleHelp
 		},
 		{
 			label: 'API Products',

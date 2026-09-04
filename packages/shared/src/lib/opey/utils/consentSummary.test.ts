@@ -20,11 +20,13 @@ describe('summariseConsentJwt', () => {
 			jti: 'consent-1',
 			exp: NOW / 1000 + 3600,
 			entitlements: [{ role_name: 'CanCreateBank', bank_id: '' }, { role_name: 'CanGetBank', bank_id: 'b1' }],
-			views: [{ bank_id: 'b1', account_id: 'a1', view_id: 'owner' }]
+			views: [{ bank_id: 'b1', account_id: 'a1', view_id: 'owner' }],
+			my_resources: { personal_dynamic_entities: [{ bank_id: '', entity_name: 'notes', actions: ['read', 'write'] }] }
 		});
 		const s = summariseConsentJwt(jwt, NOW);
 		expect(s).not.toBeNull();
 		expect(s!.id).toBe('consent-1');
+		expect(s!.myResources).toEqual([{ bank_id: '', entity_name: 'notes', actions: ['read', 'write'] }]);
 		expect(s!.entitlements).toEqual([
 			{ role_name: 'CanCreateBank', bank_id: '' },
 			{ role_name: 'CanGetBank', bank_id: 'b1' }
@@ -37,7 +39,7 @@ describe('summariseConsentJwt', () => {
 	it('tolerates missing arrays and falls back to the JWT as id', () => {
 		const jwt = fakeJwt({ sub: 'x' });
 		const s = summariseConsentJwt(jwt, NOW);
-		expect(s).toEqual({ id: jwt, entitlements: [], views: [], expiresAt: null, grantedAt: NOW });
+		expect(s).toEqual({ id: jwt, entitlements: [], views: [], myResources: [], expiresAt: null, grantedAt: NOW });
 	});
 
 	it('returns null for garbage', () => {

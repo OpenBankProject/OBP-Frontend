@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
-	import type { ToolMessage } from '$shared/opey/types';
+	import type { ToolMessage, ConsentMyResources } from '$shared/opey/types';
 	import { createLogger } from '$shared/utils/logger';
 	import { Shield, CheckCircle, XCircle, KeyRound, Loader2, Eye, CreditCard, User } from '@lucide/svelte';
 	import {
@@ -154,10 +154,19 @@
 	// Compute the exact body the Grant button would POST to /backend/opey/consent.
 	// Extracted so the dev debug panel can render the same value the network call
 	// uses, without diverging.
+	// The user's own resources this call needs the consent to list (OBP my_resources).
+	// Owned, not granted: nothing to check against entitlements, nothing can be "not held".
+	let myResourceEntries = $derived(
+		(toolMessage.consentMyResources?.personal_dynamic_entities ?? []).filter(
+			(e) => e && typeof e.entity_name === 'string' && e.entity_name.length > 0
+		)
+	);
+
 	function buildConsentBody(): {
 		required_roles: string[];
 		bank_id?: string;
 		views: ConsentViewSelection[];
+		my_resources?: ConsentMyResources;
 	} {
 		// Send EVERY role Opey reported, uncollapsed. A superseding chain in the list
 		// (e.g. CanCreateEntitlementAtOneBank | CanCreateEntitlementAtAnyBank) is OBP's
@@ -194,7 +203,10 @@
 			seen.add(key);
 			return true;
 		});
-		return { required_roles: normalizedRoles, bank_id: bankId, views };
+		const my_resources = toolMessage.consentMyResources;
+		return my_resources
+			? { required_roles: normalizedRoles, bank_id: bankId, views, my_resources }
+			: { required_roles: normalizedRoles, bank_id: bankId, views };
 	}
 
 	// --- Dev-only debug surface --------------------------------------------
@@ -323,10 +335,31 @@
 		{/if}
 		{#if toolMessage.consentRequiresViewAccess && (!toolMessage.consentRequiredRoles || toolMessage.consentRequiredRoles.length === 0)}
 			This endpoint uses account-access-to-a-view (no system role required).
+		{:else if myResourceEntries.length > 0}
+			This action works on your own data. The consent names exactly which of it Opey may touch; no role is involved.
 		{:else if toolMessage.consentIsUserScoped && (!toolMessage.consentRequiredRoles || toolMessage.consentRequiredRoles.length === 0)}
 			This is a user-scoped endpoint — it returns data tied to your identity.
 		{/if}
 	</p>
+
+	<!-- Your own resources the consent will list (OBP my_resources): owned, never "not held" -->
+	{#if myResourceEntries.length > 0}
+		<div class="mb-2 flex flex-wrap items-center gap-1" data-testid="consent-my-resource-chips">
+			{#each myResourceEntries as e (`${e.bank_id}|${e.entity_name}`)}
+				<span
+					class="inline-flex items-center gap-1 rounded-full bg-tertiary-100 px-2 py-0.5 text-[11px] font-medium dark:bg-tertiary-800"
+					data-testid="consent-my-resource-chip"
+					title="Your own records in this entity"
+				>
+					<User size={10} />
+					{(e.actions ?? []).join(' and ')} your <code class="font-mono">{e.entity_name}</code> records
+					{#if e.bank_id}
+						<span class="font-mono opacity-60">@ {e.bank_id}</span>
+					{/if}
+				</span>
+			{/each}
+		</div>
+	{/if}
 
 	<!-- Account / View / User-scope chips -->
 	{#if toolMessage.consentAccountId || toolMessage.consentViewId || toolMessage.consentIsUserScoped}
@@ -416,6 +449,7 @@
 						consentViewId: toolMessage.consentViewId,
 						consentRequiresViewAccess: toolMessage.consentRequiresViewAccess,
 						consentIsUserScoped: toolMessage.consentIsUserScoped,
+						consentMyResources: toolMessage.consentMyResources,
 						consentToolCallCount: toolMessage.consentToolCallCount
 					}, null, 2)}</pre>
 				</div>

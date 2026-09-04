@@ -1,0 +1,65 @@
+{
+  "entity_name": "obp_developer_faq",
+  "has_personal_entity": false,
+  "has_public_access": true,
+  "has_community_access": false,
+  "personal_requires_role": false,
+  "auth_mode": "UserOrApplication",
+  "schema": {
+    "description": "Frequently asked questions shown on the Portal's /faq page. Public: anyone can read the records; editing needs the entity's roles. Answers are Markdown. A visitor's 'Start a chat' creates a group chat for the question: the Portal links it with its consumer's Update scope.",
+    "required": [
+      "question",
+      "answer",
+      "sort_order"
+    ],
+    "properties": {
+      "question": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 300,
+        "example": "What are rate limits?",
+        "description": "The question, as shown."
+      },
+      "answer": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 10000,
+        "example": "Rate limits control how many API requests you can make in a period. **Higher tiers** include more generous limits.",
+        "description": "The answer, Markdown allowed."
+      },
+      "opey_prompt": {
+        "type": "string",
+        "minLength": 0,
+        "maxLength": 1000,
+        "example": "Explain rate limits on this API and how I can see my consumer's current limits.",
+        "description": "Optional: what the 'Ask Opey' button sends to Opey for this question. Empty means Opey is asked the question itself."
+      },
+      "category": {
+        "type": "string",
+        "minLength": 0,
+        "maxLength": 100,
+        "example": "Products and pricing",
+        "description": "Groups questions under a heading on the page. Empty means General."
+      },
+      "chat_room_id": {
+        "type": "string",
+        "minLength": 0,
+        "maxLength": 100,
+        "example": "",
+        "description": "Optional: the chat_room_id of a Portal group chat about this question; shown as a 'Discuss in the group chat' link."
+      },
+      "chat_joining_key": {
+        "type": "string",
+        "minLength": 0,
+        "maxLength": 200,
+        "example": "",
+        "description": "The joining key of that chat room, so a visitor can join it from the FAQ. Public by design: the room is meant for everyone."
+      },
+      "sort_order": {
+        "type": "integer",
+        "example": 10,
+        "description": "Position within its category, lowest first."
+      }
+    }
+  }
+}

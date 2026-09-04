@@ -35,12 +35,18 @@ export interface ObpProxyOptions {
 	 * with 401. The caller must still be logged in to the app.
 	 */
 	authHeaders?: (event: ObpProxyRequestEvent) => Record<string, string> | null;
+	/**
+	 * Let visitors without a session through: the request is forwarded with no
+	 * Authorization header, so OBP applies its anonymous rules (public endpoints only).
+	 * A logged-in visitor's bearer is still attached. For pages served to the public.
+	 */
+	allowAnonymous?: boolean;
 }
 
 export function createObpProxyHandler(obpBaseUrl: string, options: ObpProxyOptions = {}) {
 	return async function proxyRequest(event: ObpProxyRequestEvent): Promise<Response> {
 		const session = event.locals.session;
-		if (!session?.data?.user) {
+		if (!session?.data?.user && !options.allowAnonymous) {
 			return new Response(JSON.stringify({ code: 401, message: 'Unauthorized' }), {
 				status: 401,
 				headers: { 'Content-Type': 'application/json' }
@@ -58,7 +64,7 @@ export function createObpProxyHandler(obpBaseUrl: string, options: ObpProxyOptio
 			}
 			authHeaders = supplied;
 		} else {
-			const accessToken = session.data.oauth?.access_token;
+			const accessToken = session?.data?.oauth?.access_token;
 			authHeaders = accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
 		}
 

@@ -1,3 +1,4 @@
+import type { ConsentMyResources } from '../types';
 /**
  * Base Interface for chat services. Used to create implementations like RestChatService or WebSocketChatService.
  * 
@@ -84,7 +85,8 @@ export type StreamEvent =
         accountId?: string | null,
         viewId?: string | null,
         requiresViewAccess?: boolean,
-        isUserScoped?: boolean
+        isUserScoped?: boolean,
+        myResources?: ConsentMyResources | null
       }
     | { type: 'client_tool_call', toolCallId: string, toolName: string, toolInput: Record<string, any> }
     | { type: 'thread_sync', threadId: string }

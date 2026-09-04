@@ -19,3 +19,4 @@ export type {
 	OAuth2AccessTokenPayload,
 	SessionOAuthStorageData
 } from './types.js';
+export { getApplicationAccessToken } from './applicationToken.js';

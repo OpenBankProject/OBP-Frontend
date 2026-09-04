@@ -49,3 +49,9 @@ export {
 	setConsentReferenceId
 } from './utils/consentSummary.js';
 export type { GrantedConsentSummary, ConsentEntitlement, ConsentView } from './utils/consentSummary.js';
+export {
+	PORTAL_OPEY_CONVERSATION_ENTITY,
+	MANAGER_OPEY_CONVERSATION_ENTITY,
+	PORTAL_OPEY_CONVERSATION_ENTITY_NAME,
+	MANAGER_OPEY_CONVERSATION_ENTITY_NAME
+} from './conversationEntities';

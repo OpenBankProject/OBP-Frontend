@@ -39,8 +39,12 @@
                 <td>Permission to see or act on a specific account: the triple <code>(bank_id, account_id, view_id)</code>, e.g. <code>owner</code> or <code>auditor</code>. See <a href="/developers/account-access">Account Access</a>.</td>
             </tr>
             <tr>
+                <td><strong>My resources</strong></td>
+                <td>Your own personal records that a consent may act on for you, for example your rows in a personal dynamic entity: the entry <code>(bank_id, entity_name, actions)</code> under <code>my_resources</code>. Owned rather than granted, so no role is involved and nothing can be "not held". Records Opey writes this way belong to you.</td>
+            </tr>
+            <tr>
                 <td><strong>Consent</strong></td>
-                <td>A signed grant (a JWT) that lets a Consumer act with a fixed list of entitlements and views for a limited time. Opey's consents last one hour.</td>
+                <td>A signed grant (a JWT) that lets a Consumer act with a fixed list of entitlements, views and my resources for a limited time. Opey's consents last one hour.</td>
             </tr>
             <tr>
                 <td><strong>Consent user</strong></td>
@@ -61,7 +65,7 @@
 
     <ol>
         <li><strong>Opey calls the API without credentials.</strong> The OBP MCP server replies <code>consent_required</code>, naming the endpoint and the roles its resource doc requires. Nothing has reached OBP yet.</li>
-        <li><strong>The chat shows a consent card.</strong> It lists the exact entitlement pairs the consent will carry, computed from your current entitlements, and any account views you picked in the <em>Working accounts</em> picker.</li>
+        <li><strong>The chat shows a consent card.</strong> It lists the exact entitlement pairs the consent will carry, computed from your current entitlements, any account views you picked in the <em>Working accounts</em> picker, and, for actions on your own records, which of them Opey may read or write.</li>
         <li><strong>You click Grant.</strong> The Portal re-reads your entitlements from OBP, picks the stored pair for each required role, reuses an existing unexpired consent if one already covers the request, and otherwise creates a new one. Your login token never leaves the Portal.</li>
         <li><strong>Opey retries with the consent JWT.</strong> OBP runs the call as the consent user. Opey keeps the JWT for later calls that need the same roles, until it expires.</li>
         <li><strong>You can watch it.</strong> The chip under the chat input shows the consent Opey is using now, with its reference id and the roles and views it carries.</li>
@@ -74,7 +78,8 @@
         <li><strong>Read or act on accounts you picked.</strong> View-scoped endpoints (balances, transactions, account details) work only for the <code>(bank, account, view)</code> triples you selected in the Working accounts picker. No pick, no data.</li>
         <li><strong>Grant roles at a bank you administer.</strong> If you hold <code>CanCreateEntitlementAtOneBank</code> at a bank, Opey can add roles to users at that bank under a consent carrying that pair. Creating a bank grants you this role there automatically.</li>
         <li><strong>Create things that belong to you, where the endpoint supports it.</strong> Roles Opey grants always go to humans, a bank Opey creates grants its admin role to you, and an account opened through the v7 endpoint is held by you. Every call is logged against your user and the consent's reference id.</li>
-        <li><strong>Reuse a consent.</strong> Repeat actions needing the same roles reuse the same consent for up to an hour, so you are not asked again and again.</li>
+        <li><strong>Work on your own records.</strong> Personal dynamic entity endpoints (the <code>/my</code> routes) need no role from you, but Opey reaches them only through a consent whose <code>my_resources</code> names the entity and whether it may read or write. What it writes there is yours, not the consent user's.</li>
+        <li><strong>Reuse a consent.</strong> Repeat actions needing the same roles, views and my resources reuse the same consent for up to an hour, so you are not asked again and again.</li>
     </ul>
 
     <h3>What Opey Cannot Do</h3>

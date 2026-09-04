@@ -414,7 +414,8 @@ export class RestChatService implements ChatService {
 					accountId: eventData.account_id || null,
 					viewId: eventData.view_id || null,
 					requiresViewAccess: eventData.requires_view_access ?? false,
-					isUserScoped: eventData.is_user_scoped ?? false
+					isUserScoped: eventData.is_user_scoped ?? false,
+					myResources: eventData.my_resources ?? null
 				});
 				break;
 			default:

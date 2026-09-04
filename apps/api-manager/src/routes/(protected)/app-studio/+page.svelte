@@ -893,9 +893,12 @@
         <div class="mt-3 flex flex-wrap items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
           {#if currentPage}
             <span data-testid="app-studio-current-page">Editing <code>{currentPage.slug}</code> ({currentPage.kind}, {currentPage.status}, saved {currentPage.updated_at} by {currentPage.author || "unknown"})</span>
+            {#if currentPage.status === "published" && page.data.externalLinks?.PORTAL_URL}
+              <a href="{page.data.externalLinks.PORTAL_URL}/pages/{currentPage.slug}" target="_blank" rel="noopener noreferrer" class="underline" data-testid="app-studio-open-published">Open on the Portal</a>
+            {/if}
             <button type="button" class="underline" onclick={startNewPage}>Start a new one</button>
           {:else}
-            <span>Not saved yet. Saved as a <code>obp_portal_page</code> record in OBP; the Portal serves records with status published at <code>/pages/SLUG</code>.</span>
+            <span>Not saved yet. Saved as an <code>obp_portal_page</code> record in OBP; the Portal serves records with status published at <code>/pages/SLUG</code>.</span>
           {/if}
           <label class="ml-auto flex items-center gap-1">
             <FolderOpen class="h-3.5 w-3.5" />

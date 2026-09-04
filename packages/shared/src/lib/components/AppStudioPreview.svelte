@@ -11,6 +11,7 @@
 	import { onMount } from 'svelte';
 	import {
 		buildAppStudioSrcdoc,
+		type AppStudioEmitMessage,
 		type AppStudioLogMessage,
 		type AppStudioNavigateMessage,
 		type AppStudioProxyResult,
@@ -33,6 +34,8 @@
 		onReady?: () => void;
 		/** The app called obp.navigate(url). The host decides whether to follow it. */
 		onNavigate?: (url: string) => void;
+		/** The app called obp.emit(name, data): an application-level message such as a report's result. */
+		onEmit?: (name: string, data: unknown) => void;
 	}
 
 	let {
@@ -46,11 +49,16 @@
 		onRequest,
 		onLog,
 		onReady,
-		onNavigate
+		onNavigate,
+		onEmit
 	}: Props = $props();
 
 	let iframeEl = $state<HTMLIFrameElement | null>(null);
 	let contentHeight = $state(0);
+	// The frame is created only after this component has mounted and is listening. A
+	// server-rendered frame starts the app before hydration, its first obp.* request is
+	// posted to nobody, and the app waits forever.
+	let listening = $state(false);
 	const fillHeight = $derived(Math.min(maxHeight, Math.max(minHeight, contentHeight || minHeight)));
 
 	const srcdoc = $derived.by(() => {
@@ -79,6 +87,11 @@
 			if (Number.isFinite(h) && h > 0) contentHeight = Math.round(h);
 			return;
 		}
+		if (data.type === 'obp-studio:emit') {
+			const m = data as AppStudioEmitMessage;
+			onEmit?.(String(m.name ?? ''), m.data);
+			return;
+		}
 		if (data.type === 'obp-studio:navigate') {
 			onNavigate?.(String((data as AppStudioNavigateMessage).url ?? ''));
 			return;
@@ -102,10 +115,12 @@
 
 	onMount(() => {
 		window.addEventListener('message', handleMessage);
+		listening = true;
 		return () => window.removeEventListener('message', handleMessage);
 	});
 </script>
 
+{#if listening}
 {#if layout === 'fill'}
 	<div
 		class="app-studio-fill w-full overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700"
@@ -146,4 +161,5 @@
 			{/key}
 		</div>
 	</div>
+{/if}
 {/if}

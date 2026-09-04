@@ -6,7 +6,7 @@ import { obpRequests } from '../../../../hooks.server';
 import { env } from '$env/dynamic/private';
 import { pickConsentEntitlement, selectConsentEntitlements, CONSENT_FORBIDDEN_ROLES } from '$lib/opey/utils/roles';
 import { capConsentTtlSeconds } from '$lib/server/obp/consentsConfig';
-import { findReusableConsent } from '$lib/server/obp/consentReuse';
+import { findReusableConsent, normalizeMyResources } from '$lib/server/obp/consentReuse';
 
 /**
  * POST /api/opey/consent
@@ -47,7 +47,7 @@ export async function POST(event: RequestEvent) {
 		}
 
 		const body = await event.request.json();
-		const { required_roles, bank_id, views: requestedViews } = body;
+		const { required_roles, bank_id, views: requestedViews, my_resources: requestedMyResources } = body;
 		if (required_roles != null && !Array.isArray(required_roles)) {
 			logger.warn('Invalid required_roles:', required_roles);
 			return json({ message: 'required_roles must be an array when provided', code: 400 }, { status: 400 });
@@ -81,7 +81,16 @@ export async function POST(event: RequestEvent) {
 					)
 				: [];
 
-		logger.info(`Consent request received:`, { required_roles, bank_id, views: normalizedViews });
+		// The user's own resources the consent must list (OBP `my_resources`). Owned, not
+		// granted: OBP checks only that each entity exists with personal endpoints, so there
+		// is nothing to pre-check against entitlements here — just keep the shape honest.
+		const normalizedMyResources = normalizeMyResources(requestedMyResources);
+		if (normalizedMyResources === undefined && requestedMyResources != null) {
+			logger.warn('Invalid my_resources:', requestedMyResources);
+			return json({ message: 'my_resources.personal_dynamic_entities must be a list of {bank_id, entity_name, actions}', code: 400 }, { status: 400 });
+		}
+
+		logger.info(`Consent request received:`, { required_roles, bank_id, views: normalizedViews, my_resources: normalizedMyResources });
 
 		const opeyConsumerId = env.OPEY_CONSUMER_ID;
 		if (!opeyConsumerId) {
@@ -162,7 +171,8 @@ export async function POST(event: RequestEvent) {
 			accessToken,
 			opeyConsumerId,
 			requiredEntitlements: entitlements,
-			requiredViews: normalizedViews
+			requiredViews: normalizedViews,
+			requiredMyResources: normalizedMyResources ?? null
 		});
 		if (reusable) {
 			return json({
@@ -196,7 +206,8 @@ export async function POST(event: RequestEvent) {
 			consumer_id: opeyConsumerId,
 			views: normalizedViews,
 			valid_from: now,
-			time_to_live: consentTtl
+			time_to_live: consentTtl,
+			...(normalizedMyResources ? { my_resources: normalizedMyResources } : {})
 		};
 
 		logger.info(`Creating role-specific consent with ${entitlements.length} entitlement pair(s)`);

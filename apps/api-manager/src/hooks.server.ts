@@ -24,6 +24,10 @@ import {
 import { redisService } from '$lib/redis/services/RedisService';
 // import { createOpeyNotebookDynamicEntityIfNeeded } from "$lib/server/opey/opeyNotebook"; // Opey notebook disabled, see below
 import { createPortalPageDynamicEntityIfNeeded } from "$lib/server/portalPages/portalPageEntity";
+import { createReportDynamicEntityIfNeeded } from "$lib/server/reports/reportEntity";
+import { ensureSystemDynamicEntity } from "$lib/server/dynamicEntities/ensure";
+import developerFaqEntity from "$lib/data/developerFaqEntity.json";
+import { createOpeyConversationEntitiesIfNeeded } from "$lib/server/opeyConversations/opeyConversationEntity";
 
 declare const process: { env: Record<string, string | undefined>; argv: string[] };
 
@@ -200,6 +204,22 @@ createPortalPageDynamicEntityIfNeeded().then((ok: boolean) => {
     logger.warn("obp_portal_page entity could not be created at startup; App Studio cannot save pages until it exists.");
   }
 });
+// Bootstrap: the public obp_developer_faq entity behind the Portal's /faq page.
+ensureSystemDynamicEntity(developerFaqEntity).then((ok: boolean) => {
+  if (!ok) logger.warn("obp_developer_faq entity could not be created at startup; the Portal FAQ stays empty until it exists.");
+});
+
+// Bootstrap: the obp_report system dynamic entity that the Reports page saves report definitions into.
+createReportDynamicEntityIfNeeded().then((ok: boolean) => {
+  if (!ok) {
+    logger.warn("obp_report entity could not be created at startup; Reports cannot be saved until it exists.");
+  }
+});
+
+// Bootstrap: the personal dynamic entities Opey conversations are recorded into (one row per chat,
+// written as the User after each message), for this app and for the Portal, whose consumer
+// normally lacks CanCreateSystemLevelDynamicEntity. Same consumer requirements as obp_portal_page.
+void createOpeyConversationEntitiesIfNeeded();
 
 // Opey notebook disabled 2026-09-03, together with the Opey Insights bar it fed (src/routes/+layout.svelte).
 // The notebook was a system-level dynamic entity (opey_notebook) that Opey read and wrote per page so the

@@ -60,49 +60,10 @@
 			{sortedProducts.length} product{sortedProducts.length === 1 ? '' : 's'} available
 		</p>
 
-		<!-- FAQ Section -->
-		<div class="mt-16 border-t pt-8 dark:border-gray-700">
-			<h2 class="mb-6 text-2xl font-bold text-gray-900 dark:text-gray-100 text-center">
-				Frequently Asked Questions
-			</h2>
-			<div class="grid gap-6 md:grid-cols-2">
-				<div class="rounded-lg bg-gray-50 p-6 dark:bg-gray-800">
-					<h3 class="font-semibold text-gray-900 dark:text-gray-100 mb-2">
-						What are rate limits?
-					</h3>
-					<p class="text-sm text-gray-600 dark:text-gray-400">
-						Rate limits control how many API requests you can make within a given time period.
-						Higher tier products include more generous rate limits for production applications.
-					</p>
-				</div>
-				<div class="rounded-lg bg-gray-50 p-6 dark:bg-gray-800">
-					<h3 class="font-semibold text-gray-900 dark:text-gray-100 mb-2">
-						Can I upgrade or downgrade?
-					</h3>
-					<p class="text-sm text-gray-600 dark:text-gray-400">
-						Yes, you can change your subscription tier at any time. Changes take effect
-						at the start of your next billing cycle.
-					</p>
-				</div>
-				<div class="rounded-lg bg-gray-50 p-6 dark:bg-gray-800">
-					<h3 class="font-semibold text-gray-900 dark:text-gray-100 mb-2">
-						What endpoints are included?
-					</h3>
-					<p class="text-sm text-gray-600 dark:text-gray-400">
-						Each product tier grants access to different API Collections. View the product
-						details page to see which endpoints are included.
-					</p>
-				</div>
-				<div class="rounded-lg bg-gray-50 p-6 dark:bg-gray-800">
-					<h3 class="font-semibold text-gray-900 dark:text-gray-100 mb-2">
-						How do I get started?
-					</h3>
-					<p class="text-sm text-gray-600 dark:text-gray-400">
-						Sign in, choose a product tier, and complete the checkout process. You'll receive
-						API credentials and access immediately after payment confirmation.
-					</p>
-				</div>
-			</div>
+		<div class="mt-16 border-t pt-8 text-center dark:border-gray-700">
+			<p class="text-gray-600 dark:text-gray-400">
+				Questions about rate limits, tiers or getting started? See the <a href="/faq" class="underline hover:text-gray-900 dark:hover:text-gray-100" data-testid="products-faq-link">FAQ</a>.
+			</p>
 		</div>
 	{:else}
 		<div class="rounded-lg bg-gray-100 p-8 text-center dark:bg-gray-800">

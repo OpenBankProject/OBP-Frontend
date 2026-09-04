@@ -2,6 +2,7 @@
 	import { OpeyChat, CurrentBankPicker, AccountScopePicker } from '@obp/shared/components';
 	import { renderTextWithLinks } from '@obp/shared/markdown';
 	import type { OpeyChatOptions, SuggestedQuestion } from '@obp/shared/components';
+	import { PORTAL_OPEY_CONVERSATION_ENTITY_NAME } from '@obp/shared/opey';
     import { CheckCheck, Layers, Rocket, UserLock, HelpCircle } from '@lucide/svelte';
 	import { env } from '$env/dynamic/public';
 	import { page } from '$app/stores';
@@ -71,6 +72,7 @@
 		displayConnectionPips: true,
 		consentMetricsHref: '/user/my-activity-dashboard',
 		initialUserMessage: askParam || undefined,
+		conversationEntityName: PORTAL_OPEY_CONVERSATION_ENTITY_NAME,
 	});
 	
 </script>

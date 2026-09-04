@@ -10,6 +10,7 @@ import { RetryAfterRateLimiter } from 'sveltekit-rate-limiter/server';
 import { env } from '$env/dynamic/private';
 import { env as publicEnv } from '$env/dynamic/public';
 import { obp_requests } from '$lib/obp/requests';
+import { createOpeyConversationEntityIfNeeded } from '$lib/server/opeyConversations/opeyConversationEntity';
 import { oauth2ProviderManager } from '$lib/oauth/providerManager';
 import { SessionOAuthHelper } from '$lib/oauth/sessionHelper';
 import { healthCheckRegistry, OIDCHealthCheckService, OpeyToolsHealthCheckService } from '@obp/shared/health-check';
@@ -180,6 +181,12 @@ function initHealthChecks() {
 await oauth2ProviderManager.start();
 
 initHealthChecks();
+
+// Bootstrap: the personal dynamic entity Opey conversations are recorded into (one row per chat,
+// written as the User after each message). Needs the Portal consumer to support client_credentials
+// and hold CanCreateSystemLevelDynamicEntity; without it this is a no-op with a warning, and the API
+// Manager (whose consumer usually holds the scope) creates the entity at its own startup instead.
+void createOpeyConversationEntityIfNeeded();
 
 async function initWebUIProps() {
 	try {

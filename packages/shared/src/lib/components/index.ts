@@ -15,4 +15,4 @@ export { ToolMessage, ToolError, ObpApiResponse, DefaultToolResponse } from './t
 export { default as SystemStatusPage } from './SystemStatusPage.svelte';
 export { default as AppStudioPreview } from './AppStudioPreview.svelte';
 export { buildAppStudioSrcdoc, appStudioPathToProxyPath, APP_STUDIO_SHIM_SOURCE } from './appStudioShim.js';
-export type { AppStudioProxyResult, AppStudioRequestMessage, AppStudioLogMessage, AppStudioResizeMessage, AppStudioNavigateMessage } from './appStudioShim.js';
+export type { AppStudioProxyResult, AppStudioRequestMessage, AppStudioLogMessage, AppStudioResizeMessage, AppStudioNavigateMessage, AppStudioEmitMessage } from './appStudioShim.js';

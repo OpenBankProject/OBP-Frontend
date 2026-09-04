@@ -21,11 +21,21 @@ export interface ConsentView {
 	view_id: string;
 }
 
+/** One of the user's own personal dynamic entities the consent lists (OBP my_resources). */
+export interface ConsentPersonalDynamicEntity {
+	/** Empty string for system-level entities. */
+	bank_id: string;
+	entity_name: string;
+	actions: string[];
+}
+
 export interface GrantedConsentSummary {
 	/** OBP consent id (`jti`), falling back to the raw JWT so dedupe still works. */
 	id: string;
 	entitlements: ConsentEntitlement[];
 	views: ConsentView[];
+	/** The user's own personal dynamic entities the consent may act on (owned, not granted). */
+	myResources?: ConsentPersonalDynamicEntity[];
 	/** Unix ms, or null when the JWT carries no `exp`. */
 	expiresAt: number | null;
 	/** Unix ms when the browser recorded the grant. */
@@ -67,10 +77,21 @@ export function summariseConsentJwt(jwt: string, now: number = Date.now()): Gran
 			view_id: v.view_id ?? v.id ?? ''
 		}));
 
+	const myResources: ConsentPersonalDynamicEntity[] = (
+		Array.isArray(payload.my_resources?.personal_dynamic_entities) ? payload.my_resources.personal_dynamic_entities : []
+	)
+		.filter((e: any) => e && typeof e.entity_name === 'string')
+		.map((e: any) => ({
+			bank_id: e.bank_id ?? '',
+			entity_name: e.entity_name,
+			actions: Array.isArray(e.actions) ? e.actions.filter((a: unknown) => typeof a === 'string') : []
+		}));
+
 	return {
 		id: typeof payload.jti === 'string' && payload.jti ? payload.jti : jwt,
 		entitlements,
 		views,
+		myResources,
 		expiresAt: typeof payload.exp === 'number' ? payload.exp * 1000 : null,
 		grantedAt: now
 	};

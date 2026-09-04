@@ -8,6 +8,7 @@
  * (lowercase letters, numbers, underscores).
  */
 import portalPageEntity from "./portalPageEntity.json";
+import developerFaqEntity from "./developerFaqEntity.json";
 
 export interface DynamicEntityTemplate {
 	entityName: string;
@@ -34,8 +35,21 @@ const portalPageTemplate: DynamicEntityTemplate = {
 	authMode: portalPageEntity.auth_mode
 };
 
+/** The Portal's FAQ entity (public read; edit records in the entity's CRUD page). */
+const developerFaqTemplate: DynamicEntityTemplate = {
+	entityName: developerFaqEntity.entity_name,
+	description: developerFaqEntity.schema.description,
+	schemaJson: JSON.stringify({ properties: developerFaqEntity.schema.properties, required: developerFaqEntity.schema.required }, null, 2),
+	hasPersonalEntity: developerFaqEntity.has_personal_entity,
+	hasPublicAccess: developerFaqEntity.has_public_access,
+	hasCommunityAccess: developerFaqEntity.has_community_access,
+	personalRequiresRole: developerFaqEntity.personal_requires_role,
+	authMode: developerFaqEntity.auth_mode
+};
+
 export const dynamicEntityTemplates: Record<string, DynamicEntityTemplate> = {
 	"obp-portal-page": portalPageTemplate,
+	"obp-developer-faq": developerFaqTemplate,
 	"training-progress": {
 		entityName: "training_progress",
 		description:

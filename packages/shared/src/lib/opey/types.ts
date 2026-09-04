@@ -31,6 +31,22 @@ export interface ErrorMessage extends BaseMessage {
 	error: string; // Error message text
 }
 
+/** One personal dynamic entity a consent lists: bank_id '' for system level; actions read/write. */
+export interface ConsentPersonalDynamicEntity {
+	bank_id: string;
+	entity_name: string;
+	actions: string[];
+}
+
+/**
+ * The OBP consent `my_resources` block: the user's own personal resources the consent
+ * user may act on for them. Owned, not granted: no entitlement is involved, and the
+ * consent card never shows a "not held" state for these.
+ */
+export interface ConsentMyResources {
+	personal_dynamic_entities?: ConsentPersonalDynamicEntity[];
+}
+
 export interface ToolMessage extends BaseMessage {
 	role: 'tool';
 	toolName: string; // Name of the tool being called
@@ -62,6 +78,7 @@ export interface ToolMessage extends BaseMessage {
 	consentViewId?: string; // View ID for view-scoped consent
 	consentRequiresViewAccess?: boolean; // True when the endpoint is gated by account-access-to-a-view
 	consentIsUserScoped?: boolean; // True when the endpoint is identity-bound (e.g. /my/*)
+	consentMyResources?: ConsentMyResources; // The user's own resources the consent must list (OBP my_resources)
 	// Client-executed tool fields (for client_tool_call events, e.g. set_form_fields)
 	clientExecuted?: boolean; // True when this tool runs in the browser, not on the server
 	clientResult?: ClientToolOutcome; // Outcome of the local execution, for rendering

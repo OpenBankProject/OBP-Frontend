@@ -1,301 +1,27 @@
 <script lang="ts">
-  import { onMount, tick } from "svelte";
+  import { onMount } from "svelte";
+  import { page } from "$app/state";
+  import { fetchMethodRoutings as loadRoutings, isDefaultRouting, type MethodRouting } from "$lib/services/methodRoutings";
 
-  interface MethodRouting {
-    method_routing_id?: string;
-    method_name: string;
-    connector_name: string;
-    is_bank_id_exact_match: boolean;
-    bank_id_pattern?: string;
-    parameters?: string;
-  }
-
+  // Creating, overriding and editing live on their own pages (with Opey beside the form):
+  // /integration/method-routings/create[?method=NAME|?from=ID] and /integration/method-routings/ID.
   let methodRoutings = $state<MethodRouting[]>([]);
-  let methodNames = $state<string[]>([]);
-  let connectorNames = $state<string[]>([]);
-  let bankIds = $state<string[]>([]);
   let viewMode = $state<"active" | "configured">("active");
   let isLoading = $state(false);
-  let isLoadingMethodNames = $state(false);
-  let isLoadingConnectors = $state(false);
   let error = $state<string | null>(null);
   let successMessage = $state<string | null>(null);
-  let showCreateForm = $state(false);
-  let editingRouting = $state<MethodRouting | null>(null);
-  let formPanel = $state<HTMLElement | null>(null);
-
-  const jsonPlaceholder = '{"param1": "value1", "param2": "value2"}';
-
-  async function scrollToForm() {
-    await tick();
-    formPanel?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
-
-  // Form state
-  let formData = $state<MethodRouting>({
-    method_name: "",
-    connector_name: "",
-    is_bank_id_exact_match: false,
-    bank_id_pattern: "",
-    parameters: "",
-  });
 
   async function fetchMethodRoutings() {
     try {
       isLoading = true;
       error = null;
-
-      const queryParams = viewMode === "active" ? "?active=true" : "";
-      const response = await fetch(`/backend/integration/method-routings${queryParams}`);
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        const errorMsg = errorData.message;
-        throw new Error(
-          `Failed to fetch method routings (${response.status}): ${errorMsg}`,
-        );
-      }
-
-      const data = await response.json();
-
-      console.log("=== METHOD ROUTINGS DATA ===");
-      console.log("Data:", data);
-
-      methodRoutings = Array.isArray(data)
-        ? data
-        : data.method_routings || data.items || [];
+      methodRoutings = await loadRoutings(viewMode === "active");
     } catch (err) {
-      error =
-        err instanceof Error ? err.message : "Failed to fetch method routings";
+      error = err instanceof Error ? err.message : "Failed to fetch method routings";
       console.error("Error fetching method routings:", err);
     } finally {
       isLoading = false;
     }
-  }
-
-  async function fetchMethodNames() {
-    try {
-      isLoadingMethodNames = true;
-
-      const response = await fetch("/proxy/obp/v6.0.0/system/connector-method-names");
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        const errorMsg = errorData.message;
-        throw new Error(
-          `Failed to fetch method names (${response.status}): ${errorMsg}`,
-        );
-      }
-
-      const data = await response.json();
-
-      methodNames = Array.isArray(data)
-        ? data
-        : data.method_names || data.connector_method_names || [];
-    } catch (err) {
-      console.error("Error fetching method names:", err);
-    } finally {
-      isLoadingMethodNames = false;
-    }
-  }
-
-  async function fetchConnectorNames() {
-    try {
-      isLoadingConnectors = true;
-
-      const response = await fetch("/backend/system/connectors");
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        const errorMsg = errorData.message;
-        console.error(`Failed to fetch connectors (${response.status}): ${errorMsg}`);
-        return;
-      }
-
-      const data = await response.json();
-
-      connectorNames = Array.isArray(data)
-        ? data
-        : data.connector_names || [];
-    } catch (err) {
-      console.error("Error fetching connector names:", err);
-    } finally {
-      isLoadingConnectors = false;
-    }
-  }
-
-  async function fetchBankIds() {
-    try {
-      const response = await fetch("/proxy/obp/v6.0.0/banks");
-
-      if (!response.ok) {
-        console.error(`Failed to fetch banks (${response.status})`);
-        return;
-      }
-
-      const data = await response.json();
-      const banks = Array.isArray(data) ? data : data.banks || [];
-
-      // Extract just the bank_id values
-      bankIds = banks
-        .map((b: { bank_id?: string }) => b.bank_id)
-        .filter((id: string | undefined): id is string => !!id)
-        .sort();
-    } catch (err) {
-      console.error("Error fetching bank IDs:", err);
-    }
-  }
-
-  async function createMethodRouting() {
-    try {
-      isLoading = true;
-      error = null;
-      successMessage = null;
-
-      const response = await fetch("/backend/integration/method-routings", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message);
-      }
-
-      successMessage = "Method routing created successfully";
-      showCreateForm = false;
-      resetForm();
-      await fetchMethodRoutings();
-    } catch (err) {
-      error =
-        err instanceof Error ? err.message : "Failed to create method routing";
-      console.error("Error creating method routing:", err);
-    } finally {
-      isLoading = false;
-    }
-  }
-
-  async function updateMethodRouting() {
-    try {
-      isLoading = true;
-      error = null;
-      successMessage = null;
-
-      const response = await fetch("/backend/integration/method-routings", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message);
-      }
-
-      successMessage = "Method routing updated successfully";
-      editingRouting = null;
-      resetForm();
-      await fetchMethodRoutings();
-    } catch (err) {
-      error =
-        err instanceof Error ? err.message : "Failed to update method routing";
-      console.error("Error updating method routing:", err);
-    } finally {
-      isLoading = false;
-    }
-  }
-
-  function handleSubmit(event: Event) {
-    event.preventDefault();
-    if (editingRouting) {
-      updateMethodRouting();
-    } else {
-      createMethodRouting();
-    }
-  }
-
-  function startEdit(routing: MethodRouting) {
-    editingRouting = routing;
-    // Convert parameters from OBP array format [{key, value}] back to JSON object string for the form
-    let parametersStr = "";
-    const params = routing.parameters as unknown;
-    if (Array.isArray(params) && params.length > 0) {
-      const obj: Record<string, string> = {};
-      for (const p of params) {
-        if (p && typeof p === "object" && "key" in p && "value" in p) {
-          obj[p.key] = p.value;
-        }
-      }
-      parametersStr = JSON.stringify(obj, null, 2);
-    } else if (typeof params === "string" && params.trim()) {
-      parametersStr = params;
-    }
-    formData = { ...routing, parameters: parametersStr };
-    showCreateForm = true;
-    if (methodNames.length === 0) {
-      fetchMethodNames();
-    }
-    scrollToForm();
-  }
-
-  function startOverride(routing: MethodRouting) {
-    // Pre-fill the create form with the default routing's values (no method_routing_id — this will be a new custom routing)
-    editingRouting = null;
-    let parametersStr = "";
-    const params = routing.parameters as unknown;
-    if (Array.isArray(params) && params.length > 0) {
-      const obj: Record<string, string> = {};
-      for (const p of params) {
-        if (p && typeof p === "object" && "key" in p && "value" in p) {
-          obj[p.key] = p.value;
-        }
-      }
-      parametersStr = JSON.stringify(obj, null, 2);
-    } else if (typeof params === "string" && params.trim()) {
-      parametersStr = params;
-    }
-    formData = {
-      method_name: routing.method_name,
-      connector_name: routing.connector_name,
-      is_bank_id_exact_match: routing.is_bank_id_exact_match,
-      bank_id_pattern: routing.bank_id_pattern,
-      parameters: parametersStr,
-    };
-    showCreateForm = true;
-    clearMessages();
-    if (methodNames.length === 0) {
-      fetchMethodNames();
-    }
-    scrollToForm();
-  }
-
-  function startCreate() {
-    showCreateForm = true;
-    clearMessages();
-    if (methodNames.length === 0) {
-      fetchMethodNames();
-    }
-  }
-
-  function cancelForm() {
-    showCreateForm = false;
-    editingRouting = null;
-    resetForm();
-  }
-
-  function resetForm() {
-    formData = {
-      method_name: "",
-      connector_name: "",
-      is_bank_id_exact_match: false,
-      bank_id_pattern: "",
-      parameters: "",
-    };
   }
 
   function clearMessages() {
@@ -308,15 +34,12 @@
     fetchMethodRoutings();
   }
 
-  function isDefaultRouting(routing: MethodRouting): boolean {
-    return !routing.method_routing_id || routing.method_routing_id === "";
-  }
-
   onMount(() => {
+    const saved = page.url.searchParams.get("saved");
+    const deleted = page.url.searchParams.get("deleted");
+    if (saved) successMessage = `Method routing for ${saved} saved`;
+    if (deleted) successMessage = `Method routing for ${deleted} deleted`;
     fetchMethodRoutings();
-    fetchMethodNames();
-    fetchConnectorNames();
-    fetchBankIds();
   });
 </script>
 
@@ -333,15 +56,9 @@
         Manage method routing configurations for the OBP API
       </p>
     </div>
-    {#if !showCreateForm}
-      <button
-        onclick={startCreate}
-        class="btn btn-primary"
-        disabled={isLoading}
-      >
-        Create Method Routing
-      </button>
-    {/if}
+    <a href="/integration/method-routings/create" class="btn btn-primary" data-testid="create-method-routing">
+      Create Method Routing
+    </a>
   </div>
 
   <!-- Messages -->
@@ -358,141 +75,6 @@
       <strong>Success:</strong>
       {successMessage}
       <button onclick={clearMessages} class="alert-close">×</button>
-    </div>
-  {/if}
-
-  <!-- Create/Edit Form -->
-  {#if showCreateForm}
-    <div class="panel mb-6" bind:this={formPanel}>
-      <div class="panel-header">
-        <h2 class="panel-title">
-          {editingRouting ? "Edit Method Routing" : formData.method_name ? "Override Method Routing" : "Create Method Routing"}
-        </h2>
-      </div>
-      <div class="panel-content">
-        <form onsubmit={handleSubmit}>
-          <div class="form-grid">
-            <div class="form-group">
-              <label for="method_name" class="form-label">
-                Method Name <span class="required">*</span>
-              </label>
-              {#if isLoadingMethodNames}
-                <div class="loading-text">Loading method names...</div>
-              {:else if methodNames.length > 0}
-                <select
-                  id="method_name"
-                  bind:value={formData.method_name}
-                  class="form-input"
-                  required
-                >
-                  <option value="">Select a method name</option>
-                  {#each methodNames as methodName}
-                    <option value={methodName}>{methodName}</option>
-                  {/each}
-                </select>
-              {:else}
-                <input
-                  type="text"
-                  id="method_name"
-                  bind:value={formData.method_name}
-                  class="form-input"
-                  placeholder="e.g., getBank"
-                  required
-                />
-              {/if}
-            </div>
-
-            <div class="form-group">
-              <label for="connector_name" class="form-label">
-                Connector Name <span class="required">*</span>
-              </label>
-              {#if isLoadingConnectors}
-                <div class="loading-text">Loading connectors...</div>
-              {:else if connectorNames.length > 0}
-                <select
-                  id="connector_name"
-                  bind:value={formData.connector_name}
-                  class="form-input"
-                  required
-                >
-                  <option value="">Select a connector</option>
-                  {#each connectorNames as connectorName}
-                    <option value={connectorName}>{connectorName}</option>
-                  {/each}
-                </select>
-              {:else}
-                <input
-                  type="text"
-                  id="connector_name"
-                  bind:value={formData.connector_name}
-                  class="form-input"
-                  placeholder="e.g., rest_vMar2019"
-                  required
-                />
-              {/if}
-            </div>
-
-            <div class="form-group">
-              <label for="bank_id_pattern" class="form-label">
-                Bank ID Pattern
-              </label>
-              <input
-                type="text"
-                id="bank_id_pattern"
-                bind:value={formData.bank_id_pattern}
-                class="form-input"
-                placeholder="e.g., gh.29.uk or .* for all"
-                list="bank-ids-list"
-              />
-              <datalist id="bank-ids-list">
-                {#each bankIds as bankId}
-                  <option value={bankId}></option>
-                {/each}
-              </datalist>
-              <div class="form-hint">Type a bank ID or pattern (e.g., .* for all banks)</div>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">
-                <input
-                  type="checkbox"
-                  bind:checked={formData.is_bank_id_exact_match}
-                  class="form-checkbox"
-                />
-                Is Bank ID Exact Match
-              </label>
-            </div>
-
-            <div class="form-group full-width">
-              <label for="parameters" class="form-label"
-                >Parameters (JSON)</label
-              >
-              <textarea
-                id="parameters"
-                bind:value={formData.parameters}
-                class="form-textarea"
-                rows="4"
-                placeholder={jsonPlaceholder}
-              ></textarea>
-              <div class="form-hint">Optional key-value pairs as JSON object, e.g., {"{"}"key1": "value1", "key2": "value2"{"}"}</div>
-            </div>
-          </div>
-
-          <div class="form-actions">
-            <button
-              type="button"
-              onclick={cancelForm}
-              class="btn btn-secondary"
-              disabled={isLoading}
-            >
-              Cancel
-            </button>
-            <button type="submit" class="btn btn-primary" disabled={isLoading}>
-              {isLoading ? "Saving..." : editingRouting ? "Update" : "Create"}
-            </button>
-          </div>
-        </form>
-      </div>
     </div>
   {/if}
 
@@ -568,23 +150,28 @@
                   {/if}
                   <td>
                     {#if isDefaultRouting(routing)}
-                      <button
-                        onclick={() => startOverride(routing)}
+                      <a
+                        href="/integration/method-routings/create?method={encodeURIComponent(routing.method_name)}"
                         class="btn-icon"
                         data-testid="override-{routing.method_name}"
-                        disabled={isLoading}
                       >
                         Override
-                      </button>
+                      </a>
                     {:else}
-                      <button
-                        onclick={() => startEdit(routing)}
+                      <a
+                        href="/integration/method-routings/{routing.method_routing_id}"
                         class="btn-icon"
                         data-testid="edit-{routing.method_name}"
-                        disabled={isLoading}
                       >
                         Edit
-                      </button>
+                      </a>
+                      <a
+                        href="/integration/method-routings/create?from={routing.method_routing_id}"
+                        class="btn-icon"
+                        data-testid="duplicate-{routing.method_name}"
+                      >
+                        Duplicate
+                      </a>
                     {/if}
                   </td>
                 </tr>
@@ -604,9 +191,9 @@
       {:else}
         <div class="empty-state">
           <p>No method routings found</p>
-          <button onclick={startCreate} class="btn btn-primary mt-4">
+          <a href="/integration/method-routings/create" class="btn btn-primary mt-4">
             Create Your First Method Routing
-          </button>
+          </a>
         </div>
       {/if}
     </div>
@@ -707,109 +294,7 @@
     padding: 1.5rem;
   }
 
-  .form-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
-  }
-
-  .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .form-group.full-width {
-    grid-column: 1 / -1;
-  }
-
-  .form-label {
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: #374151;
-  }
-
-  :global([data-mode="dark"]) .form-label {
-    color: var(--color-surface-300);
-  }
-
-  .required {
-    color: #ef4444;
-  }
-
-  .form-input,
-  .form-textarea {
-    width: 100%;
-    padding: 0.5rem 0.75rem;
-    border: 1px solid #d1d5db;
-    border-radius: 0.375rem;
-    font-size: 0.875rem;
-    background: white;
-    color: #111827;
-  }
-
-  :global([data-mode="dark"]) .form-input,
-  :global([data-mode="dark"]) .form-textarea {
-    background: rgb(var(--color-surface-700));
-    border-color: rgb(var(--color-surface-600));
-    color: var(--color-surface-100);
-  }
-
-  .form-input:focus,
-  .form-textarea:focus {
-    outline: none;
-    border-color: #3b82f6;
-    ring: 2px;
-    ring-color: rgba(59, 130, 246, 0.2);
-  }
-
-  .form-checkbox {
-    width: 1rem;
-    height: 1rem;
-    margin-right: 0.5rem;
-  }
-
-  .form-input option,
-  .form-select option {
-    background: white;
-    color: #111827;
-  }
-
-  :global([data-mode="dark"]) .form-input option,
-  :global([data-mode="dark"]) .form-select option {
-    background: rgb(var(--color-surface-700));
-    color: var(--color-surface-100);
-  }
-
-  .loading-text {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.875rem;
-    color: #6b7280;
-    font-style: italic;
-  }
-
-  :global([data-mode="dark"]) .loading-text {
-    color: var(--color-surface-400);
-  }
-
-  .form-hint {
-    font-size: 0.75rem;
-    color: #6b7280;
-    margin-top: 0.25rem;
-  }
-
-  :global([data-mode="dark"]) .form-hint {
-    color: var(--color-surface-400);
-  }
-
-  .form-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
-    margin-top: 1.5rem;
-  }
-
-  .btn {
+.btn {
     padding: 0.5rem 1rem;
     border-radius: 0.375rem;
     font-size: 0.875rem;
@@ -841,16 +326,7 @@
     background: rgb(var(--color-primary-500));
   }
 
-  .btn-secondary {
-    background: #6b7280;
-    color: white;
-  }
-
-  .btn-secondary:hover:not(:disabled) {
-    background: #4b5563;
-  }
-
-  .btn-icon {
+.btn-icon {
     padding: 0.625rem 1.5rem;
     font-size: 0.8125rem;
     background: transparent;
@@ -1050,17 +526,6 @@
     border-color: rgb(var(--color-success-800));
   }
 
-  .alert-info {
-    background: #dbeafe;
-    color: #1e40af;
-    border: 1px solid #bfdbfe;
-  }
-
-  :global([data-mode="dark"]) .alert-info {
-    background: rgba(59, 130, 246, 0.15);
-    color: #93c5fd;
-    border-color: rgba(59, 130, 246, 0.3);
-  }
 
   .alert-close {
     background: transparent;
@@ -1121,8 +586,5 @@
       align-items: stretch;
     }
 
-    .form-grid {
-      grid-template-columns: 1fr;
-    }
-  }
+}
 </style>

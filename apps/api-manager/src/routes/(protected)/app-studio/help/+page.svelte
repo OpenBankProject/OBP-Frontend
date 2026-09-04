@@ -132,6 +132,7 @@
           <p class="mt-2 text-sm text-gray-700 dark:text-gray-300">
             Find the Portal's consumer below (its key is the Portal's OAuth client id), open it, and add that role under <em>Consumer Scopes</em> with an empty bank id.
             Adding a scope needs <code>CanCreateScopeAtOneBank</code>.
+            For the FAQ's "Start a chat" button, which links a new group chat to a question, the same consumer also needs <code>CanUpdateDynamicEntity_Systemobp_developer_faq</code>.
           </p>
 
           <div class="mt-3">
@@ -187,7 +188,7 @@
     </div>
 
     <div class="rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-200">
-      Serving published pages on the Portal{#if data.portalUrl} at <code>{data.portalUrl}/pages/SLUG</code>{/if} is the next piece of work and is not available yet. Saving and publishing already store the records that route will read.
+      Published records are served by the Portal{#if data.portalUrl} at <code>{data.portalUrl}/pages/SLUG</code>, listed at <a href="{data.portalUrl}/pages" class="underline">{data.portalUrl}/pages</a>{:else} at <code>/pages/SLUG</code>{/if}. Pages are sanitised and rendered inline with live catalogue data; Apps run in a sandboxed frame and reach OBP through the Portal, anonymously for visitors who are not signed in. The Portal reads the entity with its own application token, so step 3 above must be done first.
     </div>
   </section>
 

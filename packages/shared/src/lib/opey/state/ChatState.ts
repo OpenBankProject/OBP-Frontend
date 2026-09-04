@@ -1,6 +1,6 @@
 import { createLogger } from '$shared/utils/logger';
 const logger = createLogger('ChatState');
-import type { BaseMessage, ToolMessage } from '../types';
+import type { BaseMessage, ToolMessage, ConsentMyResources } from '../types';
 
 export interface TokenUsage {
 	inputTokens: number;
@@ -252,7 +252,8 @@ export class ChatState {
 		accountId?: string,
 		viewId?: string,
 		requiresViewAccess: boolean = false,
-		isUserScoped: boolean = false
+		isUserScoped: boolean = false,
+		myResources: ConsentMyResources | null = null
 	): void {
 		const toolMessage = this.getToolMessageByCallId(toolCallId);
 
@@ -267,6 +268,7 @@ export class ChatState {
 			if (viewId) toolMessage.consentViewId = viewId;
 			toolMessage.consentRequiresViewAccess = requiresViewAccess;
 			toolMessage.consentIsUserScoped = isUserScoped;
+			toolMessage.consentMyResources = myResources ?? undefined;
 		} else {
 			logger.warn(`No tool message found for consent request: ${toolCallId}, creating new one`);
 			this.addToolMessage({
@@ -287,7 +289,8 @@ export class ChatState {
 				consentAccountId: accountId,
 				consentViewId: viewId,
 				consentRequiresViewAccess: requiresViewAccess,
-				consentIsUserScoped: isUserScoped
+				consentIsUserScoped: isUserScoped,
+				consentMyResources: myResources ?? undefined
 			} as ToolMessage);
 		}
 
