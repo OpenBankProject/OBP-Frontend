@@ -9,7 +9,8 @@ export {
 	_resetConsentsConfigCache
 } from './consentsConfig.js';
 export type { ObpGet } from './consentsConfig.js';
-export { findReusableConsent } from './consentReuse.js';
+export { findReusableConsent, normalizeMyResources, myResourcesCovered } from './consentReuse.js';
+export type { RequiredMyResources, RequiredPersonalDynamicEntity } from './consentReuse.js';
 export { ensureSystemDynamicEntity } from './dynamicEntityBootstrap.js';
 export type { SystemDynamicEntityDefinition, DynamicEntityBootstrapDeps } from './dynamicEntityBootstrap.js';
 export { createObpProxyHandler } from './obpProxy.js';

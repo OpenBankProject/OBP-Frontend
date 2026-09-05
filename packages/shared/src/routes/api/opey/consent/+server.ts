@@ -214,7 +214,7 @@ export async function POST(event: RequestEvent) {
 		logger.info(`Consent body:`, JSON.stringify(consentBody, null, 2));
 
 		const consent = await obpRequests.post(
-			'/obp/v5.1.0/my/consents/IMPLICIT',
+			'/obp/v6.0.0/my/consents/IMPLICIT',
 			consentBody,
 			accessToken
 		);
