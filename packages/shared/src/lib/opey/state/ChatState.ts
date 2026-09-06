@@ -8,10 +8,21 @@ export interface TokenUsage {
 	totalTokens: number;
 }
 
+/** What the app's Opey proxy reported after writing this thread into the user's conversation entity. */
+export interface ConversationRecordInfo {
+	status: 'saved' | 'unavailable' | 'error';
+	entityName: string;
+	recordId?: string;
+	messageCount?: number;
+	detail?: string;
+}
+
 export interface ChatStateSnapshot {
 	threadId: string;
 	messages: BaseMessage[];
 	tokenUsage: TokenUsage | null;
+	/** null until the proxy reports on this thread (anonymous users, or apps that do not record, never see one). */
+	conversationRecord: ConversationRecordInfo | null;
 }
 
 export class ChatState {
@@ -21,6 +32,7 @@ export class ChatState {
 	private sessionStartTime: Date = new Date();
 	// Token usage from the most recent assistant turn (Anthropic's real counts).
 	private tokenUsage: TokenUsage | null = null;
+	private conversationRecord: ConversationRecordInfo | null = null;
 
 	constructor(threadId?: string) {
 		this.threadId = threadId || crypto.randomUUID(); // Generate a new thread ID if not provided
@@ -38,7 +50,14 @@ export class ChatState {
 		this.messages = [];
 		this.sessionStartTime = new Date();
 		this.tokenUsage = null;
+		this.conversationRecord = null;
 		this.emit(); // Notify subscribers about the change
+	}
+
+	/** Record what the proxy said about saving this thread (see the conversation_recorded stream event). */
+	setConversationRecord(info: ConversationRecordInfo | null): void {
+		this.conversationRecord = info;
+		this.emit();
 	}
 
 	/** Record token usage from the latest assistant turn (raw counts from the backend). */
@@ -425,7 +444,7 @@ export class ChatState {
 	subscribe(fn: (msgs: ChatStateSnapshot) => void): () => void {
 		this.subscribers.push(fn);
 		logger.debug('ChatState: Subscribed to messages');
-		fn({ threadId: this.threadId, messages: this.messages, tokenUsage: this.tokenUsage }); // Send current state immediately
+		fn(this.snapshot()); // Send current state immediately
 		// Unsubscribe — call on component destroy or the subscriber leaks.
 		return () => {
 			this.subscribers = this.subscribers.filter((s) => s !== fn);
@@ -476,6 +495,7 @@ export class ChatState {
 	clear(): void {
 		this.messages = [];
 		this.sessionStartTime = new Date();
+		this.conversationRecord = null;
 		this.emit();
 	}
 
@@ -490,12 +510,17 @@ export class ChatState {
 	}
 
 	// Notify subscribers
-	private emit(): void {
-		const snapshot = {
+	private snapshot(): ChatStateSnapshot {
+		return {
 			threadId: this.threadId,
 			messages: this.messages,
-			tokenUsage: this.tokenUsage
+			tokenUsage: this.tokenUsage,
+			conversationRecord: this.conversationRecord
 		};
+	}
+
+	private emit(): void {
+		const snapshot = this.snapshot();
 		this.subscribers.forEach((fn) => fn(snapshot));
 	}
 }

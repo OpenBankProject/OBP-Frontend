@@ -418,6 +418,16 @@ export class RestChatService implements ChatService {
 					myResources: eventData.my_resources ?? null
 				});
 				break;
+			case 'conversation_recorded':
+				this.streamEventCallback?.({
+					type: 'conversation_recorded',
+					status: eventData.status,
+					entityName: eventData.entity_name ?? '',
+					recordId: eventData.record_id || undefined,
+					messageCount: typeof eventData.message_count === 'number' ? eventData.message_count : undefined,
+					detail: eventData.detail || undefined
+				});
+				break;
 			default:
 				console.warn(`Unknown event type: ${eventData.type}`);
 				break;

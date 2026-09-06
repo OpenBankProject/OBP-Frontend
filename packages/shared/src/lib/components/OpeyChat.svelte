@@ -21,7 +21,6 @@
 	import { ToolError, ObpApiResponse, DefaultToolResponse } from './tool-messages';
 	import ChatMessage from './ChatMessage.svelte';
 	import NewEntitlementsNotice from './NewEntitlementsNotice.svelte';
-	import { ConversationRecorder, type ConversationRecordStatus } from '$shared/opey/services/ConversationRecorder';
 	import {
 		summariseConsentJwt,
 		addGrantedConsent,
@@ -40,7 +39,13 @@
 		icon?: typeof IconType; // Optional, an icon to display in the pill
 	};
 	export interface OpeyChatOptions {
-		baseUrl: string; // Base Opey URL
+		// Same-origin prefix of the app's Opey proxy (auth, stream, status, ...). Every call the
+		// chat makes goes through it, so the app server is the one place all Opey traffic passes.
+		// Default '/backend/opey'.
+		proxyBaseUrl?: string;
+		// Opey's own public URL, shown in the connection popover so a user can open Opey's
+		// /status themselves. Informational only: the chat never calls it.
+		baseUrl?: string;
 		displayHeader: boolean; // Whether to display the header with the logo and title
 		currentlyActiveUserName: string; // Optional name of the currently active user
 		suggestedQuestions: SuggestedQuestion[]; // List of suggested questions to display
@@ -58,11 +63,6 @@
 		// Metrics page that accepts ?consent_reference_id=...; when set, the consent
 		// indicator under the input links each reference id to its call log.
 		consentMetricsHref?: string;
-		// Personal dynamic entity the app records this chat into, as the logged-in user,
-		// after each message completes (one row per thread; visible under My Data). Unset
-		// means no recording. The entity must exist on the instance; if it does not, the
-		// chat says so once and carries on unrecorded.
-		conversationEntityName?: string;
 		headerClasses?: string; // Optional classes for the header
 		footerClasses?: string;
 		bodyClasses?: string;
@@ -102,21 +102,17 @@
 	// Merge default options with the provided options
 	const options = { ...defaultChatOptions, ...opeyChatOptions } as OpeyChatOptions;
 
-	if (!options.baseUrl) {
-		throw new Error(
-			'OpeyChat: opeyChatOptions.baseUrl is required. Pass the Opey backend URL from the consuming app.'
-		);
-	}
+	const opeyProxyBase = (options.proxyBaseUrl ?? '/backend/opey').replace(/\/$/, '');
 
 	// Initialize session state and services
 
 	const sessionState = new SessionState();
-	const sessionService = new OpeySessionService('/backend/opey/auth');
+	const sessionService = new OpeySessionService(`${opeyProxyBase}/auth`);
 	const sessionController = new SessionController(sessionService, sessionState);
 
 	const chatState = new ChatState();
 	const chatService = new RestChatService(
-		options.baseUrl,
+		opeyProxyBase,
 		new CookieAuthStrategy(),
 		// Resolved per message — closure reads the current prop values at send time.
 		() => {
@@ -138,7 +134,7 @@
 	});
 
 	let session: SessionSnapshot = $state({ isAuthenticated: userAuthenticated, status: 'ready' });
-	let chat: ChatStateSnapshot = $state({ threadId: '', messages: [], tokenUsage: null });
+	let chat: ChatStateSnapshot = $state({ threadId: '', messages: [], tokenUsage: null, conversationRecord: null });
 	let unsubscribeSession: (() => void) | undefined;
 	let unsubscribeChat: (() => void) | undefined;
 
@@ -163,19 +159,6 @@
 	let grantedConsents: GrantedConsentSummary[] = $state([]);
 	let liveConsents = $derived(activeConsents(grantedConsents));
 
-	// Conversation recording (see OpeyChatOptions.conversationEntityName).
-	let conversationRecordStatus: ConversationRecordStatus = $state('idle');
-	let conversationRecordDetail: string = $state('');
-	const conversationRecorder: ConversationRecorder | null =
-		options.conversationEntityName && userAuthenticated
-			? new ConversationRecorder({
-					entityName: options.conversationEntityName,
-					onStatus: (status, detail) => {
-						conversationRecordStatus = status;
-						conversationRecordDetail = detail ?? '';
-					}
-				})
-			: null;
 	// Most recent grant = the consent Opey is using for its current work.
 	let currentConsent = $derived(liveConsents.length > 0 ? liveConsents[liveConsents.length - 1] : null);
 	let consentIndicatorOpen = $state(false);
@@ -210,8 +193,8 @@
 
 	// Server-side Opey connection status (does the app server reach OPEY_BASE_URL?)
 	let serverConnectionStatus: 'healthy' | 'unhealthy' | 'degraded' | 'unknown' = $state('unknown');
-	// Browser-side Opey connection status (can the user's browser reach options.baseUrl —
-	// which is what the chat itself uses to send messages?)
+	// Browser-side Opey connection status: can this browser reach Opey through the app's
+	// proxy (the route the chat itself uses to send messages)?
 	let browserConnectionStatus: 'healthy' | 'unhealthy' | 'unknown' = $state('unknown');
 	// OBP-MCP outbound auth mode (oauth | consent | none) — reported by Opey's /status,
 	// originally sourced from OBP-MCP's own /status. null until the first probe completes.
@@ -256,7 +239,7 @@
 		const controller = new AbortController();
 		const timeoutId = setTimeout(() => controller.abort('timeout'), 5000);
 		try {
-			const res = await fetch(`${options.baseUrl}/status`, {
+			const res = await fetch(`${opeyProxyBase}/status`, {
 				headers: { Accept: 'application/json' },
 				signal: controller.signal,
 			});
@@ -330,7 +313,7 @@
 
 	async function getMermaidDiagram() {
 		try {
-			const response = await fetch(`${options.baseUrl}/mermaid_diagram`, {
+			const response = await fetch(`${opeyProxyBase}/mermaid_diagram`, {
 				method: 'GET',
 				credentials: 'include'
 			});
@@ -394,15 +377,7 @@
 	onMount(async () => {
 		logger.debug('OpeyChat component mounted with options:', options);
 		unsubscribeSession = sessionState.subscribe((s) => (session = s));
-		unsubscribeChat = chatState.subscribe((c) => {
-			chat = c;
-			// Record completed messages as the user; the recorder ignores unchanged snapshots.
-			void conversationRecorder?.record(
-				c.threadId,
-				c.messages,
-				grantedConsents.map((g) => g.referenceId ?? '').filter(Boolean)
-			);
-		});
+		unsubscribeChat = chatState.subscribe((c) => (chat = c));
 
 		if (options.initialAssistantMessage) {
 			chatState.addMessage({
@@ -483,6 +458,19 @@
 	async function sendMessage(text: string) {
 		if (!text.trim()) return;
 		await chatController.send(text);
+	}
+
+	/**
+	 * Lets the hosting page send a user message into this chat, for example a
+	 * "fix these compile errors" request built from a form. Returns false when the
+	 * chat is busy streaming, so the caller can tell the user to wait.
+	 */
+	export async function sendUserMessage(text: string): Promise<boolean> {
+		if (!text.trim() || isCurrentlyStreaming) return false;
+		isAutoScrollEnabled = true;
+		userHasScrolledUp = false;
+		await sendMessage(text);
+		return true;
 	}
 
 	function handleSendMessage(text: string) {
@@ -928,7 +916,7 @@
 					onclick={() => (openPip = openPip === 'browser' ? null : 'browser')}
 					aria-expanded={openPip === 'browser'}
 					aria-label="Opey browser connection — click for details"
-					title="Opey (browser) — your browser → Opey: {browserConnectionStatusString}"
+					title="Opey (browser) — your browser → this app → Opey: {browserConnectionStatusString}"
 				></button>
 				{#if openPip === 'browser'}
 					<div
@@ -941,14 +929,17 @@
 							<span class="font-semibold">Opey (browser)</span>
 							<button type="button" class="text-base leading-none opacity-60 hover:opacity-100" onclick={() => (openPip = null)} aria-label="Close">&times;</button>
 						</div>
-						<p class="mb-2 opacity-70">Your browser → Opey: <strong>{browserConnectionStatusString}</strong></p>
+						<p class="mb-2 opacity-70">Your browser → this app → Opey: <strong>{browserConnectionStatusString}</strong></p>
 						{#if browserHealthError}
 							<p class="mb-2 break-words text-error-500 dark:text-error-400">{browserHealthError}</p>
 						{/if}
-						<a href={`${options.baseUrl}/status`} target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-tertiary-600-400 hover:underline">
-							<code class="font-mono text-[11px] break-all">{options.baseUrl}/status</code>
+						<a href={`${opeyProxyBase}/status`} target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-tertiary-600-400 hover:underline">
+							<code class="font-mono text-[11px] break-all">{opeyProxyBase}/status</code>
 							<span aria-hidden="true">↗</span>
 						</a>
+						{#if options.baseUrl}
+							<p class="mt-1 opacity-70">Opey itself: <code class="font-mono text-[11px] break-all">{options.baseUrl}</code></p>
+						{/if}
 					</div>
 				{/if}
 			</div>
@@ -1174,14 +1165,14 @@
 				<div class="relative flex items-center justify-center">
 					{@render inputField()}
 				</div>
-				{#if conversationRecorder && conversationRecordStatus !== 'idle'}
+				{#if chat.conversationRecord}
 					<p class="mt-1 text-[11px] text-surface-500 dark:text-surface-400" data-testid="conversation-record-status">
-						{#if conversationRecordStatus === 'saved'}
+						{#if chat.conversationRecord.status === 'saved'}
 							This conversation is saved to your data as it goes.
-						{:else if conversationRecordStatus === 'unavailable'}
-							Conversation recording is not set up on this instance ({options.conversationEntityName} is not defined), so this chat is not saved.
+						{:else if chat.conversationRecord.status === 'unavailable'}
+							Conversation recording is not set up on this instance ({chat.conversationRecord.entityName} is not defined), so this chat is not saved.
 						{:else}
-							Saving this conversation failed: {conversationRecordDetail}. It will be retried after the next message.
+							Saving this conversation failed: {chat.conversationRecord.detail}. It will be retried after the next message.
 						{/if}
 					</p>
 				{/if}

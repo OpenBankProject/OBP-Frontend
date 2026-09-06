@@ -92,3 +92,11 @@ export type StreamEvent =
     | { type: 'thread_sync', threadId: string }
     | { type: 'error', messageId?: string, error: string }
     | { type: 'auth_refresh_needed' }
+    /**
+     * Appended by the app's Opey proxy after it wrote the turn into the user's
+     * conversation entity (never sent by Opey itself). Absent when the user is
+     * anonymous or the app does not record.
+     */
+    | { type: 'conversation_recorded', status: ConversationRecordStatus, entityName: string, recordId?: string, messageCount?: number, detail?: string }
+
+export type ConversationRecordStatus = 'saved' | 'unavailable' | 'error'

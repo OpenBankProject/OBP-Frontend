@@ -32,6 +32,15 @@ export class ChatController {
 						logger.debug(`Syncing thread_id with backend: ${event.threadId}`);
 						state.syncThreadId(event.threadId);
 						break;
+					case 'conversation_recorded':
+						state.setConversationRecord({
+							status: event.status,
+							entityName: event.entityName,
+							recordId: event.recordId,
+							messageCount: event.messageCount,
+							detail: event.detail
+						});
+						break;
 					case 'assistant_start':
 						logger.debug(`assistant_start: Creating new assistant message with ID: ${event.messageId}`);
 						// Remove any loading messages before adding the actual assistant message

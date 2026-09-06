@@ -84,6 +84,10 @@
   // Live page context, rebuilt per message so Opey always sees current values.
   const clientContext = () => formBridge.describe();
 
+  // The chat instance, so the form's Compile → Opey → Compile loop can push a fix request into it.
+  let opeyChat = $state<{ sendUserMessage: (text: string) => Promise<boolean> } | undefined>();
+  const onFixWithOpey = async (prompt: string) => (opeyChat ? opeyChat.sendUserMessage(prompt) : false);
+
   const suggestedQuestions: SuggestedQuestion[] = [
     {
       questionString:
@@ -176,20 +180,20 @@
     </div>
   {:else if approval.known && !approval.executionEnabled}
     <div
-      class="mb-6 flex items-start gap-3 rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-900 dark:border-red-800 dark:bg-red-900/20 dark:text-red-100"
-      role="alert"
+      class="mb-6 flex items-start gap-3 rounded-lg border border-gray-300 bg-gray-50 p-4 text-sm text-gray-800 dark:border-gray-600 dark:bg-gray-800/60 dark:text-gray-200"
+      role="status"
       data-testid="dynamic-code-disabled-notice"
     >
       <ShieldAlert size={20} class="mt-0.5 shrink-0" />
       <div>
         <p class="font-semibold">Dynamic code execution is disabled on this instance.</p>
         <p class="mt-1">
-          Creating this Resource Doc will fail with <code class="rounded bg-red-100 px-1 dark:bg-red-900/40">OBP-50020</code>
+          Creating this Resource Doc will fail with <code class="rounded bg-gray-200 px-1 dark:bg-gray-700">OBP-50020</code>
           because the OBP-API prop
-          <code class="rounded bg-red-100 px-1 dark:bg-red-900/40">allow_user_generated_scala_code</code>
-          is not <code class="rounded bg-red-100 px-1 dark:bg-red-900/40">true</code>. An operator sets it in the
+          <code class="rounded bg-gray-200 px-1 dark:bg-gray-700">allow_user_generated_scala_code</code>
+          is not <code class="rounded bg-gray-200 px-1 dark:bg-gray-700">true</code>. An operator sets it in the
           props file or as the environment variable
-          <code class="rounded bg-red-100 px-1 dark:bg-red-900/40">OBP_ALLOW_USER_GENERATED_SCALA_CODE</code>
+          <code class="rounded bg-gray-200 px-1 dark:bg-gray-700">OBP_ALLOW_USER_GENERATED_SCALA_CODE</code>
           and restarts OBP-API; props are read once at startup.
           {#if approval.requiresApproval}Once enabled, maker/checker approval also applies here.{/if}
         </p>
@@ -239,6 +243,7 @@
       <DynamicResourceDocForm
         onSubmit={handleSubmit}
         submitLabel={approval.requiresApproval ? "Submit for Approval" : "Create Resource Doc"}
+        {onFixWithOpey}
       >
         {#snippet cancel()}
           <a
@@ -257,6 +262,7 @@
         class="h-[36rem] w-full overflow-hidden rounded-lg border border-gray-200 shadow-sm lg:h-[calc(100vh-8rem)] dark:border-gray-700"
       >
         <OpeyChat
+          bind:this={opeyChat}
           {opeyChatOptions}
           userAuthenticated={!!page.data.userId}
           {clientTools}

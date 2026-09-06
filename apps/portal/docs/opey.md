@@ -7,7 +7,7 @@ As Opey is a seperate service to OBP-API, the sessions are managed seperately. O
 
 The only currently supported method of authentication is using [consents](https://apiexplorer-ii-sandbox.openbankproject.com/glossary#Consent). Three things will need to be set for this flow to work:
 
-- `PUBLIC_OPEY_BASE_URL` will need to be set in the environment variables to the base URL of your Opey service (e.g., `http://localhost:5000`)
+- `OPEY_BASE_URL` will need to be set in the environment variables to the base URL of your Opey service as seen from the Portal server (e.g., `http://localhost:5000`). `PUBLIC_OPEY_BASE_URL` is informational only (status page, connection popover): the browser never calls Opey itself.
 - `PUBLIC_OPEY_CONSUMER_ID` will need to be set in the environment variables, so you will need to know what the Opey Consumer ID is on your OBP instance
 - The **OBP API** props needs also to be set:
     ```json
@@ -18,15 +18,12 @@ The only currently supported method of authentication is using [consents](https:
     ```
     the portal consumer ID should be found in API manager etc.
 
-## CORS Configuration
-If you're running Opey as a separate service, you'll need to configure CORS to allow cross-origin requests from the OBP-Portal. The Opey service must include the following CORS headers:
+## The Opey proxy (one interception point)
+The browser never talks to Opey directly. Every call the chat makes (`create-session` via `auth`, `stream`, `regenerate`, `stop`, `invoke`, `status`, `mermaid_diagram`) goes to this app's own `/backend/opey/*` routes, which forward it to `OPEY_BASE_URL` server-side. The handlers come from `@obp/shared/server/opey` (`createOpeyProxyHandlers`) and are configured once per app in `src/lib/server/opey/proxy.ts`; the API Manager uses the same factory. No CORS configuration is needed on Opey for the apps, and only Opey's own session cookie is forwarded to it (the app's session cookie never leaves the app).
 
-- `Access-Control-Allow-Origin`: Set to your OBP-Portal's origin (e.g., `http://localhost:5174`)
-- `Access-Control-Allow-Methods`: Include `POST, GET, OPTIONS`
-- `Access-Control-Allow-Headers`: Include `Content-Type, Authorization, Consent-JWT`
-- `Access-Control-Allow-Credentials`: Set to `true` if using cookies
+Because all Opey traffic passes through the proxy, that is also where conversations are recorded, whichever page embeds the chat: the stream handler tees Opey's server-sent events, keeps the messages that completed, and writes the turn as the logged-in user into the app's personal dynamic entity (`obp_portal_opey_conversation` here, `obp_manager_opey_conversation` in the API Manager; one row per thread, visible under My Data). The consent a turn used is recorded by its `consent_reference_id`. The outcome is appended to the stream as a `conversation_recorded` event so the chat can show whether it is being saved. Anonymous sessions are relayed but not recorded; `invoke` (the Insight Bar's one-shot calls) is not recorded either.
 
-Without proper CORS configuration, you'll see errors like "Access to fetch at 'http://localhost:5000/stream' from origin 'http://localhost:5174' has been blocked by CORS policy".
+POSTs to `/backend/opey/*` are rate limited per IP (`RATE_LIMIT_OPEY`, default 30/m).
 
 Once the user has logged in to the portal, and the OpeyChat component is mounted (see `packages/shared/src/lib/components/OpeyChat.svelte`, imported via `@obp/shared/components`). The user will make a consent at OBP-API, which is sent to Opey in exchange for a session.
 

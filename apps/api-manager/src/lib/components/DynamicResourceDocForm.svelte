@@ -31,9 +31,14 @@
     submitLabel?: string;
     onSubmit: (values: DynamicResourceDocFormValues) => Promise<void>;
     cancel?: Snippet;
+    /**
+     * When the page hosts Opey, this sends a prompt into the chat and resolves true if it was
+     * accepted (false while Opey is still streaming). Enables the Compile → Opey → Compile loop.
+     */
+    onFixWithOpey?: (prompt: string) => Promise<boolean>;
   }
 
-  let { initial = {}, submitLabel = "Save", onSubmit, cancel }: Props = $props();
+  let { initial = {}, submitLabel = "Save", onSubmit, cancel, onFixWithOpey }: Props = $props();
 
   // method_body is URL-encoded Scala in OBP. The operator edits plain Scala;
   // we encode on submit and decode here on load.
@@ -127,6 +132,10 @@
       if (!(name in opeyPrevious)) opeyPrevious = { ...opeyPrevious, [name]: before };
       applied.push(name);
     }
+    if (fixActive && applied.includes("method_body")) {
+      // Let the field update settle, then run the next round of the loop.
+      setTimeout(() => void continueFixLoop(), 0);
+    }
     return { applied, ignored };
   }
 
@@ -152,7 +161,7 @@
       `- request_url (string, must start with /, UPPER_CASE segments are path params, required)`,
       `- summary (string, one line)`,
       `- description (string, prose, max 2000 chars)`,
-      `- method_body (Scala source, required; the body of the partial function handling the request)`,
+      `- method_body (Scala source, required; inlined into an http4s handler: in scope are callContext: CallContext, request: org.http4s.Request[IO], pathParams: Map[String, String], the generated RequestRootJsonClass/ResponseRootJsonClass, and errorResponse(message, code). The last expression must be Future.successful((responseValue, HttpCode.\`200\`(callContext))) or errorResponse(...). Do NOT return Lift Box/Full/JsonResponse values.)`,
       `- example_request_body (JSON object; required for POST/PUT)`,
       `- success_response_body (JSON object, required)`,
       `- error_response_bodies (comma-separated OBP error names, e.g. $UserNotLoggedIn,$UnknownError)`,
@@ -181,6 +190,135 @@
   let submitError = $state<string | null>(null);
   let fieldErrors = $state<Record<string, string>>({});
   let isGeneratingTemplate = $state(false);
+
+  // ---- Dry-run compile (POST /obp/v7.0.0/management/dynamic-resource-docs/compile) ----
+  interface CompileError { line: number; column: number; severity: string; message: string }
+  type CompileStatus = "idle" | "compiling" | "ok" | "errors" | "failed";
+  let compileStatus = $state<CompileStatus>("idle");
+  let compileErrors = $state<CompileError[]>([]);
+  let compileDependencyError = $state<string | null>(null);
+  let compileMessage = $state<string | null>(null);
+  let compileDurationMs = $state<number | null>(null);
+
+  // Compile → Opey → Compile loop. Opey replaces method_body via set_form_fields; applyDraft
+  // then recompiles automatically. Capped so a body Opey cannot fix does not spin forever.
+  const FIX_MAX_ROUNDS = 3;
+  let fixRound = $state(0);
+  let fixActive = $state(false);
+  let fixOutcome = $state<string | null>(null);
+
+  function compilePayload() {
+    return {
+      request_verb: request_verb.trim().toUpperCase(),
+      request_url: request_url.trim(),
+      method_body: encodeURIComponent(method_body_text),
+      example_request_body:
+        methodHasBody && example_request_body_text.trim() ? safeParse(example_request_body_text) : undefined,
+      success_response_body: success_response_body_text.trim() ? safeParse(success_response_body_text) : undefined,
+    };
+  }
+
+  /** Runs one dry-run compile and updates the compile panel. Returns true when the body compiles. */
+  async function compileNow(): Promise<boolean> {
+    if (!method_body_text.trim()) {
+      compileStatus = "failed";
+      compileMessage = "Nothing to compile: the method body is empty.";
+      return false;
+    }
+    compileStatus = "compiling";
+    compileMessage = null;
+    compileErrors = [];
+    compileDependencyError = null;
+    try {
+      const response = await fetch("/proxy/obp/v7.0.0/management/dynamic-resource-docs/compile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(compilePayload()),
+      });
+      if (!response.ok) {
+        const errorDetails = await extractErrorFromResponse(response, "Compile request failed");
+        logErrorDetails("POST /dynamic-resource-docs/compile", errorDetails);
+        compileStatus = "failed";
+        compileMessage = formatErrorForDisplay(errorDetails);
+        return false;
+      }
+      const data = await response.json();
+      compileErrors = data.errors ?? [];
+      compileDependencyError = data.dependency_error ?? null;
+      compileDurationMs = typeof data.duration_ms === "number" ? data.duration_ms : null;
+      compileStatus = data.compiles ? "ok" : "errors";
+      return !!data.compiles;
+    } catch (e) {
+      compileStatus = "failed";
+      compileMessage = e instanceof Error ? e.message : "Compile request failed";
+      return false;
+    }
+  }
+
+  function describeCompileErrors(): string {
+    const lines = compileErrors.map((e) =>
+      e.line > 0 ? `line ${e.line}, column ${e.column}: ${e.message}` : e.message,
+    );
+    if (compileDependencyError) lines.push(`dependency validator: ${compileDependencyError}`);
+    return lines.join("\n");
+  }
+
+  function fixPrompt(): string {
+    return [
+      `The Dynamic Resource Doc method_body does not compile (round ${fixRound} of ${FIX_MAX_ROUNDS}). Fix it.`,
+      "",
+      "Compiler errors (line numbers are relative to method_body):",
+      describeCompileErrors(),
+      "",
+      "Contract: the body is inlined into an http4s handler. In scope: callContext: CallContext, request: org.http4s.Request[IO], pathParams: Map[String, String], the generated RequestRootJsonClass / ResponseRootJsonClass, errorResponse(message, code), Future, HttpCode, and net.liftweb.common.{Box, Empty, Failure, Full} for matching on results. The last expression must be Future.successful((responseValue, HttpCode.`200`(callContext))) or errorResponse(...). Never return Lift Box/Full/JsonResponse values. Do not wrap the body in a method or class.",
+      "",
+      "Current method_body:",
+      "```scala",
+      method_body_text,
+      "```",
+      "",
+      "Reply by calling set_form_fields with the complete corrected method_body only (no other fields), then one sentence on what you changed. Do not create the doc.",
+    ].join("\n");
+  }
+
+  /** Sends the current errors to Opey. The recompile happens when Opey's set_form_fields lands. */
+  async function requestFixFromOpey() {
+    if (!onFixWithOpey) return;
+    fixRound += 1;
+    fixActive = true;
+    fixOutcome = null;
+    const accepted = await onFixWithOpey(fixPrompt());
+    if (!accepted) {
+      fixActive = false;
+      fixRound -= 1;
+      fixOutcome = "Opey is still answering; wait for it to finish, then try again.";
+    }
+  }
+
+  function startFixLoop() {
+    fixRound = 0;
+    requestFixFromOpey();
+  }
+
+  function stopFixLoop(outcome: string | null) {
+    fixActive = false;
+    fixOutcome = outcome;
+  }
+
+  /** Called after Opey has written a new method_body while the loop is active. */
+  async function continueFixLoop() {
+    const ok = await compileNow();
+    if (ok) {
+      stopFixLoop(`Compiles after ${fixRound} Opey ${fixRound === 1 ? "round" : "rounds"}. Review the body, then submit.`);
+    } else if (compileStatus === "failed") {
+      stopFixLoop("The compile request itself failed; see the message above.");
+    } else if (fixRound >= FIX_MAX_ROUNDS) {
+      stopFixLoop(`Still failing after ${FIX_MAX_ROUNDS} rounds. Fix by hand or ask Opey in the chat with more detail.`);
+    } else {
+      await requestFixFromOpey();
+    }
+  }
 
   const VERBS = ["GET", "POST", "PUT", "DELETE"];
 
@@ -461,15 +599,37 @@
       <label for="method-body" class="text-sm font-medium text-gray-700 dark:text-gray-300">
         Method Body (Scala) <span class="text-red-600">*</span>
       </label>
-      <button
-        type="button"
-        onclick={generateTemplate}
-        disabled={isGeneratingTemplate}
-        data-testid="generate-template-btn"
-        class="text-xs text-blue-600 hover:underline disabled:opacity-50 dark:text-blue-400"
-      >
-        {isGeneratingTemplate ? "Generating..." : "Generate template"}
-      </button>
+      <div class="flex items-center gap-3">
+        <button
+          type="button"
+          onclick={generateTemplate}
+          disabled={isGeneratingTemplate}
+          data-testid="generate-template-btn"
+          class="text-xs text-blue-600 hover:underline disabled:opacity-50 dark:text-blue-400"
+        >
+          {isGeneratingTemplate ? "Generating..." : "Generate template"}
+        </button>
+        <button
+          type="button"
+          onclick={() => { fixActive = false; fixOutcome = null; void compileNow(); }}
+          disabled={compileStatus === "compiling" || fixActive}
+          data-testid="compile-btn"
+          class="rounded border border-gray-300 px-2 py-0.5 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+        >
+          {compileStatus === "compiling" ? "Compiling..." : "Compile"}
+        </button>
+        {#if onFixWithOpey && (compileStatus === "errors" || fixActive)}
+          <button
+            type="button"
+            onclick={startFixLoop}
+            disabled={fixActive || compileStatus === "compiling"}
+            data-testid="fix-with-opey-btn"
+            class="rounded border border-violet-300 bg-violet-50 px-2 py-0.5 text-xs font-medium text-violet-800 hover:bg-violet-100 disabled:opacity-50 dark:border-violet-700 dark:bg-violet-900/30 dark:text-violet-200"
+          >
+            {fixActive ? `Opey fixing, round ${fixRound} of ${FIX_MAX_ROUNDS}...` : "Fix with Opey"}
+          </button>
+        {/if}
+      </div>
     </div>
     <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
       OBP compiles this Scala the first time the endpoint is hit (result is cached) and runs it inside a security-manager sandbox. Stored URL-encoded server-side — you edit and read plain Scala here.
@@ -487,34 +647,37 @@
       <p class="mt-1 text-xs text-red-600 dark:text-red-400">{fieldErrors.method_body}</p>
     {/if}
 
-    <details class="mt-2 rounded border border-gray-200 bg-gray-50 p-3 text-xs text-gray-700 dark:border-gray-700 dark:bg-gray-900/40 dark:text-gray-300">
-      <summary class="cursor-pointer font-medium">What's in scope, what's allowed</summary>
-      <div class="mt-2 space-y-3">
-        <div>
-          <div class="font-semibold">In-scope values at runtime</div>
-          <ul class="mt-1 ml-4 list-disc space-y-0.5">
-            <li><code>request: Req</code> — lift <code>Req</code>; has <code>.body</code>, <code>.json</code>, <code>.path</code>, headers etc.</li>
-            <li><code>callContext: CallContext</code> — holds user, consumer, <code>resourceDocument</code>, <code>operationId</code>, etc.</li>
-            <li><code>pathParams: Map[String, String]</code> — derived from UPPER_CASE segments in the Request URL.</li>
-            <li><code>RequestRootJsonClass</code> / <code>ResponseRootJsonClass</code> — case classes auto-generated from the example/success-response JSON below. Use <code>request.json.extract[RequestRootJsonClass]</code> to parse the body.</li>
-            <li>An implicit <code>formats = CustomJsonFormats.formats</code> and an implicit <code>scalaFutureToBoxedJsonResponse</code> so a <code>Future[(X, Some(cc))]</code> becomes a <code>Box[JsonResponse]</code>.</li>
-          </ul>
-        </div>
-        <div>
-          <div class="font-semibold">Imports already in scope</div>
-          <p class="mt-1">A large set of OBP and Scala imports are injected at compile time — including <code>Box/Full/Empty</code>, <code>Future</code>, <code>scala.concurrent.ExecutionContext.Implicits.global</code>, <code>NewStyle.HttpCode</code>, <code>APIUtil.errorJsonResponse</code>, <code>net.liftweb.json._</code>, most OBP error messages/example values, Pekko HTTP + Akka HTTP client helpers, and OBP commons models/DTOs. You rarely need to write <code>import</code> lines yourself.</p>
-        </div>
-        <div>
-          <div class="font-semibold">Restrictions</div>
-          <ul class="mt-1 ml-4 list-disc space-y-0.5">
-            <li><strong>Runtime sandbox</strong>: OBP runs your code with a Java <code>SecurityManager</code>. Allowed permissions come from the OBP prop <code>dynamic_code_sandbox_permissions</code>. A missing permission surfaces as <code>OBP-40047: DynamicResourceDoc method have no enough permissions. No permission of: ...</code> — ask an OBP admin to extend the prop.</li>
-            <li><strong>Compile-time guard</strong> (only when the OBP prop <code>dynamic_code_compile_validate_enable=true</code>): references to OBP/Scala internals are checked against the allowlist in <code>dynamic_code_compile_validate_dependencies</code>. <code>scala.reflect.runtime.*</code>, <code>java.lang.reflect.*</code> and <code>scala.concurrent.ExecutionContext</code> are always restricted.</li>
-            <li><strong>No wrapper</strong>: what you write is inlined into a generated <code>OBPEndpoint</code> function — don't wrap it in a method or class. The last expression is the response; typically a <code>Future.successful {"{ (responseBody, HttpCode.`200`(callContext.callContext)) }"}</code>.</li>
-          </ul>
-        </div>
-        <p>Use <em>Generate template</em> above to fetch an OBP-blessed skeleton for the current verb + URL — quickest way to see the shape.</p>
+    {#if compileStatus === "ok"}
+      <p class="mt-2 rounded border border-green-200 bg-green-50 px-3 py-2 text-xs text-green-800 dark:border-green-800 dark:bg-green-900/20 dark:text-green-300" role="status" data-testid="compile-ok">
+        Compiles{#if compileDurationMs !== null} ({compileDurationMs} ms){/if}. Nothing was stored.
+      </p>
+    {:else if compileStatus === "errors"}
+      <div class="mt-2 rounded border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-700 dark:bg-amber-900/20 dark:text-amber-100" role="status" data-testid="compile-errors">
+        <p class="font-semibold">Does not compile ({compileErrors.length + (compileDependencyError ? 1 : 0)}):</p>
+        <ul class="mt-1 ml-4 list-disc space-y-0.5 font-mono">
+          {#each compileErrors as err, i (i)}
+            <li>{#if err.line > 0}<span class="font-semibold">line {err.line}, col {err.column}:</span> {/if}{err.message}</li>
+          {/each}
+          {#if compileDependencyError}
+            <li><span class="font-semibold">dependency validator:</span> {compileDependencyError}</li>
+          {/if}
+        </ul>
       </div>
-    </details>
+    {:else if compileStatus === "failed" && compileMessage}
+      <p class="mt-2 rounded border border-gray-300 bg-gray-50 px-3 py-2 text-xs text-gray-800 dark:border-gray-600 dark:bg-gray-800/60 dark:text-gray-200" role="status" data-testid="compile-failed">
+        {compileMessage}
+      </p>
+    {/if}
+    {#if fixOutcome}
+      <p class="mt-1 text-xs text-gray-600 dark:text-gray-400" data-testid="fix-outcome">{fixOutcome}</p>
+    {/if}
+
+    <p class="mt-2 text-xs text-gray-600 dark:text-gray-400" data-testid="method-body-help">
+      <em>Generate template</em> fetches a working skeleton for the current verb and URL. What is in scope
+      and what the body must return is in the
+      <a class="text-blue-600 underline hover:no-underline dark:text-blue-400" href="/dynamic-resource-docs/help#dynamic-resource-doc">Dynamic Resource Doc</a>
+      glossary entry on the Help page.
+    </p>
   </div>
 
   <!-- Example request + success response -->

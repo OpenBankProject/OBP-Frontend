@@ -21,6 +21,7 @@ export async function createOpeyConversationEntityIfNeeded(): Promise<boolean> {
     accessToken,
     get: (path, token) => obp_requests.get(path, token),
     post: (path, body, token) => obp_requests.post(path, body, token),
+    put: (path, body, token) => obp_requests.put(path, body, token),
   });
   if (!ok) logger.warn(`'${OPEY_CONVERSATION_ENTITY}' could not be ensured at startup; Opey conversations will not be recorded until it exists.`);
   return ok;

@@ -7,14 +7,18 @@ export type { ToolCallApprover } from './controllers/ToolCallController.js';
 // Services
 export { CookieAuthStrategy } from './services/AuthStrategy.js';
 export type { AuthStrategy } from './services/AuthStrategy.js';
-export type { ChatService, StreamEvent } from './services/ChatService.js';
+export type { ChatService, StreamEvent, ConversationRecordStatus } from './services/ChatService.js';
 export { OpeySessionService } from './services/OpeySessionService.js';
 export { RestChatService } from './services/RestChatService.js';
 export type { SessionService } from './services/SessionService.js';
 
 // State
 export { ChatState } from './state/ChatState.js';
-export type { ChatStateSnapshot } from './state/ChatState.js';
+export type { ChatStateSnapshot, ConversationRecordInfo } from './state/ChatState.js';
+
+// Conversation recording (driven from the app's server-side Opey proxy)
+export { SseTranscriptCollector, ConversationRowStore } from './recording/index.js';
+export type { ConversationObpRequests, ConversationRecordOutcome } from './recording/index.js';
 export { SessionState } from './state/SessionState.js';
 export type { SessionSnapshot } from './state/SessionState.js';
 

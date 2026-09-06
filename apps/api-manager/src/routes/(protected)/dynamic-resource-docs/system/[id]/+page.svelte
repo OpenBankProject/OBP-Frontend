@@ -1,5 +1,11 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
+  import { page } from "$app/state";
+  import { env } from "$env/dynamic/public";
+  import { OpeyChat } from "@obp/shared/components";
+  import type { OpeyChatOptions, SuggestedQuestion } from "@obp/shared/components";
+  import { Bug, Wand2 } from "@lucide/svelte";
+  import { formBridge } from "$lib/stores/formBridge.svelte";
   import type { PageData } from "./$types";
   import DynamicResourceDocForm, {
     type DynamicResourceDocFormValues,
@@ -39,8 +45,54 @@
       logErrorDetails("Update Dynamic Resource Doc", errorDetails);
       throw new Error(formatErrorForDisplay(errorDetails));
     }
+    if (response.status === 202) {
+      // Maker/checker is on: the change is queued, the live endpoint is unchanged until approved.
+      const created = await response.json().catch(() => ({}));
+      successMessage = created?.dynamic_change_request_id
+        ? `Submitted for approval as change request ${created.dynamic_change_request_id}. The live endpoint is unchanged until a checker approves it.`
+        : "Submitted for approval. The live endpoint is unchanged until a checker approves it.";
+      return;
+    }
     successMessage = "Saved.";
   }
+
+  // ---- Opey side panel: same wiring as the Create page ------------------------
+  // Opey drafts into the form through the client-executed set_form_fields tool; the
+  // form registers itself on formBridge and reports which fields it applied.
+  const clientTools = {
+    set_form_fields: async (toolInput: Record<string, any>) =>
+      formBridge.apply(toolInput?.fields ?? {}),
+  };
+  const clientContext = () => formBridge.describe();
+
+  // The chat instance, so the form's Compile → Opey → Compile loop can push a fix request into it.
+  let opeyChat = $state<{ sendUserMessage: (text: string) => Promise<boolean> } | undefined>();
+  const onFixWithOpey = async (prompt: string) => (opeyChat ? opeyChat.sendUserMessage(prompt) : false);
+
+  const suggestedQuestions: SuggestedQuestion[] = [
+    {
+      questionString: "Review the current method_body and improve its error handling without changing what it returns.",
+      pillTitle: "Improve error handling",
+      icon: Wand2,
+    },
+    {
+      questionString: "Explain what this endpoint does, step by step, from the current form values.",
+      pillTitle: "Explain this endpoint",
+      icon: Bug,
+    },
+  ];
+
+  const opeyChatOptions: Partial<OpeyChatOptions> = {
+    baseUrl: env.PUBLIC_OPEY_BASE_URL,
+    displayHeader: false,
+    currentlyActiveUserName: page.data.username || "Guest",
+    suggestedQuestions,
+    currentConsentInfo: page.data.opeyConsentInfo || undefined,
+    displayConnectionPips: true,
+    consentMetricsHref: "/metrics",
+    initialAssistantMessage:
+      "I can see this Resource Doc's fields. Ask me to change the Scala method body, tighten validation, or explain what it does. You review every value before saving.",
+  };
 
   async function handleDelete() {
     if (!docId) return;
@@ -72,7 +124,7 @@
   <title>Edit System Dynamic Resource Doc - API Manager</title>
 </svelte:head>
 
-<div class="container mx-auto max-w-5xl px-4 py-8">
+<div class="container mx-auto max-w-7xl px-4 py-8">
   <div class="mb-6">
     <a
       href="/dynamic-resource-docs/system"
@@ -116,9 +168,10 @@
     </div>
   {/if}
 
-  <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+  <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(20rem,26rem)]">
+    <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
     {#key docId}
-      <DynamicResourceDocForm initial={doc} onSubmit={handleSubmit} submitLabel="Save Changes">
+      <DynamicResourceDocForm initial={doc} onSubmit={handleSubmit} submitLabel="Save Changes" {onFixWithOpey}>
         {#snippet cancel()}
           <a
             href="/dynamic-resource-docs/system"
@@ -129,5 +182,21 @@
         {/snippet}
       </DynamicResourceDocForm>
     {/key}
+    </div>
+
+    <!-- Opey pane: OpeyChat requires a definite height all the way down -->
+    <aside class="lg:sticky lg:top-4" data-testid="opey-form-pane">
+      <div
+        class="h-[36rem] w-full overflow-hidden rounded-lg border border-gray-200 shadow-sm lg:h-[calc(100vh-8rem)] dark:border-gray-700"
+      >
+        <OpeyChat
+          bind:this={opeyChat}
+          {opeyChatOptions}
+          userAuthenticated={!!page.data.userId}
+          {clientTools}
+          {clientContext}
+        />
+      </div>
+    </aside>
   </div>
 </div>

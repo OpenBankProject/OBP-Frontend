@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { OpeyChat } from '@obp/shared/components';
 	import type { OpeyChatOptions, SuggestedQuestion } from '@obp/shared/components';
-	import { MANAGER_OPEY_CONVERSATION_ENTITY_NAME } from '@obp/shared/opey';
 	import { CheckCheck, Layers, Rocket, UserLock, HelpCircle } from '@lucide/svelte';
 	import { env } from '$env/dynamic/public';
 	import { page } from '$app/stores';
@@ -65,7 +64,6 @@
 		displayConnectionPips: true,
 		consentMetricsHref: '/metrics',
 		initialUserMessage: askParam || undefined,
-		conversationEntityName: MANAGER_OPEY_CONVERSATION_ENTITY_NAME,
 	});
 </script>
 

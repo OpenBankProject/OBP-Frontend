@@ -337,13 +337,15 @@ const transformHTML: Handle = async ({ event, resolve }) => {
 const loginLimit = parseRateLimit('RATE_LIMIT_LOGIN', env.RATE_LIMIT_LOGIN, [30, 'm']);
 const resetLimit = parseRateLimit('RATE_LIMIT_PASSWORD_RESET', env.RATE_LIMIT_PASSWORD_RESET, [10, '15m']);
 const registerLimit = parseRateLimit('RATE_LIMIT_REGISTER', env.RATE_LIMIT_REGISTER, [20, '15m']);
+const opeyLimit = parseRateLimit('RATE_LIMIT_OPEY', env.RATE_LIMIT_OPEY, [30, 'm']);
 logger.info(
-	`Rate limits per IP: login ${formatRate(loginLimit)}, password reset ${formatRate(resetLimit)}, register ${formatRate(registerLimit)}`
+	`Rate limits per IP: login ${formatRate(loginLimit)}, password reset ${formatRate(resetLimit)}, register ${formatRate(registerLimit)}, opey ${formatRate(opeyLimit)}`
 );
 
 const loginLimiter = new RetryAfterRateLimiter({ IP: loginLimit });
 const resetLimiter = new RetryAfterRateLimiter({ IP: resetLimit });
 const registerLimiter = new RetryAfterRateLimiter({ IP: registerLimit });
+const opeyLimiter = new RetryAfterRateLimiter({ IP: opeyLimit });
 warnIfClientAddressUnconfigured();
 
 // Shared-secret bypass for automated tests. Leave unset in production so the
@@ -380,7 +382,8 @@ const rateLimit: Handle = async ({ event, resolve }) => {
 		path.startsWith('/forgot-password') ||
 		path.startsWith('/reset-password') ||
 		path === '/register' ||
-		path.startsWith('/consumers/register');
+		path.startsWith('/consumers/register') ||
+		path.startsWith('/backend/opey/');
 	if (!isLimitedRoute) return resolve(event);
 
 	// Warns (once) if the proxy header isn't being honoured; null means the
@@ -393,6 +396,17 @@ const rateLimit: Handle = async ({ event, resolve }) => {
 	if (path === '/login' || path === '/login/') {
 		const status = await loginLimiter.check(event);
 		if (status.limited) return tooManyRequests(status.retryAfter);
+		return resolve(event);
+	}
+
+	// The Opey proxy (chat stream, auth, consent, invoke) is reachable by anonymous
+	// visitors and fans out to an LLM, so it gets a bare 429 like login does.
+	if (path.startsWith('/backend/opey/')) {
+		const status = await opeyLimiter.check(event);
+		if (status.limited) {
+			logger.warn(`Rate limited POST ${path} from ${event.getClientAddress()} (retry after ${status.retryAfter}s)`);
+			return tooManyRequests(status.retryAfter);
+		}
 		return resolve(event);
 	}
 

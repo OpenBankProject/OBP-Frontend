@@ -69,6 +69,12 @@
         "maxLength": 4000,
         "example": "c822f56a-3a3e-47f8-b2ec-3afe314ffe7c",
         "description": "Comma-separated consent_reference_ids of the consents Opey used in this conversation; filter the metrics dashboards by them."
+      },
+      "page": {
+        "type": "string",
+        "maxLength": 500,
+        "example": "/app-studio",
+        "description": "Path of the API Manager page the chat was embedded in (from the request's Referer), without query string. Empty when unknown."
       }
     }
   }

@@ -11,7 +11,7 @@ export {
 export type { ObpGet } from './consentsConfig.js';
 export { findReusableConsent, normalizeMyResources, myResourcesCovered } from './consentReuse.js';
 export type { RequiredMyResources, RequiredPersonalDynamicEntity } from './consentReuse.js';
-export { ensureSystemDynamicEntity } from './dynamicEntityBootstrap.js';
+export { ensureSystemDynamicEntity, dynamicEntityDrift } from './dynamicEntityBootstrap.js';
 export type { SystemDynamicEntityDefinition, DynamicEntityBootstrapDeps } from './dynamicEntityBootstrap.js';
 export { createObpProxyHandler } from './obpProxy.js';
 export type { ObpProxyRequestEvent } from './obpProxy.js';

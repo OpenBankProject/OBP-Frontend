@@ -22,6 +22,7 @@ export async function createOpeyConversationEntitiesIfNeeded(): Promise<boolean>
     accessToken,
     get: (path: string, token: string) => obp_requests.get(path, token),
     post: (path: string, body: any, token: string) => obp_requests.post(path, body, token),
+    put: (path: string, body: any, token: string) => obp_requests.put(path, body, token),
   };
   let allOk = true;
   for (const definition of [MANAGER_OPEY_CONVERSATION_ENTITY, PORTAL_OPEY_CONVERSATION_ENTITY]) {

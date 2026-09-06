@@ -293,6 +293,10 @@ export const obp_requests = {
 		return this.instance.put(endpoint, data, accessToken);
 	},
 
+	patch: function (endpoint: string, data: any, accessToken?: string) {
+		return this.instance.patch(endpoint, data, accessToken);
+	},
+
 	delete: function (endpoint: string, accessToken?: string) {
 		return this.instance.delete(endpoint, accessToken);
 	}

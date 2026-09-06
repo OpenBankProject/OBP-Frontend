@@ -1,33 +1,56 @@
 import { describe, it, expect } from 'vitest';
-import { buildConversationRow, completedMessages, conversationTitle } from './conversationRecord';
-import type { BaseMessage } from '../types';
+import {
+	buildConversationRow,
+	conversationTitle,
+	isoTimestamp,
+	mergeMessages,
+	pageFromReferer,
+	parseMessagesJson,
+	truncateAfter,
+	type RecordedMessage
+} from './conversationRecord';
 
 const t = new Date('2026-09-04T10:00:00Z');
-const msg = (over: Partial<BaseMessage>): BaseMessage =>
-	({ id: 'x', role: 'user', message: 'hi', timestamp: t, ...over }) as BaseMessage;
+const m = (id: string, role: 'user' | 'assistant', text: string): RecordedMessage => ({ id, role, text, at: '2026-09-04T10:00:00Z' });
 
-describe('completedMessages', () => {
-	it('keeps confirmed user messages and finished assistant messages only', () => {
-		const out = completedMessages([
-			msg({ id: 'u1', role: 'user', message: 'Create a bank' }),
-			msg({ id: 'u2', role: 'user', message: 'pending', isPending: true }),
-			msg({ id: 't1', role: 'tool', message: '{}' }),
-			msg({ id: 'a1', role: 'assistant', message: 'Working…', isStreaming: true }),
-			msg({ id: 'a2', role: 'assistant', message: '', isLoading: true }),
-			msg({ id: 'a3', role: 'assistant', message: 'Done.' }),
-			msg({ id: 'e1', role: 'error', message: 'boom' })
+describe('isoTimestamp', () => {
+	it('drops milliseconds and reads epoch seconds, epoch millis, ISO strings and dates', () => {
+		expect(isoTimestamp(t)).toBe('2026-09-04T10:00:00Z');
+		expect(isoTimestamp('2026-09-04T10:00:00.123Z')).toBe('2026-09-04T10:00:00Z');
+		expect(isoTimestamp(1788000000)).toBe('2026-08-29T10:40:00Z');
+		expect(isoTimestamp(1788000000123)).toBe('2026-08-29T10:40:00Z');
+		expect(isoTimestamp('not a date', t)).toBe('2026-09-04T10:00:00Z');
+		expect(isoTimestamp(undefined, t)).toBe('2026-09-04T10:00:00Z');
+	});
+});
+
+describe('mergeMessages / truncateAfter / parseMessagesJson', () => {
+	it('appends new ids and replaces existing ones in place', () => {
+		const out = mergeMessages([m('u1', 'user', 'q'), m('a1', 'assistant', 'old')], [m('a1', 'assistant', 'new'), m('u2', 'user', 'more')]);
+		expect(out.map((x) => [x.id, x.text])).toEqual([
+			['u1', 'q'],
+			['a1', 'new'],
+			['u2', 'more']
 		]);
-		expect(out.map((m) => m.id)).toEqual(['u1', 'a3']);
-		expect(out[0]).toEqual({ id: 'u1', role: 'user', text: 'Create a bank', at: '2026-09-04T10:00:00Z' });
+	});
+
+	it('truncates after a known id and leaves the list alone otherwise', () => {
+		const list = [m('u1', 'user', 'q'), m('a1', 'assistant', 'a'), m('u2', 'user', 'q2')];
+		expect(truncateAfter(list, 'u1').map((x) => x.id)).toEqual(['u1']);
+		expect(truncateAfter(list, 'nope')).toBe(list);
+		expect(truncateAfter(list, undefined)).toBe(list);
+	});
+
+	it('parses stored JSON defensively', () => {
+		expect(parseMessagesJson(JSON.stringify([m('u1', 'user', 'q'), { id: 'bad' }, null]))).toEqual([m('u1', 'user', 'q')]);
+		expect(parseMessagesJson('{oops')).toEqual([]);
+		expect(parseMessagesJson(undefined)).toEqual([]);
 	});
 });
 
 describe('conversationTitle / buildConversationRow', () => {
 	it('titles from the first user message and serialises messages as JSON text', () => {
-		const messages = completedMessages([
-			msg({ id: 'u1', role: 'user', message: '  Create   a bank please ' }),
-			msg({ id: 'a1', role: 'assistant', message: 'Done.' })
-		]);
+		const messages = [m('u1', 'user', '  Create   a bank please '), m('a1', 'assistant', 'Done.')];
 		expect(conversationTitle(messages)).toBe('Create a bank please');
 		const row = buildConversationRow('thread-1', messages, ['ref-1', 'ref-1', ''], undefined, t);
 		expect(row.thread_id).toBe('thread-1');
@@ -37,9 +60,19 @@ describe('conversationTitle / buildConversationRow', () => {
 		expect(row.message_count).toBe(2);
 		expect(JSON.parse(row.messages_json)).toHaveLength(2);
 		expect(row.consent_reference_ids).toBe('ref-1');
+		expect(row.page).toBe('');
+		expect(buildConversationRow('t', messages, [], undefined, t, '/faq').page).toBe('/faq');
 	});
 
-	it('truncates long titles and falls back when there is no user message', () => {
+	it('takes the page path from a Referer, dropping origin, query and fragment', () => {
+		expect(pageFromReferer('https://portal.example/app-studio?mode=page#top')).toBe('/app-studio');
+		expect(pageFromReferer('http://localhost:5174/')).toBe('/');
+		expect(pageFromReferer('garbage')).toBe('');
+		expect(pageFromReferer(null)).toBe('');
+	});
+
+	it('keeps a given started_at, truncates long titles and falls back when there is no user message', () => {
+		expect(buildConversationRow('t', [m('a1', 'assistant', 'x')], [], '2026-01-01T00:00:00Z', t).started_at).toBe('2026-01-01T00:00:00Z');
 		const long = 'x'.repeat(200);
 		expect(conversationTitle([{ id: 'u', role: 'user', text: long, at: '' }]).length).toBe(120);
 		expect(conversationTitle([])).toBe('Untitled conversation');

@@ -1,11 +1,11 @@
 /**
  * Opey conversation records: the chat, written by the app as the logged-in user into a
- * personal dynamic entity after each message completes. Rows are the user's own (they
+ * personal dynamic entity after each turn completes. Rows are the user's own (they
  * appear under My Data); Opey and its consent are never involved in the write.
  *
- * Pure helpers here; the network side is ConversationRecorder.
+ * Pure helpers here. The pieces that talk to the network live under ../recording and are
+ * driven from the app's server-side Opey proxy, the one place every chat passes through.
  */
-import type { BaseMessage } from '../types';
 
 export interface RecordedMessage {
 	id: string;
@@ -26,34 +26,26 @@ export interface ConversationRow {
 	messages_json: string;
 	/** Comma-separated consent_reference_ids used in this chat, for the metrics dashboards. */
 	consent_reference_ids: string;
+	/** Path of the page the chat was embedded in, without query string; '' when unknown. */
+	page: string;
 }
 
 const TITLE_MAX = 120;
 
-function iso(d: Date | string | undefined): string {
-	const date = d instanceof Date ? d : d ? new Date(d) : new Date();
-	return (isNaN(date.getTime()) ? new Date() : date).toISOString().split('.')[0] + 'Z';
-}
-
 /**
- * Messages that are finished: user messages once the backend confirmed them, assistant
- * messages once streaming ended with some text. Tool, error and approval messages are not
- * part of the transcript.
+ * ISO 8601 without milliseconds (OBP drops `.000Z` strings silently). Accepts a Date, an
+ * ISO string, or an epoch number: Opey stamps its SSE events in epoch seconds, so numbers
+ * below 1e12 are read as seconds, larger ones as milliseconds. Anything unparseable, or
+ * nothing at all, means "now".
  */
-export function completedMessages(messages: BaseMessage[]): RecordedMessage[] {
-	const out: RecordedMessage[] = [];
-	for (const m of messages) {
-		if (m.role === 'user') {
-			if (m.isPending) continue;
-			if (!m.message?.trim()) continue;
-			out.push({ id: m.id, role: 'user', text: m.message, at: iso(m.timestamp) });
-		} else if (m.role === 'assistant') {
-			if (m.isStreaming || m.isLoading) continue;
-			if (!m.message?.trim()) continue;
-			out.push({ id: m.id, role: 'assistant', text: m.message, at: iso(m.timestamp) });
-		}
-	}
-	return out;
+export function isoTimestamp(value: Date | string | number | undefined | null, now: Date = new Date()): string {
+	let date: Date;
+	if (value instanceof Date) date = value;
+	else if (typeof value === 'number') date = new Date(value < 1e12 ? value * 1000 : value);
+	else if (typeof value === 'string' && value) date = new Date(value);
+	else date = now;
+	if (isNaN(date.getTime())) date = now;
+	return date.toISOString().split('.')[0] + 'Z';
 }
 
 export function conversationTitle(messages: RecordedMessage[]): string {
@@ -61,22 +53,71 @@ export function conversationTitle(messages: RecordedMessage[]): string {
 	return first.length > TITLE_MAX ? first.slice(0, TITLE_MAX - 1) + '…' : first || 'Untitled conversation';
 }
 
+/** Add messages to a transcript: a message whose id is already present replaces it in place. */
+export function mergeMessages(existing: RecordedMessage[], incoming: RecordedMessage[]): RecordedMessage[] {
+	const out = [...existing];
+	for (const m of incoming) {
+		const i = out.findIndex((e) => e.id === m.id);
+		if (i >= 0) out[i] = m;
+		else out.push(m);
+	}
+	return out;
+}
+
+/** Drop everything after the message with this id (regenerate). Unknown id: unchanged. */
+export function truncateAfter(messages: RecordedMessage[], messageId: string | undefined): RecordedMessage[] {
+	if (!messageId) return messages;
+	const i = messages.findIndex((m) => m.id === messageId);
+	return i >= 0 ? messages.slice(0, i + 1) : messages;
+}
+
+/** Parse a stored messages_json; anything malformed reads as an empty transcript. */
+export function parseMessagesJson(text: unknown): RecordedMessage[] {
+	if (typeof text !== 'string' || !text) return [];
+	try {
+		const parsed = JSON.parse(text);
+		if (!Array.isArray(parsed)) return [];
+		return parsed.filter(
+			(m: any): m is RecordedMessage =>
+				m && typeof m.id === 'string' && (m.role === 'user' || m.role === 'assistant') && typeof m.text === 'string'
+		);
+	} catch {
+		return [];
+	}
+}
+
 export function buildConversationRow(
 	threadId: string,
 	messages: RecordedMessage[],
 	consentReferenceIds: string[],
 	startedAt?: string,
-	now: Date = new Date()
+	now: Date = new Date(),
+	page: string = ''
 ): ConversationRow {
-	const started = startedAt ?? messages[0]?.at ?? iso(now);
+	const started = startedAt ?? messages[0]?.at ?? isoTimestamp(now);
 	return {
 		thread_id: threadId,
 		title: conversationTitle(messages),
 		status: 'active',
 		started_at: started,
-		updated_at: iso(now),
+		updated_at: isoTimestamp(now),
 		message_count: messages.length,
 		messages_json: JSON.stringify(messages),
-		consent_reference_ids: Array.from(new Set(consentReferenceIds.filter(Boolean))).join(',')
+		consent_reference_ids: Array.from(new Set(consentReferenceIds.filter(Boolean))).join(','),
+		page
 	};
+}
+
+/**
+ * The page path a same-origin request came from, taken from its Referer: path only, no
+ * origin, no query string or fragment. '' when there is no usable Referer.
+ */
+export function pageFromReferer(referer: string | null | undefined): string {
+	if (!referer) return '';
+	try {
+		const url = new URL(referer);
+		return url.pathname.slice(0, 500);
+	} catch {
+		return '';
+	}
 }
