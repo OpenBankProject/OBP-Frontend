@@ -12,6 +12,10 @@ export interface ResourceDoc {
   markdown_description?: string;
   description_html?: string;
   roles?: Array<{ role: string; requires_bank_id: boolean }>;
+  tags?: string[];
+  specified_url?: string;
+  example_request_body?: unknown;
+  success_response_body?: unknown;
 }
 
 interface CacheState {

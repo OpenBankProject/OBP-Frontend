@@ -192,6 +192,11 @@ function buildSignalsItems(): NavigationItem[] {
       label: "Signal Stats",
       iconComponent: BarChart3,
     },
+    {
+      href: "/system/signal-publish/help",
+      label: "Help",
+      iconComponent: CircleHelp,
+    },
   ];
 
   return items;
@@ -200,12 +205,16 @@ function buildSignalsItems(): NavigationItem[] {
 export const signalsItems = buildSignalsItems();
 
 export function getActiveSignalsMenuItem(pathname: string) {
-  const found = signalsItems.find((item) => {
-    if (item.external) {
-      return false;
-    }
-    return pathname.startsWith(item.href);
-  });
+  // Exact match first so /system/signal-publish/help resolves to Help, not Publish.
+  const exact = signalsItems.find((item) => !item.external && pathname === item.href);
+  const found =
+    exact ||
+    signalsItems.find((item) => {
+      if (item.external) {
+        return false;
+      }
+      return pathname.startsWith(item.href);
+    });
 
   return found || signalsItems[0];
 }

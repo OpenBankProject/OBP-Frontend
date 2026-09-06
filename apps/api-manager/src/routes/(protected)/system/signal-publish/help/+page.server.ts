@@ -1,0 +1,69 @@
+import type { PageServerLoad } from "./$types";
+import { error } from "@sveltejs/kit";
+import { SessionOAuthHelper } from "$lib/oauth/sessionHelper";
+import { resourceDocsCache } from "$lib/stores/resourceDocsCache.svelte";
+import { createLogger } from "@obp/shared/utils";
+
+const logger = createLogger("SignalPublishHelp");
+
+/** The OBP resource-doc tag every signal endpoint carries (ApiTag.apiTagSignalChannel). */
+const SIGNAL_TAG = "Signal-Channel";
+
+export interface SignalEndpointDoc {
+  operation_id: string;
+  request_verb: string;
+  request_url: string;
+  summary: string;
+  roles: string[];
+  tags: string[];
+  example_request_body: unknown;
+  success_response_body: unknown;
+}
+
+const VERB_ORDER: Record<string, number> = { POST: 0, GET: 1, PUT: 2, DELETE: 3 };
+
+export const load: PageServerLoad = async ({ locals, url }) => {
+  const session = locals.session;
+  if (!session?.data?.user) throw error(401, "Unauthorized");
+  const token = SessionOAuthHelper.getSessionOAuth(session)?.accessToken;
+  if (!token) throw error(401, "No API access token available");
+
+  const force = url.searchParams.get("refresh") === "1";
+  const warnings: string[] = [];
+  let endpoints: SignalEndpointDoc[] = [];
+
+  try {
+    // One fetch of the v6.0.0 resource docs serves every page for 30 minutes.
+    const docs = await resourceDocsCache.fetchResourceDocs(token, force);
+    endpoints = docs
+      .filter((doc) => (doc.tags ?? []).includes(SIGNAL_TAG))
+      .map((doc) => ({
+        operation_id: doc.operation_id,
+        request_verb: doc.request_verb,
+        request_url: doc.request_url,
+        summary: doc.summary,
+        roles: (doc.roles ?? []).map((r) => r.role),
+        tags: doc.tags ?? [],
+        example_request_body: doc.example_request_body ?? null,
+        success_response_body: doc.success_response_body ?? null,
+      }))
+      .sort((a, b) => {
+        const byUrl = a.request_url.localeCompare(b.request_url);
+        return byUrl !== 0 ? byUrl : (VERB_ORDER[a.request_verb] ?? 9) - (VERB_ORDER[b.request_verb] ?? 9);
+      });
+    if (endpoints.length === 0) {
+      warnings.push(`The resource docs from OBP contain no endpoints tagged "${SIGNAL_TAG}".`);
+    }
+  } catch (e) {
+    logger.warn("Could not load resource docs for the Signal tag:", e);
+    warnings.push(`Could not load the resource docs from OBP: ${e instanceof Error ? e.message : String(e)}`);
+  }
+
+  const status = resourceDocsCache.getCacheStatus();
+  return {
+    endpoints,
+    signalTag: SIGNAL_TAG,
+    cache: { ageSeconds: status.ageSeconds, totalDocs: status.count },
+    warnings,
+  };
+};

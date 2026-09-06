@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { CircleHelp } from "@lucide/svelte";
+
   let channelName = $state("task-requests");
   let messageType = $state("");
   let toUserId = $state("");
@@ -66,8 +68,16 @@
 <div class="container mx-auto px-4 py-8">
   <div class="panel">
     <div class="panel-header">
-      <h1 class="panel-title">Publish Signal</h1>
-      <p class="panel-subtitle">Broadcast a message to a signal channel, or privately address one recipient</p>
+      <div class="header-row">
+        <div>
+          <h1 class="panel-title">Publish Signal</h1>
+          <p class="panel-subtitle">Broadcast a message to a signal channel, or privately address one recipient</p>
+        </div>
+        <a href="/system/signal-publish/help" class="help-link" data-testid="signal-publish-help-link">
+          <CircleHelp size={16} />
+          Help
+        </a>
+      </div>
     </div>
 
     <div class="panel-content">
@@ -186,6 +196,40 @@
 
   :global([data-mode="dark"]) .panel-subtitle {
     color: var(--color-surface-400);
+  }
+
+  .header-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .help-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.8125rem;
+    color: #374151;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .help-link:hover {
+    background: #f3f4f6;
+    text-decoration: underline;
+  }
+
+  :global([data-mode="dark"]) .help-link {
+    border-color: rgb(var(--color-surface-600));
+    color: var(--color-surface-200);
+  }
+
+  :global([data-mode="dark"]) .help-link:hover {
+    background: rgb(var(--color-surface-700));
   }
 
   .panel-content {
