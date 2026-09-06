@@ -51,6 +51,7 @@ import {
   Stethoscope,
   Play,
   Clock,
+  Gauge,
 } from "@lucide/svelte";
 import { env } from "$env/dynamic/public";
 
@@ -151,6 +152,11 @@ function buildSystemItems(): NavigationItem[] {
       href: "/system/migrations",
       label: "Migrations",
       iconComponent: GitBranch,
+    },
+    {
+      href: "/system/rate-limiting",
+      label: "Rate Limiting",
+      iconComponent: Gauge,
     },
     {
       href: "/system/scheduler-job-locks",

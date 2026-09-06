@@ -135,6 +135,12 @@ export const SITE_MAP: Record<string, PageRoleConfig> = {
   "/system/self-test-emails": {
     required: [{ role: "CanCreateTestEmail" }],
   },
+  "/system/rate-limiting": {
+    required: [{ role: "CanGetConfig" }],
+  },
+  "/system/rate-limiting/help": {
+    required: [],
+  },
   "/system/signal-channels": {
     required: [],
   },

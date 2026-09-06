@@ -134,12 +134,19 @@
   <title>Rate Limits - {consumer.app_name}</title>
 </svelte:head>
 
-<div class="mb-6">
+<div class="mb-6 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
   <a
     href="/consumers"
-    class="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+    class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
   >
     ← Back to Consumers
+  </a>
+  <a
+    href="/system/rate-limiting"
+    class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+    data-testid="system-rate-limiting-link"
+  >
+    Instance rate limiters and all consumers' limits
   </a>
 </div>
 
