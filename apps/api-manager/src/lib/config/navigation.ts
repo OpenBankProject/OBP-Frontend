@@ -552,6 +552,11 @@ function buildDynamicResourceDocsItems(): NavigationItem[] {
       label: "System",
       iconComponent: Plug,
     },
+    {
+      href: "/dynamic-resource-docs/help",
+      label: "Help",
+      iconComponent: CircleHelp,
+    },
   ];
 }
 

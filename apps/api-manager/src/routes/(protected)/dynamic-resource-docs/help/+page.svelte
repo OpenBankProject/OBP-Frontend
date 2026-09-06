@@ -1,52 +1,32 @@
 <script lang="ts">
-  import { CircleHelp, ExternalLink, Radio, BarChart3, Plus, RefreshCw } from "@lucide/svelte";
+  import { CircleHelp, ExternalLink, ShieldCheck, ShieldOff, ShieldQuestion, ShieldAlert, FileText, Plus, RefreshCw } from "@lucide/svelte";
   import GlossaryEntry from "$lib/components/GlossaryEntry.svelte";
 
   let { data } = $props();
+  const approval = $derived(data.approval);
 
-  const explorerSignalTagUrl = $derived(`${data.explorerUrl}/?tags=${data.signalTag}`);
-  const explorerAiAgentTagUrl = $derived(`${data.explorerUrl}/?tags=AI-Agent`);
-  // The API Explorer's gRPC discovery page lists every service the running OBP-API exposes via reflection.
-  const explorerGrpcServicesUrl = $derived(`${data.explorerUrl}/grpc-services`);
+  // Structured, live values only. All explanatory text comes from the OBP glossary (data.sections).
+  const settings = $derived([
+    { name: "allow_user_generated_scala_code", value: approval.known ? String(approval.executionEnabled) : "unknown" },
+    { name: "dynamic_code_requires_approval", value: approval.known ? String(approval.targetTypes.length > 0) : "unknown" },
+    { name: "dynamic_code_approval_target_types", value: approval.known ? (approval.targetTypes.join(", ") || "none") : "unknown" },
+    { name: "dynamic_code_delete_requires_approval", value: approval.known ? String(approval.deleteRequiresApproval) : "unknown" },
+    { name: "dynamic_code_approval_request_ttl_hours", value: approval.known ? String(approval.requestTtlHours) : "unknown" },
+  ]);
 
-  function resourceDocUrl(operationId: string): string {
-    return `${data.explorerUrl}/resource-docs/OBPv6.0.0?operationid=${operationId}`;
-  }
-
-  // Which API Manager page exercises each endpoint, keyed by the tail of the operation_id.
-  const usedBy: Record<string, { href: string; label: string }> = {
-    publishSignalMessage: { href: "/system/signal-publish", label: "Publish" },
-    getSignalMessages: { href: "/system/signal-channels", label: "Signal Channels" },
-    getSignalChannels: { href: "/system/signal-channels", label: "Signal Channels" },
-    getSignalStats: { href: "/system/signal-channels-stats", label: "Signal Stats" },
-  };
-
-  function pageFor(operationId: string) {
-    return usedBy[operationId.split("-").pop() ?? ""];
-  }
-
-  function cacheAgeLabel(ageSeconds: number | null): string {
-    if (ageSeconds === null) return "not cached";
-    if (ageSeconds < 60) return `${ageSeconds}s ago`;
-    return `${Math.round(ageSeconds / 60)} min ago`;
-  }
-
-  // The Publish page's endpoint, with its examples straight from the resource doc.
-  const publishDoc = $derived(data.endpoints.find((e) => e.operation_id.endsWith("-publishSignalMessage")));
-
-  function pretty(value: unknown): string {
-    return value == null ? "" : JSON.stringify(value, null, 2);
+  function anchor(title: string): string {
+    return title.toLowerCase().replace(/[^a-z0-9]+/g, "-");
   }
 </script>
 
 <svelte:head>
-  <title>Signal Publish Help - API Manager II</title>
+  <title>Dynamic Resource Docs Help - API Manager</title>
 </svelte:head>
 
 <div class="container mx-auto px-4 py-8">
   <nav class="breadcrumb" aria-label="Breadcrumb">
-    <a href="/system/signal-publish" class="breadcrumb-link">Publish Signal</a>
-    <span class="breadcrumb-separator" aria-hidden="true">&gt;</span>
+    <a class="breadcrumb-link" href="/dynamic-resource-docs/system">System Dynamic Resource Docs</a>
+    <span class="breadcrumb-separator">/</span>
     <span class="breadcrumb-current">Help</span>
   </nav>
 
@@ -55,135 +35,107 @@
       <div class="header-content">
         <div class="header-icon"><CircleHelp size={32} /></div>
         <div>
-          <h1 class="panel-title">Signal Channels Help</h1>
-          <p class="panel-subtitle">From the OBP glossary, with this instance's endpoints.</p>
+          <h1 class="panel-title">Dynamic Resource Docs Help</h1>
+          <p class="panel-subtitle">From the OBP glossary, with this instance's live settings.</p>
         </div>
       </div>
     </div>
 
     <div class="panel-content">
       <nav class="toc" aria-label="On this page">
-        <a href="#endpoints">REST endpoints</a>
-        <a href="#publish">What Publish sends</a>
-        <a href="#glossary">{data.glossary.title}</a>
-        <a href="#links">Further reading</a>
+        <a href="#status">This instance</a>
+        {#each data.sections as s (s.title)}
+          <a href="#{anchor(s.title)}">{s.title}</a>
+        {/each}
+        <a href="#endpoints">Change request endpoints</a>
       </nav>
 
       {#if data.warnings.length > 0}
-        <div class="warning" data-testid="signal-help-warnings">
-          <ul class="warning-list">{#each data.warnings as w}<li>{w}</li>{/each}</ul>
+        <div class="warning" data-testid="help-warnings">
+          <ul class="warning-list">
+            {#each data.warnings as w}<li>{w}</li>{/each}
+          </ul>
+          <a class="link" href="?refresh=1"><RefreshCw size={12} /> Refresh from OBP</a>
         </div>
       {/if}
 
-      <section class="section" id="endpoints">
-        <h2 class="section-title">REST endpoints</h2>
-        <p class="cache-note" data-testid="signal-endpoints-source">
-          v6.0.0 resource docs tagged <code>{data.signalTag}</code> on this instance, cached for 30 minutes.
-          Fetched {cacheAgeLabel(data.cache.ageSeconds)}.
-          <a class="link" href="?refresh=1" data-sveltekit-reload><RefreshCw size={12} /> Refresh now</a>
-        </p>
+      <section class="section" id="status">
+        <h2 class="section-title">This instance</h2>
+
+        {#if !approval.known}
+          <div class="warning" data-testid="approval-status-unknown">
+            <ShieldQuestion size={18} />
+            <span><strong>Could not read the approval config from OBP</strong>{#if approval.error}: {approval.error}{/if}.</span>
+          </div>
+        {:else if !approval.executionEnabled}
+          <div class="warning" data-testid="dynamic-code-disabled-status">
+            <ShieldAlert size={18} />
+            <span><strong>Dynamic code is disabled.</strong> Creating a Resource Doc fails with <code>OBP-50020</code>.</span>
+          </div>
+        {:else if approval.requiresApproval}
+          <div class="callout-link" data-testid="approval-status-on">
+            <ShieldCheck size={18} />
+            <span><strong>Approval is on</strong> for Dynamic Resource Docs. Checker role: <code>{approval.approvalRole}</code>.</span>
+          </div>
+        {:else}
+          <div class="cache-note" data-testid="approval-status-off">
+            <ShieldOff size={16} />
+            <span><strong>Approval is off.</strong> Resource Docs go live as soon as they are created.</span>
+          </div>
+        {/if}
+
         <div class="table-wrap">
-          <table class="endpoint-table" data-testid="signal-endpoints-table">
-            <thead>
-              <tr>
-                <th scope="col">Method</th>
-                <th scope="col">Path</th>
-                <th scope="col">Summary</th>
-                <th scope="col">Roles</th>
-                <th scope="col">Used by</th>
-                <th scope="col">Docs</th>
-              </tr>
-            </thead>
+          <table class="endpoint-table" data-testid="approval-props">
+            <thead><tr><th>OBP-API prop</th><th class="nowrap">Value</th></tr></thead>
             <tbody>
-              {#each data.endpoints as ep (ep.operation_id)}
-                {@const page = pageFor(ep.operation_id)}
-                <tr>
-                  <td><span class="method method-{ep.request_verb.toLowerCase()}">{ep.request_verb}</span></td>
-                  <td><code class="path">/obp/v6.0.0{ep.request_url}</code></td>
-                  <td>{ep.summary}</td>
-                  <td>
-                    {#if ep.roles.length > 0}
-                      {#each ep.roles as role}<code class="role">{role}</code>{/each}
-                    {:else}
-                      <span class="muted">none</span>
-                    {/if}
-                  </td>
-                  <td>
-                    {#if page}
-                      <a class="link" href={page.href}>{page.label}</a>
-                    {:else}
-                      <span class="muted">-</span>
-                    {/if}
-                  </td>
-                  <td>
-                    <a class="link nowrap" href={resourceDocUrl(ep.operation_id)} target="_blank" rel="noopener noreferrer">
-                      {ep.operation_id.split("-").pop()} <ExternalLink size={12} />
-                    </a>
-                  </td>
-                </tr>
-              {:else}
-                <tr><td colspan="6" class="muted">No signal endpoints were returned by the resource docs.</td></tr>
+              {#each settings as s (s.name)}
+                <tr><td><code>{s.name}</code></td><td class="nowrap"><code>{s.value}</code></td></tr>
               {/each}
             </tbody>
           </table>
         </div>
       </section>
 
-      <section class="section" id="publish">
-        <h2 class="section-title">What Publish sends</h2>
-        {#if publishDoc}
-          <p class="section-text small">
-            The <a class="link" href="/system/signal-publish">Publish</a> form posts to
-            <code>{publishDoc.request_verb} /obp/v6.0.0{publishDoc.request_url}</code>. Examples from the resource doc:
-          </p>
-          <div class="two-col">
-            <div>
-              <h3 class="sub-title">Request body</h3>
-              <pre class="code-block"><code>{pretty(publishDoc.example_request_body)}</code></pre>
-            </div>
-            <div>
-              <h3 class="sub-title">Response</h3>
-              <pre class="code-block"><code>{pretty(publishDoc.success_response_body)}</code></pre>
-            </div>
+      {#each data.sections as s (s.title)}
+        <section class="section" id={anchor(s.title)}>
+          <h2 class="section-title">{s.title}</h2>
+          <GlossaryEntry title={s.title} html={s.html} explorerUrl={s.explorerUrl} testid="glossary-{anchor(s.title)}" />
+        </section>
+      {/each}
+
+      <section class="section" id="endpoints">
+        <h2 class="section-title">Change request endpoints</h2>
+        <p class="section-text small">
+          v7.0.0 resource docs tagged <code>{data.changeRequestTag}</code> on this instance.
+        </p>
+        {#if data.endpoints.length > 0}
+          <div class="table-wrap">
+            <table class="endpoint-table" data-testid="change-request-endpoints">
+              <thead><tr><th>Verb</th><th>Path</th><th>Summary</th><th>Roles</th></tr></thead>
+              <tbody>
+                {#each data.endpoints as e (e.operation_id)}
+                  <tr>
+                    <td><span class="method method-{e.request_verb.toLowerCase()}">{e.request_verb}</span></td>
+                    <td><a class="link path" href={e.explorerUrl} target="_blank" rel="noopener noreferrer">{e.request_url}</a></td>
+                    <td>{e.summary}</td>
+                    <td>
+                      {#if e.roles.length === 0}<span class="muted">none</span>{/if}
+                      {#each e.roles as r}<span class="role">{r}</span>{/each}
+                    </td>
+                  </tr>
+                {/each}
+              </tbody>
+            </table>
           </div>
         {:else}
-          <p class="section-text muted">The publish endpoint was not found in the resource docs.</p>
+          <p class="section-text muted">None found.</p>
         {/if}
-      </section>
-
-      <section class="section" id="glossary">
-        <h2 class="section-title">{data.glossary.title}</h2>
-        <GlossaryEntry
-          title={data.glossary.title}
-          html={data.glossary.html}
-          explorerUrl={data.glossary.explorerUrl}
-          testid="glossary-signal-channels"
-        />
-      </section>
-
-      <section class="section" id="links">
-        <h2 class="section-title">Further reading</h2>
-        <ul class="link-list">
-          <li>
-            <a class="link" href={explorerSignalTagUrl} target="_blank" rel="noopener noreferrer">
-              API Explorer: endpoints tagged {data.signalTag} <ExternalLink size={12} />
-            </a>
-          </li>
-          <li>
-            <a class="link" href={explorerAiAgentTagUrl} target="_blank" rel="noopener noreferrer">
-              API Explorer: endpoints tagged AI-Agent <ExternalLink size={12} />
-            </a>
-          </li>
-          <li>
-            <a class="link" href={explorerGrpcServicesUrl} target="_blank" rel="noopener noreferrer" data-testid="signal-help-grpc-services-link">
-              API Explorer: gRPC services discovery <ExternalLink size={12} />
-            </a>
-          </li>
-        </ul>
         <div class="page-links">
-          <a class="page-link" href="/system/signal-publish"><Plus size={16} /> Publish</a>
-          <a class="page-link" href="/system/signal-channels"><Radio size={16} /> Signal Channels</a>
-          <a class="page-link" href="/system/signal-channels-stats"><BarChart3 size={16} /> Signal Stats</a>
+          <a class="page-link" href="/dynamic-resource-docs/system"><FileText size={16} /> System Dynamic Resource Docs</a>
+          <a class="page-link" href="/dynamic-resource-docs/system/create"><Plus size={16} /> Create</a>
+          <a class="page-link" href="{data.explorerUrl}/?tags={data.changeRequestTag}" target="_blank" rel="noopener noreferrer">
+            API Explorer: {data.changeRequestTag} <ExternalLink size={12} />
+          </a>
         </div>
       </section>
     </div>
@@ -516,11 +468,6 @@
     overflow-x: auto;
   }
 
-  .code-block code {
-    background: transparent;
-    padding: 0;
-    color: inherit;
-  }
 
   .field-list {
     margin: 0.75rem 0 0;

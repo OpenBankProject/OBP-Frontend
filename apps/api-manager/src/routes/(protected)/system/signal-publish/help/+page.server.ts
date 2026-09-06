@@ -3,11 +3,21 @@ import { error } from "@sveltejs/kit";
 import { SessionOAuthHelper } from "$lib/oauth/sessionHelper";
 import { resourceDocsCache } from "$lib/stores/resourceDocsCache.svelte";
 import { createLogger } from "@obp/shared/utils";
+import { renderMarkdown } from "@obp/shared/markdown";
+import {
+  fetchGlossary,
+  findGlossaryItem,
+  rewriteGlossaryLinks,
+  glossaryEntryUrl,
+  apiExplorerBaseUrl,
+} from "$lib/server/glossaryCache";
 
 const logger = createLogger("SignalPublishHelp");
 
 /** The OBP resource-doc tag every signal endpoint carries (ApiTag.apiTagSignalChannel). */
 const SIGNAL_TAG = "Signal-Channel";
+/** The glossary entry that is the explanatory text of this page. */
+const GLOSSARY_TITLE = "Signal Channels";
 
 export interface SignalEndpointDoc {
   operation_id: string;
@@ -29,8 +39,23 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   if (!token) throw error(401, "No API access token available");
 
   const force = url.searchParams.get("refresh") === "1";
+  const explorerUrl = apiExplorerBaseUrl();
   const warnings: string[] = [];
   let endpoints: SignalEndpointDoc[] = [];
+
+  let glossaryHtml: string | null = null;
+  try {
+    const item = findGlossaryItem(await fetchGlossary(token, force), GLOSSARY_TITLE);
+    if (item) {
+      // markdown-it with its default html:false escapes raw HTML in the source, so this is safe to {@html}.
+      glossaryHtml = renderMarkdown(rewriteGlossaryLinks(item.description.markdown, explorerUrl));
+    } else {
+      warnings.push(`This OBP instance has no glossary entry "${GLOSSARY_TITLE}".`);
+    }
+  } catch (e) {
+    logger.warn("Could not load the OBP glossary:", e);
+    warnings.push(`Could not load the glossary from OBP: ${e instanceof Error ? e.message : String(e)}`);
+  }
 
   try {
     // One fetch of the v6.0.0 resource docs serves every page for 30 minutes.
@@ -62,6 +87,8 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   const status = resourceDocsCache.getCacheStatus();
   return {
     endpoints,
+    glossary: { title: GLOSSARY_TITLE, html: glossaryHtml, explorerUrl: glossaryEntryUrl(GLOSSARY_TITLE, explorerUrl) },
+    explorerUrl,
     signalTag: SIGNAL_TAG,
     cache: { ageSeconds: status.ageSeconds, totalDocs: status.count },
     warnings,

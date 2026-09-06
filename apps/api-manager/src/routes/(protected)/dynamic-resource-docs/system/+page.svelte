@@ -88,13 +88,22 @@
         <code class="rounded bg-gray-100 px-1 dark:bg-gray-900">/obp/dynamic-resource-doc/...</code>
       </p>
     </div>
-    <a
-      href="/dynamic-resource-docs/system/create"
-      data-testid="create-link"
-      class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
-    >
-      Create Resource Doc
-    </a>
+    <div class="flex items-center gap-2">
+      <a
+        href="/dynamic-resource-docs/help"
+        data-testid="dynamic-resource-docs-help-link"
+        class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+      >
+        Help
+      </a>
+      <a
+        href="/dynamic-resource-docs/system/create"
+        data-testid="create-link"
+        class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+      >
+        Create Resource Doc
+      </a>
+    </div>
   </div>
 
   {#if data.error}

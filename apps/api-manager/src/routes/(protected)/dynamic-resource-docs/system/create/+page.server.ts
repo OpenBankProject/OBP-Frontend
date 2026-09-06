@@ -1,6 +1,7 @@
 import type { PageServerLoad } from "./$types";
 import { error } from "@sveltejs/kit";
 import { SessionOAuthHelper } from "$lib/oauth/sessionHelper";
+import { loadDynamicCodeApprovalConfig } from "$lib/server/dynamicCodeApproval";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const session = locals.session;
@@ -11,5 +12,6 @@ export const load: PageServerLoad = async ({ locals }) => {
   if (!sessionOAuth?.accessToken) {
     throw error(401, "No API access token available");
   }
-  return {};
+  const approval = await loadDynamicCodeApprovalConfig(sessionOAuth.accessToken);
+  return { approval };
 };
