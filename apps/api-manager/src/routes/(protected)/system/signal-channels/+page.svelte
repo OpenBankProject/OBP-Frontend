@@ -63,7 +63,7 @@
       error = null;
       secondsUntilRefresh = AUTO_REFRESH_SECONDS;
 
-      const response = await fetch("/proxy/obp/v6.0.0/signal/channels");
+      const response = await fetch("/proxy/obp/v6.0.0/signal-channels");
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -100,7 +100,7 @@
       messagesError = null;
 
       const response = await fetch(
-        `/proxy/obp/v6.0.0/signal/channels/${encodeURIComponent(channelName)}/messages?limit=50`,
+        `/proxy/obp/v6.0.0/signal-channels/${encodeURIComponent(channelName)}/messages?limit=50`,
       );
 
       if (!response.ok) {
@@ -143,7 +143,7 @@
       deleteSuccess = null;
 
       const response = await fetch(
-        `/proxy/obp/v6.0.0/signal/channels/${encodeURIComponent(channelName)}`,
+        `/proxy/obp/v6.0.0/signal-channels/${encodeURIComponent(channelName)}`,
         { method: "DELETE" },
       );
 

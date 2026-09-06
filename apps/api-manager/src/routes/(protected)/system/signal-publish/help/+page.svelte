@@ -44,9 +44,9 @@
   // The gRPC contract, from obp-api/src/main/protobuf/signal.proto. gRPC has no
   // resource docs, so this list is maintained by hand alongside the proto.
   const grpcRpcs = [
-    { rpc: "Publish", kind: "unary", rest: "POST /signal/channels/CHANNEL_NAME/messages", note: "Same envelope, size cap and character checks as REST. payload_json carries the JSON payload verbatim." },
-    { rpc: "Fetch", kind: "unary", rest: "GET /signal/channels/CHANNEL_NAME/messages", note: "Cursor read with after_sequence (offset/limit otherwise), same privacy filter as REST." },
-    { rpc: "ListChannels", kind: "unary", rest: "GET /signal/channels", note: "Broadcast-visible channels only, matching REST." },
+    { rpc: "Publish", kind: "unary", rest: "POST /signal-channels/CHANNEL_NAME/messages", note: "Same envelope, size cap and character checks as REST. payload_json carries the JSON payload verbatim." },
+    { rpc: "Fetch", kind: "unary", rest: "GET /signal-channels/CHANNEL_NAME/messages", note: "Cursor read with after_sequence (offset/limit otherwise), same privacy filter as REST." },
+    { rpc: "ListChannels", kind: "unary", rest: "GET /signal-channels", note: "Broadcast-visible channels only, matching REST." },
     { rpc: "Subscribe", kind: "server stream", rest: "no REST equivalent", note: "Live stream of new messages on one channel. No catch-up and no replay: late joiners use Fetch." },
   ];
 
@@ -133,7 +133,7 @@
       <section class="section" id="endpoints">
         <h2 class="section-title">Where are the REST endpoints?</h2>
         <p class="section-text">
-          The signal endpoints live in OBP-API <strong>v6.0.0</strong> under <code>/obp/v6.0.0/signal/channels/...</code>
+          The signal endpoints live in OBP-API <strong>v6.0.0</strong> under <code>/obp/v6.0.0/signal-channels/...</code>
           and are tagged <strong>Signal</strong> and <strong>AI-Agent</strong> in the API Explorer. Every call needs an
           authenticated user. This API Manager calls them through its <code>/proxy/obp/...</code> route, so the
           same paths work here with the session's token.
@@ -242,7 +242,7 @@
         <h2 class="section-title">What the Publish page sends</h2>
         <p class="section-text">
           The <a class="link" href="/system/signal-publish">Publish</a> form posts to
-          <code>POST /obp/v6.0.0/signal/channels/CHANNEL_NAME/messages</code>. The channel name comes from the
+          <code>POST /obp/v6.0.0/signal-channels/CHANNEL_NAME/messages</code>. The channel name comes from the
           URL path; the body carries the message.
         </p>
         <div class="two-col">

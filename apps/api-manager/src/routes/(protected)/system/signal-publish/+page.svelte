@@ -34,7 +34,7 @@
       }
 
       const response = await fetch(
-        `/proxy/obp/v6.0.0/signal/channels/${encodeURIComponent(channelName.trim())}/messages`,
+        `/proxy/obp/v6.0.0/signal-channels/${encodeURIComponent(channelName.trim())}/messages`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

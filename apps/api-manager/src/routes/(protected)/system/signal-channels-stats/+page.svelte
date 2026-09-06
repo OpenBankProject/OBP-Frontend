@@ -40,7 +40,7 @@
       error = null;
       secondsUntilRefresh = AUTO_REFRESH_SECONDS;
 
-      const response = await fetch("/proxy/obp/v6.0.0/signal/channels/stats");
+      const response = await fetch("/proxy/obp/v6.0.0/signal-channels/stats");
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
