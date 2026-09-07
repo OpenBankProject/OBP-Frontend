@@ -19,13 +19,12 @@
   import "../app.css";
   import { Navigation } from "@skeletonlabs/skeleton-svelte";
   import { page } from "$app/state";
-  import { navSections as allNavSections, type NavigationSection } from "$lib/config/navigation";
+  import { navSections as allNavSections, findActiveSection, type NavigationSection } from "$lib/config/navigation";
   import { SITE_MAP, type UserEntitlement } from "$lib/utils/roleChecker";
 
-  // Separate My Account and Banks from other sections so they render in specific positions
+  // My Profile renders in its own position at the top; the six domains follow.
   const myAccountSection = allNavSections.find(s => s.id === "my-account");
-  const banksSection = allNavSections.find(s => s.id === "banks");
-  const navSections = allNavSections.filter(s => s.id !== "my-account" && s.id !== "banks");
+  const navSections = allNavSections.filter(s => s.id !== "my-account");
   import Toast from "$lib/components/Toast.svelte";
   import ApiActivityIndicator from "$lib/components/ApiActivityIndicator.svelte";
   // Opey Insights bar (top of every page) disabled 2026-09-03: the Opey pane on the right of
@@ -168,11 +167,9 @@
     }
   });
 
+  // Longest base-path match wins, so nested paths light up only their owning section.
   function isSectionActive(section: NavigationSection): boolean {
-    return section.basePaths.some(
-      (bp) =>
-        page.url.pathname === bp || page.url.pathname.startsWith(bp + "/"),
-    );
+    return findActiveSection(page.url.pathname)?.id === section.id;
   }
 
   function toggleSection(id: string) {
@@ -262,12 +259,6 @@
 
   // Menu items rendered after My Account
   let menuItems = $state([
-    {
-      label: "Consumers",
-      href: "/consumers",
-      iconComponent: KeyRound,
-    },
-
     ...(data.externalLinks.SUBSCRIPTIONS_URL
       ? [
           {
@@ -403,51 +394,7 @@
           </Navigation.Group>
         {/if}
 
-        <!-- Banks section: rendered above Users/Consumers -->
-        {#if isAuthenticated && banksSection}
-          <Navigation.Group>
-            {@const SectionIcon = banksSection.iconComponent}
-            {@const active = isSectionActive(banksSection)}
-            <button
-              type="button"
-              class="btn w-full justify-start gap-3 px-2 hover:preset-tonal"
-              class:preset-filled-primary-50-950={active}
-              class:border={active}
-              class:border-solid-secondary-500={active}
-              onclick={() => toggleSection(banksSection.id)}
-            >
-              <SectionIcon class="size-5" />
-              <span>{banksSection.label}</span>
-              {#if expandedSections[banksSection.id]}
-                <ChevronDown class="h-4 w-4" />
-              {:else}
-                <ChevronRight class="h-4 w-4" />
-              {/if}
-            </button>
-
-            {#if expandedSections[banksSection.id]}
-              <Navigation.Menu class="flex flex-col gap-2 px-2 pl-6">
-                {#each banksSection.items as item}
-                  {@const ItemIcon = item.iconComponent}
-                  <a
-                    href={item.href}
-                    class="btn w-full justify-start gap-3 px-2 hover:preset-tonal"
-                    class:preset-filled-primary-50-950={page.url.pathname === item.href}
-                    class:border={page.url.pathname === item.href}
-                    class:border-solid-secondary-500={page.url.pathname === item.href}
-                    title={getMenuTooltip(item.href, item.label)}
-                    aria-label={item.label}
-                  >
-                    <ItemIcon class="size-5" />
-                    <span>{item.label}</span>
-                  </a>
-                {/each}
-              </Navigation.Menu>
-            {/if}
-          </Navigation.Group>
-        {/if}
-
-        <!-- Other top-level items: Consumers, etc. -->
+        <!-- Other top-level items: external links such as Subscriptions -->
         <Navigation.Group>
           <Navigation.Menu class="flex flex-col gap-2">
             {#each menuItems as item}
@@ -495,26 +442,34 @@
               </button>
 
               {#if expandedSections[section.id]}
+                {@const currentUrl = page.url.pathname + page.url.search}
+                {@const subsections = section.subsections ?? [{ label: "", items: section.items }]}
                 <Navigation.Menu class="mt-1 ml-4 flex flex-col gap-1 px-2">
-                  {#each section.items as subItem}
-                    {@const SubIcon = subItem.iconComponent}
-                    {@const currentUrl = page.url.pathname + page.url.search}
-                    <a
-                      href={subItem.href}
-                      class="btn w-full justify-start gap-3 px-2 pl-6 text-sm hover:preset-tonal"
-                      class:preset-filled-secondary-50-950={currentUrl ===
-                        subItem.href}
-                      class:border-l-2={currentUrl === subItem.href}
-                      class:border-primary-500={currentUrl ===
-                        subItem.href}
-                      title={getMenuTooltip(subItem.href, subItem.label)}
-                      aria-label={subItem.label}
-                      target={subItem.external ? "_blank" : undefined}
-                      rel={subItem.external ? "noopener noreferrer" : undefined}
-                    >
-                      <SubIcon class="size-4" />
-                      <span>{subItem.label}</span>
-                    </a>
+                  {#each subsections as group (group.label)}
+                    {#if group.label}
+                      <div class="mt-2 px-2 pl-6 text-[11px] font-semibold uppercase tracking-wider text-surface-500" data-testid="nav-subsection-{group.label}">
+                        {group.label}
+                      </div>
+                    {/if}
+                    {#each group.items as subItem (subItem.href)}
+                      {@const SubIcon = subItem.iconComponent}
+                      <a
+                        href={subItem.href}
+                        class="btn w-full justify-start gap-3 px-2 pl-6 text-sm hover:preset-tonal"
+                        class:preset-filled-secondary-50-950={currentUrl ===
+                          subItem.href}
+                        class:border-l-2={currentUrl === subItem.href}
+                        class:border-primary-500={currentUrl ===
+                          subItem.href}
+                        title={getMenuTooltip(subItem.href, subItem.label)}
+                        aria-label={subItem.label}
+                        target={subItem.external ? "_blank" : undefined}
+                        rel={subItem.external ? "noopener noreferrer" : undefined}
+                      >
+                        <SubIcon class="size-4" />
+                        <span>{subItem.label}</span>
+                      </a>
+                    {/each}
                   {/each}
                 </Navigation.Menu>
               {/if}

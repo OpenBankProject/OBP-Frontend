@@ -49,22 +49,27 @@
   });
 
   // ---- operation_id: type to search the resource docs ----
+  // Typing keeps operation_id equal to the text (so a free value can be submitted) and shows matches;
+  // picking from the list, or Opey setting the field, marks it chosen and hides the list.
   let search = $state(initial?.operation_id ?? "");
+  let picked = $state(!!initial?.operation_id);
   const RESULTS_MAX = 25;
+  let searchTerms = $derived(search.trim().toLowerCase().split(/\s+/).filter(Boolean));
   let matches = $derived.by(() => {
-    const terms = search.trim().toLowerCase().split(/\s+/).filter(Boolean);
-    if (lockOperationId || terms.length === 0 || operation_id === search.trim()) return [] as OperationChoice[];
+    if (lockOperationId || picked || searchTerms.length === 0) return [] as OperationChoice[];
     return operationChoices
-      .filter((c) => terms.every((t) => `${c.operation_id} ${c.request_verb} ${c.request_url} ${c.summary}`.toLowerCase().includes(t)))
+      .filter((c) => searchTerms.every((t) => `${c.operation_id} ${c.request_verb} ${c.request_url} ${c.summary}`.toLowerCase().includes(t)))
       .slice(0, RESULTS_MAX);
   });
   let chosen = $derived(operationChoices.find((c) => c.operation_id === operation_id));
   function choose(c: OperationChoice) {
     operation_id = c.operation_id;
     search = c.operation_id;
+    picked = true;
   }
   function onSearchInput() {
     operation_id = search.trim();
+    picked = false;
   }
 
   function useExample() {
@@ -89,6 +94,7 @@
         if (lockOperationId) throw new Error("operation_id is fixed while editing");
         operation_id = asText(v).trim();
         search = operation_id;
+        picked = true;
       },
     },
     json_schema: {
@@ -198,6 +204,15 @@
         class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 font-mono text-sm text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
         data-testid="field-operation-id"
       />
+      {#if !picked && searchTerms.length > 0 && matches.length === 0}
+        <p class="mt-1 text-xs text-amber-700 dark:text-amber-400" data-testid="operation-id-no-matches">
+          {#if operationChoices.length === 0}
+            The operation id list could not be loaded from the resource docs, so nothing can be suggested. The value will be sent as typed.
+          {:else}
+            No operation id matches "{search.trim()}" among {operationChoices.length} known endpoints. Try a word from the path or summary.
+          {/if}
+        </p>
+      {/if}
       {#if matches.length > 0}
         <ul class="mt-2 max-h-64 divide-y divide-gray-100 overflow-auto rounded-lg border border-gray-300 bg-white dark:divide-gray-700 dark:border-gray-600 dark:bg-gray-700" data-testid="operation-id-results">
           {#each matches as c (c.operation_id)}

@@ -25,7 +25,13 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   if (!session?.data?.user) throw error(401, "Unauthorized");
   const token = SessionOAuthHelper.getSessionOAuth(session)?.accessToken;
   if (!token) throw error(401, "No API access token available");
-  const operationChoices = await loadOperationChoices(token).catch(() => []);
+  let operationChoices: Awaited<ReturnType<typeof loadOperationChoices>> = [];
+  let choicesError: string | null = null;
+  try {
+    operationChoices = await loadOperationChoices(token);
+  } catch (e) {
+    choicesError = e instanceof Error ? e.message : String(e);
+  }
   // ?operation_id=... prefills the endpoint, e.g. from a link on a resource-doc page.
-  return { operationChoices, prefillOperationId: url.searchParams.get("operation_id") ?? "" };
+  return { operationChoices, choicesError, prefillOperationId: url.searchParams.get("operation_id") ?? "" };
 };

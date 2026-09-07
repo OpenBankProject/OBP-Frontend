@@ -55,27 +55,30 @@
 
   // ---- Method name: type to search (there are hundreds of connector methods) ----
   let methodSearch = $state(start.method_name);
+  let methodPicked = $state(!!start.method_name);
   const METHOD_RESULTS_MAX = 25;
   let methodMatches = $derived.by(() => {
     const terms = methodSearch.trim().toLowerCase().split(/\s+/).filter(Boolean);
-    if (terms.length === 0 || method_name === methodSearch.trim()) return [] as string[];
+    if (methodPicked || terms.length === 0) return [] as string[];
     return methodNames.filter((m) => terms.every((t) => m.toLowerCase().includes(t))).slice(0, METHOD_RESULTS_MAX);
   });
   function chooseMethod(name: string) {
     method_name = name;
     methodSearch = name;
+    methodPicked = true;
   }
   function onMethodSearchInput() {
     const text = methodSearch.trim();
     // A known name selects it; any other text is kept as a free value (older OBP builds list nothing).
     method_name = text;
+    methodPicked = false;
   }
 
   // ---- Draft support (Opey via formBridge) --------------------------------
   type FieldAccess = { get: () => string; set: (v: unknown) => void };
   const asText = (v: unknown) => (typeof v === "string" ? v : v == null ? "" : String(v));
   const draftFields: Record<string, FieldAccess> = {
-    method_name: { get: () => method_name, set: (v) => { method_name = asText(v).trim(); methodSearch = method_name; } },
+    method_name: { get: () => method_name, set: (v) => { method_name = asText(v).trim(); methodSearch = method_name; methodPicked = true; } },
     connector_name: { get: () => connector_name, set: (v) => (connector_name = asText(v).trim()) },
     bank_id_pattern: { get: () => bank_id_pattern, set: (v) => (bank_id_pattern = asText(v).trim()) },
     is_bank_id_exact_match: {

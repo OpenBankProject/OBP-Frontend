@@ -70,6 +70,10 @@ import {
   Play,
   Clock,
   Gauge,
+  Hammer,
+  Activity,
+  Library,
+  MessagesSquare,
 } from "@lucide/svelte";
 import { env } from "$env/dynamic/public";
 
@@ -80,11 +84,20 @@ export interface NavigationItem {
   external?: boolean;
 }
 
+/** A labelled run of items inside a section; the label is a heading, not a link. */
+export interface NavigationSubsection {
+  label: string;
+  items: NavigationItem[];
+}
+
 export interface NavigationSection {
   id: string;
   label: string;
   iconComponent: any;
+  /** Every link in the section, in order. Derived from `subsections` when those are given. */
   items: NavigationItem[];
+  /** Grouped rendering; when absent the sidebar lists `items` flat. */
+  subsections?: NavigationSubsection[];
   basePaths: string[];
 }
 
@@ -853,27 +866,191 @@ export function getActiveChatRoomsMenuItem(pathname: string) {
   return found || chatRoomsItems[0];
 }
 
+// ── Sidebar structure (2026-09-07) ────────────────────────────────────────────
+// Six domains, each a verb for what the operator is doing, with headed subsections.
+// "Create …" and "Help" are page-level actions, not places, so they are not menu items.
+// The older per-area item arrays and getActive*MenuItem helpers above remain for page tab bars.
+
+function domain(
+  id: string,
+  label: string,
+  iconComponent: any,
+  basePaths: string[],
+  subsections: NavigationSubsection[],
+): NavigationSection {
+  return { id, label, iconComponent, basePaths, subsections, items: subsections.flatMap((g) => g.items) };
+}
+
+const buildSection = domain("build", "Build", Hammer,
+  ["/dynamic-entities", "/dynamic-endpoints", "/dynamic-resource-docs", "/integration", "/json-schema-validations", "/app-studio", "/reports"],
+  [
+    { label: "Entities", items: [
+      { href: "/dynamic-entities/system?level=system", label: "System", iconComponent: Box },
+      { href: "/dynamic-entities/system?level=bank", label: "Bank", iconComponent: Building },
+      { href: "/dynamic-entities/system?level=both", label: "System + Bank", iconComponent: Box },
+      { href: "/dynamic-entities/personal", label: "Personal", iconComponent: UserRound },
+      { href: "/dynamic-entities/diagnostics", label: "Diagnostics", iconComponent: Stethoscope },
+    ] },
+    { label: "Endpoints", items: [
+      { href: "/dynamic-endpoints/system", label: "System", iconComponent: Plug },
+      { href: "/dynamic-endpoints/bank", label: "Bank", iconComponent: Building },
+    ] },
+    { label: "Resource Docs", items: [
+      { href: "/dynamic-resource-docs/system", label: "Dynamic Resource Docs", iconComponent: FileText },
+    ] },
+    { label: "Routing", items: [
+      { href: "/integration/method-routings", label: "Method Routings", iconComponent: Route },
+    ] },
+    { label: "Validation", items: [
+      { href: "/json-schema-validations", label: "JSON Schema Validations", iconComponent: Braces },
+    ] },
+    { label: "Apps", items: [
+      { href: "/app-studio", label: "App Studio", iconComponent: Smartphone },
+      { href: "/app-studio/blocks", label: "Page Blocks", iconComponent: LayoutTemplate },
+      { href: "/reports", label: "Reports", iconComponent: FileSpreadsheet },
+    ] },
+  ]);
+
+const messagingSection = domain("messaging", "Messaging", MessagesSquare,
+  ["/chat-rooms", "/system/signal-publish", "/system/signal-channels", "/system/signal-channels-stats"],
+  [
+    { label: "Chat", items: [
+      { href: "/chat-rooms/system", label: "System", iconComponent: MessageSquare },
+      { href: "/chat-rooms/bank", label: "Bank", iconComponent: Building },
+    ] },
+    { label: "Signals", items: [
+      { href: "/system/signal-publish", label: "Publish", iconComponent: Radio },
+      { href: "/system/signal-channels", label: "Signal Channels", iconComponent: Waves },
+      { href: "/system/signal-channels-stats", label: "Signal Stats", iconComponent: BarChart3 },
+    ] },
+  ]);
+
+const governSection = domain("govern", "Govern", Shield,
+  ["/users", "/customers", "/consumers", "/rbac", "/abac", "/account-access", "/mandates"],
+  [
+    { label: "Identity", items: [
+      { href: "/users", label: "Users", iconComponent: Users },
+      { href: "/customers/individual", label: "Individual Customers", iconComponent: UserRound },
+      { href: "/customers/corporate", label: "Corporate Customers", iconComponent: Building2 },
+      { href: "/customers/account-links", label: "Account Links", iconComponent: Link },
+      { href: "/customers/graph", label: "Customer Graph", iconComponent: GitBranch },
+    ] },
+    { label: "Consumers", items: [
+      { href: "/consumers", label: "Consumers", iconComponent: KeyRound },
+    ] },
+    { label: "Roles", items: [
+      { href: "/rbac/roles", label: "Roles", iconComponent: Shield },
+      { href: "/rbac/entitlements", label: "Entitlements", iconComponent: FileCheck },
+      { href: "/rbac/entitlements/bulk-grant", label: "Bulk Grant", iconComponent: Plus },
+      { href: "/rbac/entitlements/bulk-revoke", label: "Bulk Revoke", iconComponent: ShieldOff },
+      { href: "/rbac/entitlement-requests", label: "Entitlement Requests", iconComponent: FileSignature },
+      { href: "/rbac/groups", label: "Groups", iconComponent: Users },
+      { href: "/rbac/memberships", label: "Memberships", iconComponent: IdCardLanyard },
+    ] },
+    { label: "Rules", items: [
+      { href: "/abac/rules", label: "ABAC Rules", iconComponent: Lock },
+      { href: "/users?role_name=CanExecuteAbacRule", label: "ABAC Users", iconComponent: Users },
+    ] },
+    { label: "Account Access", items: [
+      { href: "/account-access/system-views", label: "System Views", iconComponent: Eye },
+      { href: "/account-access/custom-views", label: "Custom Views", iconComponent: Eye },
+      { href: "/account-access/view-permissions", label: "View Permissions", iconComponent: FileCheck },
+      { href: "/account-access/account-directory", label: "Account Directory", iconComponent: FolderOpen },
+      { href: "/mandates", label: "Mandates", iconComponent: FileSignature },
+    ] },
+  ]);
+
+const observeSection = domain("observe", "Observe", Activity,
+  ["/system-activity-dashboard", "/metrics", "/aggregate-metrics-live", "/aggregate-metrics-trends", "/connector-metrics", "/connector-traces", "/connector-counts", "/metrics-diagnostics", "/metrics-archive-run"],
+  [
+    { label: "Dashboard", items: [
+      { href: "/system-activity-dashboard", label: "Dashboard", iconComponent: LayoutDashboard },
+    ] },
+    { label: "API", items: [
+      { href: "/metrics", label: "API Metrics", iconComponent: BarChart3 },
+      { href: "/aggregate-metrics-live", label: "Live Aggregate Metrics", iconComponent: Zap },
+      { href: "/aggregate-metrics-trends", label: "Aggregate Metrics Over Time", iconComponent: BarChart3 },
+    ] },
+    { label: "Connectors", items: [
+      { href: "/connector-metrics", label: "Connector Metrics", iconComponent: Plug },
+      { href: "/connector-traces", label: "Connector Traces", iconComponent: GitBranch },
+      { href: "/connector-counts", label: "Connector Counts", iconComponent: Hash },
+    ] },
+    { label: "Tooling", items: [
+      { href: "/metrics-diagnostics", label: "Diagnostics", iconComponent: Stethoscope },
+      { href: "/metrics-archive-run", label: "Trigger Archive Run", iconComponent: Play },
+    ] },
+  ]);
+
+const operateSection = domain("operate", "Operate", Server,
+  ["/system"],
+  [
+    { label: "Health", items: [
+      { href: "/system/cache", label: "Cache", iconComponent: HardDrive },
+      { href: "/system/database-pool", label: "Database Pool", iconComponent: Database },
+      { href: "/system/migrations", label: "Migrations", iconComponent: GitBranch },
+      { href: "/system/scheduler-job-locks", label: "Scheduler Job Locks", iconComponent: Clock },
+      { href: "/system/rate-limiting", label: "Rate Limiting", iconComponent: Gauge },
+      { href: "/system/log-cache", label: "Log Cache", iconComponent: Database },
+      { href: "/system/self-test-emails", label: "Self Test Email", iconComponent: Mail },
+    ] },
+    { label: "Configuration", items: [
+      { href: "/system/config-props", label: "Config Props", iconComponent: Settings },
+      { href: "/system/webui-props", label: "WebUI Props", iconComponent: AppWindow },
+      { href: "/system/features", label: "Features", iconComponent: ToggleLeft },
+    ] },
+  ]);
+
+const catalogueSection = domain("catalogue", "Catalogue", Library,
+  ["/banks", "/products", "/system/featured-collections", "/management-docs", "/developer-faq"],
+  [
+    { label: "Banks", items: [
+      { href: "/banks", label: "Banks", iconComponent: Building2 },
+    ] },
+    { label: "Products", items: [
+      { href: "/products/financial", label: "Financial Products", iconComponent: Banknote },
+      { href: "/products/financial/all-banks", label: "Financial Products at All Banks", iconComponent: Landmark },
+      { href: "/products/collections", label: "Product Collections", iconComponent: FolderOpen },
+    ] },
+    { label: "API Products", items: [
+      { href: "/products", label: "API Products", iconComponent: Package },
+      { href: "/products/bootstrap", label: "Bootstrap", iconComponent: Rocket },
+    ] },
+    { label: "Collections", items: [
+      { href: "/system/featured-collections", label: "Featured Collections", iconComponent: Star },
+    ] },
+    { label: "Reference", items: [
+      { href: "/management-docs/consumers", label: "Consumers Docs", iconComponent: BookOpen },
+      { href: "/management-docs/users", label: "Users Docs", iconComponent: BookOpen },
+      { href: "/management-docs/entitlements", label: "Entitlements Docs", iconComponent: BookOpen },
+      { href: "/management-docs/chat-rooms", label: "Chat Rooms Docs", iconComponent: BookOpen },
+      { href: "/developer-faq", label: "Developer FAQ", iconComponent: CircleHelp },
+    ] },
+  ]);
+
 export const navSections: NavigationSection[] = [
   { id: "my-account", label: "My Profile", iconComponent: User, items: myAccountItems, basePaths: ["/user", "/account-access/accounts"] },
-  { id: "system", label: "System", iconComponent: Server, items: systemItems, basePaths: ["/system"] },
-  { id: "signals", label: "Signals", iconComponent: Radio, items: signalsItems, basePaths: ["/system/signal-publish", "/system/signal-channels", "/system/signal-channels-stats"] },
-  { id: "integration", label: "Integration", iconComponent: Plug, items: integrationItems, basePaths: ["/integration"] },
-  { id: "json-schema-validations", label: "JSON Schema Validation", iconComponent: Braces, items: jsonSchemaValidationItems, basePaths: ["/json-schema-validations"] },
-  { id: "metrics", label: "Metrics", iconComponent: BarChart3, items: metricsItems, basePaths: ["/system-activity-dashboard", "/metrics", "/aggregate-metrics", "/aggregate-metrics-live", "/aggregate-metrics-trends", "/connector-metrics", "/connector-traces", "/connector-counts", "/metrics-diagnostics", "/metrics-archive-run"] },
-  { id: "abac", label: "ABAC", iconComponent: Lock, items: abacItems, basePaths: ["/abac"] },
-  { id: "products", label: "API Products", iconComponent: Package, items: productsItems, basePaths: ["/products"] },
-  { id: "financial-products", label: "Financial Products", iconComponent: Banknote, items: financialProductsItems, basePaths: ["/products/financial", "/products/collections"] },
-  { id: "rbac", label: "RBAC", iconComponent: Shield, items: rbacItems, basePaths: ["/rbac"] },
-  { id: "banks", label: "Banks", iconComponent: Building2, items: banksItems, basePaths: ["/banks"] },
-  { id: "users", label: "Users", iconComponent: Users, items: usersItems, basePaths: ["/users"] },
-  { id: "customers", label: "Customers", iconComponent: Users, items: customersItems, basePaths: ["/customers"] },
-  { id: "account-access", label: "Account Access", iconComponent: Landmark, items: accountAccessItems, basePaths: ["/account-access", "/mandates"] },
-  { id: "dynamic-entities", label: "Dynamic Entities", iconComponent: Box, items: dynamicEntitiesItems, basePaths: ["/dynamic-entities"] },
-  { id: "dynamic-endpoints", label: "Dynamic Endpoints", iconComponent: Plug, items: dynamicEndpointsItems, basePaths: ["/dynamic-endpoints"] },
-  { id: "dynamic-resource-docs", label: "Dynamic Resource Docs", iconComponent: FileText, items: dynamicResourceDocsItems, basePaths: ["/dynamic-resource-docs"] },
-  { id: "app-studio", label: "App Studio", iconComponent: Smartphone, items: appStudioItems, basePaths: ["/app-studio"] },
-  { id: "reports", label: "Reports", iconComponent: FileSpreadsheet, items: reportsItems, basePaths: ["/reports"] },
-  { id: "developer-faq", label: "Developer FAQ", iconComponent: CircleHelp, items: [{ href: "/developer-faq", label: "Questions", iconComponent: CircleHelp }], basePaths: ["/developer-faq"] },
-  { id: "chat-rooms", label: "Chat Rooms", iconComponent: MessageSquare, items: chatRoomsItems, basePaths: ["/chat-rooms"] },
-  { id: "management-docs", label: "Management Docs", iconComponent: BookOpen, items: managementDocsItems, basePaths: ["/management-docs"] },
+  buildSection,
+  messagingSection,
+  governSection,
+  observeSection,
+  operateSection,
+  catalogueSection,
 ];
+
+/**
+ * The section that owns `pathname`: the one whose matching base path is longest, so
+ * /system/signal-publish belongs to Messaging rather than Operate, and /account-access/accounts
+ * to My Profile rather than Govern.
+ */
+export function findActiveSection(pathname: string): NavigationSection | undefined {
+  let best: { section: NavigationSection; len: number } | undefined;
+  for (const section of navSections) {
+    for (const bp of section.basePaths) {
+      if ((pathname === bp || pathname.startsWith(bp + "/")) && (!best || bp.length > best.len)) {
+        best = { section, len: bp.length };
+      }
+    }
+  }
+  return best?.section;
+}

@@ -66,6 +66,11 @@
 
   <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(20rem,26rem)]">
     <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+      {#if data.choicesError}
+        <p class="mb-4 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-900/20 dark:text-amber-100" data-testid="choices-error">
+          The operation id list could not be loaded from OBP's resource docs: {data.choicesError}. You can still type an operation id.
+        </p>
+      {/if}
       <JsonSchemaValidationForm
         initial={{ operation_id: data.prefillOperationId, json_schema: "" }}
         operationChoices={data.operationChoices}
