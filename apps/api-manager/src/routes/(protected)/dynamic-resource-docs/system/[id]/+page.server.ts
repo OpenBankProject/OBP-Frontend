@@ -20,8 +20,63 @@ import { error } from "@sveltejs/kit";
 import { createLogger } from '@obp/shared/utils';
 import { SessionOAuthHelper } from "$lib/oauth/sessionHelper";
 import { obp_requests } from "$lib/obp/requests";
+import { apiExplorerBaseUrl } from "$lib/server/glossaryCache";
 
 const logger = createLogger("SystemDynamicResourceDocDetailPageServer");
+
+/**
+ * The API Explorer lists runtime-defined endpoints under this pseudo version, fetched from OBP as
+ * resource-docs/OBPdynamic-entity/obp?content=dynamic. Reading it here, uncached, is a live check
+ * that OBP's own resource-doc cache was invalidated after a create/update/delete.
+ */
+const EXPLORER_DYNAMIC_VERSION = "OBPdynamic-entity";
+const DYNAMIC_RESOURCE_DOCS_PATH = `/obp/v7.0.0/resource-docs/${EXPLORER_DYNAMIC_VERSION}/obp?content=dynamic`;
+
+export interface DynamicResourceDocStatus {
+  found: boolean;
+  operation_id: string | null;
+  specified_url: string | null;
+  explorerUrl: string | null;
+  explorerListUrl: string;
+  totalDynamicDocs: number | null;
+  checkedAt: string;
+  error?: string;
+}
+
+/** Find this doc's entry in OBP's dynamic resource docs by verb and URL (exact first, then suffix). */
+async function lookupResourceDoc(doc: any, accessToken: string): Promise<DynamicResourceDocStatus> {
+  const explorer = apiExplorerBaseUrl();
+  const base: DynamicResourceDocStatus = {
+    found: false,
+    operation_id: null,
+    specified_url: null,
+    explorerUrl: null,
+    explorerListUrl: `${explorer}/resource-docs/${EXPLORER_DYNAMIC_VERSION}`,
+    totalDynamicDocs: null,
+    checkedAt: new Date().toISOString(),
+  };
+  try {
+    const resp = await obp_requests.get(DYNAMIC_RESOURCE_DOCS_PATH, accessToken);
+    const docs: any[] = resp?.resource_docs ?? [];
+    const verb = String(doc.request_verb ?? "").toUpperCase();
+    const url = String(doc.request_url ?? "");
+    const sameVerb = docs.filter((d) => String(d.request_verb).toUpperCase() === verb);
+    const match =
+      sameVerb.find((d) => d.request_url === url) ??
+      sameVerb.find((d) => String(d.specified_url ?? "").endsWith(url) || String(d.request_url ?? "").endsWith(url));
+    return {
+      ...base,
+      found: !!match,
+      operation_id: match?.operation_id ?? null,
+      specified_url: match?.specified_url ?? null,
+      explorerUrl: match ? `${explorer}/resource-docs/${EXPLORER_DYNAMIC_VERSION}?operationid=${encodeURIComponent(match.operation_id)}` : null,
+      totalDynamicDocs: docs.length,
+    };
+  } catch (e) {
+    logger.warn("Could not read the dynamic resource docs from OBP:", e);
+    return { ...base, error: e instanceof Error ? e.message : String(e) };
+  }
+}
 
 export const load: PageServerLoad = async ({ params, locals }) => {
   const session = locals.session;
@@ -48,7 +103,8 @@ export const load: PageServerLoad = async ({ params, locals }) => {
       throw error(404, "Dynamic resource doc not found");
     }
     logger.debug(`Retrieved dynamic resource doc ${id}`);
-    return { doc };
+    const resourceDoc = await lookupResourceDoc(doc, accessToken);
+    return { doc, resourceDoc };
   } catch (err: any) {
     logger.error("Error fetching dynamic resource doc:", err);
     if (err && typeof err === "object" && "status" in err) throw err;

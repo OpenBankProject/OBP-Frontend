@@ -50,6 +50,7 @@ import {
   LayoutTemplate,
   Package,
   CircleHelp,
+  Braces,
   Rocket,
   Banknote,
   Hash,
@@ -271,6 +272,17 @@ function buildIntegrationItems(): NavigationItem[] {
 
   return items;
 }
+
+// JSON Schema Validation navigation items
+function buildJsonSchemaValidationItems(): NavigationItem[] {
+  return [
+    { href: "/json-schema-validations", label: "JSON Schema Validations", iconComponent: Braces },
+    { href: "/json-schema-validations/create", label: "Create Validation", iconComponent: Plus },
+    { href: "/json-schema-validations/help", label: "Help", iconComponent: CircleHelp },
+  ];
+}
+
+export const jsonSchemaValidationItems = buildJsonSchemaValidationItems();
 
 export const integrationItems = buildIntegrationItems();
 
@@ -846,6 +858,7 @@ export const navSections: NavigationSection[] = [
   { id: "system", label: "System", iconComponent: Server, items: systemItems, basePaths: ["/system"] },
   { id: "signals", label: "Signals", iconComponent: Radio, items: signalsItems, basePaths: ["/system/signal-publish", "/system/signal-channels", "/system/signal-channels-stats"] },
   { id: "integration", label: "Integration", iconComponent: Plug, items: integrationItems, basePaths: ["/integration"] },
+  { id: "json-schema-validations", label: "JSON Schema Validation", iconComponent: Braces, items: jsonSchemaValidationItems, basePaths: ["/json-schema-validations"] },
   { id: "metrics", label: "Metrics", iconComponent: BarChart3, items: metricsItems, basePaths: ["/system-activity-dashboard", "/metrics", "/aggregate-metrics", "/aggregate-metrics-live", "/aggregate-metrics-trends", "/connector-metrics", "/connector-traces", "/connector-counts", "/metrics-diagnostics", "/metrics-archive-run"] },
   { id: "abac", label: "ABAC", iconComponent: Lock, items: abacItems, basePaths: ["/abac"] },
   { id: "products", label: "API Products", iconComponent: Package, items: productsItems, basePaths: ["/products"] },

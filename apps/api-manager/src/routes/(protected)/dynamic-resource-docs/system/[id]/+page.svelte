@@ -21,7 +21,8 @@
   import { env } from "$env/dynamic/public";
   import { OpeyChat } from "@obp/shared/components";
   import type { OpeyChatOptions, SuggestedQuestion } from "@obp/shared/components";
-  import { Bug, Wand2 } from "@lucide/svelte";
+  import { Bug, Wand2, ExternalLink, RefreshCw } from "@lucide/svelte";
+  import { invalidateAll } from "$app/navigation";
   import { formBridge } from "$lib/stores/formBridge.svelte";
   import type { PageData } from "./$types";
   import DynamicResourceDocForm, {
@@ -37,6 +38,18 @@
 
   const doc = $derived(data.doc);
   const docId = $derived(doc?.dynamic_resource_doc_id);
+  const resourceDoc = $derived(data.resourceDoc);
+
+  let isRechecking = $state(false);
+  /** Re-run the server load, which reads OBP's dynamic resource docs again. */
+  async function recheckResourceDoc() {
+    isRechecking = true;
+    try {
+      await invalidateAll();
+    } finally {
+      isRechecking = false;
+    }
+  }
 
   let deleteError = $state<string | null>(null);
   let successMessage = $state<string | null>(null);
@@ -71,6 +84,7 @@
       return;
     }
     successMessage = "Saved.";
+    await recheckResourceDoc();
   }
 
   // ---- Opey side panel: same wiring as the Create page ------------------------
@@ -158,9 +172,62 @@
           <span class="font-mono">{doc?.request_verb} {doc?.request_url}</span>
         </p>
         <p class="mt-1 text-xs text-gray-500 dark:text-gray-500">
-          Served at <code class="rounded bg-gray-100 px-1 dark:bg-gray-900">/obp/dynamic-resource-doc{doc?.request_url}</code>
-          · id <code class="rounded bg-gray-100 px-1 dark:bg-gray-900">{docId}</code>
+          id <code class="rounded bg-gray-100 px-1 dark:bg-gray-900">{docId}</code>
+          {#if resourceDoc?.specified_url}
+            · served at <code class="rounded bg-gray-100 px-1 dark:bg-gray-900">{resourceDoc.specified_url}</code>
+          {/if}
         </p>
+
+        <!-- Live check against OBP's resource docs: proves the resource-doc cache was invalidated -->
+        <div class="mt-3 flex flex-wrap items-center gap-2 text-xs" data-testid="resource-doc-status" data-state={resourceDoc?.found ? "found" : "missing"}>
+          {#if resourceDoc?.error}
+            <span class="rounded-full bg-gray-100 px-2 py-0.5 text-gray-700 dark:bg-gray-700 dark:text-gray-200">
+              Resource docs could not be read: {resourceDoc.error}
+            </span>
+          {:else if resourceDoc?.found}
+            <span class="rounded-full bg-green-100 px-2 py-0.5 font-medium text-green-800 dark:bg-green-900/30 dark:text-green-300">
+              In OBP resource docs
+            </span>
+            <code class="rounded bg-gray-100 px-1 text-gray-700 dark:bg-gray-900 dark:text-gray-300">{resourceDoc.operation_id}</code>
+            <a
+              href={resourceDoc.explorerUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-1 text-blue-600 hover:underline dark:text-blue-400"
+              data-testid="api-explorer-link"
+            >
+              Open in API Explorer <ExternalLink size={12} />
+            </a>
+          {:else}
+            <span class="rounded-full bg-amber-100 px-2 py-0.5 font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-200">
+              Not in OBP resource docs yet
+            </span>
+            <span class="text-gray-500 dark:text-gray-400">
+              {#if resourceDoc?.totalDynamicDocs !== null}({resourceDoc?.totalDynamicDocs} dynamic docs listed){/if}
+              OBP caches its resource docs; if this stays missing after a save, cache invalidation did not run.
+            </span>
+            <a
+              href={resourceDoc?.explorerListUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-1 text-blue-600 hover:underline dark:text-blue-400"
+            >
+              API Explorer dynamic docs <ExternalLink size={12} />
+            </a>
+          {/if}
+          <button
+            type="button"
+            onclick={recheckResourceDoc}
+            disabled={isRechecking}
+            class="inline-flex items-center gap-1 rounded border border-gray-300 px-2 py-0.5 text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+            data-testid="recheck-resource-doc"
+          >
+            <RefreshCw size={12} /> {isRechecking ? "Checking..." : "Re-check"}
+          </button>
+          {#if resourceDoc?.checkedAt}
+            <span class="text-gray-400 dark:text-gray-500">checked {resourceDoc.checkedAt.slice(11, 19)} UTC</span>
+          {/if}
+        </div>
       </div>
       <button
         type="button"
