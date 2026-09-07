@@ -965,7 +965,7 @@
 
     <!-- Phone-sized preview column (either mode at phone width) -->
     {#if previewWidth === "phone"}
-      <section class="xl:sticky xl:top-4 xl:self-start" data-testid="app-studio-preview" data-state={mode === "page" ? (expanding ? "rendering" : expandError ? "error" : "ready") : "ready"}>
+      <section class="xl:sticky xl:top-8 xl:self-start" data-testid="app-studio-preview" data-state={mode === "page" ? (expanding ? "rendering" : expandError ? "error" : "ready") : "ready"}>
         {#if mode === "app"}
           <AppStudioPreview {source} {runId} onRequest={handleAppRequest} onLog={pushLog} onNavigate={handleAppNavigate} />
           <p class="mt-2 flex items-center justify-center gap-3 text-center text-xs text-gray-500 dark:text-gray-400">
@@ -994,8 +994,8 @@
     {/if}
 
     <!-- Opey pane: OpeyChat requires a definite height all the way down -->
-    <aside class="xl:sticky xl:top-4" data-testid="opey-form-pane">
-      <div class="h-[36rem] w-full overflow-hidden rounded-lg border border-gray-200 shadow-sm xl:h-[calc(100vh-8rem)] dark:border-gray-700">
+    <aside class="xl:sticky xl:top-8" data-testid="opey-form-pane">
+      <div class="h-[36rem] w-full overflow-hidden rounded-lg border border-gray-200 shadow-sm xl:h-[calc(100vh-80px-3rem)] dark:border-gray-700">
         {#key mode}
           <OpeyChat {opeyChatOptions} userAuthenticated={!!page.data.userId} {clientTools} {clientContext} />
         {/key}

@@ -176,8 +176,8 @@
       `- partial_function_name (string, camelCase Scala identifier, required)`,
       `- request_verb (one of ${VERBS.join("/")}, required)`,
       `- request_url (string, must start with /, UPPER_CASE segments are path params, required)`,
-      `- summary (string, one line)`,
-      `- description (string, prose, max 2000 chars)`,
+      `- summary (string, one line, max 255 chars)`,
+      `- description (string, prose, max 2000 chars; markdown allowed)`,
       `- method_body (Scala source, required; inlined into an http4s handler: in scope are callContext: CallContext, request: org.http4s.Request[IO], pathParams: Map[String, String], the generated RequestRootJsonClass/ResponseRootJsonClass, and errorResponse(message, code). The last expression must be Future.successful((responseValue, HttpCode.\`200\`(callContext))) or errorResponse(...). Do NOT return Lift Box/Full/JsonResponse values.)`,
       `- example_request_body (JSON object; required for POST/PUT)`,
       `- success_response_body (JSON object, required)`,
@@ -202,6 +202,9 @@
     describe: describeForm,
   };
   // ---- end draft support ---------------------------------------------------
+
+  /** Limits OBP enforces (summary is a 255-character column; description is capped at 2000). */
+  const MAX = { partial_function_name: 255, request_url: 255, summary: 255, description: 2000 } as const;
 
   let isSubmitting = $state(false);
   let submitError = $state<string | null>(null);
@@ -408,9 +411,14 @@
     const errs: Record<string, string> = {};
 
     if (!partial_function_name.trim()) errs.partial_function_name = "Required";
+    else if (partial_function_name.trim().length > MAX.partial_function_name) errs.partial_function_name = `At most ${MAX.partial_function_name} characters`;
     if (!request_verb.trim()) errs.request_verb = "Required";
     if (!request_url.trim()) errs.request_url = "Required";
     else if (!request_url.startsWith("/")) errs.request_url = "Must start with /";
+    else if (request_url.trim().length > MAX.request_url) errs.request_url = `At most ${MAX.request_url} characters`;
+    // OBP stores summary in a 255-character column and caps description at 2000; say so here, not after a round trip.
+    if (summary.trim().length > MAX.summary) errs.summary = `At most ${MAX.summary} characters (got ${summary.trim().length})`;
+    if (description.trim().length > MAX.description) errs.description = `At most ${MAX.description} characters (got ${description.trim().length})`;
     if (!method_body_text.trim()) errs.method_body = "Required — write Scala or click Generate template";
 
     let example_request_body: any = undefined;

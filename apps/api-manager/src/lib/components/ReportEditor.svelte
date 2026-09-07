@@ -19,10 +19,11 @@
   import { onMount } from "svelte";
   import { AppStudioPreview, appStudioPathToProxyPath } from "@obp/shared/components";
   import type { AppStudioProxyResult } from "@obp/shared/components";
-  import { Play, Download, Save, Trash2, Copy } from "@lucide/svelte";
+  import { Play, Download, Save, Trash2, Copy, Sparkles } from "@lucide/svelte";
   import { formBridge } from "$lib/stores/formBridge.svelte";
+  import ReportChart from "$lib/components/ReportChart.svelte";
   import {
-    parseParameters, defaultParameterValues, coerceParameterValues, buildRunnerDocument, resultToTable, tableToCsv,
+    parseParameters, defaultParameterValues, coerceParameterValues, buildRunnerDocument, resultToTable, tableToCsv, chartData,
     type ReportFormValues, type ReportResult,
   } from "$lib/services/reports";
 
@@ -35,8 +36,13 @@
     onDelete?: () => Promise<void>;
     /** Create a separate copy of what is in the editor right now. */
     onDuplicate?: (values: ReportFormValues) => Promise<void>;
+    /**
+     * When the page hosts Opey: sends a prompt into the chat, resolving true if accepted
+     * (false while Opey is still streaming). Enables "Ask Opey to explain and fix" on a failed run.
+     */
+    onAskOpey?: (prompt: string) => Promise<boolean>;
   }
-  let { initial, bankIds, saving = false, canDelete = false, onSave, onDelete, onDuplicate }: Props = $props();
+  let { initial, bankIds, saving = false, canDelete = false, onSave, onDelete, onDuplicate, onAskOpey }: Props = $props();
 
   // ---- Definition fields (initial values are read once; the editor owns them afterwards) ----
   const start = initial;
@@ -73,6 +79,36 @@
   let runId = $state(0);
   let running = $state(false);
   let runError = $state("");
+  let askingOpey = $state(false);
+  let askOpeyNote = $state("");
+
+  /** Everything Opey needs to diagnose the last failed run, in one message. */
+  function explainAndFixPrompt(): string {
+    const failedCalls = network.filter((n) => n.error || n.status >= 400);
+    return [
+      "The report failed when I ran it. Explain what went wrong in plain words, then fix it.",
+      "",
+      `Error: ${runError}`,
+      failedCalls.length
+        ? ["Failed OBP calls:", ...failedCalls.slice(-10).map((n) => `  ${n.method} ${n.path} -> ${n.status || "no response"}${n.error ? ` (${n.error})` : ""}`)].join("\n")
+        : "No OBP call reported an error, so the failure is in the definition's own code or in how it reads the responses.",
+      logs.length ? ["Console output (most recent last):", ...logs.slice(-10).map((l) => `  [${l.level}] ${l.message.slice(0, 300)}`)].join("\n") : "",
+      "",
+      "The current definition and parameters are in the page context. Fix the definition by calling set_form_fields with the COMPLETE corrected `definition` (and `parameters` only if they must change). Keep the report's purpose. If an OBP call returned 404 or 400, check the path and version against the resource docs before guessing.",
+    ].filter(Boolean).join("\n");
+  }
+
+  async function askOpeyToFix() {
+    if (!onAskOpey || !runError) return;
+    askingOpey = true;
+    askOpeyNote = "";
+    try {
+      const accepted = await onAskOpey(explainAndFixPrompt());
+      askOpeyNote = accepted ? "Sent to Opey. Its fix will appear in the definition; run again to check it." : "Opey is still answering; wait for it to finish, then try again.";
+    } finally {
+      askingOpey = false;
+    }
+  }
   let result = $state<ReportResult | null>(null);
   let logs = $state<LogEntry[]>([]);
   let network = $state<NetworkEntry[]>([]);
@@ -173,6 +209,13 @@
     access.set(opeyPrevious[name]);
     const { [name]: _d, ...rest } = opeyPrevious; opeyPrevious = rest;
   }
+  /** One line for Opey on what charts the last run asked for and which could not be drawn. */
+  function describeCharts(r: ReportResult): string {
+    if (!Array.isArray(r.charts)) return " No charts requested.";
+    const problems = r.charts.map((c, i) => { const d = chartData(r, c); return d.problem ? ` (chart ${i + 1} ${c.type}: ${d.problem})` : ""; }).join("");
+    return ` Charts requested: ${r.charts.length}${problems}`;
+  }
+
   function describeForm(): string {
     const def = definition.length > 12000 ? definition.slice(0, 12000) + `\n// … truncated, ${definition.length} chars` : definition;
     const lines = [
@@ -181,6 +224,7 @@
       "- title (string), slug (string, lower-case-with-hyphens), description (string)",
       "- parameters (JSON array of { name, label?, type?: string|number|date|bank_id|boolean, default?, required?, description? }; the viewer fills these in before a run)",
       "- definition (JavaScript source, REQUIRED. Always send the COMPLETE source. It must declare `async function run(params, obp)` and return { title?, columns: string[], rows: any[][] } or { items: object[] }.)",
+      "- CHARTS: to show a chart, add `charts: [ { type: 'bar' | 'line' | 'stacked-bar' | 'pie', x: '<column>', y: '<numeric column>' | ['<col>', '<col>'], title?: string, horizontal?: boolean, yLabel?: string } ]` to the returned object. 'pie' draws a donut of ONE numeric column (largest slices first, more than 8 fold into Other) — good for a share of a whole, bad for more than ~6 categories; prefer bar for plain comparisons. Any other type is reported as unsupported, not drawn. The Manager draws it above the table from the SAME rows; do NOT draw charts yourself, do NOT use block characters or ASCII art, and do not add charting libraries (the sandbox has no imports). Keep rows tidy for charting: one row per category, numeric values as numbers, at most 8 series and about 60 categories (aggregate or sort+slice in the definition).",
       "",
       "Runtime for the definition:",
       "- It runs in a sandboxed iframe: no DOM of the host, no cookies, no imports; plain modern JavaScript only.",
@@ -195,7 +239,7 @@
       "Current definition:", def,
       "",
       result
-        ? `Last run: OK in ${lastRunMs}ms, ${table.rows.length} row(s), columns: ${table.columns.join(", ")}. First row: ${JSON.stringify(table.rows[0] ?? [])}`
+        ? `Last run: OK in ${lastRunMs}ms, ${table.rows.length} row(s), columns: ${table.columns.join(", ")}. First row: ${JSON.stringify(table.rows[0] ?? [])}${describeCharts(result)}`
         : runError ? `Last run FAILED after ${lastRunMs}ms: ${runError}` : "Last run: none yet.",
       network.length ? "OBP calls in the last run:" : "OBP calls in the last run: none.",
       ...network.slice(-15).map((n) => `  ${n.method} ${n.path} -> ${n.status || "no response"}${n.error ? ` (${n.error})` : ""} ${n.ms}ms`),
@@ -318,11 +362,38 @@
       {/if}
     </div>
 
-    {#if runError}<p class="mt-3 rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800 dark:border-red-700 dark:bg-red-900/20 dark:text-red-200" data-testid="report-run-error">{runError}</p>{/if}
+    {#if runError}
+      <div class="mt-3 rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800 dark:border-red-700 dark:bg-red-900/20 dark:text-red-200" role="alert" data-testid="report-run-error">
+        <div class="flex flex-wrap items-start justify-between gap-2">
+          <span class="min-w-0 break-words">{runError}</span>
+          {#if onAskOpey}
+            <button
+              type="button"
+              onclick={askOpeyToFix}
+              disabled={askingOpey || running}
+              class="inline-flex shrink-0 items-center gap-1 rounded-md border border-violet-300 bg-violet-50 px-2.5 py-1 text-xs font-medium text-violet-800 hover:bg-violet-100 disabled:opacity-50 dark:border-violet-700 dark:bg-violet-900/30 dark:text-violet-200"
+              data-testid="ask-opey-fix-btn"
+            >
+              <Sparkles size={12} /> {askingOpey ? "Asking Opey…" : "Ask Opey to explain and fix"}
+            </button>
+          {/if}
+        </div>
+        {#if askOpeyNote}<p class="mt-1 text-xs text-red-700/80 dark:text-red-200/80" data-testid="ask-opey-note">{askOpeyNote}</p>{/if}
+      </div>
+    {/if}
 
     {#if result}
       {#if result.title}<h3 class="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">{result.title}</h3>{/if}
       {#if result.note}<p class="mt-1 text-sm text-gray-600 dark:text-gray-400">{result.note}</p>{/if}
+      {#if Array.isArray(result.charts) && result.charts.length > 0}
+        <div class="mt-3 grid gap-4 {result.charts.length > 1 ? 'xl:grid-cols-2' : ''}" data-testid="report-charts">
+          {#each result.charts.slice(0, 6) as spec, i (i)}
+            <div class="rounded-md border border-gray-200 p-3 dark:border-gray-700">
+              <ReportChart {spec} {result} index={i} />
+            </div>
+          {/each}
+        </div>
+      {/if}
       <div class="mt-3 overflow-x-auto">
         <table class="w-full text-left text-sm" data-testid="report-table">
           <thead class="border-b border-gray-200 text-xs uppercase text-gray-500 dark:border-gray-700 dark:text-gray-400">

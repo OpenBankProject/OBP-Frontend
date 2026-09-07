@@ -83,6 +83,10 @@
 
   const clientTools = { set_form_fields: async (toolInput: Record<string, any>) => formBridge.apply(toolInput?.fields ?? {}) };
   const clientContext = () => formBridge.describe();
+
+  // The chat instance, so the editor's "Ask Opey to explain and fix" can push the failure into it.
+  let opeyChat = $state<{ sendUserMessage: (text: string) => Promise<boolean> } | undefined>();
+  const onAskOpey = async (prompt: string) => (opeyChat ? opeyChat.sendUserMessage(prompt) : false);
   const suggestedQuestions: SuggestedQuestion[] = [
     { questionString: "Write a report that lists every API product with its bank, category and monthly price, sorted by price.", pillTitle: "Products report", icon: ChartColumn },
     { questionString: "Write a report with a bank_id parameter that lists the customers at that bank with their legal name and email.", pillTitle: "Customers at a bank", icon: Wand2 },
@@ -117,15 +121,15 @@
         <p class="rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-800 dark:border-red-700 dark:bg-red-900/20 dark:text-red-200">{loadError}</p>
       {:else if initial}
         {#key currentId}
-          <ReportEditor {initial} {bankIds} {saving} canDelete={!!currentId} onSave={handleSave} onDelete={handleDelete} onDuplicate={handleDuplicate} />
+          <ReportEditor {initial} {bankIds} {saving} canDelete={!!currentId} onSave={handleSave} onDelete={handleDelete} onDuplicate={handleDuplicate} {onAskOpey} />
         {/key}
       {:else}
         <p class="text-sm text-gray-500 dark:text-gray-400">Loading…</p>
       {/if}
     </div>
-    <aside class="xl:sticky xl:top-4" data-testid="opey-form-pane">
-      <div class="h-[36rem] w-full overflow-hidden rounded-lg border border-gray-200 shadow-sm xl:h-[calc(100vh-8rem)] dark:border-gray-700">
-        <OpeyChat {opeyChatOptions} userAuthenticated={!!page.data.userId} {clientTools} {clientContext} />
+    <aside class="xl:sticky xl:top-8" data-testid="opey-form-pane">
+      <div class="h-[36rem] w-full overflow-hidden rounded-lg border border-gray-200 shadow-sm xl:h-[calc(100vh-80px-3rem)] dark:border-gray-700">
+        <OpeyChat bind:this={opeyChat} {opeyChatOptions} userAuthenticated={!!page.data.userId} {clientTools} {clientContext} />
       </div>
     </aside>
   </div>

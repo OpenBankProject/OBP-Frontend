@@ -350,11 +350,6 @@ function buildMetricsItems(): NavigationItem[] {
       label: "Diagnostics",
       iconComponent: Stethoscope,
     },
-    {
-      href: "/metrics-archive-run",
-      label: "Trigger Archive Run",
-      iconComponent: Play,
-    },
   ];
 
   return items;
@@ -961,7 +956,7 @@ const governSection = domain("govern", "Govern", Shield,
   ]);
 
 const observeSection = domain("observe", "Observe", Activity,
-  ["/system-activity-dashboard", "/metrics", "/aggregate-metrics-live", "/aggregate-metrics-trends", "/connector-metrics", "/connector-traces", "/connector-counts", "/metrics-diagnostics", "/metrics-archive-run"],
+  ["/system-activity-dashboard", "/metrics", "/aggregate-metrics-live", "/aggregate-metrics-trends", "/connector-metrics", "/connector-traces", "/connector-counts", "/metrics-diagnostics", "/system/log-cache", "/system/migrations"],
   [
     { label: "Dashboard", items: [
       { href: "/system-activity-dashboard", label: "Dashboard", iconComponent: LayoutDashboard },
@@ -978,26 +973,28 @@ const observeSection = domain("observe", "Observe", Activity,
     ] },
     { label: "Tooling", items: [
       { href: "/metrics-diagnostics", label: "Diagnostics", iconComponent: Stethoscope },
-      { href: "/metrics-archive-run", label: "Trigger Archive Run", iconComponent: Play },
+      { href: "/system/log-cache", label: "Log Cache", iconComponent: Database },
+      { href: "/system/migrations", label: "Migrations", iconComponent: GitBranch },
     ] },
   ]);
 
 const operateSection = domain("operate", "Operate", Server,
-  ["/system"],
+  ["/system", "/metrics-archive-run"],
   [
     { label: "Health", items: [
       { href: "/system/cache", label: "Cache", iconComponent: HardDrive },
       { href: "/system/database-pool", label: "Database Pool", iconComponent: Database },
-      { href: "/system/migrations", label: "Migrations", iconComponent: GitBranch },
       { href: "/system/scheduler-job-locks", label: "Scheduler Job Locks", iconComponent: Clock },
       { href: "/system/rate-limiting", label: "Rate Limiting", iconComponent: Gauge },
-      { href: "/system/log-cache", label: "Log Cache", iconComponent: Database },
       { href: "/system/self-test-emails", label: "Self Test Email", iconComponent: Mail },
     ] },
     { label: "Configuration", items: [
       { href: "/system/config-props", label: "Config Props", iconComponent: Settings },
       { href: "/system/webui-props", label: "WebUI Props", iconComponent: AppWindow },
       { href: "/system/features", label: "Features", iconComponent: ToggleLeft },
+    ] },
+    { label: "Jobs", items: [
+      { href: "/metrics-archive-run", label: "Trigger Archive Run", iconComponent: Play },
     ] },
   ]);
 

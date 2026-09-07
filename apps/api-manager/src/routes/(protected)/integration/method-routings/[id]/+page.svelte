@@ -120,8 +120,8 @@
         <p class="text-sm text-gray-500 dark:text-gray-400">Loading…</p>
       {/if}
     </div>
-    <aside class="lg:sticky lg:top-4" data-testid="opey-form-pane">
-      <div class="h-[36rem] w-full overflow-hidden rounded-lg border border-gray-200 shadow-sm lg:h-[calc(100vh-8rem)] dark:border-gray-700">
+    <aside class="lg:sticky lg:top-8" data-testid="opey-form-pane">
+      <div class="h-[36rem] w-full overflow-hidden rounded-lg border border-gray-200 shadow-sm lg:h-[calc(100vh-80px-3rem)] dark:border-gray-700">
         <OpeyChat {opeyChatOptions} userAuthenticated={!!page.data.userId} {clientTools} {clientContext} />
       </div>
     </aside>

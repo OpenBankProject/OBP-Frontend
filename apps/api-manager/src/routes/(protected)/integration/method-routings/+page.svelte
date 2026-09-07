@@ -18,6 +18,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { page } from "$app/state";
+  import { Plus, Route, ExternalLink, Search, RefreshCw, Pencil, Copy, ArrowUpRight } from "@lucide/svelte";
   import { fetchMethodRoutings as loadRoutings, isDefaultRouting, type MethodRouting } from "$lib/services/methodRoutings";
 
   // Creating, overriding and editing live on their own pages (with Opey beside the form):
@@ -27,6 +28,12 @@
   let isLoading = $state(false);
   let error = $state<string | null>(null);
   let successMessage = $state<string | null>(null);
+  let filter = $state("");
+
+  const apiExplorerUrl = String(page.data.externalLinks?.API_EXPLORER_URL || "")
+    .replace(/\/$/, "")
+    .replace(/\/?\?.*$/, "");
+  const glossaryUrl = apiExplorerUrl ? `${apiExplorerUrl}/glossary#Method%20Routing` : "";
 
   async function fetchMethodRoutings() {
     try {
@@ -47,15 +54,28 @@
   }
 
   function switchViewMode(mode: "active" | "configured") {
+    if (viewMode === mode) return;
     viewMode = mode;
     fetchMethodRoutings();
   }
 
+  // Words separated by spaces must all appear somewhere in the row.
+  let visibleRoutings = $derived.by(() => {
+    const terms = filter.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    if (terms.length === 0) return methodRoutings;
+    return methodRoutings.filter((r) => {
+      const hay = `${r.method_name} ${r.connector_name} ${r.bank_id_pattern ?? ""}`.toLowerCase();
+      return terms.every((t) => hay.includes(t));
+    });
+  });
+  let customCount = $derived(methodRoutings.filter((r) => !isDefaultRouting(r)).length);
+  let defaultCount = $derived(methodRoutings.length - customCount);
+
   onMount(() => {
     const saved = page.url.searchParams.get("saved");
     const deleted = page.url.searchParams.get("deleted");
-    if (saved) successMessage = `Method routing for ${saved} saved`;
-    if (deleted) successMessage = `Method routing for ${deleted} deleted`;
+    if (saved) successMessage = `Method routing for ${saved} saved.`;
+    if (deleted) successMessage = `Method routing for ${deleted} deleted.`;
     fetchMethodRoutings();
   });
 </script>
@@ -64,544 +84,200 @@
   <title>Method Routings - Integration - API Manager II</title>
 </svelte:head>
 
-<div class="container mx-auto px-4 py-8">
-  <!-- Header -->
-  <div class="header mb-6">
+<div class="container mx-auto max-w-7xl px-4 py-8">
+  <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
     <div>
-      <h1 class="text-2xl font-bold">Method Routings</h1>
-      <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-        Manage method routing configurations for the OBP API
+      <h1 class="flex items-center gap-2 text-3xl font-bold text-gray-900 dark:text-gray-100">
+        <Route size={28} /> Method Routings
+      </h1>
+      <p class="mt-1 text-gray-600 dark:text-gray-400">
+        Which connector serves each connector method, for which banks. Custom routings override the defaults.
       </p>
     </div>
-    <a href="/integration/method-routings/create" class="btn btn-primary" data-testid="create-method-routing">
-      Create Method Routing
-    </a>
+    <div class="flex items-center gap-2">
+      {#if glossaryUrl}
+        <a
+          href={glossaryUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+          data-testid="method-routings-glossary-link"
+        >
+          Glossary <ExternalLink size={14} />
+        </a>
+      {/if}
+      <a
+        href="/integration/method-routings/create"
+        class="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+        data-testid="create-method-routing"
+      >
+        <Plus size={16} /> Create Method Routing
+      </a>
+    </div>
   </div>
 
-  <!-- Messages -->
   {#if error}
-    <div class="alert alert-error mb-6">
-      <strong>Error:</strong>
-      {error}
-      <button onclick={clearMessages} class="alert-close">×</button>
+    <div class="mb-6 flex items-start justify-between gap-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300" role="alert" data-testid="method-routings-error">
+      <span><strong>Error:</strong> {error}</span>
+      <button type="button" onclick={clearMessages} class="text-lg leading-none" aria-label="Dismiss">×</button>
     </div>
   {/if}
-
   {#if successMessage}
-    <div class="alert alert-success mb-6">
-      <strong>Success:</strong>
-      {successMessage}
-      <button onclick={clearMessages} class="alert-close">×</button>
+    <div class="mb-6 flex items-start justify-between gap-4 rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-700 dark:border-green-800 dark:bg-green-900/20 dark:text-green-300" role="status" data-testid="method-routings-success">
+      <span>{successMessage}</span>
+      <button type="button" onclick={clearMessages} class="text-lg leading-none" aria-label="Dismiss">×</button>
     </div>
   {/if}
 
-  <!-- Method Routings List -->
-  <div class="panel">
-    <div class="panel-header panel-header-with-actions">
-      <h2 class="panel-title">Method Routings List</h2>
-      <div class="view-toggle">
+  <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 px-4 py-3 dark:border-gray-700">
+      <div class="inline-flex rounded-lg border border-gray-300 p-0.5 dark:border-gray-600" role="group" aria-label="Which routings to show">
         <button
+          type="button"
           onclick={() => switchViewMode("active")}
-          class="btn {viewMode === 'active' ? 'btn-toggle-active' : 'btn-toggle-inactive'}"
           disabled={isLoading}
+          class="rounded-md px-3 py-1.5 text-sm font-medium transition {viewMode === 'active' ? 'bg-blue-600 text-white dark:bg-blue-500' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'}"
+          aria-pressed={viewMode === "active"}
+          data-testid="view-active"
         >
           Active
         </button>
         <button
+          type="button"
           onclick={() => switchViewMode("configured")}
-          class="btn {viewMode === 'configured' ? 'btn-toggle-active' : 'btn-toggle-inactive'}"
           disabled={isLoading}
+          class="rounded-md px-3 py-1.5 text-sm font-medium transition {viewMode === 'configured' ? 'bg-blue-600 text-white dark:bg-blue-500' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'}"
+          aria-pressed={viewMode === "configured"}
+          data-testid="view-configured"
         >
           Configured
         </button>
       </div>
+      <div class="flex items-center gap-2">
+        <label class="relative">
+          <Search size={14} class="pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-gray-400" />
+          <input
+            type="search"
+            bind:value={filter}
+            placeholder="Filter by method, connector or bank"
+            spellcheck="false"
+            class="w-64 rounded-lg border border-gray-300 bg-white py-1.5 pr-3 pl-8 text-sm text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+            data-testid="method-routings-filter"
+          />
+        </label>
+        <button
+          type="button"
+          onclick={fetchMethodRoutings}
+          disabled={isLoading}
+          class="inline-flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+          data-testid="method-routings-refresh"
+        >
+          <RefreshCw size={14} class={isLoading ? "animate-spin" : ""} /> Refresh
+        </button>
+      </div>
     </div>
-    <div class="panel-content">
-      {#if isLoading && methodRoutings.length === 0}
-        <div class="loading-state">
-          <div class="spinner"></div>
-          <p>Loading method routings...</p>
-        </div>
-      {:else if methodRoutings.length > 0}
-        <div class="table-wrapper">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Method Name</th>
-                <th>Connector Name</th>
-                <th>Bank ID Pattern</th>
-                <th>Exact Match</th>
-                {#if viewMode === "active"}
-                  <th>Source</th>
-                {/if}
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {#each methodRoutings as routing}
-                <tr class={isDefaultRouting(routing) ? "row-default" : ""}>
-                  <td class="font-mono text-sm {isDefaultRouting(routing) ? '' : 'method-name-custom'}">{routing.method_name}</td>
-                  <td>
-                    <span class="badge {routing.connector_name === 'mapped' ? 'badge-connector-mapped' : 'badge-connector-custom'}">
-                      {routing.connector_name}
-                    </span>
-                  </td>
-                  <td class="font-mono text-sm">
-                    {routing.bank_id_pattern || "N/A"}
-                  </td>
-                  <td>
-                    <span
-                      class="badge {routing.is_bank_id_exact_match
-                        ? 'badge-success'
-                        : 'badge-default'}"
-                    >
-                      {routing.is_bank_id_exact_match ? "Yes" : "No"}
-                    </span>
-                  </td>
-                  {#if viewMode === "active"}
-                    <td>
-                      <span class="badge {isDefaultRouting(routing) ? 'badge-default' : 'badge-custom'}">
-                        {isDefaultRouting(routing) ? "Default" : "Custom"}
-                      </span>
-                    </td>
+
+    {#if isLoading && methodRoutings.length === 0}
+      <div class="flex items-center justify-center gap-3 p-12 text-sm text-gray-600 dark:text-gray-300">
+        <div class="h-6 w-6 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
+        Loading method routings...
+      </div>
+    {:else if methodRoutings.length === 0}
+      <div class="p-12 text-center text-sm text-gray-500 dark:text-gray-400" data-testid="method-routings-empty">
+        No method routings found.
+        <a href="/integration/method-routings/create" class="text-blue-600 hover:underline dark:text-blue-400">Create your first method routing</a>.
+      </div>
+    {:else}
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm" data-testid="method-routings-table">
+          <thead class="bg-gray-50 dark:bg-gray-900/40">
+            <tr>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Method</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Connector</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Bank ID pattern</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Match</th>
+              {#if viewMode === "active"}
+                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Source</th>
+              {/if}
+              <th class="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+            {#each visibleRoutings as routing (routing.method_routing_id ?? routing.method_name)}
+              {@const isDefault = isDefaultRouting(routing)}
+              <tr class={isDefault ? "text-gray-600 dark:text-gray-400" : ""} data-state={isDefault ? "default" : "custom"}>
+                <td class="px-4 py-3 font-mono text-xs {isDefault ? '' : 'font-semibold text-gray-900 dark:text-gray-100'}">{routing.method_name}</td>
+                <td class="px-4 py-3">
+                  <span class="rounded-full px-2 py-0.5 text-xs font-medium {routing.connector_name === 'mapped' ? 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200' : 'bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-200'}">
+                    {routing.connector_name}
+                  </span>
+                </td>
+                <td class="px-4 py-3 font-mono text-xs">{routing.bank_id_pattern || "—"}</td>
+                <td class="px-4 py-3 text-xs">
+                  {#if routing.is_bank_id_exact_match}
+                    <span class="rounded-full bg-green-100 px-2 py-0.5 font-medium text-green-800 dark:bg-green-900/30 dark:text-green-300">exact</span>
+                  {:else}
+                    <span class="rounded-full bg-gray-100 px-2 py-0.5 text-gray-700 dark:bg-gray-700 dark:text-gray-200">regex</span>
                   {/if}
-                  <td>
-                    {#if isDefaultRouting(routing)}
+                </td>
+                {#if viewMode === "active"}
+                  <td class="px-4 py-3 text-xs">
+                    {#if isDefault}
+                      <span class="rounded-full bg-gray-100 px-2 py-0.5 text-gray-700 dark:bg-gray-700 dark:text-gray-200">default</span>
+                    {:else}
+                      <span class="rounded-full bg-blue-100 px-2 py-0.5 font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-200">custom</span>
+                    {/if}
+                  </td>
+                {/if}
+                <td class="px-4 py-3">
+                  <div class="flex justify-end gap-2">
+                    {#if isDefault}
                       <a
                         href="/integration/method-routings/create?method={encodeURIComponent(routing.method_name)}"
-                        class="btn-icon"
+                        class="inline-flex items-center gap-1 rounded border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
                         data-testid="override-{routing.method_name}"
                       >
-                        Override
+                        <ArrowUpRight size={12} /> Override
                       </a>
                     {:else}
                       <a
                         href="/integration/method-routings/{routing.method_routing_id}"
-                        class="btn-icon"
+                        class="inline-flex items-center gap-1 rounded border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
                         data-testid="edit-{routing.method_name}"
                       >
-                        Edit
+                        <Pencil size={12} /> Edit
                       </a>
                       <a
                         href="/integration/method-routings/create?from={routing.method_routing_id}"
-                        class="btn-icon"
+                        class="inline-flex items-center gap-1 rounded border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
                         data-testid="duplicate-{routing.method_name}"
                       >
-                        Duplicate
+                        <Copy size={12} /> Duplicate
                       </a>
                     {/if}
-                  </td>
-                </tr>
-              {/each}
-            </tbody>
-          </table>
-        </div>
-        <div class="table-footer">
-          {#if viewMode === "active"}
-            {@const customCount = methodRoutings.filter((r) => !isDefaultRouting(r)).length}
-            {@const defaultCount = methodRoutings.filter((r) => isDefaultRouting(r)).length}
-            Showing {methodRoutings.length} active method routing{methodRoutings.length !== 1 ? "s" : ""} ({customCount} custom, {defaultCount} default)
-          {:else}
-            Showing {methodRoutings.length} method routing{methodRoutings.length !== 1 ? "s" : ""}
-          {/if}
-        </div>
-      {:else}
-        <div class="empty-state">
-          <p>No method routings found</p>
-          <a href="/integration/method-routings/create" class="btn btn-primary mt-4">
-            Create Your First Method Routing
-          </a>
-        </div>
-      {/if}
-    </div>
+                  </div>
+                </td>
+              </tr>
+            {:else}
+              <tr>
+                <td colspan={viewMode === "active" ? 6 : 5} class="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400" data-testid="method-routings-no-match">
+                  Nothing matches "{filter.trim()}".
+                </td>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
+      </div>
+      <div class="border-t border-gray-200 px-4 py-2 text-xs text-gray-500 dark:border-gray-700 dark:text-gray-400" data-testid="method-routings-footer">
+        {#if filter.trim()}
+          {visibleRoutings.length} of {methodRoutings.length} shown.
+        {/if}
+        {#if viewMode === "active"}
+          {methodRoutings.length} active routing{methodRoutings.length === 1 ? "" : "s"}: {customCount} custom, {defaultCount} default.
+        {:else}
+          {methodRoutings.length} configured routing{methodRoutings.length === 1 ? "" : "s"}.
+        {/if}
+      </div>
+    {/if}
   </div>
 </div>
-
-<style>
-  .container {
-    max-width: 1600px;
-  }
-
-  .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  .panel {
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-  }
-
-  :global([data-mode="dark"]) .panel {
-    background: rgb(var(--color-surface-800));
-  }
-
-  .panel-header {
-    padding: 1.5rem;
-    border-bottom: 1px solid #e5e7eb;
-  }
-
-  .panel-header-with-actions {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  :global([data-mode="dark"]) .panel-header {
-    border-bottom-color: rgb(var(--color-surface-700));
-  }
-
-  .view-toggle {
-    display: flex;
-    gap: 0;
-    border: 1px solid #d1d5db;
-    border-radius: 0.375rem;
-    overflow: hidden;
-  }
-
-  .btn-toggle-active {
-    background: #3b82f6;
-    color: white;
-    border-radius: 0;
-  }
-
-  .btn-toggle-inactive {
-    background: white;
-    color: #374151;
-    border-radius: 0;
-  }
-
-  .btn-toggle-inactive:hover:not(:disabled) {
-    background: #f3f4f6;
-  }
-
-  :global([data-mode="dark"]) .view-toggle {
-    border-color: rgb(var(--color-surface-600));
-  }
-
-  :global([data-mode="dark"]) .btn-toggle-active {
-    background: rgb(var(--color-primary-600));
-  }
-
-  :global([data-mode="dark"]) .btn-toggle-inactive {
-    background: rgb(var(--color-surface-800));
-    color: var(--color-surface-300);
-  }
-
-  :global([data-mode="dark"]) .btn-toggle-inactive:hover:not(:disabled) {
-    background: rgb(var(--color-surface-700));
-  }
-
-  .panel-title {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: #111827;
-    margin: 0;
-  }
-
-  :global([data-mode="dark"]) .panel-title {
-    color: var(--color-surface-100);
-  }
-
-  .panel-content {
-    padding: 1.5rem;
-  }
-
-.btn {
-    padding: 0.5rem 1rem;
-    border-radius: 0.375rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-    border: none;
-  }
-
-  .btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  .btn-primary {
-    background: #3b82f6;
-    color: white;
-  }
-
-  .btn-primary:hover:not(:disabled) {
-    background: #2563eb;
-  }
-
-  :global([data-mode="dark"]) .btn-primary {
-    background: rgb(var(--color-primary-600));
-  }
-
-  :global([data-mode="dark"]) .btn-primary:hover:not(:disabled) {
-    background: rgb(var(--color-primary-500));
-  }
-
-.btn-icon {
-    padding: 0.625rem 1.5rem;
-    font-size: 0.8125rem;
-    background: transparent;
-    color: #3b82f6;
-    border: 1px solid #3b82f6;
-    border-radius: 0.25rem;
-    cursor: pointer;
-    transition: all 0.2s;
-    white-space: nowrap;
-  }
-
-  .btn-icon:hover:not(:disabled) {
-    background: #3b82f6;
-    color: white;
-  }
-
-  :global([data-mode="dark"]) .btn-icon {
-    color: rgb(var(--color-primary-400));
-    border-color: rgb(var(--color-primary-400));
-  }
-
-  :global([data-mode="dark"]) .btn-icon:hover:not(:disabled) {
-    background: rgb(var(--color-primary-400));
-    color: rgb(var(--color-surface-900));
-  }
-
-  .table-wrapper {
-    overflow-x: auto;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.5rem;
-  }
-
-  :global([data-mode="dark"]) .table-wrapper {
-    border-color: rgb(var(--color-surface-700));
-  }
-
-  .data-table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
-  .data-table th {
-    text-align: left;
-    padding: 0.75rem;
-    font-weight: 600;
-    font-size: 0.875rem;
-    color: #374151;
-    background: #f9fafb;
-    border-bottom: 2px solid #e5e7eb;
-  }
-
-  :global([data-mode="dark"]) .data-table th {
-    color: var(--color-surface-300);
-    background: rgb(var(--color-surface-700));
-    border-bottom-color: rgb(var(--color-surface-600));
-  }
-
-  .data-table td {
-    padding: 0.75rem;
-    border-bottom: 1px solid #e5e7eb;
-    font-size: 0.875rem;
-    color: #111827;
-  }
-
-  :global([data-mode="dark"]) .data-table td {
-    border-bottom-color: rgb(var(--color-surface-700));
-    color: var(--color-surface-100);
-  }
-
-  .data-table tbody tr:hover {
-    background: #f9fafb;
-  }
-
-  :global([data-mode="dark"]) .data-table tbody tr:hover {
-    background: rgb(var(--color-surface-700));
-  }
-
-  .data-table tbody tr:last-child td {
-    border-bottom: none;
-  }
-
-  .table-footer {
-    padding: 0.75rem;
-    font-size: 0.875rem;
-    color: #6b7280;
-    text-align: right;
-  }
-
-  :global([data-mode="dark"]) .table-footer {
-    color: var(--color-surface-400);
-  }
-
-  .badge {
-    display: inline-block;
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.25rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-  }
-
-  .badge-success {
-    background: #d1fae5;
-    color: #065f46;
-  }
-
-  :global([data-mode="dark"]) .badge-success {
-    background: rgb(var(--color-success-900));
-    color: rgb(var(--color-success-200));
-  }
-
-  .badge-default {
-    background: #e5e7eb;
-    color: #374151;
-  }
-
-  :global([data-mode="dark"]) .badge-default {
-    background: rgb(var(--color-surface-700));
-    color: var(--color-surface-300);
-  }
-
-  .badge-custom {
-    background: #fff7ed;
-    color: #9a3412;
-    border: 1px solid #fdba74;
-  }
-
-  :global([data-mode="dark"]) .badge-custom {
-    background: #431407;
-    color: #fed7aa;
-    border-color: #9a3412;
-  }
-
-  .badge-connector-mapped {
-    background: #e5e7eb;
-    color: #374151;
-  }
-
-  :global([data-mode="dark"]) .badge-connector-mapped {
-    background: rgb(var(--color-surface-700));
-    color: var(--color-surface-300);
-  }
-
-  .badge-connector-custom {
-    background: #f3e8ff;
-    color: #6b21a8;
-    border: 1px solid #c084fc;
-  }
-
-  :global([data-mode="dark"]) .badge-connector-custom {
-    background: #3b0764;
-    color: #e9d5ff;
-    border-color: #7e22ce;
-  }
-
-  .method-name-custom {
-    color: #2563eb;
-    font-weight: 600;
-  }
-
-  :global([data-mode="dark"]) .method-name-custom {
-    color: rgb(var(--color-primary-400));
-  }
-
-  .row-default {
-    opacity: 0.75;
-  }
-
-  .alert {
-    padding: 1rem;
-    border-radius: 0.375rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .alert-error {
-    background: #fee2e2;
-    color: #991b1b;
-    border: 1px solid #fecaca;
-  }
-
-  :global([data-mode="dark"]) .alert-error {
-    background: rgb(var(--color-error-900));
-    color: rgb(var(--color-error-200));
-    border-color: rgb(var(--color-error-800));
-  }
-
-  .alert-success {
-    background: #d1fae5;
-    color: #065f46;
-    border: 1px solid #a7f3d0;
-  }
-
-  :global([data-mode="dark"]) .alert-success {
-    background: rgb(var(--color-success-900));
-    color: rgb(var(--color-success-200));
-    border-color: rgb(var(--color-success-800));
-  }
-
-
-  .alert-close {
-    background: transparent;
-    border: none;
-    font-size: 1.5rem;
-    line-height: 1;
-    cursor: pointer;
-    color: inherit;
-    opacity: 0.7;
-  }
-
-  .alert-close:hover {
-    opacity: 1;
-  }
-
-  .loading-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 3rem;
-    gap: 1rem;
-  }
-
-  .spinner {
-    width: 40px;
-    height: 40px;
-    border: 4px solid #e5e7eb;
-    border-top-color: #3b82f6;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-
-  :global([data-mode="dark"]) .spinner {
-    border-color: rgb(var(--color-surface-700));
-    border-top-color: rgb(var(--color-primary-400));
-  }
-
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
-  .empty-state {
-    text-align: center;
-    padding: 3rem;
-    color: #6b7280;
-  }
-
-  :global([data-mode="dark"]) .empty-state {
-    color: var(--color-surface-400);
-  }
-
-  @media (max-width: 768px) {
-    .header {
-      flex-direction: column;
-      align-items: stretch;
-    }
-
-}
-</style>

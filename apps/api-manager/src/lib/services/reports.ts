@@ -54,6 +54,24 @@ export interface ReportFormValues {
   parameters: string;
 }
 
+/**
+ * A chart a report asks the Manager to draw from its own rows. Declarative on purpose:
+ * the definition never renders anything itself, the host draws with its own chart code.
+ */
+export interface ReportChartSpec {
+  /** pie is drawn as a donut: one series, slices beyond the largest 7 fold into "Other". */
+  type: "bar" | "line" | "stacked-bar" | "pie";
+  /** Column holding the category or x value (text or date). */
+  x: string;
+  /** Numeric column(s); each one is a series. */
+  y: string | string[];
+  title?: string;
+  /** bar/stacked-bar only: categories down the side, values across. Default true when > 8 categories. */
+  horizontal?: boolean;
+  /** Axis label for the value side, e.g. "EUR" or "calls". */
+  yLabel?: string;
+}
+
 /** What a report's run(params, obp) may return. */
 export interface ReportResult {
   title?: string;
@@ -61,12 +79,93 @@ export interface ReportResult {
   rows?: unknown[][];
   items?: Record<string, unknown>[];
   note?: string;
+  charts?: ReportChartSpec[];
+}
+
+export interface ChartSeries {
+  name: string;
+  values: (number | null)[];
+}
+export interface ChartData {
+  categories: string[];
+  series: ChartSeries[];
+  /** Why the chart cannot be drawn, when it cannot. */
+  problem?: string;
+}
+
+const MAX_SERIES = 8;
+const MAX_CATEGORIES = 60;
+const MAX_SLICES = 8;
+export const CHART_TYPES = ["bar", "line", "stacked-bar", "pie"] as const;
+
+/** Raw (unstringified) rows of a result as objects keyed by column, so charts can read numbers. */
+export function resultToRecords(result: ReportResult): Record<string, unknown>[] {
+  if (Array.isArray(result?.items)) return result.items.map((i) => i ?? {});
+  const columns = Array.isArray(result?.columns) ? result.columns.map(String) : [];
+  const rows = Array.isArray(result?.rows) ? result.rows : [];
+  return rows.map((r) => {
+    const arr = Array.isArray(r) ? r : [r];
+    const rec: Record<string, unknown> = {};
+    arr.forEach((v, i) => (rec[columns[i] ?? `column_${i + 1}`] = v));
+    return rec;
+  });
+}
+
+function toNumber(v: unknown): number | null {
+  if (v === null || v === undefined || v === "") return null;
+  if (typeof v === "number") return Number.isFinite(v) ? v : null;
+  if (typeof v === "boolean") return v ? 1 : 0;
+  const n = Number(String(v).replace(/[,\s]/g, ""));
+  return Number.isFinite(n) ? n : null;
+}
+
+/** Resolve a chart spec against the result. Never throws: problems come back as `problem`. */
+export function chartData(result: ReportResult, spec: ReportChartSpec): ChartData {
+  if (!(CHART_TYPES as readonly string[]).includes(String(spec.type))) {
+    return { categories: [], series: [], problem: `chart.type "${spec.type}" is not supported (use ${CHART_TYPES.join(", ")})` };
+  }
+  const records = resultToRecords(result);
+  const yCols = (Array.isArray(spec.y) ? spec.y : [spec.y]).map(String).filter(Boolean);
+  const known = new Set(records.flatMap((r) => Object.keys(r)));
+  if (!spec.x || !known.has(spec.x)) return { categories: [], series: [], problem: `chart.x "${spec.x}" is not a column of the result (columns: ${[...known].join(", ")})` };
+  const missing = yCols.filter((c) => !known.has(c));
+  if (yCols.length === 0 || missing.length) return { categories: [], series: [], problem: `chart.y ${missing.length ? missing.map((m) => `"${m}"`).join(", ") + " is not a column of the result" : "is required"}` };
+  if (yCols.length > MAX_SERIES) return { categories: [], series: [], problem: `at most ${MAX_SERIES} series per chart (got ${yCols.length}); split into several charts` };
+  const limited = records.slice(0, MAX_CATEGORIES);
+  const categories = limited.map((r) => String(r[spec.x] ?? ""));
+  const series = yCols.map((c) => ({ name: c, values: limited.map((r) => toNumber(r[c])) }));
+  if (series.every((sr) => sr.values.every((v) => v === null))) return { categories, series, problem: `no numeric values in ${yCols.join(", ")}` };
+  if (spec.type === "pie") return pieData(records, spec.x, yCols);
+  return { categories, series, problem: records.length > MAX_CATEGORIES ? `showing the first ${MAX_CATEGORIES} of ${records.length} rows` : undefined };
+}
+
+/** A pie is one series of non-negative shares, largest first, the tail folded into "Other". */
+function pieData(records: Record<string, unknown>[], x: string, yCols: string[]): ChartData {
+  const col = yCols[0];
+  const notes: string[] = [];
+  if (yCols.length > 1) notes.push(`a pie shows one series; using "${col}"`);
+  const slices = records
+    .map((r) => ({ name: String(r[x] ?? ""), value: toNumber(r[col]) ?? 0 }))
+    .filter((sl) => sl.value > 0)
+    .sort((a, b) => b.value - a.value);
+  if (records.some((r) => (toNumber(r[col]) ?? 0) < 0)) notes.push("negative values were left out");
+  let kept = slices;
+  if (slices.length > MAX_SLICES) {
+    const head = slices.slice(0, MAX_SLICES - 1);
+    const rest = slices.slice(MAX_SLICES - 1).reduce((sum, sl) => sum + sl.value, 0);
+    kept = [...head, { name: `Other (${slices.length - head.length})`, value: rest }];
+    notes.push(`${slices.length - head.length} smaller slices folded into Other`);
+  }
+  if (kept.length === 0) return { categories: [], series: [], problem: `no positive values in ${col}` };
+  return { categories: kept.map((sl) => sl.name), series: [{ name: col, values: kept.map((sl) => sl.value) }], problem: notes.join("; ") || undefined };
 }
 
 export const STARTER_DEFINITION = `// A report is an async function run(params, obp).
 // - params: the values the viewer entered for the parameters below
 // - obp.get(path) / obp.post(path, body): call OBP with the viewer's own access
 // Return { columns, rows } or { items: [ {…}, … ] }. console.log is shown next to the result.
+// Optional: charts: [{ type: 'bar' | 'line' | 'stacked-bar', x: 'column', y: 'column' | ['col1', 'col2'], title? }]
+// draws the rows as a chart above the table; no charting code is needed in the definition.
 async function run(params, obp) {
   const banks = await obp.get('/obp/v6.0.0/banks');
   const limit = Number(params.limit || 10);
