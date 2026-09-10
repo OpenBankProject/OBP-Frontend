@@ -36,6 +36,8 @@ export interface DynamicEntityTemplate {
 	hasPublicAccess: boolean;
 	hasCommunityAccess: boolean;
 	personalRequiresRole: boolean;
+	/** OBP-API v6.0.0 use_row_level_access: per-record access lists replace the entity Get/Update/Delete roles. */
+	useRowLevelAccess?: boolean;
 	/** OBP-API v6.0.0 auth_mode: UserOnly (default) | ApplicationOnly | UserOrApplication | UserAndApplication. */
 	authMode?: string;
 }

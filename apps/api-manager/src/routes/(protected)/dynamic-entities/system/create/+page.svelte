@@ -104,7 +104,13 @@
       "type": "string",
       "description": "Write-restricted: settable only via PATCH by a holder of the field's write role",
       "example": "set by a privileged service",
-      "writeRoleRequired": true
+      "write_role_required": true
+    },
+    "risk_score": {
+      "type": "string",
+      "description": "Read-restricted: omitted from GET unless the caller holds CanReadRisk",
+      "example": "low",
+      "read_role": "CanReadRisk"
     }
   },
   "required": ["name"]
@@ -113,6 +119,9 @@
   let hasPublicAccess = $state(template?.hasPublicAccess ?? false);
   let hasCommunityAccess = $state(template?.hasCommunityAccess ?? false);
   let personalRequiresRole = $state(template?.personalRequiresRole ?? false);
+  // Row level access: the per-row ACL replaces the entity's Get/Update/Delete roles on the
+  // System routes. Mutually exclusive with public and community access (OBP-API rejects the combination).
+  let useRowLevelAccess = $state(template?.useRowLevelAccess ?? false);
   // Who may hold the entity's roles on its data endpoints (OBP-API v6.0.0 auth_mode).
   const AUTH_MODES = [
     { value: "UserOnly", label: "Users only (default)", hint: "The calling User must hold the Entitlement." },
@@ -184,6 +193,7 @@
         has_public_access: hasPublicAccess,
         has_community_access: hasCommunityAccess,
         personal_requires_role: personalRequiresRole,
+        use_row_level_access: useRowLevelAccess,
         auth_mode: authMode,
       };
 
@@ -402,7 +412,8 @@
               type="checkbox"
               id="hasPublicAccess"
               bind:checked={hasPublicAccess}
-              class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
+              disabled={useRowLevelAccess}
+              class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
             />
           </div>
           <div class="ml-3">
@@ -428,7 +439,8 @@
               type="checkbox"
               id="hasCommunityAccess"
               bind:checked={hasCommunityAccess}
-              class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
+              disabled={useRowLevelAccess}
+              class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
             />
           </div>
           <div class="ml-3">
@@ -467,6 +479,40 @@
             <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
               Restricts who can create personal entity records to those who have
               the role.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Use Row Level Access -->
+      <div>
+        <div class="flex items-start">
+          <div class="flex h-6 items-center">
+            <input
+              type="checkbox"
+              id="useRowLevelAccess"
+              name="use_row_level_access"
+              bind:checked={useRowLevelAccess}
+              disabled={hasPublicAccess || hasCommunityAccess}
+              data-testid="dynamic-entity-use-row-level-access"
+              class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
+            />
+          </div>
+          <div class="ml-3">
+            <label
+              for="useRowLevelAccess"
+              class="text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
+              Use Row Level Access
+            </label>
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              Per-record sharing. The entity's Get, Update and Delete roles no longer decide access
+              on the shared routes; an access list on each record does. The user who creates a record
+              gets read, update, delete and grant on it, and shares it with
+              <code>POST /obp/dynamic-entity/ENTITY_NAME/RECORD_ID/access</code>
+              (<code>can_read</code>, <code>can_update</code>, <code>can_delete</code>, <code>can_grant</code> per user).
+              Records you cannot read are hidden from lists and return 404. Field-level read and write
+              roles still apply on top. Mutually exclusive with public and community access.
             </p>
           </div>
         </div>
@@ -548,28 +594,80 @@
           <li>
             <strong>description:</strong> Human-readable description of the field (optional)
           </li>
+        </ul>
+
+        <h4 class="mt-4 text-sm font-semibold text-blue-900 dark:text-blue-100">
+          Field-level access control
+        </h4>
+        <p class="mt-1 text-xs text-blue-800 dark:text-blue-200">
+          Set these keys on a property, in snake_case — OBP-API ignores any other spelling.
+        </p>
+        <ul class="mt-2 space-y-1 text-xs text-blue-800 dark:text-blue-200">
           <li>
-            <strong>writeRoleRequired / writeRole:</strong> Make a field <em>write-restricted</em> — it cannot be
-            set via POST/PUT (its value is preserved), only via PATCH by a caller holding the field's write role.
-            Use the boolean to auto-generate a per-field role, or name an explicit role to share across fields.
+            <strong><code>write_role_required</code>: true</strong> — the field becomes
+            <em>write-restricted</em>: POST ignores it and PUT preserves its existing value; it is
+            written only by PATCH from a holder of the auto-generated role
+            <code>CanWriteDynamicEntityField_System&lt;Entity&gt;__&lt;field&gt;</code>.
           </li>
           <li>
-            <strong>readRoleRequired / readRole:</strong> Make a field <em>read-restricted</em> — it is omitted
-            from GET responses unless the caller holds the field's read role.
+            <strong><code>write_role</code>: "CanWriteX"</strong> — the same, against an explicit role
+            you name, so several fields or entities can share one role.
           </li>
           <li>
-            <strong>has_personal_entity:</strong> Allow each user to create their own private records (optional, default true)
+            <strong><code>read_role_required</code>: true</strong> — the field becomes
+            <em>read-restricted</em>: it is omitted from GET responses unless the caller holds
+            <code>CanGetDynamicEntityField_System&lt;Entity&gt;__&lt;field&gt;</code>. Public and
+            anonymous reads never see it.
           </li>
           <li>
-            <strong>has_public_access:</strong> Allow unauthenticated public access to records (optional, default false)
-          </li>
-          <li>
-            <strong>has_community_access:</strong> Allow any authenticated user with CanGet role to access ALL records (optional, default false)
-          </li>
-          <li>
-            <strong>personal_requires_role:</strong> Restricts who can create personal entity records to those who have the role (optional, default false)
+            <strong><code>read_role</code>: "CanReadX"</strong> — the same, against an explicit role.
           </li>
         </ul>
+
+        <h4 class="mt-4 text-sm font-semibold text-blue-900 dark:text-blue-100">
+          Who may create, update and delete records
+        </h4>
+        <p class="mt-1 text-xs text-blue-800 dark:text-blue-200">
+          Four layers, set by the options above rather than in the schema JSON. They stack.
+        </p>
+        <ul class="mt-2 space-y-1 text-xs text-blue-800 dark:text-blue-200">
+          <li>
+            <strong>1. Entity roles.</strong> Every entity generates
+            <code>CanCreateDynamicEntity_System&lt;Entity&gt;</code>,
+            <code>CanGetDynamicEntity_System&lt;Entity&gt;</code>,
+            <code>CanUpdateDynamicEntity_System&lt;Entity&gt;</code> and
+            <code>CanDeleteDynamicEntity_System&lt;Entity&gt;</code>
+            (without <code>System</code> for a bank-level entity, held at that bank). They gate the
+            shared routes <code>/obp/dynamic-entity/ENTITY_NAME</code>.
+          </li>
+          <li>
+            <strong>2. Route scope.</strong> <em>Has Personal Entity</em> adds
+            <code>/obp/dynamic-entity/my/ENTITY_NAME</code>, where each user reads and writes only
+            their own records — no role unless <em>Personal Requires Role</em> is set.
+            <em>Has Community Access</em> (<code>/community/</code>) and <em>Has Public Access</em>
+            (<code>/public/</code>) are read-only routes: neither ever grants a write.
+          </li>
+          <li>
+            <strong>3. Row level access.</strong> <em>Use Row Level Access</em> replaces the entity
+            Get, Update and Delete roles with a per-record access list carrying
+            <code>can_read</code>, <code>can_update</code>, <code>can_delete</code> and
+            <code>can_grant</code>. The creator holds all four on their record and shares it via
+            <code>GET/POST /obp/dynamic-entity/ENTITY_NAME/RECORD_ID/access</code> and
+            <code>DELETE .../access/USER_ID</code>; revoking cascades to grants that user passed on.
+            <code>CanGrantDynamicEntityRowAccess_System&lt;Entity&gt;</code> administers any record.
+            Creating a record still takes the entity's Create role.
+          </li>
+          <li>
+            <strong>4. Field roles.</strong> <code>write_role</code> and <code>read_role</code> above,
+            applied on top of whichever of the layers let the caller reach the record at all.
+          </li>
+          <li>
+            <strong>Who may hold the roles</strong> is the <em>auth mode</em> above: a User's
+            Entitlement, a Consumer's Scope, either, or both. The <code>/my/</code> and row-level
+            routes always need a User.
+          </li>
+        </ul>
+
         {#if data.externalLinks?.API_EXPLORER_URL}
           <div class="mt-3 border-t border-blue-300 pt-3 dark:border-blue-700">
             <a

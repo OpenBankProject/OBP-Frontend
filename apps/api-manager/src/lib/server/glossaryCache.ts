@@ -83,3 +83,13 @@ export function rewriteGlossaryLinks(markdown: string, explorerUrl = apiExplorer
 export function glossaryEntryUrl(title: string, explorerUrl = apiExplorerBaseUrl()): string {
   return `${explorerUrl}/glossary#${encodeURIComponent(title)}`;
 }
+
+/**
+ * The API Explorer's resource doc for one endpoint, so a page can point at the endpoint it reads.
+ * The Explorer keys its resource-doc pages by API version, which the operation id already carries
+ * ("OBPv7.0.0-getApiGlossary").
+ */
+export function explorerResourceDocUrl(operationId: string, explorerUrl = apiExplorerBaseUrl()): string {
+  const version = operationId.match(/^(OBPv[0-9.]+)-/)?.[1] ?? "OBPv7.0.0";
+  return `${explorerUrl}/resource-docs/${version}?operationid=${encodeURIComponent(operationId)}`;
+}

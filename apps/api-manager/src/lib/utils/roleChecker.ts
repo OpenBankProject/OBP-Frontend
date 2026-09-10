@@ -490,6 +490,48 @@ export const SITE_MAP: Record<string, PageRoleConfig> = {
       { role: "CanDeleteDynamicResourceDoc" },
     ],
   },
+
+  // ── Dynamic Glossary Items ────────────────────────────
+  // Reading needs no role beyond an authenticated user; only the writes are role-gated.
+  "/glossary-items": {
+    required: [],
+    optional: [
+      { role: "CanCreateGlossaryItem" },
+      { role: "CanUpdateGlossaryItem" },
+      { role: "CanDeleteGlossaryItem" },
+    ],
+  },
+  "/glossary-items/create": {
+    required: [{ role: "CanCreateGlossaryItem" }],
+  },
+  "/glossary-items/[title]": {
+    required: [],
+    optional: [
+      { role: "CanUpdateGlossaryItem" },
+      { role: "CanDeleteGlossaryItem" },
+    ],
+  },
+
+  // ── Glossary ──────────────────────────────────────────
+  // GET /obp/v7.0.0/api/glossary is open unless the instance sets
+  // apiOptions.glossaryDocsRequireRole, which then demands CanReadGlossary.
+  "/glossary": {
+    required: [],
+    optional: [{ role: "CanReadGlossary" }],
+  },
+  "/glossary/[title]": {
+    required: [],
+    optional: [{ role: "CanReadGlossary" }],
+  },
+
+  // ── Message Docs ──────────────────────────────────────
+  // GET /message-docs/CONNECTOR takes no role: adapter authors need it before they have an account.
+  "/message-docs/[connector]": {
+    required: [],
+  },
+  "/message-docs/[connector]/[process]": {
+    required: [],
+  },
 };
 
 

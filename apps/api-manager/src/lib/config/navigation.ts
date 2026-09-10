@@ -877,7 +877,7 @@ function domain(
 }
 
 const buildSection = domain("build", "Build", Hammer,
-  ["/dynamic-entities", "/dynamic-endpoints", "/dynamic-resource-docs", "/integration", "/json-schema-validations", "/app-studio", "/reports"],
+  ["/dynamic-entities", "/dynamic-endpoints", "/dynamic-resource-docs", "/glossary-items", "/integration", "/json-schema-validations", "/app-studio", "/reports"],
   [
     { label: "Entities", items: [
       { href: "/dynamic-entities/system?level=system", label: "System", iconComponent: Box },
@@ -892,6 +892,7 @@ const buildSection = domain("build", "Build", Hammer,
     ] },
     { label: "Resource Docs", items: [
       { href: "/dynamic-resource-docs/system", label: "Dynamic Resource Docs", iconComponent: FileText },
+      { href: "/glossary-items", label: "Dynamic Glossary Items", iconComponent: BookOpen },
     ] },
     { label: "Routing", items: [
       { href: "/integration/method-routings", label: "Method Routings", iconComponent: Route },
@@ -999,7 +1000,7 @@ const operateSection = domain("operate", "Operate", Server,
   ]);
 
 const catalogueSection = domain("catalogue", "Catalogue", Library,
-  ["/banks", "/products", "/system/featured-collections", "/management-docs", "/developer-faq"],
+  ["/banks", "/products", "/system/featured-collections", "/management-docs", "/developer-faq", "/glossary", "/message-docs"],
   [
     { label: "Banks", items: [
       { href: "/banks", label: "Banks", iconComponent: Building2 },
@@ -1017,6 +1018,8 @@ const catalogueSection = domain("catalogue", "Catalogue", Library,
       { href: "/system/featured-collections", label: "Featured Collections", iconComponent: Star },
     ] },
     { label: "Reference", items: [
+      { href: "/glossary", label: "Glossary", iconComponent: BookOpen },
+      { href: "/message-docs", label: "Message Docs", iconComponent: MessageSquare },
       { href: "/management-docs/consumers", label: "Consumers Docs", iconComponent: BookOpen },
       { href: "/management-docs/users", label: "Users Docs", iconComponent: BookOpen },
       { href: "/management-docs/entitlements", label: "Entitlements Docs", iconComponent: BookOpen },

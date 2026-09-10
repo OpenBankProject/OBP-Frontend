@@ -250,6 +250,7 @@
       has_public_access: entity.has_public_access || false,
       has_community_access: entity.has_community_access || false,
       personal_requires_role: entity.personal_requires_role || false,
+      use_row_level_access: entity.use_row_level_access ?? false,
       auth_mode: entity.auth_mode ?? "UserOnly",
     };
   }
@@ -553,6 +554,33 @@
           {/if}
         </dd>
       </div>
+      <div>
+        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
+          Use Row Level Access
+        </dt>
+        <dd class="mt-1 text-sm" data-testid="entity-use-row-level-access">
+          {#if entity.use_row_level_access}
+            <span
+              class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-200"
+            >
+              Yes
+            </span>
+            <p class="mt-1 font-mono text-xs text-blue-600 dark:text-blue-400">
+              GET/POST /obp/dynamic-entity/{entityName}/RECORD_ID/access
+            </p>
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              A per-record access list decides read, update, delete and grant, in place of this
+              entity's Get, Update and Delete roles.
+            </p>
+          {:else}
+            <span
+              class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-200"
+            >
+              No
+            </span>
+          {/if}
+        </dd>
+      </div>
       <div class="sm:col-span-2">
         <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
           Description
@@ -630,21 +658,21 @@
                   >
                     {getTypeDisplayName(fieldDefTyped.type)}
                   </span>
-                  {#if fieldDefTyped.writeRoleRequired || fieldDefTyped.writeRole}
+                  {#if fieldDefTyped.write_role_required || fieldDefTyped.write_role}
                     <span
                       class="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900 dark:text-amber-200"
-                      title={fieldDefTyped.writeRole
-                        ? `Write-restricted — requires role: ${fieldDefTyped.writeRole}`
+                      title={fieldDefTyped.write_role
+                        ? `Write-restricted — requires role: ${fieldDefTyped.write_role}`
                         : "Write-restricted — set only via PATCH by a holder of the auto-generated field write role"}
                     >
                       Write-restricted
                     </span>
                   {/if}
-                  {#if fieldDefTyped.readRoleRequired || fieldDefTyped.readRole}
+                  {#if fieldDefTyped.read_role_required || fieldDefTyped.read_role}
                     <span
                       class="inline-flex items-center rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900 dark:text-purple-200"
-                      title={fieldDefTyped.readRole
-                        ? `Read-restricted — requires role: ${fieldDefTyped.readRole}`
+                      title={fieldDefTyped.read_role
+                        ? `Read-restricted — requires role: ${fieldDefTyped.read_role}`
                         : "Read-restricted — omitted from GET unless the caller holds the auto-generated field read role"}
                     >
                       Read-restricted
