@@ -54,6 +54,33 @@
   // Define required roles for CRUD operations on this dynamic entity
   let requiredRoles = $derived.by(() => {
     if (!entityName || entityName === "Unknown") return [];
+    // Row level access: the per-record access list replaces the Get/Update/Delete roles on the
+    // shared routes, and adds the three endpoints that manage it.
+    const rowAccessRoles = entity.use_row_level_access
+      ? [
+          {
+            operation: "Access list (read)",
+            role: `CanGrantDynamicEntityRowAccess_System${entityName}`,
+            description: `List who may read, update, delete and grant one ${entityName} record`,
+            endpoint: `GET /obp/dynamic-entity/${entityName}/{RECORD_ID}/access`,
+            explorerUrl: `${apiExplorerUrl}/resource-docs/OBPdynamic-entity?operationid=OBPv4.0.0-dynamicEntity_get${entityName}RowAccess_`,
+          },
+          {
+            operation: "Access list (grant)",
+            role: `CanGrantDynamicEntityRowAccess_System${entityName}`,
+            description: `Share one ${entityName} record with a user_id (can_read, can_update, can_delete, can_grant). The record's creator may do this without the role.`,
+            endpoint: `POST /obp/dynamic-entity/${entityName}/{RECORD_ID}/access`,
+            explorerUrl: `${apiExplorerUrl}/resource-docs/OBPdynamic-entity?operationid=OBPv4.0.0-dynamicEntity_grant${entityName}RowAccess_`,
+          },
+          {
+            operation: "Access list (revoke)",
+            role: `CanGrantDynamicEntityRowAccess_System${entityName}`,
+            description: `Revoke one user's access to one ${entityName} record, cascading to the grants they passed on`,
+            endpoint: `DELETE /obp/dynamic-entity/${entityName}/{RECORD_ID}/access/{USER_ID}`,
+            explorerUrl: `${apiExplorerUrl}/resource-docs/OBPdynamic-entity?operationid=OBPv4.0.0-dynamicEntity_revoke${entityName}RowAccess_`,
+          },
+        ]
+      : [];
     return [
       {
         operation: "Create",
@@ -90,6 +117,7 @@
         endpoint: `DELETE /obp/dynamic-entity/${entityName}/{RECORD_ID}`,
         explorerUrl: `${apiExplorerUrl}/resource-docs/OBPdynamic-entity?operationid=OBPv4.0.0-dynamicEntity_delete${entityName}_`,
       },
+      ...rowAccessRoles,
     ];
   });
 
@@ -568,9 +596,23 @@
             <p class="mt-1 font-mono text-xs text-blue-600 dark:text-blue-400">
               GET/POST /obp/dynamic-entity/{entityName}/RECORD_ID/access
             </p>
+            <p class="mt-1 font-mono text-xs text-blue-600 dark:text-blue-400">
+              DELETE /obp/dynamic-entity/{entityName}/RECORD_ID/access/USER_ID
+            </p>
             <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
               A per-record access list decides read, update, delete and grant, in place of this
-              entity's Get, Update and Delete roles.
+              entity's Get, Update and Delete roles. The POST body names the grantee with
+              <code>user_id</code> (the id shown on the
+              <a href="/users" class="text-blue-600 hover:underline dark:text-blue-400">Users</a> page) plus
+              <code>can_read</code>, <code>can_update</code>, <code>can_delete</code> and
+              <code>can_grant</code>.
+              <a
+                href="{apiExplorerUrl}/glossary#Dynamic-Entity-Access-Model"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-blue-600 hover:underline dark:text-blue-400"
+                data-testid="row-level-access-glossary-link"
+              >Dynamic Entity Access Model</a>.
             </p>
           {:else}
             <span

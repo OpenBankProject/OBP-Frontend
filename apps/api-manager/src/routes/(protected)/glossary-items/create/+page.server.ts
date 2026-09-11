@@ -23,7 +23,7 @@ import { loadGlossaryItems, loadStaticGlossaryTitles } from "$lib/server/glossar
 import { explorerResourceDocUrl } from "$lib/server/glossaryCache";
 
 const ENDPOINTS = [
-  { operation_id: "OBPv7.0.0-createDynamicGlossaryItem", verb: "POST", path: "/obp/v7.0.0/glossary-items" },
+  { operation_id: "OBPv7.0.0-createGlossaryItem", verb: "POST", path: "/obp/v7.0.0/api/glossary" },
 ];
 
 const logger = createLogger("CreateGlossaryItemPage");

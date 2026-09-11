@@ -25,21 +25,27 @@ import type { GlossaryItem, GlossaryItemsPage } from "$lib/services/glossaryItem
 
 const logger = createLogger("GlossaryItemsServer");
 
-export const GLOSSARY_ITEMS_PATH = "/obp/v7.0.0/glossary-items";
+/**
+ * The Glossary is one resource: the Items are members of it, and the ones held in the database are
+ * `?source=dynamic`. An Item is addressed by its title underneath the same path.
+ */
+export const GLOSSARY_PATH = "/obp/v7.0.0/api/glossary";
 
-/** One page of Dynamic Glossary Items, straight from v7.0.0. */
+/** One page of the Glossary Items held in the database, straight from v7.0.0. */
 export async function loadGlossaryItems(
   token: string,
-  params: { title?: string; limit?: number; offset?: number } = {},
+  params: { search?: string; limit?: number; offset?: number } = {},
 ): Promise<GlossaryItemsPage> {
-  const query = new URLSearchParams();
-  if (params.title) query.set("title", params.title);
-  query.set("limit", String(params.limit ?? 100));
-  query.set("offset", String(params.offset ?? 0));
-  const resp = await obp_requests.get(`${GLOSSARY_ITEMS_PATH}?${query}`, token);
+  const limit = params.limit ?? 100;
+  const offset = params.offset ?? 0;
+  const query = new URLSearchParams({ source: "dynamic" });
+  if (params.search) query.set("search", params.search);
+  query.set("limit", String(limit));
+  query.set("offset", String(offset));
+  const resp = await obp_requests.get(`${GLOSSARY_PATH}?${query}`, token);
   return {
     glossary_items: (resp?.glossary_items ?? []) as GlossaryItem[],
-    pagination: resp?.pagination ?? { total: 0, limit: params.limit ?? 100, offset: params.offset ?? 0 },
+    pagination: { total: resp?.total_count ?? 0, limit, offset },
   };
 }
 

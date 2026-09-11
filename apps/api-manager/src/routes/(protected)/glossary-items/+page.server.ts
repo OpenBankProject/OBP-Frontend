@@ -29,10 +29,10 @@ const PAGE_SIZE = 100;
 
 /** The endpoints behind this page, linked to their resource docs in the API Explorer. */
 const ENDPOINTS = [
-  { operation_id: "OBPv7.0.0-getDynamicGlossaryItems", verb: "GET", path: "/obp/v7.0.0/glossary-items" },
-  { operation_id: "OBPv7.0.0-createDynamicGlossaryItem", verb: "POST", path: "/obp/v7.0.0/glossary-items" },
-  { operation_id: "OBPv7.0.0-updateDynamicGlossaryItem", verb: "PUT", path: "/obp/v7.0.0/glossary-items/TITLE" },
-  { operation_id: "OBPv7.0.0-deleteDynamicGlossaryItem", verb: "DELETE", path: "/obp/v7.0.0/glossary-items/TITLE" },
+  { operation_id: "OBPv7.0.0-getGlossary", verb: "GET", path: "/obp/v7.0.0/api/glossary" },
+  { operation_id: "OBPv7.0.0-createGlossaryItem", verb: "POST", path: "/obp/v7.0.0/api/glossary" },
+  { operation_id: "OBPv7.0.0-updateGlossaryItem", verb: "PUT", path: "/obp/v7.0.0/api/glossary/TITLE" },
+  { operation_id: "OBPv7.0.0-deleteGlossaryItem", verb: "DELETE", path: "/obp/v7.0.0/api/glossary/TITLE" },
 ];
 
 export const load: PageServerLoad = async ({ locals, url }) => {
@@ -50,7 +50,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   let loadError: string | null = null;
   try {
     const page = await loadGlossaryItems(token, {
-      title: titleFilter || undefined,
+      search: titleFilter || undefined,
       limit: PAGE_SIZE,
       offset,
     });

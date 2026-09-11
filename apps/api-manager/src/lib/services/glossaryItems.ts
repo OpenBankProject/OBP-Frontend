@@ -24,18 +24,28 @@
  * All calls go through the generic OBP proxy.
  */
 
-/** One item as v7.0.0 /glossary-items returns it. */
+/**
+ * One item as v7.0.0 /glossary-items returns it.
+ *
+ * GET /api/glossary/TITLE falls back to the static Glossary Item when no Dynamic one has the
+ * title, so the management fields are optional: a static Item is compiled into the API and has no
+ * id, author or timestamps, and cannot be updated or deleted — only overridden. The list endpoint
+ * Glossary is one collection; ?source=dynamic narrows it to the ones held in the database, where
+ * all of these are present.
+ */
 export interface GlossaryItem {
-  glossary_item_id: string;
+  glossary_item_id?: string;
   title: string;
   description: { markdown: string; html: string };
+  /** False when this is the static Item shipped with the API rather than a Dynamic one. */
+  is_dynamic: boolean;
   /** What the operator declared: this item is meant to displace the static Item of this title. */
   overrides_static_item: boolean;
   /** What is true right now: a static Glossary Item of this title exists. */
   shadows_static_glossary_item: boolean;
-  created_by_user_id: string;
-  created_at: string;
-  updated_at: string;
+  created_by_user_id?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 /**
@@ -68,7 +78,7 @@ export interface GlossaryItemFormValues {
 
 export const GLOSSARY_ITEM_MAX_TITLE_LENGTH = 255;
 
-const BASE = "/proxy/obp/v7.0.0/glossary-items";
+const BASE = "/proxy/obp/v7.0.0/api/glossary";
 
 export const EXAMPLE_DESCRIPTION = `The unique identifier of the Bank on this OBP instance.
 
@@ -94,7 +104,7 @@ async function readError(response: Response, fallback: string): Promise<string> 
   return body?.message ?? `${fallback} (HTTP ${response.status})`;
 }
 
-/** POST creates at /glossary-items; PUT updates the description at /glossary-items/TITLE. */
+/** POST adds an Item at /api/glossary; PUT updates the description at /api/glossary/TITLE. */
 export async function saveGlossaryItem(values: GlossaryItemFormValues, isUpdate: boolean): Promise<GlossaryItem> {
   const title = values.title.trim();
   // PUT leaves overrides_static_item alone when it is omitted, so send it either way: the form

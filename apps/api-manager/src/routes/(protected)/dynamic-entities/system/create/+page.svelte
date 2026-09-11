@@ -508,12 +508,41 @@
             <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
               Per-record sharing. The entity's Get, Update and Delete roles no longer decide access
               on the shared routes; an access list on each record does. The user who creates a record
-              gets read, update, delete and grant on it, and shares it with
-              <code>POST /obp/dynamic-entity/ENTITY_NAME/RECORD_ID/access</code>
-              (<code>can_read</code>, <code>can_update</code>, <code>can_delete</code>, <code>can_grant</code> per user).
+              gets read, update, delete and grant on it, and names the user to share with in the
+              request body:
+            </p>
+            <pre class="mt-2 overflow-x-auto rounded border border-gray-200 bg-gray-50 p-2 font-mono text-xs text-gray-700 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300">POST /obp/dynamic-entity/ENTITY_NAME/RECORD_ID/access
+&#123;
+  "user_id": "9ca9a7e4-6d02-40e3-a129-0b2bf89de9b1",
+  "can_read": true,
+  "can_update": true,
+  "can_delete": false,
+  "can_grant": true
+&#125;</pre>
+            <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+              <code>user_id</code> is the OBP user id of the person you are sharing with — the same id the
+              <a href="/users" class="text-blue-600 hover:underline dark:text-blue-400">Users</a> page shows.
+              Post an array to grant several users at once; posting again for the same user replaces their
+              permissions. <code>GET</code> the same URL to list the access list, and
+              <code>DELETE /obp/dynamic-entity/ENTITY_NAME/RECORD_ID/access/USER_ID</code> to revoke.
               Records you cannot read are hidden from lists and return 404. Field-level read and write
               roles still apply on top. Mutually exclusive with public and community access.
             </p>
+            {#if data.externalLinks?.API_EXPLORER_URL}
+              <p class="mt-2 text-xs">
+                <a
+                  href="{data.externalLinks.API_EXPLORER_URL}/glossary#Dynamic-Entity-Access-Model"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="font-medium text-blue-600 hover:underline dark:text-blue-400"
+                  data-testid="row-level-access-glossary-link"
+                >
+                  Dynamic Entity Access Model in the API Explorer
+                </a>
+                — once the entity exists, its three access list endpoints get their own resource docs,
+                linked from the entity's page here.
+              </p>
+            {/if}
           </div>
         </div>
       </div>
@@ -652,8 +681,9 @@
             Get, Update and Delete roles with a per-record access list carrying
             <code>can_read</code>, <code>can_update</code>, <code>can_delete</code> and
             <code>can_grant</code>. The creator holds all four on their record and shares it via
-            <code>GET/POST /obp/dynamic-entity/ENTITY_NAME/RECORD_ID/access</code> and
-            <code>DELETE .../access/USER_ID</code>; revoking cascades to grants that user passed on.
+            <code>GET/POST /obp/dynamic-entity/ENTITY_NAME/RECORD_ID/access</code> — the POST body names the
+            grantee with <code>user_id</code> — and <code>DELETE .../access/USER_ID</code>; revoking cascades
+            to grants that user passed on.
             <code>CanGrantDynamicEntityRowAccess_System&lt;Entity&gt;</code> administers any record.
             Creating a record still takes the entity's Create role.
           </li>

@@ -50,7 +50,10 @@
     return line.length > 160 ? line.slice(0, 160) + "…" : line;
   }
 
-  function formatDate(value: string): string {
+  // Optional on GlossaryItem because GET /glossary-items/TITLE also answers for static Items, which
+  // have no timestamps. Every row in this list is a Dynamic Item, so it is always present here.
+  function formatDate(value: string | undefined): string {
+    if (!value) return "unknown";
     const d = new Date(value);
     return Number.isNaN(d.getTime()) ? value : d.toLocaleString();
   }

@@ -54,7 +54,10 @@
     }
   }
 
-  function formatDate(value: string): string {
+  // Optional because GET /glossary-items/TITLE also answers for static Items, which have no
+  // timestamps. The load guard redirects those away, so this page only ever sees Dynamic ones.
+  function formatDate(value: string | undefined): string {
+    if (!value) return "unknown";
     const d = new Date(value);
     return Number.isNaN(d.getTime()) ? value : d.toLocaleString();
   }

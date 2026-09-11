@@ -16,16 +16,16 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 import type { PageServerLoad } from "./$types";
-import { error } from "@sveltejs/kit";
+import { error, redirect } from "@sveltejs/kit";
 import { SessionOAuthHelper } from "$lib/oauth/sessionHelper";
 import { obp_requests } from "$lib/obp/requests";
-import { GLOSSARY_ITEMS_PATH } from "$lib/server/glossaryItems";
+import { GLOSSARY_PATH } from "$lib/server/glossaryItems";
 import { glossaryEntryUrl, apiExplorerBaseUrl, explorerResourceDocUrl } from "$lib/server/glossaryCache";
 
 const ENDPOINTS = [
-  { operation_id: "OBPv7.0.0-getDynamicGlossaryItem", verb: "GET", path: "/obp/v7.0.0/glossary-items/TITLE" },
-  { operation_id: "OBPv7.0.0-updateDynamicGlossaryItem", verb: "PUT", path: "/obp/v7.0.0/glossary-items/TITLE" },
-  { operation_id: "OBPv7.0.0-deleteDynamicGlossaryItem", verb: "DELETE", path: "/obp/v7.0.0/glossary-items/TITLE" },
+  { operation_id: "OBPv7.0.0-getGlossaryItem", verb: "GET", path: "/obp/v7.0.0/api/glossary/TITLE" },
+  { operation_id: "OBPv7.0.0-updateGlossaryItem", verb: "PUT", path: "/obp/v7.0.0/api/glossary/TITLE" },
+  { operation_id: "OBPv7.0.0-deleteGlossaryItem", verb: "DELETE", path: "/obp/v7.0.0/api/glossary/TITLE" },
 ];
 import type { GlossaryItem } from "$lib/services/glossaryItems";
 
@@ -38,10 +38,16 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   const title = params.title;
   let item: GlossaryItem;
   try {
-    item = await obp_requests.get(`${GLOSSARY_ITEMS_PATH}/${encodeURIComponent(title)}`, token);
+    item = await obp_requests.get(`${GLOSSARY_PATH}/${encodeURIComponent(title)}?expanded=false`, token);
   } catch (e) {
-    // The endpoint only sees Dynamic Items, so a 404 here can still mean a static entry exists.
-    throw error(404, `No Dynamic Glossary Item titled "${title}": ${e instanceof Error ? e.message : String(e)}`);
+    throw error(404, `No Glossary Item titled "${title}": ${e instanceof Error ? e.message : String(e)}`);
+  }
+
+  // The endpoint now falls back to the static Glossary Item, which this page cannot edit: a static
+  // Item is displaced by creating a Dynamic one, not by updating it. Send the caller there instead
+  // of rendering a form whose save would 404.
+  if (item.is_dynamic === false) {
+    throw redirect(303, `/glossary-items/create?title=${encodeURIComponent(item.title)}`);
   }
 
   return {
