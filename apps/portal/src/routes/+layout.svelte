@@ -18,7 +18,8 @@
 <script lang="ts">
 	import '../app.css';
 	import { page } from '$app/state';
-	import { myAccountItems, developerItems } from '$lib/config/navigation';
+	import { goto } from '$app/navigation';
+	import { navigationSections } from '$lib/config/navigation';
 	import Toast from '$lib/components/Toast.svelte';
 	import WelcomeBubble from '$lib/components/WelcomeBubble.svelte';
 	import { NavigationSidebar, ExplorerSidebar } from '@obp/shared/components';
@@ -53,29 +54,76 @@
 	 */
 	const isExplorer = $derived(page.url.pathname.startsWith('/api-explorer'));
 
-	const sections: NavigationSection[] = [
-		{
-			id: 'developers',
-			label: 'Developers',
-			iconComponent: Code,
-			items: [
-				...developerItems,
-				// Only shown when the OBP API advertises an MCP server via app-directory
-				...(data.publicObpMcpUrl
-					? [
-							{
-								href: data.publicObpMcpUrl,
-								label: 'MCP',
-								iconComponent: Plug,
-								external: true,
-								description: 'Model Context Protocol server for OBP.'
-							}
-						]
-					: [])
-			],
-			basePaths: ['/developers']
-		}
-	];
+	/** Debounce handle for mirroring the search box into the URL. */
+	let queryUrlTimer: ReturnType<typeof setTimeout>;
+
+	/**
+	 * API Manager sits in the domain order rather than in the list above it: it is a place
+	 * you go, like the domains, and it belongs next to Support at the foot rather than
+	 * competing with the shop window at the top. It renders as a plain link, not a group.
+	 */
+	const apiManagerLink: NavigationSection | null = $derived(
+		data.externalLinks.API_MANAGER_URL
+		? {
+				id: 'api-manager',
+				label: 'API Manager',
+				iconComponent: SquareTerminal,
+				href: data.externalLinks.API_MANAGER_URL,
+				external: true,
+				items: [],
+				basePaths: []
+			}
+		: null
+	);
+
+	/** Inserts the API Manager link immediately before the Support domain. */
+	function withApiManager(list: NavigationSection[]): NavigationSection[] {
+		if (!apiManagerLink) return list;
+		const at = list.findIndex((s) => s.id === 'support');
+		const out = [...list];
+		out.splice(at === -1 ? out.length : at, 0, apiManagerLink);
+		return out;
+	}
+
+	/**
+	 * Two links in Developing come from runtime config rather than the static structure: the MCP
+	 * server, offered only when the API advertises one, and the standalone Explorer, whose URL is
+	 * deployment-specific. The standalone app is API Explorer II; it goes above API Explorer III
+	 * so the generations read in order.
+	 */
+	const sections: NavigationSection[] = $derived(
+		withApiManager(navigationSections).map((section) => {
+		if (section.id !== 'develop') return section;
+
+		const subsections = (section.subsections ?? []).map((group) => {
+			if (group.label === 'AI' && data.publicObpMcpUrl) {
+				const mcp = {
+					href: data.publicObpMcpUrl,
+					label: 'MCP',
+					iconComponent: Plug,
+					external: true,
+					description: 'Model Context Protocol server for OBP.'
+				};
+				return { ...group, items: [...group.items, mcp] };
+			}
+			if (group.label === 'Explore' && data.externalLinks.API_EXPLORER_URL) {
+				const explorerII = {
+					href: data.externalLinks.API_EXPLORER_URL,
+					label: 'API Explorer II',
+					iconComponent: Compass,
+					external: true,
+					description: 'The standalone Explorer app, usually just called the API Explorer.'
+				};
+				const at = group.items.findIndex((i) => i.href === '/api-explorer');
+				const items = [...group.items];
+				items.splice(at === -1 ? items.length : at, 0, explorerII);
+				return { ...group, items };
+			}
+			return group;
+		});
+		return { ...section, subsections, items: subsections.flatMap((g) => g.items) };
+		})
+	);
 
 	// Initialize unread count store from server data
 	$effect(() => {
@@ -100,6 +148,11 @@
 
 	// Some items in the menu are rendered conditionally based on the presence of URLs set in the environment variables.
 	// This is to ensure no broken links
+	/**
+	 * The flat list above the domains: the other OBP apps, not pages of this one. Every
+	 * Portal page now lives in a domain, so anything added here should be a link that
+	 * leaves the Portal.
+	 */
 	let menuItems = $state([
 		...(data.externalLinks.API_EXPLORER_URL
 			? [
@@ -107,66 +160,6 @@
 						href: data.externalLinks.API_EXPLORER_URL,
 						label: 'API Explorer',
 						iconComponent: Compass,
-						external: true
-					}
-				]
-			: []),
-		// Chat is a protected route — only offer it to logged-in users
-		...(data.userId
-			? [
-					{
-						label: 'Chat',
-						href: '/user/chat',
-						iconComponent: MessageSquare
-					},
-					{
-						label: 'Training',
-						href: '/training',
-						iconComponent: GraduationCap
-					}
-				]
-			: []),
-		{
-			label: 'Featured',
-			href: '/featured',
-			iconComponent: Star
-		},
-		{
-			label: 'Pages',
-			href: '/pages',
-			iconComponent: FileText
-		},
-		{
-			label: 'FAQ',
-			href: '/faq',
-			iconComponent: CircleHelp
-		},
-		{
-			label: 'API Products',
-			href: '/products',
-			iconComponent: ShoppingBag
-		},
-		{
-			label: 'Financial Products',
-			href: '/financial-products',
-			iconComponent: Landmark
-		},
-		{
-			label: 'Get API Key',
-			href: '/consumers/register',
-			iconComponent: KeyRound
-		},
-		{
-			label: 'Subscriptions',
-			href: '/subscriptions',
-			iconComponent: CreditCard
-		},
-		...(data.externalLinks.API_MANAGER_URL
-			? [
-					{
-						href: data.externalLinks.API_MANAGER_URL,
-						label: 'API Manager',
-						iconComponent: SquareTerminal,
 						external: true
 					}
 				]
@@ -226,11 +219,59 @@
 >
 	{#if isExplorer}
 		<ExplorerSidebar
+			content={page.data.content ?? 'all'}
+			tag={page.url.searchParams.get('tag') ?? ''}
+			query={page.url.searchParams.get('q') ?? ''}
+			onQueryChange={(value) => {
+				// Debounced: the URL is the state, but not once per keystroke.
+				clearTimeout(queryUrlTimer);
+				queryUrlTimer = setTimeout(() => {
+					const next = new URL(page.url);
+					if (value) next.searchParams.set('q', value);
+					else next.searchParams.delete('q');
+					goto(next.pathname + next.search, {
+						replaceState: true,
+						keepFocus: true,
+						noScroll: true
+					});
+				}, 300);
+			}}
+			onTagChange={(value) => {
+				// The tag lives in the URL, so the chips on the catalogue page and this filter
+				// are the same control seen twice. replaceState keeps Back meaning "the page
+				// before", not "the tag before".
+				const next = new URL(page.url);
+				if (value) next.searchParams.set('tag', value);
+				else next.searchParams.delete('tag');
+				goto(next.pathname + next.search, { replaceState: true, keepFocus: true, noScroll: true });
+			}}
+			contentHref={(value) => {
+				// Keep the rest of the query (a tag, a search) and only move `content`.
+				const next = new URL(page.url);
+				if (value === 'all') next.searchParams.delete('content');
+				else next.searchParams.set('content', value);
+				return next.pathname + next.search;
+			}}
 			sectionLinks={[
+				// The apps this one sits between, first: the Explorer has taken the Portal's
+				// sidebar, so its own way back belongs at the head of the bar.
+				{ label: 'Portal', href: '/', active: false, lead: true },
+				...(data.externalLinks.API_MANAGER_URL
+					? [
+							{
+								label: 'Manager',
+								href: data.externalLinks.API_MANAGER_URL,
+								active: false,
+								lead: true,
+								external: true
+							}
+						]
+					: []),
 				{ label: 'Endpoints', href: '/api-explorer', active: page.data.section === 'endpoints' },
 				{ label: 'Glossary', href: '/api-explorer/glossary', active: page.data.section === 'glossary' },
 				{ label: 'Message Docs', href: '/api-explorer/message-docs', active: page.data.section === 'message-docs' },
-				{ label: 'gRPC', href: '/api-explorer/grpc', active: page.data.section === 'grpc' }
+				{ label: 'gRPC', href: '/api-explorer/grpc', active: page.data.section === 'grpc' },
+				{ label: 'API Status', href: '/status', active: false, away: true }
 			]}
 			mode={page.data.section === 'endpoints' ? 'endpoints' : 'list'}
 			index={page.data.index ?? []}
@@ -245,7 +286,6 @@
 	{:else}
 	<NavigationSidebar
 		{menuItems}
-		{myAccountItems}
 		{sections}
 		{logoUrl}
 		{logoWidth}

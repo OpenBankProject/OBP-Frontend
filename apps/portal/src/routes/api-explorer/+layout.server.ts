@@ -67,9 +67,15 @@ export const load: LayoutServerLoad = async ({ url }) => {
 		(fromPath && findVersion(versions, fromPath.urlPrefix, fromPath.shortVersion)) ||
 		latestVersionFor(versions, 'obp');
 
+	// static | dynamic | all — the endpoint filters this, so the count in the bar is the
+	// API's answer rather than ours. Anything else in the URL falls back to 'all'.
+	const requested = url.searchParams.get('content');
+	const content: 'all' | 'static' | 'dynamic' =
+		requested === 'static' || requested === 'dynamic' ? requested : 'all';
+
 	const index =
 		current && section === 'endpoints'
-			? await getResourceDocIndex(obp_requests, current.fullyQualifiedVersion)
+			? await getResourceDocIndex(obp_requests, current.fullyQualifiedVersion, { content })
 			: [];
 
 	// Only the section on screen pays for its list.
@@ -125,6 +131,7 @@ export const load: LayoutServerLoad = async ({ url }) => {
 		current,
 		versionGroups: groupByStandard(versions),
 		index,
+		content,
 		tags: collectTags(index),
 		listGroups,
 		listPlaceholder,

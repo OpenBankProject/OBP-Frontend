@@ -20,7 +20,8 @@
 		ChevronLeft,
 		ChevronRight,
 		User,
-		ChevronDown
+		ChevronDown,
+		ArrowUpRight
 	} from '@lucide/svelte';
 	import LightSwitch from '$shared/components/LightSwitch.svelte';
 	import type { NavigationItem, NavigationSection } from '$shared/config/navigation';
@@ -82,10 +83,36 @@
 
 	let isMyAccountActive = $derived(currentPathname.startsWith('/user'));
 
-	function isSectionActive(section: NavigationSection): boolean {
-		return section.basePaths.some(
-			(bp) => currentPathname === bp || currentPathname.startsWith(bp + '/')
+	let visibleSections = $derived(sections.filter((s) => isAuthenticated || !s.requiresAuth));
+
+	/**
+	 * How specifically a section claims the current path: the length of its longest matching
+	 * basePath, or -1 for no match. A section that owns a whole route tree ('/user') and one
+	 * that owns a branch of it ('/user/accounts') both match the branch, and the branch should
+	 * win — otherwise two sections highlight and both expand.
+	 */
+	function matchStrength(section: NavigationSection): number {
+		return section.basePaths.reduce(
+			(best, bp) =>
+				currentPathname === bp || currentPathname.startsWith(bp + '/')
+					? Math.max(best, bp.length)
+					: best,
+			-1
 		);
+	}
+
+	let activeSectionId = $derived(
+		visibleSections.reduce<{ id: string | null; strength: number }>(
+			(best, section) => {
+				const strength = matchStrength(section);
+				return strength > best.strength ? { id: section.id, strength } : best;
+			},
+			{ id: null, strength: -1 }
+		).id
+	);
+
+	function isSectionActive(section: NavigationSection): boolean {
+		return section.id === activeSectionId;
 	}
 
 	function isSubItemActive(href: string): boolean {
@@ -93,8 +120,20 @@
 		return fullPath === href || currentPathname === href;
 	}
 
+
+	/** The site an off-site link leads to, e.g. 'obp-mcp.example.com', or '' if it is not a URL. */
+	function externalHost(href: string): string {
+		try {
+			return new URL(href).host;
+		} catch {
+			return '';
+		}
+	}
+
 	function tooltip(href: string, label: string): string {
-		return getTooltip ? getTooltip(href, label) : label;
+		const base = getTooltip ? getTooltip(href, label) : label;
+		const host = externalHost(href);
+		return host ? `${base} — ${host} (opens in a new tab)` : base;
 	}
 
 	$effect(() => {
@@ -103,10 +142,16 @@
 		}
 	});
 
+	// Open on arrival: the section the current path belongs to, and any section that asks to
+	// start open. Only ever opens — a section the visitor closed stays closed.
+	let openedOnce = $state<Record<string, boolean>>({});
 	$effect(() => {
 		for (const section of sections) {
 			if (isSectionActive(section)) {
 				expandedSections[section.id] = true;
+			} else if (section.defaultExpanded && !openedOnce[section.id]) {
+				expandedSections[section.id] = true;
+				openedOnce[section.id] = true;
 			}
 		}
 	});
@@ -140,7 +185,7 @@
 	<nav
 		class="flex h-full min-h-0 flex-col gap-4 overflow-hidden bg-primary-50 dark:bg-primary-950
 		       transition-[width] duration-200 ease-[cubic-bezier(0.165,0.85,0.45,1)]"
-		style="width: {isNavExpanded ? '256px' : '64px'}"
+		style="width: {isNavExpanded ? '358px' : '64px'}"
 	>
 		<!-- Header -->
 		<header class="shrink-0 relative px-3 pt-4 pb-2">
@@ -186,14 +231,20 @@
 							<Icon class="size-5 shrink-0" />
 							{#if isNavExpanded}
 								<span class="overflow-hidden">{item.label}</span>
+								{#if item.external}
+									<ArrowUpRight class="size-3.5 shrink-0 opacity-60" />
+									<span class="sr-only">(opens {externalHost(item.href)} in a new tab)</span>
+								{/if}
 							{/if}
 						</a>
 					</li>
 				{/each}
 			</ul>
 
-			{#if isAuthenticated}
-				<!-- My Account -->
+			<!-- My Account. An app that puts these pages in a section of their own passes no
+			     myAccountItems, and then this block has nothing to show rather than showing
+			     an empty heading. -->
+			{#if isAuthenticated && myAccountItems.length > 0}
 				<div class="mt-2 px-3">
 					{#if isNavExpanded}
 						<button
@@ -231,6 +282,10 @@
 										>
 											<Icon class="size-4 shrink-0" />
 											<span>{subItem.label}</span>
+											{#if subItem.external}
+												<ArrowUpRight class="size-3 shrink-0 opacity-60" />
+												<span class="sr-only">(opens {externalHost(subItem.href)} in a new tab)</span>
+											{/if}
 										</a>
 									</li>
 								{/each}
@@ -249,11 +304,33 @@
 					{/if}
 				</div>
 
-				<!-- Expandable Sections -->
-				{#each sections as section (section.id)}
+			{/if}
+
+			<!-- Expandable Sections. A section marked requiresAuth is for signed-in visitors;
+			     the rest (documentation, catalogue, support) are part of the public site. -->
+			{#each visibleSections as section (section.id)}
 					{@const SectionIcon = section.iconComponent}
 					<div class="mt-2 px-3">
-						{#if isNavExpanded}
+						{#if section.href}
+							<a
+								href={section.href}
+								class="btn w-full justify-start gap-3 p-3 whitespace-nowrap overflow-hidden hover:preset-tonal"
+								class:preset-filled-primary-50-950={currentPathname === section.href}
+								title={tooltip(section.href, section.label)}
+								aria-label={section.label}
+								target={section.external ? '_blank' : undefined}
+								rel={section.external ? 'noopener noreferrer' : undefined}
+							>
+								<SectionIcon class="size-5 shrink-0" />
+								{#if isNavExpanded}
+									<span>{section.label}</span>
+									{#if section.external}
+										<ArrowUpRight class="size-3.5 shrink-0 opacity-60" />
+										<span class="sr-only">(opens {externalHost(section.href ?? '')} in a new tab)</span>
+									{/if}
+								{/if}
+							</a>
+						{:else if isNavExpanded}
 							<button
 								type="button"
 								class="hover:bg-surface-100-800 flex w-full items-center justify-between rounded-md p-3 text-left transition-colors"
@@ -272,8 +349,23 @@
 							</button>
 
 							{#if expandedSections[section.id]}
+								{@const subsections = (section.subsections ?? [{ label: '', items: section.items }])
+									.map((g) => ({
+										...g,
+										items: g.items.filter((i) => isAuthenticated || !i.requiresAuth)
+									}))
+									.filter((g) => g.items.length > 0)}
 								<ul class="mt-1 ml-4 flex flex-col gap-1">
-									{#each section.items as subItem (subItem.href)}
+									{#each subsections as group (group.label)}
+										{#if group.label}
+											<li
+												class="text-surface-500 mt-2 px-2 pl-6 text-[11px] font-semibold tracking-wider uppercase"
+												data-testid="nav-subsection-{group.label}"
+											>
+												{group.label}
+											</li>
+										{/if}
+										{#each group.items as subItem (subItem.href)}
 										{@const SubIcon = subItem.iconComponent}
 										<li>
 											<a
@@ -289,8 +381,13 @@
 											>
 												<SubIcon class="size-4 shrink-0" />
 												<span>{subItem.label}</span>
+												{#if subItem.external}
+													<ArrowUpRight class="size-3 shrink-0 opacity-60" />
+													<span class="sr-only">(opens {externalHost(subItem.href)} in a new tab)</span>
+												{/if}
 											</a>
 										</li>
+										{/each}
 									{/each}
 								</ul>
 							{/if}
@@ -307,7 +404,6 @@
 						{/if}
 					</div>
 				{/each}
-			{/if}
 		</div>
 
 		<!-- Footer -->

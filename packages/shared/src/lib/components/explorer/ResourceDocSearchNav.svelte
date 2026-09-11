@@ -31,6 +31,14 @@
 		base?: string;
 		query?: string;
 		tag?: string;
+		/** Which half of the catalogue the API returned: 'all' | 'static' | 'dynamic'. */
+		content?: string;
+		/** Where the Static/Dynamic/All control should link, given a content value. */
+		contentHref?: (content: string) => string;
+		/** Given, the tag filter is the URL's: selecting one navigates rather than setting state. */
+		onTagChange?: (tag: string) => void;
+		/** Given, the search term is the URL's too, so a ?q= link arrives filtered. */
+		onQueryChange?: (query: string) => void;
 	}
 
 	let {
@@ -39,10 +47,30 @@
 		activeOperationId = '',
 		base = undefined,
 		query = $bindable(''),
-		tag = $bindable('')
+		tag = $bindable(''),
+		content = 'all',
+		contentHref,
+		onTagChange,
+		onQueryChange
 	}: Props = $props();
 
-	const matches = $derived(searchIndex(index, query, { tag: tag || undefined }));
+	// Typing stays local so the list filters on every keystroke, but the URL is the source of
+	// truth: when it changes — a documentation link, Back, a shared URL — the box follows it.
+	let typed = $state(query);
+	$effect(() => {
+		typed = query;
+	});
+
+
+	// Plain links, not a JS toggle: the filter is applied by the API, so it belongs in the URL
+	// where it can be shared, bookmarked and reloaded.
+	const contentChoices = [
+		{ value: 'all', label: 'All' },
+		{ value: 'static', label: 'Static' },
+		{ value: 'dynamic', label: 'Dynamic' }
+	];
+
+	const matches = $derived(searchIndex(index, typed, { tag: tag || undefined }));
 
 	/** Grouped by first tag, so the bar reads like the API's own table of contents. */
 	const groups = $derived.by(() => {
@@ -63,7 +91,7 @@
 
 	// A group opens when the user opens it, or while a search is narrowing things down.
 	let opened = $state<Record<string, boolean>>({});
-	const searching = $derived(query.trim().length > 0 || tag !== '');
+	const searching = $derived(typed.trim().length > 0 || tag !== '');
 
 	function isOpen(name: string, hasActive: boolean): boolean {
 		return opened[name] ?? (searching || hasActive);
@@ -79,20 +107,51 @@
 </script>
 
 <div class="flex h-full min-h-0 flex-col gap-2 p-3">
+	{#if contentHref}
+		<div class="flex gap-1" role="group" aria-label="Endpoint catalogue">
+			{#each contentChoices as choice (choice.value)}
+				<a
+					href={contentHref(choice.value)}
+					class="flex-1 rounded px-2 py-1 text-center text-xs {content === choice.value
+						? 'bg-surface-200-700 font-semibold text-surface-900-50'
+						: 'text-surface-700-300 hover:bg-surface-100-800'}"
+					aria-current={content === choice.value ? 'true' : undefined}
+				>
+					{choice.label}
+				</a>
+			{/each}
+		</div>
+	{/if}
+
 	<input
 		class="input"
 		type="search"
 		placeholder="Search endpoints"
-		bind:value={query}
+		bind:value={typed}
+		oninput={() => onQueryChange?.(typed)}
 		aria-label="Search endpoints"
 	/>
 
-	<select class="select" bind:value={tag} aria-label="Filter by tag">
-		<option value="">All tags ({index.length})</option>
-		{#each tags as t (t.tag)}
-			<option value={t.tag}>{t.tag} ({t.count})</option>
-		{/each}
-	</select>
+	{#if onTagChange}
+		<select
+			class="select"
+			value={tag}
+			onchange={(e) => onTagChange((e.currentTarget as HTMLSelectElement).value)}
+			aria-label="Filter by tag"
+		>
+			<option value="">All tags ({index.length})</option>
+			{#each tags as t (t.tag)}
+				<option value={t.tag}>{t.tag} ({t.count})</option>
+			{/each}
+		</select>
+	{:else}
+		<select class="select" bind:value={tag} aria-label="Filter by tag">
+			<option value="">All tags ({index.length})</option>
+			{#each tags as t (t.tag)}
+				<option value={t.tag}>{t.tag} ({t.count})</option>
+			{/each}
+		</select>
+	{/if}
 
 	<p class="text-xs text-surface-600-400" aria-live="polite">
 		{matches.length}
@@ -138,7 +197,24 @@
 				{/if}
 			</div>
 		{:else}
-			<p class="px-2 py-4 text-sm text-surface-600-400">No endpoints match.</p>
+			<div class="flex flex-col items-start gap-2 px-2 py-4">
+				<p class="text-sm text-surface-600-400">
+					No endpoints match{tag ? ` the ${tag} tag` : ''}{content !== 'all'
+						? ` in the ${content} catalogue`
+						: ''}.
+				</p>
+				<!-- The likeliest reason for an empty list is a tag carried over from another
+				     catalogue, so offer the way out rather than leaving a dead end. -->
+				{#if tag && onTagChange}
+					<button
+						type="button"
+						class="rounded border border-surface-300-600 px-2 py-1 text-xs text-surface-700-300 hover:bg-surface-100-800"
+						onclick={() => onTagChange('')}
+					>
+						Clear tag
+					</button>
+				{/if}
+			</div>
 		{/each}
 	</div>
 </div>

@@ -20,7 +20,10 @@ import { explorerMessageDocsUrl } from '@obp/shared/explorer';
 import { DEFAULT_CONNECTOR } from '@obp/shared/server/explorer';
 import type { PageServerLoad } from './$types';
 
-/** There is nothing useful to show without a connector, so land on the usual one. */
-export const load: PageServerLoad = async () => {
-	redirect(307, explorerMessageDocsUrl(DEFAULT_CONNECTOR));
+/**
+ * There is nothing useful to show without a connector, so land on the usual one — carrying the
+ * query string, or a link like /message-docs?q=kafka would arrive unfiltered.
+ */
+export const load: PageServerLoad = async ({ url }) => {
+	redirect(307, explorerMessageDocsUrl(DEFAULT_CONNECTOR) + url.search);
 };

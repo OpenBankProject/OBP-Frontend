@@ -41,6 +41,9 @@
 		header?: import('svelte').Snippet;
 		/** True when the caller filters server-side and the box should submit rather than filter. */
 		emptyMessage?: string;
+		/** The search term from the URL, and how to write it back: a ?q= link must arrive filtered. */
+		query?: string;
+		onQueryChange?: (query: string) => void;
 	}
 
 	let {
@@ -48,13 +51,20 @@
 		activeHref = '',
 		placeholder = 'Search',
 		header,
-		emptyMessage = 'Nothing matches.'
+		emptyMessage = 'Nothing matches.',
+		query = '',
+		onQueryChange
 	}: Props = $props();
 
-	let query = $state('');
+	// Local for responsive typing, reseeded whenever the URL changes — so a shared link, Back
+	// and a documentation link all land on the same filtered list.
+	let typed = $state(query);
+	$effect(() => {
+		typed = query;
+	});
 
 	const filtered = $derived.by(() => {
-		const terms = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
+		const terms = typed.trim().toLowerCase().split(/\s+/).filter(Boolean);
 		if (terms.length === 0) return groups;
 		return groups
 			.map((group) => ({
@@ -72,7 +82,14 @@
 <div class="flex h-full min-h-0 flex-col gap-2 p-3">
 	{#if header}{@render header()}{/if}
 
-	<input class="input" type="search" {placeholder} bind:value={query} aria-label={placeholder} />
+	<input
+		class="input"
+		type="search"
+		{placeholder}
+		bind:value={typed}
+		oninput={() => onQueryChange?.(typed)}
+		aria-label={placeholder}
+	/>
 
 	<p class="text-xs text-surface-600-400" aria-live="polite">{total}</p>
 

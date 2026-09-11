@@ -23,13 +23,30 @@ export interface NavigationItem {
     iconComponent: any;
     external?: boolean;
     description?: string;
+    /** Hide this link from signed-out visitors, in an otherwise public section. */
+    requiresAuth?: boolean;
+}
+
+export interface NavigationSubsection {
+    label: string;
+    items: NavigationItem[];
 }
 
 export interface NavigationSection {
     id: string;
     label: string;
     iconComponent: any;
+    /** Every link in the section, in order. Derive it from `subsections` when those are given. */
     items: NavigationItem[];
+    /** Grouped rendering with headings; when absent the sidebar lists `items` flat. */
+    subsections?: NavigationSubsection[];
+    /** Hide the whole section from signed-out visitors. Public sections omit it. */
+    requiresAuth?: boolean;
+    /** Start expanded, for a section whose contents are the point rather than a menu to open. */
+    defaultExpanded?: boolean;
+    /** Render as a plain link at this position in the order, rather than an expandable group. */
+    href?: string;
+    external?: boolean;
     basePaths: string[];
 }
 

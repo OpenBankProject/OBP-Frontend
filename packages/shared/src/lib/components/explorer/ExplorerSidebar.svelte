@@ -20,6 +20,7 @@
 	import ExplorerListNav from './ExplorerListNav.svelte';
 	import type { ListNavGroup } from './ExplorerListNav.svelte';
 	import PaneSplitter from './PaneSplitter.svelte';
+	import { ArrowUpRight } from '@lucide/svelte';
 	import type { ResourceDocIndexEntry } from '../../explorer/index.js';
 
 	/**
@@ -36,6 +37,11 @@
 		label: string;
 		href: string;
 		active: boolean;
+		/** Leaves the Explorer. `lead` puts it before the sections, `away` after them; both are
+		 *  separated from the section links by a divider, and open in a new tab when off-site. */
+		lead?: boolean;
+		away?: boolean;
+		external?: boolean;
 	}
 
 	interface Props {
@@ -49,6 +55,15 @@
 		listGroups?: ListNavGroup[];
 		listActiveHref?: string;
 		listPlaceholder?: string;
+		/** Which half of the catalogue is shown, and how to link to another. */
+		content?: string;
+		contentHref?: (content: string) => string;
+		/** The tag filter, when the URL owns it. */
+		tag?: string;
+		onTagChange?: (tag: string) => void;
+		/** The search term, when the URL owns it. */
+		query?: string;
+		onQueryChange?: (query: string) => void;
 		logoUrl?: string;
 		logoWidth?: string;
 		homeHref?: string;
@@ -65,6 +80,12 @@
 		listGroups = [],
 		listActiveHref = '',
 		listPlaceholder = 'Search',
+		content = 'all',
+		contentHref = undefined,
+		tag = '',
+		onTagChange = undefined,
+		query = '',
+		onQueryChange = undefined,
 		logoUrl = '',
 		logoWidth = '150px',
 		homeHref = '/',
@@ -72,7 +93,9 @@
 		base = undefined
 	}: Props = $props();
 
-	let width = $state(300);
+	// Endpoint names are long; 420px keeps most of them on one line. The splitter still lets a
+	// reader take it down to 220 or out to 560.
+	let width = $state(420);
 </script>
 
 <nav
@@ -90,28 +113,70 @@
 	</header>
 
 	{#if sectionLinks.length > 0}
-		<ul class="flex shrink-0 flex-wrap gap-1 px-3 pt-2">
-			{#each sectionLinks as link (link.href)}
-				<li>
-					<a
-						class="block rounded px-2 py-1 text-xs {link.active
-							? 'bg-surface-200-700 font-semibold text-surface-900-50'
-							: 'text-surface-700-300 hover:bg-surface-100-800'}"
-						href={link.href}
-						aria-current={link.active ? 'page' : undefined}
-					>
-						{link.label}
-					</a>
-				</li>
-			{/each}
-		</ul>
+		{@const awayLinks = [
+			...sectionLinks.filter((l) => l.lead),
+			...sectionLinks.filter((l) => l.away)
+		]}
+		{@const sections = sectionLinks.filter((l) => !l.lead && !l.away)}
+		<!-- Two rows, because these are two kinds of link: where else you can go, then which
+		     part of the Explorer you are in. Side by side they read as one list of peers. -->
+		{#if awayLinks.length > 0}
+			<ul class="flex shrink-0 flex-wrap items-center gap-1 px-3 pt-2">
+				{#each awayLinks as link (link.href)}
+					<li>
+						<a
+							class="flex items-center gap-1 rounded px-2 py-1 text-xs text-surface-700-300 hover:bg-surface-100-800"
+							href={link.href}
+							target={link.external ? '_blank' : undefined}
+							rel={link.external ? 'noopener noreferrer' : undefined}
+						>
+							{link.label}
+							{#if link.external}
+								<ArrowUpRight class="size-3 shrink-0 opacity-60" />
+								<span class="sr-only">(opens in a new tab)</span>
+							{/if}
+						</a>
+					</li>
+				{/each}
+			</ul>
+		{/if}
+		{#if sections.length > 0}
+			<ul class="flex shrink-0 flex-wrap items-center gap-1 px-3 pt-1">
+				{#each sections as link (link.href)}
+					<li>
+						<a
+							class="block rounded px-2 py-1 text-xs {link.active
+								? 'bg-surface-200-700 font-semibold text-surface-900-50'
+								: 'text-surface-700-300 hover:bg-surface-100-800'}"
+							href={link.href}
+							aria-current={link.active ? 'page' : undefined}
+						>
+							{link.label}
+						</a>
+					</li>
+				{/each}
+			</ul>
+		{/if}
 	{/if}
 
 	<div class="min-h-0 flex-1">
 		{#if mode === 'endpoints'}
-			<ResourceDocSearchNav {index} {tags} {activeOperationId} {base} />
+			<ResourceDocSearchNav
+				{index}
+				{tags}
+				{activeOperationId}
+				{base}
+				{content}
+				{contentHref}
+				{tag}
+				{onTagChange}
+				{query}
+				{onQueryChange}
+			/>
 		{:else}
 			<ExplorerListNav
+				{query}
+				{onQueryChange}
 				groups={listGroups}
 				activeHref={listActiveHref}
 				placeholder={listPlaceholder}

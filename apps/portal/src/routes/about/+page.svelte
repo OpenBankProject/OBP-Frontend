@@ -90,6 +90,16 @@ The Open Bank Project is an open source API and App store for banks that empower
 			</li>
 			<li>
 				<a
+					href="/api-explorer"
+					class="text-primary-600 dark:text-primary-400 underline hover:text-primary-800 dark:hover:text-primary-300"
+					data-testid="link-api-explorer"
+				>
+					API Explorer III
+				</a>
+				— browse, search and call every endpoint this instance serves
+			</li>
+			<li>
+				<a
 					href="https://www.openbankproject.com"
 					target="_blank"
 					rel="noopener noreferrer"

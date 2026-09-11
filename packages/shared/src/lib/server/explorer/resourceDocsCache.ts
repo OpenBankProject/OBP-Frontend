@@ -48,10 +48,20 @@ interface VersionCache {
 	lastFetched: number;
 }
 
+/** Which half of a catalogue to ask for; the API filters, so this is not a guess. */
+export type ResourceDocContent = 'all' | 'static' | 'dynamic';
+
 export interface ResourceDocsOptions {
 	metaVersion?: string;
 	token?: string;
 	force?: boolean;
+	/** 'all' by default, matching the endpoint's own default. */
+	content?: ResourceDocContent;
+}
+
+/** Cached per catalogue *and* per content filter: they are three different responses. */
+function cacheKey(fullyQualifiedVersion: string, content: ResourceDocContent): string {
+	return content === 'all' ? fullyQualifiedVersion : `${fullyQualifiedVersion}?content=${content}`;
 }
 
 const cache = new Map<string, VersionCache>();
@@ -66,14 +76,15 @@ async function load(
 	fullyQualifiedVersion: string,
 	options: ResourceDocsOptions
 ): Promise<VersionCache> {
-	const { metaVersion = DEFAULT_META_VERSION, token } = options;
-	const path = `/obp/${metaVersion}/resource-docs/${fullyQualifiedVersion}/obp`;
+	const { metaVersion = DEFAULT_META_VERSION, token, content = 'all' } = options;
+	const query = content === 'all' ? '' : `?content=${content}`;
+	const path = `/obp/${metaVersion}/resource-docs/${fullyQualifiedVersion}/obp${query}`;
 
 	const response = await obp.get(path, token);
 	const docs = (response?.resource_docs ?? []) as ResourceDoc[];
 	const entry: VersionCache = { docs, index: buildIndex(docs), lastFetched: Date.now() };
-	cache.set(fullyQualifiedVersion, entry);
-	logger.info(`Cached ${docs.length} resource docs for ${fullyQualifiedVersion}`);
+	cache.set(cacheKey(fullyQualifiedVersion, content), entry);
+	logger.info(`Cached ${docs.length} ${content} resource docs for ${fullyQualifiedVersion}`);
 	return entry;
 }
 
@@ -82,17 +93,18 @@ async function getVersionCache(
 	fullyQualifiedVersion: string,
 	options: ResourceDocsOptions = {}
 ): Promise<VersionCache> {
-	const existing = cache.get(fullyQualifiedVersion);
+	const key = cacheKey(fullyQualifiedVersion, options.content ?? 'all');
+	const existing = cache.get(key);
 	if (!options.force && isFresh(existing)) return existing;
 
 	// Collapse concurrent misses onto one fetch: a catalogue is far too big to fetch twice.
-	const pending = inFlight.get(fullyQualifiedVersion);
+	const pending = inFlight.get(key);
 	if (pending) return pending;
 
 	const promise = load(obp, fullyQualifiedVersion, options).finally(() => {
-		inFlight.delete(fullyQualifiedVersion);
+		inFlight.delete(key);
 	});
-	inFlight.set(fullyQualifiedVersion, promise);
+	inFlight.set(key, promise);
 	return promise;
 }
 
@@ -120,7 +132,7 @@ export function preWarmResourceDocs(
 	fullyQualifiedVersion: string,
 	options: ResourceDocsOptions = {}
 ): void {
-	if (isFresh(cache.get(fullyQualifiedVersion))) return;
+	if (isFresh(cache.get(cacheKey(fullyQualifiedVersion, options.content ?? 'all')))) return;
 	getVersionCache(obp, fullyQualifiedVersion, options).catch((error) => {
 		logger.warn(`Pre-warm failed for ${fullyQualifiedVersion}:`, error);
 	});
