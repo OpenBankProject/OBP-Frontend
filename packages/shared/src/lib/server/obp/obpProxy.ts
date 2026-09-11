@@ -58,6 +58,15 @@ export interface ObpProxyOptions {
 	 * A logged-in visitor's bearer is still attached. For pages served to the public.
 	 */
 	allowAnonymous?: boolean;
+	/**
+	 * Path segment placed in front of the rest parameter. Defaults to `/obp`, which is
+	 * all most callers ever want. The API Explorer passes '' because OBP serves nine
+	 * standards under nine different prefixes (`/berlin-group`, `/open-banking`, `/stet`
+	 * …), and a proxy that can only reach `/obp` cannot call most of what it documents.
+	 * Passing '' widens what the proxy can address, so a caller that does must restrict
+	 * the first segment itself — see the Explorer's call route.
+	 */
+	pathPrefix?: string;
 }
 
 export function createObpProxyHandler(obpBaseUrl: string, options: ObpProxyOptions = {}) {
@@ -101,7 +110,8 @@ export function createObpProxyHandler(obpBaseUrl: string, options: ObpProxyOptio
 			});
 		}
 
-		const obpPath = `/obp/${rawPath}`;
+		const prefix = options.pathPrefix ?? '/obp';
+		const obpPath = `${prefix}/${rawPath}`;
 		const queryString = event.url.search;
 		const url = `${obpBaseUrl}${obpPath}${queryString}`;
 

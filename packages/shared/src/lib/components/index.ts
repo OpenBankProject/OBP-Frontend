@@ -33,3 +33,7 @@ export { default as SystemStatusPage } from './SystemStatusPage.svelte';
 export { default as AppStudioPreview } from './AppStudioPreview.svelte';
 export { buildAppStudioSrcdoc, appStudioPathToProxyPath, APP_STUDIO_SHIM_SOURCE } from './appStudioShim.js';
 export type { AppStudioProxyResult, AppStudioRequestMessage, AppStudioLogMessage, AppStudioResizeMessage, AppStudioNavigateMessage, AppStudioEmitMessage } from './appStudioShim.js';
+export { default as ResourceDocSearchNav } from './explorer/ResourceDocSearchNav.svelte';
+export { default as ExplorerSidebar } from './explorer/ExplorerSidebar.svelte';
+export { default as EndpointExecutionPanel } from './explorer/EndpointExecutionPanel.svelte';
+export { default as PaneSplitter } from './explorer/PaneSplitter.svelte';

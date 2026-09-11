@@ -53,6 +53,10 @@
 			"types": "./src/lib/health-check/index.ts",
 			"svelte": "./src/lib/health-check/index.ts"
 		},
+		"./explorer": {
+			"types": "./src/lib/explorer/index.ts",
+			"svelte": "./src/lib/explorer/index.ts"
+		},
 		"./markdown": {
 			"types": "./src/lib/markdown/index.ts",
 			"svelte": "./src/lib/markdown/index.ts"
@@ -88,6 +92,10 @@
 		"./server/rate-limit": {
 			"types": "./src/lib/server/rate-limit/index.ts",
 			"default": "./src/lib/server/rate-limit/index.ts"
+		},
+		"./server/explorer": {
+			"types": "./src/lib/server/explorer/index.ts",
+			"default": "./src/lib/server/explorer/index.ts"
 		},
 		"./server/obp": {
 			"types": "./src/lib/server/obp/index.ts",

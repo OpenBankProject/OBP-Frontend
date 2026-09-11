@@ -21,7 +21,7 @@
 	import { myAccountItems, developerItems } from '$lib/config/navigation';
 	import Toast from '$lib/components/Toast.svelte';
 	import WelcomeBubble from '$lib/components/WelcomeBubble.svelte';
-	import { NavigationSidebar } from '@obp/shared/components';
+	import { NavigationSidebar, ExplorerSidebar } from '@obp/shared/components';
 	import type { NavigationSection } from '@obp/shared/config';
 	import PageHeader from '$lib/components/PageHeader.svelte';
 
@@ -45,6 +45,13 @@
 	import { unreadCount } from '$lib/stores/unreadCount.svelte';
 	import { currentBank } from '$lib/stores/currentBank.svelte';
 	let { data, children } = $props();
+
+	/**
+	 * The API Explorer brings its own navigation — the endpoint list is the navigation —
+	 * so it takes the sidebar slot instead of appearing as another column beside it.
+	 * Its data comes from the Explorer's own layout load, via page.data.
+	 */
+	const isExplorer = $derived(page.url.pathname.startsWith('/api-explorer'));
 
 	const sections: NavigationSection[] = [
 		{
@@ -217,6 +224,15 @@
 <div
 	class="grid h-screen w-full grid-cols-[auto_1fr] grid-rows-[minmax(0,1fr)] divide-x divide-solid divide-surface-100-900 overflow-hidden"
 >
+	{#if isExplorer}
+		<ExplorerSidebar
+			index={page.data.index ?? []}
+			tags={page.data.tags ?? []}
+			activeOperationId={page.data.endpoint?.operationId ?? ''}
+			{logoUrl}
+			{logoWidth}
+		/>
+	{:else}
 	<NavigationSidebar
 		{menuItems}
 		{myAccountItems}
@@ -236,10 +252,13 @@
 		hideFooterExtras={hideFooterExtras}
 		collapsedLogoUrl={env.PUBLIC_MINIMAL_LOGO_URL || env.PUBLIC_DARK_LOGO_URL}
 	/>
+	{/if}
+	<!-- min-w-0: a 1fr grid column still has min-width:auto, so a wide child (the
+	     Explorer's panes) would otherwise push this column past the viewport. -->
 	<div
 		class={page.url.pathname.startsWith('/user/accounts')
-			? 'h-full bg-surface-50-950'
-			: 'h-full bg-conic-250 from-30% via-40% to-50% dark:from-primary-950 dark:via-secondary-500/70 dark:to-primary-950'}
+			? 'h-full min-w-0 bg-surface-50-950'
+			: 'h-full min-w-0 bg-conic-250 from-30% via-40% to-50% dark:from-primary-950 dark:via-secondary-500/70 dark:to-primary-950'}
 		data-plain-bg={page.url.pathname.startsWith('/user/accounts')}
 	>
 		<div class="flex flex-col backdrop-blur-2xl" style="height: calc(100vh - 48px);">
