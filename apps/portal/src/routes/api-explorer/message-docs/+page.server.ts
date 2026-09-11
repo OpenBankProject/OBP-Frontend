@@ -15,17 +15,12 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-import { browser } from "$app/environment";
+import { redirect } from '@sveltejs/kit';
+import { explorerMessageDocsUrl } from '@obp/shared/explorer';
+import { DEFAULT_CONNECTOR } from '@obp/shared/server/explorer';
+import type { PageServerLoad } from './$types';
 
-// Import both caches
-import { resourceDocsCache as serverCache } from "./resourceDocsCache.svelte";
-import { resourceDocsCacheBrowser as browserCache } from "./resourceDocsCache.browser.svelte";
-
-/**
- * Unified export that automatically uses the correct cache
- * based on the environment (browser vs server)
- */
-export const resourceDocsCache = browser ? browserCache : serverCache;
-
-// Re-export types for convenience
-export type { ResourceDoc } from "./resourceDocsCache.svelte";
+/** There is nothing useful to show without a connector, so land on the usual one. */
+export const load: PageServerLoad = async () => {
+	redirect(307, explorerMessageDocsUrl(DEFAULT_CONNECTOR));
+};

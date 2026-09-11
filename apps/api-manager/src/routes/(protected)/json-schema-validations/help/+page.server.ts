@@ -20,7 +20,7 @@ import { error } from "@sveltejs/kit";
 import { createLogger } from "@obp/shared/utils";
 import { renderMarkdown } from "@obp/shared/markdown";
 import { SessionOAuthHelper } from "$lib/oauth/sessionHelper";
-import { resourceDocsCache } from "$lib/stores/resourceDocsCache.svelte";
+import { fetchResourceDocs } from "$lib/server/resourceDocs";
 import { fetchGlossary, findGlossaryItem, rewriteGlossaryLinks, glossaryEntryUrl, apiExplorerBaseUrl } from "$lib/server/glossaryCache";
 
 const logger = createLogger("JsonSchemaValidationsHelp");
@@ -49,7 +49,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 
   let endpoints: { operation_id: string; request_verb: string; request_url: string; summary: string; roles: string[]; explorerUrl: string }[] = [];
   try {
-    const docs = await resourceDocsCache.fetchResourceDocs(token, force);
+    const docs = await fetchResourceDocs(token, force);
     endpoints = docs
       .filter((d) => (d.tags ?? []).includes(TAG))
       .map((d) => ({

@@ -17,35 +17,54 @@
 -->
 <script lang="ts">
 	import ResourceDocSearchNav from './ResourceDocSearchNav.svelte';
+	import ExplorerListNav from './ExplorerListNav.svelte';
+	import type { ListNavGroup } from './ExplorerListNav.svelte';
 	import PaneSplitter from './PaneSplitter.svelte';
 	import type { ResourceDocIndexEntry } from '../../explorer/index.js';
 
 	/**
 	 * The Explorer's navigation, standing in for the app's own sidebar.
 	 *
-	 * Inside the Explorer the endpoint list *is* the navigation, so it takes the sidebar
-	 * slot rather than becoming a third column next to it — that is how API Explorer II
-	 * is laid out, and two navigation rails side by side would be one too many.
+	 * Inside the Explorer the list of things *is* the navigation, so it takes the sidebar
+	 * slot rather than becoming a third column beside it — that is how API Explorer II is
+	 * laid out, and two navigation rails side by side would be one too many.
 	 *
-	 * Replacing the app's sidebar means replacing its way out, so the logo stays and
-	 * links home.
+	 * Replacing the app's sidebar means replacing its way out, so the logo stays and links
+	 * home.
 	 */
+	export interface ExplorerSectionLink {
+		label: string;
+		href: string;
+		active: boolean;
+	}
+
 	interface Props {
-		index: ResourceDocIndexEntry[];
-		tags: Array<{ tag: string; count: number }>;
+		/** Endpoints / Glossary / Message Docs / gRPC. */
+		sectionLinks?: ExplorerSectionLink[];
+		/** 'endpoints' uses the resource-doc nav; everything else is a plain list. */
+		mode?: 'endpoints' | 'list';
+		index?: ResourceDocIndexEntry[];
+		tags?: Array<{ tag: string; count: number }>;
 		activeOperationId?: string;
+		listGroups?: ListNavGroup[];
+		listActiveHref?: string;
+		listPlaceholder?: string;
 		logoUrl?: string;
 		logoWidth?: string;
 		homeHref?: string;
 		homeLabel?: string;
-		/** Explorer link base, when it is not mounted at /api-explorer. */
 		base?: string;
 	}
 
 	let {
-		index,
-		tags,
+		sectionLinks = [],
+		mode = 'endpoints',
+		index = [],
+		tags = [],
 		activeOperationId = '',
+		listGroups = [],
+		listActiveHref = '',
+		listPlaceholder = 'Search',
 		logoUrl = '',
 		logoWidth = '150px',
 		homeHref = '/',
@@ -59,7 +78,7 @@
 <nav
 	class="relative flex h-full min-h-0 flex-col overflow-hidden bg-primary-50 dark:bg-primary-950"
 	style="width: {width}px"
-	aria-label="API Explorer endpoints"
+	aria-label="API Explorer"
 >
 	<header class="flex shrink-0 items-center justify-between gap-2 px-3 pt-4 pb-1">
 		{#if logoUrl}
@@ -70,8 +89,34 @@
 		<a class="anchor shrink-0 text-xs" href={homeHref}>&larr; {homeLabel}</a>
 	</header>
 
+	{#if sectionLinks.length > 0}
+		<ul class="flex shrink-0 flex-wrap gap-1 px-3 pt-2">
+			{#each sectionLinks as link (link.href)}
+				<li>
+					<a
+						class="block rounded px-2 py-1 text-xs {link.active
+							? 'bg-surface-200-700 font-semibold text-surface-900-50'
+							: 'text-surface-700-300 hover:bg-surface-100-800'}"
+						href={link.href}
+						aria-current={link.active ? 'page' : undefined}
+					>
+						{link.label}
+					</a>
+				</li>
+			{/each}
+		</ul>
+	{/if}
+
 	<div class="min-h-0 flex-1">
-		<ResourceDocSearchNav {index} {tags} {activeOperationId} {base} />
+		{#if mode === 'endpoints'}
+			<ResourceDocSearchNav {index} {tags} {activeOperationId} {base} />
+		{:else}
+			<ExplorerListNav
+				groups={listGroups}
+				activeHref={listActiveHref}
+				placeholder={listPlaceholder}
+			/>
+		{/if}
 	</div>
 
 	<div class="absolute inset-y-0 right-0 flex">
@@ -80,7 +125,7 @@
 			min={220}
 			max={560}
 			basis="viewport-px"
-			label="Resize endpoint navigation"
+			label="Resize navigation"
 		/>
 	</div>
 </nav>

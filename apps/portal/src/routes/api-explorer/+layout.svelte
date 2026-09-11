@@ -45,6 +45,8 @@
 	>
 		<span class="font-semibold text-surface-900-50">API Explorer</span>
 
+		<!-- The version and endpoint count describe the catalogue, so they belong to that section. -->
+		{#if data.section === 'endpoints'}
 		<label class="flex items-center gap-2">
 			<span class="sr-only">API version</span>
 			<select
@@ -66,6 +68,7 @@
 		</label>
 
 		<span class="text-surface-600-400">{data.index.length} endpoints</span>
+		{/if}
 
 		<div class="ml-auto flex items-center gap-2">
 			{#if data.obpBaseUrl}

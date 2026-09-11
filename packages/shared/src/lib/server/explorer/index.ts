@@ -34,3 +34,37 @@ export {
 	clearResourceDocsCache
 } from './resourceDocsCache.js';
 export type { ResourceDocsOptions } from './resourceDocsCache.js';
+
+export {
+	API_GLOSSARY_PATH,
+	fetchApiGlossary,
+	loadGlossaryIndex,
+	loadGlossaryEntry,
+	searchGlossary,
+	glossaryAnchorResolver,
+	excerptFromMarkdown,
+	rewriteInGlossaryLinks,
+	clearGlossaryCache
+} from './glossaryCache.js';
+export type {
+	ApiGlossaryItem,
+	GlossaryCacheState,
+	GlossaryIndexRow,
+	GlossaryEntryView,
+	GlossaryOptions,
+	GlossaryLinkTargets
+} from './glossaryCache.js';
+
+export {
+	MESSAGE_DOC_CONNECTORS,
+	DEFAULT_CONNECTOR,
+	isKnownConnector,
+	connectorLabel,
+	loadMessageDocIndex,
+	loadMessageDoc,
+	clearMessageDocsCache
+} from './messageDocsCache.js';
+export type { MessageDoc, MessageDocIndexRow, MessageDocsOptions } from './messageDocsCache.js';
+
+export { listGrpcServices, shortTypeName, methodSignature } from './grpcReflection.js';
+export type { GrpcServiceInfo, GrpcMethodInfo, GrpcFieldInfo } from './grpcReflection.js';

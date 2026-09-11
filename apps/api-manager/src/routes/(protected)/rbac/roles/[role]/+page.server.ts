@@ -21,7 +21,7 @@ import type { PageServerLoad } from "./$types";
 import { obp_requests } from "$lib/obp/requests";
 import { SessionOAuthHelper } from "$lib/oauth/sessionHelper";
 import { error } from "@sveltejs/kit";
-import { resourceDocsCache } from "$lib/stores/resourceDocsCache";
+import { fetchResourceDocs } from "$lib/server/resourceDocs";
 
 interface Entitlement {
   entitlement_id: string;
@@ -116,7 +116,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
     // 3. Fetch resource docs from cache to find endpoints that require this role
     logger.info(`Fetching resource docs (from cache if available) for role`);
-    const allResourceDocs = await (resourceDocsCache as any).fetchResourceDocs(
+    const allResourceDocs = await fetchResourceDocs(
       accessToken,
     );
 

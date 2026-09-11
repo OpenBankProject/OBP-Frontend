@@ -44,117 +44,143 @@
 	<meta name="description" content={endpoint.summary} />
 </svelte:head>
 
-<div class="mx-auto flex w-full max-w-3xl flex-col gap-6 p-6">
-	<nav class="text-sm">
-		<a class="anchor" href={catalogueUrl}>
-			&larr; {data.version.fullyQualifiedVersion} catalogue
-		</a>
+<article class="mx-auto flex w-full max-w-3xl flex-col gap-5 p-6">
+	<nav class="text-xs text-surface-600-400">
+		<a class="anchor" href={catalogueUrl}>&larr; {data.version.fullyQualifiedVersion}</a>
 	</nav>
 
 	<header class="flex flex-col gap-2">
-		<div class="flex flex-wrap items-baseline gap-3">
-			<span class="font-mono text-sm font-semibold {verbClass[endpoint.verb] ?? ''}">
-				{endpoint.verb}
-			</span>
-			<span class="font-mono text-lg break-all text-surface-900-50">{endpoint.path}</span>
-		</div>
-		<h1 class="text-xl font-semibold text-surface-900-50">{endpoint.summary}</h1>
-		<p class="font-mono text-xs text-surface-600-400">{endpoint.operationId}</p>
+		<h1 class="text-2xl font-semibold text-surface-900-50">{endpoint.summary}</h1>
+		<p class="flex flex-wrap items-baseline gap-2 font-mono text-sm">
+			<span class="font-semibold {verbClass[endpoint.verb] ?? ''}">{endpoint.verb}</span>
+			<span class="break-all text-surface-800-200">{endpoint.path}</span>
+		</p>
 	</header>
 
-	<div class="flex flex-wrap items-center gap-2">
+	<!-- One quiet line for everything that identifies rather than explains. -->
+	<p class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-surface-600-400">
+		<span class="font-mono">{endpoint.operationId}</span>
+		{#if endpoint.roles.length > 0}
+			<span>
+				Roles:
+				{#each endpoint.roles as role, i (role.role)}<span class="font-mono text-surface-700-300"
+						>{role.role}{#if role.requires_bank_id}<span class="font-sans"> (per bank)</span
+							>{/if}</span
+					>{#if i < endpoint.roles.length - 1}, {/if}{/each}
+			</span>
+		{:else}
+			<span>No role required</span>
+		{/if}
 		{#each endpoint.tags as tag (tag)}
 			<a
-				class="rounded border border-surface-300-600 px-2 py-0.5 text-xs text-surface-700-300 hover:bg-surface-100-800"
+				class="rounded border border-surface-300-600 px-1.5 py-0.5 hover:bg-surface-100-800"
 				href={explorerCatalogueUrl(data.version.urlPrefix, data.version.shortVersion, { tag })}
 			>
 				{tag}
 			</a>
 		{/each}
-	</div>
-
-	{#if endpoint.roles.length > 0}
-		<section class="flex flex-col gap-2">
-			<h2 class="text-sm font-semibold uppercase tracking-wide text-surface-600-400">Roles</h2>
-			<ul class="flex flex-col gap-1 text-sm">
-				{#each endpoint.roles as role (role.role)}
-					<li class="font-mono text-surface-900-50">
-						{role.role}
-						{#if role.requires_bank_id}
-							<span class="ml-2 font-sans text-xs text-surface-600-400">requires a bank id</span>
-						{/if}
-					</li>
-				{/each}
-			</ul>
-		</section>
-	{:else}
-		<p class="text-sm text-surface-600-400">No role is required to call this endpoint.</p>
-	{/if}
+	</p>
 
 	{#if endpoint.descriptionHtml}
-		<section class="prose max-w-none dark:prose-invert">
+		<section class="prose prose-sm max-w-prose dark:prose-invert">
 			<!-- eslint-disable-next-line svelte/no-at-html-tags -- OBP's own endpoint documentation -->
 			{@html endpoint.descriptionHtml}
 		</section>
 	{/if}
 
 	{#if endpoint.specialInstructions}
-		<section class="flex flex-col gap-2">
-			<h2 class="text-sm font-semibold uppercase tracking-wide text-surface-600-400">
-				Special instructions
-			</h2>
-			<p class="text-sm text-surface-900-50">{endpoint.specialInstructions}</p>
-		</section>
+		<aside class="rounded border border-surface-300-600 p-3 text-sm text-surface-800-200">
+			{endpoint.specialInstructions}
+		</aside>
 	{/if}
 
+	<!--
+		The reference material below is long and rarely the reason someone opened the page,
+		so it is folded away. Native <details>: keyboard-operable and findable, no script.
+	-->
+	{#each endpoint.sections as section (section.title)}
+		<details class="border-t border-surface-300-600 pt-3">
+			<summary class="cursor-pointer text-sm font-semibold text-surface-700-300">
+				{section.title}
+				<span class="font-normal text-surface-600-400">({section.fields.length})</span>
+			</summary>
+			<dl class="mt-3 grid grid-cols-[minmax(8rem,auto)_1fr] gap-x-4 gap-y-1.5 text-xs">
+				{#each section.fields as field (field.name)}
+					<!-- A glossary link marks the term, it should not dim it: same colour, dotted rule. -->
+					<dt class="font-mono text-surface-800-200">
+						{#if field.href}
+							<a
+								class="underline decoration-dotted underline-offset-2 hover:decoration-solid"
+								href={field.href}
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								{field.name}
+							</a>
+						{:else}
+							{field.name}
+						{/if}
+					</dt>
+					<dd class="break-words text-surface-600-400">{field.text}</dd>
+				{/each}
+			</dl>
+			{#if section.extraHtml}
+				<div class="prose prose-sm mt-3 max-w-prose dark:prose-invert">
+					<!-- eslint-disable-next-line svelte/no-at-html-tags -- OBP's own endpoint documentation -->
+					{@html section.extraHtml}
+				</div>
+			{/if}
+		</details>
+	{/each}
+
 	{#if endpoint.exampleRequestBody}
-		<section class="flex flex-col gap-2">
-			<h2 class="text-sm font-semibold uppercase tracking-wide text-surface-600-400">
+		<details class="border-t border-surface-300-600 pt-3">
+			<summary class="cursor-pointer text-sm font-semibold text-surface-700-300">
 				Example request body
-			</h2>
-			<pre class="overflow-x-auto rounded bg-surface-100-800 p-4 text-xs"><code
+			</summary>
+			<pre class="mt-2 max-w-full overflow-x-auto rounded bg-surface-100-800 p-3 text-xs"><code
 					>{pretty(endpoint.exampleRequestBody)}</code
 				></pre>
-		</section>
+		</details>
 	{/if}
 
 	{#if endpoint.successResponseBody}
-		<section class="flex flex-col gap-2">
-			<h2 class="text-sm font-semibold uppercase tracking-wide text-surface-600-400">
-				Success response body
-			</h2>
-			<pre class="overflow-x-auto rounded bg-surface-100-800 p-4 text-xs"><code
+		<details class="border-t border-surface-300-600 pt-3">
+			<summary class="cursor-pointer text-sm font-semibold text-surface-700-300">
+				Example success response
+			</summary>
+			<pre class="mt-2 max-w-full overflow-x-auto rounded bg-surface-100-800 p-3 text-xs"><code
 					>{pretty(endpoint.successResponseBody)}</code
 				></pre>
-		</section>
+		</details>
 	{/if}
 
 	{#if endpoint.errorResponseBodies.length > 0}
-		<section class="flex flex-col gap-2">
-			<h2 class="text-sm font-semibold uppercase tracking-wide text-surface-600-400">
+		<details class="border-t border-surface-300-600 pt-3">
+			<summary class="cursor-pointer text-sm font-semibold text-surface-700-300">
 				Possible errors
-			</h2>
-			<ul class="flex flex-col gap-1 font-mono text-xs text-surface-900-50">
+				<span class="font-normal text-surface-600-400">({endpoint.errorResponseBodies.length})</span>
+			</summary>
+			<ul class="mt-2 flex flex-col gap-1 font-mono text-xs text-surface-700-300">
 				{#each endpoint.errorResponseBodies as err, i (i)}
 					<li>{err}</li>
 				{/each}
 			</ul>
-		</section>
+		</details>
 	{/if}
 
-	<footer class="flex flex-col gap-1 border-t border-surface-300-600 pt-4 text-xs text-surface-600-400">
+	<footer class="flex flex-wrap gap-x-4 gap-y-1 border-t border-surface-300-600 pt-3 text-xs text-surface-600-400">
 		{#if endpoint.implementedBy}
-			<p>
-				Implemented by
-				<span class="font-mono">{endpoint.implementedBy.version}</span>
+			<span>
+				Implemented by <span class="font-mono">{endpoint.implementedBy.version}</span>
 				<span class="font-mono">{endpoint.implementedBy.function}</span>
-			</p>
+			</span>
 		{/if}
 		{#if endpoint.requestUrl && endpoint.requestUrl !== endpoint.path}
-			<p>Originally served at <span class="font-mono">{endpoint.requestUrl}</span></p>
+			<span>Originally <span class="font-mono">{endpoint.requestUrl}</span></span>
 		{/if}
 		{#if endpoint.connectorMethods.length > 0}
-			<p>Connector methods: <span class="font-mono">{endpoint.connectorMethods.join(', ')}</span></p>
+			<span>Connector: <span class="font-mono">{endpoint.connectorMethods.join(', ')}</span></span>
 		{/if}
 	</footer>
-</div>
+</article>

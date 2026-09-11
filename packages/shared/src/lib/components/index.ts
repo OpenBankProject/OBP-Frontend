@@ -35,5 +35,6 @@ export { buildAppStudioSrcdoc, appStudioPathToProxyPath, APP_STUDIO_SHIM_SOURCE 
 export type { AppStudioProxyResult, AppStudioRequestMessage, AppStudioLogMessage, AppStudioResizeMessage, AppStudioNavigateMessage, AppStudioEmitMessage } from './appStudioShim.js';
 export { default as ResourceDocSearchNav } from './explorer/ResourceDocSearchNav.svelte';
 export { default as ExplorerSidebar } from './explorer/ExplorerSidebar.svelte';
+export { default as ExplorerListNav } from './explorer/ExplorerListNav.svelte';
 export { default as EndpointExecutionPanel } from './explorer/EndpointExecutionPanel.svelte';
 export { default as PaneSplitter } from './explorer/PaneSplitter.svelte';

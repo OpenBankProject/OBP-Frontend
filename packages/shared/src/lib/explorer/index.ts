@@ -38,6 +38,7 @@ export {
 
 export {
 	INTERNAL_EXPLORER_BASE,
+	EXPLORER_SECTION_SEGMENTS,
 	DEFAULT_EXTERNAL_EXPLORER_URL,
 	normalizeExplorerBase,
 	explorerCatalogueUrl,
@@ -45,10 +46,16 @@ export {
 	catalogueFromEndpointPath,
 	catalogueFromExplorerPathname,
 	apiVersionForEndpointPath,
+	explorerGlossaryIndexUrl,
+	explorerGlossaryTitleUrl,
+	explorerMessageDocsUrl,
 	explorerResourceDocUrl,
 	glossaryEntryUrl,
 	rewriteGlossaryLinks
 } from './links.js';
+
+export { parseDescription, resolveGlossaryHref } from './description.js';
+export type { DescriptionField, DescriptionSection, ParsedDescription } from './description.js';
 
 export { searchIndex } from './search.js';
 export type { SearchOptions } from './search.js';

@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-import { resourceDocsCache } from "$lib/stores/resourceDocsCache.svelte";
+import { fetchResourceDocs } from "$lib/server/resourceDocs";
 import type { OperationChoice } from "$lib/services/jsonSchemaValidations";
 
 const BODY_VERBS = new Set(["POST", "PUT", "PATCH"]);
@@ -25,7 +25,7 @@ const BODY_VERBS = new Set(["POST", "PUT", "PATCH"]);
  * Endpoints with a request body come first; the rest follow so any operation_id can still be chosen.
  */
 export async function loadOperationChoices(accessToken: string): Promise<OperationChoice[]> {
-  const docs = await resourceDocsCache.fetchResourceDocs(accessToken);
+  const docs = await fetchResourceDocs(accessToken);
   return docs
     .map<OperationChoice>((d) => ({
       operation_id: d.operation_id,

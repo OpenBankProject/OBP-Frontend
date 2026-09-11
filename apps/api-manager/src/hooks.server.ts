@@ -28,7 +28,7 @@ import { env } from "$env/dynamic/private";
 import { env as publicEnv } from "$env/dynamic/public";
 import { oauth2ProviderManager } from "$lib/oauth/providerManager";
 import { SessionOAuthHelper } from "$lib/oauth/sessionHelper";
-import { resourceDocsCache } from "$lib/stores/resourceDocsCache";
+import { preWarmCache as preWarmResourceDocs } from "$lib/server/resourceDocs";
 import { healthCheckRegistry, OIDCHealthCheckService } from '@obp/shared/health-check';
 import { resolveGrpcTarget } from '@obp/shared/obp';
 import { RedisHealthCheckService, GrpcHealthCheckService } from '@obp/shared/server/health-check';
@@ -336,7 +336,7 @@ const checkAuthorization: Handle = async ({ event, resolve }) => {
       // Pre-warm resource docs cache in background (non-blocking)
       const sessionOAuth = SessionOAuthHelper.getSessionOAuth(session);
       if (sessionOAuth?.accessToken) {
-        resourceDocsCache.preWarmCache(sessionOAuth.accessToken).catch(() => {
+        Promise.resolve(preWarmResourceDocs(sessionOAuth.accessToken)).catch(() => {
           // Silently fail - pre-warming is best-effort
         });
       }

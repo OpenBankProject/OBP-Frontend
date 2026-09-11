@@ -18,7 +18,7 @@
 import type { PageServerLoad } from "./$types";
 import { error } from "@sveltejs/kit";
 import { SessionOAuthHelper } from "$lib/oauth/sessionHelper";
-import { resourceDocsCache } from "$lib/stores/resourceDocsCache.svelte";
+import { fetchResourceDocs, getCacheStatus } from "$lib/server/resourceDocs";
 import { createLogger } from "@obp/shared/utils";
 import { renderMarkdown } from "@obp/shared/markdown";
 import {
@@ -76,7 +76,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 
   try {
     // One fetch of the v6.0.0 resource docs serves every page for 30 minutes.
-    const docs = await resourceDocsCache.fetchResourceDocs(token, force);
+    const docs = await fetchResourceDocs(token, force);
     endpoints = docs
       .filter((doc) => (doc.tags ?? []).includes(SIGNAL_TAG))
       .map((doc) => ({
@@ -101,7 +101,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     warnings.push(`Could not load the resource docs from OBP: ${e instanceof Error ? e.message : String(e)}`);
   }
 
-  const status = resourceDocsCache.getCacheStatus();
+  const status = getCacheStatus();
   return {
     endpoints,
     glossary: { title: GLOSSARY_TITLE, html: glossaryHtml, explorerUrl: glossaryEntryUrl(GLOSSARY_TITLE, explorerUrl) },

@@ -226,9 +226,19 @@
 >
 	{#if isExplorer}
 		<ExplorerSidebar
+			sectionLinks={[
+				{ label: 'Endpoints', href: '/api-explorer', active: page.data.section === 'endpoints' },
+				{ label: 'Glossary', href: '/api-explorer/glossary', active: page.data.section === 'glossary' },
+				{ label: 'Message Docs', href: '/api-explorer/message-docs', active: page.data.section === 'message-docs' },
+				{ label: 'gRPC', href: '/api-explorer/grpc', active: page.data.section === 'grpc' }
+			]}
+			mode={page.data.section === 'endpoints' ? 'endpoints' : 'list'}
 			index={page.data.index ?? []}
 			tags={page.data.tags ?? []}
 			activeOperationId={page.data.endpoint?.operationId ?? ''}
+			listGroups={page.data.listGroups ?? []}
+			listActiveHref={page.url.pathname}
+			listPlaceholder={page.data.listPlaceholder ?? 'Search'}
 			{logoUrl}
 			{logoWidth}
 		/>

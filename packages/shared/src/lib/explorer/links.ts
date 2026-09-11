@@ -45,6 +45,13 @@ import type { ApiVersion } from './types.js';
 /** Where the Explorer lives inside the Portal. */
 export const INTERNAL_EXPLORER_BASE = '/api-explorer';
 
+/**
+ * First path segments the Explorer uses for its own sections, so they are never mistaken
+ * for an API standard: /api-explorer/glossary/Bank is a glossary entry, not the "Bank"
+ * version of a "glossary" standard.
+ */
+export const EXPLORER_SECTION_SEGMENTS = ['endpoint', 'resource-docs', 'glossary', 'message-docs', 'grpc'];
+
 /** Fallback when API_EXPLORER_URL is unset. The one place this URL should appear. */
 export const DEFAULT_EXTERNAL_EXPLORER_URL = 'https://apiexplorer-ii-sandbox.openbankproject.com';
 
@@ -138,10 +145,30 @@ export function catalogueFromExplorerPathname(
 		return { urlPrefix: segments[2], shortVersion: segments[3] };
 	}
 	// /{urlPrefix}/{version}
-	if (segments.length >= 2 && segments[0] !== 'resource-docs') {
+	if (segments.length >= 2 && !EXPLORER_SECTION_SEGMENTS.includes(segments[0])) {
 		return { urlPrefix: segments[0], shortVersion: segments[1] };
 	}
 	return undefined;
+}
+
+/** The Explorer's glossary index. */
+export function explorerGlossaryIndexUrl(base: string = INTERNAL_EXPLORER_BASE): string {
+	return `${normalizeExplorerBase(base)}/glossary`;
+}
+
+/** The Explorer's page for one glossary entry. */
+export function explorerGlossaryTitleUrl(title: string, base: string = INTERNAL_EXPLORER_BASE): string {
+	return `${normalizeExplorerBase(base)}/glossary/${encodeURIComponent(title)}`;
+}
+
+/** The Explorer's message docs for one connector, optionally one process. */
+export function explorerMessageDocsUrl(
+	connector: string,
+	process?: string,
+	base: string = INTERNAL_EXPLORER_BASE
+): string {
+	const url = `${normalizeExplorerBase(base)}/message-docs/${encodeURIComponent(connector)}`;
+	return process ? `${url}/${encodeURIComponent(process)}` : url;
 }
 
 /* ---------------------------------------------------------------- legacy shapes */

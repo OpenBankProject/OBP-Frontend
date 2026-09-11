@@ -34,7 +34,6 @@
   // import { describeRoute } from "$lib/config/insightMessages"; // only used by the disabled Opey Insights bar
   import { createLogger } from '@obp/shared/utils';
   import { CurrentBankPicker } from '@obp/shared/components';
-  import { resourceDocsCache } from "$lib/stores/resourceDocsCache";
   import { currentBank } from "$lib/stores/currentBank.svelte";
   import { userPreferences } from "$lib/stores/userPreferences.svelte";
   import { onMount } from "svelte";
@@ -115,8 +114,9 @@
   // Pre-warm resource docs cache, fetch banks, and load preferences for authenticated users
   onMount(() => {
     if (isAuthenticated) {
-      logger.info("🔄 Pre-warming browser resource docs cache...");
-      resourceDocsCache.preWarmCache(undefined as any);
+      // The resource docs cache is server-side only. The browser copy this used to warm
+      // pulled the whole 6.7 MB catalogue on every authenticated page load and nothing
+      // ever read it, so it is gone rather than ported.
       currentBank.fetchBanks();
       currentBank.loadFromOBP();
       userPreferences.loadFromOBP();
