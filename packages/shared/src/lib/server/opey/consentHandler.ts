@@ -159,7 +159,7 @@ export function createOpeyConsentHandler(config: OpeyConsentHandlerConfig): { PO
 
 			// Role catalogue: which roles are bank-scoped. Also a sanity check on stored pairs;
 			// an inconsistency is logged, never blocked on.
-			const availableRolesResp = await obpRequests.get('/obp/v2.1.0/roles', accessToken);
+			const availableRolesResp = await obpRequests.get('/obp/v7.0.0/roles', accessToken);
 			const requiresBankIdByRole = new Map<string, boolean>(
 				(availableRolesResp.roles || []).map((r: any) => [r.role, r.requires_bank_id])
 			);
