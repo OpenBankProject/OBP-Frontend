@@ -28,7 +28,7 @@ export const OPEY_CONVERSATION_ENTITY = MANAGER_OPEY_CONVERSATION_ENTITY.entity_
 
 /**
  * Ensure both apps' Opey conversation entities exist in OBP. Runs at startup with application
- * access: the API Manager's consumer holds CanCreateSystemLevelDynamicEntity, the Portal's
+ * access: the API Manager's consumer holds CanCreateDynamicEntityDefinition at SYS, the Portal's
  * usually does not, so the API Manager creates the Portal's entity too (as it does for
  * obp_portal_page). Users need no role: the entities are personal and personal_requires_role
  * is false, so each User writes and reads their own rows (they appear under My Data).

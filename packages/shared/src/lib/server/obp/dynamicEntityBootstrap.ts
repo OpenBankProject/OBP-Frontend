@@ -90,7 +90,7 @@ export async function ensureSystemDynamicEntity(
 			return true;
 		}
 	} catch (err) {
-		logger.warn(`Could not list system dynamic entities (needs CanCreateSystemLevelDynamicEntity scope): ${err}`);
+		logger.warn(`Could not list system dynamic entities (needs the CanCreateDynamicEntityDefinition scope at SYS): ${err}`);
 		return false;
 	}
 	try {

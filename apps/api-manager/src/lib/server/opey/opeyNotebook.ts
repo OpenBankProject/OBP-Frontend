@@ -110,7 +110,7 @@ async function getApplicationAccessToken(): Promise<string | null> {
  * Creates it if missing. Uses application access (client_credentials) so
  * this can run at startup without a logged-in user.
  *
- * Requires the API Manager consumer to have the CanCreateSystemLevelDynamicEntity scope.
+ * Requires the API Manager consumer to have the CanCreateDynamicEntityDefinition scope at SYS.
  */
 export async function createOpeyNotebookDynamicEntityIfNeeded(): Promise<boolean> {
 	const entityName = OPEY_NOTEBOOK.entity_name;
@@ -141,7 +141,7 @@ export async function createOpeyNotebookDynamicEntityIfNeeded(): Promise<boolean
 	} catch (err) {
 		logger.warn(
 			`Could not list system dynamic entities — ` +
-				`check that the API Manager consumer has CanCreateSystemLevelDynamicEntity scope: ${err}`
+				`check that the API Manager consumer has the CanCreateDynamicEntityDefinition scope at SYS: ${err}`
 		);
 		return false;
 	}
@@ -158,7 +158,7 @@ export async function createOpeyNotebookDynamicEntityIfNeeded(): Promise<boolean
 	} catch (err) {
 		logger.warn(
 			`Failed to create dynamic entity '${entityName}'. ` +
-				`Ensure the API Manager consumer has CanCreateSystemLevelDynamicEntity scope. Error: ${err}`
+				`Ensure the API Manager consumer has the CanCreateDynamicEntityDefinition scope at SYS. Error: ${err}`
 		);
 		return false;
 	}

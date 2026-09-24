@@ -27,18 +27,22 @@
   } from "$lib/utils/errorHandler";
   import { currentBank } from "$lib/stores/currentBank.svelte";
   import MissingRoleAlert from "$lib/components/MissingRoleAlert.svelte";
+  import { DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID } from "@obp/shared/obp";
 
   let { data }: { data: PageData } = $props();
 
   let userEntitlements = $derived(data.userEntitlements || []);
 
   // Default level based on which role the user has
+  // One Role for every space, held at the bank id of the space it covers: SYS for the system space.
   let hasSystemCreateRole = $derived(
-    userEntitlements.some((ent: any) => ent.role_name === "CanCreateSystemLevelDynamicEntity")
+    userEntitlements.some((ent: any) =>
+      ent.role_name === "CanCreateDynamicEntityDefinition" && ent.bank_id === DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID
+    )
   );
   let hasBankCreateRole = $derived(
     userEntitlements.some((ent: any) =>
-      ent.role_name === "CanCreateBankLevelDynamicEntity" && ent.bank_id === currentBank.bankId
+      ent.role_name === "CanCreateDynamicEntityDefinition" && ent.bank_id === currentBank.bankId
     )
   );
 
@@ -59,20 +63,16 @@
   });
 
   // Role required to create the dynamic entity definition
-  let requiredRole = $derived(
-    entityLevel === "system"
-      ? "CanCreateSystemLevelDynamicEntity"
-      : "CanCreateBankLevelDynamicEntity"
+  // The same Role at either level; what differs is the bank id it must be held at.
+  let requiredRole = "CanCreateDynamicEntityDefinition";
+  let requiredRoleBankId = $derived(
+    entityLevel === "system" ? DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID : bankId
   );
 
   let hasRequiredRole = $derived(
-    userEntitlements.some((ent: any) => {
-      if (ent.role_name !== requiredRole) return false;
-      if (entityLevel === "bank") {
-        return ent.bank_id === bankId;
-      }
-      return true;
-    })
+    userEntitlements.some((ent: any) =>
+      ent.role_name === requiredRole && ent.bank_id === requiredRoleBankId
+    )
   );
 
   // Prefill from a named template, e.g. /dynamic-entities/system/create?template=training-progress
@@ -329,8 +329,8 @@
       {#if !hasRequiredRole}
         <MissingRoleAlert
           roles={[requiredRole]}
-          bankId={entityLevel === "bank" ? bankId : undefined}
-          message={`You need the role ${requiredRole} to create a ${entityLevel}-level dynamic entity`}
+          bankId={requiredRoleBankId}
+          message={`You need the role ${requiredRole} at ${requiredRoleBankId} to create a ${entityLevel}-level dynamic entity`}
         />
       {/if}
 

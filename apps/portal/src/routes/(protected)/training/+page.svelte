@@ -190,7 +190,7 @@
 				<p class="font-semibold">Progress tracking is not set up on this instance yet.</p>
 				<p class="mt-1">
 					You can still read the curriculum below. To enable per-user progress, an admin with the
-					<code>CanCreateSystemLevelDynamicEntity</code> role creates the
+					<code>CanCreateDynamicEntityDefinition</code> role at <code>SYS</code> creates the
 					<code>training_progress</code> system dynamic entity (with
 					<code>hasPersonalEntity: true</code>).
 				</p>

@@ -28,7 +28,7 @@ export const OPEY_CONVERSATION_ENTITY = OPEY_CONVERSATION.entity_name;
 
 /**
  * Ensure the entity exists in OBP. Runs at startup with application access; needs the app's
- * consumer to support client_credentials and hold CanCreateSystemLevelDynamicEntity. Users
+ * consumer to support client_credentials and hold CanCreateDynamicEntityDefinition at SYS. Users
  * need no role: the entity is personal and personal_requires_role is false, so each User
  * writes and reads their own rows (they appear under My Data).
  */

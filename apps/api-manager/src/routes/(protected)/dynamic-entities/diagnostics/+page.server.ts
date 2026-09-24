@@ -20,6 +20,7 @@ import { error } from "@sveltejs/kit";
 import { createLogger } from "@obp/shared/utils";
 import { SessionOAuthHelper } from "$lib/oauth/sessionHelper";
 import { obp_requests } from "$lib/obp/requests";
+import { DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID } from "@obp/shared/obp";
 
 const logger = createLogger("DynamicEntityDiagnosticsPageServer");
 
@@ -56,13 +57,15 @@ export const load: PageServerLoad = async ({ locals }) => {
   const userEntitlements =
     (session.data.user as any)?.entitlements?.list || [];
 
-  // Check if user has system-level read role
+  // Check if user has the read role for the system space, which is held at bank id SYS
   const hasSystemRole = userEntitlements.some(
-    (ent: any) => ent.role_name === "CanGetSystemLevelDynamicEntities"
+    (ent: any) =>
+      ent.role_name === "CanGetDynamicEntityDefinitions" &&
+      ent.bank_id === DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID
   );
 
   if (!hasSystemRole) {
-    logger.info("User lacks CanGetSystemLevelDynamicEntities role, skipping system entities fetch");
+    logger.info(`User lacks CanGetDynamicEntityDefinitions at ${DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID}, skipping system entities fetch`);
     return {
       diagnostics: [],
       totalEntities: 0,

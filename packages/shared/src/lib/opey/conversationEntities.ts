@@ -18,7 +18,7 @@
 /**
  * The personal dynamic entities the apps record Opey conversations into, one per app.
  * Both definitions live here so the API Manager, whose consumer holds
- * CanCreateSystemLevelDynamicEntity, can bootstrap both at startup (as it does for
+ * CanCreateDynamicEntityDefinition at SYS, can bootstrap both at startup (as it does for
  * obp_portal_page); each app records into its own. Rows are written as the logged-in
  * User and appear under My Data.
  */

@@ -20,17 +20,21 @@
   import { currentBank } from "$lib/stores/currentBank.svelte";
   import { trackedFetch } from "$lib/utils/trackedFetch";
   import MissingRoleAlert from "$lib/components/MissingRoleAlert.svelte";
+  import { DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID } from "@obp/shared/obp";
 
   let { data } = $props();
 
   let userEntitlements = $derived(data.userEntitlements || []);
 
+  // One Role for every space, held at the bank id of the space it covers: SYS for the system space.
   let hasSystemReadRole = $derived(
-    userEntitlements.some((ent: any) => ent.role_name === "CanGetSystemLevelDynamicEntities")
+    userEntitlements.some((ent: any) =>
+      ent.role_name === "CanGetDynamicEntityDefinitions" && ent.bank_id === DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID
+    )
   );
   let hasBankReadRole = $derived(
     userEntitlements.some((ent: any) =>
-      ent.role_name === "CanGetBankLevelDynamicEntities" && ent.bank_id === currentBank.bankId
+      ent.role_name === "CanGetDynamicEntityDefinitions" && ent.bank_id === currentBank.bankId
     )
   );
 
@@ -256,13 +260,14 @@ ${diag.triedKeys?.length ? `Tried Keys: ${diag.triedKeys.join(", ")}` : ""}
 <!-- Role Check -->
 {#if diagnosticLevel === "system" && !hasSystemReadRole}
   <MissingRoleAlert
-    roles={["CanGetSystemLevelDynamicEntities"]}
-    message="You need this role to view system-level dynamic entity diagnostics"
+    roles={["CanGetDynamicEntityDefinitions"]}
+    bankId={DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID}
+    message="You need this role at {DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID}, the system space, to view system-level dynamic entity diagnostics"
   />
 {/if}
 {#if diagnosticLevel === "bank" && currentBank.bankId && !hasBankReadRole}
   <MissingRoleAlert
-    roles={["CanGetBankLevelDynamicEntities"]}
+    roles={["CanGetDynamicEntityDefinitions"]}
     bankId={currentBank.bankId}
     message="You need this role to view bank-level dynamic entity diagnostics for {currentBank.bank?.full_name || currentBank.bankId}"
   />

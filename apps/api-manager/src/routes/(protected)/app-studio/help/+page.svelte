@@ -117,7 +117,7 @@
             <a href="/dynamic-entities/system/{data.entity.dynamic_entity_id}" class="mt-2 inline-block text-sm underline">Open the entity</a>
           {:else}
             <p class="mt-1 text-sm text-gray-700 dark:text-gray-300">
-              Not found. The API Manager creates it at startup when its own consumer holds <code>CanCreateSystemLevelDynamicEntity</code>.
+              Not found. The API Manager creates it at startup when its own consumer holds <code>CanCreateDynamicEntityDefinition</code> at <code>SYS</code>, the system space.
               Otherwise create it from the template, which prefills every field including the auth mode:
             </p>
             <a href="/dynamic-entities/system/create?template=obp-portal-page" class="mt-2 inline-flex items-center gap-1 rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700" data-testid="help-create-entity">

@@ -16,6 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 import { createLogger } from "@obp/shared/utils";
+import { DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID } from "@obp/shared/obp";
 const logger = createLogger("RoleChecker");
 
 /**
@@ -401,7 +402,8 @@ export const SITE_MAP: Record<string, PageRoleConfig> = {
 
   // ── Dynamic Entities ──────────────────────────────────
   "/dynamic-entities/diagnostics": {
-    required: [{ role: "CanGetSystemLevelDynamicEntities" }],
+    // The Definition Roles are held at the bank id of the space they cover; SYS is the system space.
+    required: [{ role: "CanGetDynamicEntityDefinitions", bankId: DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID }],
   },
 
   // ── Dynamic Endpoints ─────────────────────────────────
