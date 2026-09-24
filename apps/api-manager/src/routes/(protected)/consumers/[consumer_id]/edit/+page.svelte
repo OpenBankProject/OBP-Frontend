@@ -134,7 +134,7 @@
   // Add Scope: type to search the role list (OBP has well over a thousand roles, including
   // the generated dynamic-entity ones). Matching is case-insensitive on any part of the name;
   // words separated by spaces must all match, so "get dynamic portal" finds
-  // CanGetDynamicEntity_Systemobp_portal_page.
+  // CanGetDynamicEntityRecord_obp_portal_page.
   let roleSearch = $state("");
   const ROLE_RESULTS_MAX = 30;
   let roleMatches = $derived.by(() => {
@@ -743,7 +743,7 @@
               {/each}
             </ul>
           {:else if !selectedRole && roleSearch.trim() && roleMatches.length === 0}
-            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">No role matches. Dynamic-entity roles look like <code>CanGetDynamicEntity_System&lt;entity&gt;</code>.</p>
+            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">No role matches. Dynamic-entity roles look like <code>CanGetDynamicEntityRecord_&lt;entity&gt;</code>.</p>
           {/if}
         </div>
 

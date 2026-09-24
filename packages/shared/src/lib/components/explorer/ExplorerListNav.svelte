@@ -39,7 +39,7 @@
 		placeholder?: string;
 		/** Rendered above the search box: a connector picker, a source filter. */
 		header?: import('svelte').Snippet;
-		/** True when the caller filters server-side and the box should submit rather than filter. */
+		/** Shown when there are no items and no search term is active. */
 		emptyMessage?: string;
 		/** The search term from the URL, and how to write it back: a ?q= link must arrive filtered. */
 		query?: string;
@@ -77,6 +77,12 @@
 	});
 
 	const total = $derived(filtered.reduce((n, g) => n + g.items.length, 0));
+	const allItemCount = $derived(groups.reduce((n, g) => n + g.items.length, 0));
+
+	function clearFilter() {
+		typed = '';
+		onQueryChange?.('');
+	}
 </script>
 
 <div class="flex h-full min-h-0 flex-col gap-2 p-3">
@@ -91,7 +97,20 @@
 		aria-label={placeholder}
 	/>
 
-	<p class="text-xs text-surface-600-400" aria-live="polite">{total}</p>
+	<div class="flex items-center justify-between gap-2">
+		<p class="text-xs text-surface-600-400" aria-live="polite">
+			{total}{typed.trim() ? ` of ${allItemCount}` : ''}
+		</p>
+		{#if typed.trim() && onQueryChange}
+			<button
+				type="button"
+				class="rounded border border-surface-300-600 px-2 py-0.5 text-xs text-surface-700-300 hover:bg-surface-100-800"
+				onclick={clearFilter}
+			>
+				Clear filter
+			</button>
+		{/if}
+	</div>
 
 	<div class="min-h-0 flex-1 overflow-y-auto">
 		{#each filtered as group (group.name)}
@@ -120,7 +139,20 @@
 				{/each}
 			</ul>
 		{:else}
-			<p class="px-2 py-4 text-sm text-surface-600-400">{emptyMessage}</p>
+			<div class="flex flex-col items-start gap-2 px-2 py-4">
+				<p class="text-sm text-surface-600-400">
+					{typed.trim() ? `Nothing matches “${typed.trim()}”.` : emptyMessage}
+				</p>
+				{#if typed.trim() && onQueryChange}
+					<button
+						type="button"
+						class="rounded border border-surface-300-600 px-2 py-1 text-xs text-surface-700-300 hover:bg-surface-100-800"
+						onclick={clearFilter}
+					>
+						Clear filter
+					</button>
+				{/if}
+			</div>
 		{/each}
 	</div>
 </div>

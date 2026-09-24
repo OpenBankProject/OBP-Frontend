@@ -20,7 +20,7 @@
  * Portal's application token. Only records with status "published" ever leave this module,
  * so drafts are invisible to visitors even if the entity holds them.
  *
- * The Portal's consumer needs the Scope CanGetDynamicEntity_Systemobp_portal_page (the
+ * The Portal's consumer needs the Scope CanGetDynamicEntityRecord_obp_portal_page at bank id SYS (the
  * entity's auth mode is UserOrApplication). See the API Manager's App Studio Help page.
  */
 import { createLogger } from '@obp/shared/utils';
@@ -85,7 +85,7 @@ export async function listPublishedPages(): Promise<PublishedPage[]> {
 		if (e instanceof OBPRequestError) {
 			logger.error(`Could not read ${PORTAL_PAGE_ENTITY}: ${e.message}`);
 			throw new PortalPagesUnavailable(
-				`OBP refused to list ${PORTAL_PAGE_ENTITY} (${e.message}). The Portal's consumer needs the Scope CanGetDynamicEntity_System${PORTAL_PAGE_ENTITY}, and the entity must exist.`,
+				`OBP refused to list ${PORTAL_PAGE_ENTITY} (${e.message}). The Portal's consumer needs the Scope CanGetDynamicEntityRecord_${PORTAL_PAGE_ENTITY} at bank id SYS, and the entity must exist.`,
 				e
 			);
 		}

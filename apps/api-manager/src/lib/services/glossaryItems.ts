@@ -18,14 +18,14 @@
 /**
  * Client-side helpers for Dynamic Glossary Items: Glossary Items held in the database and
  * maintained at runtime, as opposed to the static ones compiled into the API. A Dynamic Item
- * replaces a static one of the same title everywhere GET /obp/v4.0.0/api/glossary is served.
+ * replaces a static one of the same title everywhere the Glossary is served.
  *
  * Title is the resource key: it is set at creation and cannot be changed afterwards.
  * All calls go through the generic OBP proxy.
  */
 
 /**
- * One item as v7.0.0 /glossary-items returns it.
+ * One item as v7.0.0 /api/glossary returns it.
  *
  * GET /api/glossary/TITLE falls back to the static Glossary Item when no Dynamic one has the
  * title, so the management fields are optional: a static Item is compiled into the API and has no

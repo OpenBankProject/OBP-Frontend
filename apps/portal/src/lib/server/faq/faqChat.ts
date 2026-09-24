@@ -115,7 +115,7 @@ async function getOrCreateFaqChatUnlocked(id: string, visitorToken: string, port
 		try {
 			await obp_requests.put(`/obp/dynamic-entity/${ENTITY}/${encodeURIComponent(id)}`, body, appToken);
 		} catch (e) {
-			linkError = `Room created but not linked to the question: ${e instanceof Error ? e.message : String(e)}. The Portal's consumer needs the Scope CanUpdateDynamicEntity_System${ENTITY}.`;
+			linkError = `Room created but not linked to the question: ${e instanceof Error ? e.message : String(e)}. The Portal's consumer needs the Scope CanUpdateDynamicEntityRecord_${ENTITY} at bank id SYS.`;
 			logger.warn(linkError);
 		}
 	}

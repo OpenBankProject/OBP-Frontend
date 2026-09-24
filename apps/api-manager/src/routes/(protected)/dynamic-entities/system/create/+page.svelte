@@ -662,10 +662,10 @@
         <ul class="mt-2 space-y-1 text-xs text-blue-800 dark:text-blue-200">
           <li>
             <strong>1. Entity roles.</strong> Every entity generates
-            <code>CanCreateDynamicEntity_System&lt;Entity&gt;</code>,
-            <code>CanGetDynamicEntity_System&lt;Entity&gt;</code>,
-            <code>CanUpdateDynamicEntity_System&lt;Entity&gt;</code> and
-            <code>CanDeleteDynamicEntity_System&lt;Entity&gt;</code>
+            <code>CanCreateDynamicEntityRecord_&lt;Entity&gt;</code>,
+            <code>CanGetDynamicEntityRecord_&lt;Entity&gt;</code>,
+            <code>CanUpdateDynamicEntityRecord_&lt;Entity&gt;</code> and
+            <code>CanDeleteDynamicEntityRecord_&lt;Entity&gt;</code>
             (without <code>System</code> for a bank-level entity, held at that bank). They gate the
             shared routes <code>/obp/dynamic-entity/ENTITY_NAME</code>.
           </li>

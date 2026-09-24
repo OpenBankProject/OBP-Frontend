@@ -54,7 +54,7 @@
     }
   }
 
-  // Optional because GET /glossary-items/TITLE also answers for static Items, which have no
+  // Optional because GET /api/glossary/TITLE also answers for static Items, which have no
   // timestamps. The load guard redirects those away, so this page only ever sees Dynamic ones.
   function formatDate(value: string | undefined): string {
     if (!value) return "unknown";

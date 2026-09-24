@@ -132,7 +132,7 @@
 
   function describeForm(): string {
     const lines = [
-      "Form: Dynamic Glossary Item (a Glossary entry stored in the OBP database and served by GET /obp/v4.0.0/api/glossary alongside the static ones).",
+      "Form: Dynamic Glossary Item (a Glossary entry stored in the OBP database and served by GET /obp/v7.0.0/api/glossary alongside the static ones).",
       "A Dynamic Item whose title matches a static Glossary Item replaces that static text everywhere the Glossary is listed. Deleting it restores the static text.",
       "Fields settable via set_form_fields:",
       lockTitle

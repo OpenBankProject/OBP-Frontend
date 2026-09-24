@@ -149,7 +149,7 @@
           <p class="mt-2 text-sm text-gray-700 dark:text-gray-300">
             Find the Portal's consumer below (its key is the Portal's OAuth client id), open it, and add that role under <em>Consumer Scopes</em> with an empty bank id.
             Adding a scope needs <code>CanCreateScopeAtOneBank</code>.
-            For the FAQ's "Start a chat" button, which links a new group chat to a question, the same consumer also needs <code>CanUpdateDynamicEntity_Systemobp_developer_faq</code>.
+            For the FAQ's "Start a chat" button, which links a new group chat to a question, the same consumer also needs <code>CanUpdateDynamicEntityRecord_obp_developer_faq</code>.
           </p>
 
           <div class="mt-3">

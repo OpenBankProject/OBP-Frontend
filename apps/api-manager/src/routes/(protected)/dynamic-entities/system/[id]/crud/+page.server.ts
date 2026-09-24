@@ -64,7 +64,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
     const entityName = entity.entity_name || null;
     let dataRecords: unknown[] = [];
     // GET /obp/dynamic-entity/<name> is gated by the per-entity role
-    // CanGetDynamicEntity_System<name> (unlike the management endpoint that
+    // CanGetDynamicEntityRecord_<name> (unlike the management endpoint that
     // supplied record_count), so a failure here is usually a 403 the user can
     // fix by requesting the role. Surface it instead of rendering "0 records".
     let dataFetchError: { status: number; message: string } | null = null;

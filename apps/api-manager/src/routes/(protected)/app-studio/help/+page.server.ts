@@ -83,8 +83,8 @@ export const load: PageServerLoad = async ({ locals }) => {
   return {
     entityName: portalPageEntity.entity_name,
     requiredAuthMode: portalPageEntity.auth_mode,
-    getRole: `CanGetDynamicEntity_System${portalPageEntity.entity_name}`,
-    editorRoles: ["Create", "Update", "Delete"].map((op) => `Can${op}DynamicEntity_System${portalPageEntity.entity_name}`),
+    getRole: `CanGetDynamicEntityRecord_${portalPageEntity.entity_name}`,
+    editorRoles: ["Create", "Update", "Delete"].map((op) => `Can${op}DynamicEntityRecord_${portalPageEntity.entity_name}`),
     entity,
     consumers,
     portalUrl: String(publicEnv.PUBLIC_PORTAL_URL ?? "").replace(/\/$/, ""),
