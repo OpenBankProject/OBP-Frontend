@@ -21,6 +21,7 @@ import { obp_requests } from "$lib/obp/requests";
 import { obpErrorResponse } from "$lib/obp/errors";
 import { SessionOAuthHelper } from "$lib/oauth/sessionHelper";
 import { createLogger } from '@obp/shared/utils';
+import { dynamicEntityDefinitionsPath } from "@obp/shared/obp";
 
 const logger = createLogger("DynamicEntityBackupAPI");
 
@@ -46,15 +47,9 @@ export const POST: RequestHandler = async ({ params, locals, url }) => {
       return json({ message: "Entity ID is required", code: 400 }, { status: 400 });
     }
 
-    // Check if bank_id is provided for bank-level backup
+    // The space the definition lives in: a bank id, or none for the system space (SYS).
     const bankId = url.searchParams.get("bank_id");
-
-    let endpoint: string;
-    if (bankId) {
-      endpoint = `/obp/v6.0.0/management/banks/${bankId}/dynamic-entities/${id}/backup`;
-    } else {
-      endpoint = `/obp/v6.0.0/management/system-dynamic-entities/${id}/backup`;
-    }
+    const endpoint = `${dynamicEntityDefinitionsPath(bankId)}/${id}/backup`;
 
     logger.info(`=== DYNAMIC ENTITY BACKUP ===`);
     logger.info(`Request: POST ${endpoint}`);

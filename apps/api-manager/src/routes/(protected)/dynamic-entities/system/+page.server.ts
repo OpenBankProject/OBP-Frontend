@@ -18,6 +18,7 @@
 import type { PageServerLoad } from "./$types";
 import { error } from "@sveltejs/kit";
 import { createLogger } from "@obp/shared/utils";
+import { DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID, dynamicEntityDefinitionsPath } from "@obp/shared/obp";
 import { SessionOAuthHelper } from "$lib/oauth/sessionHelper";
 import { obp_requests } from "$lib/obp/requests";
 
@@ -44,7 +45,7 @@ export const load: PageServerLoad = async ({ locals }) => {
   logger.info("Access token present, fetching dynamic entities");
 
   try {
-    const endpoint = "/obp/v6.0.0/management/system-dynamic-entities";
+    const endpoint = dynamicEntityDefinitionsPath(DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID);
     logger.info(`Making API request to: ${endpoint}`);
 
     const entitiesResponse = await obp_requests.get(endpoint, accessToken);

@@ -19,11 +19,11 @@ import type { PageServerLoad } from "./$types";
 import { error } from "@sveltejs/kit";
 import { createLogger } from "@obp/shared/utils";
 import { SessionOAuthHelper } from "$lib/oauth/sessionHelper";
-import { obp_requests } from "$lib/obp/requests";
+import { findDynamicEntityDefinition } from "$lib/server/dynamicEntities/definitions";
 
 const logger = createLogger("SystemDynamicEntityDetailPageServer");
 
-export const load: PageServerLoad = async ({ params, locals }) => {
+export const load: PageServerLoad = async ({ params, locals, url }) => {
   const session = locals.session;
 
   if (!session?.data?.user) {
@@ -44,19 +44,12 @@ export const load: PageServerLoad = async ({ params, locals }) => {
   }
 
   try {
-    // Fetch all system dynamic entities
-    // Fetch all system dynamic entities to get the entity definition
-    const entitiesResponse = await obp_requests.get(
-      "/obp/v6.0.0/management/system-dynamic-entities",
-      accessToken,
-    );
-    const entities = entitiesResponse.dynamic_entities || [];
-
-    // Find the specific entity by dynamic_entity_id
-    const entity = entities.find((e: any) => e.dynamic_entity_id === id);
+    // The space comes from ?bank_id= (a bank id or SYS); without it, the system space.
+    const bankId = url.searchParams.get("bank_id");
+    const entity = await findDynamicEntityDefinition(id, bankId, accessToken);
 
     if (!entity) {
-      throw error(404, "System dynamic entity not found");
+      throw error(404, `Dynamic entity not found in ${bankId || "SYS"}`);
     }
 
     // Get user entitlements from session for role checking

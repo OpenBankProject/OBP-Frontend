@@ -27,7 +27,7 @@
   import { currentBank } from "$lib/stores/currentBank.svelte";
   import { trackedFetch } from "$lib/utils/trackedFetch";
   import MissingRoleAlert from "$lib/components/MissingRoleAlert.svelte";
-  import { DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID } from "@obp/shared/obp";
+  import { DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID, dynamicEntityDefinitionsPath } from "@obp/shared/obp";
 
   let { data }: { data: PageData } = $props();
 
@@ -86,7 +86,7 @@
     bankEntitiesLoading = true;
     bankEntitiesError = null;
     try {
-      const response = await trackedFetch(`/proxy/obp/v6.0.0/management/banks/${bankId}/dynamic-entities`);
+      const response = await trackedFetch(`/proxy${dynamicEntityDefinitionsPath(bankId)}`);
       const result = await response.json();
       if (!response.ok) {
         throw new Error(result.error || "Failed to fetch bank-level dynamic entities");
@@ -142,6 +142,12 @@
     }),
   );
 
+  // The space a listed definition lives in; v7.0.0 gives every definition its bank_id, SYS included.
+  function spaceOf(entityId: string): string {
+    const entity = allEntities.find((e: any) => e.dynamic_entity_id === entityId);
+    return entity?.bank_id || DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID;
+  }
+
   async function deleteEntity(
     entityId: string,
     entityName: string,
@@ -156,9 +162,9 @@
     }
 
     try {
-      const url = cascade
-        ? `/backend/dynamic-entities/${entityId}?cascade=true`
-        : `/backend/dynamic-entities/${entityId}`;
+      const query = new URLSearchParams({ bank_id: spaceOf(entityId) });
+      if (cascade) query.set("cascade", "true");
+      const url = `/backend/dynamic-entities/${entityId}?${query}`;
 
       const response = await fetch(url, {
         method: "DELETE",
@@ -194,7 +200,7 @@
     backingUp[entityId] = true;
 
     try {
-      const response = await fetch(`/backend/dynamic-entities/${entityId}/backup`, {
+      const response = await fetch(`/backend/dynamic-entities/${entityId}/backup?bank_id=${encodeURIComponent(spaceOf(entityId))}`, {
         method: "POST",
       });
 
@@ -584,7 +590,7 @@
                 {/if}
                 <td class="whitespace-nowrap px-3 py-3 text-sm font-medium">
                   <a
-                    href="/dynamic-entities/system/{entity.dynamic_entity_id}"
+                    href="/dynamic-entities/system/{entity.dynamic_entity_id}?bank_id={encodeURIComponent(entity.bank_id || DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID)}"
                     class="text-blue-600 hover:text-blue-800 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
                   >
                     {getEntityName(entity)}
@@ -617,7 +623,7 @@
                       type="button"
                       onclick={() =>
                         goto(
-                          `/dynamic-entities/system/${entity.dynamic_entity_id}`,
+                          `/dynamic-entities/system/${entity.dynamic_entity_id}?bank_id=${encodeURIComponent(entity.bank_id || DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID)}`,
                         )}
                       class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
                       title="View Details"

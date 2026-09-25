@@ -21,6 +21,7 @@
   import { page } from "$app/state";
   import { navSections as allNavSections, findActiveSection, type NavigationSection } from "$lib/config/navigation";
   import { SITE_MAP, type UserEntitlement } from "$lib/utils/roleChecker";
+  import { DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID, dynamicEntityDefinitionsPath } from "@obp/shared/obp";
 
   // My Profile renders in its own position at the top; the six domains follow.
   const myAccountSection = allNavSections.find(s => s.id === "my-account");
@@ -141,7 +142,7 @@
     if (!isAuthenticated) return;
 
     try {
-      const response = await fetch("/proxy/obp/v6.0.0/management/system-dynamic-entities", {
+      const response = await fetch(`/proxy${dynamicEntityDefinitionsPath(DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID)}`, {
         credentials: "include",
       });
       if (response.ok) {

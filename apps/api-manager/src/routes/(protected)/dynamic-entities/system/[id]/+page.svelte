@@ -25,10 +25,15 @@
   } from "$lib/utils/errorHandler";
   import { page } from "$app/stores";
   import { trackedFetch } from "$lib/utils/trackedFetch";
+  import { DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID, dynamicEntityDataPath, dynamicEntityOperationId, dynamicEntityRecordIdPlaceholder } from "@obp/shared/obp";
+  import { explorerEndpointUrl } from "@obp/shared/explorer";
 
   let { data }: { data: PageData } = $props();
 
   const entity = data.entity;
+  // The space this definition lives in; v7.0.0 always returns bank_id, SYS for the system space.
+  const space: string = entity.bank_id || DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID;
+  const spaceQuery = `bank_id=${encodeURIComponent(space)}`;
   let userEntitlements = $derived(data.userEntitlements || []);
   const apiExplorerUrl =
     $page.data.externalLinks?.API_EXPLORER_URL ||
@@ -47,9 +52,24 @@
 
   const schema = getSchema(entity);
   const entityName: string = getEntityName(entity);
+  // The v7.0.0 record URLs of this entity's space: /obp/v7.0.0/banks/BANK_ID/dynamic-entities
+  const dataPath = dynamicEntityDataPath(space);
   const properties = schema?.properties || {};
   const requiredFields = schema?.required || [];
   const description = schema?.description || "No description available";
+
+  // The CRUD endpoints open in the Portal's API Explorer, addressed by verb and path as the resource doc
+  // writes them: the record id as <ENTITY_NAME>_ID and the grantee as USER_ID.
+  const portalExplorerBase = `${$page.data.externalLinks?.PORTAL_URL || "http://localhost:5174"}/api-explorer`;
+  const recordIdPlaceholder = dynamicEntityRecordIdPlaceholder(entityName);
+  function portalExplorerUrl(endpoint: string): string {
+    const [verb, path] = endpoint.split(" ");
+    return explorerEndpointUrl(
+      verb,
+      path.replace("{RECORD_ID}", recordIdPlaceholder).replace("{USER_ID}", "USER_ID"),
+      { base: portalExplorerBase },
+    );
+  }
 
   // Define required roles for CRUD operations on this dynamic entity
   let requiredRoles = $derived.by(() => {
@@ -60,24 +80,24 @@
       ? [
           {
             operation: "Access list (read)",
-            role: `CanGrantDynamicEntityRowAccess_System${entityName}`,
+            role: `CanGrantDynamicEntityRowAccess_${entityName}`,
             description: `List who may read, update, delete and grant one ${entityName} record`,
-            endpoint: `GET /obp/dynamic-entity/${entityName}/{RECORD_ID}/access`,
-            explorerUrl: `${apiExplorerUrl}/resource-docs/OBPdynamic-entity?operationid=OBPv4.0.0-dynamicEntity_get${entityName}RowAccess_`,
+            endpoint: `GET ${dataPath}/${entityName}/{RECORD_ID}/access`,
+            explorerUrl: portalExplorerUrl(`GET ${dataPath}/${entityName}/{RECORD_ID}/access`),
           },
           {
             operation: "Access list (grant)",
-            role: `CanGrantDynamicEntityRowAccess_System${entityName}`,
+            role: `CanGrantDynamicEntityRowAccess_${entityName}`,
             description: `Share one ${entityName} record with a user_id (can_read, can_update, can_delete, can_grant). The record's creator may do this without the role.`,
-            endpoint: `POST /obp/dynamic-entity/${entityName}/{RECORD_ID}/access`,
-            explorerUrl: `${apiExplorerUrl}/resource-docs/OBPdynamic-entity?operationid=OBPv4.0.0-dynamicEntity_grant${entityName}RowAccess_`,
+            endpoint: `PUT ${dataPath}/${entityName}/{RECORD_ID}/access`,
+            explorerUrl: portalExplorerUrl(`PUT ${dataPath}/${entityName}/{RECORD_ID}/access`),
           },
           {
             operation: "Access list (revoke)",
-            role: `CanGrantDynamicEntityRowAccess_System${entityName}`,
+            role: `CanGrantDynamicEntityRowAccess_${entityName}`,
             description: `Revoke one user's access to one ${entityName} record, cascading to the grants they passed on`,
-            endpoint: `DELETE /obp/dynamic-entity/${entityName}/{RECORD_ID}/access/{USER_ID}`,
-            explorerUrl: `${apiExplorerUrl}/resource-docs/OBPdynamic-entity?operationid=OBPv4.0.0-dynamicEntity_revoke${entityName}RowAccess_`,
+            endpoint: `DELETE ${dataPath}/${entityName}/{RECORD_ID}/access/{USER_ID}`,
+            explorerUrl: portalExplorerUrl(`DELETE ${dataPath}/${entityName}/{RECORD_ID}/access/{USER_ID}`),
           },
         ]
       : [];
@@ -86,36 +106,36 @@
         operation: "Create",
         role: `CanCreateDynamicEntityRecord_${entityName}`,
         description: `Create new ${entityName} records`,
-        endpoint: `POST /obp/dynamic-entity/${entityName}`,
-        explorerUrl: `${apiExplorerUrl}/resource-docs/OBPdynamic-entity?operationid=OBPv4.0.0-dynamicEntity_create${entityName}_`,
+        endpoint: `POST ${dataPath}/${entityName}`,
+        explorerUrl: portalExplorerUrl(`POST ${dataPath}/${entityName}`),
       },
       {
         operation: "Read (list)",
         role: `CanGetDynamicEntityRecord_${entityName}`,
         description: `List all ${entityName} records`,
-        endpoint: `GET /obp/dynamic-entity/${entityName}`,
-        explorerUrl: `${apiExplorerUrl}/resource-docs/OBPdynamic-entity?operationid=OBPv4.0.0-dynamicEntity_get${entityName}List_`,
+        endpoint: `GET ${dataPath}/${entityName}`,
+        explorerUrl: portalExplorerUrl(`GET ${dataPath}/${entityName}`),
       },
       {
         operation: "Read (single)",
         role: `CanGetDynamicEntityRecord_${entityName}`,
         description: `View a single ${entityName} record by ID`,
-        endpoint: `GET /obp/dynamic-entity/${entityName}/{RECORD_ID}`,
-        explorerUrl: `${apiExplorerUrl}/resource-docs/OBPdynamic-entity?operationid=OBPv4.0.0-dynamicEntity_getSingle${entityName}_`,
+        endpoint: `GET ${dataPath}/${entityName}/{RECORD_ID}`,
+        explorerUrl: portalExplorerUrl(`GET ${dataPath}/${entityName}/{RECORD_ID}`),
       },
       {
         operation: "Update",
         role: `CanUpdateDynamicEntityRecord_${entityName}`,
         description: `Update existing ${entityName} records`,
-        endpoint: `PUT /obp/dynamic-entity/${entityName}/{RECORD_ID}`,
-        explorerUrl: `${apiExplorerUrl}/resource-docs/OBPdynamic-entity?operationid=OBPv4.0.0-dynamicEntity_update${entityName}_`,
+        endpoint: `PUT ${dataPath}/${entityName}/{RECORD_ID}`,
+        explorerUrl: portalExplorerUrl(`PUT ${dataPath}/${entityName}/{RECORD_ID}`),
       },
       {
         operation: "Delete",
         role: `CanDeleteDynamicEntityRecord_${entityName}`,
         description: `Delete ${entityName} records`,
-        endpoint: `DELETE /obp/dynamic-entity/${entityName}/{RECORD_ID}`,
-        explorerUrl: `${apiExplorerUrl}/resource-docs/OBPdynamic-entity?operationid=OBPv4.0.0-dynamicEntity_delete${entityName}_`,
+        endpoint: `DELETE ${dataPath}/${entityName}/{RECORD_ID}`,
+        explorerUrl: portalExplorerUrl(`DELETE ${dataPath}/${entityName}/{RECORD_ID}`),
       },
       ...rowAccessRoles,
     ];
@@ -141,7 +161,7 @@
     try {
       const requestBody = {
         role_name: roleName,
-        bank_id: "", // System-wide roles use empty string
+        bank_id: space, // Record Roles are held at the entity's space, SYS included
       };
 
       const response = await trackedFetch("/backend/rbac/entitlement-requests", {
@@ -168,8 +188,8 @@
   }
 
   // Construct API Explorer URL for this dynamic entity
-  // Format: /resource-docs/OBPdynamic-entity?operationid=OBPv4.0.0-dynamicEntity_create<ENTITY_NAME>_
-  const apiExplorerEntityUrl = `${apiExplorerUrl}/resource-docs/OBPdynamic-entity?operationid=OBPv4.0.0-dynamicEntity_create${entityName}_`;
+  // Format: /resource-docs/OBPv7.0.0?operationid=OBPv7.0.0-dynamicEntity_create<ENTITY_NAME>_<BANK_ID, empty for SYS>
+  const apiExplorerEntityUrl = `${apiExplorerUrl}/resource-docs/OBPv7.0.0?operationid=${dynamicEntityOperationId(`create${entityName}`, space)}`;
 
   async function handleDelete() {
     if (
@@ -182,7 +202,7 @@
 
     try {
       const response = await fetch(
-        `/backend/dynamic-entities/${entity.dynamic_entity_id}`,
+        `/backend/dynamic-entities/${entity.dynamic_entity_id}?${spaceQuery}`,
         {
           method: "DELETE",
         },
@@ -246,7 +266,7 @@
 
     try {
       const response = await fetch(
-        `/backend/dynamic-entities/${entity.dynamic_entity_id}/backup`,
+        `/backend/dynamic-entities/${entity.dynamic_entity_id}/backup?${spaceQuery}`,
         { method: "POST" },
       );
 
@@ -270,7 +290,7 @@
   let exportCopied = $state(false);
 
   function createExportDefinition(): any {
-    // Create the request body needed to recreate this entity (v6.0.0 format)
+    // Create the request body needed to recreate this entity (the v7.0.0 create body)
     return {
       entity_name: entityName,
       schema: schema,
@@ -376,7 +396,7 @@
           API Explorer
         </a>
         <a
-          href="/dynamic-entities/system/{entity.dynamic_entity_id}/crud"
+          href="/dynamic-entities/system/{entity.dynamic_entity_id}/crud?{spaceQuery}"
           class="inline-flex items-center rounded-lg border border-blue-300 bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 dark:border-blue-600 dark:bg-blue-500 dark:hover:bg-blue-600"
         >
           <svg
@@ -528,7 +548,7 @@
               Yes
             </span>
             <p class="mt-1 font-mono text-xs text-blue-600 dark:text-blue-400">
-              GET /obp/dynamic-entity/public/{entityName}
+              GET {dataPath}/public/{entityName}
             </p>
           {:else}
             <span
@@ -551,7 +571,7 @@
               Yes
             </span>
             <p class="mt-1 font-mono text-xs text-blue-600 dark:text-blue-400">
-              GET /obp/dynamic-entity/community/{entityName}
+              GET {dataPath}/community/{entityName}
             </p>
           {:else}
             <span
@@ -594,10 +614,10 @@
               Yes
             </span>
             <p class="mt-1 font-mono text-xs text-blue-600 dark:text-blue-400">
-              GET/POST /obp/dynamic-entity/{entityName}/RECORD_ID/access
+              GET/PUT {dataPath}/{entityName}/RECORD_ID/access
             </p>
             <p class="mt-1 font-mono text-xs text-blue-600 dark:text-blue-400">
-              DELETE /obp/dynamic-entity/{entityName}/RECORD_ID/access/USER_ID
+              DELETE {dataPath}/{entityName}/RECORD_ID/access/USER_ID
             </p>
             <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
               A per-record access list decides read, update, delete and grant, in place of this

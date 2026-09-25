@@ -20,7 +20,7 @@
   import { currentBank } from "$lib/stores/currentBank.svelte";
   import { trackedFetch } from "$lib/utils/trackedFetch";
   import MissingRoleAlert from "$lib/components/MissingRoleAlert.svelte";
-  import { DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID } from "@obp/shared/obp";
+  import { DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID, dynamicEntityDefinitionsPath } from "@obp/shared/obp";
 
   let { data } = $props();
 
@@ -77,7 +77,7 @@
     bankLoading = true;
     bankError = null;
     try {
-      const response = await trackedFetch(`/proxy/obp/v6.0.0/management/banks/${bankId}/dynamic-entities`);
+      const response = await trackedFetch(`/proxy${dynamicEntityDefinitionsPath(bankId)}`);
       const result = await response.json();
       if (!response.ok) {
         throw new Error(result.error || "Failed to fetch bank-level dynamic entities");
@@ -90,6 +90,7 @@
       // Transform bank entities into diagnostics format
       bankDiagnostics = entities.map((entity: any) => ({
         dynamic_entity_id: entity.dynamic_entity_id,
+        bank_id: entity.bank_id || bankId,
         entityName: entity.entity_name || "Unknown",
         recordCount: entity.record_count ?? 0,
         schema: entity.schema || null,
@@ -670,13 +671,13 @@ ${diag.triedKeys?.length ? `Tried Keys: ${diag.triedKeys.join(", ")}` : ""}
         <!-- Actions -->
         <div class="mt-4 flex gap-2">
           <a
-            href="/dynamic-entities/system/{diag.dynamic_entity_id}/crud"
+            href="/dynamic-entities/system/{diag.dynamic_entity_id}/crud?bank_id={encodeURIComponent(diag.bank_id || DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID)}"
             class="rounded-lg bg-blue-100 px-3 py-1.5 text-sm font-medium text-blue-700 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
           >
             View CRUD
           </a>
           <a
-            href="/dynamic-entities/system/{diag.dynamic_entity_id}"
+            href="/dynamic-entities/system/{diag.dynamic_entity_id}?bank_id={encodeURIComponent(diag.bank_id || DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID)}"
             class="rounded-lg bg-gray-100 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
           >
             View Definition

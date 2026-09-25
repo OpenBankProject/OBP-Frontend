@@ -21,26 +21,20 @@ import { obp_requests } from "$lib/obp/requests";
 import { obpErrorResponse } from "$lib/obp/errors";
 import { SessionOAuthHelper } from "$lib/oauth/sessionHelper";
 import { createLogger } from '@obp/shared/utils';
+import { dynamicEntityRecordsPath } from "@obp/shared/obp";
+import { findDynamicEntityDefinition } from "$lib/server/dynamicEntities/definitions";
 
 const logger = createLogger("DynamicEntityRecordAPI");
 
-// Helper function to get entity name from entity ID
+// The entity's name, looked up by id in its space (bank_id query param; none means SYS)
 async function getEntityName(
   entityId: string,
+  bankId: string | null,
   accessToken: string,
 ): Promise<string | null> {
   try {
-    const entitiesResponse = await obp_requests.get(
-      "/obp/v6.0.0/management/system-dynamic-entities",
-      accessToken,
-    );
-    const entities = entitiesResponse.dynamic_entities || [];
-    const entity = entities.find((e: any) => e.dynamic_entity_id === entityId);
-
-    if (!entity) return null;
-
-    // In v6.0.0, the entity name is in the entity_name field
-    return entity.entity_name || null;
+    const entity = await findDynamicEntityDefinition(entityId, bankId, accessToken);
+    return entity?.entity_name || null;
   } catch (err) {
     logger.error("Error fetching entity name:", err);
     return null;
@@ -48,7 +42,7 @@ async function getEntityName(
 }
 
 // GET - Fetch a specific record
-export const GET: RequestHandler = async ({ params, locals }) => {
+export const GET: RequestHandler = async ({ params, locals, url }) => {
   const session = locals.session;
 
   if (!session?.data?.user) {
@@ -65,6 +59,7 @@ export const GET: RequestHandler = async ({ params, locals }) => {
 
   try {
     const { id, recordId } = params;
+    const bankId = url.searchParams.get("bank_id");
 
     if (!id) {
       return json({ message: "Entity ID is required", code: 400 }, { status: 400 });
@@ -75,14 +70,14 @@ export const GET: RequestHandler = async ({ params, locals }) => {
     }
 
     // Get entity name from ID
-    const entityName = await getEntityName(id, accessToken);
+    const entityName = await getEntityName(id, bankId, accessToken);
     if (!entityName) {
       return json({ message: "Entity not found", code: 404 }, { status: 404 });
     }
 
     logger.info(`Fetching record ${recordId} for entity: ${entityName}`);
 
-    const endpoint = `/obp/dynamic-entity/${entityName}/${recordId}`;
+    const endpoint = `${dynamicEntityRecordsPath(bankId, entityName)}/${recordId}`;
     const response = await obp_requests.get(endpoint, accessToken);
 
     logger.info("Record retrieved successfully");
@@ -96,7 +91,7 @@ export const GET: RequestHandler = async ({ params, locals }) => {
 };
 
 // PUT - Update a specific record
-export const PUT: RequestHandler = async ({ params, request, locals }) => {
+export const PUT: RequestHandler = async ({ params, request, locals, url }) => {
   const session = locals.session;
 
   if (!session?.data?.user) {
@@ -113,6 +108,7 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 
   try {
     const { id, recordId } = params;
+    const bankId = url.searchParams.get("bank_id");
 
     if (!id) {
       return json({ message: "Entity ID is required", code: 400 }, { status: 400 });
@@ -131,7 +127,7 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
     }
 
     // Get entity name from ID
-    const entityName = await getEntityName(id, accessToken);
+    const entityName = await getEntityName(id, bankId, accessToken);
     if (!entityName) {
       return json({ message: "Entity not found", code: 404 }, { status: 404 });
     }
@@ -139,7 +135,7 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
     logger.info(`Updating record ${recordId} for entity: ${entityName}`);
     logger.info(`Data: ${JSON.stringify(body)}`);
 
-    const endpoint = `/obp/dynamic-entity/${entityName}/${recordId}`;
+    const endpoint = `${dynamicEntityRecordsPath(bankId, entityName)}/${recordId}`;
     const response = await obp_requests.put(endpoint, body, accessToken);
 
     logger.info("Record updated successfully");
@@ -153,7 +149,7 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 };
 
 // DELETE - Delete a specific record
-export const DELETE: RequestHandler = async ({ params, locals }) => {
+export const DELETE: RequestHandler = async ({ params, locals, url }) => {
   const session = locals.session;
 
   if (!session?.data?.user) {
@@ -170,6 +166,7 @@ export const DELETE: RequestHandler = async ({ params, locals }) => {
 
   try {
     const { id, recordId } = params;
+    const bankId = url.searchParams.get("bank_id");
 
     if (!id) {
       return json({ message: "Entity ID is required", code: 400 }, { status: 400 });
@@ -180,14 +177,14 @@ export const DELETE: RequestHandler = async ({ params, locals }) => {
     }
 
     // Get entity name from ID
-    const entityName = await getEntityName(id, accessToken);
+    const entityName = await getEntityName(id, bankId, accessToken);
     if (!entityName) {
       return json({ message: "Entity not found", code: 404 }, { status: 404 });
     }
 
     logger.info(`Deleting record ${recordId} for entity: ${entityName}`);
 
-    const endpoint = `/obp/dynamic-entity/${entityName}/${recordId}`;
+    const endpoint = `${dynamicEntityRecordsPath(bankId, entityName)}/${recordId}`;
     const response = await obp_requests.delete(endpoint, accessToken);
 
     logger.info("Record deleted successfully");

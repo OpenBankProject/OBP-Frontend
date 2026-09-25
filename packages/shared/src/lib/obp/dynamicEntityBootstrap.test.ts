@@ -36,7 +36,7 @@ describe('ensureSystemDynamicEntity', () => {
 	it('creates a missing entity', async () => {
 		const d = deps([]);
 		expect(await ensureSystemDynamicEntity(definition, d.deps)).toBe(true);
-		expect(d.post).toHaveBeenCalledWith('/obp/v6.0.0/management/system-dynamic-entities', definition, 'app-token');
+		expect(d.post).toHaveBeenCalledWith('/obp/v7.0.0/management/banks/SYS/dynamic-entities', definition, 'app-token');
 		expect(d.put).not.toHaveBeenCalled();
 	});
 
@@ -50,7 +50,7 @@ describe('ensureSystemDynamicEntity', () => {
 	it('updates an entity that lacks a property the definition has', async () => {
 		const d = deps([{ dynamic_entity_id: 'de-1', entity_name: 'notes', auth_mode: 'UserOnly', schema: { properties: { title: {} } } }]);
 		expect(await ensureSystemDynamicEntity(definition, d.deps)).toBe(true);
-		expect(d.put).toHaveBeenCalledWith('/obp/v6.0.0/management/system-dynamic-entities/de-1', definition, 'app-token');
+		expect(d.put).toHaveBeenCalledWith('/obp/v7.0.0/management/banks/SYS/dynamic-entities/de-1', definition, 'app-token');
 		expect(d.post).not.toHaveBeenCalled();
 	});
 

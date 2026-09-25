@@ -21,6 +21,7 @@ import { env as publicEnv } from "$env/dynamic/public";
 import { SessionOAuthHelper } from "$lib/oauth/sessionHelper";
 import { obp_requests } from "$lib/obp/requests";
 import { createLogger } from "@obp/shared/utils";
+import { DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID, dynamicEntityDefinitionsPath } from "@obp/shared/obp";
 import portalPageEntity from "$lib/data/portalPageEntity.json";
 
 const logger = createLogger("AppStudioHelp");
@@ -51,7 +52,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 
   let entity: EntityStatus = { exists: false, dynamic_entity_id: "", auth_mode: "", record_count: null, obp_supports_auth_mode: false };
   try {
-    const response = await obp_requests.get("/obp/v6.0.0/management/system-dynamic-entities", token);
+    const response = await obp_requests.get(dynamicEntityDefinitionsPath(DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID), token);
     const entities: any[] = response?.dynamic_entities ?? [];
     const found = entities.find((e) => e.entity_name === portalPageEntity.entity_name);
     entity = {

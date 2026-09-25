@@ -20,12 +20,13 @@ import { error } from "@sveltejs/kit";
 import { createLogger } from "@obp/shared/utils";
 import { SessionOAuthHelper } from "$lib/oauth/sessionHelper";
 import { obp_requests } from "$lib/obp/requests";
-import { DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID } from "@obp/shared/obp";
+import { DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID, dynamicEntityDefinitionsPath, dynamicEntityRecordsPath } from "@obp/shared/obp";
 
 const logger = createLogger("DynamicEntityDiagnosticsPageServer");
 
 interface EntityDiagnostic {
   dynamic_entity_id: string;
+  bank_id: string;
   entityName: string;
   recordCount: number;
   error?: string;
@@ -78,7 +79,7 @@ export const load: PageServerLoad = async ({ locals }) => {
   logger.info("Access token present, fetching dynamic entities");
 
   try {
-    const endpoint = "/obp/v6.0.0/management/system-dynamic-entities";
+    const endpoint = dynamicEntityDefinitionsPath(DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID);
     logger.info(`Making API request to: ${endpoint}`);
 
     const entitiesResponse = await obp_requests.get(endpoint, accessToken);
@@ -89,7 +90,6 @@ export const load: PageServerLoad = async ({ locals }) => {
     const diagnostics: EntityDiagnostic[] = [];
 
     for (const entity of entities) {
-      // In v6.0.0, the entity name is in the entity_name field
       const entityName = entity.entity_name || "Unknown";
       const schema = entity.schema;
 
@@ -97,11 +97,11 @@ export const load: PageServerLoad = async ({ locals }) => {
         `Checking entity: ${entityName} (ID: ${entity.dynamic_entity_id})`,
       );
 
-      // v6.0.0 API MUST provide record_count in the entity definition
+      // The definitions list MUST provide record_count in the entity definition
       if (entity.record_count === undefined) {
         logger.error(`  *** ERROR: record_count missing for ${entityName} ***`);
         throw new Error(
-          `API v6.0.0 must provide record_count for entity ${entityName}`,
+          `The definitions list must provide record_count for entity ${entityName}`,
         );
       }
 
@@ -117,7 +117,7 @@ export const load: PageServerLoad = async ({ locals }) => {
       let rawResponse: any = undefined;
 
       try {
-        const dataEndpoint = `/obp/dynamic-entity/${entityName}`;
+        const dataEndpoint = dynamicEntityRecordsPath(entity.bank_id, entityName);
         logger.info(`  Fetching raw response from: ${dataEndpoint}`);
 
         const dataResponse = await obp_requests.get(dataEndpoint, accessToken);
@@ -134,6 +134,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 
       diagnostics.push({
         dynamic_entity_id: entity.dynamic_entity_id,
+        bank_id: entity.bank_id || DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID,
         entityName,
         recordCount,
         error: fetchError,

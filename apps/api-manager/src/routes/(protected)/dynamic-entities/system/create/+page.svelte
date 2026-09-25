@@ -27,7 +27,7 @@
   } from "$lib/utils/errorHandler";
   import { currentBank } from "$lib/stores/currentBank.svelte";
   import MissingRoleAlert from "$lib/components/MissingRoleAlert.svelte";
-  import { DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID } from "@obp/shared/obp";
+  import { DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID, dynamicEntityDefinitionsPath } from "@obp/shared/obp";
 
   let { data }: { data: PageData } = $props();
 
@@ -181,7 +181,7 @@
     try {
       const schema = JSON.parse(schemaJson);
 
-      // Construct the system dynamic entity payload for v6.0.0
+      // The definition payload (the v7.0.0 body is the same as v6.0.0's)
       const payload: Record<string, any> = {
         entity_name: entityName,
         schema: {
@@ -197,9 +197,9 @@
         auth_mode: authMode,
       };
 
-      const createUrl = entityLevel === "bank"
-        ? `/proxy/obp/v6.0.0/management/banks/${bankId}/dynamic-entities`
-        : `/proxy/obp/v6.0.0/management/system-dynamic-entities`;
+      const createUrl = `/proxy${dynamicEntityDefinitionsPath(
+        entityLevel === "bank" ? bankId : DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID,
+      )}`;
 
       const response = await fetch(createUrl, {
         method: "POST",
@@ -511,7 +511,7 @@
               gets read, update, delete and grant on it, and names the user to share with in the
               request body:
             </p>
-            <pre class="mt-2 overflow-x-auto rounded border border-gray-200 bg-gray-50 p-2 font-mono text-xs text-gray-700 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300">POST /obp/dynamic-entity/ENTITY_NAME/RECORD_ID/access
+            <pre class="mt-2 overflow-x-auto rounded border border-gray-200 bg-gray-50 p-2 font-mono text-xs text-gray-700 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300">PUT /obp/v7.0.0/banks/BANK_ID/dynamic-entities/ENTITY_NAME/RECORD_ID/access
 &#123;
   "user_id": "9ca9a7e4-6d02-40e3-a129-0b2bf89de9b1",
   "can_read": true,
@@ -522,9 +522,9 @@
             <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
               <code>user_id</code> is the OBP user id of the person you are sharing with — the same id the
               <a href="/users" class="text-blue-600 hover:underline dark:text-blue-400">Users</a> page shows.
-              Post an array to grant several users at once; posting again for the same user replaces their
+              PUT an array to grant several users at once; sending the same user again replaces their
               permissions. <code>GET</code> the same URL to list the access list, and
-              <code>DELETE /obp/dynamic-entity/ENTITY_NAME/RECORD_ID/access/USER_ID</code> to revoke.
+              <code>DELETE /obp/v7.0.0/banks/BANK_ID/dynamic-entities/ENTITY_NAME/RECORD_ID/access/USER_ID</code> to revoke.
               Records you cannot read are hidden from lists and return 404. Field-level read and write
               roles still apply on top. Mutually exclusive with public and community access.
             </p>
@@ -666,12 +666,12 @@
             <code>CanGetDynamicEntityRecord_&lt;Entity&gt;</code>,
             <code>CanUpdateDynamicEntityRecord_&lt;Entity&gt;</code> and
             <code>CanDeleteDynamicEntityRecord_&lt;Entity&gt;</code>
-            (without <code>System</code> for a bank-level entity, held at that bank). They gate the
-            shared routes <code>/obp/dynamic-entity/ENTITY_NAME</code>.
+            held at the entity's BANK_ID (<code>SYS</code> for a system entity). They gate the
+            shared routes <code>/obp/v7.0.0/banks/BANK_ID/dynamic-entities/ENTITY_NAME</code>.
           </li>
           <li>
             <strong>2. Route scope.</strong> <em>Has Personal Entity</em> adds
-            <code>/obp/dynamic-entity/my/ENTITY_NAME</code>, where each user reads and writes only
+            <code>/obp/v7.0.0/banks/BANK_ID/dynamic-entities/my/ENTITY_NAME</code>, where each user reads and writes only
             their own records — no role unless <em>Personal Requires Role</em> is set.
             <em>Has Community Access</em> (<code>/community/</code>) and <em>Has Public Access</em>
             (<code>/public/</code>) are read-only routes: neither ever grants a write.
@@ -681,10 +681,10 @@
             Get, Update and Delete roles with a per-record access list carrying
             <code>can_read</code>, <code>can_update</code>, <code>can_delete</code> and
             <code>can_grant</code>. The creator holds all four on their record and shares it via
-            <code>GET/POST /obp/dynamic-entity/ENTITY_NAME/RECORD_ID/access</code> — the POST body names the
+            <code>GET/PUT /obp/v7.0.0/banks/BANK_ID/dynamic-entities/ENTITY_NAME/RECORD_ID/access</code> — the PUT body names the
             grantee with <code>user_id</code> — and <code>DELETE .../access/USER_ID</code>; revoking cascades
             to grants that user passed on.
-            <code>CanGrantDynamicEntityRowAccess_System&lt;Entity&gt;</code> administers any record.
+            <code>CanGrantDynamicEntityRowAccess_&lt;Entity&gt;</code> at the same BANK_ID administers any record.
             Creating a record still takes the entity's Create role.
           </li>
           <li>
@@ -702,7 +702,7 @@
           <div class="mt-3 border-t border-blue-300 pt-3 dark:border-blue-700">
             <a
               href="{data.externalLinks
-                .API_EXPLORER_URL}/resource-docs/OBPv6.0.0?operationid=OBPv4.0.0-createSystemDynamicEntity"
+                .API_EXPLORER_URL}/resource-docs/OBPv7.0.0?operationid=OBPv7.0.0-createDynamicEntityDefinition"
               target="_blank"
               rel="noopener noreferrer"
               class="inline-flex items-center text-xs font-medium text-blue-700 hover:text-blue-900 hover:underline dark:text-blue-300 dark:hover:text-blue-100"

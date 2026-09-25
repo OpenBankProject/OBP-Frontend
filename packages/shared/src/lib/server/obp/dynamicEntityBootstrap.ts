@@ -27,6 +27,7 @@
  * added, never removed, so rows written by an older build stay valid.
  */
 import { createLogger } from '$shared/utils/logger';
+import { DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID, dynamicEntityDefinitionsPath } from '../../obp/dynamicEntitySpace.js';
 
 const logger = createLogger('DynamicEntityBootstrap');
 
@@ -45,7 +46,7 @@ export interface DynamicEntityBootstrapDeps {
 	accessToken: string | null;
 }
 
-const SYSTEM_ENTITIES = '/obp/v6.0.0/management/system-dynamic-entities';
+const SYSTEM_ENTITIES = dynamicEntityDefinitionsPath(DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID);
 
 /** Why an existing entity differs from the definition; empty when it is current. */
 export function dynamicEntityDrift(existing: any, definition: SystemDynamicEntityDefinition): string[] {

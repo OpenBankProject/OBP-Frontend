@@ -31,6 +31,9 @@
     initialDynamicEntityFormData,
     dynamicEntityInputType,
     extractDynamicEntityRecords,
+    DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID,
+    dynamicEntityDataPath,
+    dynamicEntityOperationId,
     type DynamicEntityFieldDef,
   } from "@obp/shared/obp";
 
@@ -38,6 +41,11 @@
 
   // Make entity data reactive to prop changes
   let entity = $derived(data.entity);
+  // The space this definition lives in; v7.0.0 always returns bank_id, SYS for the system space.
+  let space = $derived<string>(entity.bank_id || DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID);
+  // The v7.0.0 record URLs of this entity's space: /obp/v7.0.0/banks/BANK_ID/dynamic-entities
+  let dataPath = $derived(dynamicEntityDataPath(space));
+  let spaceQuery = $derived(`bank_id=${encodeURIComponent(space)}`);
   let userEntitlements = $derived(data.userEntitlements || []);
 
   const apiExplorerUrl =
@@ -71,36 +79,36 @@
         operation: "Create",
         role: `CanCreateDynamicEntityRecord_${entityName}`,
         description: `Create new ${entityName} records`,
-        endpoint: `POST /obp/dynamic-entity/${entityName}`,
-        explorerUrl: `${apiExplorerUrl}/resource-docs/OBPdynamic-entity?operationid=OBPv4.0.0-dynamicEntity_create${entityName}_`,
+        endpoint: `POST ${dataPath}/${entityName}`,
+        explorerUrl: `${apiExplorerUrl}/resource-docs/OBPv7.0.0?operationid=${dynamicEntityOperationId(`create${entityName}`, space)}`,
       },
       {
         operation: "Read (list)",
         role: `CanGetDynamicEntityRecord_${entityName}`,
         description: `List all ${entityName} records`,
-        endpoint: `GET /obp/dynamic-entity/${entityName}`,
-        explorerUrl: `${apiExplorerUrl}/resource-docs/OBPdynamic-entity?operationid=OBPv4.0.0-dynamicEntity_get${entityName}List_`,
+        endpoint: `GET ${dataPath}/${entityName}`,
+        explorerUrl: `${apiExplorerUrl}/resource-docs/OBPv7.0.0?operationid=${dynamicEntityOperationId(`get${entityName}List`, space)}`,
       },
       {
         operation: "Read (single)",
         role: `CanGetDynamicEntityRecord_${entityName}`,
         description: `View a single ${entityName} record by ID`,
-        endpoint: `GET /obp/dynamic-entity/${entityName}/{RECORD_ID}`,
-        explorerUrl: `${apiExplorerUrl}/resource-docs/OBPdynamic-entity?operationid=OBPv4.0.0-dynamicEntity_getSingle${entityName}_`,
+        endpoint: `GET ${dataPath}/${entityName}/{RECORD_ID}`,
+        explorerUrl: `${apiExplorerUrl}/resource-docs/OBPv7.0.0?operationid=${dynamicEntityOperationId(`getSingle${entityName}`, space)}`,
       },
       {
         operation: "Update",
         role: `CanUpdateDynamicEntityRecord_${entityName}`,
         description: `Update existing ${entityName} records`,
-        endpoint: `PUT /obp/dynamic-entity/${entityName}/{RECORD_ID}`,
-        explorerUrl: `${apiExplorerUrl}/resource-docs/OBPdynamic-entity?operationid=OBPv4.0.0-dynamicEntity_update${entityName}_`,
+        endpoint: `PUT ${dataPath}/${entityName}/{RECORD_ID}`,
+        explorerUrl: `${apiExplorerUrl}/resource-docs/OBPv7.0.0?operationid=${dynamicEntityOperationId(`update${entityName}`, space)}`,
       },
       {
         operation: "Delete",
         role: `CanDeleteDynamicEntityRecord_${entityName}`,
         description: `Delete ${entityName} records`,
-        endpoint: `DELETE /obp/dynamic-entity/${entityName}/{RECORD_ID}`,
-        explorerUrl: `${apiExplorerUrl}/resource-docs/OBPdynamic-entity?operationid=OBPv4.0.0-dynamicEntity_delete${entityName}_`,
+        endpoint: `DELETE ${dataPath}/${entityName}/{RECORD_ID}`,
+        explorerUrl: `${apiExplorerUrl}/resource-docs/OBPv7.0.0?operationid=${dynamicEntityOperationId(`delete${entityName}`, space)}`,
       },
     ];
   });
@@ -128,7 +136,7 @@
     try {
       const requestBody = {
         role_name: roleName,
-        bank_id: "", // System-wide roles use empty string
+        bank_id: space, // Record Roles are held at the entity's space, SYS included
       };
 
       const response = await trackedFetch("/backend/rbac/entitlement-requests", {
@@ -290,7 +298,7 @@
   // rendered as an empty table.
   async function reloadRecords() {
     const refetchResponse = await fetch(
-      `/backend/dynamic-entities/${entity.dynamic_entity_id}/data`,
+      `/backend/dynamic-entities/${entity.dynamic_entity_id}/data?${spaceQuery}`,
       {
         credentials: "include",
       },
@@ -330,7 +338,7 @@
       );
 
       const response = await fetch(
-        `/backend/dynamic-entities/${entity.dynamic_entity_id}/data`,
+        `/backend/dynamic-entities/${entity.dynamic_entity_id}/data?${spaceQuery}`,
         {
           method: "POST",
           headers: {
@@ -385,7 +393,7 @@
       const convertedData = convertDynamicEntityFormData(properties, formData);
 
       const response = await fetch(
-        `/backend/dynamic-entities/${entity.dynamic_entity_id}/data/${recordId}`,
+        `/backend/dynamic-entities/${entity.dynamic_entity_id}/data/${recordId}?${spaceQuery}`,
         {
           method: "PUT",
           headers: {
@@ -435,7 +443,7 @@
 
     try {
       const response = await fetch(
-        `/backend/dynamic-entities/${entity.dynamic_entity_id}/data/${recordId}`,
+        `/backend/dynamic-entities/${entity.dynamic_entity_id}/data/${recordId}?${spaceQuery}`,
         {
           method: "DELETE",
           credentials: "include",
@@ -481,7 +489,7 @@
       </a>
       <span class="text-gray-400">/</span>
       <a
-        href="/dynamic-entities/system/{entity.dynamic_entity_id}"
+        href="/dynamic-entities/system/{entity.dynamic_entity_id}?{spaceQuery}"
         class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
       >
         {entityName}

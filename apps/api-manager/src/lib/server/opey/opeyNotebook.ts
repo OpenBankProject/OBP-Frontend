@@ -17,6 +17,7 @@
  */
 import { obp_requests } from "$lib/obp/requests";
 import { createLogger } from "@obp/shared/utils";
+import { DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID, dynamicEntityDefinitionsPath } from "@obp/shared/obp";
 import { oauth2ProviderFactory } from "$lib/oauth/providerFactory";
 import { env } from "$env/dynamic/private";
 
@@ -126,7 +127,7 @@ export async function createOpeyNotebookDynamicEntityIfNeeded(): Promise<boolean
 
 	try {
 		const response = await obp_requests.get(
-			"/obp/v6.0.0/management/system-dynamic-entities",
+			dynamicEntityDefinitionsPath(DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID),
 			accessToken
 		);
 		const entities = response.dynamic_entities || [];
@@ -149,7 +150,7 @@ export async function createOpeyNotebookDynamicEntityIfNeeded(): Promise<boolean
 	try {
 		logger.info(`Creating dynamic entity '${entityName}'...`);
 		await obp_requests.post(
-			"/obp/v6.0.0/management/system-dynamic-entities",
+			dynamicEntityDefinitionsPath(DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID),
 			OPEY_NOTEBOOK,
 			accessToken
 		);
