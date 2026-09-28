@@ -327,9 +327,15 @@
     if (typeof window !== "undefined" && !initialized) {
       initialized = true;
 
-      // Set default from_date to one hour ago
+      // Filters can arrive in the URL (for example from the Telemetry page's Connector calls);
+      // from_date defaults to one hour ago when the URL does not give one.
+      const urlParams = new URLSearchParams(window.location.search);
       const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
-      queryForm.from_date = oneHourAgo.toISOString().slice(0, 16);
+      queryForm.from_date = urlParams.get("from_date") ?? oneHourAgo.toISOString().slice(0, 16);
+      for (const field of ["to_date", "connector_name", "function_name", "correlation_id", "bank_id", "user_id"] as const) {
+        const value = urlParams.get(field);
+        if (value !== null) queryForm[field] = value;
+      }
 
       refreshMetrics();
       startAutoRefresh();

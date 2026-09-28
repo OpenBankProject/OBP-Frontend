@@ -273,6 +273,9 @@ export const SITE_MAP: Record<string, PageRoleConfig> = {
   "/metrics-diagnostics": {
     required: [{ role: "CanGetMetricsDiagnostics" }],
   },
+  "/telemetry": {
+    required: [{ role: "CanGetTelemetry" }],
+  },
   "/metrics-archive-run": {
     required: [{ role: "CanCreateMetricsArchiveRun" }],
   },

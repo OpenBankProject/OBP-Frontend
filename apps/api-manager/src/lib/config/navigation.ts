@@ -350,6 +350,11 @@ function buildMetricsItems(): NavigationItem[] {
       label: "Diagnostics",
       iconComponent: Stethoscope,
     },
+    {
+      href: "/telemetry",
+      label: "Telemetry",
+      iconComponent: Gauge,
+    },
   ];
 
   return items;
@@ -959,7 +964,7 @@ const governSection = domain("govern", "Govern", Shield,
   ]);
 
 const observeSection = domain("observe", "Observe", Activity,
-  ["/system-activity-dashboard", "/metrics", "/aggregate-metrics-live", "/aggregate-metrics-trends", "/connector-metrics", "/connector-traces", "/connector-counts", "/metrics-diagnostics", "/system/log-cache", "/system/migrations"],
+  ["/system-activity-dashboard", "/metrics", "/aggregate-metrics-live", "/aggregate-metrics-trends", "/connector-metrics", "/connector-traces", "/connector-counts", "/metrics-diagnostics", "/telemetry", "/system/log-cache", "/system/migrations"],
   [
     { label: "Dashboard", items: [
       { href: "/system-activity-dashboard", label: "Dashboard", iconComponent: LayoutDashboard },
@@ -973,6 +978,9 @@ const observeSection = domain("observe", "Observe", Activity,
       { href: "/connector-metrics", label: "Connector Metrics", iconComponent: Plug },
       { href: "/connector-traces", label: "Connector Traces", iconComponent: GitBranch },
       { href: "/connector-counts", label: "Connector Counts", iconComponent: Hash },
+    ] },
+    { label: "Instance", items: [
+      { href: "/telemetry", label: "Telemetry", iconComponent: Gauge },
     ] },
     { label: "Tooling", items: [
       { href: "/metrics-diagnostics", label: "Diagnostics", iconComponent: Stethoscope },
