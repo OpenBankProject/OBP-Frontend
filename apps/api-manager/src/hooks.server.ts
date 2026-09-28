@@ -25,6 +25,7 @@ import RedisStore from "svelte-kit-connect-redis";
 import { RetryAfterRateLimiter } from "sveltekit-rate-limiter/server";
 import { Redis } from "ioredis";
 import { env } from "$env/dynamic/private";
+import { consumerScopesCheck } from "$lib/server/consumerScopes";
 import { env as publicEnv } from "$env/dynamic/public";
 import { oauth2ProviderManager } from "$lib/oauth/providerManager";
 import { SessionOAuthHelper } from "$lib/oauth/sessionHelper";
@@ -211,6 +212,9 @@ for (const p of oauth2ProviderManager.getAllProviders()) {
     })
   );
 }
+
+// Whether the API Manager's own OBP Consumer holds the Scopes it needs (REQUIRED_CONSUMER_SCOPES["api-manager"]).
+healthCheckRegistry.register(consumerScopesCheck);
 
 healthCheckRegistry.startAll();
 

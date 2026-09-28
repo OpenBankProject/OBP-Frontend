@@ -22,6 +22,8 @@ export { OIDCHealthCheckService } from './services/OIDCHealthCheckService.js';
 export type { OIDCHealthCheckOptions, OIDCProviderStatus } from './services/OIDCHealthCheckService.js';
 export { OpeyToolsHealthCheckService, evaluateOpeyToolsStatus } from './services/OpeyToolsHealthCheckService.js';
 export type { OpeyToolsHealthCheckOptions, OpeyToolsEvaluation } from './services/OpeyToolsHealthCheckService.js';
+export { ConsumerScopesHealthCheckService, evaluateConsumerScopes, consumerScopesSnapshot, CURRENT_CONSUMER_SCOPES_PATH } from './services/ConsumerScopesHealthCheckService.js';
+export type { ConsumerScopesHealthCheckOptions, ApplicationTokenSource } from './services/ConsumerScopesHealthCheckService.js';
 export { HealthCheckState } from './state/HealthCheckState.js';
 export type { HealthCheckSnapshot } from './state/HealthCheckState.js';
 export { summarizeHealth } from './summarize.js';

@@ -28,6 +28,8 @@ export {
 } from './dynamicEntityForm.js';
 export type { DynamicEntityFieldDef, DynamicEntityProperties } from './dynamicEntityForm.js';
 export { DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID, dynamicEntityDataPath, dynamicEntityDefinitionsPath, dynamicEntityOperationId, dynamicEntityRecordIdPlaceholder, dynamicEntityRecordsPath } from './dynamicEntitySpace.js';
+export { CONSUMER_APP_LABELS, REQUIRED_CONSUMER_SCOPES, compareConsumerScopes } from './requiredConsumerScopes.js';
+export type { ConsumerApp, ConsumerScopeStatus, ConsumerScopesReport, HeldScope, RequiredConsumerScope } from './requiredConsumerScopes.js';
 export {
 	resolveGrpcTarget,
 	defaultGrpcHost,

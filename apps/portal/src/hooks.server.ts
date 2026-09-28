@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
+import { consumerScopesCheck } from '$lib/server/consumerScopes';
 import { loginUrlReturningTo } from '$lib/server/auth/returnTo';
 import { createLogger } from '@obp/shared/utils';
 const logger = createLogger('HooksServer');
@@ -192,6 +193,9 @@ function initHealthChecks() {
 			})
 		);
 	}
+
+	// Whether the Portal's own OBP Consumer holds the Scopes it needs (REQUIRED_CONSUMER_SCOPES.portal).
+	healthCheckRegistry.register(consumerScopesCheck);
 
 	healthCheckRegistry.startAll();
 }
