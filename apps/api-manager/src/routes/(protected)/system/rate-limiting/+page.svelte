@@ -17,7 +17,7 @@
 -->
 <script lang="ts">
   import { onMount } from "svelte";
-  import { CircleHelp, Gauge, Users } from "@lucide/svelte";
+  import { CircleHelp, Gauge, ShieldAlert, Trash2, Users } from "@lucide/svelte";
 
   /** One limit row as GET /obp/v7.0.0/management/rate-limiter-config returns it; absent windows are undefined. */
   interface RateLimiterLimit {
@@ -29,6 +29,10 @@
     per_week?: number;
     per_month?: number;
     global_per_hour?: number;
+    /** Self-service scopes only: the scope's own mode, which can differ from the limiter's. */
+    mode?: string;
+    /** Self-service scopes only: which endpoints the scope counts. */
+    covers?: string;
   }
   interface RateLimiter {
     name: string;
@@ -76,6 +80,78 @@
   let consumerLimits = $state<ConsumerRateLimit[] | null>(null);
   let consumerLimitsError = $state<string | null>(null);
   let consumerLimitsForbidden = $state(false);
+
+  /** One row of GET /obp/v7.0.0/management/ip-penalties: an operator's temporary limit on one address. */
+  interface IpPenalty {
+    ip_address: string;
+    per_minute_limit: number;
+    reason: string;
+    created_by_user_id: string;
+    created_at: string;
+    expires_at: string;
+  }
+
+  let penalties = $state<IpPenalty[] | null>(null);
+  let penaltiesError = $state<string | null>(null);
+  let penaltiesForbidden = $state(false);
+  let penaltyForm = $state({ ip_address: "", per_minute_limit: "10", duration_minutes: "60", reason: "" });
+  let penaltySubmitError = $state<string | null>(null);
+  let penaltySubmitting = $state(false);
+
+  async function fetchPenalties() {
+    penaltiesError = null;
+    penaltiesForbidden = false;
+    try {
+      const response = await fetch("/proxy/obp/v7.0.0/management/ip-penalties");
+      if (response.status === 403) {
+        penaltiesForbidden = true;
+        penalties = null;
+        return;
+      }
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(`Failed to fetch IP penalties (${response.status}): ${data.message}`);
+      penalties = data.ip_penalties;
+    } catch (err) {
+      penaltiesError = err instanceof Error ? err.message : "Failed to fetch IP penalties";
+      penalties = null;
+    }
+  }
+
+  async function addPenalty(event: SubmitEvent) {
+    event.preventDefault();
+    penaltySubmitError = null;
+    penaltySubmitting = true;
+    try {
+      const response = await fetch("/proxy/obp/v7.0.0/management/ip-penalties", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ip_address: penaltyForm.ip_address.trim(),
+          per_minute_limit: Number(penaltyForm.per_minute_limit),
+          duration_minutes: Number(penaltyForm.duration_minutes),
+          reason: penaltyForm.reason.trim(),
+        }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.message ?? `Failed to add the penalty (${response.status})`);
+      penaltyForm = { ip_address: "", per_minute_limit: "10", duration_minutes: "60", reason: "" };
+      await fetchPenalties();
+    } catch (err) {
+      penaltySubmitError = err instanceof Error ? err.message : "Failed to add the penalty";
+    } finally {
+      penaltySubmitting = false;
+    }
+  }
+
+  async function removePenalty(ipAddress: string) {
+    penaltySubmitError = null;
+    const response = await fetch(`/proxy/obp/v7.0.0/management/ip-penalties/${encodeURIComponent(ipAddress)}`, { method: "DELETE" });
+    if (!response.ok && response.status !== 404) {
+      const data = await response.json().catch(() => ({}));
+      penaltySubmitError = data.message ?? `Failed to remove the penalty (${response.status})`;
+    }
+    await fetchPenalties();
+  }
 
   async function fetchConsumerLimits() {
     consumerLimitsError = null;
@@ -164,6 +240,7 @@
   function refresh() {
     fetchLimiters();
     fetchConsumerLimits();
+    fetchPenalties();
   }
 
   onMount(refresh);
@@ -259,6 +336,9 @@
               <thead class="bg-gray-50 text-left text-xs uppercase text-gray-500 dark:bg-gray-900/40 dark:text-gray-400">
                 <tr>
                   <th class="px-6 py-3">Scope</th>
+                  {#if limiter.limits.some((l) => l.mode !== undefined)}
+                    <th class="px-6 py-3">Mode</th>
+                  {/if}
                   {#each windowsOf(limiter) as w (w.key)}
                     <th class="px-6 py-3 text-right">{w.label}</th>
                   {/each}
@@ -267,7 +347,22 @@
               <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                 {#each limiter.limits as limit (limit.scope)}
                   <tr data-testid="rate-limiter-{limiter.name}-limit-{limit.scope}">
-                    <td class="px-6 py-3 font-mono text-gray-900 dark:text-gray-100">{limit.scope}</td>
+                    <td class="px-6 py-3 align-top">
+                      <span class="font-mono text-gray-900 dark:text-gray-100">{limit.scope}</span>
+                      {#if limit.covers !== undefined}
+                        <p class="mt-1 max-w-xl text-xs text-gray-500 dark:text-gray-400" data-testid="rate-limiter-{limiter.name}-limit-{limit.scope}-covers">
+                          {limit.covers}
+                        </p>
+                      {/if}
+                    </td>
+                    {#if limiter.limits.some((l) => l.mode !== undefined)}
+                      <td
+                        class="px-6 py-3 align-top font-medium {limit.mode === 'enforce' ? 'text-red-600 dark:text-red-400' : 'text-amber-600 dark:text-amber-400'}"
+                        data-testid="rate-limiter-{limiter.name}-limit-{limit.scope}-mode"
+                      >
+                        {limit.mode ?? limiter.mode}
+                      </td>
+                    {/if}
                     {#each windowsOf(limiter) as w (w.key)}
                       <td class="px-6 py-3 text-right tabular-nums text-gray-700 dark:text-gray-300">
                         {formatLimit(limit[w.key] as number | undefined)}
@@ -370,4 +465,103 @@
       {/each}
     </div>
   {/if}
+  <!-- IP penalties: an operator's temporary per-minute limit on one address, on every endpoint -->
+  <section
+    class="mt-6 rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
+    data-testid="ip-penalties"
+  >
+    <div class="px-6 pt-5 pb-3">
+      <h2 class="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-gray-100">
+        <ShieldAlert size={20} /> Penalised addresses
+      </h2>
+      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+        A penalty limits one IP address to a number of requests per minute on every endpoint, until it expires, and
+        is checked before all the limiters above. 0 refuses every request (429 <code class="font-mono">OBP-10062</code>).
+        Penalties are shared by every instance and disappear when they expire.
+      </p>
+    </div>
+
+    {#if penaltiesForbidden}
+      <p class="px-6 pb-5 text-sm text-amber-700 dark:text-amber-400" data-testid="ip-penalties-forbidden">
+        Your user lacks the role <code class="font-mono">CanGetIpPenalties</code>, so penalties cannot be listed here.
+      </p>
+    {:else}
+      <form class="flex flex-wrap items-end gap-3 px-6 pb-4" onsubmit={addPenalty} data-testid="ip-penalty-form">
+        <label class="text-sm text-gray-700 dark:text-gray-300">
+          IP address
+          <input name="ip_address" required bind:value={penaltyForm.ip_address} placeholder="203.0.113.42"
+            class="mt-1 block w-44 rounded-md border border-gray-300 px-2 py-1.5 font-mono text-sm dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100"
+            data-testid="ip-penalty-ip-address" />
+        </label>
+        <label class="text-sm text-gray-700 dark:text-gray-300">
+          Per minute
+          <input name="per_minute_limit" type="number" min="0" required bind:value={penaltyForm.per_minute_limit}
+            class="mt-1 block w-24 rounded-md border border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100"
+            data-testid="ip-penalty-per-minute-limit" />
+        </label>
+        <label class="text-sm text-gray-700 dark:text-gray-300">
+          Minutes
+          <input name="duration_minutes" type="number" min="1" max="10080" required bind:value={penaltyForm.duration_minutes}
+            class="mt-1 block w-24 rounded-md border border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100"
+            data-testid="ip-penalty-duration-minutes" />
+        </label>
+        <label class="grow text-sm text-gray-700 dark:text-gray-300">
+          Reason
+          <input name="reason" required maxlength="255" bind:value={penaltyForm.reason}
+            class="mt-1 block w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100"
+            data-testid="ip-penalty-reason" />
+        </label>
+        <button type="submit" disabled={penaltySubmitting}
+          class="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+          data-testid="ip-penalty-add" data-state={penaltySubmitting ? "submitting" : "idle"}>
+          Add penalty
+        </button>
+      </form>
+      {#if penaltySubmitError}
+        <p class="px-6 pb-3 text-sm text-red-700 dark:text-red-400" data-testid="ip-penalty-submit-error">{penaltySubmitError}</p>
+      {/if}
+
+      {#if penaltiesError}
+        <p class="px-6 pb-5 text-sm text-red-700 dark:text-red-400" data-testid="ip-penalties-error">{penaltiesError}</p>
+      {:else if penalties === null}
+        <p class="px-6 pb-5 text-sm text-gray-500 dark:text-gray-400">Loading IP penalties...</p>
+      {:else if penalties.length === 0}
+        <p class="px-6 pb-5 text-sm text-gray-500 dark:text-gray-400" data-testid="ip-penalties-empty">No address has a penalty.</p>
+      {:else}
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm" data-testid="ip-penalties-table">
+            <thead class="bg-gray-50 text-left text-xs uppercase text-gray-500 dark:bg-gray-900/40 dark:text-gray-400">
+              <tr>
+                <th class="px-6 py-3">Address</th>
+                <th class="px-6 py-3 text-right">Per minute</th>
+                <th class="px-6 py-3">Expires</th>
+                <th class="px-6 py-3">Reason</th>
+                <th class="px-6 py-3">Set by</th>
+                <th class="px-6 py-3"></th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+              {#each penalties as penalty (penalty.ip_address)}
+                <tr data-testid="ip-penalty-{penalty.ip_address}">
+                  <td class="px-6 py-3 font-mono text-gray-900 dark:text-gray-100">{penalty.ip_address}</td>
+                  <td class="px-6 py-3 text-right tabular-nums text-gray-700 dark:text-gray-300">{penalty.per_minute_limit}</td>
+                  <td class="px-6 py-3 whitespace-nowrap text-gray-700 dark:text-gray-300">{formatDate(penalty.expires_at)}</td>
+                  <td class="px-6 py-3 text-gray-700 dark:text-gray-300">{penalty.reason}</td>
+                  <td class="px-6 py-3 font-mono text-xs text-gray-500 dark:text-gray-400">{penalty.created_by_user_id}</td>
+                  <td class="px-6 py-3 text-right">
+                    <button type="button" onclick={() => removePenalty(penalty.ip_address)}
+                      class="inline-flex items-center gap-1 rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                      aria-label="Remove the penalty on {penalty.ip_address}"
+                      data-testid="ip-penalty-remove-{penalty.ip_address}">
+                      <Trash2 size={14} /> Remove
+                    </button>
+                  </td>
+                </tr>
+              {/each}
+            </tbody>
+          </table>
+        </div>
+      {/if}
+    {/if}
+  </section>
 </div>
