@@ -16,4 +16,4 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 export { buildMyAccountItems, getActiveMenuItem } from './navigation.js';
-export type { NavigationItem, NavigationConfig, NavigationSection } from './navigation.js';
+export type { NavigationItem, NavigationConfig, NavigationSection, NavigationSubsection } from './navigation.js';

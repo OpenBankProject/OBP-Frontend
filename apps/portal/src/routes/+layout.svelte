@@ -47,6 +47,13 @@
 	import { currentBank } from '$lib/stores/currentBank.svelte';
 	let { data, children } = $props();
 
+	// Logging in from a page brings the visitor back to it (the server checks the path).
+	let loginHref = $derived(
+		page.url.pathname === '/' || page.url.pathname.startsWith('/login')
+			? '/login'
+			: `/login?return_to=${encodeURIComponent(page.url.pathname + page.url.search)}`
+	);
+
 	/**
 	 * The API Explorer brings its own navigation — the endpoint list is the navigation —
 	 * so it takes the sidebar slot instead of appearing as another column beside it.
@@ -306,10 +313,7 @@
 	<!-- min-w-0: a 1fr grid column still has min-width:auto, so a wide child (the
 	     Explorer's panes) would otherwise push this column past the viewport. -->
 	<div
-		class={page.url.pathname.startsWith('/user/accounts')
-			? 'h-full min-w-0 bg-surface-50-950'
-			: 'h-full min-w-0 bg-conic-250 from-30% via-40% to-50% dark:from-primary-950 dark:via-secondary-500/70 dark:to-primary-950'}
-		data-plain-bg={page.url.pathname.startsWith('/user/accounts')}
+		class="h-full min-w-0 bg-conic-250 from-30% via-40% to-50% dark:from-primary-950 dark:via-secondary-500/70 dark:to-primary-950"
 	>
 		<div class="flex flex-col backdrop-blur-2xl" style="height: calc(100vh - 48px);">
 			<div
@@ -335,7 +339,7 @@
 				{:else}
 					<span class="mx-4 hover:text-tertiary-400"><a href="/register">Register</a> </span>
 					<button type="button" class="btn preset-filled-surface-950-50"
-						><a href="/login">Login</a></button
+						><a href={loginHref}>Login</a></button
 					>
 				{/if}
 			</div>

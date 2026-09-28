@@ -276,6 +276,9 @@ export const SITE_MAP: Record<string, PageRoleConfig> = {
   "/telemetry": {
     required: [{ role: "CanGetTelemetry" }],
   },
+  "/deployment-checks": {
+    required: [{ role: "CanGetConfig" }],
+  },
   "/metrics-archive-run": {
     required: [{ role: "CanCreateMetricsArchiveRun" }],
   },

@@ -28,6 +28,7 @@
     XCircle,
     AlertCircle,
   } from "@lucide/svelte";
+  import { RoleName } from "@obp/shared/components";
 
   let { data } = $props<{ data: PageData }>();
 
@@ -145,7 +146,7 @@
                   <div class="role-icon">
                     <Shield size={16} />
                   </div>
-                  <span class="role-name">{role}</span>
+                  <span class="role-name"><RoleName name={role} /></span>
                 </div>
               {/each}
             </div>
@@ -168,7 +169,7 @@
               {#each entitlements as entitlement}
                 <div class="entitlement-card">
                   <div class="entitlement-name">
-                    {entitlement.role_name}
+                    <RoleName name={entitlement.role_name} />
                   </div>
                   <div class="entitlement-details">
                     {#if entitlement.bank_id}
@@ -554,9 +555,6 @@
     font-size: 0.875rem;
     font-weight: 500;
     color: #111827;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    hyphens: auto;
     min-width: 0;
   }
 
@@ -596,6 +594,7 @@
   }
 
   .entitlement-card {
+    min-width: 0;
     padding: 0.875rem;
     background: #fafafa;
     border: 1px solid #e5e7eb;

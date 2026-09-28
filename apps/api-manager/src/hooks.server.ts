@@ -215,7 +215,9 @@ for (const p of oauth2ProviderManager.getAllProviders()) {
 healthCheckRegistry.startAll();
 
 // Bootstrap: the obp_portal_page system dynamic entity that App Studio saves pages and apps into.
-// Needs the API Manager consumer to support client_credentials and hold CanCreateDynamicEntityDefinition at SYS.
+// Needs the API Manager consumer to support client_credentials and hold, as scopes at SYS,
+// CanGetDynamicEntityDefinitions (to find it) and CanCreateDynamicEntityDefinition (to create it);
+// CanUpdateDynamicEntityDefinition as well if an out-of-date entity should be brought up to date.
 createPortalPageDynamicEntityIfNeeded().then((ok: boolean) => {
   if (!ok) {
     logger.warn("obp_portal_page entity could not be created at startup; App Studio cannot save pages until it exists.");
@@ -235,7 +237,7 @@ createReportDynamicEntityIfNeeded().then((ok: boolean) => {
 
 // Bootstrap: the personal dynamic entities Opey conversations are recorded into (one row per chat,
 // written as the User after each message), for this app and for the Portal, whose consumer
-// normally lacks CanCreateDynamicEntityDefinition at SYS. Same consumer requirements as obp_portal_page.
+// normally lacks those scopes. Same consumer requirements as obp_portal_page.
 void createOpeyConversationEntitiesIfNeeded();
 
 // Opey notebook disabled 2026-09-03, together with the Opey Insights bar it fed (src/routes/+layout.svelte).

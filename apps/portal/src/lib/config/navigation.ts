@@ -17,15 +17,8 @@
  */
 import { Activity, User, ShieldUser, KeyRound, IdCardLanyard, CreditCard, Database, FolderKanban, UserPlus, LayoutList, FileText, HandCoins, FileCheck, ArrowRightLeft, ScanEye, Code, Rocket, BookOpen, KeySquare, LogIn, ShieldCheck, Bot, Cpu, Workflow, SendHorizontal, Compass, Telescope, ScrollText, Repeat, Eye, Wallet, AppWindow, Package, UserRound, Landmark, MessageSquare, Library, LifeBuoy, Star, CircleHelp, ShoppingBag, GraduationCap, Server, Info } from '@lucide/svelte';
 
-export interface NavigationItem {
-    href: string;
-    label: string;
-    iconComponent: any;
-    external?: boolean;
-    description?: string;
-    /** Hide this link from signed-out visitors, in an otherwise public section. */
-    requiresAuth?: boolean;
-}
+import type { NavigationItem, NavigationSubsection, NavigationSection } from '@obp/shared/config';
+export type { NavigationItem, NavigationSubsection, NavigationSection };
 
 // Build navigation items dynamically based on environment variables
 function buildMyAccountItems(): NavigationItem[] {
@@ -113,24 +106,6 @@ export function getActiveMenuItem(pathname: string) {
 // domain, so the top bar stays thin and the flat list above the domains is only for
 // jumping to the other OBP apps.
 
-export interface NavigationSubsection {
-    label: string;
-    items: NavigationItem[];
-}
-
-export interface NavigationSection {
-    id: string;
-    label: string;
-    iconComponent: any;
-    items: NavigationItem[];
-    subsections?: NavigationSubsection[];
-    /** Hidden from signed-out visitors. The documentation, catalogue and support domains are public. */
-    requiresAuth?: boolean;
-    /** Start expanded, for a section whose contents are the point rather than a menu to open. */
-    defaultExpanded?: boolean;
-    basePaths: string[];
-}
-
 function domain(
     id: string,
     label: string,
@@ -182,6 +157,8 @@ const messagingSection = domain('messaging', 'Messaging', MessageSquare,
         ] }
     ], true);
 
+// The onboarding and consent flow pages (OTP, VRP/BG consent confirmation, consent screen) are
+// in basePaths but not in the menu: each is reached from a redirect carrying the ids it needs.
 const developSection = domain('develop', 'Developing', Code,
     ['/developers', '/training', '/consumers/register', '/api-explorer', '/add-user-auth-context-update-request', '/confirm-user-auth-context-update-request', '/otp', '/confirm-vrp-consent-request', '/confirm-vrp-consent', '/confirm-bg-consent-request', '/confirm-bg-consent-request-sca', '/confirm-bg-consent-request-redirect-uri', '/consent-screen'],
     [
@@ -189,8 +166,8 @@ const developSection = domain('develop', 'Developing', Code,
             { href: '/developers/getting-started', label: 'Getting Started', iconComponent: Rocket, description: 'Get up and running with the OBP API.' },
             { href: '/developers/obp-concepts', label: 'OBP Concepts', iconComponent: BookOpen, description: 'Core concepts behind the Open Bank Project API.' },
             { href: '/developers/sdks', label: 'SDKs', iconComponent: Package, description: 'Client SDKs for the OBP API in multiple programming languages.' },
-            { href: '/training', label: 'Training', iconComponent: GraduationCap, description: 'Guided material for learning the platform.' },
-            { href: '/consumers/register', label: 'Get API Key', iconComponent: KeySquare, description: 'Register an application and get its key.' }
+            { href: '/training', label: 'Training', iconComponent: GraduationCap, description: 'Guided material for learning the platform.', loginRequired: true },
+            { href: '/consumers/register', label: 'Get API Key', iconComponent: KeySquare, description: 'Register an application and get its key.', loginRequired: true }
         ] },
         { label: 'Authenticate', items: [
             { href: '/developers/consumer-creation', label: 'Consumer Creation', iconComponent: KeySquare, description: 'Register an app and get your API key.' },
@@ -215,19 +192,6 @@ const developSection = domain('develop', 'Developing', Code,
         { label: 'Explore', items: [
             { href: '/developers/api-explorer', label: 'About Explorer', iconComponent: Info, description: 'What the API Explorer is and how to use it.' },
             { href: '/api-explorer', label: 'API Explorer III', iconComponent: Telescope, description: 'The third-generation Explorer, running inside the Portal.' }
-        ] },
-        { label: 'Onboarding Flows', items: [
-            { href: '/add-user-auth-context-update-request', label: 'Onboarding', iconComponent: UserPlus, description: 'User auth context update / onboarding flow.', requiresAuth: true },
-            { href: '/confirm-user-auth-context-update-request', label: 'Confirm Onboarding', iconComponent: FileCheck, description: 'Confirm auth context update with OTP.', requiresAuth: true },
-            { href: '/otp', label: 'OTP Verification', iconComponent: ShieldUser, description: 'One-time password verification.', requiresAuth: true }
-        ] },
-        { label: 'Consent Flows', items: [
-            { href: '/confirm-vrp-consent-request', label: 'VRP Consent Request', iconComponent: HandCoins, description: 'Review and confirm a VRP consent request.', requiresAuth: true },
-            { href: '/confirm-vrp-consent', label: 'VRP Consent OTP', iconComponent: HandCoins, description: 'Finalise VRP consent with OTP.', requiresAuth: true },
-            { href: '/confirm-bg-consent-request', label: 'BG Consent Request', iconComponent: ArrowRightLeft, description: 'Review and confirm a Berlin Group consent.', requiresAuth: true },
-            { href: '/confirm-bg-consent-request-sca', label: 'BG Consent SCA', iconComponent: ArrowRightLeft, description: 'Berlin Group consent strong customer authentication.', requiresAuth: true },
-            { href: '/confirm-bg-consent-request-redirect-uri', label: 'BG Consent Redirect', iconComponent: ArrowRightLeft, description: 'Berlin Group consent redirect after confirmation.', requiresAuth: true },
-            { href: '/consent-screen', label: 'Consent Screen', iconComponent: ScanEye, description: 'OAuth consent screen.', requiresAuth: true }
         ] }
     ]);
 

@@ -26,29 +26,41 @@ interface CachedToken {
 }
 const cache = new Map<string, CachedToken>();
 
+export type ApplicationTokenResult = { token: string } | { token: null; reason: string };
+
 /**
  * An application access token (client_credentials grant) for the app's own OAuth client,
  * so server code can call OBP without a logged-in user. Cached per client id until shortly
- * before expiry. Returns null when the client is not configured or the grant is refused.
+ * before expiry. On failure, `reason` says which step failed, for messages shown to operators.
  */
-export async function getApplicationAccessToken(
+export async function requestApplicationAccessToken(
 	client: OAuth2ClientWithConfig | undefined,
 	clientId: string | undefined,
 	clientSecret: string | undefined,
 	refreshMarginMs = 60_000
-): Promise<string | null> {
-	const tokenEndpoint = client?.OIDCConfig?.token_endpoint;
-	if (!tokenEndpoint || !clientId || !clientSecret) {
-		logger.warn('No OAuth client, token endpoint or client credentials available for application access.');
-		return null;
+): Promise<ApplicationTokenResult> {
+	const fail = (reason: string): ApplicationTokenResult => {
+		logger.warn(`No application access token: ${reason}`);
+		return { token: null, reason };
+	};
+	if (!client) {
+		return fail('no OAuth2 provider is available (OIDC discovery failed or no provider is configured; see /status)');
 	}
-	const cached = cache.get(clientId);
-	if (cached && cached.expiresAt - refreshMarginMs > Date.now()) return cached.accessToken;
+	const tokenEndpoint = client.OIDCConfig?.token_endpoint;
+	if (!tokenEndpoint) {
+		return fail("the OAuth2 provider's OIDC configuration has no token_endpoint");
+	}
+	const missing = [!clientId && 'OBP_OAUTH_CLIENT_ID', !clientSecret && 'OBP_OAUTH_CLIENT_SECRET'].filter(Boolean);
+	if (missing.length > 0) {
+		return fail(`${missing.join(' and ')} not set`);
+	}
+	const cached = cache.get(clientId!);
+	if (cached && cached.expiresAt - refreshMarginMs > Date.now()) return { token: cached.accessToken };
 
 	const body = new URLSearchParams();
 	body.set('grant_type', 'client_credentials');
-	body.set('client_id', clientId);
-	body.set('client_secret', clientSecret);
+	body.set('client_id', clientId!);
+	body.set('client_secret', clientSecret!);
 	try {
 		const response = await fetch(tokenEndpoint, {
 			method: 'POST',
@@ -56,17 +68,28 @@ export async function getApplicationAccessToken(
 			body: body.toString()
 		});
 		if (!response.ok) {
-			const errorData = await response.json().catch(() => ({}));
-			logger.warn(`Application access token request failed: ${response.status} ${response.statusText}`, errorData);
-			return null;
+			const errorData = (await response.json().catch(() => ({}))) as { error?: string; error_description?: string };
+			const detail = [errorData.error, errorData.error_description].filter(Boolean).join(': ');
+			return fail(
+				`${tokenEndpoint} refused the client_credentials grant (${response.status} ${response.statusText}${detail ? `, ${detail}` : ''}); check OBP_OAUTH_CLIENT_ID / OBP_OAUTH_CLIENT_SECRET and that the client allows client_credentials`
+			);
 		}
 		const tokens = (await response.json()) as { access_token?: string; expires_in?: number };
-		if (!tokens.access_token) return null;
+		if (!tokens.access_token) return fail(`${tokenEndpoint} returned no access_token`);
 		const ttlMs = (typeof tokens.expires_in === 'number' ? tokens.expires_in : 300) * 1000;
-		cache.set(clientId, { accessToken: tokens.access_token, expiresAt: Date.now() + ttlMs });
-		return tokens.access_token;
+		cache.set(clientId!, { accessToken: tokens.access_token, expiresAt: Date.now() + ttlMs });
+		return { token: tokens.access_token };
 	} catch (err) {
-		logger.warn(`Failed to obtain application access token: ${err}`);
-		return null;
+		return fail(`could not reach ${tokenEndpoint}: ${err instanceof Error ? err.message : String(err)}`);
 	}
+}
+
+/** As requestApplicationAccessToken, for callers that only need the token or null. */
+export async function getApplicationAccessToken(
+	client: OAuth2ClientWithConfig | undefined,
+	clientId: string | undefined,
+	clientSecret: string | undefined,
+	refreshMarginMs = 60_000
+): Promise<string | null> {
+	return (await requestApplicationAccessToken(client, clientId, clientSecret, refreshMarginMs)).token;
 }

@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
+import { loginUrlReturningTo } from '$lib/server/auth/returnTo';
 import { createLogger } from '@obp/shared/utils';
 const logger = createLogger('HooksServer');
 import type { Handle } from '@sveltejs/kit';
@@ -201,8 +202,8 @@ initHealthChecks();
 
 // Bootstrap: the personal dynamic entity Opey conversations are recorded into (one row per chat,
 // written as the User after each message). Needs the Portal consumer to support client_credentials
-// and hold CanCreateDynamicEntityDefinition at SYS; without it this is a no-op with a warning, and the API
-// Manager (whose consumer usually holds the scope) creates the entity at its own startup instead.
+// and hold the CanGetDynamicEntityDefinitions and CanCreateDynamicEntityDefinition scopes at SYS; without them
+// this is a no-op with a warning, and the API Manager (whose consumer usually holds them) creates the entity at its own startup instead.
 void createOpeyConversationEntityIfNeeded();
 
 async function initWebUIProps() {
@@ -293,7 +294,7 @@ const checkAuthorization: Handle = async ({ event, resolve }) => {
 			return new Response(null, {
 				status: 302,
 				headers: {
-					Location: '/login'
+					Location: loginUrlReturningTo(event.url.pathname + event.url.search)
 				}
 			});
 		} else {

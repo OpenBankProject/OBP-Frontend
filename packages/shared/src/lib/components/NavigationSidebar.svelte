@@ -21,7 +21,8 @@
 		ChevronRight,
 		User,
 		ChevronDown,
-		ArrowUpRight
+		ArrowUpRight,
+		Lock
 	} from '@lucide/svelte';
 	import LightSwitch from '$shared/components/LightSwitch.svelte';
 	import type { NavigationItem, NavigationSection } from '$shared/config/navigation';
@@ -375,12 +376,17 @@
 												class:border-l-2={isSubItemActive(subItem.href)}
 												class:border-primary-500={isSubItemActive(subItem.href)}
 												title={tooltip(subItem.href, subItem.label)}
-												aria-label={subItem.label}
+												aria-label={subItem.loginRequired && !isAuthenticated ? `${subItem.label} (log in required)` : subItem.label}
+												data-login-required={subItem.loginRequired && !isAuthenticated ? 'true' : undefined}
 												target={subItem.external ? '_blank' : undefined}
 												rel={subItem.external ? 'noopener noreferrer' : undefined}
 											>
 												<SubIcon class="size-4 shrink-0" />
 												<span>{subItem.label}</span>
+												{#if subItem.loginRequired && !isAuthenticated}
+													<Lock class="size-3 shrink-0 opacity-60" aria-hidden="true" />
+													<span class="sr-only">(log in required)</span>
+												{/if}
 												{#if subItem.external}
 													<ArrowUpRight class="size-3 shrink-0 opacity-60" />
 													<span class="sr-only">(opens {externalHost(subItem.href)} in a new tab)</span>

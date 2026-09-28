@@ -18,6 +18,7 @@
 import type { PageServerLoad } from './$types';
 import { createLogger } from '@obp/shared/utils';
 import { obp_requests } from '$lib/obp/requests';
+import { OBPRequestError } from '@obp/shared/obp';
 import { ENTITY, type FaqItem, type FaqCategory } from '$lib/server/faq/faqItems';
 export type { FaqItem, FaqCategory };
 
@@ -32,7 +33,14 @@ let cache: { at: number; categories: FaqCategory[] } | null = null;
  */
 async function loadCategories(): Promise<FaqCategory[]> {
 	if (cache && Date.now() - cache.at < CACHE_TTL_MS) return cache.categories;
-	const response = await obp_requests.get(`/obp/dynamic-entity/public/${ENTITY}`);
+	let response: any;
+	try {
+		response = await obp_requests.get(`/obp/dynamic-entity/public/${ENTITY}`);
+	} catch (e) {
+		// OBP answers 404 until the entity is defined: no questions have been published yet.
+		if (!(e instanceof OBPRequestError && e.code === '404')) throw e;
+		response = {};
+	}
 	const listKey = Object.keys(response ?? {}).find((k) => Array.isArray(response[k]));
 	const records: any[] = listKey ? response[listKey] : [];
 	const items: FaqItem[] = records

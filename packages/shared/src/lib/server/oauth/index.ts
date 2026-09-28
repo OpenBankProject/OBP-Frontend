@@ -36,4 +36,5 @@ export type {
 	OAuth2AccessTokenPayload,
 	SessionOAuthStorageData
 } from './types.js';
-export { getApplicationAccessToken } from './applicationToken.js';
+export { getApplicationAccessToken, requestApplicationAccessToken } from './applicationToken.js';
+export type { ApplicationTokenResult } from './applicationToken.js';

@@ -18,8 +18,10 @@
 import { oauth2ProviderManager, type ProviderStatus } from '$lib/oauth/providerManager';
 import { redirect } from '@sveltejs/kit';
 import type { ServerLoad } from '@sveltejs/kit';
+import { RETURN_TO_PARAM, rememberReturnTo } from '$lib/server/auth/returnTo';
 
-export const load: ServerLoad = async ({ url }) => {
+export const load: ServerLoad = async ({ url, cookies }) => {
+	rememberReturnTo(cookies, url.searchParams.get(RETURN_TO_PARAM));
 	const errorMessage = url.searchParams.get('error');
 	const successMessage = url.searchParams.get('reset');
 	const invitationAccepted = url.searchParams.get('invitation_accepted');

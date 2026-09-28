@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
+import { takeReturnTo } from '$lib/server/auth/returnTo';
 import { createLogger } from '@obp/shared/utils';
 const logger = createLogger('OBPLoginCallback');
 import { oauth2ProviderFactory } from '$lib/oauth/providerFactory';
@@ -296,7 +297,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
 		return new Response(null, {
 			status: 302,
 			headers: {
-				Location: `/`
+				Location: takeReturnTo(event.cookies) ?? '/'
 			}
 		});
 	} else {

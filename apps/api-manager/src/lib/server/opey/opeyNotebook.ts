@@ -18,8 +18,7 @@
 import { obp_requests } from "$lib/obp/requests";
 import { createLogger } from "@obp/shared/utils";
 import { DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID, dynamicEntityDefinitionsPath } from "@obp/shared/obp";
-import { oauth2ProviderFactory } from "$lib/oauth/providerFactory";
-import { env } from "$env/dynamic/private";
+import { getApplicationAccessToken } from "$lib/server/oauth/applicationToken";
 
 const logger = createLogger("OpeyNotebookBootstrap");
 
@@ -60,51 +59,6 @@ const OPEY_NOTEBOOK = {
 		}
 	}
 };
-
-/**
- * Fetch an application access token using the client_credentials grant.
- * This allows the API Manager to call OBP endpoints at startup without
- * needing a logged-in user, as long as the consumer has the required scope.
- */
-async function getApplicationAccessToken(): Promise<string | null> {
-	const client = oauth2ProviderFactory.getPrimaryClient();
-	if (!client?.OIDCConfig?.token_endpoint) {
-		logger.warn("No OAuth client or token endpoint available for application access.");
-		return null;
-	}
-
-	const body = new URLSearchParams();
-	body.set("grant_type", "client_credentials");
-	body.set("client_id", env.OBP_OAUTH_CLIENT_ID);
-	body.set("client_secret", env.OBP_OAUTH_CLIENT_SECRET);
-
-	try {
-		const response = await fetch(client.OIDCConfig.token_endpoint, {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/x-www-form-urlencoded",
-				Accept: "application/json",
-			},
-			body: body.toString(),
-		});
-
-		if (!response.ok) {
-			const errorData = await response.json().catch(() => ({}));
-			logger.warn(
-				`Application access token request failed: ${response.status} ${response.statusText}`,
-				errorData
-			);
-			return null;
-		}
-
-		const tokens = await response.json();
-		logger.info("Application access token obtained successfully.");
-		return tokens.access_token;
-	} catch (err) {
-		logger.warn(`Failed to obtain application access token: ${err}`);
-		return null;
-	}
-}
 
 /**
  * Ensure the opey_notebook dynamic entity exists in OBP.

@@ -298,7 +298,9 @@
 		This page shows featured APIs collections and frequently used endpoints.
 	</p>
 
-	{#if data.message && data.endpoints?.length === 0}
+	{#if data.notConfigured}
+		<p class="mt-6 text-center text-sm text-gray-500 dark:text-gray-400" data-testid="featured-not-configured">Not configured.</p>
+	{:else if data.message && data.endpoints?.length === 0}
 		<div class="rounded-lg border border-red-200 bg-red-50 p-4 text-center dark:border-red-800 dark:bg-red-900/20">
 			<p class="text-red-600 dark:text-red-400">{data.message}</p>
 		</div>

@@ -17,7 +17,10 @@
 -->
 <script lang="ts">
   import { onMount } from "svelte";
+  import { page } from "$app/state";
   import { CircleHelp, Gauge, ShieldAlert, Trash2, Users } from "@lucide/svelte";
+  import MissingRoleAlert from "$lib/components/MissingRoleAlert.svelte";
+  import { checkRoles } from "$lib/utils/roleChecker";
 
   /** One limit row as GET /obp/v7.0.0/management/rate-limiter-config returns it; absent windows are undefined. */
   interface RateLimiterLimit {
@@ -97,6 +100,12 @@
   let penaltyForm = $state({ ip_address: "", per_minute_limit: "10", duration_minutes: "60", reason: "" });
   let penaltySubmitError = $state<string | null>(null);
   let penaltySubmitting = $state(false);
+
+  function holdsSystemRole(role: string): boolean {
+    return checkRoles(page.data.userEntitlements ?? [], [{ role }], undefined, "OR", page.data.jitEnabled ?? false).hasAllRoles;
+  }
+  let canCreatePenalty = $derived(holdsSystemRole("CanCreateIpPenalty"));
+  let canDeletePenalty = $derived(holdsSystemRole("CanDeleteIpPenalty"));
 
   async function fetchPenalties() {
     penaltiesError = null;
@@ -402,9 +411,9 @@
               </div>
 
               {#if consumerLimitsForbidden}
-                <p class="px-6 pb-5 text-sm text-amber-700 dark:text-amber-400" data-testid="consumer-rate-limits-forbidden">
-                  Your user lacks the role <code class="font-mono">CanReadCallLimits</code>, so the per-consumer rows cannot be listed here.
-                </p>
+                <div class="px-6 pb-5" data-testid="consumer-rate-limits-forbidden">
+                  <MissingRoleAlert roles={["CanReadCallLimits"]} message="You need this role to list the per-consumer rows" />
+                </div>
               {:else if consumerLimitsError}
                 <p class="px-6 pb-5 text-sm text-red-700 dark:text-red-400" data-testid="consumer-rate-limits-error">
                   {consumerLimitsError}
@@ -485,10 +494,10 @@
       </p>
     </div>
 
-    {#if penaltiesForbidden}
-      <p class="px-6 pb-5 text-sm text-amber-700 dark:text-amber-400" data-testid="ip-penalties-forbidden">
-        Your user lacks the role <code class="font-mono">CanGetIpPenalties</code>, so penalties cannot be listed here.
-      </p>
+    {#if !canCreatePenalty}
+      <div class="px-6 pb-4" data-testid="ip-penalty-create-forbidden">
+        <MissingRoleAlert roles={["CanCreateIpPenalty"]} message="You need this role to add a penalty" />
+      </div>
     {:else}
       <form class="flex flex-wrap items-end gap-3 px-6 pb-4" onsubmit={addPenalty} data-testid="ip-penalty-form">
         <label class="text-sm text-gray-700 dark:text-gray-300">
@@ -521,10 +530,16 @@
           Add penalty
         </button>
       </form>
-      {#if penaltySubmitError}
-        <p class="px-6 pb-3 text-sm text-red-700 dark:text-red-400" data-testid="ip-penalty-submit-error">{penaltySubmitError}</p>
-      {/if}
+    {/if}
+    {#if penaltySubmitError}
+      <p class="px-6 pb-3 text-sm text-red-700 dark:text-red-400" data-testid="ip-penalty-submit-error">{penaltySubmitError}</p>
+    {/if}
 
+    {#if penaltiesForbidden}
+      <div class="px-6 pb-5" data-testid="ip-penalties-forbidden">
+        <MissingRoleAlert roles={["CanGetIpPenalties"]} message="You need this role to list penalised addresses" />
+      </div>
+    {:else}
       {#if penaltiesError}
         <p class="px-6 pb-5 text-sm text-red-700 dark:text-red-400" data-testid="ip-penalties-error">{penaltiesError}</p>
       {:else if penalties === null}
@@ -553,18 +568,25 @@
                   <td class="px-6 py-3 text-gray-700 dark:text-gray-300">{penalty.reason}</td>
                   <td class="px-6 py-3 font-mono text-xs text-gray-500 dark:text-gray-400">{penalty.created_by_user_id}</td>
                   <td class="px-6 py-3 text-right">
-                    <button type="button" onclick={() => removePenalty(penalty.ip_address)}
-                      class="inline-flex items-center gap-1 rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
-                      aria-label="Remove the penalty on {penalty.ip_address}"
-                      data-testid="ip-penalty-remove-{penalty.ip_address}">
-                      <Trash2 size={14} /> Remove
-                    </button>
+                    {#if canDeletePenalty}
+                      <button type="button" onclick={() => removePenalty(penalty.ip_address)}
+                        class="inline-flex items-center gap-1 rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                        aria-label="Remove the penalty on {penalty.ip_address}"
+                        data-testid="ip-penalty-remove-{penalty.ip_address}">
+                        <Trash2 size={14} /> Remove
+                      </button>
+                    {/if}
                   </td>
                 </tr>
               {/each}
             </tbody>
           </table>
         </div>
+        {#if !canDeletePenalty}
+          <div class="px-6 py-4" data-testid="ip-penalty-delete-forbidden">
+            <MissingRoleAlert roles={["CanDeleteIpPenalty"]} message="You need this role to remove a penalty" />
+          </div>
+        {/if}
       {/if}
     {/if}
   </section>

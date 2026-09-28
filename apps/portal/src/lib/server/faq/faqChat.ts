@@ -24,7 +24,7 @@
  */
 import { createLogger } from '@obp/shared/utils';
 import { obp_requests } from '$lib/obp/requests';
-import { getApplicationAccessToken } from '$lib/server/oauth/applicationToken';
+import { requestApplicationAccessToken } from '$lib/server/oauth/applicationToken';
 
 const logger = createLogger('FaqChat');
 const ENTITY = 'obp_developer_faq';
@@ -99,10 +99,11 @@ async function getOrCreateFaqChatUnlocked(id: string, visitorToken: string, port
 
 	// Link the room to the question with the Portal's application token.
 	let linkError: string | undefined;
-	const appToken = await getApplicationAccessToken();
-	if (!appToken) {
-		linkError = 'The Portal has no application token to record the room on the FAQ item.';
+	const appTokenResult = await requestApplicationAccessToken();
+	if (appTokenResult.token === null) {
+		linkError = `The Portal has no application token to record the room on the FAQ item: ${appTokenResult.reason}.`;
 	} else {
+		const appToken = appTokenResult.token;
 		const body = {
 			question,
 			answer: String(item.answer ?? ''),

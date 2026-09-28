@@ -28,6 +28,7 @@ export { default as Toast } from './Toast.svelte';
 export { default as ToolApprovalCard } from './ToolApprovalCard.svelte';
 export { default as NavigationSidebar } from './NavigationSidebar.svelte';
 export { default as NewEntitlementsNotice } from './NewEntitlementsNotice.svelte';
+export { default as RoleName } from './RoleName.svelte';
 export { ToolMessage, ToolError, ObpApiResponse, DefaultToolResponse } from './tool-messages/index.js';
 export { default as SystemStatusPage } from './SystemStatusPage.svelte';
 export { default as AppStudioPreview } from './AppStudioPreview.svelte';

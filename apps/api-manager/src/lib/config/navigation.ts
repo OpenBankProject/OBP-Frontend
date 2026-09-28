@@ -70,6 +70,7 @@ import {
   Play,
   Clock,
   Gauge,
+  ShieldCheck,
   Hammer,
   Activity,
   Library,
@@ -964,7 +965,7 @@ const governSection = domain("govern", "Govern", Shield,
   ]);
 
 const observeSection = domain("observe", "Observe", Activity,
-  ["/system-activity-dashboard", "/metrics", "/aggregate-metrics-live", "/aggregate-metrics-trends", "/connector-metrics", "/connector-traces", "/connector-counts", "/metrics-diagnostics", "/telemetry", "/system/log-cache", "/system/migrations"],
+  ["/system-activity-dashboard", "/metrics", "/aggregate-metrics-live", "/aggregate-metrics-trends", "/connector-metrics", "/connector-traces", "/connector-counts", "/metrics-diagnostics", "/telemetry", "/deployment-checks", "/system/log-cache", "/system/migrations"],
   [
     { label: "Dashboard", items: [
       { href: "/system-activity-dashboard", label: "Dashboard", iconComponent: LayoutDashboard },
@@ -984,6 +985,7 @@ const observeSection = domain("observe", "Observe", Activity,
     ] },
     { label: "Tooling", items: [
       { href: "/metrics-diagnostics", label: "Diagnostics", iconComponent: Stethoscope },
+      { href: "/deployment-checks", label: "Deployment Checks", iconComponent: ShieldCheck },
       { href: "/system/log-cache", label: "Log Cache", iconComponent: Database },
       { href: "/system/migrations", label: "Migrations", iconComponent: GitBranch },
     ] },

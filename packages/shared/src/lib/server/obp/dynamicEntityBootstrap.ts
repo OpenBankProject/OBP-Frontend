@@ -86,12 +86,12 @@ export async function ensureSystemDynamicEntity(
 				await deps.put(`${SYSTEM_ENTITIES}/${encodeURIComponent(existing.dynamic_entity_id)}`, definition, deps.accessToken);
 				logger.info(`Dynamic entity '${name}' updated (${drift.join('; ')}).`);
 			} catch (err) {
-				logger.warn(`Dynamic entity '${name}' exists but could not be updated (${drift.join('; ')}): ${err}`);
+				logger.warn(`Dynamic entity '${name}' exists but could not be updated (${drift.join('; ')}; the consumer needs the CanUpdateDynamicEntityDefinition scope at SYS): ${err}`);
 			}
 			return true;
 		}
 	} catch (err) {
-		logger.warn(`Could not list system dynamic entities (needs the CanCreateDynamicEntityDefinition scope at SYS): ${err}`);
+		logger.warn(`Could not list system dynamic entities (the consumer needs the CanGetDynamicEntityDefinitions scope at SYS): ${err}`);
 		return false;
 	}
 	try {
@@ -99,7 +99,7 @@ export async function ensureSystemDynamicEntity(
 		logger.info(`Dynamic entity '${name}' created.`);
 		return true;
 	} catch (err) {
-		logger.warn(`Failed to create dynamic entity '${name}': ${err}`);
+		logger.warn(`Failed to create dynamic entity '${name}' (the consumer needs the CanCreateDynamicEntityDefinition scope at SYS): ${err}`);
 		return false;
 	}
 }

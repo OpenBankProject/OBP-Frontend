@@ -25,6 +25,11 @@ export interface NavigationItem {
     description?: string;
     /** Hide this link from signed-out visitors, in an otherwise public section. */
     requiresAuth?: boolean;
+    /**
+     * Show this link to signed-out visitors, marked as needing a login: a feature worth
+     * discovering whose page sends them to log in and back again.
+     */
+    loginRequired?: boolean;
 }
 
 export interface NavigationSubsection {

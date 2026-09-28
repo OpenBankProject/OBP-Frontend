@@ -26,7 +26,7 @@
 import { createLogger } from '@obp/shared/utils';
 import { obp_requests } from '$lib/obp/requests';
 import { OBPRequestError } from '@obp/shared/obp';
-import { getApplicationAccessToken } from '$lib/server/oauth/applicationToken';
+import { requestApplicationAccessToken } from '$lib/server/oauth/applicationToken';
 
 const logger = createLogger('PortalPages');
 
@@ -74,14 +74,20 @@ function toPage(raw: any): PublishedPage | null {
 /** Every published page, newest first. Cached for a minute. */
 export async function listPublishedPages(): Promise<PublishedPage[]> {
 	if (cache && Date.now() - cache.at < CACHE_TTL_MS) return cache.pages;
-	const token = await getApplicationAccessToken();
-	if (!token) {
-		throw new PortalPagesUnavailable('The Portal has no application token to read pages with (check OBP_OAUTH_CLIENT_ID / OBP_OAUTH_CLIENT_SECRET).');
+	const tokenResult = await requestApplicationAccessToken();
+	if (tokenResult.token === null) {
+		throw new PortalPagesUnavailable(`The Portal has no application token to read pages with: ${tokenResult.reason}.`);
 	}
+	const token = tokenResult.token;
 	let response: any;
 	try {
 		response = await obp_requests.get(LIST_PATH, token);
 	} catch (e) {
+		// OBP answers 404 until the entity is defined: nothing has been published yet.
+		if (e instanceof OBPRequestError && e.code === '404') {
+			cache = { at: Date.now(), pages: [] };
+			return [];
+		}
 		if (e instanceof OBPRequestError) {
 			logger.error(`Could not read ${PORTAL_PAGE_ENTITY}: ${e.message}`);
 			throw new PortalPagesUnavailable(

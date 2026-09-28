@@ -71,7 +71,7 @@ export async function load(event: RequestEvent) {
 	}
 
 	if (!collectionsResponse?.api_collections?.length) {
-		return { endpoints: [], message: 'No featured collections available.', apiExplorerUrl };
+		return { endpoints: [], notConfigured: true, apiExplorerUrl };
 	}
 
 	// Collect all unique operation_ids from featured collections
