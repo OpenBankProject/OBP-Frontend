@@ -241,6 +241,9 @@
     fetchLimiters();
     fetchConsumerLimits();
     fetchPenalties();
+    // Arriving from the Telemetry page's "Penalise" link: fill in the address.
+    const penalise = new URLSearchParams(window.location.search).get("penalise");
+    if (penalise !== null) penaltyForm.ip_address = penalise;
   }
 
   onMount(refresh);
@@ -468,6 +471,7 @@
   <!-- IP penalties: an operator's temporary per-minute limit on one address, on every endpoint -->
   <section
     class="mt-6 rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
+    id="ip-penalties"
     data-testid="ip-penalties"
   >
     <div class="px-6 pt-5 pb-3">

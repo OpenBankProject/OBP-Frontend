@@ -32,6 +32,7 @@
     RefreshCw,
     ScrollText,
     Server,
+    Users,
   } from "@lucide/svelte";
   import {
     formatBytes,
@@ -54,6 +55,13 @@
     summariseRedisCommands,
     type RequestSummary,
   } from "$lib/telemetry/telemetry";
+  import {
+    TRAFFIC_WINDOWS,
+    clientErrorShare,
+    formatEstimate,
+    penaliseHref,
+    type TrafficSources,
+  } from "$lib/telemetry/trafficSources";
 
   let { data }: { data: PageData } = $props();
 
@@ -79,6 +87,38 @@
   };
 
   let endpointFilter = $state("");
+
+  // Where traffic is coming from: fetched in the browser, so the window can change without a reload.
+  let trafficWindow = $state<number>(5);
+  let traffic = $state<TrafficSources | null>(null);
+  let trafficForbidden = $state(false);
+  let trafficError = $state<string | null>(null);
+
+  async function fetchTraffic() {
+    trafficError = null;
+    trafficForbidden = false;
+    try {
+      const response = await fetch(`/proxy/obp/v7.0.0/management/traffic/top-callers?window=${trafficWindow}`);
+      if (response.status === 403) {
+        trafficForbidden = true;
+        traffic = null;
+        return;
+      }
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(`Failed to fetch traffic sources (${response.status}): ${data.message}`);
+      traffic = data;
+    } catch (err) {
+      trafficError = err instanceof Error ? err.message : "Failed to fetch traffic sources";
+      traffic = null;
+    }
+  }
+
+  $effect(() => {
+    if (data.hasRole) {
+      trafficWindow; // re-fetch when the window changes
+      fetchTraffic();
+    }
+  });
   let meterFilter = $state("");
   let memoizeFilter = $state("");
   let refreshing = $state(false);
@@ -96,7 +136,7 @@
   async function refresh() {
     refreshing = true;
     try {
-      await invalidate("app:telemetry");
+      await Promise.all([invalidate("app:telemetry"), fetchTraffic()]);
     } finally {
       refreshing = false;
     }
@@ -295,6 +335,158 @@
         </div>
       {/each}
     </div>
+
+    <!-- Where traffic is coming from -->
+    <section class="mb-6 rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800" data-testid="telemetry-traffic">
+      <div class="flex flex-wrap items-center justify-between gap-4 border-b border-gray-200 p-4 dark:border-gray-700">
+        <div>
+          <div class="flex items-center gap-2">
+            <Users class="h-5 w-5 text-rose-500" />
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Where traffic is coming from</h2>
+          </div>
+          <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            The busiest Consumers, client addresses, and callers and endpoints on this instance. Counts are estimates
+            (Space-Saving, Metwally, Agrawal and El Abbadi, 2005): ± is the most they can be out.
+          </p>
+        </div>
+        <div class="flex items-center gap-1" role="group" aria-label="Time window" data-testid="telemetry-traffic-window">
+          {#each TRAFFIC_WINDOWS as minutes (minutes)}
+            <button
+              type="button"
+              class="rounded-md px-3 py-1 text-sm {trafficWindow === minutes ? 'bg-rose-600 text-white' : 'border border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700'}"
+              onclick={() => (trafficWindow = minutes)}
+              data-testid="telemetry-traffic-window-{minutes}"
+              data-state={trafficWindow === minutes ? "selected" : "idle"}
+            >
+              {minutes} min
+            </button>
+          {/each}
+        </div>
+      </div>
+
+      {#if trafficForbidden}
+        <p class="p-4 text-sm text-amber-700 dark:text-amber-400" data-testid="telemetry-traffic-forbidden">
+          Your user lacks the role <code class="font-mono">CanGetTrafficSources</code>, so the busiest callers cannot be shown here.
+        </p>
+      {:else if trafficError}
+        <p class="p-4 text-sm text-red-700 dark:text-red-400" data-testid="telemetry-traffic-error">{trafficError}</p>
+      {:else if traffic === null}
+        <p class="p-4 text-sm text-gray-500 dark:text-gray-400">Loading...</p>
+      {:else}
+        <div class="grid grid-cols-1 gap-px bg-gray-200 dark:bg-gray-700 xl:grid-cols-2">
+          <!-- By Consumer -->
+          <div class="overflow-x-auto bg-white dark:bg-gray-800">
+            <h3 class="px-4 pt-3 text-sm font-semibold text-gray-900 dark:text-gray-100">By Consumer</h3>
+            <table class="min-w-full text-sm" data-testid="telemetry-traffic-consumers">
+              <thead class="text-left text-xs uppercase text-gray-500 dark:text-gray-400">
+                <tr>
+                  <th class="px-4 py-2">Consumer</th>
+                  <th class="px-4 py-2 text-right">Requests</th>
+                  <th class="px-4 py-2 text-right">4xx</th>
+                  <th class="px-4 py-2 text-right">Refused</th>
+                  <th class="px-4 py-2">Last address</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                {#each traffic.consumers as row (row.consumer_id)}
+                  <tr data-testid="telemetry-traffic-consumer-row" data-key={row.consumer_id}>
+                    <td class="px-4 py-2">
+                      <a href="/consumers/{row.consumer_id}" class="font-medium text-blue-700 hover:underline dark:text-blue-400">
+                        {row.application_name || row.consumer_id}
+                      </a>
+                      <div class="font-mono text-xs text-gray-500 dark:text-gray-400">{row.consumer_id}</div>
+                    </td>
+                    <td class="px-4 py-2 text-right tabular-nums text-gray-900 dark:text-gray-100">{formatEstimate(row.requests, row.error)}</td>
+                    <td class="px-4 py-2 text-right text-gray-900 dark:text-gray-100">{formatShare(clientErrorShare(row))}</td>
+                    <td class="px-4 py-2 text-right {row.refused > 0 ? 'font-semibold text-red-700 dark:text-red-400' : 'text-gray-900 dark:text-gray-100'}">{formatCount(row.refused)}</td>
+                    <td class="px-4 py-2 font-mono text-xs text-gray-700 dark:text-gray-300">{row.last_ip_address}</td>
+                  </tr>
+                {:else}
+                  <tr><td colspan="5" class="px-4 py-3 text-gray-600 dark:text-gray-400">No authenticated requests in this window.</td></tr>
+                {/each}
+              </tbody>
+            </table>
+          </div>
+
+          <!-- By address -->
+          <div class="overflow-x-auto bg-white dark:bg-gray-800">
+            <h3 class="px-4 pt-3 text-sm font-semibold text-gray-900 dark:text-gray-100">By client address</h3>
+            <table class="min-w-full text-sm" data-testid="telemetry-traffic-addresses">
+              <thead class="text-left text-xs uppercase text-gray-500 dark:text-gray-400">
+                <tr>
+                  <th class="px-4 py-2">Address</th>
+                  <th class="px-4 py-2 text-right">Requests</th>
+                  <th class="px-4 py-2 text-right">4xx</th>
+                  <th class="px-4 py-2 text-right">Unknown paths</th>
+                  <th class="px-4 py-2 text-right">Consumers</th>
+                  <th class="px-4 py-2"></th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                {#each traffic.addresses as row (row.ip_address)}
+                  <tr data-testid="telemetry-traffic-address-row" data-key={row.ip_address}>
+                    <td class="px-4 py-2 font-mono text-xs text-gray-900 dark:text-gray-100">{row.ip_address}</td>
+                    <td class="px-4 py-2 text-right tabular-nums text-gray-900 dark:text-gray-100">{formatEstimate(row.requests, row.error)}</td>
+                    <td class="px-4 py-2 text-right text-gray-900 dark:text-gray-100">{formatShare(clientErrorShare(row))}</td>
+                    <td class="px-4 py-2 text-right {row.unmatched > 0 ? 'font-semibold text-amber-700 dark:text-amber-400' : 'text-gray-900 dark:text-gray-100'}">{formatCount(row.unmatched)}</td>
+                    <td class="px-4 py-2 text-right text-gray-900 dark:text-gray-100" title={row.consumer_ids.join(", ")}>{row.consumer_ids.length}</td>
+                    <td class="px-4 py-2 text-right">
+                      <a href={penaliseHref(row.ip_address)} class="rounded-md border border-red-300 px-2 py-1 text-xs text-red-700 hover:bg-red-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-900/20"
+                        data-testid="telemetry-traffic-penalise-{row.ip_address}">Penalise</a>
+                    </td>
+                  </tr>
+                {:else}
+                  <tr><td colspan="6" class="px-4 py-3 text-gray-600 dark:text-gray-400">No requests in this window.</td></tr>
+                {/each}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- By caller and endpoint -->
+        <div class="overflow-x-auto border-t border-gray-200 dark:border-gray-700">
+          <h3 class="px-4 pt-3 text-sm font-semibold text-gray-900 dark:text-gray-100">By caller and endpoint</h3>
+          <table class="min-w-full text-sm" data-testid="telemetry-traffic-caller-endpoints">
+            <thead class="text-left text-xs uppercase text-gray-500 dark:text-gray-400">
+              <tr>
+                <th class="px-4 py-2">Caller</th>
+                <th class="px-4 py-2">Endpoint</th>
+                <th class="px-4 py-2 text-right">Requests</th>
+                <th class="px-4 py-2 text-right">4xx</th>
+                <th class="px-4 py-2 text-right">5xx</th>
+                <th class="px-4 py-2 text-right">Mean</th>
+                <th class="px-4 py-2 text-right">Max</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+              {#each traffic.callers_and_endpoints as row (`${row.caller_kind}|${row.caller}|${row.endpoint}`)}
+                {@const href = metricsSearchHref(row.endpoint, row.api_version ?? null, linkTime)}
+                <tr data-testid="telemetry-traffic-caller-endpoint-row" data-key="{row.caller}|{row.endpoint}">
+                  <td class="px-4 py-2 font-mono text-xs">
+                    <span class="mr-1 rounded bg-gray-100 px-1 text-gray-600 dark:bg-gray-900 dark:text-gray-400">{row.caller_kind}</span>
+                    <span class="text-gray-900 dark:text-gray-100">{row.caller}</span>
+                  </td>
+                  <td class="px-4 py-2 font-mono text-xs">
+                    {#if href}
+                      <a {href} class="text-blue-700 hover:underline dark:text-blue-400" title="Recent calls in API Metrics">{row.endpoint}</a>
+                    {:else}
+                      <span class="text-gray-900 dark:text-gray-100">{row.endpoint}</span>
+                    {/if}
+                  </td>
+                  <td class="px-4 py-2 text-right tabular-nums text-gray-900 dark:text-gray-100">{formatEstimate(row.requests, row.error)}</td>
+                  <td class="px-4 py-2 text-right text-gray-900 dark:text-gray-100">{formatCount(row.status_4xx)}</td>
+                  <td class="px-4 py-2 text-right {row.status_5xx > 0 ? 'font-semibold text-red-700 dark:text-red-400' : 'text-gray-900 dark:text-gray-100'}">{formatCount(row.status_5xx)}</td>
+                  <td class="px-4 py-2 text-right text-gray-900 dark:text-gray-100">{formatMillis(row.mean_duration_ms)}</td>
+                  <td class="px-4 py-2 text-right text-gray-900 dark:text-gray-100">{formatMillis(row.max_duration_ms)}</td>
+                </tr>
+              {:else}
+                <tr><td colspan="7" class="px-4 py-3 text-gray-600 dark:text-gray-400">No requests in this window.</td></tr>
+              {/each}
+            </tbody>
+          </table>
+        </div>
+      {/if}
+    </section>
 
     <!-- Endpoints -->
     <section class="mb-6 rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800" data-testid="telemetry-endpoints">
