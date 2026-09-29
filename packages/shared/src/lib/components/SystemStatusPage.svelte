@@ -321,9 +321,6 @@
 <div class="container mx-auto px-4 py-8 max-w-5xl">
 	<div class="mb-8">
 		<h1 class="text-4xl font-bold mb-2 h1">System Status</h1>
-		<p class="text-gray-600 dark:text-gray-400">
-			Periodic server-side health checks of monitored services — each card shows when its check last ran
-		</p>
 		{#if buildInfo}
 			<p class="mt-2 text-sm text-gray-500 dark:text-gray-400 font-mono" data-testid="build-info">
 				<span data-testid="build-version">v{buildInfo.version}</span>{#if buildInfo.commit !== 'unknown'}
