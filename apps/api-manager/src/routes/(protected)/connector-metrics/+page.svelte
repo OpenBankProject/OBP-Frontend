@@ -51,8 +51,8 @@
   // Auto refresh
   let autoRefresh = $state("60");
   let countdown = $state(60);
-  let countdownInterval: number | undefined = undefined;
-  let timeUpdateInterval: number | undefined = undefined;
+  let countdownInterval: ReturnType<typeof setInterval> | undefined = undefined;
+  let timeUpdateInterval: ReturnType<typeof setInterval> | undefined = undefined;
   let currentTimeUTC = $state(new Date().toISOString().replace("T", " ").slice(0, 19));
   let timestampColorIndex = $state(0);
   let autoRefreshPaused = $state(false);

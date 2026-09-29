@@ -23,7 +23,6 @@ import { renderMarkdown } from "@obp/shared/markdown";
 import {
   fetchGlossary,
   findGlossaryItem,
-  rewriteGlossaryLinks,
   glossaryEntryUrl,
   apiExplorerBaseUrl,
 } from "$lib/server/glossaryCache";
@@ -69,7 +68,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
       if (section) {
         // markdown-it with html:false escapes raw HTML in the source, so this is safe to {@html}.
         sectionHtml = renderMarkdown(
-          rewriteGlossaryLinks(section, explorerUrl),
+          section,
         );
       } else {
         warnings.push(

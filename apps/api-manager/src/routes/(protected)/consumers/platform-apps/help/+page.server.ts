@@ -15,17 +15,15 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-import { json } from "@sveltejs/kit";
-import type { RequestHandler } from "./$types";
-import { consumerScopesCheck } from "$lib/server/consumerScopes";
+import type { PageServerLoad } from "./$types";
+import { error } from "@sveltejs/kit";
+import { SessionOAuthHelper } from "$lib/oauth/sessionHelper";
+import { platformAppsGlossary, PLATFORM_APPS_GLOSSARY_TITLE } from "$lib/server/platformApps";
 
-/**
- * The API Manager's report on its own OBP Consumer: consumer_id and which required Scopes it holds.
- * ?refresh=1 checks again (at most every 10 seconds).
- */
-export const GET: RequestHandler = async ({ url }) => {
-  const report = url.searchParams.get("refresh") === "1"
-    ? await consumerScopesCheck.refreshIfOlderThan(10_000)
-    : consumerScopesCheck.getReport();
-  return json(report, { headers: { "Cache-Control": "no-store" } });
+/** The OBP glossary entry that explains Platform Apps. */
+export const load: PageServerLoad = async ({ locals, url }) => {
+  const accessToken = SessionOAuthHelper.getSessionOAuth(locals.session)?.accessToken;
+  if (!accessToken) throw error(401, "No API access token available");
+  const glossary = await platformAppsGlossary(accessToken, url.searchParams.get("refresh") === "1");
+  return { title: PLATFORM_APPS_GLOSSARY_TITLE, glossary };
 };

@@ -24,7 +24,6 @@ import { renderMarkdown } from "@obp/shared/markdown";
 import {
   fetchGlossary,
   findGlossaryItem,
-  rewriteGlossaryLinks,
   glossaryEntryUrl,
   apiExplorerBaseUrl,
 } from "$lib/server/glossaryCache";
@@ -65,7 +64,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     const item = findGlossaryItem(await fetchGlossary(token, force), GLOSSARY_TITLE);
     if (item) {
       // markdown-it with its default html:false escapes raw HTML in the source, so this is safe to {@html}.
-      glossaryHtml = renderMarkdown(rewriteGlossaryLinks(item.description.markdown, explorerUrl));
+      glossaryHtml = renderMarkdown(item.description.markdown);
     } else {
       warnings.push(`This OBP instance has no glossary entry "${GLOSSARY_TITLE}".`);
     }

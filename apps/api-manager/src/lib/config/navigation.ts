@@ -941,6 +941,7 @@ const governSection = domain("govern", "Govern", Shield,
     ] },
     { label: "Consumers", items: [
       { href: "/consumers", label: "Consumers", iconComponent: KeyRound },
+      { href: "/consumers/platform-apps", label: "Platform Apps", iconComponent: AppWindow },
     ] },
     { label: "Roles", items: [
       { href: "/rbac/roles", label: "Roles", iconComponent: Shield },

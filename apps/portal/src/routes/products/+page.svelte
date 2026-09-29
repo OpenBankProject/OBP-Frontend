@@ -49,6 +49,14 @@
 		</p>
 	</div>
 
+	{#if data.loginRequired}
+		<div class="mb-6 rounded-lg border border-yellow-200 bg-yellow-50 p-4 dark:border-yellow-700 dark:bg-yellow-900/20">
+			<p class="text-sm text-yellow-700 dark:text-yellow-300">
+				<a href="/login?redirect=/products" class="underline">Please login</a>
+			</p>
+		</div>
+	{/if}
+
 	{#if data.warnings && data.warnings.length > 0}
 		<div class="mb-6 rounded-lg border border-yellow-200 bg-yellow-50 p-4 dark:border-yellow-700 dark:bg-yellow-900/20">
 			{#each data.warnings as warning}

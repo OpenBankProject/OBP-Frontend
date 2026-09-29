@@ -90,9 +90,9 @@
     }
   });
 
-  let refreshInterval: number | undefined = undefined;
-  let countdownInterval: number | undefined = undefined;
-  let timeUpdateInterval: number | undefined = undefined;
+  let refreshInterval: ReturnType<typeof setInterval> | undefined = undefined;
+  let countdownInterval: ReturnType<typeof setInterval> | undefined = undefined;
+  let timeUpdateInterval: ReturnType<typeof setInterval> | undefined = undefined;
   let currentTime = $state(new Date().toLocaleString());
   let lastRefreshTime = $state(new Date().toLocaleString());
   const REFRESH_OPTIONS = [

@@ -221,6 +221,14 @@ export const SITE_MAP: Record<string, PageRoleConfig> = {
   "/consumers/[consumer_id]/edit": {
     required: [{ role: "CanGetConsumers" }],
   },
+  "/consumers/platform-apps": {
+    required: [{ role: "CanGetPlatformApps" }],
+    optional: [
+      { role: "CanCreatePlatformApp" },
+      { role: "CanDeletePlatformApp" },
+      { role: "CanCreateScopeAtAnyBank" },
+    ],
+  },
   "/consumers/[consumer_id]/rate-limits/[rate_limiting_id]/edit": {
     required: [{ role: "CanUpdateRateLimits" }],
   },

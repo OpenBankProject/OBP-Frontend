@@ -43,17 +43,6 @@ export interface OBPConsent {
   api_version: string;
 }
 
-export interface OBPConsentInfo {
-  consent_id: string;
-  consumer_id: string;
-  created_by_user_id: string;
-  last_action_date: string;
-  last_usage_date: string;
-  status: string;
-  api_standard: string;
-  api_version: string;
-}
-
 export interface OBPConsumer {
   consumer_id: string;
   key?: string;

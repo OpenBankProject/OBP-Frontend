@@ -16,7 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 import { describe, it, expect } from 'vitest';
-import { parseDescription, resolveGlossaryHref } from './description.js';
+import { parseDescription } from './description.js';
 
 const GET_BANKS = `Get banks on this API instance
 Returns a list of banks supported on this server:
@@ -92,18 +92,5 @@ describe('parseDescription', () => {
 
 	it('handles an empty description', () => {
 		expect(parseDescription('')).toEqual({ prose: '', sections: [] });
-	});
-});
-
-describe('resolveGlossaryHref', () => {
-	it('points site-relative glossary links at a base that serves one', () => {
-		expect(resolveGlossaryHref('/glossary#bank_id', 'https://explorer.example.com/')).toBe(
-			'https://explorer.example.com/glossary#bank_id'
-		);
-	});
-
-	it('leaves other links and absent links alone', () => {
-		expect(resolveGlossaryHref('https://example.com/x', 'https://e.com')).toBe('https://example.com/x');
-		expect(resolveGlossaryHref(undefined, 'https://e.com')).toBeUndefined();
 	});
 });

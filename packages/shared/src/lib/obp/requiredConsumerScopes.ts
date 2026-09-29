@@ -16,60 +16,56 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 /**
- * The Scopes each app's own OBP Consumer needs, for the calls it makes with its application token
- * (client credentials, no User). One list, read by the startup code's warnings, by each app's
- * "OBP Consumer scopes" check on /status, and by the API Manager's App Consumers page, which grants
- * what is missing. Add a line here when an app starts making a new application-token call.
+ * Platform Apps: the apps an installation runs as part of its OBP deployment (here the Portal and the
+ * API Manager; elsewhere Opey, OBP-MCP or a bank's own services), each calling OBP as its own Consumer
+ * with an application token (client credentials, no User).
+ *
+ * The Scopes the Portal's and the API Manager's Consumers need are listed here. Each app's
+ * "OBP Consumer scopes" check on /status compares the list with the Scopes its Consumer holds, and
+ * declares it to OBP (PUT /obp/v7.0.0/consumers/current/platform-app) once an administrator has marked
+ * the Consumer as a Platform App; the API Manager's Platform Apps page reads every app's declaration
+ * from OBP and grants what is missing. Add a line here when an app starts making a new
+ * application-token call.
  */
 import { DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID } from './dynamicEntitySpace.js';
 
-export type ConsumerApp = 'portal' | 'api-manager';
+/** The Platform Apps in this repository. */
+export type PlatformApp = 'portal' | 'api-manager';
 
 export interface RequiredConsumerScope {
 	role_name: string;
 	/** A bank id, SYS for the system space, or '' for a system Role. */
 	bank_id: string;
-	/** What the app uses it for. */
-	purpose: string;
-	/** What stops working without it. */
-	without_it: string;
+	/** The features that depend on it, as the admin would recognise them. */
+	needed_for: string;
 	/** Nice to have: something else covers for it (e.g. the API Manager creates the entity instead). */
 	optional?: boolean;
 }
 
 const SYS = DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID;
 
-export const CONSUMER_APP_LABELS: Record<ConsumerApp, string> = {
-	portal: 'Portal',
-	'api-manager': 'API Manager'
-};
-
-export const REQUIRED_CONSUMER_SCOPES: Record<ConsumerApp, RequiredConsumerScope[]> = {
+export const REQUIRED_CONSUMER_SCOPES: Record<PlatformApp, RequiredConsumerScope[]> = {
 	portal: [
 		{
 			role_name: 'CanGetDynamicEntityRecord_obp_portal_page',
 			bank_id: SYS,
-			purpose: 'Reads the pages published with App Studio, for visitors who are not logged in.',
-			without_it: '/pages and every published page stay unavailable.'
+			needed_for: 'Showing the pages published with App Studio at /pages, to every visitor.'
 		},
 		{
 			role_name: 'CanUpdateDynamicEntityRecord_obp_developer_faq',
 			bank_id: SYS,
-			purpose: "Records a question's chat room on its FAQ item.",
-			without_it: 'Each FAQ chat room is created but not linked to its question.'
+			needed_for: 'Linking each FAQ chat room to its question.'
 		},
 		{
 			role_name: 'CanGetDynamicEntityDefinitions',
 			bank_id: SYS,
-			purpose: 'Finds its Opey conversation entity at startup.',
-			without_it: 'Nothing, while the API Manager creates the entity at its own startup.',
+			needed_for: 'Recording Opey conversations, if the API Manager has not already created their entity.',
 			optional: true
 		},
 		{
 			role_name: 'CanCreateDynamicEntityDefinition',
 			bank_id: SYS,
-			purpose: 'Creates its Opey conversation entity at startup if it is missing.',
-			without_it: 'Nothing, while the API Manager creates the entity at its own startup.',
+			needed_for: 'Recording Opey conversations, if the API Manager has not already created their entity.',
 			optional: true
 		}
 	],
@@ -77,20 +73,17 @@ export const REQUIRED_CONSUMER_SCOPES: Record<ConsumerApp, RequiredConsumerScope
 		{
 			role_name: 'CanGetDynamicEntityDefinitions',
 			bank_id: SYS,
-			purpose: 'Finds the system dynamic entities it maintains at startup (obp_portal_page, obp_developer_faq, obp_report, Opey conversations).',
-			without_it: 'None of them is created or updated: App Studio, the Portal FAQ, Reports and Opey conversation recording fail until they exist.'
+			needed_for: 'App Studio, the Portal FAQ, Reports and Opey conversation recording, whose entities it maintains.'
 		},
 		{
 			role_name: 'CanCreateDynamicEntityDefinition',
 			bank_id: SYS,
-			purpose: 'Creates those entities when they are missing.',
-			without_it: 'A missing entity stays missing.'
+			needed_for: 'Setting those features up on a new installation.'
 		},
 		{
 			role_name: 'CanUpdateDynamicEntityDefinition',
 			bank_id: SYS,
-			purpose: 'Brings an entity up to date when its auth mode or schema falls behind.',
-			without_it: 'An out-of-date entity stays as it is.'
+			needed_for: 'Keeping those features working after an upgrade.'
 		}
 	]
 };
@@ -112,12 +105,8 @@ export function compareConsumerScopes(required: RequiredConsumerScope[], held: H
 	}));
 }
 
-/**
- * What an app reports about its own Consumer, served as JSON at /status/consumer-scopes so the
- * API Manager can show it. consumer_id only: the client id (consumer key) is a credential.
- */
+/** The result of an app's check of its own Consumer. */
 export interface ConsumerScopesReport {
-	app: ConsumerApp;
 	checked_at: string;
 	/** 'ok': every required Scope is held; 'missing': some are not; 'unknown': the check could not tell. */
 	state: 'ok' | 'missing' | 'unknown';

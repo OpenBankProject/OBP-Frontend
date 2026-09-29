@@ -20,7 +20,6 @@ import { HealthCheckService } from "./HealthCheckService";
 import type { HealthCheckSnapshot } from "../state/HealthCheckState";
 import {
     compareConsumerScopes,
-    type ConsumerApp,
     type ConsumerScopesReport,
     type HeldScope,
     type RequiredConsumerScope
@@ -29,37 +28,38 @@ import {
 const logger = createLogger('ConsumerScopesHealthCheckService');
 
 export const CURRENT_CONSUMER_SCOPES_PATH = '/obp/v7.0.0/consumers/current/scopes';
+export const CURRENT_CONSUMER_PLATFORM_APP_PATH = '/obp/v7.0.0/consumers/current/platform-app';
+
+/** Declare again this often once a declaration has been accepted, in case an administrator re-marked the app. */
+const REDECLARE_AFTER_MS = 60 * 60 * 1000;
 
 /** An application token, or why there is none (the shape of requestApplicationAccessToken's result). */
 export type ApplicationTokenSource = () => Promise<{ token: string } | { token: null; reason: string }>;
 
 export interface ConsumerScopesHealthCheckOptions {
     serviceName: string;
-    app: ConsumerApp;
     required: RequiredConsumerScope[];
     obpBaseUrl: string;
     getApplicationToken: ApplicationTokenSource;
-    /** Link for the consumer_id on /status, e.g. its page on the API Manager. */
+    /** The app's version, sent with its Platform App declaration. */
+    version?: string;
+    /** Link for the consumer_id on /status, e.g. the API Manager's Platform Apps page. */
     consumerUrl?: (consumerId: string) => string;
     interval?: number;
     timeout?: number;
 }
 
-/** The answer of GET /obp/v7.0.0/consumers/current/scopes, as far as it matters here. */
-export interface CurrentConsumerScopesResponse {
+/** An OBP answer, as far as it matters here. */
+export interface ObpAnswer {
     status: number;
     body: { consumer_id?: string; scopes?: HeldScope[]; message?: string } | null;
 }
 
-/** Turn the OBP answer into a report: which required Scopes the app's Consumer holds. */
-export function evaluateConsumerScopes(
-    app: ConsumerApp,
-    required: RequiredConsumerScope[],
-    response: CurrentConsumerScopesResponse
-): ConsumerScopesReport {
+/** Turn the answer of GET /consumers/current/scopes into a report: which required Scopes the app's Consumer holds. */
+export function evaluateConsumerScopes(required: RequiredConsumerScope[], response: ObpAnswer): ConsumerScopesReport {
     const checked_at = new Date().toISOString();
     const unknown = (problem: string): ConsumerScopesReport =>
-        ({ app, checked_at, state: 'unknown', scopes: required.map((r) => ({ ...r, held: false })), problem });
+        ({ checked_at, state: 'unknown', scopes: required.map((r) => ({ ...r, held: false })), problem });
     if (response.status === 404) {
         return unknown(`This OBP-API has no GET ${CURRENT_CONSUMER_SCOPES_PATH}, so the Consumer's Scopes cannot be read.`);
     }
@@ -68,7 +68,20 @@ export function evaluateConsumerScopes(
     }
     const scopes = compareConsumerScopes(required, response.body.scopes ?? []);
     const missingRequired = scopes.some((s) => !s.held && !s.optional);
-    return { app, checked_at, state: missingRequired ? 'missing' : 'ok', consumer_id: response.body.consumer_id, scopes };
+    return { checked_at, state: missingRequired ? 'missing' : 'ok', consumer_id: response.body.consumer_id, scopes };
+}
+
+/** What the answer to the Platform App declaration means, for /status. */
+export function describeDeclaration(response: ObpAnswer): { accepted: boolean; text: string } {
+    if (response.status >= 200 && response.status < 300) return { accepted: true, text: 'declared' };
+    const message = response.body?.message ?? '';
+    if (response.status === 404 && message.startsWith('OBP-35046')) {
+        return { accepted: false, text: 'not marked: an administrator marks this Consumer on the API Manager\'s Platform Apps page' };
+    }
+    if (response.status === 404) {
+        return { accepted: false, text: 'not supported by this OBP-API (no Platform Apps)' };
+    }
+    return { accepted: false, text: `declaration refused: ${response.status}${message ? ` ${message}` : ''}` };
 }
 
 /** The /status row for a report. */
@@ -84,20 +97,22 @@ export function consumerScopesSnapshot(report: ConsumerScopesReport): Pick<Healt
     if (missing.length === 0) return { status: 'healthy', error: undefined, details };
     return {
         status: 'unhealthy',
-        error: missing.map((s) => `Missing ${s.role_name} at ${s.bank_id || '(system)'}: ${s.without_it}`).join(' '),
+        error: missing.map((s) => `Missing ${s.role_name} at ${s.bank_id || '(system)'}, needed for: ${s.needed_for}`).join(' '),
         details
     };
 }
 
 /**
  * Checks that this app's own OBP Consumer holds the Scopes it needs, by asking OBP which Scopes the
- * Consumer behind its application token holds. The latest report is also served as JSON (see
- * getReport), which is how the API Manager's App Consumers page learns about the Portal's Consumer.
+ * Consumer behind its application token holds, and declares those needs to OBP as a Platform App so the
+ * API Manager's Platform Apps page can show them. A declaration is refused until an administrator has
+ * marked the Consumer; the check keeps trying, so marking takes effect without a restart.
  */
 export class ConsumerScopesHealthCheckService extends HealthCheckService {
     private readonly scopeOptions: ConsumerScopesHealthCheckOptions;
-    private report: ConsumerScopesReport;
-    private running: Promise<void> | null = null;
+    private declaredAt = 0;
+    private declaration = 'not yet declared';
+    private consumerId: string | undefined;
 
     constructor(options: ConsumerScopesHealthCheckOptions) {
         super({
@@ -107,77 +122,84 @@ export class ConsumerScopesHealthCheckService extends HealthCheckService {
             timeout: options.timeout ?? 5000
         });
         this.scopeOptions = options;
-        this.report = {
-            app: options.app,
-            checked_at: new Date(0).toISOString(),
-            state: 'unknown',
-            scopes: options.required.map((r) => ({ ...r, held: false })),
-            problem: 'Not checked yet.'
-        };
     }
 
-    getReport(): ConsumerScopesReport {
-        return this.report;
-    }
-
-    /** Check again unless the last check is younger than maxAgeMs, e.g. just after a Scope was granted. */
-    async refreshIfOlderThan(maxAgeMs: number): Promise<ConsumerScopesReport> {
-        if (Date.now() - Date.parse(this.report.checked_at) >= maxAgeMs) await this.performCheck();
-        return this.report;
+    /** The consumer_id OBP last said this app's application token belongs to. */
+    getConsumerId(): string | undefined {
+        return this.consumerId;
     }
 
     async performCheck(): Promise<void> {
-        // One check at a time: a refresh asked for while the interval's check runs waits for it.
-        if (!this.running) {
-            this.running = this.check().finally(() => { this.running = null; });
-        }
-        return this.running;
-    }
-
-    private async check(): Promise<void> {
-        const { app, required, obpBaseUrl, getApplicationToken, consumerUrl } = this.scopeOptions;
+        const { required, getApplicationToken, consumerUrl } = this.scopeOptions;
         const start = performance.now();
         let report: ConsumerScopesReport;
         const tokenResult = await getApplicationToken();
         if (tokenResult.token === null) {
             report = {
-                app,
                 checked_at: new Date().toISOString(),
                 state: 'unknown',
                 scopes: required.map((r) => ({ ...r, held: false })),
                 problem: `No application token: ${tokenResult.reason}.`
             };
         } else {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort('timeout'), this.scopeOptions.timeout ?? 5000);
             try {
-                const response = await fetch(`${obpBaseUrl.replace(/\/$/, '')}${CURRENT_CONSUMER_SCOPES_PATH}`, {
-                    headers: { Authorization: `Bearer ${tokenResult.token}`, Accept: 'application/json' },
-                    signal: controller.signal
-                });
-                const body = await response.json().catch(() => null);
-                report = evaluateConsumerScopes(app, required, { status: response.status, body });
+                report = evaluateConsumerScopes(required, await this.call('GET', CURRENT_CONSUMER_SCOPES_PATH, tokenResult.token));
+                if (Date.now() - this.declaredAt > REDECLARE_AFTER_MS) await this.declare(tokenResult.token);
             } catch (err) {
                 const message = err instanceof Error ? (err.name === 'AbortError' ? 'Request timeout' : err.message) : String(err);
                 report = {
-                    app,
                     checked_at: new Date().toISOString(),
                     state: 'unknown',
                     scopes: required.map((r) => ({ ...r, held: false })),
                     problem: `Could not reach OBP-API: ${message}`
                 };
-            } finally {
-                clearTimeout(timeoutId);
             }
         }
-        this.report = report;
+        if (report.consumer_id) this.consumerId = report.consumer_id;
         const snapshot = consumerScopesSnapshot(report);
         if (report.consumer_id && consumerUrl) snapshot.details!.consumer_id_url = consumerUrl(report.consumer_id);
+        if (tokenResult.token !== null) snapshot.details!.platform_app = this.declaration;
         if (snapshot.status !== 'healthy') logger.warn(`${this.getName()}: ${snapshot.error ?? snapshot.status}`);
         this.state.setSnapshot({
             service: this.getName(),
             responseTimeMs: Math.round(performance.now() - start),
             ...snapshot
         });
+    }
+
+    /** Tell OBP, as this app's Consumer, which Scopes it needs and what for. */
+    private async declare(token: string): Promise<void> {
+        const body = {
+            ...(this.scopeOptions.version ? { version: this.scopeOptions.version } : {}),
+            required_scopes: this.scopeOptions.required.map((r) => ({
+                role_name: r.role_name,
+                bank_id: r.bank_id,
+                needed_for: r.needed_for,
+                optional: r.optional ?? false
+            }))
+        };
+        const outcome = describeDeclaration(await this.call('PUT', CURRENT_CONSUMER_PLATFORM_APP_PATH, token, body));
+        this.declaration = outcome.text;
+        this.declaredAt = outcome.accepted ? Date.now() : 0;
+    }
+
+    private async call(method: 'GET' | 'PUT', path: string, token: string, body?: unknown): Promise<ObpAnswer> {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort('timeout'), this.scopeOptions.timeout ?? 5000);
+        try {
+            const response = await fetch(`${this.scopeOptions.obpBaseUrl.replace(/\/$/, '')}${path}`, {
+                method,
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    Accept: 'application/json',
+                    ...(body ? { 'Content-Type': 'application/json' } : {})
+                },
+                ...(body ? { body: JSON.stringify(body) } : {}),
+                signal: controller.signal
+            });
+            return { status: response.status, body: await response.json().catch(() => null) };
+        } finally {
+            clearTimeout(timeoutId);
+        }
     }
 }

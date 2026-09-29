@@ -76,18 +76,47 @@ export function isDefaultRouting(routing: MethodRouting): boolean {
   return !routing.method_routing_id;
 }
 
-async function getJson(url: string): Promise<any> {
-  const response = await fetch(url, { credentials: "include" });
-  if (!response.ok) {
-    const body = await response.json().catch(() => ({}));
-    throw new Error(body?.message ?? `HTTP ${response.status} from ${url}`);
-  }
-  return response.json();
+/** What happened on the wire, filled in by getJson for the list page's debug panel. */
+export interface FetchDebug {
+  url?: string;
+  status?: number;
+  bytes?: number;
+  ms?: number;
 }
 
-export async function fetchMethodRoutings(active: boolean): Promise<MethodRouting[]> {
-  const data = await getJson(`/backend/integration/method-routings${active ? "?active=true" : ""}`);
-  return Array.isArray(data) ? data : data.method_routings || data.items || [];
+async function getJson(url: string, debug?: FetchDebug): Promise<any> {
+  const started = performance.now();
+  if (debug) debug.url = url;
+  const response = await fetch(url, { credentials: "include" });
+  const text = await response.text();
+  if (debug) {
+    debug.status = response.status;
+    debug.bytes = text.length;
+    debug.ms = Math.round(performance.now() - started);
+  }
+  let body: any;
+  try {
+    body = JSON.parse(text);
+  } catch {
+    body = undefined;
+  }
+  if (!response.ok) throw new Error(body?.message ?? `HTTP ${response.status} from ${url}`);
+  if (body === undefined) throw new Error(`Response from ${url} is not JSON`);
+  return body;
+}
+
+export async function fetchMethodRoutings(active: boolean, debug?: FetchDebug): Promise<MethodRouting[]> {
+  const data = await getJson(`/backend/integration/method-routings${active ? "?active=true" : ""}`, debug);
+  const routings: MethodRouting[] = Array.isArray(data) ? data : data.method_routings || data.items || [];
+  // ?active=true adds one generated default per public LocalMappedConnector method, found by
+  // reflection, so an overloaded method appears more than once. Keep the first default per name.
+  const seenDefaults = new Set<string>();
+  return routings.filter((r) => {
+    if (!isDefaultRouting(r)) return true;
+    if (seenDefaults.has(r.method_name)) return false;
+    seenDefaults.add(r.method_name);
+    return true;
+  });
 }
 
 export async function fetchMethodNames(): Promise<string[]> {

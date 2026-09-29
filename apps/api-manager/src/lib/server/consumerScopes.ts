@@ -22,13 +22,13 @@ import { requestApplicationAccessToken } from "$lib/server/oauth/applicationToke
 
 /**
  * Whether the API Manager's own OBP Consumer holds the Scopes its application-token calls need.
- * Shown on /status and on the App Consumers page, and served at /status/consumer-scopes.
+ * Shown on /status; also declares those needs to OBP, for the Platform Apps page.
  */
 export const consumerScopesCheck = new ConsumerScopesHealthCheckService({
   serviceName: "OBP Consumer scopes",
-  app: "api-manager",
   required: REQUIRED_CONSUMER_SCOPES["api-manager"],
   obpBaseUrl: publicEnv.PUBLIC_OBP_BASE_URL ?? "",
   getApplicationToken: requestApplicationAccessToken,
-  consumerUrl: () => "/consumers/app-consumers",
+  version: __APP_VERSION__,
+  consumerUrl: () => "/consumers/platform-apps",
 });

@@ -21,7 +21,7 @@ import { createLogger } from "@obp/shared/utils";
 import { renderMarkdown } from "@obp/shared/markdown";
 import { SessionOAuthHelper } from "$lib/oauth/sessionHelper";
 import { fetchResourceDocs } from "$lib/server/resourceDocs";
-import { fetchGlossary, findGlossaryItem, rewriteGlossaryLinks, glossaryEntryUrl, apiExplorerBaseUrl } from "$lib/server/glossaryCache";
+import { fetchGlossary, findGlossaryItem, glossaryEntryUrl, apiExplorerBaseUrl } from "$lib/server/glossaryCache";
 
 const logger = createLogger("JsonSchemaValidationsHelp");
 const GLOSSARY_TITLE = "JSON Schema Validation";
@@ -40,7 +40,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   let glossaryHtml: string | null = null;
   try {
     const item = findGlossaryItem(await fetchGlossary(token, force), GLOSSARY_TITLE);
-    if (item) glossaryHtml = renderMarkdown(rewriteGlossaryLinks(item.description.markdown, explorerUrl));
+    if (item) glossaryHtml = renderMarkdown(item.description.markdown);
     else warnings.push(`This OBP instance has no glossary entry "${GLOSSARY_TITLE}".`);
   } catch (e) {
     logger.warn("Could not load the OBP glossary:", e);

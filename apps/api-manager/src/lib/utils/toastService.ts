@@ -19,6 +19,7 @@ import { createToaster } from '@skeletonlabs/skeleton-svelte';
 
 // Create a single toaster instance for the entire application
 export const toaster = createToaster({
+    placement: 'top-end',
     max: 5,
     duration: 3000,
 });

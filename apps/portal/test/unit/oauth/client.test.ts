@@ -98,8 +98,7 @@ describe('OAuth2ClientWithConfig', () => {
 		});
 
 		it('should not set OIDC config when authorization_endpoint is missing', async () => {
-			const invalidConfig = { ...mockOIDCConfiguration };
-			delete invalidConfig.authorization_endpoint;
+			const { authorization_endpoint: _missing, ...invalidConfig } = mockOIDCConfiguration;
 
 			const mockFetch = createMockFetch([
 				{
@@ -117,8 +116,7 @@ describe('OAuth2ClientWithConfig', () => {
 		});
 
 		it('should not set OIDC config when token_endpoint is missing', async () => {
-			const invalidConfig = { ...mockOIDCConfiguration };
-			delete invalidConfig.token_endpoint;
+			const { token_endpoint: _missing, ...invalidConfig } = mockOIDCConfiguration;
 
 			const mockFetch = createMockFetch([
 				{

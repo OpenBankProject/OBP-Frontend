@@ -66,6 +66,7 @@ export async function load(event: RequestEvent) {
 	const isLoggedIn = !!token;
 
 	const warnings: string[] = [];
+	let loginRequired = false;
 
 	// First check if OBP-API is responding
 	try {
@@ -102,6 +103,8 @@ export async function load(event: RequestEvent) {
 			warnings.push('API rate limit exceeded while loading API products.');
 		} else if (e instanceof OBPTimeoutError) {
 			warnings.push('Request timed out loading API products.');
+		} else if (e instanceof OBPRequestError && e.obpErrorCode === 'OBP-20001') {
+			loginRequired = true;
 		} else if (e instanceof OBPRequestError) {
 			warnings.push(`Could not load API products: ${e.message}`);
 		} else {
@@ -119,6 +122,7 @@ export async function load(event: RequestEvent) {
 	return {
 		products,
 		warnings,
+		loginRequired,
 		apiExplorerUrl,
 		isLoggedIn
 	};

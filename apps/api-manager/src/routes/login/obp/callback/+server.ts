@@ -203,6 +203,15 @@ export async function GET(event: RequestEvent): Promise<Response> {
   // the id_token is the JWT that OBP verifies against Google's JWKS.
   const obpAccessToken =
     provider === "google" ? idToken : tokens.accessToken();
+  if (!obpAccessToken) {
+    logger.error(`No token to call OBP with from provider ${provider} (Google must return an id_token).`);
+    return new Response(null, {
+      status: 302,
+      headers: {
+        Location: `/login?error=${encodeURIComponent("The login provider did not return a token OBP can use. Please try again or contact your administrator.")}`,
+      },
+    });
+  }
 
   logger.debug(`OBP_API_URL from config: ${OBP_API_URL}`);
   const currentUserUrl = `${OBP_API_URL}/users/current`;

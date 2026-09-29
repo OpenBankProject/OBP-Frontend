@@ -23,15 +23,15 @@ import { requestApplicationAccessToken } from '$lib/server/oauth/applicationToke
 
 /**
  * Whether the Portal's own OBP Consumer holds the Scopes its application-token calls need. Shown on
- * /status, and served at /status/consumer-scopes for the API Manager's App Consumers page.
+ * /status; also declares those needs to OBP, for the API Manager's Platform Apps page.
  */
 export const consumerScopesCheck = new ConsumerScopesHealthCheckService({
 	serviceName: 'OBP Consumer scopes',
-	app: 'portal',
 	required: REQUIRED_CONSUMER_SCOPES.portal,
 	obpBaseUrl: publicEnv.PUBLIC_OBP_BASE_URL ?? '',
 	getApplicationToken: requestApplicationAccessToken,
+	version: __APP_VERSION__,
 	...(env.API_MANAGER_URL
-		? { consumerUrl: () => `${env.API_MANAGER_URL.replace(/\/$/, '')}/consumers/app-consumers` }
+		? { consumerUrl: () => `${env.API_MANAGER_URL.replace(/\/$/, '')}/consumers/platform-apps` }
 		: {})
 });

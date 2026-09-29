@@ -50,11 +50,10 @@ export {
 	explorerGlossaryTitleUrl,
 	explorerMessageDocsUrl,
 	explorerResourceDocUrl,
-	glossaryEntryUrl,
-	rewriteGlossaryLinks
+	glossaryEntryUrl
 } from './links.js';
 
-export { parseDescription, resolveGlossaryHref } from './description.js';
+export { parseDescription } from './description.js';
 export type { DescriptionField, DescriptionSection, ParsedDescription } from './description.js';
 
 export { searchIndex } from './search.js';

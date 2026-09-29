@@ -21,7 +21,7 @@ import type { ServerLoadEvent } from "@sveltejs/kit";
 import type { Session } from "svelte-kit-sessions";
 import { obpIntegrationService } from "$lib/server/opey/OBPIntegrationService";
 import { OBP_API_URL } from "$lib/config";
-import type { OBPConsentInfo } from "$lib/obp/types";
+import type { OBPConsentInfo } from "@obp/shared/obp";
 // import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
 // import { storePopup } from '@skeletonlabs/skeleton';
 // storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });

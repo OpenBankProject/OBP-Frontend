@@ -193,13 +193,3 @@ export function glossaryEntryUrl(
 	return `${normalizeExplorerBase(explorerUrl)}/glossary#${encodeURIComponent(title)}`;
 }
 
-/**
- * Glossary markdown links between entries are site-relative to the API Explorer
- * (`[here](/glossary#Title)`). Point them somewhere that resolves.
- */
-export function rewriteGlossaryLinks(
-	markdown: string,
-	explorerUrl: string = DEFAULT_EXTERNAL_EXPLORER_URL
-): string {
-	return markdown.replace(/\]\(\/glossary#/g, `](${normalizeExplorerBase(explorerUrl)}/glossary#`);
-}

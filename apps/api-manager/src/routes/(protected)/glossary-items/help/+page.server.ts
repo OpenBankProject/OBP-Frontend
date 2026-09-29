@@ -21,7 +21,7 @@ import { createLogger } from "@obp/shared/utils";
 import { renderMarkdown } from "@obp/shared/markdown";
 import { SessionOAuthHelper } from "$lib/oauth/sessionHelper";
 import { obp_requests } from "$lib/obp/requests";
-import { fetchGlossary, findGlossaryItem, rewriteGlossaryLinks, glossaryEntryUrl, apiExplorerBaseUrl } from "$lib/server/glossaryCache";
+import { fetchGlossary, findGlossaryItem, glossaryEntryUrl, apiExplorerBaseUrl } from "$lib/server/glossaryCache";
 
 const logger = createLogger("GlossaryItemsHelp");
 
@@ -97,7 +97,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     return {
       title,
       // markdown-it with its default html:false escapes any raw HTML in the source, so this is safe to {@html}.
-      html: item ? renderMarkdown(rewriteGlossaryLinks(item.description.markdown, explorerUrl)) : null,
+      html: item ? renderMarkdown(item.description.markdown) : null,
       explorerUrl: glossaryEntryUrl(title, explorerUrl),
     };
   });

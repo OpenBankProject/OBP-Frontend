@@ -71,14 +71,6 @@ export function apiExplorerBaseUrl(): string {
     .replace(/\/?\?.*$/, "");
 }
 
-/**
- * Glossary markdown links to other entries are site-relative to the API Explorer
- * (`[here](/glossary#Title)`). Point them at the Explorer so they work from the Manager.
- */
-export function rewriteGlossaryLinks(markdown: string, explorerUrl = apiExplorerBaseUrl()): string {
-  return markdown.replace(/\]\(\/glossary#/g, `](${explorerUrl}/glossary#`);
-}
-
 /** The API Explorer page for one glossary entry. */
 export function glossaryEntryUrl(title: string, explorerUrl = apiExplorerBaseUrl()): string {
   return `${explorerUrl}/glossary#${encodeURIComponent(title)}`;

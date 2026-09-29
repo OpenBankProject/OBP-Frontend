@@ -22,8 +22,8 @@
   let isLoading = $state(false);
   let error = $state<string | null>(null);
   let lastUpdated = $state<string>("");
-  let refreshInterval: number | undefined = undefined;
-  let countdownInterval: number | undefined = undefined;
+  let refreshInterval: ReturnType<typeof setInterval> | undefined = undefined;
+  let countdownInterval: ReturnType<typeof setInterval> | undefined = undefined;
   let initialized = $state(false);
   let secondsUntilRefresh = $state(600); // 10 minutes in seconds
 

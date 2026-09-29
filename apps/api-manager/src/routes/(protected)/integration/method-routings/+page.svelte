@@ -19,7 +19,7 @@
   import { onMount } from "svelte";
   import { page } from "$app/state";
   import { Plus, Route, ExternalLink, Search, RefreshCw, Pencil, Copy, ArrowUpRight } from "@lucide/svelte";
-  import { fetchMethodRoutings as loadRoutings, isDefaultRouting, type MethodRouting } from "$lib/services/methodRoutings";
+  import { fetchMethodRoutings as loadRoutings, isDefaultRouting, type FetchDebug, type MethodRouting } from "$lib/services/methodRoutings";
 
   // Creating, overriding and editing live on their own pages (with Opey beside the form):
   // /integration/method-routings/create[?method=NAME|?from=ID] and /integration/method-routings/ID.
@@ -35,18 +35,56 @@
     .replace(/\/?\?.*$/, "");
   const glossaryUrl = apiExplorerUrl ? `${apiExplorerUrl}/glossary#Method%20Routing` : "";
 
+  // Debug panel: what the last load did, step by step, and whether the table failed to render.
+  type LoadDebug = FetchDebug & {
+    phase: "idle" | "requesting" | "received" | "failed";
+    startedAt?: number;
+    rows?: number;
+    duplicateKeys: string[];
+    error?: string;
+    renderError?: string;
+  };
+  let debug = $state<LoadDebug>({ phase: "idle", duplicateKeys: [] });
+  let now = $state(Date.now());
+
+  // OBP sends defaults with method_routing_id "" (not absent), so key on isDefaultRouting, not ??.
+  const rowKey = (r: MethodRouting) => (isDefaultRouting(r) ? `default:${r.method_name}` : `id:${r.method_routing_id}`);
+
+  function duplicateRowKeys(rows: MethodRouting[]): string[] {
+    const seen = new Set<string>();
+    const dupes = new Set<string>();
+    for (const r of rows) {
+      const key = rowKey(r);
+      if (seen.has(key)) dupes.add(key);
+      seen.add(key);
+    }
+    return [...dupes];
+  }
+
   async function fetchMethodRoutings() {
+    const wire: FetchDebug = {};
+    debug = { phase: "requesting", startedAt: Date.now(), duplicateKeys: [] };
     try {
       isLoading = true;
       error = null;
-      methodRoutings = await loadRoutings(viewMode === "active");
+      const rows = await loadRoutings(viewMode === "active", wire);
+      debug = { ...debug, ...wire, phase: "received", rows: rows.length, duplicateKeys: duplicateRowKeys(rows) };
+      methodRoutings = rows;
     } catch (err) {
       error = err instanceof Error ? err.message : "Failed to fetch method routings";
+      debug = { ...debug, ...wire, phase: "failed", error };
       console.error("Error fetching method routings:", err);
     } finally {
       isLoading = false;
     }
   }
+
+  // Tick while a request is outstanding so the panel shows how long it has been waiting.
+  $effect(() => {
+    if (!isLoading) return;
+    const timer = setInterval(() => (now = Date.now()), 500);
+    return () => clearInterval(timer);
+  });
 
   function clearMessages() {
     error = null;
@@ -177,6 +215,7 @@
       </div>
     </div>
 
+    <svelte:boundary onerror={(e) => (debug.renderError = e instanceof Error ? e.message : String(e))}>
     {#if isLoading && methodRoutings.length === 0}
       <div class="flex items-center justify-center gap-3 p-12 text-sm text-gray-600 dark:text-gray-300">
         <div class="h-6 w-6 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
@@ -203,7 +242,7 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-            {#each visibleRoutings as routing (routing.method_routing_id ?? routing.method_name)}
+            {#each visibleRoutings as routing (rowKey(routing))}
               {@const isDefault = isDefaultRouting(routing)}
               <tr class={isDefault ? "text-gray-600 dark:text-gray-400" : ""} data-state={isDefault ? "default" : "custom"}>
                 <td class="px-4 py-3 font-mono text-xs {isDefault ? '' : 'font-semibold text-gray-900 dark:text-gray-100'}">{routing.method_name}</td>
@@ -279,5 +318,45 @@
         {/if}
       </div>
     {/if}
+    {#snippet failed(renderError, reset)}
+      <div class="p-6 text-sm text-red-700 dark:text-red-300" role="alert" data-testid="method-routings-render-error">
+        <p><strong>The table failed to render:</strong> {renderError instanceof Error ? renderError.message : String(renderError)}</p>
+        <button type="button" onclick={reset} class="mt-2 rounded border border-red-300 px-2 py-1 text-xs hover:bg-red-50 dark:border-red-700 dark:hover:bg-red-900/20">Try again</button>
+      </div>
+    {/snippet}
+    </svelte:boundary>
   </div>
+
+  <details
+    class="mt-6 rounded-lg border border-gray-200 bg-white text-xs dark:border-gray-700 dark:bg-gray-800"
+    open={debug.phase === "failed" || !!debug.renderError || debug.duplicateKeys.length > 0}
+    data-testid="method-routings-debug"
+    data-state={debug.phase}
+  >
+    <summary class="cursor-pointer px-4 py-2 font-medium text-gray-700 dark:text-gray-300">Debug</summary>
+    <dl class="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1 border-t border-gray-200 px-4 py-3 font-mono text-gray-700 dark:border-gray-700 dark:text-gray-300">
+      <dt>phase</dt>
+      <dd data-testid="debug-phase">
+        {debug.phase}{#if debug.phase === "requesting" && debug.startedAt}&nbsp;(waiting {Math.max(0, Math.round((now - debug.startedAt) / 1000))}s){/if}
+      </dd>
+      <dt>view</dt>
+      <dd>{viewMode}</dd>
+      <dt>started</dt>
+      <dd>{debug.startedAt ? new Date(debug.startedAt).toISOString() : "—"}</dd>
+      <dt>request</dt>
+      <dd>{debug.url ?? "—"}</dd>
+      <dt>http status</dt>
+      <dd data-testid="debug-status">{debug.status ?? "—"}</dd>
+      <dt>response</dt>
+      <dd>{debug.bytes !== undefined ? `${debug.bytes.toLocaleString()} chars in ${debug.ms} ms` : "—"}</dd>
+      <dt>rows</dt>
+      <dd data-testid="debug-rows">{debug.rows ?? "—"} (custom {customCount}, default {defaultCount}, shown {visibleRoutings.length})</dd>
+      <dt>duplicate row keys</dt>
+      <dd data-testid="debug-duplicate-keys">{debug.duplicateKeys.length === 0 ? "none" : debug.duplicateKeys.join(", ")}</dd>
+      <dt>error</dt>
+      <dd data-testid="debug-error">{debug.error ?? "—"}</dd>
+      <dt>render error</dt>
+      <dd data-testid="debug-render-error">{debug.renderError ?? "—"}</dd>
+    </dl>
+  </details>
 </div>

@@ -96,13 +96,3 @@ export function parseDescription(markdown: string): ParsedDescription {
 
 	return { prose: proseLines.join('\n').trim(), sections };
 }
-
-/**
- * Glossary links in descriptions are site-relative to the API Explorer
- * (`/glossary#bank_id`), so they 404 anywhere else. Point them at a base that serves one.
- */
-export function resolveGlossaryHref(href: string | undefined, glossaryBaseUrl: string): string | undefined {
-	if (!href) return undefined;
-	if (!href.startsWith('/glossary#')) return href;
-	return `${glossaryBaseUrl.replace(/\/$/, '')}${href}`;
-}

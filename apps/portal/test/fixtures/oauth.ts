@@ -17,7 +17,6 @@
  */
 import { vi } from 'vitest';
 import type { OpenIdConnectConfiguration, OAuth2AccessTokenPayload } from '$lib/oauth/types';
-import type { OAuth2Tokens } from 'arctic';
 
 export const mockOIDCConfiguration: OpenIdConnectConfiguration = {
 	issuer: 'https://test-oauth2.openbankproject.com/realms/obp-test',
@@ -110,22 +109,6 @@ export const mockAccessToken =
 
 export const mockRefreshToken = 'refresh-token-123';
 
-export const mockOAuth2Tokens: OAuth2Tokens = {
-	accessToken: () => mockAccessToken,
-	refreshToken: () => mockRefreshToken,
-	accessTokenExpiresAt: () => new Date(Date.now() + 3600000), // 1 hour from now
-	refreshTokenExpiresAt: () => new Date(Date.now() + 86400000), // 24 hours from now
-	scopes: () => ['openid', 'profile', 'email']
-};
-
-export const mockExpiredOAuth2Tokens: OAuth2Tokens = {
-	accessToken: () => 'expired-access-token',
-	refreshToken: () => mockRefreshToken,
-	accessTokenExpiresAt: () => new Date(Date.now() - 3600000), // expired 1 hour ago
-	refreshTokenExpiresAt: () => new Date(Date.now() + 86400000), // 24 hours from now
-	scopes: () => ['openid', 'profile', 'email']
-};
-
 export const mockUser = {
 	user_id: 'test-user-123',
 	email: 'test@example.com',
@@ -184,11 +167,6 @@ export const mockEnvironment = {
 };
 
 // Helper functions for creating test data
-export const createMockTokens = (overrides: Partial<OAuth2Tokens> = {}): OAuth2Tokens => ({
-	...mockOAuth2Tokens,
-	...overrides
-});
-
 export const createMockSession = (overrides: any = {}) => ({
 	...mockSession,
 	data: {

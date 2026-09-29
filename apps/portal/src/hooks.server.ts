@@ -481,6 +481,8 @@ declare module 'svelte-kit-sessions' {
 			user_id: string;
 			email: string;
 			username: string;
+			/** The identity provider OBP records for the User (GET /users/current). */
+			provider?: string;
 			entitlements: {
 				list: Array<{
 					entitlement_id: string;

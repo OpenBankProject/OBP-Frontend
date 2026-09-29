@@ -29,9 +29,14 @@ export interface OBPIntegrationService {
 }
 
 export class DefaultOBPIntegrationService implements OBPIntegrationService {
+  /**
+   * @param desiredConsentTtlSeconds the lifetime to ask for when creating Opey's consent, before it is
+   *   capped to OBP's maximum. The Portal passes the user's own preference; the default is 5 hours.
+   */
   constructor(
     private opeyConsumerId: string,
-    private obpRequests: OBPRequests
+    private obpRequests: Pick<OBPRequests, 'get' | 'post'>,
+    private desiredConsentTtlSeconds: (accessToken: string) => Promise<number> = async () => 18000
   ) {}
 
   async getOrCreateOpeyConsent(session: Session): Promise<OBPConsent> {
@@ -131,7 +136,7 @@ export class DefaultOBPIntegrationService implements OBPIntegrationService {
 		// public /obp/v7.0.0/public/consent-config endpoint) to avoid OBP-35020 on
 		// consent creation. The helper returns the desired value unchanged when
 		// the endpoint isn't available (older OBP versions).
-		const desiredTtl = 18000; // 5 hours
+		const desiredTtl = await this.desiredConsentTtlSeconds(accessToken);
 		const { ttl, max: serverMaxTtl, capped: ttlWasCapped } = await capConsentTtlSeconds(
 			desiredTtl,
 			(p, t) => this.obpRequests.get(p, t)
@@ -145,7 +150,7 @@ export class DefaultOBPIntegrationService implements OBPIntegrationService {
 		const body = {
 			// Baseline session consent: authenticates the user with Opey but grants
 			// no elevated access. Specific roles are granted on demand by the
-			// per-tool-call flow (/api/opey/consent).
+			// per-tool-call flow (/backend/opey/consent).
 			everything: false,
 			entitlements: [],
 			consumer_id: this.opeyConsumerId,

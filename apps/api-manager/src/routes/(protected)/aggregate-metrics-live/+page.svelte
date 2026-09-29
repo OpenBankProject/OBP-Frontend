@@ -46,9 +46,9 @@
     });
   });
 
-  let refreshInterval: number | undefined = undefined;
-  let countdownInterval: number | undefined = undefined;
-  let timeUpdateInterval: number | undefined = undefined;
+  let refreshInterval: ReturnType<typeof setInterval> | undefined = undefined;
+  let countdownInterval: ReturnType<typeof setInterval> | undefined = undefined;
+  let timeUpdateInterval: ReturnType<typeof setInterval> | undefined = undefined;
   let currentTime = $state(new Date().toLocaleString());
   let currentTimeUTC = $state(
     new Date().toISOString().replace("T", " ").slice(0, 19),
@@ -188,7 +188,6 @@
 
   function refreshMetrics() {
     console.log("refreshMetrics called at", new Date().toLocaleTimeString());
-    console.log("Current queryForm.limit:", queryForm.limit);
 
     // Update dates if Auto Refresh is active
     if (autoRefresh !== "none") {

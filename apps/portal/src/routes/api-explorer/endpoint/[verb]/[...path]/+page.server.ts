@@ -26,7 +26,6 @@ import {
 	explorerGlossaryTitleUrl,
 	glossaryEntryUrl,
 	parseDescription,
-	rewriteGlossaryLinks,
 	DEFAULT_EXTERNAL_EXPLORER_URL
 } from '@obp/shared/explorer';
 import { env as publicEnv } from '$env/dynamic/public';
@@ -97,7 +96,7 @@ export const load: PageServerLoad = async ({ params }) => {
 	};
 	const sections = described.sections.map((section) => ({
 		title: section.title,
-		extraHtml: section.extra ? renderMarkdown(rewriteGlossaryLinks(section.extra, externalExplorerUrl)) : '',
+		extraHtml: section.extra ? renderMarkdown(section.extra) : '',
 		fields: section.fields.map((field) => ({
 			name: field.name,
 			href: glossaryHref(field.glossaryHref),
@@ -114,7 +113,7 @@ export const load: PageServerLoad = async ({ params }) => {
 			requestUrl: doc.request_url,
 			summary: doc.summary ?? '',
 			descriptionHtml: described.prose
-				? renderMarkdown(rewriteGlossaryLinks(described.prose, externalExplorerUrl))
+				? renderMarkdown(described.prose)
 				: (doc.description_markdown ? '' : (doc.description ?? '')),
 			sections,
 			roles: doc.roles ?? [],

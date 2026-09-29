@@ -192,8 +192,9 @@ export const expectToThrow = async (fn: () => Promise<any> | any, expectedMessag
 		await fn();
 		throw new Error('Expected function to throw, but it did not');
 	} catch (error) {
-		if (expectedMessage && !error.message.includes(expectedMessage)) {
-			throw new Error(`Expected error message to contain "${expectedMessage}", but got "${error.message}"`);
+		const message = error instanceof Error ? error.message : String(error);
+		if (expectedMessage && !message.includes(expectedMessage)) {
+			throw new Error(`Expected error message to contain "${expectedMessage}", but got "${message}"`);
 		}
 		return error;
 	}

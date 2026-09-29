@@ -52,7 +52,7 @@
   // Auto refresh
   let autoRefresh = $state("60");
   let countdown = $state(60);
-  let countdownInterval: number | undefined = undefined;
+  let countdownInterval: ReturnType<typeof setInterval> | undefined = undefined;
   let timestampColorIndex = $state(0);
   let autoRefreshPaused = $state(false);
   let consecutiveErrors = $state(0);
