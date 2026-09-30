@@ -21,6 +21,7 @@
 	import { CheckCheck, Layers, Rocket, UserLock, HelpCircle } from '@lucide/svelte';
 	import { env } from '$env/dynamic/public';
 	import { page } from '$app/stores';
+	import { renderTextWithLinks } from '@obp/shared/markdown';
 
 	let { data } = $props();
 
@@ -30,10 +31,15 @@
 	let opeyConsentInfo = data.opeyConsentInfo;
 	let isAuthenticated = !!data.userId;
 
-	// Configurable text via environment variables
-	const welcomeTitle = env.PUBLIC_WELCOME_TITLE || 'Welcome!';
-	const helpQuestion = env.PUBLIC_HELP_QUESTION || 'How can I help?';
-	const welcomeDescription = env.PUBLIC_WELCOME_DESCRIPTION || 'Welcome to the Open Bank Project API Manager — manage your OBP API instance, configure settings, and explore the full power of the Open Bank Project.';
+	// Configurable text: webui_prop, then env var, then default (resolved in +page.server.ts)
+	const welcomeTitle = $derived(data.webUiText.welcomeTitle.value);
+	const helpQuestion = $derived(data.webUiText.helpQuestion.value);
+	// Supports markdown-style links, e.g. "See [the docs](https://example.com)";
+	// everything else is escaped, so the result is safe for {@html}
+	const welcomeDescriptionHtml = $derived(renderTextWithLinks(data.webUiText.welcomeDescription.value, {
+		// primary-* is near-black in the OBP theme, so use tertiary for a visible hover
+		linkClass: 'underline hover:text-tertiary-600 dark:hover:text-tertiary-400'
+	}));
 
 	// Icon mapping for configurable questions
 	const iconMap: Record<string, typeof Rocket> = {
@@ -91,8 +97,8 @@
 				<div class="flex w-2/3 flex-col items-center justify-center text-center">
 					<h1 class="h3 text-surface-700-300 mb-2">{welcomeTitle}</h1>
 					<h1 class="h3 mb-4">{helpQuestion}</h1>
-					<p class="text-surface-700-300 mb-7 text-sm">
-						{welcomeDescription}
+					<p class="text-surface-700-300 mb-7 text-sm" data-testid="welcome-description">
+						{@html welcomeDescriptionHtml}
 					</p>
 				</div>
 			{/snippet}

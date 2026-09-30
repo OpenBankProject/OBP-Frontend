@@ -56,6 +56,9 @@ export const KNOWN_WEB_UI_PROPS: KnownWebUiProp[] = [
 	fromEnvVar('PUBLIC_HELP_QUESTION', 'text', 'Portal home'),
 	fromEnvVar('PUBLIC_WELCOME_DESCRIPTION', 'text-with-links', 'Portal home'),
 	fromEnvVar('PUBLIC_WELCOME_MESSAGE', 'text-with-links', 'Portal first-visit bubble'),
+	fromEnvVar('PUBLIC_WELCOME_TITLE_MANAGER', 'text', 'API Manager home'),
+	fromEnvVar('PUBLIC_HELP_QUESTION_MANAGER', 'text', 'API Manager home'),
+	fromEnvVar('PUBLIC_WELCOME_DESCRIPTION_MANAGER', 'text-with-links', 'API Manager home'),
 	{ name: 'webui_terms_and_conditions', format: 'markdown', usedBy: 'Portal registration' },
 	{ name: 'webui_privacy_policy', format: 'markdown', usedBy: 'Portal registration' },
 	{ name: 'webui_support_platform_url', format: 'url', usedBy: 'Portal support' }
