@@ -37,6 +37,8 @@ interface MetricRecord {
   implemented_in_version: string;
   user_id?: string;
   consent_reference_id?: string;
+  source_ip?: string;
+  forwarded_for?: string;
 }
 
 interface MetricsResponse {

@@ -27,8 +27,13 @@
     CheckCircle,
     XCircle,
     AlertCircle,
+    RefreshCw,
+    Eye,
   } from "@lucide/svelte";
   import { RoleName } from "@obp/shared/components";
+  import { invalidateAll } from "$app/navigation";
+  import { toast } from "$lib/utils/toastService";
+  import { trackedFetch } from "$lib/utils/trackedFetch";
 
   let { data } = $props<{ data: PageData }>();
 
@@ -36,6 +41,66 @@
   let entitlements = $derived(data.entitlements || []);
   let hasApiAccess = $derived(data.hasApiAccess);
   let error = $derived(data.error);
+
+  interface MovedRole {
+    role_name: string;
+    to_group_id: string;
+  }
+
+  interface MemberSync {
+    user_id: string;
+    username: string;
+    entitlements_created: string[];
+    entitlements_deleted: string[];
+    entitlements_moved: MovedRole[];
+  }
+
+  interface MembersSync {
+    group_id: string;
+    dry_run: boolean;
+    members: MemberSync[];
+  }
+
+  let sync = $state<MembersSync | null>(null);
+  let isSyncing = $state(false);
+
+  let changedMembers = $derived(
+    sync
+      ? sync.members.filter(
+          (m) =>
+            m.entitlements_created.length > 0 ||
+            m.entitlements_deleted.length > 0 ||
+            m.entitlements_moved.length > 0,
+        )
+      : [],
+  );
+
+  // Bring the members' Entitlements in line with the group's Roles; with dryRun, only say what would change.
+  async function syncMembers(dryRun: boolean) {
+    if (!group) return;
+    isSyncing = true;
+    try {
+      const response = await trackedFetch(
+        `/proxy/obp/v7.0.0/management/groups/${group.group_id}/sync-members${dryRun ? "?dry_run=true" : ""}`,
+        { method: "POST" },
+      );
+      const body = await response.json();
+      if (!response.ok) {
+        throw new Error(body.message);
+      }
+      sync = body;
+      if (!dryRun) {
+        toast.success("Members Synced", `Synced the members of ${group.group_name}`);
+        await invalidateAll();
+      }
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to sync members";
+      toast.error("Error", errorMessage);
+    } finally {
+      isSyncing = false;
+    }
+  }
 </script>
 
 <svelte:head>
@@ -191,6 +256,98 @@
             <div class="empty-state-small">
               <AlertCircle size={32} />
               <p>No entitlements assigned to this group</p>
+            </div>
+          {/if}
+        </section>
+
+        <!-- Sync Members Section -->
+        <section class="info-section" id="sync-members" data-testid="sync-members-section">
+          <h2 class="section-title">
+            <RefreshCw size={20} />
+            Sync Members
+          </h2>
+          <p class="section-text">
+            Members keep the Roles the group had when they were added. Syncing
+            grants them the group's current Roles they lack, and removes those the
+            group no longer has, unless another group they are in still grants
+            them.
+          </p>
+          <div class="sync-actions">
+            <button
+              type="button"
+              class="btn-secondary"
+              onclick={() => syncMembers(true)}
+              disabled={isSyncing || !group.is_enabled}
+              data-testid="sync-members-preview"
+            >
+              <Eye size={16} />
+              Preview
+            </button>
+            <button
+              type="button"
+              class="btn-secondary"
+              onclick={() => syncMembers(false)}
+              disabled={isSyncing || !group.is_enabled}
+              data-testid="sync-members-run"
+            >
+              <RefreshCw size={16} />
+              Sync
+            </button>
+          </div>
+          {#if !group.is_enabled}
+            <p class="section-text">A disabled group cannot be synced.</p>
+          {/if}
+          {#if sync}
+            <div
+              class="sync-result"
+              data-testid="sync-members-result"
+              data-state={sync.dry_run ? "preview" : "synced"}
+            >
+              <p class="section-text">
+                {sync.dry_run ? "Would change" : "Changed"}
+                {changedMembers.length} of {sync.members.length} member(s).
+              </p>
+              {#if changedMembers.length > 0}
+                <div class="overflow-x-auto">
+                  <table class="sync-table">
+                    <thead>
+                      <tr>
+                        <th>Member</th>
+                        <th>Granted</th>
+                        <th>Removed</th>
+                        <th>Kept, now granted by</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {#each changedMembers as member (member.user_id)}
+                        <tr data-testid="sync-member-{member.user_id}">
+                          <td>
+                            <a href="/users/{member.user_id}">{member.username}</a>
+                          </td>
+                          <td>
+                            {#each member.entitlements_created as role}
+                              <div class="sync-role sync-added"><RoleName name={role} /></div>
+                            {/each}
+                          </td>
+                          <td>
+                            {#each member.entitlements_deleted as role}
+                              <div class="sync-role sync-removed"><RoleName name={role} /></div>
+                            {/each}
+                          </td>
+                          <td>
+                            {#each member.entitlements_moved as moved}
+                              <div class="sync-role">
+                                <RoleName name={moved.role_name} />
+                                <a href="/rbac/groups/{moved.to_group_id}">{moved.to_group_id}</a>
+                              </div>
+                            {/each}
+                          </td>
+                        </tr>
+                      {/each}
+                    </tbody>
+                  </table>
+                </div>
+              {/if}
             </div>
           {/if}
         </section>
@@ -644,6 +801,82 @@
 
   :global([data-mode="dark"]) .entitlement-detail {
     color: var(--color-surface-400);
+  }
+
+  .section-text {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin: 0 0 1rem 0;
+  }
+
+  :global([data-mode="dark"]) .section-text {
+    color: var(--color-surface-400);
+  }
+
+  .sync-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .sync-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+
+  .sync-table th,
+  .sync-table td {
+    text-align: left;
+    vertical-align: top;
+    padding: 0.625rem 0.75rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  :global([data-mode="dark"]) .sync-table th,
+  :global([data-mode="dark"]) .sync-table td {
+    border-bottom-color: rgb(var(--color-surface-700));
+    color: var(--color-surface-200);
+  }
+
+  .sync-table th {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .sync-table a {
+    color: #3b82f6;
+    text-decoration: none;
+  }
+
+  :global([data-mode="dark"]) .sync-table a {
+    color: rgb(var(--color-primary-400));
+  }
+
+  .sync-role {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .sync-added {
+    color: #065f46;
+  }
+
+  :global([data-mode="dark"]) .sync-added {
+    color: rgb(var(--color-success-300));
+  }
+
+  .sync-removed {
+    color: #991b1b;
+  }
+
+  :global([data-mode="dark"]) .sync-removed {
+    color: rgb(var(--color-error-300));
   }
 
   @media (max-width: 768px) {

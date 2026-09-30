@@ -73,6 +73,8 @@ export interface MetricEventShape {
   status_code: number;
   correlation_id: string;
   source_ip: string;
+  // The metrics stream does not carry the list of hops yet; always "" on streamed rows.
+  forwarded_for: string;
   target_ip: string;
   api_instance_id: string;
   operation_id: string;
@@ -125,6 +127,7 @@ export function formatMetricEvent(event: any): MetricEventShape {
     status_code: event.status_code || 0,
     correlation_id: event.correlation_id,
     source_ip: event.source_ip,
+    forwarded_for: event.forwarded_for || "",
     target_ip: event.target_ip,
     api_instance_id: event.api_instance_id,
     operation_id: event.operation_id,

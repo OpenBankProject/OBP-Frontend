@@ -36,7 +36,16 @@ export interface OBPMetric {
 	verb: string;
 	correlation_id: string;
 	duration: number;
+	/** The client address OBP-API resolved for the call: the first address in the
+	 * X-Forwarded-For list, read from the right, that is not one of OBP-API's trusted
+	 * proxies. Empty on rows written before OBP-API recorded it. */
 	source_ip: string;
+	/** Every hop the call passed through: the X-Forwarded-For list the request arrived
+	 * with, followed by the address that connected to OBP-API, e.g.
+	 * "203.0.113.9, 10.0.0.2, 10.0.0.3". Absent or empty on rows written before
+	 * OBP-API recorded it. */
+	forwarded_for?: string;
+	/** The raw X-Forwarded-Host request header. */
 	target_ip: string;
 	response_body?: { code?: number; message?: string } | null;
 	status_code?: number;

@@ -110,8 +110,14 @@
 
       toast.success("Group Updated", `Successfully updated group ${groupName}`);
 
+      // Changed Roles do not reach existing members until they are synced, so land on that section.
+      const before = group.list_of_roles ?? [];
+      const rolesChanged =
+        before.length !== selectedRoles.length ||
+        selectedRoles.some((r) => !before.includes(r));
+
       setTimeout(() => {
-        goto(`/rbac/groups/${group.group_id}`);
+        goto(`/rbac/groups/${group.group_id}${rolesChanged ? "#sync-members" : ""}`);
       }, 1000);
     } catch (err) {
       const errorMessage =

@@ -835,6 +835,22 @@
                       {:else}
                         <code class="operation-id">{getOperationId(metric)}</code>
                       {/if}
+                      <span
+                        class="client-address"
+                        title="Client IP address: the address OBP-API decided is the caller"
+                        data-testid="metric-source-ip"
+                      >
+                        <span class="address-label">Client IP address</span>
+                        <code>{metric.source_ip || "---"}</code>
+                      </span>
+                      <span
+                        class="forwarded-for"
+                        title={`Forwarded for (hops): ${metric.forwarded_for || "not recorded"}`}
+                        data-testid="metric-forwarded-for"
+                      >
+                        <span class="address-label">Forwarded for (hops)</span>
+                        <code>{metric.forwarded_for || "---"}</code>
+                      </span>
                     </td>
                   </tr>
                   <tr class="metric-row-operation">
@@ -1838,6 +1854,31 @@
   :global([data-mode="dark"]) .api-instance-id {
     background: var(--color-primary-900);
     color: var(--color-primary-200);
+  }
+
+  .client-address,
+  .forwarded-for {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.25rem;
+    margin-right: 0.5rem;
+    font-size: 0.75rem;
+    cursor: help;
+  }
+
+  /* The list of hops can hold several addresses: let it wrap rather than widen the table. */
+  .forwarded-for code {
+    white-space: normal;
+    word-break: break-all;
+  }
+
+  .address-label {
+    color: var(--color-surface-600);
+    font-family: sans-serif;
+  }
+
+  :global([data-mode="dark"]) .address-label {
+    color: var(--color-surface-400);
   }
 
   .consumer-id {

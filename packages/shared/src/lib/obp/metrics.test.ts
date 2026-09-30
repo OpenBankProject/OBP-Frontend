@@ -135,6 +135,7 @@ const row = (over: Partial<OBPMetric>): OBPMetric => ({
 	correlation_id: 'x',
 	duration: 10,
 	source_ip: '',
+	forwarded_for: '',
 	target_ip: '',
 	status_code: 200,
 	operation_id: 'OBPv7.0.0-getBanks',
