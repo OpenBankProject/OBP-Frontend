@@ -72,13 +72,17 @@ export interface MetricEventShape {
   verb: string;
   status_code: number;
   correlation_id: string;
+  // The client address OBP-API decided on.
   source_ip: string;
-  // The metrics stream does not carry the list of hops yet; always "" on streamed rows.
+  // The hops the request passed through; "" from an OBP-API that does not send it yet.
   forwarded_for: string;
   target_ip: string;
   api_instance_id: string;
   operation_id: string;
   consent_reference_id: string;
+  auth_type: string;
+  certificate_trust: string;
+  certificate_trust_detail: string;
 }
 
 export interface MetricsStreamFilters {
@@ -132,5 +136,8 @@ export function formatMetricEvent(event: any): MetricEventShape {
     api_instance_id: event.api_instance_id,
     operation_id: event.operation_id,
     consent_reference_id: event.consent_reference_id,
+    auth_type: event.auth_type || "",
+    certificate_trust: event.certificate_trust || "",
+    certificate_trust_detail: event.certificate_trust_detail || "",
   };
 }

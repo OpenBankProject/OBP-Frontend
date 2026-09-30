@@ -31,16 +31,15 @@
 	let name = data.username || 'Guest';
 	let isAuthenticated = !!data.userId;
 
-	// Configurable text via environment variables
-	const welcomeTitle = env.PUBLIC_WELCOME_TITLE || 'Welcome!';
-	const helpQuestion = env.PUBLIC_HELP_QUESTION || 'How can I help?';
-	const welcomeDescription = env.PUBLIC_WELCOME_DESCRIPTION || 'Welcome to the Open Bank Project sandbox — where developers, Fintechs, and banks can build and test innovative open banking ++ solutions.';
+	// Configurable text: webui_prop, then env var, then default (resolved in +layout.server.ts)
+	const welcomeTitle = $derived(data.webUiText.welcomeTitle.value);
+	const helpQuestion = $derived(data.webUiText.helpQuestion.value);
 	// Supports markdown-style links, e.g. "See [the docs](https://example.com)";
 	// everything else is escaped, so the result is safe for {@html}
-	const welcomeDescriptionHtml = renderTextWithLinks(welcomeDescription, {
+	const welcomeDescriptionHtml = $derived(renderTextWithLinks(data.webUiText.welcomeDescription.value, {
 		// primary-* is near-black in the OBP theme, so use tertiary for a visible hover
 		linkClass: 'underline hover:text-tertiary-600 dark:hover:text-tertiary-400'
-	});
+	}));
 
 	// Icon mapping for configurable questions
     const iconMap: Record<string, typeof Rocket> = {

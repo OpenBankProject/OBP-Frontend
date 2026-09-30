@@ -16,12 +16,25 @@ describe('formatMetricEvent', () => {
 		expect(formatMetricEvent(event).source_ip).toBe('203.0.113.9');
 	});
 
-	it('gives an empty list of hops, since the stream does not carry it', () => {
-		expect(formatMetricEvent(event).forwarded_for).toBe('');
+	it('gives empty values for fields an older OBP-API does not send', () => {
+		const formatted = formatMetricEvent(event);
+		expect(formatted.forwarded_for).toBe('');
+		expect(formatted.auth_type).toBe('');
+		expect(formatted.certificate_trust).toBe('');
+		expect(formatted.certificate_trust_detail).toBe('');
 	});
 
-	it('passes the list of hops through once the stream carries it', () => {
-		const withHops = { ...event, forwarded_for: '203.0.113.9, 10.0.0.2' };
-		expect(formatMetricEvent(withHops).forwarded_for).toBe('203.0.113.9, 10.0.0.2');
+	it('passes the list of hops, the authentication scheme and the certificate trust through', () => {
+		const formatted = formatMetricEvent({
+			...event,
+			forwarded_for: '203.0.113.9, 10.0.0.2',
+			auth_type: 'OAuth2',
+			certificate_trust: 'forwarded',
+			certificate_trust_detail: 'CN=proxy,O=Example'
+		});
+		expect(formatted.forwarded_for).toBe('203.0.113.9, 10.0.0.2');
+		expect(formatted.auth_type).toBe('OAuth2');
+		expect(formatted.certificate_trust).toBe('forwarded');
+		expect(formatted.certificate_trust_detail).toBe('CN=proxy,O=Example');
 	});
 });

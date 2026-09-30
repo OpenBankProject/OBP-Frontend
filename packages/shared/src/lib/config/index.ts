@@ -17,3 +17,5 @@
  */
 export { buildMyAccountItems, getActiveMenuItem } from './navigation.js';
 export type { NavigationItem, NavigationConfig, NavigationSection, NavigationSubsection } from './navigation.js';
+export { KNOWN_WEB_UI_PROPS, findKnownWebUiProp, webUiPropNameForEnvVar } from './webUiProps.js';
+export type { KnownWebUiProp, WebUiPropFormat } from './webUiProps.js';

@@ -50,4 +50,13 @@ message MetricEvent {
   string api_instance_id = 16;
   string operation_id = 17;
   string consent_reference_id = 18;
+  // The hops the request passed through: the X-Forwarded-For chain it arrived with,
+  // followed by the TCP peer OBP-API saw. source_ip is the client address OBP-API
+  // decided on from that chain.
+  string forwarded_for = 19;
+  // Authentication scheme of the call, never the credential.
+  string auth_type = 20;
+  // How the caller's certificate was established: "direct", "forwarded" or "none".
+  string certificate_trust = 21;
+  string certificate_trust_detail = 22;
 }

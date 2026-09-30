@@ -19,6 +19,8 @@ import { createLogger } from '@obp/shared/utils';
 const logger = createLogger('LayoutServer');
 import type { RequestEvent } from "@sveltejs/kit";
 import { obp_requests } from '$lib/obp/requests';
+import { resolveWebUiValues } from '@obp/shared/server/obp';
+import type { ResolvedWebUiValue } from '@obp/shared/server/obp';
 // import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
 // import { storePopup } from '@skeletonlabs/skeleton';
 // storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
@@ -34,7 +36,20 @@ export interface RootLayoutData {
     showEarlyAccess?: boolean;
     totalUnreadCount?: number;
     publicObpMcpUrl?: string;
+    webUiText: Record<WebUiTextKey, ResolvedWebUiValue>;
 }
+
+// Operator-configurable text: webui_prop (e.g. webui_welcome_title), then env var, then default
+const WEB_UI_TEXT = {
+	welcomeTitle: { envVar: 'PUBLIC_WELCOME_TITLE', default: 'Welcome!' },
+	helpQuestion: { envVar: 'PUBLIC_HELP_QUESTION', default: 'How can I help?' },
+	welcomeDescription: {
+		envVar: 'PUBLIC_WELCOME_DESCRIPTION',
+		default: 'Welcome to the Open Bank Project sandbox — where developers, Fintechs, and banks can build and test innovative open banking ++ solutions.'
+	},
+	welcomeMessage: { envVar: 'PUBLIC_WELCOME_MESSAGE', default: '' }
+};
+type WebUiTextKey = keyof typeof WEB_UI_TEXT;
 
 // The app-directory endpoint is public and its values change rarely, so cache
 // it briefly instead of hitting OBP on every page load.
@@ -69,6 +84,7 @@ export async function load(event: RequestEvent) {
 
 	// Kick off the (cached) app-directory fetch early; awaited before returning
 	const appDirectoryPromise = getAppDirectory();
+	const webUiTextPromise = resolveWebUiValues((path) => obp_requests.get(path), publicEnv, WEB_UI_TEXT);
 
 	let externalLinks = {
 		API_EXPLORER_URL: env.API_EXPLORER_URL,
@@ -126,13 +142,14 @@ export async function load(event: RequestEvent) {
 		}
 	}
 
-	const appDirectory = await appDirectoryPromise;
+	const [appDirectory, webUiText] = await Promise.all([appDirectoryPromise, webUiTextPromise]);
 
 	return {
 		...data,
 		externalLinks: validExternalLinks,
 		showEarlyAccess,
 		totalUnreadCount,
-		publicObpMcpUrl: appDirectory['public_obp_mcp_url']
+		publicObpMcpUrl: appDirectory['public_obp_mcp_url'],
+		webUiText
 	} as RootLayoutData
 }

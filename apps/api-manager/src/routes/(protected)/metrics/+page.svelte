@@ -801,13 +801,11 @@
                     <td colspan="6" class="endpoint-cell-full">
                       <code
                         class="api-instance-id"
-                        title={`API Instance ID: ${metric.api_instance_id || "N/A"}`}
                         >{metric.api_instance_id ? metric.api_instance_id.slice(0, 8) : "N/A"}</code
                       >
                       {#if metric.consumer_id}
                         <a
                           href="/consumers/{metric.consumer_id}/edit"
-                          title={`Consumer ID: ${metric.consumer_id} — click to open consumer details`}
                           data-testid="metric-consumer-id-link"
                           class="consumer-id-link"
                         >
@@ -817,7 +815,7 @@
                           {/if}
                         </a>
                       {:else}
-                        <code class="consumer-id consumer-id-missing" title="No consumer ID for this call">N/A</code>
+                        <code class="consumer-id consumer-id-missing">N/A</code>
                         {#if metric.app_name}
                           <span class="app-name-inline app-name-plain">{metric.app_name}</span>
                         {/if}
@@ -828,7 +826,6 @@
                           target="_blank"
                           rel="noopener noreferrer"
                           class="operation-id-link"
-                          title="View in API Explorer"
                         >
                           <code class="operation-id">{getOperationId(metric)}</code>
                         </a>
@@ -837,7 +834,6 @@
                       {/if}
                       <span
                         class="client-address"
-                        title="Client IP address: the address OBP-API decided is the caller"
                         data-testid="metric-source-ip"
                       >
                         <span class="address-label">Client IP address</span>
@@ -845,7 +841,6 @@
                       </span>
                       <span
                         class="forwarded-for"
-                        title={`Forwarded for (hops): ${metric.forwarded_for || "not recorded"}`}
                         data-testid="metric-forwarded-for"
                       >
                         <span class="address-label">Forwarded for (hops)</span>
@@ -1848,7 +1843,6 @@
     border-radius: 3px;
     font-size: 0.75rem;
     font-weight: 500;
-    cursor: help;
   }
 
   :global([data-mode="dark"]) .api-instance-id {
@@ -1863,7 +1857,6 @@
     gap: 0.25rem;
     margin-right: 0.5rem;
     font-size: 0.75rem;
-    cursor: help;
   }
 
   /* The list of hops can hold several addresses: let it wrap rather than widen the table. */
@@ -1889,7 +1882,6 @@
     border-radius: 3px;
     font-size: 0.75rem;
     font-weight: 500;
-    cursor: help;
   }
 
   :global([data-mode="dark"]) .consumer-id {
