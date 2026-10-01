@@ -930,10 +930,11 @@ const messagingSection = domain("messaging", "Messaging", MessagesSquare,
   ]);
 
 const governSection = domain("govern", "Govern", Shield,
-  ["/users", "/customers", "/consumers", "/rbac", "/abac", "/account-access", "/mandates"],
+  ["/users", "/user-invitations", "/customers", "/consumers", "/rbac", "/abac", "/account-access", "/mandates"],
   [
     { label: "Identity", items: [
       { href: "/users", label: "Users", iconComponent: Users },
+      { href: "/user-invitations", label: "User Invitations", iconComponent: Mail },
       { href: "/customers/individual", label: "Individual Customers", iconComponent: UserRound },
       { href: "/customers/corporate", label: "Corporate Customers", iconComponent: Building2 },
       { href: "/customers/account-links", label: "Account Links", iconComponent: Link },

@@ -8,6 +8,8 @@ webui_props are read from the OBP database only (`GET /obp/v6.0.0/webui-props?wh
 
 The webui_props create and edit form previews known props the way their page renders them.
 
+User Invitations (`/user-invitations`) is now in the menu under Govern → Identity.
+
 ## 2026-09-30
 
 Home page text can now be set with OBP webui_props. Each value is taken from the webui_prop, then the env var, then the built-in default. Values are cached for 5 minutes.
