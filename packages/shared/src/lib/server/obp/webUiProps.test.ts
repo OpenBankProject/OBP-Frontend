@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { getActiveWebUiProps, resolveWebUiValues, _resetWebUiPropsCache } from './webUiProps';
+import { getWebUiProps, resolveWebUiValues, _resetWebUiPropsCache } from './webUiProps';
 
 const props = (...pairs: [string, string][]) => ({
 	webui_props: pairs.map(([name, value]) => ({ name, value, source: 'database' }))
@@ -33,15 +33,15 @@ describe('resolveWebUiValues', () => {
 	});
 });
 
-describe('getActiveWebUiProps', () => {
+describe('getWebUiProps', () => {
 	beforeEach(() => _resetWebUiPropsCache());
 
 	it('fetches once and serves later calls from the cache', async () => {
 		const get = vi.fn().mockResolvedValue(props(['webui_a', '1']));
-		await getActiveWebUiProps(get);
-		const values = await getActiveWebUiProps(get);
+		await getWebUiProps(get);
+		const values = await getWebUiProps(get);
 		expect(get).toHaveBeenCalledTimes(1);
-		expect(get).toHaveBeenCalledWith('/obp/v6.0.0/webui-props?what=active');
+		expect(get).toHaveBeenCalledWith('/obp/v6.0.0/webui-props?what=database');
 		expect(values.get('webui_a')).toBe('1');
 	});
 
@@ -49,9 +49,9 @@ describe('getActiveWebUiProps', () => {
 		vi.useFakeTimers();
 		try {
 			const get = vi.fn().mockResolvedValueOnce(props(['webui_a', '1'])).mockRejectedValue(new Error('down'));
-			await getActiveWebUiProps(get);
+			await getWebUiProps(get);
 			vi.advanceTimersByTime(6 * 60 * 1000);
-			expect((await getActiveWebUiProps(get)).get('webui_a')).toBe('1');
+			expect((await getWebUiProps(get)).get('webui_a')).toBe('1');
 		} finally {
 			vi.useRealTimers();
 		}

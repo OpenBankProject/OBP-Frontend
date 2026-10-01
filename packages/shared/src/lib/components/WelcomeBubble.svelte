@@ -18,18 +18,21 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { X } from '@lucide/svelte';
+	import { renderWebUiProp } from '$shared/markdown/webUiProp';
 
-	interface Props {
-		welcomeMessage?: string;
-	}
-
-	let { welcomeMessage = '' }: Props = $props();
+	// webui_welcome_message, then PUBLIC_WELCOME_MESSAGE (resolved in +layout.server.ts)
+	let { welcomeMessage = '' }: { welcomeMessage?: string } = $props();
 
 	let showBubble = $state(false);
 	let isClosing = $state(false);
 
 	const COOKIE_NAME = 'obp_portal_welcomed';
 	const COOKIE_EXPIRY_DAYS = 365;
+
+	const welcomeMessageHtml = $derived(renderWebUiProp('webui_welcome_message', welcomeMessage, {
+		// primary-* is near-black in the OBP theme, so use tertiary for a visible hover
+		linkClass: 'underline hover:text-tertiary-600 dark:hover:text-tertiary-400'
+	}));
 
 	onMount(() => {
 		// Don't show bubble if welcome message is not set or empty
@@ -104,7 +107,7 @@
 
 			<!-- Welcome message -->
 			<div class="pr-6 text-sm leading-relaxed text-surface-900 dark:text-surface-100">
-				{welcomeMessage}
+				{@html welcomeMessageHtml}
 			</div>
 
 			<!-- Decorative accent -->

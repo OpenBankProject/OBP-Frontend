@@ -17,6 +17,7 @@
 -->
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
+	import type { Snippet } from 'svelte';
 	import { Copy, Check } from '@lucide/svelte';
 	import type { HealthSummary, ServiceHealthView } from '$shared/health-check/summarize';
 	import { runSseProbe, SSE_PROBE_PATH } from '$shared/health-check/sseProbe';
@@ -32,7 +33,8 @@
 		data,
 		title,
 		opeyPublicUrl,
-		buildInfo
+		buildInfo,
+		children
 	}: {
 		data: HealthSummary;
 		title: string;
@@ -40,6 +42,8 @@
 		opeyPublicUrl?: string;
 		/** The consuming app's build provenance (__APP_VERSION__ etc.); 'unknown' fields are hidden. */
 		buildInfo?: BuildInfo;
+		/** App-specific sections, rendered after the services. */
+		children?: Snippet;
 	} = $props();
 
 	let autoRefresh = $state(true);
@@ -613,4 +617,5 @@
 			</div>
 		</div>
 	</div>
+	{@render children?.()}
 </div>

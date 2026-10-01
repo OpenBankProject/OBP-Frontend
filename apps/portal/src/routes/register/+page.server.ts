@@ -23,14 +23,21 @@ import { getPasswordPolicies } from "$lib/obp/passwordConfig";
 import type { OBPUserRegistrationRequestBody } from "$lib/obp/types";
 import { OBPRequestError, isMobilePhoneNumberValid } from "@obp/shared/obp";
 import { rateLimitMessage } from "@obp/shared/server/rate-limit";
+import { getWebUiProps } from "@obp/shared/server/obp";
 import type { PageServerLoad } from './$types';
 
 // v7.0.0 is the first version whose Create User accepts mobile_phone_number
 const REGISTER_USER_ENDPOINT = '/obp/v7.0.0/users';
 
 export const load: PageServerLoad = async () => {
+    const [passwordPolicies, webUiProps] = await Promise.all([
+        getPasswordPolicies(),
+        getWebUiProps((path) => obp_requests.get(path))
+    ]);
     return {
-        passwordPolicies: await getPasswordPolicies()
+        passwordPolicies,
+        termsAndConditions: webUiProps.get('webui_terms_and_conditions') ?? '',
+        privacyPolicy: webUiProps.get('webui_privacy_policy') ?? ''
     };
 };
 

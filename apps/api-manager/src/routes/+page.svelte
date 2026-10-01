@@ -21,7 +21,7 @@
 	import { CheckCheck, Layers, Rocket, UserLock, HelpCircle } from '@lucide/svelte';
 	import { env } from '$env/dynamic/public';
 	import { page } from '$app/stores';
-	import { renderTextWithLinks } from '@obp/shared/markdown';
+	import { renderWebUiProp } from '@obp/shared/markdown';
 
 	let { data } = $props();
 
@@ -32,11 +32,10 @@
 	let isAuthenticated = !!data.userId;
 
 	// Configurable text: webui_prop, then env var, then default (resolved in +page.server.ts)
-	const welcomeTitle = $derived(data.webUiText.welcomeTitle.value);
-	const helpQuestion = $derived(data.webUiText.helpQuestion.value);
-	// Supports markdown-style links, e.g. "See [the docs](https://example.com)";
-	// everything else is escaped, so the result is safe for {@html}
-	const welcomeDescriptionHtml = $derived(renderTextWithLinks(data.webUiText.welcomeDescription.value, {
+	// Markdown; the title and question sit in headings, so inline markdown only
+	const welcomeTitleHtml = $derived(renderWebUiProp('webui_welcome_title_manager', data.webUiText.welcomeTitle.value, { inline: true }));
+	const helpQuestionHtml = $derived(renderWebUiProp('webui_help_question_manager', data.webUiText.helpQuestion.value, { inline: true }));
+	const welcomeDescriptionHtml = $derived(renderWebUiProp('webui_welcome_description_manager', data.webUiText.welcomeDescription.value, {
 		// primary-* is near-black in the OBP theme, so use tertiary for a visible hover
 		linkClass: 'underline hover:text-tertiary-600 dark:hover:text-tertiary-400'
 	}));
@@ -95,11 +94,11 @@
 		<OpeyChat {opeyChatOptions} userAuthenticated={isAuthenticated}>
 			{#snippet splash()}
 				<div class="flex w-2/3 flex-col items-center justify-center text-center">
-					<h1 class="h3 text-surface-700-300 mb-2">{welcomeTitle}</h1>
-					<h1 class="h3 mb-4">{helpQuestion}</h1>
-					<p class="text-surface-700-300 mb-7 text-sm" data-testid="welcome-description">
+					<h1 class="h3 text-surface-700-300 mb-2">{@html welcomeTitleHtml}</h1>
+					<h1 class="h3 mb-4">{@html helpQuestionHtml}</h1>
+					<div class="text-surface-700-300 mb-7 text-sm" data-testid="welcome-description">
 						{@html welcomeDescriptionHtml}
-					</p>
+					</div>
 				</div>
 			{/snippet}
 		</OpeyChat>

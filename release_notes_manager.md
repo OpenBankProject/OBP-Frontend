@@ -1,5 +1,13 @@
 # API Manager Release Notes
 
+## 2026-10-01
+
+webui_props are rendered as markdown, unless the prop is in `WEB_UI_PROPS_NOT_MARKDOWN` (`packages/shared/src/lib/config/webUiProps.ts`; currently only `webui_support_platform_url`). This also applies to the matching env vars. Titles and questions shown in headings get inline markdown only (emphasis, code, links). Raw HTML is shown as literal text, and http(s) links open in a new tab. Existing values containing `*`, `_`, or a leading `#` or `1.` may now render differently.
+
+webui_props are read from the OBP database only (`GET /obp/v6.0.0/webui-props?what=database`), through one shared cache that is refreshed every 5 minutes. The `config` rows that `what=active` adds come from OBP-API's sample props template, not from its running configuration, so they are no longer used.
+
+The webui_props create and edit form previews known props the way their page renders them.
+
 ## 2026-09-30
 
 Home page text can now be set with OBP webui_props. Each value is taken from the webui_prop, then the env var, then the built-in default. Values are cached for 5 minutes.

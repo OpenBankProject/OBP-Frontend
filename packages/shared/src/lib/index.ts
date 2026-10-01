@@ -39,7 +39,7 @@ export { OBPErrorBase, OBPRequestError, OBPRateLimitError, OBPTimeoutError, obpE
 export { ChatController, SessionController, ChatState, SessionState, RestChatService, OpeySessionService, CookieAuthStrategy } from './opey/index.js';
 
 // Utils
-export { createLogger, toaster, toast, getLegalMarkdownFromWebUIProps, extractUsernameFromJWT } from './utils/index.js';
+export { createLogger, toaster, toast, extractUsernameFromJWT } from './utils/index.js';
 
 // Stores
 export { currentBank } from './stores/index.js';

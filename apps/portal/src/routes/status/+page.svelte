@@ -21,6 +21,8 @@
 	import { env } from '$env/dynamic/public';
 
 	let { data }: { data: PageData } = $props();
+
+	const SOURCE_LABEL = { webui_prop: 'webui_prop', env: 'env var', default: 'default' } as const;
 </script>
 
 <SystemStatusPage
@@ -33,4 +35,28 @@
 		branch: __GIT_BRANCH__,
 		buildTime: __BUILD_TIME__
 	}}
-/>
+>
+	<div class="mt-8" data-testid="configured-text">
+		<h2 class="mb-4 text-2xl font-bold">Configured Text</h2>
+		<div class="overflow-x-auto rounded-lg bg-white shadow dark:bg-gray-800">
+			<table class="w-full text-left text-sm">
+				<thead class="text-xs uppercase text-gray-500 dark:text-gray-400">
+					<tr>
+						<th class="px-4 py-2">webui_prop</th>
+						<th class="px-4 py-2">Env var</th>
+						<th class="px-4 py-2">In use</th>
+					</tr>
+				</thead>
+				<tbody>
+					{#each Object.values(data.webUiText) as text (text.envVar)}
+						<tr class="border-t border-gray-100 dark:border-gray-700" data-testid="configured-text-{text.envVar}">
+							<td class="px-4 py-2 font-mono">{text.webUiPropName}</td>
+							<td class="px-4 py-2 font-mono">{text.envVar}</td>
+							<td class="px-4 py-2" data-source={text.source}>{SOURCE_LABEL[text.source]}</td>
+						</tr>
+					{/each}
+				</tbody>
+			</table>
+		</div>
+	</div>
+</SystemStatusPage>

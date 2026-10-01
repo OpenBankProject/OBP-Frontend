@@ -21,8 +21,7 @@
 	import { goto } from '$app/navigation';
 	import { navigationSections } from '$lib/config/navigation';
 	import Toast from '$lib/components/Toast.svelte';
-	import WelcomeBubble from '$lib/components/WelcomeBubble.svelte';
-	import { NavigationSidebar, ExplorerSidebar } from '@obp/shared/components';
+	import { NavigationSidebar, ExplorerSidebar, WelcomeBubble } from '@obp/shared/components';
 	import type { NavigationSection } from '@obp/shared/config';
 	import PageHeader from '$lib/components/PageHeader.svelte';
 
@@ -355,4 +354,4 @@
 <Toast />
 
 <!-- Welcome Bubble Component (appears once on first visit) -->
-<WelcomeBubble />
+<WelcomeBubble welcomeMessage={data.webUiText.welcomeMessage.value} />

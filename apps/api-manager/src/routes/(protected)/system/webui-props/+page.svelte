@@ -19,6 +19,7 @@
   import { goto, invalidateAll } from "$app/navigation";
   import type { PageData } from "./$types";
   import type { OBPWebUIProp } from "$lib/obp/types";
+  import { WEB_UI_PROPS_NOT_MARKDOWN, isWebUiPropMarkdown } from "@obp/shared/config";
 
   let { data }: { data: PageData } = $props();
 
@@ -76,9 +77,10 @@
     <div class="mb-4 flex items-center justify-between">
       <div>
         <h1 class="text-gray-900 dark:text-gray-100">WebUI Props</h1>
-        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-          Manage configuration properties for the web interface ({filteredWebUIProps.length}
-          props)
+        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400" data-testid="webui-props-markdown-rule">
+          Values are rendered as markdown, except
+          {#each WEB_UI_PROPS_NOT_MARKDOWN as name, i (name)}{i > 0 ? ", " : ""}<code>{name}</code>{/each}
+          · {filteredWebUIProps.length} props
         </p>
       </div>
       <button
@@ -152,8 +154,9 @@
           <div class="mb-4">
             <div
               class="mb-1 text-xs font-medium text-gray-600 dark:text-gray-400"
+              data-testid="webui-prop-format-{prop.name}"
             >
-              Value
+              Value · {isWebUiPropMarkdown(prop.name) ? "markdown" : "plain text"}
             </div>
             <pre
               class="whitespace-pre-wrap break-words rounded-lg bg-gray-50 p-4 text-sm text-gray-900 dark:bg-gray-900/50 dark:text-gray-100">{prop.value}</pre>

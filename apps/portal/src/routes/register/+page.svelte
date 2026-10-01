@@ -16,8 +16,8 @@
   along with this program. If not, see <https://www.gnu.org/licenses/>.
 -->
 <script lang="ts">
-	import LegalDocumentModal from '$lib/components/LegalDocumentModal.svelte';
 	import PasswordPolicyFeedback from '$lib/components/PasswordPolicyFeedback.svelte';
+	import { LegalDocumentModal } from '@obp/shared/components';
 	import type { PageProps } from './$types';
 	import { Eye, EyeOff } from '@lucide/svelte';
 	import { env } from '$env/dynamic/public';
@@ -278,6 +278,7 @@
 						<LegalDocumentModal
 							title="Terms of Service"
 							documentName="webui_terms_and_conditions"
+							markdown={data.termsAndConditions}
 							triggerText="Read & Accept"
 							onAccept={handleTermsAccept}
 							accepted={termsAccepted}
@@ -316,6 +317,7 @@
 						<LegalDocumentModal
 							title="Privacy Policy"
 							documentName="webui_privacy_policy"
+							markdown={data.privacyPolicy}
 							triggerText="Read & Accept"
 							onAccept={handlePrivacyAccept}
 							accepted={privacyAccepted}

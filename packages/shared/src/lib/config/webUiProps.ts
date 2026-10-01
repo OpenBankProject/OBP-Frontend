@@ -17,29 +17,28 @@
  */
 
 /**
- * The OBP webui_props the frontend apps read, and how each value is rendered.
+ * The OBP webui_props the frontend apps read.
  *
- * A webui_prop is a plain string; whether it is markdown depends entirely on the
- * page that shows it. The API Manager uses `format` to preview a value the way
- * its page will render it.
+ * A webui_prop is a plain string. The apps render it as markdown unless its name
+ * is in WEB_UI_PROPS_NOT_MARKDOWN (see renderWebUiProp). Props shown inside a
+ * heading are `inline`: only inline markdown (emphasis, code, links) applies.
  *
  * Props with an `envVar` fall back to that environment variable when the
  * webui_prop is not set (webui_prop → env var → built-in default).
  */
 
-/**
- * - `text`: shown literally
- * - `text-with-links`: literal text where `[label](url)` becomes a link (renderTextWithLinks)
- * - `markdown`: full markdown (renderMarkdown)
- * - `url`: a URL the page links to
- */
-export type WebUiPropFormat = 'text' | 'text-with-links' | 'markdown' | 'url';
+/** Props whose value is used as-is (e.g. as an href), never parsed as markdown. */
+export const WEB_UI_PROPS_NOT_MARKDOWN: readonly string[] = ['webui_support_platform_url'];
+
+export function isWebUiPropMarkdown(name: string): boolean {
+	return !WEB_UI_PROPS_NOT_MARKDOWN.includes(name);
+}
 
 export interface KnownWebUiProp {
 	name: string;
-	format: WebUiPropFormat;
 	usedBy: string;
 	envVar?: string;
+	inline?: boolean;
 }
 
 /** `PUBLIC_WELCOME_TITLE` → `webui_welcome_title` */
@@ -47,21 +46,21 @@ export function webUiPropNameForEnvVar(envVar: string): string {
 	return 'webui_' + envVar.replace(/^PUBLIC_/, '').toLowerCase();
 }
 
-function fromEnvVar(envVar: string, format: WebUiPropFormat, usedBy: string): KnownWebUiProp {
-	return { name: webUiPropNameForEnvVar(envVar), format, usedBy, envVar };
+function fromEnvVar(envVar: string, usedBy: string, inline = false): KnownWebUiProp {
+	return { name: webUiPropNameForEnvVar(envVar), usedBy, envVar, ...(inline && { inline }) };
 }
 
 export const KNOWN_WEB_UI_PROPS: KnownWebUiProp[] = [
-	fromEnvVar('PUBLIC_WELCOME_TITLE', 'text', 'Portal home'),
-	fromEnvVar('PUBLIC_HELP_QUESTION', 'text', 'Portal home'),
-	fromEnvVar('PUBLIC_WELCOME_DESCRIPTION', 'text-with-links', 'Portal home'),
-	fromEnvVar('PUBLIC_WELCOME_MESSAGE', 'text-with-links', 'Portal first-visit bubble'),
-	fromEnvVar('PUBLIC_WELCOME_TITLE_MANAGER', 'text', 'API Manager home'),
-	fromEnvVar('PUBLIC_HELP_QUESTION_MANAGER', 'text', 'API Manager home'),
-	fromEnvVar('PUBLIC_WELCOME_DESCRIPTION_MANAGER', 'text-with-links', 'API Manager home'),
-	{ name: 'webui_terms_and_conditions', format: 'markdown', usedBy: 'Portal registration' },
-	{ name: 'webui_privacy_policy', format: 'markdown', usedBy: 'Portal registration' },
-	{ name: 'webui_support_platform_url', format: 'url', usedBy: 'Portal support' }
+	fromEnvVar('PUBLIC_WELCOME_TITLE', 'Portal home', true),
+	fromEnvVar('PUBLIC_HELP_QUESTION', 'Portal home', true),
+	fromEnvVar('PUBLIC_WELCOME_DESCRIPTION', 'Portal home'),
+	fromEnvVar('PUBLIC_WELCOME_MESSAGE', 'Portal first-visit bubble'),
+	fromEnvVar('PUBLIC_WELCOME_TITLE_MANAGER', 'API Manager home', true),
+	fromEnvVar('PUBLIC_HELP_QUESTION_MANAGER', 'API Manager home', true),
+	fromEnvVar('PUBLIC_WELCOME_DESCRIPTION_MANAGER', 'API Manager home'),
+	{ name: 'webui_terms_and_conditions', usedBy: 'Portal registration' },
+	{ name: 'webui_privacy_policy', usedBy: 'Portal registration' },
+	{ name: 'webui_support_platform_url', usedBy: 'Portal and API Manager support' }
 ];
 
 export function findKnownWebUiProp(name: string): KnownWebUiProp | undefined {

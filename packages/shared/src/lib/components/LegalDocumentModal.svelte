@@ -16,45 +16,29 @@
   along with this program. If not, see <https://www.gnu.org/licenses/>.
 -->
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import type { Snippet } from 'svelte';
-	import { renderMarkdown } from '$shared/markdown/helper-funcs';
-	import { getLegalMarkdownFromWebUIProps } from '$shared/utils/loadLegalDocumentFromApi';
-	import { createLogger } from '$shared/utils/logger';
-	import type { OBPRequests } from '$shared/obp/requests';
+	import { renderWebUiProp } from '$shared/markdown/webUiProp';
 	import { Dialog } from 'bits-ui';
-	const logger = createLogger('LegalDocumentModal');
 
 	interface Props {
 		title: string;
+		/** The webui_prop holding the document, e.g. webui_terms_and_conditions */
 		documentName: string;
+		/** The document's markdown, loaded on the server; '' when the webui_prop is not set */
+		markdown: string;
 		triggerText: string;
 		onAccept: () => void;
-		obpRequests: OBPRequests;
 		accepted?: boolean;
 		children?: Snippet;
 	}
 
-	let { title, documentName, triggerText, onAccept, obpRequests, accepted = false }: Props = $props();
+	let { title, documentName, markdown, triggerText, onAccept, accepted = false }: Props = $props();
 
 	let open = $state(false);
-	let content = $state('');
 	let scrollViewport = $state<HTMLDivElement>();
 	let hasScrolledToBottom = $state(false);
-	let isLoading = $state(true);
 
-	onMount(async () => {
-		try {
-			const rawMarkdown = await getLegalMarkdownFromWebUIProps(obpRequests, documentName);
-			content = renderMarkdown(rawMarkdown);
-			logger.info(`Loaded remote content for: ${documentName}`);
-		} catch (error) {
-			logger.error(`Failed to fetch remote legal content:`, error);
-			content = `<p>Failed to load document: ${documentName}</p>`;
-		} finally {
-			isLoading = false;
-		}
-	});
+	const content = $derived(renderWebUiProp(documentName, markdown));
 
 	function handleScroll() {
 		if (!scrollViewport) return;
@@ -86,6 +70,7 @@
 	<Dialog.Trigger
 		type="button"
 		class="rounded text-primary-500 hover:underline focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:outline-none"
+		data-testid="legal-trigger-{documentName}"
 	>
 		{triggerText}
 	</Dialog.Trigger>
@@ -122,15 +107,14 @@
 				onscroll={handleScroll}
 				class="prose prose-sm max-w-none flex-1 overflow-y-auto p-6"
 			>
-				{#if isLoading}
-					<div class="flex items-center justify-center py-8">
-						<div class="h-8 w-8 animate-spin rounded-full border-b-2 border-primary-500"></div>
-						<span class="ml-2">Loading document...</span>
-					</div>
-				{:else}
-					<div class="prose dark:prose-invert">
+				{#if markdown.trim()}
+					<div class="prose dark:prose-invert" data-testid="legal-content-{documentName}">
 						{@html content}
 					</div>
+				{:else}
+					<p data-testid="legal-not-configured-{documentName}">
+						Not configured. Set the <code>{documentName}</code> webui_prop.
+					</p>
 				{/if}
 			</div>
 
@@ -167,6 +151,7 @@
 						onclick={handleAccept}
 						disabled={false}
 						class="rounded-md border border-transparent bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-600 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+						data-testid="legal-accept"
 					>
 						I Accept
 					</button>

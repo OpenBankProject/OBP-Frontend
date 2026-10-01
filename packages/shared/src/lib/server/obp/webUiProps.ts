@@ -17,8 +17,12 @@
  */
 
 /**
- * Reads the active OBP webui_props (database rows, then `webui_*` lines from the
- * OBP props file) through the anonymous `GET /obp/v6.0.0/webui-props`.
+ * Reads the OBP webui_props set in the database through the anonymous
+ * `GET /obp/v6.0.0/webui-props?what=database`.
+ *
+ * Not `what=active`: its `config` rows come from OBP-API's sample.props.template
+ * (commented-out lines included, multi-line values cut at the first line), not
+ * from the props OBP-API actually runs with.
  *
  * One fetch serves every prop; the result is cached in-process so public pages
  * do not call OBP on each load. If OBP is unreachable the last good values are
@@ -35,11 +39,11 @@ const CACHE_TTL_MS = 5 * 60 * 1000;
 
 let cache: { values: Map<string, string>; fetchedAt: number } | null = null;
 
-export async function getActiveWebUiProps(obpGet: ObpGet): Promise<Map<string, string>> {
+export async function getWebUiProps(obpGet: ObpGet): Promise<Map<string, string>> {
 	if (cache && Date.now() - cache.fetchedAt < CACHE_TTL_MS) return cache.values;
 
 	try {
-		const json = await obpGet('/obp/v6.0.0/webui-props?what=active');
+		const json = await obpGet('/obp/v6.0.0/webui-props?what=database');
 		const values = new Map<string, string>();
 		for (const prop of json?.webui_props ?? []) {
 			if (typeof prop?.name === 'string' && typeof prop?.value === 'string') {
@@ -84,7 +88,7 @@ export async function resolveWebUiValues<K extends string>(
 	env: Record<string, string | undefined>,
 	settings: Record<K, { envVar: string; default: string }>
 ): Promise<Record<K, ResolvedWebUiValue>> {
-	const props = await getActiveWebUiProps(obpGet);
+	const props = await getWebUiProps(obpGet);
 	const resolved = {} as Record<K, ResolvedWebUiValue>;
 	for (const key of Object.keys(settings) as K[]) {
 		const { envVar, default: fallback } = settings[key];

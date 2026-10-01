@@ -28,7 +28,6 @@ import { RetryAfterRateLimiter } from 'sveltekit-rate-limiter/server';
 
 import { env } from '$env/dynamic/private';
 import { env as publicEnv } from '$env/dynamic/public';
-import { obp_requests } from '$lib/obp/requests';
 import { createOpeyConversationEntityIfNeeded } from '$lib/server/opeyConversations/opeyConversationEntity';
 import { oauth2ProviderManager } from '$lib/oauth/providerManager';
 import { SessionOAuthHelper } from '$lib/oauth/sessionHelper';
@@ -209,17 +208,6 @@ initHealthChecks();
 // and hold the CanGetDynamicEntityDefinitions and CanCreateDynamicEntityDefinition scopes at SYS; without them
 // this is a no-op with a warning, and the API Manager (whose consumer usually holds them) creates the entity at its own startup instead.
 void createOpeyConversationEntityIfNeeded();
-
-async function initWebUIProps() {
-	try {
-		const webuiProps = await obp_requests.get('/obp/v5.1.0/webui-props');
-		logger.info('WebUI props fetched successfully:', webuiProps);
-		return webuiProps;
-	} catch (error) {
-		logger.error('Failed to fetch WebUI props:', error);
-		throw error;
-	}
-}
 
 function needsAuthorization(routeId: string): boolean {
 	// protected routes are put in the /(protected)/ route group
