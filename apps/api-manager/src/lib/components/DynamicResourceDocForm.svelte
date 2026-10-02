@@ -55,9 +55,11 @@
      * accepted (false while Opey is still streaming). Enables the Compile → Opey → Compile loop.
      */
     onFixWithOpey?: (prompt: string) => Promise<boolean>;
+    /** Where OBP serves the saved doc (e.g. /obp/dynamic-endpoint/dynamic-resource-doc/...); enables Call. */
+    callPath?: string;
   }
 
-  let { initial = {}, submitLabel = "Save", onSubmit, cancel, onFixWithOpey }: Props = $props();
+  let { initial = {}, submitLabel = "Save", onSubmit, cancel, onFixWithOpey, callPath }: Props = $props();
 
   // method_body is URL-encoded Scala in OBP. The operator edits plain Scala;
   // we encode on submit and decode here on load.
@@ -340,6 +342,95 @@
       compileStatus = "failed";
       compileMessage = e instanceof Error ? e.message : "Compile request failed";
       return false;
+    }
+  }
+
+  // ---- Explain (POST /obp/v7.0.0/management/dynamic-resource-docs/explain), Dynamic Queries only ----
+  // Shows the reads a query would make (with the SQL OBP builds, values as ?) and the access it needs,
+  // for the author or for an anonymous caller. Reads no record.
+  interface ExplainedEntity { entity: string; read_role: string; bank_id: string; public_access: boolean; row_level_access: boolean; caller_may_read: boolean }
+  interface ExplainedField { entity: string; field: string; restriction: string; read_role: string; caller_may_read: boolean }
+  interface ExplainedStep { step: number; purpose: string; backend: string; sql: string | null; parameter_count: number | null; notes: string[] }
+  interface QueryExplanation {
+    space: string;
+    explained_for: string;
+    caller_may_run: boolean;
+    refusal: string | null;
+    entities: ExplainedEntity[];
+    restricted_fields: ExplainedField[];
+    rules: string[];
+    steps: ExplainedStep[];
+  }
+  type ExplainStatus = "idle" | "explaining" | "done" | "failed";
+  let explainStatus = $state<ExplainStatus>("idle");
+  let explanation = $state<QueryExplanation | null>(null);
+  let explainMessage = $state<string | null>(null);
+  let explainAsAnonymous = $state(false);
+  let explainCallerParameters = $state("");
+
+  // ---- Call: GET the saved endpoint through the proxy, as the logged-in user or as nobody ----
+  type CallStatus = "idle" | "calling" | "done" | "failed";
+  let callStatus = $state<CallStatus>("idle");
+  let callResult = $state<{ url: string; status: number; body: string; anonymous: boolean } | null>(null);
+  let callMessage = $state<string | null>(null);
+  /** Only the result of the last button pressed is shown, so a Call never sits under an old Explain. */
+  let lastAction = $state<"explain" | "call" | null>(null);
+
+  async function callNow() {
+    if (!callPath) return;
+    lastAction = "call";
+    callStatus = "calling";
+    callMessage = null;
+    const query = explainCallerParameters.trim().replace(/^\?/, "");
+    const url = `${callPath}${query ? `?${query}` : ""}`;
+    const anonymous = explainAsAnonymous;
+    try {
+      // /proxy/anonymous forwards without the user's token (Dynamic Endpoints, GET only)
+      const response = await fetch(`${anonymous ? "/proxy/anonymous" : "/proxy"}${url}`, { credentials: "include" });
+      const text = await response.text();
+      let body = text;
+      try {
+        body = JSON.stringify(JSON.parse(text), null, 2);
+      } catch {
+        // not JSON: show it as returned
+      }
+      callResult = { url, status: response.status, body, anonymous };
+      callStatus = "done";
+    } catch (e) {
+      callStatus = "failed";
+      callMessage = e instanceof Error ? e.message : "Call failed";
+    }
+  }
+
+  async function explainNow() {
+    lastAction = "explain";
+    explainStatus = "explaining";
+    explainMessage = null;
+    explanation = null;
+    try {
+      const response = await fetch("/proxy/obp/v7.0.0/management/dynamic-resource-docs/explain", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          method_body: encodeURIComponent(method_body_text),
+          bank_id: initial.bank_id,
+          caller_parameters: explainCallerParameters.trim(),
+          as_anonymous_caller: explainAsAnonymous,
+        }),
+      });
+      if (!response.ok) {
+        const errorDetails = await extractErrorFromResponse(response, "Explain request failed");
+        logErrorDetails("POST /dynamic-resource-docs/explain", errorDetails);
+        explainStatus = "failed";
+        explainMessage = formatErrorForDisplay(errorDetails);
+        return;
+      }
+      explanation = await response.json();
+      explainStatus = "done";
+    } catch (e) {
+      explainStatus = "failed";
+      explainMessage = e instanceof Error ? e.message : "Explain request failed";
     }
   }
 
@@ -632,9 +723,9 @@
     </div>
   {/if}
 
-  <!-- Basic info -->
-  <div class="grid gap-4 md:grid-cols-4">
-    <label class="block md:col-span-1">
+  <!-- Basic info: name and language on one line, verb and URL on the next -->
+  <div class="grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-4" data-testid="row-name-language">
+    <label class="block">
       <span class="block text-sm font-medium text-gray-700 dark:text-gray-300">
         Partial Function Name <span class="text-red-600">*</span>
       </span>
@@ -673,7 +764,9 @@
         Scala or Java code, or a Query: a declaration that reads Dynamic Entity records.
       </span>
     </label>
+  </div>
 
+  <div class="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,3fr)]">
     <label class="block">
       <span class="block text-sm font-medium text-gray-700 dark:text-gray-300">
         Request Verb <span class="text-red-600">*</span>
@@ -698,7 +791,7 @@
       </span>
     </label>
 
-    <label class="block md:col-span-1">
+    <label class="block">
       <span class="block text-sm font-medium text-gray-700 dark:text-gray-300">
         Request URL <span class="text-red-600">*</span>
       </span>
@@ -720,35 +813,6 @@
     </label>
   </div>
 
-  <label class="block">
-    <span class="block text-sm font-medium text-gray-700 dark:text-gray-300">Summary</span>
-    <input
-      type="text"
-      name="summary"
-      bind:value={summary}
-      placeholder="Create My User"
-      data-testid="field-summary"
-      class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
-    />
-    <span class="mt-1 block text-xs text-gray-500 dark:text-gray-400">
-      One-line title shown in API Explorer and resource-doc listings.
-    </span>
-  </label>
-
-  <label class="block">
-    <span class="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</span>
-    <textarea
-      name="description"
-      bind:value={description}
-      rows="2"
-      data-testid="field-description"
-      class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
-    ></textarea>
-    <span class="mt-1 block text-xs text-gray-500 dark:text-gray-400">
-      Longer prose shown in API Explorer. OBP truncates to 2000 characters.
-    </span>
-  </label>
-
   <!-- Method body (Scala) -->
   <div>
     <div class="flex items-baseline justify-between">
@@ -767,14 +831,16 @@
             {isGeneratingTemplate ? "Generating..." : "Generate template"}
           </button>
         {:else if isQuery}
-          <button
-            type="button"
-            onclick={insertQueryExample}
-            data-testid="insert-query-example-btn"
-            class="text-xs text-blue-600 hover:underline dark:text-blue-400"
-          >
-            Insert example
-          </button>
+          {#if !method_body_text.trim()}
+            <button
+              type="button"
+              onclick={insertQueryExample}
+              data-testid="insert-query-example-btn"
+              class="text-xs text-blue-600 hover:underline dark:text-blue-400"
+            >
+              Show example template
+            </button>
+          {/if}
           <button
             type="button"
             onclick={formatQuery}
@@ -854,6 +920,132 @@
       <p class="mt-1 text-xs text-gray-600 dark:text-gray-400" data-testid="fix-outcome">{fixOutcome}</p>
     {/if}
 
+    {#if isQuery}
+      <div class="mt-3 flex flex-wrap items-end gap-4 text-xs" data-testid="explain-options">
+        <label class="block">
+          <span class="block font-medium text-gray-700 dark:text-gray-300">Explain with caller parameters</span>
+          <input
+            type="text"
+            name="explain_caller_parameters"
+            bind:value={explainCallerParameters}
+            placeholder="obp_sort_by=name&obp_limit=10"
+            data-testid="field-explain-caller-parameters"
+            class="mt-1 block w-72 rounded border border-gray-300 bg-white px-2 py-1 font-mono text-xs text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+          />
+        </label>
+        <label class="flex items-center gap-2">
+          <input type="checkbox" name="explain_as_anonymous" bind:checked={explainAsAnonymous} data-testid="field-explain-as-anonymous" />
+          <span class="text-gray-700 dark:text-gray-300">as a caller who is not logged in</span>
+        </label>
+        <button
+          type="button"
+          onclick={() => void explainNow()}
+          disabled={explainStatus === "explaining" || !method_body_text.trim()}
+          data-testid="explain-btn"
+          class="rounded border border-gray-300 px-2 py-1 font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+        >
+          {explainStatus === "explaining" ? "Explaining..." : "Explain"}
+        </button>
+        {#if callPath}
+          <button
+            type="button"
+            onclick={() => void callNow()}
+            disabled={callStatus === "calling"}
+            data-testid="call-btn"
+            class="rounded border border-gray-300 px-2 py-1 font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+          >
+            {callStatus === "calling" ? "Calling..." : "Call"}
+          </button>
+        {/if}
+      </div>
+    {/if}
+
+    {#if isQuery && lastAction === "call" && callStatus === "failed" && callMessage}
+      <p class="mt-2 rounded border border-gray-300 bg-gray-50 px-3 py-2 text-xs text-gray-800 dark:border-gray-600 dark:bg-gray-800/60 dark:text-gray-200" role="status" data-testid="call-failed">
+        <span class="font-semibold">Call:</span> {callMessage}
+      </p>
+    {:else if isQuery && lastAction === "call" && callStatus === "done" && callResult}
+      <div class="mt-2 text-xs" data-testid="call-result" data-state={callResult.status < 400 ? "ok" : "error"}>
+        <p class="font-mono text-gray-700 dark:text-gray-300">
+          <span class="mr-1 font-sans font-semibold text-gray-800 dark:text-gray-100">Call:</span>GET {callResult.url}{#if callResult.anonymous} (not logged in){/if} →
+          <span class={callResult.status < 400 ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400"}>{callResult.status}</span>
+        </p>
+        <pre class="mt-1 max-h-80 overflow-auto rounded border border-gray-200 bg-gray-50 p-2 font-mono text-gray-800 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200">{callResult.body}</pre>
+      </div>
+    {/if}
+
+    {#if isQuery && lastAction === "explain" && explainStatus === "failed" && explainMessage}
+      <p class="mt-2 rounded border border-gray-300 bg-gray-50 px-3 py-2 text-xs text-gray-800 dark:border-gray-600 dark:bg-gray-800/60 dark:text-gray-200" role="status" data-testid="explain-failed">
+        {explainMessage}
+      </p>
+    {:else if isQuery && lastAction === "explain" && explainStatus === "done" && explanation}
+      <section
+        class="mt-3 space-y-4 rounded-lg border border-gray-200 p-4 text-xs dark:border-gray-700"
+        data-testid="explanation"
+        data-state={explanation.caller_may_run ? "may-run" : "refused"}
+      >
+        <div>
+          <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">Access, explained for {explanation.explained_for} in space {explanation.space}</h3>
+          {#if explanation.caller_may_run}
+            <p class="mt-1 text-green-700 dark:text-green-400" data-testid="explanation-may-run">This caller may run the query.</p>
+          {:else}
+            <p class="mt-1 text-amber-800 dark:text-amber-300" data-testid="explanation-refusal">This caller would be refused: {explanation.refusal}</p>
+          {/if}
+          <div class="mt-2 overflow-x-auto">
+            <table class="min-w-full text-left" data-testid="explanation-entities">
+              <thead class="text-gray-500 dark:text-gray-400">
+                <tr><th class="pr-4">Dynamic Entity</th><th class="pr-4">Read Role (bank)</th><th class="pr-4">Public access</th><th class="pr-4">Row-level access</th><th>This caller may read</th></tr>
+              </thead>
+              <tbody>
+                {#each explanation.entities as entity (entity.entity)}
+                  <tr data-testid="explanation-entity-{entity.entity}" data-state={entity.caller_may_read ? "readable" : "not-readable"}>
+                    <td class="pr-4 font-mono">{entity.entity}</td>
+                    <td class="pr-4 font-mono">{entity.read_role} ({entity.bank_id})</td>
+                    <td class="pr-4">{entity.public_access ? "yes" : "no"}</td>
+                    <td class="pr-4">{entity.row_level_access ? "yes" : "no"}</td>
+                    <td class={entity.caller_may_read ? "text-green-700 dark:text-green-400" : "text-amber-800 dark:text-amber-300"}>{entity.caller_may_read ? "yes" : "no"}</td>
+                  </tr>
+                {/each}
+              </tbody>
+            </table>
+          </div>
+          {#if explanation.restricted_fields.length > 0}
+            <p class="mt-3 font-medium text-gray-700 dark:text-gray-300">Restricted fields this query touches</p>
+            <ul class="mt-1 ml-4 list-disc" data-testid="explanation-restricted-fields">
+              {#each explanation.restricted_fields as field (field.entity + "." + field.field + "." + field.restriction)}
+                <li data-testid="explanation-restricted-field-{field.entity}-{field.field}-{field.restriction}" data-state={field.caller_may_read ? "readable" : "not-readable"}>
+                  <span class="font-mono">{field.entity}.{field.field}</span>
+                  ({field.restriction === "hide_field_from_public_access" ? "hidden from public access" : "needs its own read Role"}),
+                  lifted by <span class="font-mono">{field.read_role}</span>:
+                  {field.caller_may_read ? "this caller may read it" : "null for this caller, and it cannot filter or sort on it"}
+                </li>
+              {/each}
+            </ul>
+          {/if}
+          <p class="mt-3 font-medium text-gray-700 dark:text-gray-300">Rules every Dynamic Query applies</p>
+          <ul class="mt-1 ml-4 list-disc text-gray-600 dark:text-gray-400" data-testid="explanation-rules">
+            {#each explanation.rules as rule, i (i)}<li>{rule}</li>{/each}
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">Reads, in order</h3>
+          <ol class="mt-2 space-y-3" data-testid="explanation-steps">
+            {#each explanation.steps as step (step.step)}
+              <li data-testid="explanation-step-{step.step}" data-state={step.backend}>
+                <p><span class="font-semibold">{step.step}. {step.purpose}</span> <span class="rounded bg-gray-100 px-1.5 py-0.5 text-gray-700 dark:bg-gray-800 dark:text-gray-300">{step.backend}</span></p>
+                {#if step.sql}
+                  <pre class="mt-1 overflow-x-auto rounded bg-gray-900 p-2 font-mono text-[11px] text-gray-100" data-testid="explanation-step-{step.step}-sql">{step.sql}</pre>
+                  {#if step.parameter_count !== null}<p class="text-gray-500 dark:text-gray-400">{step.parameter_count} bound {step.parameter_count === 1 ? "value" : "values"}, shown as ?.</p>{/if}
+                {/if}
+                {#each step.notes as note, i (i)}<p class="text-gray-600 dark:text-gray-400">{note}</p>{/each}
+              </li>
+            {/each}
+          </ol>
+        </div>
+      </section>
+    {/if}
+
     <p class="mt-2 text-xs text-gray-600 dark:text-gray-400" data-testid="method-body-help">
       {#if isQuery}
         The keys of a declaration (<code>from</code>, <code>select</code>, <code>where</code>, <code>join</code>,
@@ -868,6 +1060,35 @@
       {/if}
     </p>
   </div>
+
+  <label class="block">
+    <span class="block text-sm font-medium text-gray-700 dark:text-gray-300">Summary</span>
+    <input
+      type="text"
+      name="summary"
+      bind:value={summary}
+      placeholder="Create My User"
+      data-testid="field-summary"
+      class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+    />
+    <span class="mt-1 block text-xs text-gray-500 dark:text-gray-400">
+      One-line title shown in API Explorer and resource-doc listings.
+    </span>
+  </label>
+
+  <label class="block">
+    <span class="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</span>
+    <textarea
+      name="description"
+      bind:value={description}
+      rows="2"
+      data-testid="field-description"
+      class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+    ></textarea>
+    <span class="mt-1 block text-xs text-gray-500 dark:text-gray-400">
+      Longer prose shown in API Explorer. OBP truncates to 2000 characters.
+    </span>
+  </label>
 
   <!-- Example request + success response -->
   <div class="grid gap-4 md:grid-cols-2">

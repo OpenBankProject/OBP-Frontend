@@ -40,3 +40,4 @@ export { default as ExplorerListNav } from './explorer/ExplorerListNav.svelte';
 export { default as EndpointExecutionPanel } from './explorer/EndpointExecutionPanel.svelte';
 export { default as PaneSplitter } from './explorer/PaneSplitter.svelte';
 export { default as WelcomeBubble } from './WelcomeBubble.svelte';
+export { default as ResizableSplit } from './ResizableSplit.svelte';

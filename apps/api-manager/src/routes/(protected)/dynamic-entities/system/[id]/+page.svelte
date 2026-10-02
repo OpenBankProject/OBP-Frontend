@@ -740,6 +740,14 @@
                       Read-restricted
                     </span>
                   {/if}
+                  {#if fieldDefTyped.hide_field_from_public_access}
+                    <span
+                      class="inline-flex items-center rounded-full bg-slate-200 px-2 py-0.5 text-xs font-medium text-slate-800 dark:bg-slate-700 dark:text-slate-200"
+                      data-testid="field-badge-hidden-from-public-{fieldName}"
+                    >
+                      Hidden from public access
+                    </span>
+                  {/if}
                 </div>
                 {#if fieldDefTyped.description}
                   <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">

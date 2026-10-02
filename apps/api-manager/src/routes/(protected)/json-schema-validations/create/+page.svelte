@@ -19,7 +19,7 @@
   import { goto } from "$app/navigation";
   import { page } from "$app/state";
   import { env } from "$env/dynamic/public";
-  import { OpeyChat } from "@obp/shared/components";
+  import { OpeyChat, ResizableSplit } from "@obp/shared/components";
   import type { OpeyChatOptions, SuggestedQuestion } from "@obp/shared/components";
   import { Wand2, HelpCircle, Braces } from "@lucide/svelte";
   import { formBridge } from "$lib/stores/formBridge.svelte";
@@ -64,7 +64,8 @@
     <p class="mt-1 text-gray-600 dark:text-gray-400">Constrain the request body of one endpoint. OBP rejects non-conforming requests before the endpoint runs.</p>
   </div>
 
-  <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(20rem,26rem)]">
+  <ResizableSplit breakpoint="lg">
+    {#snippet main()}
     <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
       {#if data.choicesError}
         <p class="mb-4 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-900/20 dark:text-amber-100" data-testid="choices-error">
@@ -79,10 +80,12 @@
         onSubmit={handleSubmit}
       />
     </div>
-    <aside class="lg:sticky lg:top-8" data-testid="opey-form-pane">
+    {/snippet}
+
+    {#snippet side()}
       <div class="h-[36rem] w-full overflow-hidden rounded-lg border border-gray-200 shadow-sm lg:h-[calc(100vh-80px-3rem)] dark:border-gray-700">
         <OpeyChat {opeyChatOptions} userAuthenticated={!!page.data.userId} {clientTools} {clientContext} />
       </div>
-    </aside>
-  </div>
+    {/snippet}
+  </ResizableSplit>
 </div>

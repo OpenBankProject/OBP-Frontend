@@ -40,6 +40,8 @@ export interface DynamicResourceDocStatus {
   found: boolean;
   /** The full URL the endpoint is served at: OBP's base URL plus specified_url, or the path OBP serves it at. */
   servedUrl: string;
+  /** The same, without OBP's base URL. */
+  servedPath: string;
   explorerUrl: string | null;
   error?: string;
 }
@@ -52,6 +54,7 @@ async function lookupResourceDoc(doc: any, accessToken: string): Promise<Dynamic
   const base: DynamicResourceDocStatus = {
     found: false,
     servedUrl: servedUrl(`${SERVED_PREFIX}${doc.request_url ?? ""}`),
+    servedPath: `${SERVED_PREFIX}${doc.request_url ?? ""}`,
     explorerUrl: null,
   };
   try {
@@ -67,6 +70,7 @@ async function lookupResourceDoc(doc: any, accessToken: string): Promise<Dynamic
       ...base,
       found: !!match,
       servedUrl: match?.specified_url ? servedUrl(match.specified_url) : base.servedUrl,
+      servedPath: match?.specified_url ?? base.servedPath,
       explorerUrl: match ? `${explorer}/resource-docs/${EXPLORER_DYNAMIC_VERSION}?operationid=${encodeURIComponent(match.operation_id)}` : null,
     };
   } catch (e) {

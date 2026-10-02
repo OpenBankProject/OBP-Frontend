@@ -20,7 +20,7 @@
   import { goto } from "$app/navigation";
   import { page } from "$app/state";
   import { env } from "$env/dynamic/public";
-  import { OpeyChat } from "@obp/shared/components";
+  import { OpeyChat, ResizableSplit } from "@obp/shared/components";
   import type { OpeyChatOptions, SuggestedQuestion } from "@obp/shared/components";
   import { FileSpreadsheet, Wand2, ChartColumn, HelpCircle } from "@lucide/svelte";
   import { formBridge } from "$lib/stores/formBridge.svelte";
@@ -115,7 +115,8 @@
     {#if savedMessage}<p class="mt-1 text-sm text-emerald-700 dark:text-emerald-300" data-testid="report-saved">{savedMessage}</p>{/if}
   </div>
 
-  <div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(20rem,26rem)]">
+  <ResizableSplit breakpoint="xl">
+    {#snippet main()}
     <div>
       {#if loadError}
         <p class="rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-800 dark:border-red-700 dark:bg-red-900/20 dark:text-red-200">{loadError}</p>
@@ -127,10 +128,12 @@
         <p class="text-sm text-gray-500 dark:text-gray-400">Loading…</p>
       {/if}
     </div>
-    <aside class="xl:sticky xl:top-8" data-testid="opey-form-pane">
+    {/snippet}
+
+    {#snippet side()}
       <div class="h-[36rem] w-full overflow-hidden rounded-lg border border-gray-200 shadow-sm xl:h-[calc(100vh-80px-3rem)] dark:border-gray-700">
         <OpeyChat bind:this={opeyChat} {opeyChatOptions} userAuthenticated={!!page.data.userId} {clientTools} {clientContext} />
       </div>
-    </aside>
-  </div>
+    {/snippet}
+  </ResizableSplit>
 </div>

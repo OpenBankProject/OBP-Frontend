@@ -19,7 +19,7 @@
   import { onMount } from "svelte";
   import { page } from "$app/state";
   import { env } from "$env/dynamic/public";
-  import { OpeyChat } from "@obp/shared/components";
+  import { OpeyChat, ResizableSplit } from "@obp/shared/components";
   import type { OpeyChatOptions, SuggestedQuestion } from "@obp/shared/components";
   import { CircleHelp, MessagesSquare, Plus, Pencil, Trash2, Wand2, ExternalLink } from "@lucide/svelte";
   import { formBridge } from "$lib/stores/formBridge.svelte";
@@ -169,7 +169,8 @@
   {#if error}<p class="mb-4 rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-800 dark:border-red-700 dark:bg-red-900/20 dark:text-red-200" data-testid="faq-error">{error}</p>{/if}
   {#if notice}<p class="mb-4 rounded-lg border border-emerald-300 bg-emerald-50 p-3 text-sm text-emerald-800 dark:border-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-200" data-testid="faq-notice">{notice}</p>{/if}
 
-  <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(20rem,26rem)]">
+  <ResizableSplit breakpoint="lg">
+    {#snippet main()}
     <div class="space-y-6">
       {#if formOpen}
         <section class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800" data-testid="faq-form" data-state={editingId ? "edit" : "new"}>
@@ -228,11 +229,12 @@
         {/if}
       </section>
     </div>
+    {/snippet}
 
-    <aside class="lg:sticky lg:top-8" data-testid="opey-form-pane">
+    {#snippet side()}
       <div class="h-[36rem] w-full overflow-hidden rounded-lg border border-gray-200 shadow-sm lg:h-[calc(100vh-80px-3rem)] dark:border-gray-700">
         <OpeyChat {opeyChatOptions} userAuthenticated={!!page.data.userId} {clientTools} {clientContext} />
       </div>
-    </aside>
-  </div>
+    {/snippet}
+  </ResizableSplit>
 </div>

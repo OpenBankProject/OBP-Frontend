@@ -19,7 +19,7 @@
   import { goto } from "$app/navigation";
   import { page } from "$app/state";
   import { env } from "$env/dynamic/public";
-  import { OpeyChat } from "@obp/shared/components";
+  import { OpeyChat, ResizableSplit } from "@obp/shared/components";
   import type { OpeyChatOptions, SuggestedQuestion } from "@obp/shared/components";
   import { Bug, Wand2, ExternalLink, RefreshCw, Copy, Check } from "@lucide/svelte";
   import { invalidateAll } from "$app/navigation";
@@ -250,10 +250,11 @@
     </div>
   {/if}
 
-  <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(20rem,26rem)]">
+  <ResizableSplit breakpoint="lg">
+    {#snippet main()}
     <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
     {#key docId}
-      <DynamicResourceDocForm initial={doc} onSubmit={handleSubmit} submitLabel="Save Changes" {onFixWithOpey}>
+      <DynamicResourceDocForm initial={doc} onSubmit={handleSubmit} submitLabel="Save Changes" {onFixWithOpey} callPath={resourceDoc?.servedPath}>
         {#snippet cancel()}
           <a
             href="/dynamic-resource-docs/system"
@@ -265,9 +266,10 @@
       </DynamicResourceDocForm>
     {/key}
     </div>
+    {/snippet}
 
+    {#snippet side()}
     <!-- Opey pane: OpeyChat requires a definite height all the way down -->
-    <aside class="lg:sticky lg:top-8" data-testid="opey-form-pane">
       <div
         class="h-[36rem] w-full overflow-hidden rounded-lg border border-gray-200 shadow-sm lg:h-[calc(100vh-80px-3rem)] dark:border-gray-700"
       >
@@ -279,6 +281,6 @@
           {clientContext}
         />
       </div>
-    </aside>
-  </div>
+    {/snippet}
+  </ResizableSplit>
 </div>

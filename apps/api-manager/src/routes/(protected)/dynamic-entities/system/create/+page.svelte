@@ -651,6 +651,11 @@
           <li>
             <strong><code>read_role</code>: "CanReadX"</strong> — the same, against an explicit role.
           </li>
+          <li>
+            <strong><code>hide_field_from_public_access</code>: true</strong> — for an entity with public
+            access: the field is hidden from callers who reach the entity only through that public access,
+            and shown to holders of the entity's read role, with no field role needed.
+          </li>
         </ul>
 
         <h4 class="mt-4 text-sm font-semibold text-blue-900 dark:text-blue-100">
