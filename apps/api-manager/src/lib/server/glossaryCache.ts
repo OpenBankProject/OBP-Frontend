@@ -64,6 +64,12 @@ export function findGlossaryItem(all: GlossaryItem[], title: string): GlossaryIt
   return all.find((i) => i.title.toLowerCase() === t);
 }
 
+/** Called when the Manager writes to the glossary, so the next read fetches it again. */
+export function clearGlossaryCache(): void {
+  items = [];
+  lastFetched = null;
+}
+
 /** The API Explorer base URL, as the layout computes it, with any query string removed. */
 export function apiExplorerBaseUrl(): string {
   return String(env.API_EXPLORER_URL || DEFAULT_EXPLORER_URL)

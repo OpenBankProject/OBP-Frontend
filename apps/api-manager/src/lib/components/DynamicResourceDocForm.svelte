@@ -30,6 +30,8 @@
     error_response_bodies: string;
     tags: string;
     roles: string;
+    /** Scala (the default), Java, or Query: a Dynamic Query declaration rather than code. */
+    programming_lang: string;
   }
 </script>
 
@@ -89,6 +91,59 @@
   let tags = $state(initial.tags ?? "");
   let roles = $state(initial.roles ?? "");
 
+  // OBP compares programming_lang case-insensitively and treats a missing one as Scala; the select
+  // shows OBP's spelling of whichever language the stored doc names.
+  const LANGUAGES = ["Scala", "Java", "Query"];
+  function languageOption(value: string | undefined): string {
+    const wanted = (value ?? "Scala").trim().toLowerCase();
+    const match = LANGUAGES.find((language) => language.toLowerCase() === wanted);
+    return match ?? "Scala";
+  }
+  let programming_lang = $state(languageOption(initial.programming_lang));
+  const isScala = $derived(programming_lang === "Scala");
+  const isQuery = $derived(programming_lang === "Query");
+
+  // A Dynamic Query only reads, so OBP accepts it only with GET.
+  $effect(() => {
+    if (isQuery && request_verb !== "GET") request_verb = "GET";
+  });
+
+  const QUERY_EXAMPLE = JSON.stringify(
+    {
+      from: "fruit",
+      select: ["name", "colour"],
+      envelope: { rows: "fruit", count: "count" },
+    },
+    null,
+    2,
+  );
+
+  function insertQueryExample() {
+    method_body_text = QUERY_EXAMPLE;
+  }
+
+  /** Indent the Query declaration so its joins and fields nest; invalid JSON is left as it is. */
+  function formatQuery() {
+    try {
+      method_body_text = JSON.stringify(JSON.parse(method_body_text), null, 2);
+      const { method_body: _, ...rest } = fieldErrors;
+      fieldErrors = rest;
+    } catch (e) {
+      fieldErrors = { ...fieldErrors, method_body: `Not valid JSON, so not formatted: ${e instanceof Error ? e.message : String(e)}` };
+    }
+  }
+
+  /** Model-facing contract of the method body, per language. */
+  function methodBodyContract(): string {
+    if (programming_lang === "Query") {
+      return "a Dynamic Query declaration as JSON, not code: {\"from\": entity (required), \"select\": [fields], \"where\": {field: \"op:value\"}, \"join\": [{\"entity\", \"on\", \"cardinality\" (at_most_one|many|exists), \"fields\": {resultName: field}, \"as\", \"pick\": \"latest_by:field\", \"order\", \"where\", \"true_value\", \"false_value\", \"direction\"}], \"envelope\": {\"rows\": name, \"count\": name}}. Unknown keys are rejected. request_verb must be GET. See the Dynamic Query glossary entry.";
+    }
+    if (programming_lang === "Java") {
+      return "Java source of a public class implementing java.util.function.Supplier<java.util.function.Function<Object[], Object>>; the function receives args[0] = raw request body (String or null), args[1] = path parameters (java.util.Map<String, String>), args[2] = the CallContext, and returns a Map/List/String/number that is rendered as JSON.";
+    }
+    return "Scala source, inlined into an http4s handler: in scope are callContext: CallContext, request: org.http4s.Request[IO], pathParams: Map[String, String], the generated RequestRootJsonClass/ResponseRootJsonClass, and errorResponse(message, code). The last expression must be Future.successful((responseValue, HttpCode.`200`(callContext))) or errorResponse(...). Do NOT return Lift Box/Full/JsonResponse values.";
+  }
+
   // ---- Draft support (Opey via formBridge) --------------------------------
   // Field registry: how an external draft (plain values, Scala un-encoded)
   // maps onto the form's state. Each entry can read and write its field.
@@ -107,12 +162,22 @@
     request_url: { get: () => request_url, set: (v) => (request_url = asText(v)) },
     summary: { get: () => summary, set: (v) => (summary = asText(v)) },
     description: { get: () => description, set: (v) => (description = asText(v)) },
-    method_body: { get: () => method_body_text, set: (v) => (method_body_text = asText(v)) },
+    // A Query declaration may arrive as a JSON object rather than text.
+    method_body: { get: () => method_body_text, set: (v) => (method_body_text = isQuery ? asJsonText(v) : asText(v)) },
     example_request_body: { get: () => example_request_body_text, set: (v) => (example_request_body_text = asJsonText(v)) },
     success_response_body: { get: () => success_response_body_text, set: (v) => (success_response_body_text = asJsonText(v)) },
     error_response_bodies: { get: () => error_response_bodies, set: (v) => (error_response_bodies = asText(v)) },
     tags: { get: () => tags, set: (v) => (tags = asText(v)) },
     roles: { get: () => roles, set: (v) => (roles = asText(v)) },
+    programming_lang: {
+      get: () => programming_lang,
+      set: (v) => {
+        const wanted = asText(v).trim().toLowerCase();
+        const language = LANGUAGES.find((option) => option.toLowerCase() === wanted);
+        if (language) programming_lang = language;
+        else throw new Error(`programming_lang must be one of ${LANGUAGES.join(", ")}`);
+      },
+    },
   };
 
   function asText(v: unknown): string {
@@ -172,13 +237,14 @@
   function describeForm(): string {
     const lines = [
       "Form: Dynamic Resource Doc (defines a new OBP endpoint).",
-      "Fields settable via set_form_fields (values as plain text; method_body is PLAIN Scala, not URL-encoded):",
+      "Fields settable via set_form_fields (values as plain text; method_body is PLAIN text, not URL-encoded):",
+      `- programming_lang (one of ${LANGUAGES.join("/")}; decides what method_body is; currently ${programming_lang})`,
       `- partial_function_name (string, camelCase Scala identifier, required)`,
-      `- request_verb (one of ${VERBS.join("/")}, required)`,
+      `- request_verb (one of ${VERBS.join("/")}, required; GET only when programming_lang is Query)`,
       `- request_url (string, must start with /, UPPER_CASE segments are path params, required)`,
       `- summary (string, one line, max 255 chars)`,
       `- description (string, prose, max 2000 chars; markdown allowed)`,
-      `- method_body (Scala source, required; inlined into an http4s handler: in scope are callContext: CallContext, request: org.http4s.Request[IO], pathParams: Map[String, String], the generated RequestRootJsonClass/ResponseRootJsonClass, and errorResponse(message, code). The last expression must be Future.successful((responseValue, HttpCode.\`200\`(callContext))) or errorResponse(...). Do NOT return Lift Box/Full/JsonResponse values.)`,
+      `- method_body (required): ${methodBodyContract()}`,
       `- example_request_body (JSON object; required for POST/PUT)`,
       `- success_response_body (JSON object, required)`,
       `- error_response_bodies (comma-separated OBP error names, e.g. $UserNotLoggedIn,$UnknownError)`,
@@ -235,6 +301,7 @@
       example_request_body:
         methodHasBody && example_request_body_text.trim() ? safeParse(example_request_body_text) : undefined,
       success_response_body: success_response_body_text.trim() ? safeParse(success_response_body_text) : undefined,
+      programming_lang,
     };
   }
 
@@ -285,6 +352,10 @@
   }
 
   function fixPrompt(): string {
+    return isQuery ? queryFixPrompt() : scalaFixPrompt();
+  }
+
+  function scalaFixPrompt(): string {
     return [
       `The Dynamic Resource Doc method_body does not compile (round ${fixRound} of ${FIX_MAX_ROUNDS}). Fix it.`,
       "",
@@ -299,6 +370,31 @@
       "```",
       "",
       "Reply by calling set_form_fields with the complete corrected method_body only (no other fields), then one sentence on what you changed. Do not create the doc.",
+    ].join("\n");
+  }
+
+  /**
+   * A Dynamic Query's problems name entities and fields, which Opey cannot fix by reading the
+   * declaration alone: the prompt tells it where the definitions of the doc's space are.
+   */
+  function queryFixPrompt(): string {
+    const space = initial.bank_id ? initial.bank_id : "SYS";
+    return [
+      `The Dynamic Query declaration in method_body is not valid (round ${fixRound} of ${FIX_MAX_ROUNDS}). Fix it.`,
+      "",
+      "Problems reported by OBP:",
+      describeCompileErrors(),
+      "",
+      `A Dynamic Query is JSON, not code. ${methodBodyContract()}`,
+      "",
+      `Entity and field names must match the Dynamic Entity definitions of this doc's space. Read them with GET /obp/v7.0.0/management/banks/${space}/dynamic-entities before changing a name, and use only entities and fields that exist there. A reverse join's "on" field must be declared "indexed": true on the joined entity, and "where" filters on the "from" entity need "indexed": true too; if a needed field is not indexed, say so rather than inventing another.`,
+      "",
+      "Current method_body:",
+      "```json",
+      method_body_text,
+      "```",
+      "",
+      "Reply by calling set_form_fields with the complete corrected method_body only (no other fields), as plain JSON text, then one sentence on what you changed. Do not create the doc.",
     ].join("\n");
   }
 
@@ -330,9 +426,9 @@
   async function continueFixLoop() {
     const ok = await compileNow();
     if (ok) {
-      stopFixLoop(`Compiles after ${fixRound} Opey ${fixRound === 1 ? "round" : "rounds"}. Review the body, then submit.`);
+      stopFixLoop(`${isQuery ? "Valid" : "Compiles"} after ${fixRound} Opey ${fixRound === 1 ? "round" : "rounds"}. Review the body, then submit.`);
     } else if (compileStatus === "failed") {
-      stopFixLoop("The compile request itself failed; see the message above.");
+      stopFixLoop(`The ${isQuery ? "check" : "compile"} request itself failed; see the message above.`);
     } else if (fixRound >= FIX_MAX_ROUNDS) {
       stopFixLoop(`Still failing after ${FIX_MAX_ROUNDS} rounds. Fix by hand or ask Opey in the chat with more detail.`);
     } else {
@@ -419,7 +515,15 @@
     // OBP stores summary in a 255-character column and caps description at 2000; say so here, not after a round trip.
     if (summary.trim().length > MAX.summary) errs.summary = `At most ${MAX.summary} characters (got ${summary.trim().length})`;
     if (description.trim().length > MAX.description) errs.description = `At most ${MAX.description} characters (got ${description.trim().length})`;
-    if (!method_body_text.trim()) errs.method_body = "Required — write Scala or click Generate template";
+    if (!method_body_text.trim()) {
+      errs.method_body = isQuery
+        ? "Required — write the query declaration or click Insert example"
+        : isScala
+          ? "Required — write Scala or click Generate template"
+          : "Required — write the Java class";
+    } else if (isQuery && safeParse(method_body_text) === undefined) {
+      errs.method_body = "A Dynamic Query declaration must be valid JSON";
+    }
 
     let example_request_body: any = undefined;
     if (methodHasBody) {
@@ -464,6 +568,7 @@
       error_response_bodies: error_response_bodies.trim(),
       tags: tags.trim(),
       roles: roles.trim(),
+      programming_lang,
     };
   }
 
@@ -528,7 +633,7 @@
   {/if}
 
   <!-- Basic info -->
-  <div class="grid gap-4 md:grid-cols-3">
+  <div class="grid gap-4 md:grid-cols-4">
     <label class="block md:col-span-1">
       <span class="block text-sm font-medium text-gray-700 dark:text-gray-300">
         Partial Function Name <span class="text-red-600">*</span>
@@ -551,20 +656,45 @@
 
     <label class="block">
       <span class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        Language <span class="text-red-600">*</span>
+      </span>
+      <select
+        name="programming_lang"
+        bind:value={programming_lang}
+        data-testid="field-programming-lang"
+        data-state={programming_lang.toLowerCase()}
+        class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+      >
+        {#each LANGUAGES as language}
+          <option value={language}>{language}</option>
+        {/each}
+      </select>
+      <span class="mt-1 block text-xs text-gray-500 dark:text-gray-400">
+        Scala or Java code, or a Query: a declaration that reads Dynamic Entity records.
+      </span>
+    </label>
+
+    <label class="block">
+      <span class="block text-sm font-medium text-gray-700 dark:text-gray-300">
         Request Verb <span class="text-red-600">*</span>
       </span>
       <select
         name="request_verb"
         bind:value={request_verb}
+        disabled={isQuery}
         data-testid="field-request-verb"
-        class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+        class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 disabled:bg-gray-100 disabled:text-gray-500 dark:disabled:bg-gray-800"
       >
         {#each VERBS as verb}
           <option value={verb}>{verb}</option>
         {/each}
       </select>
       <span class="mt-1 block text-xs text-gray-500 dark:text-gray-400">
-        GET and DELETE must not carry a request body.
+        {#if isQuery}
+          A Dynamic Query only reads, so it is always GET.
+        {:else}
+          GET and DELETE must not carry a request body.
+        {/if}
       </span>
     </label>
 
@@ -581,7 +711,8 @@
         class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 font-mono text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
       />
       <span class="mt-1 block min-w-0 break-words text-xs text-gray-500 dark:text-gray-400">
-        Served at <code class="break-all">/obp/dynamic-resource-doc{request_url || "/..."}</code>. UPPER_CASE segments are path parameters — read them in Scala via <code>pathParams("MY_USER_ID")</code>.
+        Served at <code class="break-all">/obp/dynamic-resource-doc{request_url || "/..."}</code>.
+        {#if isScala}UPPER_CASE segments are path parameters — read them in Scala via <code>pathParams("MY_USER_ID")</code>.{/if}
       </span>
       {#if fieldErrors.request_url}
         <p class="mt-1 text-xs text-red-600 dark:text-red-400">{fieldErrors.request_url}</p>
@@ -622,18 +753,38 @@
   <div>
     <div class="flex items-baseline justify-between">
       <label for="method-body" class="text-sm font-medium text-gray-700 dark:text-gray-300">
-        Method Body (Scala) <span class="text-red-600">*</span>
+        Method Body ({isQuery ? "Query declaration, JSON" : programming_lang}) <span class="text-red-600">*</span>
       </label>
       <div class="flex items-center gap-3">
-        <button
-          type="button"
-          onclick={generateTemplate}
-          disabled={isGeneratingTemplate}
-          data-testid="generate-template-btn"
-          class="text-xs text-blue-600 hover:underline disabled:opacity-50 dark:text-blue-400"
-        >
-          {isGeneratingTemplate ? "Generating..." : "Generate template"}
-        </button>
+        {#if isScala}
+          <button
+            type="button"
+            onclick={generateTemplate}
+            disabled={isGeneratingTemplate}
+            data-testid="generate-template-btn"
+            class="text-xs text-blue-600 hover:underline disabled:opacity-50 dark:text-blue-400"
+          >
+            {isGeneratingTemplate ? "Generating..." : "Generate template"}
+          </button>
+        {:else if isQuery}
+          <button
+            type="button"
+            onclick={insertQueryExample}
+            data-testid="insert-query-example-btn"
+            class="text-xs text-blue-600 hover:underline dark:text-blue-400"
+          >
+            Insert example
+          </button>
+          <button
+            type="button"
+            onclick={formatQuery}
+            disabled={!method_body_text.trim()}
+            data-testid="format-query-btn"
+            class="text-xs text-blue-600 hover:underline disabled:opacity-50 dark:text-blue-400"
+          >
+            Format
+          </button>
+        {/if}
         <button
           type="button"
           onclick={() => { fixActive = false; fixOutcome = null; void compileNow(); }}
@@ -641,9 +792,9 @@
           data-testid="compile-btn"
           class="rounded border border-gray-300 px-2 py-0.5 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
         >
-          {compileStatus === "compiling" ? "Compiling..." : "Compile"}
+          {compileStatus === "compiling" ? (isQuery ? "Checking..." : "Compiling...") : (isQuery ? "Check" : "Compile")}
         </button>
-        {#if onFixWithOpey && (compileStatus === "errors" || fixActive)}
+        {#if onFixWithOpey && (isScala || isQuery) && (compileStatus === "errors" || fixActive)}
           <button
             type="button"
             onclick={startFixLoop}
@@ -656,8 +807,14 @@
         {/if}
       </div>
     </div>
-    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-      OBP compiles this Scala the first time the endpoint is hit (result is cached) and runs it inside a security-manager sandbox. Stored URL-encoded server-side — you edit and read plain Scala here.
+    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400" data-testid="method-body-language-note">
+      {#if isQuery}
+        A declaration, not code: nothing is compiled. OBP checks it against the Dynamic Entity definitions, then runs it for each caller, who must be able to read every entity it reads. Stored URL-encoded server-side — you edit and read plain JSON here.
+      {:else if programming_lang === "Java"}
+        A public Java class implementing <code>Supplier&lt;Function&lt;Object[], Object&gt;&gt;</code>; the function receives the raw request body, the path parameters and the CallContext. OBP compiles it when the endpoint is first served. Stored URL-encoded server-side — you edit and read plain Java here.
+      {:else}
+        OBP compiles this Scala when the endpoint is first served (the result is cached). Stored URL-encoded server-side — you edit and read plain Scala here.
+      {/if}
     </p>
     <textarea
       id="method-body"
@@ -674,11 +831,11 @@
 
     {#if compileStatus === "ok"}
       <p class="mt-2 rounded border border-green-200 bg-green-50 px-3 py-2 text-xs text-green-800 dark:border-green-800 dark:bg-green-900/20 dark:text-green-300" role="status" data-testid="compile-ok">
-        Compiles{#if compileDurationMs !== null} ({compileDurationMs} ms){/if}. Nothing was stored.
+        {isQuery ? "Valid" : "Compiles"}{#if compileDurationMs !== null} ({compileDurationMs} ms){/if}. Nothing was stored.
       </p>
     {:else if compileStatus === "errors"}
       <div class="mt-2 rounded border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-700 dark:bg-amber-900/20 dark:text-amber-100" role="status" data-testid="compile-errors">
-        <p class="font-semibold">Does not compile ({compileErrors.length + (compileDependencyError ? 1 : 0)}):</p>
+        <p class="font-semibold">{isQuery ? "Not valid" : "Does not compile"} ({compileErrors.length + (compileDependencyError ? 1 : 0)}):</p>
         <ul class="mt-1 ml-4 list-disc space-y-0.5 font-mono">
           {#each compileErrors as err, i (i)}
             <li>{#if err.line > 0}<span class="font-semibold">line {err.line}, col {err.column}:</span> {/if}{err.message}</li>
@@ -698,10 +855,17 @@
     {/if}
 
     <p class="mt-2 text-xs text-gray-600 dark:text-gray-400" data-testid="method-body-help">
-      <em>Generate template</em> fetches a working skeleton for the current verb and URL. What is in scope
-      and what the body must return is in the
-      <a class="text-blue-600 underline hover:no-underline dark:text-blue-400" href="/dynamic-resource-docs/help#dynamic-resource-doc">Dynamic Resource Doc</a>
-      glossary entry on the Help page.
+      {#if isQuery}
+        The keys of a declaration (<code>from</code>, <code>select</code>, <code>where</code>, <code>join</code>,
+        <code>envelope</code>) and what a caller can add are in the
+        <a class="text-blue-600 underline hover:no-underline dark:text-blue-400" href="/dynamic-resource-docs/help#dynamic-query">Dynamic Query</a>
+        glossary entry on the Help page.
+      {:else}
+        {#if isScala}<em>Generate template</em> fetches a working skeleton for the current verb and URL.{/if} What is in scope
+        and what the body must return is in the
+        <a class="text-blue-600 underline hover:no-underline dark:text-blue-400" href="/dynamic-resource-docs/help#dynamic-resource-doc">Dynamic Resource Doc</a>
+        glossary entry on the Help page.
+      {/if}
     </p>
   </div>
 
@@ -740,7 +904,13 @@
         Success Response Body (JSON) <span class="text-red-600">*</span>
       </label>
       <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-        OBP generates a <code>ResponseRootJsonClass</code> from this shape. Construct an instance of it in your Scala and return via <code>Future.successful {"{ (responseBody, HttpCode.`200`(callContext.callContext)) }"}</code>.
+        {#if isQuery}
+          An example of what the query returns, shown in API Explorer: the envelope's list, and its count if the declaration names one.
+        {:else if isScala}
+          OBP generates a <code>ResponseRootJsonClass</code> from this shape. Construct an instance of it in your Scala and return via <code>Future.successful {"{ (responseBody, HttpCode.`200`(callContext.callContext)) }"}</code>.
+        {:else}
+          An example of what the endpoint returns, shown in API Explorer.
+        {/if}
       </p>
       <textarea
         id="success-response-body"

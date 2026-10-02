@@ -16,8 +16,9 @@
   along with this program. If not, see <https://www.gnu.org/licenses/>.
 -->
 <script lang="ts">
-  import { CircleHelp, ExternalLink, Radio, BarChart3, Plus, RefreshCw } from "@lucide/svelte";
+  import { CircleHelp, ExternalLink } from "@lucide/svelte";
   import GlossaryEntry from "$lib/components/GlossaryEntry.svelte";
+  import HelpReferences from "$lib/components/HelpReferences.svelte";
 
   let { data } = $props();
 
@@ -83,7 +84,6 @@
         <a href="#endpoints">REST endpoints</a>
         <a href="#publish">What Publish sends</a>
         <a href="#glossary">{data.glossary.title}</a>
-        <a href="#links">Further reading</a>
       </nav>
 
       {#if data.warnings.length > 0}
@@ -97,7 +97,6 @@
         <p class="cache-note" data-testid="signal-endpoints-source">
           v6.0.0 resource docs tagged <code>{data.signalTag}</code> on this instance, cached for 30 minutes.
           Fetched {cacheAgeLabel(data.cache.ageSeconds)}.
-          <a class="link" href="?refresh=1" data-sveltekit-reload><RefreshCw size={12} /> Refresh now</a>
         </p>
         <div class="table-wrap">
           <table class="endpoint-table" data-testid="signal-endpoints-table">
@@ -171,38 +170,22 @@
       <section class="section" id="glossary">
         <h2 class="section-title">{data.glossary.title}</h2>
         <GlossaryEntry
-          title={data.glossary.title}
           html={data.glossary.html}
-          explorerUrl={data.glossary.explorerUrl}
           testid="glossary-signal-channels"
         />
       </section>
 
-      <section class="section" id="links">
-        <h2 class="section-title">Further reading</h2>
-        <ul class="link-list">
-          <li>
-            <a class="link" href={explorerSignalTagUrl} target="_blank" rel="noopener noreferrer">
-              API Explorer: endpoints tagged {data.signalTag} <ExternalLink size={12} />
-            </a>
-          </li>
-          <li>
-            <a class="link" href={explorerAiAgentTagUrl} target="_blank" rel="noopener noreferrer">
-              API Explorer: endpoints tagged AI-Agent <ExternalLink size={12} />
-            </a>
-          </li>
-          <li>
-            <a class="link" href={explorerGrpcServicesUrl} target="_blank" rel="noopener noreferrer" data-testid="signal-help-grpc-services-link">
-              API Explorer: gRPC services discovery <ExternalLink size={12} />
-            </a>
-          </li>
-        </ul>
-        <div class="page-links">
-          <a class="page-link" href="/system/signal-publish"><Plus size={16} /> Publish</a>
-          <a class="page-link" href="/system/signal-channels"><Radio size={16} /> Signal Channels</a>
-          <a class="page-link" href="/system/signal-channels-stats"><BarChart3 size={16} /> Signal Stats</a>
-        </div>
-      </section>
+      <HelpReferences
+        sources={[{ title: data.glossary.title, explorerUrl: data.glossary.explorerUrl }]}
+        links={[
+          { label: "Publish", href: "/system/signal-publish" },
+          { label: "Signal Channels", href: "/system/signal-channels" },
+          { label: "Signal Stats", href: "/system/signal-channels-stats" },
+          { label: `API Explorer: ${data.signalTag}`, href: explorerSignalTagUrl },
+          { label: "API Explorer: AI-Agent", href: explorerAiAgentTagUrl },
+          { label: "API Explorer: gRPC services", href: explorerGrpcServicesUrl, testid: "signal-help-grpc-services-link" },
+        ]}
+      />
     </div>
   </div>
 </div>
@@ -604,45 +587,6 @@
     background: rgba(245, 158, 11, 0.15);
     border-color: rgba(245, 158, 11, 0.4);
     color: #fde68a;
-  }
-
-  .link-list {
-    margin: 0 0 1rem;
-    padding-left: 1.25rem;
-    font-size: 0.875rem;
-    line-height: 1.8;
-  }
-
-  .page-links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-  }
-
-  .page-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
-    padding: 0.4rem 0.75rem;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    font-size: 0.8125rem;
-    color: #374151;
-    text-decoration: none;
-  }
-
-  .page-link:hover {
-    background: #f3f4f6;
-    text-decoration: underline;
-  }
-
-  :global([data-mode="dark"]) .page-link {
-    border-color: rgb(var(--color-surface-600));
-    color: var(--color-surface-200);
-  }
-
-  :global([data-mode="dark"]) .page-link:hover {
-    background: rgb(var(--color-surface-700));
   }
 
   @media (max-width: 768px) {

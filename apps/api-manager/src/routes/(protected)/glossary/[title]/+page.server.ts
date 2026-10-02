@@ -25,14 +25,13 @@ const ENDPOINTS = [
   { operation_id: "OBPv7.0.0-getApiGlossary", verb: "GET", path: "/obp/v7.0.0/api/glossary" },
 ];
 
-export const load: PageServerLoad = async ({ locals, params, url }) => {
+export const load: PageServerLoad = async ({ locals, params }) => {
   const session = locals.session;
   if (!session?.data?.user) throw error(401, "Unauthorized");
   const token = SessionOAuthHelper.getSessionOAuth(session)?.accessToken;
   if (!token) throw error(401, "No API access token available");
 
-  const force = url.searchParams.get("refresh") === "1";
-  const entry = await loadGlossaryEntry(token, params.title, force);
+  const entry = await loadGlossaryEntry(token, params.title);
   if (!entry) throw error(404, `The Glossary has no entry titled "${params.title}".`);
 
   return {

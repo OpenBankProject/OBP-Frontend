@@ -18,11 +18,18 @@
 import type { RequestHandler } from './$types';
 import { env } from '$env/dynamic/public';
 import { createObpProxyHandler } from '@obp/shared/server/obp';
+import { clearCachesAfterWrite } from '$lib/server/clearCachesAfterWrite';
 
 // Generic authenticated OBP proxy (same as the Portal's /proxy/obp/...):
 // adds the user's OAuth token and passes responses through unmodified.
 // Implementation lives in @obp/shared (server/obp/obpProxy.ts).
-const proxyRequest = createObpProxyHandler(env.PUBLIC_OBP_BASE_URL);
+const forward = createObpProxyHandler(env.PUBLIC_OBP_BASE_URL);
+
+const proxyRequest: RequestHandler = async (event) => {
+	const response = await forward(event);
+	clearCachesAfterWrite(event.request.method, event.params.path ?? '', response.ok);
+	return response;
+};
 
 export const GET: RequestHandler = proxyRequest;
 export const POST: RequestHandler = proxyRequest;

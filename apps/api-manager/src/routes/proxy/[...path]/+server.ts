@@ -19,6 +19,7 @@ import type { RequestHandler } from "./$types";
 import { env } from "$env/dynamic/public";
 import { SessionOAuthHelper } from "$lib/oauth/sessionHelper";
 import { createLogger } from '@obp/shared/utils';
+import { clearCachesAfterWrite } from '$lib/server/clearCachesAfterWrite';
 
 const logger = createLogger("Proxy");
 
@@ -131,6 +132,8 @@ export const fallback: RequestHandler = async ({ params, request, locals, url })
 	if (duration > 400) {
 		logger.warn(`Slow request: ${request.method} /${obpPath} took ${duration.toFixed(0)}ms`);
 	}
+
+	clearCachesAfterWrite(request.method, obpPath, obpResponse.ok);
 
 	// Log full request/response details on non-2xx responses
 	if (!obpResponse.ok) {

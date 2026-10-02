@@ -27,19 +27,18 @@ const logger = createLogger("JsonSchemaValidationsHelp");
 const GLOSSARY_TITLE = "JSON Schema Validation";
 const TAG = "JSON-Schema-Validation";
 
-export const load: PageServerLoad = async ({ locals, url }) => {
+export const load: PageServerLoad = async ({ locals }) => {
   const session = locals.session;
   if (!session?.data?.user) throw error(401, "Unauthorized");
   const token = SessionOAuthHelper.getSessionOAuth(session)?.accessToken;
   if (!token) throw error(401, "No API access token available");
 
-  const force = url.searchParams.get("refresh") === "1";
   const explorerUrl = apiExplorerBaseUrl();
   const warnings: string[] = [];
 
   let glossaryHtml: string | null = null;
   try {
-    const item = findGlossaryItem(await fetchGlossary(token, force), GLOSSARY_TITLE);
+    const item = findGlossaryItem(await fetchGlossary(token), GLOSSARY_TITLE);
     if (item) glossaryHtml = renderMarkdown(item.description.markdown);
     else warnings.push(`This OBP instance has no glossary entry "${GLOSSARY_TITLE}".`);
   } catch (e) {
@@ -49,7 +48,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 
   let endpoints: { operation_id: string; request_verb: string; request_url: string; summary: string; roles: string[]; explorerUrl: string }[] = [];
   try {
-    const docs = await fetchResourceDocs(token, force);
+    const docs = await fetchResourceDocs(token);
     endpoints = docs
       .filter((d) => (d.tags ?? []).includes(TAG))
       .map((d) => ({

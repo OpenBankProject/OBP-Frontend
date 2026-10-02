@@ -51,17 +51,16 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
   }
 
   const query = url.searchParams.get("q")?.trim() ?? "";
-  const force = url.searchParams.get("refresh") === "1";
 
   // Best effort and never fatal: the page is useful without knowing what is running.
-  const activeConnector = await loadActiveConnector(token, force);
+  const activeConnector = await loadActiveConnector(token);
 
   let rows: MessageDocIndexRow[] = [];
   let total = 0;
   let duplicateProcesses: string[] = [];
   let loadError: string | null = null;
   try {
-    const index = await loadMessageDocIndex(token, connector, force);
+    const index = await loadMessageDocIndex(token, connector);
     rows = index.rows;
     duplicateProcesses = index.duplicateProcesses;
     total = rows.length;

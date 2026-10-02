@@ -898,6 +898,7 @@ const buildSection = domain("build", "Build", Hammer,
     ] },
     { label: "Resource Docs", items: [
       { href: "/dynamic-resource-docs/system", label: "Dynamic Resource Docs", iconComponent: FileText },
+      { href: "/dynamic-resource-docs/help", label: "Help", iconComponent: CircleHelp },
     ] },
     { label: "Glossary", items: [
       { href: "/glossary-items", label: "Dynamic Glossary Items", iconComponent: BookOpen },

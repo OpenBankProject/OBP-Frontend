@@ -32,7 +32,7 @@ import {
 const logger = createLogger("DynamicResourceDocsHelp");
 
 /** The glossary entries this page is made of, in display order. The text lives in OBP, not here. */
-const GLOSSARY_TITLES = ["Dynamic Resource Doc", "Dynamic Change Request"] as const;
+const GLOSSARY_TITLES = ["Dynamic Resource Doc", "Dynamic Query", "Dynamic Change Request"] as const;
 const CHANGE_REQUEST_TAG = "Dynamic-Change-Request";
 const CHANGE_REQUEST_DOCS_PATH = `/obp/v7.0.0/resource-docs/v7.0.0/obp?tags=${CHANGE_REQUEST_TAG}`;
 
@@ -53,19 +53,18 @@ export interface ChangeRequestEndpoint {
 
 const VERB_ORDER: Record<string, number> = { GET: 0, POST: 1, PUT: 2, DELETE: 3 };
 
-export const load: PageServerLoad = async ({ locals, url }) => {
+export const load: PageServerLoad = async ({ locals }) => {
   const session = locals.session;
   if (!session?.data?.user) throw error(401, "Unauthorized");
   const token = SessionOAuthHelper.getSessionOAuth(session)?.accessToken;
   if (!token) throw error(401, "No API access token available");
 
-  const force = url.searchParams.get("refresh") === "1";
   const explorerUrl = apiExplorerBaseUrl();
   const warnings: string[] = [];
 
   const [approval, glossary, endpoints] = await Promise.all([
     loadDynamicCodeApprovalConfig(token),
-    fetchGlossary(token, force).catch((e) => {
+    fetchGlossary(token).catch((e) => {
       logger.warn("Could not load the OBP glossary:", e);
       warnings.push(`Could not load the glossary from OBP: ${e instanceof Error ? e.message : String(e)}`);
       return [];

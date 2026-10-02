@@ -30,7 +30,7 @@ const ENDPOINTS = [
   { operation_id: "OBPv2.2.0-getMessageDocs", verb: "GET", path: "/obp/v2.2.0/message-docs/CONNECTOR" },
 ];
 
-export const load: PageServerLoad = async ({ locals, params, url }) => {
+export const load: PageServerLoad = async ({ locals, params }) => {
   const session = locals.session;
   if (!session?.data?.user) throw error(401, "Unauthorized");
   const token = SessionOAuthHelper.getSessionOAuth(session)?.accessToken;
@@ -40,7 +40,7 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
   if (!isKnownConnector(connector)) {
     throw error(404, `"${connector}" is not a connector this OBP build serves message docs for.`);
   }
-  const doc = await loadMessageDoc(token, connector, process, url.searchParams.get("refresh") === "1");
+  const doc = await loadMessageDoc(token, connector, process);
   if (!doc) throw error(404, `${connector} documents no message called "${process}".`);
 
   return {

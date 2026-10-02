@@ -18,6 +18,7 @@
 <script lang="ts">
   import { CircleHelp } from "@lucide/svelte";
   import GlossaryEntry from "$lib/components/GlossaryEntry.svelte";
+  import HelpReferences from "$lib/components/HelpReferences.svelte";
 
   let { data } = $props();
 </script>
@@ -42,9 +43,13 @@
     data-testid="platform-apps-help-glossary"
   >
     {#if data.glossary.html}
-      <GlossaryEntry title={data.title} html={data.glossary.html} explorerUrl={data.glossary.url} testid="platform-apps-glossary-entry" />
+      <GlossaryEntry html={data.glossary.html} testid="platform-apps-glossary-entry" />
     {:else}
       <p class="text-sm text-amber-700 dark:text-amber-400" data-testid="platform-apps-help-warning">{data.glossary.warning}</p>
     {/if}
   </section>
+
+  <div class="mt-6">
+    <HelpReferences sources={[{ title: data.title, explorerUrl: data.glossary.url }]} />
+  </div>
 </div>

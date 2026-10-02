@@ -21,39 +21,38 @@ import { createLogger } from '@obp/shared/utils';
 import { SessionOAuthHelper } from "$lib/oauth/sessionHelper";
 import { obp_requests } from "$lib/obp/requests";
 import { apiExplorerBaseUrl } from "$lib/server/glossaryCache";
+import { env as publicEnv } from "$env/dynamic/public";
 
 const logger = createLogger("SystemDynamicResourceDocDetailPageServer");
 
 /**
- * The API Explorer lists runtime-defined endpoints under this pseudo version, fetched from OBP as
- * resource-docs/OBPdynamic-entity/obp?content=dynamic. Reading it here, uncached, is a live check
- * that OBP's own resource-doc cache was invalidated after a create/update/delete.
+ * OBP lists Dynamic Resource Docs under this pseudo version (OBPdynamic-entity holds only the Dynamic
+ * Entity endpoints), and the API Explorer shows them there too. Reading it here, uncached, is a live
+ * check that OBP's own resource-doc cache was invalidated after a create/update/delete.
  */
-const EXPLORER_DYNAMIC_VERSION = "OBPdynamic-entity";
+const EXPLORER_DYNAMIC_VERSION = "OBPdynamic-endpoint";
+
+/** Where OBP serves a Dynamic Resource Doc, before its resource doc names the path itself. */
+const SERVED_PREFIX = "/obp/dynamic-endpoint/dynamic-resource-doc";
 const DYNAMIC_RESOURCE_DOCS_PATH = `/obp/v7.0.0/resource-docs/${EXPLORER_DYNAMIC_VERSION}/obp?content=dynamic`;
 
 export interface DynamicResourceDocStatus {
   found: boolean;
-  operation_id: string | null;
-  specified_url: string | null;
+  /** The full URL the endpoint is served at: OBP's base URL plus specified_url, or the path OBP serves it at. */
+  servedUrl: string;
   explorerUrl: string | null;
-  explorerListUrl: string;
-  totalDynamicDocs: number | null;
-  checkedAt: string;
   error?: string;
 }
 
 /** Find this doc's entry in OBP's dynamic resource docs by verb and URL (exact first, then suffix). */
 async function lookupResourceDoc(doc: any, accessToken: string): Promise<DynamicResourceDocStatus> {
   const explorer = apiExplorerBaseUrl();
+  const obpBaseUrl = (publicEnv.PUBLIC_OBP_BASE_URL ?? "").replace(/\/$/, "");
+  const servedUrl = (path: string) => `${obpBaseUrl}${path}`;
   const base: DynamicResourceDocStatus = {
     found: false,
-    operation_id: null,
-    specified_url: null,
+    servedUrl: servedUrl(`${SERVED_PREFIX}${doc.request_url ?? ""}`),
     explorerUrl: null,
-    explorerListUrl: `${explorer}/resource-docs/${EXPLORER_DYNAMIC_VERSION}`,
-    totalDynamicDocs: null,
-    checkedAt: new Date().toISOString(),
   };
   try {
     const resp = await obp_requests.get(DYNAMIC_RESOURCE_DOCS_PATH, accessToken);
@@ -67,10 +66,8 @@ async function lookupResourceDoc(doc: any, accessToken: string): Promise<Dynamic
     return {
       ...base,
       found: !!match,
-      operation_id: match?.operation_id ?? null,
-      specified_url: match?.specified_url ?? null,
+      servedUrl: match?.specified_url ? servedUrl(match.specified_url) : base.servedUrl,
       explorerUrl: match ? `${explorer}/resource-docs/${EXPLORER_DYNAMIC_VERSION}?operationid=${encodeURIComponent(match.operation_id)}` : null,
-      totalDynamicDocs: docs.length,
     };
   } catch (e) {
     logger.warn("Could not read the dynamic resource docs from OBP:", e);

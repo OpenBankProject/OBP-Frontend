@@ -53,7 +53,7 @@ export async function fetchPlatformApps(accessToken: string): Promise<{ apps: Pl
 export const PLATFORM_APPS_GLOSSARY_TITLE = "Platform Apps";
 
 /** The Platform Apps glossary entry, as HTML, or a warning. */
-export async function platformAppsGlossary(accessToken: string, force: boolean): Promise<{ html: string | null; url: string; warning?: string }> {
+export async function platformAppsGlossary(accessToken: string, force = false): Promise<{ html: string | null; url: string; warning?: string }> {
   const explorerUrl = apiExplorerBaseUrl();
   const url = glossaryEntryUrl(PLATFORM_APPS_GLOSSARY_TITLE, explorerUrl);
   try {

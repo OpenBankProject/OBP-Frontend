@@ -16,8 +16,9 @@
   along with this program. If not, see <https://www.gnu.org/licenses/>.
 -->
 <script lang="ts">
-  import { CircleHelp, ExternalLink } from "@lucide/svelte";
+  import { CircleHelp } from "@lucide/svelte";
   import GlossaryEntry from "$lib/components/GlossaryEntry.svelte";
+  import HelpReferences from "$lib/components/HelpReferences.svelte";
 
   let { data } = $props();
 
@@ -88,26 +89,17 @@
   >
     <h2 class="mb-3 text-xl font-semibold text-gray-900 dark:text-gray-100">From the OBP glossary</h2>
     <GlossaryEntry
-      title={data.glossary.title}
       html={data.glossary.html}
-      explorerUrl={data.glossary.explorerUrl}
       testid="rate-limiting-glossary-entry"
     />
   </section>
 
-  <section class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-    <h2 class="mb-3 text-xl font-semibold text-gray-900 dark:text-gray-100">Further reading</h2>
-    <ul class="space-y-2 text-sm">
-      <li>
-        <a href={rateLimitersDocUrl} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-blue-600 hover:underline dark:text-blue-400">
-          Get Rate Limiters, the endpoint behind the Rate Limiting page <ExternalLink size={14} />
-        </a>
-      </li>
-      <li>
-        <a href={explorerRateLimitsTagUrl} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-blue-600 hover:underline dark:text-blue-400">
-          All Rate-Limits endpoints in the API Explorer, including per-Consumer limits <ExternalLink size={14} />
-        </a>
-      </li>
-    </ul>
-  </section>
+  <HelpReferences
+    sources={[{ title: data.glossary.title, explorerUrl: data.glossary.explorerUrl }]}
+    links={[
+      { label: "Rate Limiting", href: "/system/rate-limiting" },
+      { label: "API Explorer: Get Rate Limiters", href: rateLimitersDocUrl },
+      { label: "API Explorer: Rate-Limits", href: explorerRateLimitsTagUrl },
+    ]}
+  />
 </div>

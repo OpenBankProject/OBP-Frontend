@@ -43,20 +43,19 @@ function sectionOf(markdown: string, heading: string): string | null {
   return (heading + (next < 0 ? rest : rest.slice(0, next))).trim();
 }
 
-export const load: PageServerLoad = async ({ locals, url }) => {
+export const load: PageServerLoad = async ({ locals }) => {
   const session = locals.session;
   if (!session?.data?.user) throw error(401, "Unauthorized");
   const token = SessionOAuthHelper.getSessionOAuth(session)?.accessToken;
   if (!token) throw error(401, "No API access token available");
 
-  const force = url.searchParams.get("refresh") === "1";
   const explorerUrl = apiExplorerBaseUrl();
   const warnings: string[] = [];
   let sectionHtml: string | null = null;
 
   try {
     const item = findGlossaryItem(
-      await fetchGlossary(token, force),
+      await fetchGlossary(token),
       GLOSSARY_TITLE,
     );
     if (!item) {

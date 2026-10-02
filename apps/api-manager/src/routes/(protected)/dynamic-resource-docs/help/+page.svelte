@@ -16,8 +16,9 @@
   along with this program. If not, see <https://www.gnu.org/licenses/>.
 -->
 <script lang="ts">
-  import { CircleHelp, ExternalLink, ShieldCheck, ShieldOff, ShieldQuestion, ShieldAlert, FileText, Plus, RefreshCw } from "@lucide/svelte";
+  import { CircleHelp, ShieldCheck, ShieldOff, ShieldQuestion, ShieldAlert } from "@lucide/svelte";
   import GlossaryEntry from "$lib/components/GlossaryEntry.svelte";
+  import HelpReferences from "$lib/components/HelpReferences.svelte";
 
   let { data } = $props();
   const approval = $derived(data.approval);
@@ -72,7 +73,6 @@
           <ul class="warning-list">
             {#each data.warnings as w}<li>{w}</li>{/each}
           </ul>
-          <a class="link" href="?refresh=1"><RefreshCw size={12} /> Refresh from OBP</a>
         </div>
       {/if}
 
@@ -116,7 +116,7 @@
       {#each data.sections as s (s.title)}
         <section class="section" id={anchor(s.title)}>
           <h2 class="section-title">{s.title}</h2>
-          <GlossaryEntry title={s.title} html={s.html} explorerUrl={s.explorerUrl} testid="glossary-{anchor(s.title)}" />
+          <GlossaryEntry html={s.html} testid="glossary-{anchor(s.title)}" />
         </section>
       {/each}
 
@@ -147,14 +147,15 @@
         {:else}
           <p class="section-text muted">None found.</p>
         {/if}
-        <div class="page-links">
-          <a class="page-link" href="/dynamic-resource-docs/system"><FileText size={16} /> System Dynamic Resource Docs</a>
-          <a class="page-link" href="/dynamic-resource-docs/system/create"><Plus size={16} /> Create</a>
-          <a class="page-link" href="{data.explorerUrl}/?tags={data.changeRequestTag}" target="_blank" rel="noopener noreferrer">
-            API Explorer: {data.changeRequestTag} <ExternalLink size={12} />
-          </a>
-        </div>
       </section>
+
+      <HelpReferences
+        sources={data.sections}
+        links={[
+          { label: "System Dynamic Resource Docs", href: "/dynamic-resource-docs/system" },
+          { label: `API Explorer: ${data.changeRequestTag}`, href: `${data.explorerUrl}/?tags=${data.changeRequestTag}` },
+        ]}
+      />
     </div>
   </div>
 </div>
@@ -485,7 +486,6 @@
     overflow-x: auto;
   }
 
-
   .field-list {
     margin: 0.75rem 0 0;
     padding-left: 1.25rem;
@@ -551,45 +551,6 @@
     background: rgba(245, 158, 11, 0.15);
     border-color: rgba(245, 158, 11, 0.4);
     color: #fde68a;
-  }
-
-  .link-list {
-    margin: 0 0 1rem;
-    padding-left: 1.25rem;
-    font-size: 0.875rem;
-    line-height: 1.8;
-  }
-
-  .page-links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-  }
-
-  .page-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
-    padding: 0.4rem 0.75rem;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    font-size: 0.8125rem;
-    color: #374151;
-    text-decoration: none;
-  }
-
-  .page-link:hover {
-    background: #f3f4f6;
-    text-decoration: underline;
-  }
-
-  :global([data-mode="dark"]) .page-link {
-    border-color: rgb(var(--color-surface-600));
-    color: var(--color-surface-200);
-  }
-
-  :global([data-mode="dark"]) .page-link:hover {
-    background: rgb(var(--color-surface-700));
   }
 
   @media (max-width: 768px) {

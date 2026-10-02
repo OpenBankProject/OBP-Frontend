@@ -16,8 +16,9 @@
   along with this program. If not, see <https://www.gnu.org/licenses/>.
 -->
 <script lang="ts">
-  import { CircleHelp, ExternalLink, RefreshCw, BookOpen, Plus } from "@lucide/svelte";
+  import { CircleHelp, Plus } from "@lucide/svelte";
   import GlossaryEntry from "$lib/components/GlossaryEntry.svelte";
+  import HelpReferences from "$lib/components/HelpReferences.svelte";
 
   let { data } = $props();
 
@@ -50,7 +51,6 @@
         <div class="rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-900/20 dark:text-amber-100" data-testid="help-warnings">
           <ul class="list-disc pl-5">{#each data.warnings as w}<li>{w}</li>{/each}</ul>
           <div class="mt-2 flex flex-wrap items-center gap-4">
-            <a class="inline-flex items-center gap-1 underline" href="?refresh=1"><RefreshCw size={12} /> Refresh from OBP</a>
             {#each missingSections as s (s.title)}
               <a class="inline-flex items-center gap-1 underline" href="/glossary-items/create?title={encodeURIComponent(s.title)}" data-testid="write-missing-{s.title}">
                 <Plus size={12} /> Write "{s.title}" as a Dynamic Glossary Item
@@ -63,7 +63,7 @@
       {#each data.sections as section (section.title)}
         <section>
           <h2 class="mb-3 text-lg font-semibold text-gray-900 dark:text-gray-100">{section.title}</h2>
-          <GlossaryEntry title={section.title} html={section.html} explorerUrl={section.explorerUrl} testid="glossary-{section.title.toLowerCase().replace(/\s+/g, '-')}" />
+          <GlossaryEntry html={section.html} testid="glossary-{section.title.toLowerCase().replace(/\s+/g, '-')}" />
         </section>
       {/each}
 
@@ -93,11 +93,13 @@
         {/if}
       </section>
 
-      <div class="flex flex-wrap gap-3">
-        <a class="inline-flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700" href="/glossary-items"><BookOpen size={16} /> Dynamic Glossary Items</a>
-        <a class="inline-flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700" href="/glossary-items/create"><Plus size={16} /> Create</a>
-        <a class="inline-flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700" href="{data.explorerUrl}/glossary" target="_blank" rel="noopener noreferrer">API Explorer: Glossary <ExternalLink size={12} /></a>
-      </div>
+      <HelpReferences
+        sources={data.sections}
+        links={[
+          { label: "Dynamic Glossary Items", href: "/glossary-items" },
+          { label: "API Explorer: Glossary", href: `${data.explorerUrl}/glossary` },
+        ]}
+      />
     </div>
   </div>
 </div>

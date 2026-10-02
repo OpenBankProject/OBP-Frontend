@@ -29,10 +29,9 @@ const logger = createLogger('ExplorerGlossary');
 export const load: PageServerLoad = async ({ url }) => {
 	const baseUrl = publicEnv.PUBLIC_OBP_BASE_URL ?? '';
 	const query = url.searchParams.get('q')?.trim() ?? '';
-	const force = url.searchParams.get('refresh') === '1';
 
 	try {
-		const { rows, duplicateTitles } = await loadGlossaryIndex({ baseUrl, force });
+		const { rows, duplicateTitles } = await loadGlossaryIndex({ baseUrl });
 		const matching = query ? await searchGlossary(query, { baseUrl }) : null;
 		return {
 			rows: matching ? rows.filter((r) => matching.has(r.title)) : rows,

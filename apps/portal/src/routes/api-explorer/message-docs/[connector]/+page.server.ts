@@ -33,17 +33,13 @@ const logger = createLogger('ExplorerMessageDocs');
  * Every message one connector documents — the calls OBP makes outwards to a core banking
  * adapter, which is the other half of the API.
  */
-export const load: PageServerLoad = async ({ params, url }) => {
+export const load: PageServerLoad = async ({ params }) => {
 	if (!isKnownConnector(params.connector)) {
 		error(404, `"${params.connector}" is not a connector this OBP build serves message docs for.`);
 	}
 
-	const force = url.searchParams.get('refresh') === '1';
-
 	try {
-		const { rows, duplicateProcesses } = await loadMessageDocIndex(obp_requests, params.connector, {
-			force
-		});
+		const { rows, duplicateProcesses } = await loadMessageDocIndex(obp_requests, params.connector);
 		return {
 			connector: params.connector,
 			connectorLabel: connectorLabel(params.connector),

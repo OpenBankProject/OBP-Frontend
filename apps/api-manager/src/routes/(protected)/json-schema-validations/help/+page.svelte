@@ -16,8 +16,9 @@
   along with this program. If not, see <https://www.gnu.org/licenses/>.
 -->
 <script lang="ts">
-  import { CircleHelp, ExternalLink, RefreshCw, Braces, Plus } from "@lucide/svelte";
+  import { CircleHelp } from "@lucide/svelte";
   import GlossaryEntry from "$lib/components/GlossaryEntry.svelte";
+  import HelpReferences from "$lib/components/HelpReferences.svelte";
 
   let { data } = $props();
 </script>
@@ -46,13 +47,12 @@
       {#if data.warnings.length > 0}
         <div class="rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-900/20 dark:text-amber-100" data-testid="help-warnings">
           <ul class="list-disc pl-5">{#each data.warnings as w}<li>{w}</li>{/each}</ul>
-          <a class="mt-2 inline-flex items-center gap-1 underline" href="?refresh=1"><RefreshCw size={12} /> Refresh from OBP</a>
         </div>
       {/if}
 
       <section id="glossary">
         <h2 class="mb-3 text-lg font-semibold text-gray-900 dark:text-gray-100">{data.glossary.title}</h2>
-        <GlossaryEntry title={data.glossary.title} html={data.glossary.html} explorerUrl={data.glossary.explorerUrl} testid="glossary-json-schema-validation" />
+        <GlossaryEntry html={data.glossary.html} testid="glossary-json-schema-validation" />
       </section>
 
       <section id="endpoints">
@@ -81,11 +81,13 @@
         {/if}
       </section>
 
-      <div class="flex flex-wrap gap-3">
-        <a class="inline-flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700" href="/json-schema-validations"><Braces size={16} /> JSON Schema Validations</a>
-        <a class="inline-flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700" href="/json-schema-validations/create"><Plus size={16} /> Create</a>
-        <a class="inline-flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700" href="{data.explorerUrl}/?tags={data.tag}" target="_blank" rel="noopener noreferrer">API Explorer: {data.tag} <ExternalLink size={12} /></a>
-      </div>
+      <HelpReferences
+        sources={[{ title: data.glossary.title, explorerUrl: data.glossary.explorerUrl }]}
+        links={[
+          { label: "JSON Schema Validations", href: "/json-schema-validations" },
+          { label: `API Explorer: ${data.tag}`, href: `${data.explorerUrl}/?tags=${data.tag}` },
+        ]}
+      />
     </div>
   </div>
 </div>

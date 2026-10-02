@@ -42,14 +42,13 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   const query = url.searchParams.get("q")?.trim() ?? "";
   const sourceParam = url.searchParams.get("source") ?? "all";
   const source: Source = (SOURCES as readonly string[]).includes(sourceParam) ? (sourceParam as Source) : "all";
-  const force = url.searchParams.get("refresh") === "1";
 
   let rows: GlossaryIndexRow[] = [];
   let counts = { total: 0, dynamic: 0, static: 0, overriding: 0 };
   let duplicateTitles: string[] = [];
   let loadError: string | null = null;
   try {
-    const index = await loadGlossaryIndex(token, force);
+    const index = await loadGlossaryIndex(token);
     rows = index.rows;
     duplicateTitles = index.duplicateTitles;
     counts = {

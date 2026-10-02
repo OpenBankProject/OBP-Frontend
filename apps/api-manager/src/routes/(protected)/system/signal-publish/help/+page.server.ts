@@ -48,20 +48,19 @@ export interface SignalEndpointDoc {
 
 const VERB_ORDER: Record<string, number> = { POST: 0, GET: 1, PUT: 2, DELETE: 3 };
 
-export const load: PageServerLoad = async ({ locals, url }) => {
+export const load: PageServerLoad = async ({ locals }) => {
   const session = locals.session;
   if (!session?.data?.user) throw error(401, "Unauthorized");
   const token = SessionOAuthHelper.getSessionOAuth(session)?.accessToken;
   if (!token) throw error(401, "No API access token available");
 
-  const force = url.searchParams.get("refresh") === "1";
   const explorerUrl = apiExplorerBaseUrl();
   const warnings: string[] = [];
   let endpoints: SignalEndpointDoc[] = [];
 
   let glossaryHtml: string | null = null;
   try {
-    const item = findGlossaryItem(await fetchGlossary(token, force), GLOSSARY_TITLE);
+    const item = findGlossaryItem(await fetchGlossary(token), GLOSSARY_TITLE);
     if (item) {
       // markdown-it with its default html:false escapes raw HTML in the source, so this is safe to {@html}.
       glossaryHtml = renderMarkdown(item.description.markdown);
@@ -75,7 +74,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 
   try {
     // One fetch of the v6.0.0 resource docs serves every page for 30 minutes.
-    const docs = await fetchResourceDocs(token, force);
+    const docs = await fetchResourceDocs(token);
     endpoints = docs
       .filter((doc) => (doc.tags ?? []).includes(SIGNAL_TAG))
       .map((doc) => ({

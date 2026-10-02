@@ -16,19 +16,16 @@
   along with this program. If not, see <https://www.gnu.org/licenses/>.
 -->
 <script lang="ts">
-  import { ExternalLink } from "@lucide/svelte";
-
   /**
    * One OBP glossary entry, rendered from its markdown (already converted to HTML on the
    * server with renderMarkdown, which escapes raw HTML). The glossary is the single source
    * of explanatory text in the Manager: pages show it, they do not paraphrase it.
+   * Pages list the glossary links once, at the bottom, with HelpReferences.
    */
   let {
-    title,
     html,
-    explorerUrl,
     testid = "glossary-entry",
-  }: { title: string; html: string | null; explorerUrl: string; testid?: string } = $props();
+  }: { html: string | null; testid?: string } = $props();
 </script>
 
 {#if html}
@@ -36,10 +33,6 @@
 {:else}
   <p class="glossary-missing" data-testid="{testid}-missing">Not in this OBP instance's glossary.</p>
 {/if}
-<a class="glossary-link" href={explorerUrl} target="_blank" rel="noopener noreferrer">
-  <span>Glossary: <strong>{title}</strong> in the API Explorer</span>
-  <ExternalLink size={14} />
-</a>
 
 <style>
   .glossary-body {
@@ -113,23 +106,7 @@
     font-size: 0.9375rem;
   }
 
-  .glossary-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
-    padding: 0.5rem 0.75rem;
-    border: 1px solid #bfdbfe;
-    border-radius: 6px;
-    background: #eff6ff;
-    color: #1d4ed8;
-    font-size: 0.875rem;
-    text-decoration: none;
-  }
 
-  .glossary-link:hover {
-    text-decoration: underline;
-  }
 
   :global([data-mode="dark"]) .glossary-body {
     color: var(--color-surface-200);
@@ -152,9 +129,4 @@
     color: var(--color-surface-400);
   }
 
-  :global([data-mode="dark"]) .glossary-link {
-    border-color: rgb(var(--color-surface-600));
-    background: rgb(var(--color-surface-800));
-    color: #93c5fd;
-  }
 </style>

@@ -21,9 +21,9 @@ import { SessionOAuthHelper } from "$lib/oauth/sessionHelper";
 import { platformAppsGlossary, PLATFORM_APPS_GLOSSARY_TITLE } from "$lib/server/platformApps";
 
 /** The OBP glossary entry that explains Platform Apps. */
-export const load: PageServerLoad = async ({ locals, url }) => {
+export const load: PageServerLoad = async ({ locals }) => {
   const accessToken = SessionOAuthHelper.getSessionOAuth(locals.session)?.accessToken;
   if (!accessToken) throw error(401, "No API access token available");
-  const glossary = await platformAppsGlossary(accessToken, url.searchParams.get("refresh") === "1");
+  const glossary = await platformAppsGlossary(accessToken);
   return { title: PLATFORM_APPS_GLOSSARY_TITLE, glossary };
 };
