@@ -1,5 +1,7 @@
 # CLAUDE.md — API Manager II
 
+Read [DESIGN_DECISIONS.md](../../DESIGN_DECISIONS.md) (repo root) before changing code: security, caching, UI and documentation decisions shared by both apps.
+
 ## Communication style
 
 - Never deflect blame or make excuses like "this isn't related to my changes". Just focus on diagnosing and fixing the problem.

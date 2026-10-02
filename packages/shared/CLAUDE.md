@@ -1,3 +1,5 @@
+Read [DESIGN_DECISIONS.md](../../DESIGN_DECISIONS.md) (repo root) before changing code: security, caching, UI and documentation decisions shared by both apps.
+
 You are able to use the Svelte MCP server, where you have access to comprehensive Svelte 5 and SvelteKit documentation. Here's how to use the available tools effectively:
 
 ## Available MCP Tools:

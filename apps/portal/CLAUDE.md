@@ -1,5 +1,7 @@
 # OBP-Portal
 
+Read [DESIGN_DECISIONS.md](../../DESIGN_DECISIONS.md) (repo root) before changing code: security, caching, UI and documentation decisions shared by both apps.
+
 ## OBP-API Proxy Pattern
 
 When making client-side calls to the OBP-API, use the generic proxy at `/proxy/obp/...` instead of creating dedicated API route files. The proxy adds OAuth authentication and passes responses through unmodified. Only create dedicated `/backend/...` routes when custom logic is needed (e.g. protocol bridging like gRPC → SSE). See [docs/obp-proxy.md](docs/obp-proxy.md) for details.

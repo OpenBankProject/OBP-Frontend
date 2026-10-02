@@ -2,6 +2,8 @@
 
 Monorepo for Open Bank Project frontend applications, using npm workspaces.
 
+Before changing code, read [DESIGN_DECISIONS.md](DESIGN_DECISIONS.md).
+
 ## Structure
 
 ```
