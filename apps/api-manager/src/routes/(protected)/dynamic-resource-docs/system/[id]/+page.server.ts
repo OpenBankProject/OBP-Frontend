@@ -26,15 +26,18 @@ import { env as publicEnv } from "$env/dynamic/public";
 const logger = createLogger("SystemDynamicResourceDocDetailPageServer");
 
 /**
- * OBP lists Dynamic Resource Docs under this pseudo version (OBPdynamic-entity holds only the Dynamic
- * Entity endpoints), and the API Explorer shows them there too. Reading it here, uncached, is a live
- * check that OBP's own resource-doc cache was invalidated after a create/update/delete.
+ * OBP's v7.0.0 resource docs include the Dynamic Resource Docs (with content=dynamic, only the dynamic
+ * docs). Not the OBPdynamic-endpoint pseudo version: an instance may not enable it (OBP-00008), while
+ * v7.0.0 is enabled wherever the Manager works. Reading it here, uncached, is a live check that OBP's own
+ * resource-doc cache was invalidated after a create/update/delete. The API Explorer shows them under
+ * the same version.
  */
-const EXPLORER_DYNAMIC_VERSION = "OBPdynamic-endpoint";
+const RESOURCE_DOCS_VERSION = "v7.0.0";
+const EXPLORER_VERSION = "OBPv7.0.0";
 
 /** Where OBP serves a Dynamic Resource Doc, before its resource doc names the path itself. */
 const SERVED_PREFIX = "/obp/dynamic-endpoint/dynamic-resource-doc";
-const DYNAMIC_RESOURCE_DOCS_PATH = `/obp/v7.0.0/resource-docs/${EXPLORER_DYNAMIC_VERSION}/obp?content=dynamic`;
+const DYNAMIC_RESOURCE_DOCS_PATH = `/obp/v7.0.0/resource-docs/${RESOURCE_DOCS_VERSION}/obp?content=dynamic`;
 
 export interface DynamicResourceDocStatus {
   found: boolean;
@@ -62,7 +65,10 @@ async function lookupResourceDoc(doc: any, accessToken: string): Promise<Dynamic
     const docs: any[] = resp?.resource_docs ?? [];
     const verb = String(doc.request_verb ?? "").toUpperCase();
     const url = String(doc.request_url ?? "");
-    const sameVerb = docs.filter((d) => String(d.request_verb).toUpperCase() === verb);
+    // The v7.0.0 listing also holds Dynamic Entity docs; Dynamic Resource Docs are served under /obp/dynamic-endpoint/
+    const sameVerb = docs.filter(
+      (d) => String(d.request_verb).toUpperCase() === verb && String(d.specified_url ?? "").startsWith("/obp/dynamic-endpoint/"),
+    );
     const match =
       sameVerb.find((d) => d.request_url === url) ??
       sameVerb.find((d) => String(d.specified_url ?? "").endsWith(url) || String(d.request_url ?? "").endsWith(url));
@@ -71,7 +77,7 @@ async function lookupResourceDoc(doc: any, accessToken: string): Promise<Dynamic
       found: !!match,
       servedUrl: match?.specified_url ? servedUrl(match.specified_url) : base.servedUrl,
       servedPath: match?.specified_url ?? base.servedPath,
-      explorerUrl: match ? `${explorer}/resource-docs/${EXPLORER_DYNAMIC_VERSION}?operationid=${encodeURIComponent(match.operation_id)}` : null,
+      explorerUrl: match ? `${explorer}/resource-docs/${EXPLORER_VERSION}?operationid=${encodeURIComponent(match.operation_id)}` : null,
     };
   } catch (e) {
     logger.warn("Could not read the dynamic resource docs from OBP:", e);
