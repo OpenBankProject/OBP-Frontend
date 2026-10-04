@@ -19,15 +19,25 @@ import { obp_requests } from "$lib/obp/requests";
 import { dynamicEntityDefinitionsPath } from "@obp/shared/obp";
 
 /**
- * The Dynamic Entity definition with this id in one space (a bank id, or none for the system space),
- * or null. v7.0.0 has no get-one endpoint, so this reads the space's list.
+ * The Dynamic Entity definition in one space (a bank id, or none for the system space) whose
+ * dynamic_entity_id, or else whose entity_name, is `idOrName`; null if none. v7.0.0 has no get-one
+ * endpoint, so this reads the space's list.
+ *
+ * Matching the name lets other apps link to an entity's page from what the public resource docs
+ * give them (its name), and keeps those links working when the entity is recreated with a new id.
+ * Names are unique within a space. Pages build every further link from the definition's
+ * dynamic_entity_id, so a page opened by name continues by id.
  */
 export async function findDynamicEntityDefinition(
-  dynamicEntityId: string,
+  idOrName: string,
   bankId: string | null | undefined,
   accessToken: string,
 ): Promise<any | null> {
   const response = await obp_requests.get(dynamicEntityDefinitionsPath(bankId), accessToken);
   const definitions: any[] = response?.dynamic_entities || [];
-  return definitions.find((d) => d.dynamic_entity_id === dynamicEntityId) ?? null;
+  return (
+    definitions.find((d) => d.dynamic_entity_id === idOrName) ??
+    definitions.find((d) => d.entity_name === idOrName) ??
+    null
+  );
 }
