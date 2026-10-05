@@ -75,6 +75,7 @@ import {
   Activity,
   Library,
   MessagesSquare,
+  Globe,
 } from "@lucide/svelte";
 import { env } from "$env/dynamic/public";
 
@@ -883,7 +884,7 @@ function domain(
 }
 
 const buildSection = domain("build", "Build", Hammer,
-  ["/dynamic-entities", "/dynamic-endpoints", "/dynamic-resource-docs", "/glossary-items", "/integration", "/json-schema-validations", "/app-studio", "/reports"],
+  ["/dynamic-entities", "/dynamic-endpoints", "/dynamic-resource-docs", "/glossary-items", "/integration", "/json-schema-validations", "/domain-apis", "/app-studio", "/reports"],
   [
     { label: "Dynamic Entities", items: [
       { href: "/dynamic-entities/system?level=system", label: "System", iconComponent: Box },
@@ -899,6 +900,9 @@ const buildSection = domain("build", "Build", Hammer,
     { label: "Resource Docs", items: [
       { href: "/dynamic-resource-docs/system", label: "Dynamic Resource Docs", iconComponent: FileText },
       { href: "/dynamic-resource-docs/help", label: "Help", iconComponent: CircleHelp },
+    ] },
+    { label: "Publish", items: [
+      { href: "/domain-apis", label: "Domain APIs", iconComponent: Globe },
     ] },
     { label: "Glossary", items: [
       { href: "/glossary-items", label: "Dynamic Glossary Items", iconComponent: BookOpen },

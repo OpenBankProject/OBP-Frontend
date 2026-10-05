@@ -52,6 +52,14 @@
   let hasApiAccess = $derived(data.hasApiAccess);
   let error = $derived(data.error);
 
+  // Why the list may be empty: check_api_metrics from Deployment Checks, read by the server load
+  // only when no metrics came back and the user has CanGetConfig. Shown unless it is OK, because
+  // with recording working an empty list just means nothing matched the filters.
+  let metricsRecordingCheck = $derived(data.metricsRecordingCheck);
+  let showMetricsRecordingNotice = $derived(
+    !!metricsRecordingCheck && metricsRecordingCheck.status !== "OK",
+  );
+
   // Transport: user explicitly chooses REST or gRPC.
   let transport = $state<"rest" | "grpc">("rest");
   let eventSource: EventSource | null = null;
@@ -907,6 +915,23 @@
               >{obpInfo.displayName}</strong
             >.
           </p>
+          {#if showMetricsRecordingNotice && metricsRecordingCheck}
+            <div
+              class="metrics-recording-notice"
+              class:metrics-recording-notice-warning={metricsRecordingCheck.status === "WARNING"}
+              data-testid="metrics-recording-notice"
+            >
+              <p class="metrics-recording-notice-message">{metricsRecordingCheck.message}</p>
+              {#if metricsRecordingCheck.evidence.length > 0}
+                <ul class="metrics-recording-notice-evidence">
+                  {#each metricsRecordingCheck.evidence as item (item.name)}
+                    <li><span>{item.name}:</span> <code>{item.value}</code></li>
+                  {/each}
+                </ul>
+              {/if}
+              <a href="/deployment-checks" class="metrics-recording-notice-link">See Deployment Checks</a>
+            </div>
+          {/if}
           <div
             style="background: #f7fafc; padding: 1rem; border-radius: 6px; margin-bottom: 1rem; text-align: left;"
           >
@@ -1981,6 +2006,52 @@
     text-align: center;
     color: var(--color-surface-600);
     padding: 2rem;
+  }
+
+  .metrics-recording-notice {
+    margin: 0 auto 1.5rem;
+    max-width: 36rem;
+    padding: 0.875rem 1rem;
+    border-radius: 6px;
+    border: 1px solid #bee3f8;
+    background: #ebf8ff;
+    color: #2a4365;
+    text-align: left;
+    font-size: 0.875rem;
+  }
+
+  .metrics-recording-notice-warning {
+    border-color: #fbd38d;
+    background: #fffaf0;
+    color: #744210;
+  }
+
+  .metrics-recording-notice-message {
+    margin: 0 0 0.5rem;
+    font-weight: 600;
+  }
+
+  .metrics-recording-notice-evidence {
+    margin: 0 0 0.5rem;
+    padding-left: 1.25rem;
+    list-style: disc;
+  }
+
+  .metrics-recording-notice-link {
+    color: inherit;
+    text-decoration: underline;
+  }
+
+  :global([data-mode="dark"]) .metrics-recording-notice {
+    border-color: #2c5282;
+    background: rgba(66, 153, 225, 0.12);
+    color: #bee3f8;
+  }
+
+  :global([data-mode="dark"]) .metrics-recording-notice-warning {
+    border-color: #975a16;
+    background: rgba(236, 201, 75, 0.12);
+    color: #faf089;
   }
 
   :global([data-mode="dark"]) .empty-state {

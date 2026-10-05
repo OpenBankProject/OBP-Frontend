@@ -47,6 +47,15 @@ interface MetricsResponse {
   error?: string;
 }
 
+// The Deployment Checks entry that says whether this OBP-API instance records API Metrics
+// (check_api_metrics): INFO when write_metrics is false, WARNING when records were lost to
+// failed database writes, OK otherwise.
+interface MetricsRecordingCheck {
+  status: string;
+  message: string;
+  evidence: { name: string; value: string }[];
+}
+
 export const load: PageServerLoad = async ({ locals, url, depends }) => {
   depends("app:metrics");
   const session = locals.session;
@@ -198,8 +207,20 @@ export const load: PageServerLoad = async ({ locals, url, depends }) => {
       logger.error(`Error: ${metricsData.error}`);
     }
 
+    // An empty list can mean that nothing matched, or that this instance records no metrics at
+    // all. Only Deployment Checks can tell the two apart, and it needs CanGetConfig.
+    const userEntitlements = (session.data.user as any)?.entitlements?.list || [];
+    const canGetConfig = userEntitlements.some(
+      (entitlement: any) => entitlement.role_name === "CanGetConfig",
+    );
+    const metricsRecordingCheck =
+      metricsData.count === 0 && !metricsData.error && canGetConfig
+        ? await fetchMetricsRecordingCheck(accessToken)
+        : null;
+
     return {
       metrics: metricsData,
+      metricsRecordingCheck,
       hasApiAccess: true,
       grpcAvailable,
       lastUpdated: new Date().toISOString(),
@@ -215,6 +236,31 @@ export const load: PageServerLoad = async ({ locals, url, depends }) => {
     };
   }
 };
+
+// Returns check_api_metrics from Deployment Checks, or null when it cannot be read. The page
+// works without it, so a failure here is logged and never stops the metrics page loading.
+async function fetchMetricsRecordingCheck(
+  accessToken: string,
+): Promise<MetricsRecordingCheck | null> {
+  try {
+    const deployment = await obp_requests.get(
+      "/obp/v7.0.0/management/system/diagnostics/deployment",
+      accessToken,
+    );
+    const check = deployment?.checks?.find(
+      (candidate: any) => candidate.id === "check_api_metrics",
+    );
+    if (!check) return null;
+    return {
+      status: check.status,
+      message: check.message,
+      evidence: Array.isArray(check.evidence) ? check.evidence : [],
+    };
+  } catch (err) {
+    logger.warn("fetchMetricsRecordingCheck says: could not read Deployment Checks:", err);
+    return null;
+  }
+}
 
 async function fetchMetrics(
   accessToken: string,
