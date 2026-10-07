@@ -574,6 +574,7 @@ const JIT_EXCLUDED_ROLES = new Set([
  * - User holds CanCreateEntitlementAtAnyBank (system-wide), OR
  *   CanCreateEntitlementAtOneBank for the relevant bank (bank-scoped roles)
  * - The missing role is not one of the excluded meta-roles
+ * - The role is not at the Dynamic Entity system space (SYS): OBP never grants there just in time
  *
  * Only real (database) entitlements count as grant-capable. /users/current also
  * returns virtual entitlements (super_admin_user_ids / oidc_operator_user_ids props)
@@ -586,6 +587,7 @@ function canJitGrant(
   currentBankId?: string,
 ): boolean {
   if (JIT_EXCLUDED_ROLES.has(requirement.role)) return false;
+  if ((requirement.bankId || currentBankId) === DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID) return false;
 
   const realEntitlements = userEntitlements.filter((e) => e.entitlement_id);
 

@@ -25,16 +25,20 @@
 
   let { data } = $props();
 
-  function holds(role: string, bankId?: string): boolean {
-    return checkRoles(page.data.userEntitlements ?? [], [{ role, bankId }], bankId, "OR", page.data.jitEnabled ?? false).hasAllRoles;
+  function holds(role: string, bankId?: string, jit = page.data.jitEnabled ?? false): boolean {
+    return checkRoles(page.data.userEntitlements ?? [], [{ role, bankId }], bankId, "OR", jit).hasAllRoles;
   }
   let canMark = $derived(holds("CanCreatePlatformApp"));
   let canUnmark = $derived(holds("CanDeletePlatformApp"));
   // CanCreateScopeAtAnyBank anywhere, or CanCreateScopeAtOneBank at the Scope's bank id.
+  // JIT is not counted: Create Scope checks its granting Roles in the handler, without JIT.
   function canGrantAt(bankId: string): boolean {
-    return holds("CanCreateScopeAtAnyBank") || (bankId !== "" && holds("CanCreateScopeAtOneBank", bankId));
+    return holds("CanCreateScopeAtAnyBank", undefined, false) || (bankId !== "" && holds("CanCreateScopeAtOneBank", bankId, false));
   }
-  let anyMissing = $derived(data.apps.some((a: PlatformApp) => a.required_scopes.some((s) => !s.held)));
+  let missingScopes = $derived(data.apps.flatMap((a: PlatformApp) => a.required_scopes.filter((s) => !s.held)));
+  // Missing system Scopes need CanCreateScopeAtAnyBank; bank Scopes can also be added with CanCreateScopeAtOneBank at that bank.
+  let systemGrantBlocked = $derived(missingScopes.some((s) => s.bank_id === "" && !canGrantAt(s.bank_id)));
+  let blockedBankIds = $derived([...new Set(missingScopes.filter((s) => s.bank_id !== "" && !canGrantAt(s.bank_id)).map((s) => s.bank_id))]);
 
   let busy = $state<string | null>(null);
   let actionError = $state<string | null>(null);
@@ -126,11 +130,16 @@
     </p>
   {/if}
 
-  {#if anyMissing && !holds("CanCreateScopeAtAnyBank")}
+  {#if systemGrantBlocked}
     <div class="mb-6" data-testid="platform-apps-grant-forbidden">
       <MissingRoleAlert roles={["CanCreateScopeAtAnyBank"]} message="You need this role to add the missing Scopes" />
     </div>
   {/if}
+  {#each blockedBankIds as bankId (bankId)}
+    <div class="mb-6" data-testid="platform-apps-grant-forbidden-{bankId}">
+      <MissingRoleAlert roles={["CanCreateScopeAtOneBank"]} {bankId} message="You need this role to add the missing Scopes at {bankId}" />
+    </div>
+  {/each}
 
   <div class="space-y-6">
     {#each data.apps as app (app.consumer_id)}

@@ -21,6 +21,7 @@ import { error } from "@sveltejs/kit";
 import type { OBPConsumer } from "$lib/obp/types";
 import type { RequestEvent } from "@sveltejs/kit";
 import { SessionOAuthHelper } from "$lib/oauth/sessionHelper";
+import { getPortalUrl } from "$lib/obp/appDirectory";
 
 const logger = createLogger("ConsumersServer");
 
@@ -82,6 +83,7 @@ export async function load(event: RequestEvent) {
   return {
     consumers,
     createdWindow,
+    portalUrl: await getPortalUrl(),
     hasApiAccess: true,
     error: errorMessage,
   };
