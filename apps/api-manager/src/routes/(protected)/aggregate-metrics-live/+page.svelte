@@ -210,10 +210,15 @@
           response.headers.get("correlation-id") ||
           response.headers.get("Correlation-Id") ||
           "N/A";
-        return response.json().then((result) => ({ result, correlationId }));
+        return response
+          .json()
+          .then((result) => ({ ok: response.ok, result, correlationId }));
       })
-      .then(({ result, correlationId }) => {
-        if (result.error) {
+      .then(({ ok, result, correlationId }) => {
+        if (!ok) {
+          console.error("API error:", result.message);
+          apiError = result.message;
+        } else if (result.error) {
           console.error("API error:", result.error);
           apiError = result.error;
         } else if (result.count !== undefined) {

@@ -209,12 +209,12 @@
 		});
 		try {
 			const res = await fetch(`/backend/aggregate-metrics?${params}`);
+			const data = await res.json();
 			if (!res.ok) {
 				bucket.status = 'error';
-				bucket.error = `HTTP ${res.status}`;
+				bucket.error = `HTTP ${res.status}: ${data.message}`;
 				return;
 			}
-			const data = await res.json();
 			bucket.data = {
 				count: data.count,
 				average_response_time: data.average_response_time,

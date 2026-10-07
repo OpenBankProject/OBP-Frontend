@@ -67,6 +67,18 @@ export const GET: RequestHandler = async ({ url, locals }) => {
     logger.info(JSON.stringify(response, null, 2));
     logger.info(`Correlation ID: ${correlationId}`);
 
+    // Pass OBP's refusal through as it came (e.g. 400 OBP-10069 for a date range longer
+    // than aggregate_metrics_max_days), so the page shows the real reason.
+    if (!obpResponse.ok) {
+      logger.warn(`OBP returned ${obpResponse.status}: ${response.message}`);
+      const errorResponse = json(
+        { message: response.message, code: obpResponse.status },
+        { status: obpResponse.status },
+      );
+      errorResponse.headers.set("X-Correlation-Id", correlationId);
+      return errorResponse;
+    }
+
     // Aggregate metrics returns an array with a single object containing count, average_response_time, min, max
     const metrics = Array.isArray(response) ? response[0] : response;
     if (metrics && metrics.count !== undefined) {

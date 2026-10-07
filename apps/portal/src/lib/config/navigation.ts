@@ -119,9 +119,9 @@ function domain(
 }
 
 // Everything about the person using the Portal: who they are, what they have registered,
-// what they have granted, and what they have made. Its own /user route tree, plus the two
-// pages that sit outside it for historical reasons (/subscriptions, /consumers/register is
-// in Develop because it is public).
+// what they have granted, and what they have made. Its own /user route tree, plus
+// /subscriptions, which sits outside it for historical reasons. The same page is listed
+// under Applications as Create Consumer, but its path belongs to Develop, where logged-out visitors see it.
 const meSection = domain('me', 'My', UserRound,
     ['/user', '/subscriptions'],
     [
@@ -131,6 +131,7 @@ const meSection = domain('me', 'My', UserRound,
         ] },
         { label: 'Applications', items: [
             { href: '/user/consumers', label: 'Applications (Consumers)', iconComponent: KeyRound },
+            { href: '/consumers/register', label: 'Create Consumer', iconComponent: KeySquare, description: 'Register an application and get its key.' },
             { href: '/subscriptions', label: 'Subscriptions', iconComponent: CreditCard, description: 'Subscribe your applications to API products.' }
         ] },
         { label: 'Permissions', items: [
@@ -163,11 +164,11 @@ const developSection = domain('develop', 'Developing', Code,
     ['/developers', '/training', '/consumers/register', '/api-explorer', '/add-user-auth-context-update-request', '/confirm-user-auth-context-update-request', '/otp', '/confirm-vrp-consent-request', '/confirm-vrp-consent', '/confirm-bg-consent-request', '/confirm-bg-consent-request-sca', '/confirm-bg-consent-request-redirect-uri', '/consent-screen'],
     [
         { label: 'Start', items: [
+            { href: '/consumers/register', label: 'Get API Key', iconComponent: KeySquare, description: 'Register an application and get its key.', loginRequired: true },
             { href: '/developers/getting-started', label: 'Getting Started', iconComponent: Rocket, description: 'Get up and running with the OBP API.' },
             { href: '/developers/obp-concepts', label: 'OBP Concepts', iconComponent: BookOpen, description: 'Core concepts behind the Open Bank Project API.' },
             { href: '/developers/sdks', label: 'SDKs', iconComponent: Package, description: 'Client SDKs for the OBP API in multiple programming languages.' },
-            { href: '/training', label: 'Training', iconComponent: GraduationCap, description: 'Guided material for learning the platform.', loginRequired: true },
-            { href: '/consumers/register', label: 'Get API Key', iconComponent: KeySquare, description: 'Register an application and get its key.', loginRequired: true }
+            { href: '/training', label: 'Training', iconComponent: GraduationCap, description: 'Guided material for learning the platform.', loginRequired: true }
         ] },
         { label: 'Authenticate', items: [
             { href: '/developers/consumer-creation', label: 'Consumer Creation', iconComponent: KeySquare, description: 'Register an app and get your API key.' },
