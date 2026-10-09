@@ -20,10 +20,9 @@ import { error } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
 import { createLogger } from '@obp/shared/utils';
 import { expandLiveTags } from '@obp/shared/landing';
-import { buildLandingFetchers } from '@obp/shared/server/landing';
+import { buildLandingFetchers, sanitizePageHtml } from '@obp/shared/server/landing';
 import { obp_requests } from '$lib/obp/requests';
 import { getPublishedPage, PortalPagesUnavailable } from '$lib/server/landing/portalPages';
-import { sanitizePageHtml } from '$lib/server/landing/sanitize';
 import { getApplicationAccessToken } from '$lib/server/oauth/applicationToken';
 
 const logger = createLogger('PageBySlug');

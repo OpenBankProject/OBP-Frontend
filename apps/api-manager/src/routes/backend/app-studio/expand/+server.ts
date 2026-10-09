@@ -21,7 +21,8 @@ import { env } from "$env/dynamic/private";
 import { env as publicEnv } from "$env/dynamic/public";
 import { SessionOAuthHelper } from "$lib/oauth/sessionHelper";
 import { createLogger } from "@obp/shared/utils";
-import { expandLiveTags, stripActiveContent } from "@obp/shared/landing";
+import { expandLiveTags } from "@obp/shared/landing";
+import { sanitizePageHtml } from "@obp/shared/server/landing";
 import { buildLandingFetchers } from "$lib/server/landing/fetchers";
 
 const logger = createLogger("AppStudioExpandAPI");
@@ -30,9 +31,9 @@ const MAX_SOURCE_BYTES = 200_000;
 /**
  * POST /backend/app-studio/expand  { html }  ->  { html }
  *
- * Renders a landing page source for the App Studio preview: live-data tags are
- * expanded with the catalogue (via the user's token), then all active content
- * is stripped so the result can be shown inline. Nothing is stored.
+ * Renders a landing page source for the App Studio preview with the same allowlist
+ * sanitiser the Portal publishes with, then expands the live-data tags with the
+ * catalogue (via the user's token), so the result can be shown inline. Nothing is stored.
  */
 export const POST: RequestHandler = async ({ locals, request }) => {
   const session = locals.session;
@@ -63,8 +64,9 @@ export const POST: RequestHandler = async ({ locals, request }) => {
   });
 
   try {
-    const expanded = await expandLiveTags(html, fetchers, { onError: "show" });
-    return json({ html: stripActiveContent(expanded) });
+    // Sanitise BEFORE expanding: the expander escapes catalogue data.
+    const expanded = await expandLiveTags(sanitizePageHtml(html), fetchers, { onError: "show" });
+    return json({ html: expanded });
   } catch (e) {
     logger.error("Expand failed:", e);
     return json({ message: e instanceof Error ? e.message : "Expand failed", code: 500 }, { status: 500 });

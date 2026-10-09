@@ -131,6 +131,24 @@ export const LIVE_TAGS: LiveTagDefinition[] = [
 		],
 		classes: ['obp-stat'],
 		example: '<obp-stat kind="endpoint-count"></obp-stat>'
+	},
+	{
+		tag: 'obp-glossary',
+		description: 'One OBP glossary item, with a link to its glossary page. Edits to the item show on every page that uses it.',
+		attributes: [
+			{ name: 'title', description: 'Glossary item title, e.g. Consent. An exact match wins over a case-insensitive one.', required: true },
+			{ name: 'mode', description: '"full" (the whole item) or "summary" (a one-paragraph excerpt).', default: 'full' }
+		],
+		classes: [
+			'obp-glossary',
+			'obp-glossary--full',
+			'obp-glossary--summary',
+			'obp-glossary-title',
+			'obp-glossary-body',
+			'obp-glossary-excerpt',
+			'obp-glossary-link'
+		],
+		example: '<obp-glossary title="Consent" mode="summary"></obp-glossary>'
 	}
 ];
 

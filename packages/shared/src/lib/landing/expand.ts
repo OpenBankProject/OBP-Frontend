@@ -20,7 +20,9 @@
  *
  * Replaces every live-data tag in a page (see registry.ts) with plain HTML, using
  * fetchers the host app supplies. All values from the catalogue are HTML-escaped,
- * so a product description can never inject markup into the page.
+ * so a product description can never inject markup into the page. The one exception
+ * is a glossary item's body, which is HTML by nature: the fetcher must hand it over
+ * already sanitised (the server fetchers run it through the allowlist sanitiser).
  *
  * The expander is framework-free and does no I/O of its own, which keeps it
  * testable and lets the Portal (render) and the API Manager (preview) share it.
@@ -52,11 +54,21 @@ export interface LandingBank {
 	website?: string;
 }
 
+export interface LandingGlossaryEntry {
+	title: string;
+	/** The rendered body. MUST already be sanitised: it is inserted as is. */
+	sanitisedHtml: string;
+	/** Plain text, escaped on output. */
+	excerpt: string;
+}
+
 export interface LandingFetchers {
 	products(opts: { tag?: string; bank?: string; limit: number }): Promise<LandingProduct[]>;
 	endpoints(opts: { collection: string; limit: number }): Promise<LandingEndpoint[]>;
 	banks(opts: { limit: number }): Promise<LandingBank[]>;
 	stat(kind: string): Promise<number | string>;
+	/** One glossary item, or undefined when the glossary has no such title. */
+	glossary(title: string): Promise<LandingGlossaryEntry | undefined>;
 	links: {
 		/** Where a product card links to, e.g. `/products/${code}`. */
 		product(product: LandingProduct): string;
@@ -64,6 +76,8 @@ export interface LandingFetchers {
 		endpoint?(endpoint: LandingEndpoint): string | undefined;
 		/** The sign-up call-to-action target. */
 		signup: string;
+		/** Where a glossary item links to. */
+		glossary(title: string): string;
 	};
 }
 
@@ -120,7 +134,7 @@ function formatPrice(p: LandingProduct): string {
 	}
 }
 
-// ---- Renderers: one per live tag. All output is escaped. --------------------
+// ---- Renderers: one per live tag. All output is escaped, except a glossary body (sanitised by the fetcher).
 
 async function renderProducts(attrs: Record<string, string>, f: LandingFetchers): Promise<string> {
 	const layout = attrs.layout === 'list' ? 'list' : 'cards';
@@ -183,12 +197,30 @@ async function renderStat(attrs: Record<string, string>, f: LandingFetchers): Pr
 	return `<span class="obp-stat" data-kind="${escapeHtml(kind)}">${escapeHtml(value)}</span>`;
 }
 
+async function renderGlossary(attrs: Record<string, string>, f: LandingFetchers): Promise<string> {
+	const title = (attrs.title ?? '').trim();
+	if (!title) throw new Error('<obp-glossary> needs a title attribute');
+	const mode = attrs.mode === 'summary' ? 'summary' : 'full';
+	const entry = await f.glossary(title);
+	if (!entry) throw new Error(`the glossary has no item "${title}"`);
+	const body =
+		mode === 'full'
+			? `<div class="obp-glossary-body">${entry.sanitisedHtml}</div>`
+			: `<p class="obp-glossary-excerpt">${escapeHtml(entry.excerpt)}</p>`;
+	return `<section class="obp-glossary obp-glossary--${mode}">
+<h3 class="obp-glossary-title">${escapeHtml(entry.title)}</h3>
+${body}
+<a class="obp-glossary-link" href="${safeUrl(f.links.glossary(entry.title))}">${mode === 'full' ? 'Glossary' : 'Read more'}</a>
+</section>`;
+}
+
 const RENDERERS: Record<string, (attrs: Record<string, string>, f: LandingFetchers) => Promise<string>> = {
 	'obp-products': renderProducts,
 	'obp-endpoints': renderEndpoints,
 	'obp-banks': renderBanks,
 	'obp-signup': renderSignup,
-	'obp-stat': renderStat
+	'obp-stat': renderStat,
+	'obp-glossary': renderGlossary
 };
 
 // Every registered tag must have a renderer; fail at import time if not.

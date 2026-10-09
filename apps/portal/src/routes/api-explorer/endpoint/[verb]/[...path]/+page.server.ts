@@ -35,6 +35,7 @@ import {
 	glossaryAnchorResolver
 } from '@obp/shared/server/explorer';
 import { renderMarkdown } from '@obp/shared/markdown';
+import { sanitizeContentHtml } from '@obp/shared/server/landing';
 import type { PageServerLoad } from './$types';
 
 /**
@@ -114,7 +115,7 @@ export const load: PageServerLoad = async ({ params }) => {
 			summary: doc.summary ?? '',
 			descriptionHtml: described.prose
 				? renderMarkdown(described.prose)
-				: (doc.description_markdown ? '' : (doc.description ?? '')),
+				: (doc.description_markdown ? '' : sanitizeContentHtml(doc.description ?? '')),
 			sections,
 			roles: doc.roles ?? [],
 			tags: doc.tags ?? [],

@@ -44,8 +44,9 @@ The Open Bank Project is an open source API and App store for banks that empower
 	onMount(async () => {
 		// Dynamically import markdown-it to avoid SSR issues
 		const MarkdownIt = (await import('markdown-it')).default;
+		// html:false: raw HTML in the text is escaped, not rendered.
 		const md = new MarkdownIt({
-			html: true,
+			html: false,
 			linkify: true,
 			typographer: true
 		});
