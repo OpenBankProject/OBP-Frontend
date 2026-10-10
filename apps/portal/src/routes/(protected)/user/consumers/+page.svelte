@@ -16,6 +16,8 @@
   along with this program. If not, see <https://www.gnu.org/licenses/>.
 -->
 <script lang="ts">
+	import { isSafeLinkUrl, redirectUrlEntries } from '@obp/shared/utils';
+
 	let { data } = $props();
 	const consumers = data.consumers;
 
@@ -135,15 +137,23 @@
 						<span class="font-medium text-gray-600 dark:text-gray-400">Redirect URL:</span>
 						<span class="sm:col-span-2 text-gray-900 dark:text-gray-100 break-all">
 							{#if consumer.redirect_url}
-								<a
-									href={consumer.redirect_url}
-									target="_blank"
-									rel="noopener noreferrer"
-									class="text-blue-600 underline hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
-									data-testid="consumer-redirect-url"
-								>
-									{consumer.redirect_url}
-								</a>
+								<!-- Each entry on its own; only an http or https entry becomes a link, so a stored
+								     javascript: value is shown as text and can never run when clicked. -->
+								{#each redirectUrlEntries(consumer.redirect_url) as entry}
+									{#if isSafeLinkUrl(entry)}
+										<a
+											href={entry}
+											target="_blank"
+											rel="noopener noreferrer"
+											class="mr-2 text-blue-600 underline hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+											data-testid="consumer-redirect-url"
+										>
+											{entry}
+										</a>
+									{:else}
+										<span class="mr-2" data-testid="consumer-redirect-url-text">{entry}</span>
+									{/if}
+								{/each}
 							{:else}
 								Not specified
 							{/if}

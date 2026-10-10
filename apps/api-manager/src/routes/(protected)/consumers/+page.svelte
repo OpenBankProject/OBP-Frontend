@@ -16,6 +16,8 @@
   along with this program. If not, see <https://www.gnu.org/licenses/>.
 -->
 <script lang="ts">
+  import { isSafeLinkUrl, redirectUrlEntries } from "@obp/shared/utils";
+
   let { data } = $props();
   // $derived, not const: /consumers is re-loaded in place when the created-date window
   // params change (dashboard drill-down / Clear filter), and a const would go stale.
@@ -319,13 +321,21 @@
           <div class="mt-1 text-xs">
             <span class="font-medium text-gray-600 dark:text-gray-400">Redirect URL:</span>
             {#if consumer.redirect_url}
-              <a
-                data-testid="consumer-redirect-url-link"
-                href={consumer.redirect_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="ml-1 text-blue-600 hover:text-blue-700 hover:underline break-all dark:text-blue-400 dark:hover:text-blue-300"
-              >{consumer.redirect_url}</a>
+              <!-- Each entry on its own; only an http or https entry becomes a link, so a stored
+                   javascript: value is shown as text and can never run when clicked. -->
+              {#each redirectUrlEntries(consumer.redirect_url) as entry}
+                {#if isSafeLinkUrl(entry)}
+                  <a
+                    data-testid="consumer-redirect-url-link"
+                    href={entry}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="ml-1 text-blue-600 hover:text-blue-700 hover:underline break-all dark:text-blue-400 dark:hover:text-blue-300"
+                  >{entry}</a>
+                {:else}
+                  <span data-testid="consumer-redirect-url-text" class="ml-1 text-gray-900 break-all dark:text-gray-100">{entry}</span>
+                {/if}
+              {/each}
             {:else}
               <span class="ml-1 text-gray-900 dark:text-gray-100">Not specified</span>
             {/if}

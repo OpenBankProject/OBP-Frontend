@@ -16,29 +16,18 @@
   along with this program. If not, see <https://www.gnu.org/licenses/>.
 -->
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { isSafeExternalRedirect } from '@obp/shared/utils';
 
 	let { data } = $props();
 
+	// This page is only shown after a successful confirmation, so the PSU goes back to TPP-Redirect-URI.
+	// TPP-Nok-Redirect-URI is for a failed or refused authorisation and is never used here: a timer used
+	// to send the PSU there two seconds after success, which told the TPP the consent had failed.
 	function redirectToTpp() {
-		if (data.tppRedirectUri) {
+		if (isSafeExternalRedirect(data.tppRedirectUri)) {
 			window.location.href = data.tppRedirectUri;
 		}
 	}
-
-	// Auto-redirect fallback: if the TPP app link doesn't work within 2 seconds,
-	// try the nok redirect URI
-	onMount(() => {
-		if (data.tppRedirectUri) {
-			const timeout = setTimeout(() => {
-				if (data.tppNokRedirectUri) {
-					window.location.href = data.tppNokRedirectUri;
-				}
-			}, 2000);
-
-			return () => clearTimeout(timeout);
-		}
-	});
 </script>
 
 <div class="mx-auto max-w-lg p-8 text-center">

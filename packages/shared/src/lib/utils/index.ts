@@ -22,3 +22,11 @@ export type { JWTPayload } from './jwt.js';
 export { toaster, toast } from './toastService.js';
 export { safeInternalPath, reloadPathAfterSessionEnds } from './redirect.js';
 export { redactUrlEncodedBody } from './redact.js';
+export {
+	externalRedirectProblem,
+	isSafeExternalRedirect,
+	redirectUrlEntries,
+	firstSafeExternalRedirect,
+	isSafeLinkUrl,
+	safeLinkHref
+} from './externalUrl.js';

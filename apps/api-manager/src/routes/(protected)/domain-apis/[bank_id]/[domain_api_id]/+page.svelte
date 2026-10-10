@@ -16,6 +16,7 @@
   along with this program. If not, see <https://www.gnu.org/licenses/>.
 -->
 <script lang="ts">
+  import { safeLinkHref } from "@obp/shared/utils";
   import { goto } from "$app/navigation";
   import { page } from "$app/state";
   import { env } from "$env/dynamic/public";
@@ -82,9 +83,9 @@
       <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">{d.title}</h1>
       <dl class="mt-2 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm" data-testid="domain-api-details">
         <dt class="text-gray-500 dark:text-gray-400">URL</dt>
-        <dd class="font-mono text-xs"><a href={d.url} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-blue-600 hover:underline dark:text-blue-400">{d.url} <ExternalLink size={12} /></a></dd>
+        <dd class="font-mono text-xs"><a href={safeLinkHref(d.url)} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-blue-600 hover:underline dark:text-blue-400">{d.url} <ExternalLink size={12} /></a></dd>
         <dt class="text-gray-500 dark:text-gray-400">OpenAPI</dt>
-        <dd class="font-mono text-xs"><a href={d.openapi_url} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-blue-600 hover:underline dark:text-blue-400">{d.openapi_url} <ExternalLink size={12} /></a></dd>
+        <dd class="font-mono text-xs"><a href={safeLinkHref(d.openapi_url)} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-blue-600 hover:underline dark:text-blue-400">{d.openapi_url} <ExternalLink size={12} /></a></dd>
         <dt class="text-gray-500 dark:text-gray-400">Space</dt>
         <dd class="font-mono text-xs text-gray-900 dark:text-gray-100">{d.bank_id}</dd>
         <dt class="text-gray-500 dark:text-gray-400">domain_api_id</dt>

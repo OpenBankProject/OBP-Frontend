@@ -153,7 +153,6 @@
 
 				<form method="post" action="?/deny" class="flex-1">
 					<input type="hidden" name="consentId" value={data.consentId} />
-					<input type="hidden" name="tppNokRedirectUri" value={data.tppNokRedirectUri} />
 					<button type="submit" class="btn preset-filled-error-500 w-full">Deny</button>
 				</form>
 			</div>

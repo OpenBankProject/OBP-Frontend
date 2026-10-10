@@ -23,19 +23,7 @@ import { obp_requests } from '$lib/obp/requests';
 import { OBPRequestError } from '@obp/shared/obp';
 import type { OBPBGConsentAccess } from '$lib/obp/types';
 import { env } from '$env/dynamic/private';
-
-function decodeJwtPayload(jwt: string): any {
-	try {
-		const parts = jwt.split('.');
-		if (parts.length !== 3) return {};
-		const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
-		const jsonPayload = Buffer.from(base64, 'base64').toString('utf-8');
-		return JSON.parse(jsonPayload);
-	} catch {
-		logger.warn('Could not decode JWT payload');
-		return {};
-	}
-}
+import { decodeJwtPayload, tppRedirectsOf } from '$lib/server/bgConsentRedirects';
 
 export async function load(event: RequestEvent) {
 	const consentId = event.url.searchParams.get('CONSENT_ID');
@@ -46,8 +34,6 @@ export async function load(event: RequestEvent) {
 		consent: null,
 		access: {} as OBPBGConsentAccess,
 		validUntil: '',
-		tppRedirectUri: '',
-		tppNokRedirectUri: '',
 		consumerName: '',
 		userIbans: [] as any[],
 		needsAccountSelection: false,
@@ -79,17 +65,6 @@ export async function load(event: RequestEvent) {
 		const access: OBPBGConsentAccess = jwtPayload.access || {};
 		const requestHeaders = jwtPayload.request_headers || [];
 		const validUntil = jwtPayload.validUntil || '';
-
-		let tppRedirectUri = '';
-		let tppNokRedirectUri = '';
-		for (const header of requestHeaders) {
-			if (header['TPP-Redirect-URI']) {
-				tppRedirectUri = header['TPP-Redirect-URI'];
-			}
-			if (header['TPP-Nok-Redirect-URI']) {
-				tppNokRedirectUri = header['TPP-Nok-Redirect-URI'];
-			}
-		}
 
 		// Step 3: Get consumer/TPP name
 		let consumerName = 'Unknown Application';
@@ -145,8 +120,6 @@ export async function load(event: RequestEvent) {
 			consent,
 			access,
 			validUntil,
-			tppRedirectUri,
-			tppNokRedirectUri,
 			consumerName,
 			userIbans,
 			needsAccountSelection,
@@ -221,7 +194,6 @@ export const actions = {
 	deny: async ({ request, locals }) => {
 		const formData = await request.formData();
 		const consentId = formData.get('consentId') as string;
-		const tppNokRedirectUri = formData.get('tppNokRedirectUri') as string;
 
 		const token = locals.session.data.oauth?.access_token;
 		if (!token) {
@@ -242,8 +214,12 @@ export const actions = {
 			);
 			logger.info('Consent rejected:', consentId);
 
-			if (tppNokRedirectUri) {
-				redirect(303, tppNokRedirectUri);
+			// Where the PSU goes after refusing comes from the consent itself, never from the form: a
+			// posted address would let whoever built the form choose the destination.
+			const consent = await obp_requests.get(`/obp/v5.1.0/user/current/consents/${consentId}`, token);
+			const { nokRedirectUri } = tppRedirectsOf(consent);
+			if (nokRedirectUri) {
+				redirect(303, nokRedirectUri);
 			}
 
 			return { success: true, message: 'Consent denied.' };

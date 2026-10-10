@@ -19,6 +19,7 @@ import { createLogger } from '@obp/shared/utils';
 const logger = createLogger('OBPConsentRequestRedirect');
 import type { RequestEvent } from '@sveltejs/kit';
 import { redirect } from '@sveltejs/kit';
+import { oauth2ProviderFactory } from '$lib/oauth/providerFactory';
 
 export async function load(event: RequestEvent) {
 	const consentId = event.url.searchParams.get('CONSENT_ID');
@@ -34,7 +35,15 @@ export async function load(event: RequestEvent) {
 
 	// Retrieve the OIDC return URL from session
 	const flowData = event.locals.session.data.obpConsentFlow;
-	const oidcReturnUrl = flowData?.oidcReturnUrl || '';
+	const storedOidcReturnUrl = flowData?.oidcReturnUrl || '';
+	// It was checked when the flow started; checking again here means only a configured provider's
+	// consent-callback endpoint ever receives the consent and user details appended below.
+	const oidcReturnUrl = storedOidcReturnUrl && oauth2ProviderFactory.isTrustedOidcReturnUrl(storedOidcReturnUrl)
+		? storedOidcReturnUrl
+		: '';
+	if (storedOidcReturnUrl && !oidcReturnUrl) {
+		logger.warn(`Not redirecting to untrusted oidc_return_url from session: ${storedOidcReturnUrl}`);
+	}
 
 	if (oidcReturnUrl) {
 		// Build the redirect URL back to OBP-OIDC

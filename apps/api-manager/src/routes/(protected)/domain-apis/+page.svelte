@@ -16,6 +16,7 @@
   along with this program. If not, see <https://www.gnu.org/licenses/>.
 -->
 <script lang="ts">
+  import { safeLinkHref } from "@obp/shared/utils";
   import { page } from "$app/state";
   import { goto, invalidateAll } from "$app/navigation";
   import { CircleHelp, Plus, Trash2, Pencil } from "@lucide/svelte";
@@ -112,11 +113,11 @@
                   <a href="/domain-apis/{encodeURIComponent(d.bank_id)}/{encodeURIComponent(d.domain_api_id)}" class="text-blue-600 hover:underline dark:text-blue-400">{d.title}</a>
                   {#if d.description}<div class="text-xs text-gray-500 dark:text-gray-400">{d.description}</div>{/if}
                 </td>
-                <td class="px-4 py-3 font-mono text-xs"><a href={d.url} target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline dark:text-blue-400">{d.url}</a></td>
+                <td class="px-4 py-3 font-mono text-xs"><a href={safeLinkHref(d.url)} target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline dark:text-blue-400">{d.url}</a></td>
                 <td class="px-4 py-3 font-mono text-xs text-gray-700 dark:text-gray-300">{d.version}</td>
                 <td class="px-4 py-3 font-mono text-xs">
-                  <a href={d.openapi_url} target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline dark:text-blue-400">yaml</a>
-                  <a href={d.openapi_url.replace(/\.yaml$/, ".json")} target="_blank" rel="noopener noreferrer" class="ml-2 text-blue-600 hover:underline dark:text-blue-400">json</a>
+                  <a href={safeLinkHref(d.openapi_url)} target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline dark:text-blue-400">yaml</a>
+                  <a href={safeLinkHref(d.openapi_url?.replace(/\.yaml$/, ".json"))} target="_blank" rel="noopener noreferrer" class="ml-2 text-blue-600 hover:underline dark:text-blue-400">json</a>
                 </td>
                 <td class="px-4 py-3">
                   <div class="flex items-center gap-2">

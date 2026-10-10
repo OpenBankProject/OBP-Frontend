@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-import { createLogger } from '@obp/shared/utils';
+import { createLogger, externalRedirectProblem } from '@obp/shared/utils';
 const logger = createLogger('ConfirmBGConsentRequestRedirectURI');
 import type { RequestEvent } from '@sveltejs/kit';
 import { obp_requests } from '$lib/obp/requests';
@@ -43,7 +43,6 @@ export async function load(event: RequestEvent) {
 			loadError: 'Missing required parameter: CONSENT_ID.',
 			consentId: '',
 			tppRedirectUri: '',
-			tppNokRedirectUri: '',
 			status: '',
 			};
 	}
@@ -54,7 +53,6 @@ export async function load(event: RequestEvent) {
 			loadError: 'Unauthorized: No access token found in session.',
 			consentId,
 			tppRedirectUri: '',
-			tppNokRedirectUri: '',
 			status: '',
 			};
 	}
@@ -77,13 +75,20 @@ export async function load(event: RequestEvent) {
 			const match = requestHeaders.find((h: any) => h?.name === wanted);
 			return match?.values?.[0] ?? '';
 		};
-		const tppRedirectUri = headerValue('TPP-Redirect-URI');
-		const tppNokRedirectUri = headerValue('TPP-Nok-Redirect-URI');
+		// OBP-API now refuses a TPP redirect header that breaks the redirect URL rules, but a consent
+		// created before that check can still carry one, so it is checked again before it is offered.
+		const rawTppRedirectUri = headerValue('TPP-Redirect-URI');
+		const tppRedirectUriProblem = rawTppRedirectUri ? externalRedirectProblem(rawTppRedirectUri) : null;
+		if (tppRedirectUriProblem) {
+			logger.warn(`Not offering TPP-Redirect-URI of consent ${consentId}: ${tppRedirectUriProblem}`);
+		}
 
 		return {
+			loadError: tppRedirectUriProblem
+				? 'Your consent is confirmed, but the application gave a return address that is not allowed, so you cannot be sent back to it automatically.'
+				: undefined,
 			consentId,
-			tppRedirectUri,
-			tppNokRedirectUri,
+			tppRedirectUri: tppRedirectUriProblem ? '' : rawTppRedirectUri,
 			status: consent.status,
 			};
 	} catch (e) {
@@ -96,7 +101,6 @@ export async function load(event: RequestEvent) {
 			loadError: errorMessage,
 			consentId,
 			tppRedirectUri: '',
-			tppNokRedirectUri: '',
 			status: '',
 			};
 	}

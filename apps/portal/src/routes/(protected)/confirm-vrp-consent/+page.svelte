@@ -16,10 +16,14 @@
   along with this program. If not, see <https://www.gnu.org/licenses/>.
 -->
 <script lang="ts">
+	import { isSafeExternalRedirect } from '@obp/shared/utils';
+
 	let { data, form } = $props();
 
+	// The server already picked an allowed redirect URL; checking again here means the browser never
+	// navigates to a javascript: or other unsafe target, whatever reaches this page.
 	$effect(() => {
-		if (form?.success && form?.redirectUrl) {
+		if (form?.success && isSafeExternalRedirect(form?.redirectUrl)) {
 			window.location.href = form.redirectUrl;
 		}
 	});

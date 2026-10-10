@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-import { createLogger } from '@obp/shared/utils';
+import { createLogger, firstSafeExternalRedirect } from '@obp/shared/utils';
 const logger = createLogger('ConfirmVRPConsent');
 import type { RequestEvent, Actions } from '@sveltejs/kit';
 import { obp_requests } from '$lib/obp/requests';
@@ -85,16 +85,26 @@ export const actions = {
 				token
 			);
 
-			const redirectUrl = consumer.redirect_url;
+			// The Consumer's redirect URL field can hold several entries, and one stored before OBP-API
+			// checked them may break the redirect URL rules, so only the first allowed entry is used.
+			const redirectUrl = firstSafeExternalRedirect(consumer.redirect_url);
 			const consentRequestId = consentDetails.consent_request_id || '';
 			const status = challengeResponse.status;
 
 			if (redirectUrl) {
-				const separator = redirectUrl.includes('?') ? '&' : '?';
-				const fullRedirectUrl = `${redirectUrl}${separator}CONSENT_REQUEST_ID=${consentRequestId}&status=${status}`;
+				const fullRedirectUrl = new URL(redirectUrl);
+				fullRedirectUrl.searchParams.set('CONSENT_REQUEST_ID', consentRequestId);
+				fullRedirectUrl.searchParams.set('status', status);
 				return {
 					success: true,
-					redirectUrl: fullRedirectUrl
+					redirectUrl: fullRedirectUrl.toString()
+				};
+			}
+			if (consumer.redirect_url) {
+				logger.warn(`Consumer ${consumerId} has no redirect URL that meets the redirect URL rules; not redirecting.`);
+				return {
+					success: true,
+					message: `Consent confirmed successfully. Status: ${status}. The application's redirect URL is not valid, so you have not been sent back to it.`
 				};
 			}
 
