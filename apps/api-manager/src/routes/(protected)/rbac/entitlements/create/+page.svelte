@@ -78,10 +78,19 @@
     return roleScope === "bank";
   });
 
+  // SYS is the system space of the dynamic spaces, not a bank. OBP checks it only for the Roles of
+  // Dynamic Entities (definitions, records, row access) and of Domain APIs, so it is offered for those
+  // alone: OBP would accept a grant of any other bank Role at SYS, but nothing would ever check it.
+  const SYSTEM_SPACE = "SYS";
+  let grantAtSystemSpace = $state(false);
+  let roleCanBeHeldAtSystemSpace = $derived(
+    selectedRoleRequiresBank && /DynamicEntity|DomainApi/.test(roleName),
+  );
+
   // Sync bankId based on whether the role needs a bank
   $effect(() => {
     if (selectedRoleRequiresBank) {
-      bankId = currentBank.bankId;
+      bankId = grantAtSystemSpace && roleCanBeHeldAtSystemSpace ? SYSTEM_SPACE : currentBank.bankId;
     } else {
       bankId = "";
     }
@@ -198,6 +207,33 @@
           hideSearch
           disabled={isSubmitting}
         />
+
+        {#if roleCanBeHeldAtSystemSpace}
+          <fieldset class="space-choice" data-testid="entitlement-space-choice">
+            <legend>Grant at</legend>
+            <label>
+              <input
+                type="radio"
+                name="space"
+                checked={!grantAtSystemSpace}
+                onchange={() => (grantAtSystemSpace = false)}
+                disabled={isSubmitting}
+              />
+              Bank <code>{currentBank.bankId || "(none selected)"}</code>
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="space"
+                checked={grantAtSystemSpace}
+                onchange={() => (grantAtSystemSpace = true)}
+                disabled={isSubmitting}
+                data-testid="entitlement-space-sys"
+              />
+              <code>{SYSTEM_SPACE}</code>, the system space (system level Dynamic Entities and Domain APIs)
+            </label>
+          </fieldset>
+        {/if}
 
         {#if formError}
           <div class="form-error" data-testid="form-error">
@@ -348,6 +384,31 @@
   :global([data-mode="dark"]) .search-input:focus {
     border-color: rgb(var(--color-primary-500));
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+  }
+
+  .space-choice {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    font-size: 0.875rem;
+  }
+
+  .space-choice legend {
+    padding: 0 0.25rem;
+    font-weight: 600;
+  }
+
+  .space-choice label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  :global([data-mode="dark"]) .space-choice {
+    border-color: #374151;
   }
 
   .form-error {

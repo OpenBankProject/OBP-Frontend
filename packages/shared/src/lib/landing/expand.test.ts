@@ -35,16 +35,41 @@ function fetchers(overrides: Partial<LandingFetchers> = {}): LandingFetchers {
 				: [],
 		banks: async () => [{ id: 'gh.29.uk', full_name: 'The Bank', logo: 'https://x/logo.png', website: 'javascript:alert(1)' }],
 		stat: async (kind) => (kind === 'endpoint-count' ? 812 : 'n/a'),
+		glossary: async (title) =>
+			title.toLowerCase() === 'consent'
+				? { title: 'Consent', sanitisedHtml: '<p>A <strong>Consent</strong> grants access.</p>', excerpt: 'A Consent grants <access>.' }
+				: undefined,
 		links: {
 			product: (p) => `/products/${p.api_product_code}`,
 			endpoint: (e) => `https://explorer/operationid/${e.operation_id}`,
-			signup: '/register'
+			signup: '/register',
+			glossary: (title) => `/api-explorer/glossary/${encodeURIComponent(title)}`
 		},
 		...overrides
 	};
 }
 
 describe('expandLiveTags', () => {
+	it('renders a glossary item in full: the sanitised body as is, with a link to its page', async () => {
+		const out = await expandLiveTags('<obp-glossary title="consent"></obp-glossary>', fetchers());
+		expect(out).toContain('<section class="obp-glossary obp-glossary--full">');
+		expect(out).toContain('<h3 class="obp-glossary-title">Consent</h3>');
+		expect(out).toContain('<div class="obp-glossary-body"><p>A <strong>Consent</strong> grants access.</p></div>');
+		expect(out).toContain('href="/api-explorer/glossary/Consent"');
+	});
+
+	it('renders a glossary summary as escaped text', async () => {
+		const out = await expandLiveTags('<obp-glossary title="Consent" mode="summary" />', fetchers());
+		expect(out).toContain('<p class="obp-glossary-excerpt">A Consent grants &lt;access&gt;.</p>');
+		expect(out).not.toContain('obp-glossary-body');
+	});
+
+	it('reports a missing title or an unknown glossary item', async () => {
+		expect(await expandLiveTags('<obp-glossary></obp-glossary>', fetchers())).toContain('needs a title attribute');
+		expect(await expandLiveTags('<obp-glossary title="Nope"></obp-glossary>', fetchers())).toContain('the glossary has no item &quot;Nope&quot;');
+		expect(await expandLiveTags('<obp-glossary title="Nope"></obp-glossary>', fetchers(), { onError: 'hide' })).toBe('');
+	});
+
 	it('renders product cards with escaped values and a link', async () => {
 		const out = await expandLiveTags('<h1>Hi</h1><obp-products tag="featured" limit="1"></obp-products>', fetchers());
 		expect(out).toContain('<h1>Hi</h1>');

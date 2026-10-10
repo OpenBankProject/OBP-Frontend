@@ -36,6 +36,7 @@ export const load: PageServerLoad = async ({ locals }) => {
   const fetchers = buildLandingFetchers(token, {
     portalUrl: String(publicEnv.PUBLIC_PORTAL_URL ?? "").replace(/\/$/, ""),
     explorerUrl: String(env.API_EXPLORER_URL ?? "").replace(/\/$/, "").replace(/\/\?.*$/, ""),
+    obpBaseUrl: String(publicEnv.PUBLIC_OBP_BASE_URL ?? ""),
   });
 
   // The examples reference a collection; use the first catalogue product that has one.

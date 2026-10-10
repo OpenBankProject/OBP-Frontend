@@ -23,6 +23,9 @@
  */
 import { createLogger } from '$shared/utils/logger';
 import type { LandingFetchers, LandingProduct, LandingEndpoint, LandingBank } from '../../landing/expand.js';
+import { explorerGlossaryIndexUrl, explorerGlossaryTitleUrl } from '../../explorer/links.js';
+import { loadGlossaryEntry, excerptFromMarkdown } from '../explorer/glossaryCache.js';
+import { sanitizeContentHtml } from './sanitize.js';
 
 const logger = createLogger('LandingFetchers');
 const API_VERSION = 'v6.0.0';
@@ -34,6 +37,8 @@ export interface LandingLinkConfig {
 	portalUrl: string;
 	/** API Explorer base URL, no trailing slash; empty for no endpoint links. */
 	explorerUrl: string;
+	/** OBP base URL, for the glossary (cached per process, ETag-revalidated). */
+	obpBaseUrl: string;
 }
 
 // Resource docs are large and change rarely: one copy per process, refreshed every 10 minutes.
@@ -105,11 +110,28 @@ export function buildLandingFetchers(obpGet: LandingObpGet, token: string | unde
 					throw new Error(`Unknown stat kind "${kind}"`);
 			}
 		},
+		glossary: async (title) => {
+			// Glossary pages live in the Portal's API Explorer; links between items point there too.
+			const glossaryPage = (t: string) => `${links.portalUrl}${explorerGlossaryTitleUrl(t)}`;
+			const entry = await loadGlossaryEntry(title, {
+				baseUrl: links.obpBaseUrl,
+				token,
+				targets: {
+					entryHref: glossaryPage,
+					indexHref: `${links.portalUrl}${explorerGlossaryIndexUrl()}`,
+					fallbackHref: () => `${links.portalUrl}${explorerGlossaryIndexUrl()}`
+				}
+			});
+			if (!entry) return undefined;
+			// Dynamic glossary items are user-written, and this HTML is inserted after the page was sanitised.
+			return { title: entry.title, sanitisedHtml: sanitizeContentHtml(entry.html), excerpt: excerptFromMarkdown(entry.markdown, 300) };
+		},
 		links: {
 			product: (p) => `${links.portalUrl}/products/${encodeURIComponent(p.api_product_code)}`,
 			endpoint: (e) =>
 				links.explorerUrl ? `${links.explorerUrl}/resource-docs/${API_VERSION}?operationid=${encodeURIComponent(e.operation_id)}` : undefined,
-			signup: `${links.portalUrl}/register`
+			signup: `${links.portalUrl}/register`,
+			glossary: (title) => `${links.portalUrl}${explorerGlossaryTitleUrl(title)}`
 		}
 	};
 }

@@ -78,7 +78,8 @@ export const POST: RequestHandler = async ({ request, locals }) => {
       bank_id: bank_id || "",
     };
 
-    const endpoint = `/obp/v6.0.0/users/${user_id}/entitlements`;
+    // v7.0.0: it accepts SYS, the system space of Dynamic Entities and Domain APIs, as bank_id.
+    const endpoint = `/obp/v7.0.0/users/${user_id}/entitlements`;
     logger.info(`POST ${endpoint}`);
     logger.info(`Request body: ${JSON.stringify(requestBody)}`);
 

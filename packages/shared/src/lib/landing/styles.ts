@@ -71,6 +71,14 @@ export const LANDING_BASE_CSS = `
 
 .obp-landing .obp-stat { font-weight: 800; }
 
+.obp-landing .obp-glossary { background: var(--obp-card-bg); color: var(--obp-card-fg); border: 1px solid var(--obp-card-border); border-radius: var(--obp-card-radius); padding: 18px 20px; display: flex; flex-direction: column; gap: 10px; }
+.obp-landing .obp-glossary-title { margin: 0; font-size: 18px; line-height: 1.25; }
+.obp-landing .obp-glossary-body, .obp-landing .obp-glossary-excerpt { margin: 0; font-size: 15px; line-height: 1.6; overflow-wrap: anywhere; }
+.obp-landing .obp-glossary-body pre { overflow-x: auto; }
+.obp-landing .obp-glossary-body a { color: var(--obp-accent); }
+.obp-landing .obp-glossary-link { color: var(--obp-accent); font-weight: 600; text-decoration: none; }
+.obp-landing .obp-glossary-link:hover { text-decoration: underline; }
+
 .obp-landing [data-behaviour="countdown"] { display: inline-flex; gap: 14px; }
 .obp-landing .obp-countdown-part { display: inline-flex; flex-direction: column; align-items: center; min-width: 56px; }
 .obp-landing .obp-countdown-value { font: 800 28px/1 ui-monospace, monospace; }

@@ -61,6 +61,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
   const fetchers = buildLandingFetchers(token, {
     portalUrl: String(publicEnv.PUBLIC_PORTAL_URL ?? "").replace(/\/$/, ""),
     explorerUrl: String(env.API_EXPLORER_URL ?? "").replace(/\/$/, "").replace(/\/\?.*$/, ""),
+    obpBaseUrl: String(publicEnv.PUBLIC_OBP_BASE_URL ?? ""),
   });
 
   try {

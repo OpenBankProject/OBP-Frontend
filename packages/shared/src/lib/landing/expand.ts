@@ -210,7 +210,7 @@ async function renderGlossary(attrs: Record<string, string>, f: LandingFetchers)
 	return `<section class="obp-glossary obp-glossary--${mode}">
 <h3 class="obp-glossary-title">${escapeHtml(entry.title)}</h3>
 ${body}
-<a class="obp-glossary-link" href="${safeUrl(f.links.glossary(entry.title))}">${mode === 'full' ? 'Glossary' : 'Read more'}</a>
+<a class="obp-glossary-link" href="${safeUrl(f.links.glossary(entry.title))}">View in the glossary</a>
 </section>`;
 }
 

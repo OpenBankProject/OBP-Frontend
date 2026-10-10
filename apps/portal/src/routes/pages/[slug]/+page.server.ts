@@ -18,6 +18,7 @@
 import type { PageServerLoad } from './$types';
 import { error } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
+import { env as publicEnv } from '$env/dynamic/public';
 import { createLogger } from '@obp/shared/utils';
 import { expandLiveTags } from '@obp/shared/landing';
 import { buildLandingFetchers, sanitizePageHtml } from '@obp/shared/server/landing';
@@ -49,7 +50,8 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 	const token = (await getApplicationAccessToken()) ?? undefined;
 	const fetchers = buildLandingFetchers((path, t) => obp_requests.get(path, t), token, {
 		portalUrl: '',
-		explorerUrl: String(env.API_EXPLORER_URL ?? '').replace(/\/$/, '').replace(/\/\?.*$/, '')
+		explorerUrl: String(env.API_EXPLORER_URL ?? '').replace(/\/$/, '').replace(/\/\?.*$/, ''),
+		obpBaseUrl: publicEnv.PUBLIC_OBP_BASE_URL ?? ''
 	});
 	const html = await expandLiveTags(sanitizePageHtml(page.source), fetchers, { onError: 'hide' });
 	return { ...base, source: '', html, isLoggedIn: !!locals.session?.data?.user };
