@@ -15,10 +15,38 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-// A same-page-origin relative path is safe to redirect to; protocol-relative
-// (`//host`) and backslash (`/\host`) values are browser-resolved as absolute
-// URLs to a different host and must be rejected.
-export function isSafeRelativeRedirect(path: string | null | undefined): path is string {
-	if (!path) return false;
-	return path.startsWith('/') && !path.startsWith('//') && !path.startsWith('/\\');
+
+// A base that can never be a real site, so the origin check below can only pass for a path on this site.
+const INTERNAL_BASE = 'http://internal.invalid';
+
+// Control characters (tab, newline, ...) are removed by browsers when they read a Location header,
+// so `/\t/evil.com` arrives as `//evil.com`. Backslashes are read as forward slashes.
+const UNSAFE_CHARACTERS = /[\u0000-\u001f\u007f\\]/;
+
+/**
+ * This function decides whether a value taken from a request (a `redirect_to` or `return_to` parameter, or a
+ * cookie that held one) may be used as a redirect target, and returns the path to redirect to.
+ *
+ * Only a path on this site is allowed. A value is refused when it contains a control character or a
+ * backslash, does not start with a single `/`, or resolves to another origin. The value is then rebuilt
+ * from the parsed URL, and refused again if the rebuilt path starts with `//`: dot segments such as
+ * `/.//evil.com` or `/a/..//evil.com` normalise to `//evil.com`, which a browser reads as another host.
+ *
+ * Returns the normalised path, query and fragment, or null when the value is not safe. Always redirect to
+ * the returned value, never to the original.
+ */
+export function safeInternalPath(raw: string | null | undefined): string | null {
+	if (!raw || typeof raw !== 'string') return null;
+	if (UNSAFE_CHARACTERS.test(raw)) return null;
+	if (!raw.startsWith('/') || raw.startsWith('//')) return null;
+	let url: URL;
+	try {
+		url = new URL(raw, INTERNAL_BASE);
+	} catch {
+		return null;
+	}
+	if (url.origin !== INTERNAL_BASE) return null;
+	const path = url.pathname + url.search + url.hash;
+	if (path.startsWith('//') || UNSAFE_CHARACTERS.test(path)) return null;
+	return path;
 }

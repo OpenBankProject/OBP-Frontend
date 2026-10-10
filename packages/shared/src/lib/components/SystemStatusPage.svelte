@@ -316,6 +316,16 @@
 	onDestroy(() => {
 		stopAutoRefresh();
 	});
+
+	// This app's /monitoring endpoints (log cache and Telemetry, for OBP-Sentinel) and the OBP Roles each needs.
+	const MONITORING_ENDPOINTS = [
+		...['trace', 'debug', 'info', 'warning', 'error'].map((level) => ({
+			path: `/monitoring/log-cache/${level}`,
+			roles: `CanGetSystemLogCache${level.charAt(0).toUpperCase()}${level.slice(1)} or CanGetSystemLogCacheAll`
+		})),
+		{ path: '/monitoring/log-cache/all', roles: 'CanGetSystemLogCacheAll' },
+		{ path: '/monitoring/telemetry', roles: 'CanGetTelemetry' }
+	];
 </script>
 
 <svelte:head>
@@ -615,6 +625,27 @@
 					</div>
 				</div>
 			</div>
+		</div>
+	</div>
+	<div class="mt-8" data-testid="monitoring-endpoints">
+		<h2 class="mb-4 text-2xl font-bold">Monitoring</h2>
+		<div class="overflow-x-auto rounded-lg bg-white shadow dark:bg-gray-800">
+			<table class="w-full text-left text-sm">
+				<thead class="text-xs uppercase text-gray-500 dark:text-gray-400">
+					<tr>
+						<th class="px-4 py-2">Endpoint (GET, Bearer token)</th>
+						<th class="px-4 py-2">Roles</th>
+					</tr>
+				</thead>
+				<tbody>
+					{#each MONITORING_ENDPOINTS as endpoint (endpoint.path)}
+						<tr class="border-t border-gray-100 dark:border-gray-700">
+							<td class="px-4 py-2 font-mono"><a class="underline" href={endpoint.path} data-sveltekit-reload>{endpoint.path}</a></td>
+							<td class="px-4 py-2 font-mono">{endpoint.roles}</td>
+						</tr>
+					{/each}
+				</tbody>
+			</table>
 		</div>
 	</div>
 	{@render children?.()}

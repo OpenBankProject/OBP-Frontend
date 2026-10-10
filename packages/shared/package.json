@@ -104,6 +104,14 @@
 		"./server/opey": {
 			"types": "./src/lib/server/opey/index.ts",
 			"default": "./src/lib/server/opey/index.ts"
+		},
+		"./server/monitoring": {
+			"types": "./src/lib/server/monitoring/index.ts",
+			"default": "./src/lib/server/monitoring/index.ts"
+		},
+		"./server/monitoring/capture": {
+			"types": "./src/lib/server/monitoring/capture.ts",
+			"default": "./src/lib/server/monitoring/capture.ts"
 		}
 	},
 	"dependencies": {

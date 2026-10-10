@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-import { createLogger, isSafeRelativeRedirect } from "@obp/shared/utils";
+import { createLogger, safeInternalPath } from "@obp/shared/utils";
 const logger = createLogger("OBPLoginCallback");
 import { oauth2ProviderFactory } from "$lib/oauth/providerFactory";
 import type { OAuth2Tokens } from "arctic";
@@ -262,12 +262,9 @@ export async function GET(event: RequestEvent): Promise<Response> {
     logger.debug("Session data set:", session.data);
 
     // Redirect to the originally requested URL if available
-    let redirectTo = event.cookies.get("obp_redirect_to") || "/";
+    // Only a path on this site, rebuilt by safeInternalPath, is used: never the cookie value itself.
+    const redirectTo = safeInternalPath(event.cookies.get("obp_redirect_to")) ?? "/";
     event.cookies.delete("obp_redirect_to", { path: "/" });
-    // Validate: must be a same-origin relative path to prevent open redirect
-    if (!isSafeRelativeRedirect(redirectTo)) {
-      redirectTo = "/";
-    }
 
     return new Response(null, {
       status: 302,

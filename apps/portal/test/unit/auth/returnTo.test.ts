@@ -35,6 +35,12 @@ describe('safeReturnPath', () => {
 		expect(safeReturnPath('/\\evil.example/x')).toBeNull();
 	});
 
+	it('refuses values a browser would turn into another host', () => {
+		for (const raw of ['/\t/evil.example', '/\n/evil.example', '/.//evil.example', '/a/..//evil.example', '/%2e//evil.example']) {
+			expect(safeReturnPath(raw), JSON.stringify(raw)).toBeNull();
+		}
+	});
+
 	it('refuses the home page and the login and logout pages', () => {
 		expect(safeReturnPath('/')).toBeNull();
 		expect(safeReturnPath('/login?return_to=/x')).toBeNull();

@@ -16,46 +16,49 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 import { describe, it, expect } from 'vitest';
-import { isSafeRelativeRedirect } from './redirect';
+import { safeInternalPath } from './redirect';
 
-describe('isSafeRelativeRedirect', () => {
-	it('rejects null', () => {
-		expect(isSafeRelativeRedirect(null)).toBe(false);
+describe('safeInternalPath', () => {
+	it('keeps a path on this site, with its query and fragment', () => {
+		expect(safeInternalPath('/')).toBe('/');
+		expect(safeInternalPath('/dashboard')).toBe('/dashboard');
+		expect(safeInternalPath('/consumers?x=1')).toBe('/consumers?x=1');
+		expect(safeInternalPath('/a/b?c=d#e')).toBe('/a/b?c=d#e');
 	});
 
-	it('rejects undefined', () => {
-		expect(isSafeRelativeRedirect(undefined)).toBe(false);
+	it('returns the normalised path, not the original', () => {
+		expect(safeInternalPath('/a/../b')).toBe('/b');
 	});
 
-	it('rejects an empty string', () => {
-		expect(isSafeRelativeRedirect('')).toBe(false);
+	it('refuses empty values', () => {
+		expect(safeInternalPath(null)).toBeNull();
+		expect(safeInternalPath(undefined)).toBeNull();
+		expect(safeInternalPath('')).toBeNull();
 	});
 
-	it('accepts a simple site-relative path', () => {
-		expect(isSafeRelativeRedirect('/dashboard')).toBe(true);
+	it('refuses every value a browser could resolve to another host', () => {
+		for (const raw of [
+			'/\t/evil.com',
+			'/\n/evil.com',
+			'/\r/evil.com',
+			'//evil.com',
+			'/\\evil.com',
+			'/.//evil.com',
+			'/a/..//evil.com',
+			'/%2e//evil.com',
+			'https://evil.com',
+			'javascript:alert(1)',
+			'dashboard',
+			'evil.com'
+		]) {
+			expect(safeInternalPath(raw), JSON.stringify(raw)).toBeNull();
+		}
 	});
 
-	it('accepts the root path', () => {
-		expect(isSafeRelativeRedirect('/')).toBe(true);
-	});
-
-	it('accepts a relative path with query string', () => {
-		expect(isSafeRelativeRedirect('/a/b?c=d')).toBe(true);
-	});
-
-	it('rejects a protocol-relative URL', () => {
-		expect(isSafeRelativeRedirect('//evil.com')).toBe(false);
-	});
-
-	it('rejects a backslash-prefixed path that browsers resolve to another host', () => {
-		expect(isSafeRelativeRedirect('/\\evil.com')).toBe(false);
-	});
-
-	it('rejects an absolute http(s) URL', () => {
-		expect(isSafeRelativeRedirect('https://evil.com')).toBe(false);
-	});
-
-	it('rejects a path without a leading slash', () => {
-		expect(isSafeRelativeRedirect('dashboard')).toBe(false);
+	it('never returns a value starting with two slashes', () => {
+		for (const raw of ['/%2F%2Fevil.com', '/./', '/a/./b', '/%2e%2e//evil.com']) {
+			const safe = safeInternalPath(raw);
+			expect(safe === null || !safe.startsWith('//'), JSON.stringify(raw)).toBe(true);
+		}
 	});
 });

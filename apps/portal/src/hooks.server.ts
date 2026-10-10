@@ -15,6 +15,8 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
+import '@obp/shared/server/monitoring/capture';
+import { requestTelemetry, startTelemetry } from '@obp/shared/server/monitoring';
 import { consumerScopesCheck } from '$lib/server/consumerScopes';
 import { loginUrlReturningTo } from '$lib/server/auth/returnTo';
 import { createLogger } from '@obp/shared/utils';
@@ -48,6 +50,9 @@ if (!publicEnv.PUBLIC_OBP_BASE_URL) {
 		'PUBLIC_OBP_BASE_URL is not set. Configure it on the running container before starting the portal.'
 	);
 }
+
+// Telemetry for GET /monitoring/telemetry: this app's requests and its calls to OBP-API.
+startTelemetry('portal', publicEnv.PUBLIC_OBP_BASE_URL);
 
 // Constants
 const DEFAULT_PORT = 5174;
@@ -446,6 +451,7 @@ const rateLimit: Handle = async ({ event, resolve }) => {
 
 // Init SvelteKitSessions
 export const handle: Handle = sequence(
+	requestTelemetry,
 	rateLimit,
 	sveltekitSessionHandle({
 		name: 'obp-portal-connect.sid',

@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-import { createLogger, isSafeRelativeRedirect } from '@obp/shared/utils';
+import { createLogger, safeInternalPath } from '@obp/shared/utils';
 const logger = createLogger('ProviderLogin');
 import { generateState } from 'arctic'
 import { oauth2ProviderFactory } from '$lib/oauth/providerFactory'
@@ -73,8 +73,8 @@ export function GET(event: RequestEvent) {
         });
 
         // Store redirect_to in a separate cookie so we can redirect after login
-        const redirectTo = event.url.searchParams.get('redirect_to');
-        if (isSafeRelativeRedirect(redirectTo)) {
+        const redirectTo = safeInternalPath(event.url.searchParams.get('redirect_to'));
+        if (redirectTo) {
             event.cookies.set('obp_redirect_to', redirectTo, {
                 httpOnly: true,
                 maxAge: 60 * 10,

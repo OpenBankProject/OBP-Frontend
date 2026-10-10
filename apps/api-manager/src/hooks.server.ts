@@ -15,6 +15,8 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
+import '@obp/shared/server/monitoring/capture';
+import { requestTelemetry, startTelemetry } from '@obp/shared/server/monitoring';
 import { createLogger } from '@obp/shared/utils';
 const logger = createLogger("HooksServer");
 import type { Handle } from "@sveltejs/kit";
@@ -54,6 +56,9 @@ if (!publicEnv.PUBLIC_OBP_BASE_URL) {
     'PUBLIC_OBP_BASE_URL is not set. Configure it on the running container before starting api-manager.'
   );
 }
+
+// Telemetry for GET /monitoring/telemetry: this app's requests and its calls to OBP-API.
+startTelemetry('manager', publicEnv.PUBLIC_OBP_BASE_URL);
 
 // Constants
 const DEFAULT_PORT = 3003;
@@ -421,6 +426,7 @@ const rateLimit: Handle = async ({ event, resolve }) => {
 
 // Init SvelteKitSessions
 export const handle: Handle = sequence(
+  requestTelemetry,
   rateLimit,
   sveltekitSessionHandle({
     secret: env.SESSION_SECRET,

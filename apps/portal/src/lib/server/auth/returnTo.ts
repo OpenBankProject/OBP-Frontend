@@ -16,6 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 import type { Cookies } from '@sveltejs/kit';
+import { safeInternalPath } from '@obp/shared/utils';
 
 /**
  * Where a visitor goes after logging in. A protected page sends them to
@@ -25,18 +26,16 @@ import type { Cookies } from '@sveltejs/kit';
  */
 export const RETURN_TO_PARAM = 'return_to';
 const COOKIE = 'obp_return_to';
-const BASE = 'http://portal.invalid';
 
-/** The path and query of `raw` if it is a path on this site worth returning to, else null. */
+/**
+ * The path and query of `raw` if it is a path on this site worth returning to, else null. Whether it is on
+ * this site at all is decided by the shared safeInternalPath; the home, login and logout pages are not
+ * worth returning to.
+ */
 export function safeReturnPath(raw: string | null | undefined): string | null {
-	if (!raw || !raw.startsWith('/') || raw.startsWith('//') || raw.startsWith('/\\')) return null;
-	let url: URL;
-	try {
-		url = new URL(raw, BASE);
-	} catch {
-		return null;
-	}
-	if (url.origin !== BASE) return null;
+	const safe = safeInternalPath(raw);
+	if (!safe) return null;
+	const url = new URL(safe, 'http://portal.invalid');
 	if (url.pathname === '/' || url.pathname.startsWith('/login') || url.pathname.startsWith('/logout')) return null;
 	return url.pathname + url.search;
 }
