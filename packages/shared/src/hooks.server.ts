@@ -16,6 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 import { createLogger } from '$lib/utils/logger';
+import { reloadPathAfterSessionEnds } from '$lib/utils/redirect';
 const logger = createLogger('HooksServer');
 import type { Handle } from '@sveltejs/kit';
 import { error, redirect } from '@sveltejs/kit';
@@ -123,7 +124,7 @@ const checkSessionValidity: Handle = async ({ event, resolve }) => {
 		if (!sessionOAuth) {
 			logger.warn(`Session for ${username} (${session.id}) has no valid OAuth data on ${routePath}. Destroying session.`);
 			await session.destroy();
-			throw redirect(302, event.url.pathname);
+			throw redirect(302, reloadPathAfterSessionEnds(event.url));
 		}
 
 		const sessionExpired = await sessionOAuth.client.checkAccessTokenExpiration(
@@ -142,7 +143,7 @@ const checkSessionValidity: Handle = async ({ event, resolve }) => {
 				);
 				logger.info(`Destroying expired session for ${username} (${session.id})`);
 				await session.destroy();
-				throw redirect(302, event.url.pathname);
+				throw redirect(302, reloadPathAfterSessionEnds(event.url));
 			}
 		}
 

@@ -20,5 +20,5 @@ export type { Logger, LogLevel } from './logger.js';
 export { extractUsernameFromJWT, isJWTExpired, getJWTPayload } from './jwt.js';
 export type { JWTPayload } from './jwt.js';
 export { toaster, toast } from './toastService.js';
-export { safeInternalPath } from './redirect.js';
+export { safeInternalPath, reloadPathAfterSessionEnds } from './redirect.js';
 export { redactUrlEncodedBody } from './redact.js';

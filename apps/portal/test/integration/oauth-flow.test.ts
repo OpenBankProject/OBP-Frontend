@@ -38,6 +38,7 @@ const TOKEN_ENDPOINT = 'https://idp.example.com/protocol/openid-connect/token';
 function makeFakeClient(refreshAccessToken: ReturnType<typeof vi.fn> = vi.fn()) {
 	return {
 		OIDCConfig: {
+			issuer: 'https://idp.example.com/obp-oidc',
 			authorization_endpoint: AUTH_ENDPOINT,
 			token_endpoint: TOKEN_ENDPOINT
 		},
@@ -104,7 +105,7 @@ describe('OAuth Flow Integration', () => {
 	});
 
 	describe('Provider factory registration', () => {
-		it('registers a fake provider and exposes its client and origins', async () => {
+		it('registers a fake provider and exposes its client and consent-callback endpoint', async () => {
 			const factory = new OAuth2ProviderFactory();
 			const client = makeFakeClient();
 
@@ -116,9 +117,10 @@ describe('OAuth Flow Integration', () => {
 			expect(factory.getClient('fake-idp')).toBe(client);
 			expect(factory.getFirstAvailableProvider()).toBe('fake-idp');
 
-			expect(factory.getTrustedOidcOrigins().has('https://idp.example.com')).toBe(true);
-			expect(factory.isTrustedOidcReturnUrl('https://idp.example.com/callback?state=abc')).toBe(true);
-			expect(factory.isTrustedOidcReturnUrl('https://evil.example.com/callback')).toBe(false);
+			expect(factory.getTrustedOidcReturnEndpoints().has('https://idp.example.com/obp-oidc/consent-callback')).toBe(true);
+			expect(factory.isTrustedOidcReturnUrl('https://idp.example.com/obp-oidc/consent-callback?challenge=abc')).toBe(true);
+			expect(factory.isTrustedOidcReturnUrl('https://idp.example.com/callback?state=abc')).toBe(false);
+			expect(factory.isTrustedOidcReturnUrl('https://evil.example.com/obp-oidc/consent-callback')).toBe(false);
 		});
 
 		it('returns null and stores no client for an unknown provider', async () => {

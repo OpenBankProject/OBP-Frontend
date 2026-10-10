@@ -227,26 +227,39 @@ export class OAuth2ProviderFactory {
 		return providers.length > 0 ? providers[0] : null;
 	}
 
-	// Origins of all configured OIDC providers' authorization endpoints — the only
-	// hosts a post-login/consent redirect (oidc_return_url) is allowed to target.
-	getTrustedOidcOrigins(): Set<string> {
-		const origins = new Set<string>();
+	/**
+	 * The consent-callback endpoints of the configured OIDC providers, as origin plus path. A provider that
+	 * runs a consent flow (OBP-OIDC) sends the Portal an `oidc_return_url` of `<issuer>/consent-callback`,
+	 * and that exact endpoint is the only place a finished consent may send the browser back to.
+	 *
+	 * Trusting the whole provider origin, as this used to, let any page on the provider's host receive the
+	 * browser, together with the consent details appended to the URL.
+	 */
+	getTrustedOidcReturnEndpoints(): Set<string> {
+		const endpoints = new Set<string>();
 		for (const client of this.initializedClients.values()) {
-			const authEndpoint = client.OIDCConfig?.authorization_endpoint;
-			if (authEndpoint) {
+			const issuer = client.OIDCConfig?.issuer;
+			if (issuer) {
 				try {
-					origins.add(new URL(authEndpoint).origin);
+					const endpoint = new URL(issuer.replace(/\/+$/, '') + '/consent-callback');
+					endpoints.add(endpoint.origin + endpoint.pathname);
 				} catch {
 					// ignore malformed config
 				}
 			}
 		}
-		return origins;
+		return endpoints;
 	}
 
+	/**
+	 * Whether `candidate` is a configured provider's consent-callback endpoint. Its query (the challenge) may
+	 * vary; user information and a fragment are refused.
+	 */
 	isTrustedOidcReturnUrl(candidate: string): boolean {
 		try {
-			return this.getTrustedOidcOrigins().has(new URL(candidate).origin);
+			const url = new URL(candidate);
+			if (url.username || url.password || url.hash) return false;
+			return this.getTrustedOidcReturnEndpoints().has(url.origin + url.pathname);
 		} catch {
 			return false;
 		}

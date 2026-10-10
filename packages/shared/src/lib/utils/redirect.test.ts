@@ -16,7 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 import { describe, it, expect } from 'vitest';
-import { safeInternalPath } from './redirect';
+import { safeInternalPath, reloadPathAfterSessionEnds } from './redirect';
 
 describe('safeInternalPath', () => {
 	it('keeps a path on this site, with its query and fragment', () => {
@@ -62,3 +62,15 @@ describe('safeInternalPath', () => {
 		}
 	});
 });
+
+describe('reloadPathAfterSessionEnds', () => {
+	it('reloads the same page, with its query', () => {
+		expect(reloadPathAfterSessionEnds(new URL('https://portal.example/user/consents?status=ACCEPTED'))).toBe('/user/consents?status=ACCEPTED');
+	});
+
+	it('reloads the home page when the request path would leave the site', () => {
+		expect(reloadPathAfterSessionEnds(new URL('https://portal.example//evil.example'))).toBe('/');
+		expect(reloadPathAfterSessionEnds(new URL('https://portal.example//evil.example/x?y=1'))).toBe('/');
+	});
+});
+

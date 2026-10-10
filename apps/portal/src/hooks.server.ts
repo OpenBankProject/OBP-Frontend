@@ -19,7 +19,7 @@ import '@obp/shared/server/monitoring/capture';
 import { requestTelemetry, startTelemetry } from '@obp/shared/server/monitoring';
 import { consumerScopesCheck } from '$lib/server/consumerScopes';
 import { loginUrlReturningTo } from '$lib/server/auth/returnTo';
-import { createLogger } from '@obp/shared/utils';
+import { createLogger, reloadPathAfterSessionEnds } from '@obp/shared/utils';
 const logger = createLogger('HooksServer');
 import type { Handle } from '@sveltejs/kit';
 import { error, redirect } from '@sveltejs/kit';
@@ -231,7 +231,7 @@ const checkSessionValidity: Handle = async ({ event, resolve }) => {
 			await session.destroy();
 
 			// Redirect to trigger a fresh load instead of just resolving
-			throw redirect(302, event.url.pathname);
+			throw redirect(302, reloadPathAfterSessionEnds(event.url));
 		}
 
 		const sessionExpired = await sessionOAuth.client.checkAccessTokenExpiration(
@@ -256,7 +256,7 @@ const checkSessionValidity: Handle = async ({ event, resolve }) => {
 				logger.info(`Destroying expired session for ${username} (${session.id})`);
 				await session.destroy();
 				// Redirect to trigger a fresh load and clear client-side cache
-				throw redirect(302, event.url.pathname);
+				throw redirect(302, reloadPathAfterSessionEnds(event.url));
 			}
 		}
 

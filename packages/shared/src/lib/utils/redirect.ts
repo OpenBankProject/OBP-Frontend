@@ -50,3 +50,12 @@ export function safeInternalPath(raw: string | null | undefined): string | null 
 	if (path.startsWith('//') || UNSAFE_CHARACTERS.test(path)) return null;
 	return path;
 }
+
+/**
+ * This returns the page to reload after a session is destroyed. The request path is not trusted as it is:
+ * a request for `//evil.example` has that as its pathname, and a Location header of `//evil.example`
+ * sends the browser to another host. Anything that is not a path on this site reloads the home page.
+ */
+export function reloadPathAfterSessionEnds(url: URL): string {
+	return safeInternalPath(url.pathname + url.search) ?? '/';
+}
