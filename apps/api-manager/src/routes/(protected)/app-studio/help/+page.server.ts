@@ -69,7 +69,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 
   let consumers: ConsumerSummary[] = [];
   try {
-    const response = await obp_requests.get("/obp/v6.0.0/management/consumers?limit=500&offset=0&from_date=1970-01-01T00:00:00.000Z", token);
+    const response = await obp_requests.get("/obp/v7.0.0/management/consumers?limit=500&offset=0&from_date=1970-01-01T00:00:00.000Z", token);
     consumers = (response?.consumers ?? []).map((c: any) => ({
       consumer_id: c.consumer_id,
       app_name: c.app_name,

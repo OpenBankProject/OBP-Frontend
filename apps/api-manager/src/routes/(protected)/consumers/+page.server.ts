@@ -22,8 +22,20 @@ import type { OBPConsumer } from "$lib/obp/types";
 import type { RequestEvent } from "@sveltejs/kit";
 import { SessionOAuthHelper } from "$lib/oauth/sessionHelper";
 import { getPortalUrl } from "$lib/obp/appDirectory";
+import { explorerResourceDocUrl } from "$lib/server/glossaryCache";
 
 const logger = createLogger("ConsumersServer");
+
+/** The endpoints behind this page, linked to their resource docs in the API Explorer. */
+const ENDPOINTS = [
+  { operation_id: "OBPv7.0.0-getConsumers", verb: "GET", path: "/obp/v7.0.0/management/consumers" },
+  {
+    operation_id: "OBPv7.0.0-getConsumerLastCalls",
+    verb: "GET",
+    path: "/obp/v7.0.0/management/metrics/consumer-last-calls",
+  },
+];
+const explorerEndpoints = () => ENDPOINTS.map((e) => ({ ...e, url: explorerResourceDocUrl(e.operation_id) }));
 
 export async function load(event: RequestEvent) {
   const session = event.locals.session;
@@ -40,6 +52,7 @@ export async function load(event: RequestEvent) {
     logger.warn("No access token available for consumers API calls");
     return {
       consumers: [],
+      endpoints: explorerEndpoints(),
       hasApiAccess: false,
       error: "No API access token available",
     };
@@ -60,12 +73,16 @@ export async function load(event: RequestEvent) {
     logger.info("=== GET ALL CONSUMERS API CALL ===");
     const fromDate = createdWindow ? createdWindow.from : "1970-01-01T00:00:00.000Z";
     const toDateSuffix = createdWindow ? `&to_date=${encodeURIComponent(createdWindow.to)}` : "";
-    const endpoint = `/obp/v6.0.0/management/consumers?limit=500&offset=0&from_date=${encodeURIComponent(fromDate)}${toDateSuffix}`;
+    const endpoint = `/obp/v7.0.0/management/consumers?limit=500&offset=0&from_date=${encodeURIComponent(fromDate)}${toDateSuffix}`;
     logger.info(`Request: ${endpoint}`);
 
     const consumersResponse = await obp_requests.get(endpoint, accessToken);
 
-    consumers = consumersResponse?.consumers || [];
+    // v7 has no consumer_key; an older OBP-API bridges this path to v5.1.0, which may still carry it.
+    // The key is a credential: it never reaches the browser, consumers are referenced by consumer_id.
+    consumers = (consumersResponse?.consumers || []).map(
+      ({ consumer_key, ...consumer }: OBPConsumer & { consumer_key?: string }) => consumer,
+    );
     logger.info(`Response: ${consumers.length} consumers`);
   } catch (e: any) {
     logger.error("Error fetching consumers:", e);
@@ -80,15 +97,35 @@ export async function load(event: RequestEvent) {
     return dateB - dateA; // Most recent first
   });
 
-  // Last call dates come from metrics; without CanReadMetrics the page leaves them out.
+  // Last call dates need CanReadMetrics; without it the page leaves them out.
   const entitlements = (session.data.user as any)?.entitlements?.list || [];
   const canReadMetrics = entitlements.some(
     (entitlement: any) => entitlement.role_name === "CanReadMetrics",
   );
 
+  // One Redis-backed read for every consumer. Extra information: any failure leaves it out.
+  let consumerLastCalls: { trackedSince: string | null; lastCalls: Record<string, string> } | null = null;
+  if (canReadMetrics) {
+    try {
+      const response = await obp_requests.get(
+        "/obp/v7.0.0/management/metrics/consumer-last-calls",
+        accessToken,
+      );
+      consumerLastCalls = {
+        trackedSince: response.tracked_since ?? null,
+        lastCalls: Object.fromEntries(
+          (response.consumer_last_calls ?? []).map((row: any) => [row.consumer_id, row.last_call_at]),
+        ),
+      };
+    } catch (e) {
+      logger.warn("Could not read consumer last calls:", e);
+    }
+  }
+
   return {
     consumers,
-    canReadMetrics,
+    consumerLastCalls,
+    endpoints: explorerEndpoints(),
     createdWindow,
     portalUrl: await getPortalUrl(),
     hasApiAccess: true,

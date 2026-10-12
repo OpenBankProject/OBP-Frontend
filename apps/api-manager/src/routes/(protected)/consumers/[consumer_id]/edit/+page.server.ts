@@ -126,10 +126,13 @@ export async function load(event: RequestEvent) {
 
   // Fetch consumer details
   try {
-    consumer = await obp_requests.get(
-      `/obp/v6.0.0/management/consumers/${consumerId}`,
+    // v7 has no consumer_key; an older OBP-API bridges this path to v6.0.0, which may still carry it.
+    // The key is a credential: it never reaches the browser, the consumer is referenced by consumer_id.
+    const { consumer_key, ...withoutKey } = await obp_requests.get(
+      `/obp/v7.0.0/management/consumers/${consumerId}`,
       token,
     );
+    consumer = withoutKey;
     logger.debug(`Retrieved consumer: ${consumer?.app_name}`);
   } catch (e) {
     logger.error("Error fetching consumer:", e);
@@ -401,7 +404,7 @@ export const actions = {
       logger.info(`Updating consumer ${consumerId} name to: ${app_name}`);
 
       await obp_requests.put(
-        `/obp/v6.0.0/management/consumers/${consumerId}/consumer/name`,
+        `/obp/v7.0.0/management/consumers/${consumerId}/consumer/name`,
         { app_name },
         token,
       );
@@ -448,7 +451,7 @@ export const actions = {
       logger.info(`Updating consumer ${consumerId} redirect URL`);
 
       await obp_requests.put(
-        `/obp/v6.0.0/management/consumers/${consumerId}/consumer/redirect_url`,
+        `/obp/v7.0.0/management/consumers/${consumerId}/consumer/redirect_url`,
         { redirect_url },
         token,
       );
@@ -491,7 +494,7 @@ export const actions = {
       logger.info(`Updating consumer ${consumerId} logo URL`);
 
       await obp_requests.put(
-        `/obp/v6.0.0/management/consumers/${consumerId}/consumer/logo_url`,
+        `/obp/v7.0.0/management/consumers/${consumerId}/consumer/logo_url`,
         { logo_url },
         token,
       );
@@ -534,7 +537,7 @@ export const actions = {
       logger.info(`Updating consumer ${consumerId} certificate`);
 
       await obp_requests.put(
-        `/obp/v6.0.0/management/consumers/${consumerId}/consumer/certificate`,
+        `/obp/v7.0.0/management/consumers/${consumerId}/consumer/certificate`,
         { certificate_pem },
         token,
       );

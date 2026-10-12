@@ -17,6 +17,7 @@
 -->
 <script lang="ts">
   import { isSafeLinkUrl, redirectUrlEntries, timeAgo } from "@obp/shared/utils";
+  import ApiExplorerEndpoints from "$lib/components/ApiExplorerEndpoints.svelte";
 
   let { data } = $props();
   // $derived, not const: /consumers is re-loaded in place when the created-date window
@@ -26,49 +27,7 @@
 
   let searchQuery = $state("");
 
-  // Last call per consumer, looked up only for cards that come into view, in small batches.
-  // undefined: not looked up yet; null: no recorded call; false: the lookup failed.
-  let lastCalls = $state<Record<string, string | null | false>>({});
-  const requested = new Set<string>();
-  let pending: string[] = [];
-  let flushTimer: ReturnType<typeof setTimeout> | undefined;
-
-  function queueLastCall(consumerId: string) {
-    if (requested.has(consumerId)) return;
-    requested.add(consumerId);
-    pending.push(consumerId);
-    clearTimeout(flushTimer);
-    flushTimer = setTimeout(flushLastCalls, 150);
-  }
-
-  async function flushLastCalls() {
-    const batch = pending.splice(0, 25);
-    if (pending.length > 0) flushTimer = setTimeout(flushLastCalls, 0);
-    if (batch.length === 0) return;
-    // Last call is extra information: a failed lookup shows a dash, never an error.
-    const failed = Object.fromEntries(batch.map((id) => [id, false as const]));
-    try {
-      const response = await fetch(
-        `/backend/consumers/last-calls?consumer_ids=${encodeURIComponent(batch.join(","))}`,
-      );
-      const body = response.ok ? await response.json() : {};
-      lastCalls = { ...lastCalls, ...failed, ...body.last_calls };
-    } catch {
-      lastCalls = { ...lastCalls, ...failed };
-    }
-  }
-
-  function lastCallOnView(node: HTMLElement, consumerId: string) {
-    if (!data.canReadMetrics) return;
-    const observer = new IntersectionObserver((entries) => {
-      if (entries.some((entry) => entry.isIntersecting)) {
-        queueLastCall(consumerId);
-        observer.disconnect();
-      }
-    });
-    observer.observe(node);
-    return { destroy: () => observer.disconnect() };
-  }
+  const lastCalls = $derived(data.consumerLastCalls);
 
   function formatDate(dateString: string): string {
     try {
@@ -130,6 +89,10 @@
         </a>
       {/if}
     </div>
+  </div>
+
+  <div class="mb-4">
+    <ApiExplorerEndpoints endpoints={data.endpoints} />
   </div>
 
   {#if data.createdWindow}
@@ -235,41 +198,32 @@
         <div
           class="rounded-lg border border-gray-200 bg-white p-3 shadow-sm dark:border-gray-700 dark:bg-gray-800"
         >
-          <!-- Header with App Name and Status -->
-          <div class="mb-2 flex items-start justify-between">
-            <div class="flex-1 min-w-0">
-              <h2 class="text-base font-semibold truncate">
-                <a
-                  data-testid="consumer-name-link"
-                  href="/consumers/{consumer.consumer_id}/edit"
-                  class="text-gray-900 hover:text-blue-600 hover:underline dark:text-gray-100 dark:hover:text-blue-400"
-                >
-                  {consumer.app_name}
-                </a>
-              </h2>
-              <p class="text-xs text-gray-600 dark:text-gray-400">
-                Created: {formatDate(consumer.created)}
-              </p>
-              {#if data.canReadMetrics}
-                <p
-                  use:lastCallOnView={consumer.consumer_id}
-                  data-testid="consumer-last-call-{consumer.consumer_id}"
-                  class="text-xs text-gray-600 dark:text-gray-400"
-                >
-                  Last call:
-                  {#if lastCalls[consumer.consumer_id] === null}
-                    never
-                  {:else if lastCalls[consumer.consumer_id] === false}
-                    &mdash;
-                  {:else if lastCalls[consumer.consumer_id] !== undefined}
-                    {timeAgo(lastCalls[consumer.consumer_id] as string)}
-                  {:else}
-                    &hellip;
-                  {/if}
-                </p>
-              {/if}
-            </div>
-            <div class="flex items-center gap-1.5 flex-shrink-0 ml-2">
+          <!-- Name, last call, actions and status on one line -->
+          <div class="flex items-center gap-3">
+            <h2 class="flex-1 min-w-0 text-base font-semibold truncate">
+              <a
+                data-testid="consumer-name-link"
+                href="/consumers/{consumer.consumer_id}/edit"
+                class="text-gray-900 hover:text-blue-600 hover:underline dark:text-gray-100 dark:hover:text-blue-400"
+              >
+                {consumer.app_name}
+              </a>
+            </h2>
+            {#if lastCalls}
+              <span
+                data-testid="consumer-last-call-{consumer.consumer_id}"
+                class="flex-shrink-0 whitespace-nowrap text-xs text-gray-600 dark:text-gray-400"
+              >
+                {#if lastCalls.lastCalls[consumer.consumer_id]}
+                  Last call: {timeAgo(lastCalls.lastCalls[consumer.consumer_id])}
+                {:else if lastCalls.trackedSince}
+                  No call since {formatDate(lastCalls.trackedSince)}
+                {:else}
+                  Last call: &mdash;
+                {/if}
+              </span>
+            {/if}
+            <div class="flex items-center gap-1.5 flex-shrink-0">
               <a
                 href="/consumers/{consumer.consumer_id}/edit"
                 class="inline-flex items-center rounded border border-blue-300 bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 dark:border-blue-600 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
@@ -326,7 +280,7 @@
                     d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
                   />
                 </svg>
-                View Metrics
+                Metrics
               </a>
               <span
                 class="rounded-full px-2 py-0.5 text-xs font-medium {consumer.enabled
@@ -343,84 +297,54 @@
             </div>
           </div>
 
-          <!-- Description -->
           {#if consumer.description}
-            <p class="mb-2 text-xs text-gray-700 dark:text-gray-300">
+            <p class="mt-1 text-xs text-gray-700 dark:text-gray-300">
               {consumer.description}
             </p>
           {/if}
 
-          <!-- Credentials Section -->
-          {#if consumer.key}
-            <div
-              class="rounded-lg bg-gray-50 p-2 dark:bg-gray-900/50 mb-2"
-            >
-              <div>
-                <div
-                  class="mb-0.5 block text-xs font-medium text-gray-600 dark:text-gray-400"
-                >
-                  Key
-                </div>
-                <code
-                  class="block rounded bg-white px-2 py-1 text-xs text-gray-900 dark:bg-gray-800 dark:text-gray-100"
-                >
-                  {consumer.key}
-                </code>
-              </div>
-            </div>
-          {/if}
-
-          <!-- Additional Details -->
-          <div class="mt-2 space-y-1 text-xs">
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-1">
-              <span class="font-medium text-gray-600 dark:text-gray-400"
-                >Consumer ID:</span
-              >
-              <span
-                class="sm:col-span-2 text-gray-900 dark:text-gray-100 font-mono"
-                >{consumer.consumer_id}</span
-              >
-            </div>
+          <!-- Details on as few lines as the width allows -->
+          <div class="mt-1 flex flex-wrap gap-x-4 gap-y-0.5 text-xs">
+            <span>
+              <span class="font-medium text-gray-600 dark:text-gray-400">Created:</span>
+              <span class="text-gray-900 dark:text-gray-100">{formatDate(consumer.created)}</span>
+            </span>
+            <span>
+              <span class="font-medium text-gray-600 dark:text-gray-400">Consumer ID:</span>
+              <span class="font-mono text-gray-900 dark:text-gray-100">{consumer.consumer_id}</span>
+            </span>
             {#if consumer.company}
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-1">
-                <span class="font-medium text-gray-600 dark:text-gray-400"
-                  >Company:</span
-                >
-                <span class="sm:col-span-2 text-gray-900 dark:text-gray-100"
-                  >{consumer.company}</span
-                >
-              </div>
+              <span>
+                <span class="font-medium text-gray-600 dark:text-gray-400">Company:</span>
+                <span class="text-gray-900 dark:text-gray-100">{consumer.company}</span>
+              </span>
             {/if}
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-1">
-              <span class="font-medium text-gray-600 dark:text-gray-400"
-                >Developer Email:</span
-              >
-              <span class="sm:col-span-2 text-gray-900 dark:text-gray-100"
-                >{consumer.developer_email}</span
-              >
-            </div>
-          </div>
-          <div class="mt-1 text-xs">
-            <span class="font-medium text-gray-600 dark:text-gray-400">Redirect URL:</span>
-            {#if consumer.redirect_url}
-              <!-- Each entry on its own; only an http or https entry becomes a link, so a stored
-                   javascript: value is shown as text and can never run when clicked. -->
-              {#each redirectUrlEntries(consumer.redirect_url) as entry}
-                {#if isSafeLinkUrl(entry)}
-                  <a
-                    data-testid="consumer-redirect-url-link"
-                    href={entry}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="ml-1 text-blue-600 hover:text-blue-700 hover:underline break-all dark:text-blue-400 dark:hover:text-blue-300"
-                  >{entry}</a>
-                {:else}
-                  <span data-testid="consumer-redirect-url-text" class="ml-1 text-gray-900 break-all dark:text-gray-100">{entry}</span>
-                {/if}
-              {/each}
-            {:else}
-              <span class="ml-1 text-gray-900 dark:text-gray-100">Not specified</span>
-            {/if}
+            <span>
+              <span class="font-medium text-gray-600 dark:text-gray-400">Developer Email:</span>
+              <span class="text-gray-900 dark:text-gray-100">{consumer.developer_email}</span>
+            </span>
+            <span>
+              <span class="font-medium text-gray-600 dark:text-gray-400">Redirect URL:</span>
+              {#if consumer.redirect_url}
+                <!-- Each entry on its own; only an http or https entry becomes a link, so a stored
+                     javascript: value is shown as text and can never run when clicked. -->
+                {#each redirectUrlEntries(consumer.redirect_url) as entry}
+                  {#if isSafeLinkUrl(entry)}
+                    <a
+                      data-testid="consumer-redirect-url-link"
+                      href={entry}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="ml-1 text-blue-600 hover:text-blue-700 hover:underline break-all dark:text-blue-400 dark:hover:text-blue-300"
+                    >{entry}</a>
+                  {:else}
+                    <span data-testid="consumer-redirect-url-text" class="ml-1 text-gray-900 break-all dark:text-gray-100">{entry}</span>
+                  {/if}
+                {/each}
+              {:else}
+                <span class="text-gray-900 dark:text-gray-100">Not specified</span>
+              {/if}
+            </span>
           </div>
         </div>
       {/each}

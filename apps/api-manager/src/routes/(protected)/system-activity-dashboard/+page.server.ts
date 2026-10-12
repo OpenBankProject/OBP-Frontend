@@ -292,7 +292,7 @@ export const load: PageServerLoad = async ({ locals, depends }) => {
           offset: String(page * CONSUMERS_PAGE_LIMIT),
         });
         const body = await obp_requests.get(
-          `/obp/v5.1.0/management/consumers?${query.toString()}`,
+          `/obp/v7.0.0/management/consumers?${query.toString()}`,
           accessToken,
         );
         if (!Array.isArray(body?.consumers)) {
