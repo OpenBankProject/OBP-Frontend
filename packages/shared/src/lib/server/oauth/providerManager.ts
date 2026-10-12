@@ -62,6 +62,8 @@ export class OAuth2ProviderManager {
 	private refreshIntervalId: NodeJS.Timeout | null = null;
 	private refreshIntervalMs: number = 60000; // Refresh provider status every 60 seconds
 	private definedProviders: string[] = [];
+	// The providers OBP reported on its last successful well-known fetch
+	private reportedWellKnownUris: WellKnownUri[] = [];
 	private wellKnownEndpoint: string;
 	// Last logged state per provider, plus the last summary and refresh error, so the
 	// 60s refresh only logs when something changes
@@ -114,6 +116,7 @@ export class OAuth2ProviderManager {
 
 		try {
 			wellKnownUris = await this.fetchWellKnownUris();
+			this.reportedWellKnownUris = wellKnownUris ?? [];
 			logger.debug('Well-known URIs fetched successfully:', wellKnownUris);
 		} catch (error) {
 			logger.error('Failed to fetch well-known URIs, marking all providers as unavailable');
@@ -322,6 +325,14 @@ export class OAuth2ProviderManager {
 	 */
 	getProviderStatus(provider: string): ProviderStatus | undefined {
 		return this.status.providers.find((p) => p.provider === provider);
+	}
+
+	/**
+	 * Returns the providers OBP currently reports at its well-known endpoint,
+	 * whether or not this app could initialise them
+	 */
+	getReportedProviders(): WellKnownUri[] {
+		return [...this.reportedWellKnownUris];
 	}
 
 	/**
