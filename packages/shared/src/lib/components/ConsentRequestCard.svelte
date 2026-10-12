@@ -96,6 +96,17 @@
 			: null
 	);
 
+	// Roles the user does not hold at the bank the call is checked at. The consent
+	// endpoint makes the same selection and would refuse with 403, so Grant cannot
+	// work: block it and let the user tell Opey why. Unknown until entitlements load,
+	// in which case Grant stays and the endpoint decides.
+	let missingReason = $derived(
+		embedPreview && embedPreview.unsatisfiable.length > 0
+			? `The user does not hold ${embedPreview.unsatisfiable.join(', ')}, so no consent can authorise this call. They can request it on the Entitlements page.`
+			: null
+	);
+	let blockedReason = $derived(illogicalReason ?? missingReason);
+
 	// Reactive count of (bank, account, view) tuples the user has pre-picked in
 	// the Account Scope Picker. Refreshed off the picker's
 	// 'obp:consent-scope-changed' event so the safeguard below clears the instant
@@ -328,7 +339,7 @@
 		try {
 			// If a Grant already failed, forward that failure as the denial reason so
 			// the agent knows why instead of just "user denied consent".
-			await onDeny(toolMessage.toolCallId, illogicalReason ?? consentError ?? undefined);
+			await onDeny(toolMessage.toolCallId, blockedReason ?? consentError ?? undefined);
 		} finally {
 			isProcessing = false;
 		}
@@ -510,6 +521,19 @@
 		</div>
 	{/if}
 
+	<!-- Missing role: nothing the user holds satisfies it, so no consent can carry it -->
+	{#if missingReason && !illogicalReason}
+		<div
+			class="mb-2 rounded border border-warning-500/60 bg-warning-50 px-2 py-2 text-xs text-warning-800 dark:bg-warning-900/20 dark:text-warning-200"
+			role="alert"
+			data-testid="consent-missing-role"
+		>
+			You don't hold this role, so a consent can't give it to Opey. Request it on the
+			<a href="/user/entitlements" class="underline">Entitlements page</a>, or use
+			<strong>Tell Opey</strong>.
+		</div>
+	{/if}
+
 	<!-- Safeguard: this consent_request needs view scope but none is available yet -->
 	{#if promptForScope}
 		<div
@@ -537,7 +561,7 @@
 		<button
 			class="btn btn-sm flex-1 preset-filled-tertiary-500"
 			onclick={handleGrantConsent}
-			disabled={isProcessing || promptForScope || !!illogicalReason}
+			disabled={isProcessing || promptForScope || !!blockedReason}
 			data-testid="consent-grant-button"
 		>
 			{#if isProcessing}
@@ -549,13 +573,13 @@
 			{/if}
 		</button>
 		<button
-			class="btn btn-sm {illogicalReason ? 'flex-1 preset-filled-error-500' : 'preset-outlined-error-500'}"
+			class="btn btn-sm {blockedReason ? 'flex-1 preset-filled-error-500' : 'preset-outlined-error-500'}"
 			onclick={handleDenyConsent}
 			disabled={isProcessing}
 			data-testid="consent-deny-button"
 		>
 			<XCircle size={14} />
-			<span>{illogicalReason ? 'Tell Opey' : 'Deny'}</span>
+			<span>{blockedReason ? 'Tell Opey' : 'Deny'}</span>
 		</button>
 	</div>
 </div>
