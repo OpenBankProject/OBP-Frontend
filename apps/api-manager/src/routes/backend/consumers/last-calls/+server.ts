@@ -27,6 +27,9 @@ const logger = createLogger("ConsumerLastCallsAPI");
 const MAX_IDS = 25;
 const CONCURRENCY = 5;
 const CONSUMER_ID = /^[A-Za-z0-9_-]{1,100}$/;
+// Without from_date OBP looks back only MappedMetrics.stable.boundary.seconds (10 minutes by
+// default). A constant keeps the query cache key stable.
+const FROM_DATE = "1970-01-01T00:00:00.000Z";
 
 // GET ?consumer_ids=a,b,c (comma separated: OBP-style repeated params are not used).
 // Returns { last_calls: { [consumer_id]: date | null } } where null means no recorded call.
@@ -57,7 +60,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
       consumerIds.slice(i, i + CONCURRENCY).map(async (consumerId) => {
         try {
           const response = await obp_requests.get(
-            `/obp/v6.0.0/management/metrics?consumer_id=${encodeURIComponent(consumerId)}&limit=1&sort_by=date&sort_direction=desc`,
+            `/obp/v6.0.0/management/metrics?consumer_id=${encodeURIComponent(consumerId)}&from_date=${encodeURIComponent(FROM_DATE)}&limit=1&sort_by=date&sort_direction=desc`,
             auth.accessToken!,
           );
           lastCalls[consumerId] = response?.metrics?.[0]?.date ?? null;
