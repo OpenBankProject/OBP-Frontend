@@ -184,7 +184,7 @@ export function buildMyMetricsQuery(
 	query.set('limit', String(MY_METRICS_PAGE_SIZE));
 	query.set('offset', String(page * MY_METRICS_PAGE_SIZE));
 	query.set('sort_by', 'date');
-	query.set('direction', 'desc');
+	query.set('sort_direction', 'desc');
 	if (verb) query.set('verb', verb);
 	if (duration) query.set('duration', duration);
 	for (const key of PASS_THROUGH_FILTERS) {

@@ -25,7 +25,7 @@
       limit: string;
       offset: string;
       sort_by: string;
-      direction: string;
+      sort_direction: string;
       consumer_id: string;
       user_id: string;
       username: string;
@@ -112,7 +112,7 @@
         </select>
       </label>
       <label class="qf-inline qf-xs"><span>Dir</span>
-        <select bind:value={queryForm.direction} onchange={handleFieldChange} name="direction">
+        <select bind:value={queryForm.sort_direction} onchange={handleFieldChange} name="sort_direction">
           <option value="desc">Desc</option>
           <option value="asc">Asc</option>
         </select>

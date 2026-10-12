@@ -70,7 +70,7 @@ export const load: PageServerLoad = async ({ locals, url, depends }) => {
     const params: Record<string, string> = {
       limit: url.searchParams.get("limit") || "50",
       sort_by: url.searchParams.get("sort_by") || "date",
-      direction: url.searchParams.get("direction") || "desc",
+      sort_direction: url.searchParams.get("sort_direction") || "desc",
     };
 
     // Add offset if provided

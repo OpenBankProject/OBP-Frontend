@@ -63,10 +63,10 @@ describe('buildMyMetricsQuery', () => {
 	});
 
 	it('fixes limit, sort and direction', () => {
-		const { query } = build('limit=1000&sort_by=duration&direction=asc');
+		const { query } = build('limit=1000&sort_by=duration&sort_direction=asc');
 		expect(query.get('limit')).toBe(String(MY_METRICS_PAGE_SIZE));
 		expect(query.get('sort_by')).toBe('date');
-		expect(query.get('direction')).toBe('desc');
+		expect(query.get('sort_direction')).toBe('desc');
 	});
 
 	it('maps page to offset', () => {

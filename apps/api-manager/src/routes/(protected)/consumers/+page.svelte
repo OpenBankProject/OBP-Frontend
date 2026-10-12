@@ -16,7 +16,7 @@
   along with this program. If not, see <https://www.gnu.org/licenses/>.
 -->
 <script lang="ts">
-  import { isSafeLinkUrl, redirectUrlEntries } from "@obp/shared/utils";
+  import { isSafeLinkUrl, redirectUrlEntries, timeAgo } from "@obp/shared/utils";
 
   let { data } = $props();
   // $derived, not const: /consumers is re-loaded in place when the created-date window
@@ -25,6 +25,50 @@
   const errorMessage = $derived(data.error);
 
   let searchQuery = $state("");
+
+  // Last call per consumer, looked up only for cards that come into view, in small batches.
+  // undefined: not looked up yet; null: no recorded call; false: the lookup failed.
+  let lastCalls = $state<Record<string, string | null | false>>({});
+  const requested = new Set<string>();
+  let pending: string[] = [];
+  let flushTimer: ReturnType<typeof setTimeout> | undefined;
+
+  function queueLastCall(consumerId: string) {
+    if (requested.has(consumerId)) return;
+    requested.add(consumerId);
+    pending.push(consumerId);
+    clearTimeout(flushTimer);
+    flushTimer = setTimeout(flushLastCalls, 150);
+  }
+
+  async function flushLastCalls() {
+    const batch = pending.splice(0, 25);
+    if (pending.length > 0) flushTimer = setTimeout(flushLastCalls, 0);
+    if (batch.length === 0) return;
+    // Last call is extra information: a failed lookup shows a dash, never an error.
+    const failed = Object.fromEntries(batch.map((id) => [id, false as const]));
+    try {
+      const response = await fetch(
+        `/backend/consumers/last-calls?consumer_ids=${encodeURIComponent(batch.join(","))}`,
+      );
+      const body = response.ok ? await response.json() : {};
+      lastCalls = { ...lastCalls, ...failed, ...body.last_calls };
+    } catch {
+      lastCalls = { ...lastCalls, ...failed };
+    }
+  }
+
+  function lastCallOnView(node: HTMLElement, consumerId: string) {
+    if (!data.canReadMetrics) return;
+    const observer = new IntersectionObserver((entries) => {
+      if (entries.some((entry) => entry.isIntersecting)) {
+        queueLastCall(consumerId);
+        observer.disconnect();
+      }
+    });
+    observer.observe(node);
+    return { destroy: () => observer.disconnect() };
+  }
 
   function formatDate(dateString: string): string {
     try {
@@ -206,6 +250,24 @@
               <p class="text-xs text-gray-600 dark:text-gray-400">
                 Created: {formatDate(consumer.created)}
               </p>
+              {#if data.canReadMetrics}
+                <p
+                  use:lastCallOnView={consumer.consumer_id}
+                  data-testid="consumer-last-call-{consumer.consumer_id}"
+                  class="text-xs text-gray-600 dark:text-gray-400"
+                >
+                  Last call:
+                  {#if lastCalls[consumer.consumer_id] === null}
+                    never
+                  {:else if lastCalls[consumer.consumer_id] === false}
+                    &mdash;
+                  {:else if lastCalls[consumer.consumer_id] !== undefined}
+                    {timeAgo(lastCalls[consumer.consumer_id] as string)}
+                  {:else}
+                    &hellip;
+                  {/if}
+                </p>
+              {/if}
             </div>
             <div class="flex items-center gap-1.5 flex-shrink-0 ml-2">
               <a
@@ -245,6 +307,26 @@
                   />
                 </svg>
                 Rate Limits
+              </a>
+              <a
+                data-testid="consumer-view-metrics-link-{consumer.consumer_id}"
+                href="/metrics?consumer_id={consumer.consumer_id}"
+                class="inline-flex items-center rounded border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+              >
+                <svg
+                  class="mr-1 h-3 w-3"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                  />
+                </svg>
+                View Metrics
               </a>
               <span
                 class="rounded-full px-2 py-0.5 text-xs font-medium {consumer.enabled

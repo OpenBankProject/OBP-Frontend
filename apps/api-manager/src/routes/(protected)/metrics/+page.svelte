@@ -145,7 +145,7 @@
     limit: "100",
     offset: "0",
     sort_by: "date",
-    direction: "desc",
+    sort_direction: "desc",
     consumer_id: "",
     user_id: "",
     username: "",
@@ -183,7 +183,7 @@
         limit: urlParams.get("limit") || "100",
         offset: urlParams.get("offset") || "0",
         sort_by: urlParams.get("sort_by") || "date",
-        direction: urlParams.get("direction") || "desc",
+        sort_direction: urlParams.get("sort_direction") || "desc",
         consumer_id: urlParams.get("consumer_id") || "",
         user_id: urlParams.get("user_id") || "",
         username: urlParams.get("username") || "",
@@ -311,7 +311,7 @@
     params.set("limit", String(queryForm.limit));
     params.set("offset", String(queryForm.offset));
     params.set("sort_by", queryForm.sort_by);
-    params.set("direction", queryForm.direction);
+    params.set("sort_direction", queryForm.sort_direction);
 
     return params.toString();
   }
@@ -535,7 +535,7 @@
       limit: "100",
       offset: "0",
       sort_by: "date",
-      direction: "desc",
+      sort_direction: "desc",
       consumer_id: "",
       user_id: "",
       username: "",

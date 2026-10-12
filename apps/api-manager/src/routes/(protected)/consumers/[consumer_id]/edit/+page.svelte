@@ -199,12 +199,24 @@
   </a>
 </div>
 
-<h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-  {consumer.app_name} - Detail
-  {#if isCurrentConsumer}
-    <span data-testid="current-consumer-marker" class="ml-2 text-base font-normal text-blue-600 dark:text-blue-400">(the current consumer)</span>
-  {/if}
-</h1>
+<div class="mb-4 flex flex-wrap items-center justify-between gap-4">
+  <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+    {consumer.app_name} - Detail
+    {#if isCurrentConsumer}
+      <span data-testid="current-consumer-marker" class="ml-2 text-base font-normal text-blue-600 dark:text-blue-400">(the current consumer)</span>
+    {/if}
+  </h1>
+  <a
+    data-testid="view-metrics-link"
+    href="/metrics?consumer_id={consumer.consumer_id}"
+    class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-800"
+  >
+    <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+    </svg>
+    View Metrics
+  </a>
+</div>
 
 <!-- Error/Success Messages -->
 {#if form?.error}
@@ -893,18 +905,4 @@
       />
     </div>
   {/if}
-</div>
-
-<!-- Additional Actions -->
-<div class="mt-6 flex flex-wrap gap-4">
-  <a
-    data-testid="view-metrics-link"
-    href="/metrics?consumer_id={consumer.consumer_id}"
-    class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 dark:focus:ring-gray-700"
-  >
-    <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-    </svg>
-    View Metrics
-  </a>
 </div>

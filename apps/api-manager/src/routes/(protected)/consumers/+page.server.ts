@@ -80,8 +80,15 @@ export async function load(event: RequestEvent) {
     return dateB - dateA; // Most recent first
   });
 
+  // Last call dates come from metrics; without CanReadMetrics the page leaves them out.
+  const entitlements = (session.data.user as any)?.entitlements?.list || [];
+  const canReadMetrics = entitlements.some(
+    (entitlement: any) => entitlement.role_name === "CanReadMetrics",
+  );
+
   return {
     consumers,
+    canReadMetrics,
     createdWindow,
     portalUrl: await getPortalUrl(),
     hasApiAccess: true,

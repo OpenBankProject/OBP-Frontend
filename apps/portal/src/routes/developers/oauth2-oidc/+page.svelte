@@ -18,8 +18,12 @@
 <script lang="ts">
     import { getContext } from 'svelte';
     import CodeBlock from '$lib/components/CodeBlock.svelte';
+    import { explorerResourceDocUrl } from '@obp/shared/explorer';
+
+    let { data } = $props();
 
     const ctx: any = getContext('developerContext');
+    const wellKnownUrl = `${ctx.apiBaseUrl}/obp/v5.1.0/well-known`;
 </script>
 
 <svelte:head>
@@ -125,9 +129,43 @@ grant_type=refresh_token
         <li>Your application follows the standard OIDC Authorization Code flow with the identity provider.</li>
     </ul>
 
+    <h4>Identity providers on this instance</h4>
+
+    {#if data.identityProviders.length > 0}
+        <table data-testid="identity-providers">
+            <thead>
+                <tr>
+                    <th>Provider</th>
+                    <th>Discovery document</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {#each data.identityProviders as idp (idp.provider)}
+                    <tr data-testid="identity-provider-{idp.provider}">
+                        <td><code>{idp.provider}</code></td>
+                        <td>
+                            {#if idp.discoveryUrl}
+                                <a href={idp.discoveryUrl} target="_blank" rel="noopener noreferrer">{idp.discoveryUrl}</a>
+                            {/if}
+                        </td>
+                        <td>
+                            {#if idp.statusUrl}
+                                <a href={idp.statusUrl} target="_blank" rel="noopener noreferrer" data-testid="identity-provider-status-link">Status page</a>
+                            {/if}
+                        </td>
+                    </tr>
+                {/each}
+            </tbody>
+        </table>
+    {:else}
+        <p data-testid="identity-providers-empty">No OIDC providers are reported by this instance.</p>
+    {/if}
+
     <p>
-        The specific OIDC configuration depends on your OBP instance. Contact your administrator
-        for the discovery URL and supported scopes.
+        The list comes from
+        <a href={wellKnownUrl} target="_blank" rel="noopener noreferrer"><code>GET /obp/v5.1.0/well-known</code></a>{#if ctx.apiExplorerUrl}
+            (<a href={explorerResourceDocUrl('OBPv5.1.0-getOAuth2ServerWellKnown', ctx.apiExplorerUrl)} target="_blank" rel="noopener noreferrer">API Explorer</a>){/if}.
     </p>
 
     <h3>Security Best Practices</h3>
