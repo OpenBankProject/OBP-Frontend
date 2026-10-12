@@ -71,6 +71,16 @@
     );
   }
 
+  // Anonymous reads, served only when has_public_access is on. Fields marked
+  // hide_field_from_public_access are left out of these responses.
+  const publicEndpoints = [
+    { operation: "Read (list)", endpoint: `GET ${dataPath}/public/${entityName}` },
+    { operation: "Read (single)", endpoint: `GET ${dataPath}/public/${entityName}/{RECORD_ID}` },
+  ].map((e) => ({ ...e, explorerUrl: portalExplorerUrl(e.endpoint) }));
+  const publicHiddenFields = Object.entries(properties)
+    .filter(([, def]) => (def as any)?.hide_field_from_public_access === true)
+    .map(([name]) => name);
+
   // Define required roles for CRUD operations on this dynamic entity
   let requiredRoles = $derived.by(() => {
     if (!entityName || entityName === "Unknown") return [];
@@ -803,6 +813,57 @@
       </div>
     {/if}
   </div>
+
+  {#if entity.has_public_access}
+    <!-- Public Access Section: anonymous reads, no role or login needed -->
+    <div
+      class="mt-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+      data-testid="dynamic-entity-public-endpoints"
+    >
+      <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
+        Public Access
+      </h2>
+      <div class="space-y-3">
+        {#each publicEndpoints as pub, i}
+          <div
+            data-testid="dynamic-entity-public-endpoint-{i}"
+            class="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900"
+          >
+            <div class="flex items-center gap-2">
+              <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                {pub.operation}
+              </span>
+              <span
+                class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-300"
+              >
+                No login required
+              </span>
+            </div>
+            <p class="mt-1 flex items-center gap-2 font-mono text-xs text-blue-600 dark:text-blue-400">
+              <span>{pub.endpoint}</span>
+              <a
+                href={pub.explorerUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center gap-1 rounded bg-purple-100 px-1.5 py-0.5 text-xs font-medium text-purple-700 no-underline hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:hover:bg-purple-900/50"
+              >
+                <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+                API Explorer
+              </a>
+            </p>
+          </div>
+        {/each}
+      </div>
+      {#if publicHiddenFields.length > 0}
+        <p class="mt-3 text-xs text-gray-600 dark:text-gray-400" data-testid="dynamic-entity-public-hidden-fields">
+          Omitted from public responses:
+          <span class="font-mono">{publicHiddenFields.join(", ")}</span>
+        </p>
+      {/if}
+    </div>
+  {/if}
 
   {#if entity.has_personal_entity}
     <!-- Allowed Operations Section (for Personal Entities) -->

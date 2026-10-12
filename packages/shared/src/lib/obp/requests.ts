@@ -36,9 +36,10 @@ export class OBPRequests {
 	}
 
 	private logRateLimitInfo(response: Response, url: string): void {
+		// OBP-API sends -1 when no limit applies; 0 means the limit has been reached.
 		const remaining = response.headers.get('X-Rate-Limit-Remaining');
-		if (remaining !== null && parseInt(remaining) < 0) {
-			logger.warn(`Rate limit header warning for ${url}: X-Rate-Limit-Remaining=${remaining}`);
+		if (remaining !== null && parseInt(remaining) === 0) {
+			logger.warn(`Rate limit reached for ${url}: X-Rate-Limit-Remaining=${remaining}`);
 		}
 	}
 

@@ -40,6 +40,12 @@ export interface ProviderStatus {
 	error?: string;
 }
 
+// The manager started last for each well-known endpoint. A dev-server reload
+// re-evaluates the app module and builds a new manager while the old one's
+// timers keep running; start() shuts the previous one down.
+const ACTIVE_MANAGERS = Symbol.for('obp.oauth2ProviderManager.active');
+type ActiveManagers = Map<string, OAuth2ProviderManager>;
+
 interface OAuthProviderStatus {
 	ready: boolean;
 	error?: any;
@@ -57,6 +63,11 @@ export class OAuth2ProviderManager {
 	private refreshIntervalMs: number = 60000; // Refresh provider status every 60 seconds
 	private definedProviders: string[] = [];
 	private wellKnownEndpoint: string;
+	// Last logged state per provider, plus the last summary and refresh error, so the
+	// 60s refresh only logs when something changes
+	private loggedProviderStates = new Map<string, string>();
+	private loggedSummary: string | null = null;
+	private loggedRefreshError: string | null = null;
 
 	constructor(
 		private factory: OAuth2ProviderFactory,
@@ -140,7 +151,9 @@ export class OAuth2ProviderManager {
 							status: 'available'
 						});
 					}
-					logger.info(`Successfully initialized OAuth2 provider: ${providerUri.provider}`);
+					this.logOnChange(providerUri.provider, 'available', () =>
+						logger.info(`Successfully initialized OAuth2 provider: ${providerUri.provider}`)
+					);
 				} else {
 					if (existingProvider) {
 						existingProvider.status = 'unavailable';
@@ -154,22 +167,27 @@ export class OAuth2ProviderManager {
 							error: 'No strategy found for this provider'
 						});
 					}
-					logger.warn(`No strategy available for provider: ${providerUri.provider}`);
+					this.logOnChange(providerUri.provider, 'no-strategy', () =>
+						logger.warn(`No strategy available for provider: ${providerUri.provider}`)
+					);
 				}
 			} catch (error) {
+				const message = error instanceof Error ? error.message : 'Unknown error';
 				if (existingProvider) {
 					existingProvider.status = 'unavailable';
 					existingProvider.url = providerUri.url;
-					existingProvider.error = error instanceof Error ? error.message : 'Unknown error';
+					existingProvider.error = message;
 				} else {
 					this.status.providers.push({
 						provider: providerUri.provider,
 						url: providerUri.url,
 						status: 'unavailable',
-						error: error instanceof Error ? error.message : 'Unknown error'
+						error: message
 					});
 				}
-				logger.error(`Failed to initialize OAuth2 provider ${providerUri.provider}:`, error);
+				this.logOnChange(providerUri.provider, `failed: ${message}`, () =>
+					logger.error(`Failed to initialize OAuth2 provider ${providerUri.provider}: ${message}`)
+				);
 			}
 		}
 
@@ -188,30 +206,37 @@ export class OAuth2ProviderManager {
 		const availableCount = this.status.providers.filter((p) => p.status === 'available').length;
 		const unavailableCount = this.status.providers.filter((p) => p.status === 'unavailable').length;
 
-		logger.info(
-			`OAuth2 Provider Summary: ${availableCount} available, ${unavailableCount} unavailable`
-		);
+		const availableProviders = this.status.providers
+			.filter((p) => p.status === 'available')
+			.map((p) => p.provider);
+		const summary = `${availableCount} available (${availableProviders.join(', ')}), ${unavailableCount} unavailable`;
+		const summaryChanged = summary !== this.loggedSummary;
+		this.loggedSummary = summary;
+
+		if (summaryChanged) {
+			logger.info(`OAuth2 Provider Summary: ${summary}`);
+		}
 
 		if (availableCount === 0) {
-			logger.error(
-				'Could not initialize any OAuth2 provider. Please check your OBP configuration.'
-			);
+			if (summaryChanged) {
+				logger.error(
+					'Could not initialize any OAuth2 provider. Please check your OBP configuration.'
+				);
+			}
 			throw new Error('No OAuth2 providers could be initialized');
 		}
 
-		if (availableCount === 1) {
-			const availableProvider = this.status.providers.find((p) => p.status === 'available');
-			logger.info(`Single OAuth2 provider available: ${availableProvider?.provider}`);
-		}
-
-		if (availableCount > 1) {
-			const availableProviders = this.status.providers
-				.filter((p) => p.status === 'available')
-				.map((p) => p.provider);
-			logger.info(`Multiple OAuth2 providers available: ${availableProviders.join(', ')}`);
-		}
-
 		return initializedProviders;
+	}
+
+	/**
+	 * Runs `log` only when the provider's state differs from the last one logged
+	 */
+	private logOnChange(provider: string, state: string, log: () => void) {
+		if (this.loggedProviderStates.get(provider) !== state) {
+			this.loggedProviderStates.set(provider, state);
+			log();
+		}
 	}
 
 	/**
@@ -246,6 +271,14 @@ export class OAuth2ProviderManager {
 	 * Starts the initialization process with automatic retry
 	 */
 	async start() {
+		const globals = globalThis as typeof globalThis & { [ACTIVE_MANAGERS]?: ActiveManagers };
+		const active = (globals[ACTIVE_MANAGERS] ??= new Map());
+		const previous = active.get(this.wellKnownEndpoint);
+		if (previous && previous !== this) {
+			previous.shutdown();
+		}
+		active.set(this.wellKnownEndpoint, this);
+
 		await this.tryInitOauth2Providers();
 
 		// Start retry interval if initialization failed
@@ -355,8 +388,13 @@ export class OAuth2ProviderManager {
 			logger.debug('Refreshing OAuth2 provider statuses...');
 			try {
 				await this.initOauth2Providers();
+				this.loggedRefreshError = null;
 			} catch (error) {
-				logger.warn('Provider status refresh failed:', error);
+				const message = error instanceof Error ? error.message : String(error);
+				if (message !== this.loggedRefreshError) {
+					this.loggedRefreshError = message;
+					logger.warn(`Provider status refresh failed: ${message}`);
+				}
 			}
 		}, this.refreshIntervalMs);
 

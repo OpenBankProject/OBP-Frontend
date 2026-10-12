@@ -186,15 +186,11 @@ export class OAuth2ProviderFactory {
 			return null;
 		}
 
-		try {
-			const client = await strategy.initialize(config);
-			this.initializedClients.set(config.provider, client);
-			logger.debug(`Initialized OAuth2 client for provider: ${config.provider}`);
-			return client;
-		} catch (error) {
-			logger.error(`Failed to initialize OAuth2 client for provider ${config.provider}:`, error);
-			throw error;
-		}
+		// Failures propagate to OAuth2ProviderManager, which logs them when the provider's state changes
+		const client = await strategy.initialize(config);
+		this.initializedClients.set(config.provider, client);
+		logger.debug(`Initialized OAuth2 client for provider: ${config.provider}`);
+		return client;
 	}
 
 	getPrimaryClient(): OAuth2ClientWithConfig | undefined {

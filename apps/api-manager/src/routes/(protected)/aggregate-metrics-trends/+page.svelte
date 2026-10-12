@@ -16,6 +16,7 @@
   along with this program. If not, see <https://www.gnu.org/licenses/>.
 -->
 <script lang="ts">
+	import { scaleLinear } from 'd3';
 	type Metric = {
 		count: number;
 		average_response_time: number;
@@ -325,9 +326,21 @@
 	const CHART_W = 800;
 	const CHART_H = 240;
 	const CHART_PAD = 32;
-	const CHART_INNER_W = CHART_W - 2 * CHART_PAD;
-	const CHART_INNER_H = CHART_H - 2 * CHART_PAD;
-	let chartMaxOrOne = $derived(chartMax || 1);
+	// Wider left margin so the y-axis labels fit
+	const CHART_LEFT = 64;
+	const CHART_INNER_W = CHART_W - CHART_LEFT - CHART_PAD;
+	// Value scale rounded up to a nice maximum so the ticks are round numbers
+	let yScale = $derived(
+		scaleLinear()
+			.domain([0, chartMax || 1])
+			.nice()
+			.range([CHART_H - CHART_PAD, CHART_PAD])
+	);
+	let yTicks = $derived(yScale.ticks(5));
+	const tickFormat = new Intl.NumberFormat(undefined, {
+		notation: 'compact',
+		maximumFractionDigits: 1
+	});
 
 	// Preview of where buckets will actually land after alignment. Future end times are
 	// clamped to "now" so the preview matches what runQuery() will actually run.
@@ -502,44 +515,38 @@
 					aria-label="Aggregate metrics trend chart"
 					data-testid="trend-chart"
 				>
+					{#each yTicks as t (t)}
+						<line
+							x1={CHART_LEFT}
+							y1={yScale(t)}
+							x2={CHART_W - CHART_PAD}
+							y2={yScale(t)}
+							stroke="currentColor"
+							stroke-opacity={t === 0 ? 0.3 : 0.1}
+						/>
+						<text
+							x={CHART_LEFT - 8}
+							y={yScale(t)}
+							text-anchor="end"
+							dominant-baseline="middle"
+							font-size="14"
+							fill="currentColor">{tickFormat.format(t)}</text
+						>
+					{/each}
 					<line
-						x1={CHART_PAD}
-						y1={CHART_H - CHART_PAD}
-						x2={CHART_W - CHART_PAD}
-						y2={CHART_H - CHART_PAD}
-						stroke="currentColor"
-						stroke-opacity="0.3"
-					/>
-					<line
-						x1={CHART_PAD}
+						x1={CHART_LEFT}
 						y1={CHART_PAD}
-						x2={CHART_PAD}
+						x2={CHART_LEFT}
 						y2={CHART_H - CHART_PAD}
 						stroke="currentColor"
 						stroke-opacity="0.3"
 					/>
-					<text
-						x={CHART_PAD - 6}
-						y={CHART_PAD + 4}
-						text-anchor="end"
-						font-size="10"
-						fill="currentColor"
-						opacity="0.7">{chartMaxOrOne.toFixed(0)}</text
-					>
-					<text
-						x={CHART_PAD - 6}
-						y={CHART_H - CHART_PAD + 4}
-						text-anchor="end"
-						font-size="10"
-						fill="currentColor"
-						opacity="0.7">0</text
-					>
 					{#each buckets as b, i}
-						{@const cx = CHART_PAD + (i + 0.5) * (CHART_INNER_W / buckets.length)}
+						{@const cx = CHART_LEFT + (i + 0.5) * (CHART_INNER_W / buckets.length)}
 						{@const barW = Math.max(2, CHART_INNER_W / buckets.length - 2)}
 						{#if b.data}
 							{@const v = b.data[selectedMetric]}
-							{@const y = CHART_H - CHART_PAD - (v / chartMaxOrOne) * CHART_INNER_H}
+							{@const y = yScale(v)}
 							<rect
 								x={cx - barW / 2}
 								{y}
