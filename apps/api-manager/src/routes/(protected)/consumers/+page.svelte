@@ -91,10 +91,6 @@
     </div>
   </div>
 
-  <div class="mb-4">
-    <ApiExplorerEndpoints endpoints={data.endpoints} />
-  </div>
-
   {#if data.createdWindow}
     <div
       class="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-900 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-200"
@@ -225,8 +221,9 @@
             {/if}
             <div class="flex items-center gap-1.5 flex-shrink-0">
               <a
-                href="/consumers/{consumer.consumer_id}/edit"
-                class="inline-flex items-center rounded border border-blue-300 bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 dark:border-blue-600 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
+                data-testid="consumer-view-metrics-link-{consumer.consumer_id}"
+                href="/metrics?consumer_id={consumer.consumer_id}"
+                class="inline-flex items-center rounded border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-yellow-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 dark:border-gray-600 dark:bg-gray-700 dark:text-yellow-400 dark:hover:bg-gray-600"
               >
                 <svg
                   class="mr-1 h-3 w-3"
@@ -238,10 +235,10 @@
                     stroke-linecap="round"
                     stroke-linejoin="round"
                     stroke-width="2"
-                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
                   />
                 </svg>
-                Details
+                Metrics
               </a>
               <a
                 href="/consumers/{consumer.consumer_id}/rate-limits"
@@ -263,9 +260,8 @@
                 Rate Limits
               </a>
               <a
-                data-testid="consumer-view-metrics-link-{consumer.consumer_id}"
-                href="/metrics?consumer_id={consumer.consumer_id}"
-                class="inline-flex items-center rounded border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                href="/consumers/{consumer.consumer_id}/edit"
+                class="inline-flex items-center rounded border border-blue-300 bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 dark:border-blue-600 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
               >
                 <svg
                   class="mr-1 h-3 w-3"
@@ -277,10 +273,10 @@
                     stroke-linecap="round"
                     stroke-linejoin="round"
                     stroke-width="2"
-                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
                   />
                 </svg>
-                Metrics
+                Details
               </a>
               <span
                 class="rounded-full px-2 py-0.5 text-xs font-medium {consumer.enabled
@@ -378,3 +374,7 @@
       </a>
     </div>
   {/if}
+
+  <div class="mt-6">
+    <ApiExplorerEndpoints endpoints={data.endpoints} />
+  </div>
