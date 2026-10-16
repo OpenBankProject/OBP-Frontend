@@ -1,0 +1,57 @@
+/*
+ * Copyright (C) 2025-2026 TESOBE GmbH
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+import type { PageServerLoad } from "./$types";
+import { error } from "@sveltejs/kit";
+import { createLogger } from "@obp/shared/utils";
+import { SessionOAuthHelper } from "$lib/oauth/sessionHelper";
+import { obp_requests } from "$lib/obp/requests";
+import { webhooksAtBankPath, spaceOf, type DynamicEntityWebhook } from "$lib/services/dynamicEntityWebhooks";
+import { loadBankIds } from "$lib/server/domainApis";
+import { webhookExplorerEndpoints } from "$lib/server/dynamicEntityWebhooks";
+
+const logger = createLogger("DynamicEntityWebhooksPage");
+
+export const load: PageServerLoad = async ({ locals, url }) => {
+  const session = locals.session;
+  if (!session?.data?.user) throw error(401, "Unauthorized");
+  const token = SessionOAuthHelper.getSessionOAuth(session)?.accessToken;
+  if (!token) throw error(401, "No API access token available");
+
+  const bankId = spaceOf(url.searchParams.get("bank_id"));
+  // Narrows the list to one entity, when the page is opened from that entity.
+  const dynamicEntityId = url.searchParams.get("dynamic_entity_id") ?? "";
+
+  let webhooks: DynamicEntityWebhook[] = [];
+  let loadError: string | null = null;
+  try {
+    const resp = await obp_requests.get(webhooksAtBankPath(bankId), token);
+    webhooks = (resp?.web_hooks ?? []).filter((w: DynamicEntityWebhook) => !dynamicEntityId || w.dynamic_entity_id === dynamicEntityId);
+  } catch (e) {
+    logger.error(`Could not load the Dynamic Entity webhooks of ${bankId}:`, e);
+    loadError = e instanceof Error ? e.message : String(e);
+  }
+
+  let bankIds: string[] = [];
+  try {
+    bankIds = await loadBankIds(token);
+  } catch (e) {
+    logger.warn("Could not load banks for the space picker:", e);
+  }
+
+  return { bankId, bankIds, dynamicEntityId, webhooks, loadError, endpoints: webhookExplorerEndpoints(["listAtBank", "create", "delete"]) };
+};

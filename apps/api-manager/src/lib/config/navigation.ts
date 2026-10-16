@@ -76,6 +76,7 @@ import {
   Library,
   MessagesSquare,
   Globe,
+  Webhook,
 } from "@lucide/svelte";
 import { env } from "$env/dynamic/public";
 
@@ -884,7 +885,7 @@ function domain(
 }
 
 const buildSection = domain("build", "Build", Hammer,
-  ["/dynamic-entities", "/dynamic-endpoints", "/dynamic-resource-docs", "/glossary-items", "/integration", "/json-schema-validations", "/domain-apis", "/app-studio", "/reports"],
+  ["/dynamic-entities", "/dynamic-entity-webhooks", "/dynamic-endpoints", "/dynamic-resource-docs", "/glossary-items", "/integration", "/json-schema-validations", "/domain-apis", "/app-studio", "/reports"],
   [
     { label: "Dynamic Entities", items: [
       { href: "/dynamic-entities/system?level=system", label: "System", iconComponent: Box },
@@ -892,6 +893,7 @@ const buildSection = domain("build", "Build", Hammer,
       { href: "/dynamic-entities/system?level=both", label: "System + Bank", iconComponent: Box },
       { href: "/dynamic-entities/personal", label: "Personal", iconComponent: UserRound },
       { href: "/dynamic-entities/diagnostics", label: "Diagnostics", iconComponent: Stethoscope },
+      { href: "/dynamic-entity-webhooks", label: "Webhooks", iconComponent: Webhook },
     ] },
     { label: "Endpoints", items: [
       { href: "/dynamic-endpoints/system", label: "System", iconComponent: Plug },

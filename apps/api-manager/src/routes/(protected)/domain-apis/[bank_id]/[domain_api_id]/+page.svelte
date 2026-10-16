@@ -111,7 +111,7 @@
     <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
       {#key d.domain_api_id}
         <DomainApiForm
-          initial={{ base_path: d.base_path, version: d.version, title: d.title, description: d.description }}
+          initial={{ base_path: d.base_path, version: d.version, title: d.title, description: d.description, is_publicly_discoverable: d.is_publicly_discoverable }}
           bankId={d.bank_id}
           entityNames={data.entityNames}
           submitLabel="Save changes"

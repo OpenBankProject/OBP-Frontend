@@ -1,5 +1,11 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { getWebUiProps, resolveWebUiValues, _resetWebUiPropsCache } from './webUiProps';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import {
+	getWebUiProps,
+	resolveWebUiValues,
+	bumpWebUiProps,
+	setWebUiPropsGenerationStore,
+	_resetWebUiPropsCache
+} from './webUiProps';
 
 const props = (...pairs: [string, string][]) => ({
 	webui_props: pairs.map(([name, value]) => ({ name, value, source: 'database' }))
@@ -55,5 +61,53 @@ describe('getWebUiProps', () => {
 		} finally {
 			vi.useRealTimers();
 		}
+	});
+});
+
+describe('bumping', () => {
+	// Stands in for the Redis both apps share
+	function fakeRedis() {
+		const data = new Map<string, string>();
+		return {
+			get: async (key: string) => data.get(key) ?? null,
+			incr: async (key: string) => {
+				const n = Number(data.get(key) ?? 0) + 1;
+				data.set(key, String(n));
+				return n;
+			}
+		};
+	}
+
+	beforeEach(() => _resetWebUiPropsCache());
+	afterEach(() => setWebUiPropsGenerationStore(null));
+
+	it('refetches when another process bumped the generation', async () => {
+		const redis = fakeRedis();
+		setWebUiPropsGenerationStore(redis);
+		const get = vi.fn().mockResolvedValueOnce(props(['webui_a', 'old'])).mockResolvedValue(props(['webui_a', 'new']));
+		expect((await getWebUiProps(get)).get('webui_a')).toBe('old');
+		expect((await getWebUiProps(get)).get('webui_a')).toBe('old');
+		await redis.incr('obp_frontend:webui_props:generation'); // the Manager saved a prop
+		expect((await getWebUiProps(get)).get('webui_a')).toBe('new');
+		expect(get).toHaveBeenCalledTimes(2);
+	});
+
+	it('bumpWebUiProps clears this process and increments the shared generation', async () => {
+		const redis = fakeRedis();
+		setWebUiPropsGenerationStore(redis);
+		const get = vi.fn().mockResolvedValue(props(['webui_a', '1']));
+		await getWebUiProps(get);
+		await bumpWebUiProps();
+		await getWebUiProps(get);
+		expect(get).toHaveBeenCalledTimes(2);
+		expect(await redis.get('obp_frontend:webui_props:generation')).toBe('1');
+	});
+
+	it('falls back to the TTL when Redis does not answer', async () => {
+		setWebUiPropsGenerationStore({ get: () => new Promise(() => {}), incr: () => new Promise(() => {}) });
+		const get = vi.fn().mockResolvedValue(props(['webui_a', '1']));
+		await getWebUiProps(get);
+		expect((await getWebUiProps(get)).get('webui_a')).toBe('1');
+		expect(get).toHaveBeenCalledTimes(1);
 	});
 });

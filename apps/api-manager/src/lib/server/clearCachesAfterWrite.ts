@@ -24,6 +24,7 @@
 
 import { createLogger } from "@obp/shared/utils";
 import { clearGlossaryCache as clearApiGlossaryCache } from "@obp/shared/server/explorer";
+import { bumpWebUiProps } from "@obp/shared/server/obp";
 import { clearGlossaryCache } from "$lib/server/glossaryCache";
 
 const logger = createLogger("ClearCachesAfterWrite");
@@ -38,6 +39,13 @@ const RULES: { path: RegExp; name: string; clear: () => void }[] = [
       clearGlossaryCache();
       clearApiGlossaryCache();
     },
+  },
+  {
+    // WebUI Props: POST /management/webui_props, PUT and DELETE /management/webui_props/NAME.
+    // The bump also reaches the Portal, through the shared Redis.
+    path: /^(?:obp\/)?v\d+\.\d+\.\d+\/management\/webui_props(?:\/|$)/,
+    name: "webui_props",
+    clear: () => void bumpWebUiProps(),
   },
 ];
 

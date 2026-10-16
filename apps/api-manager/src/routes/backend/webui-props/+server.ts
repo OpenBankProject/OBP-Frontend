@@ -21,6 +21,7 @@ import { obp_requests } from "$lib/obp/requests";
 import { obpErrorResponse } from "$lib/obp/errors";
 import { SessionOAuthHelper } from "$lib/oauth/sessionHelper";
 import { createLogger } from '@obp/shared/utils';
+import { clearCachesAfterWrite } from "$lib/server/clearCachesAfterWrite";
 
 const logger = createLogger("WebUIPropsAPI");
 
@@ -66,6 +67,7 @@ export const PUT: RequestHandler = async ({ request, locals }) => {
     logger.info(`PUT ${endpoint}`);
 
     const response = await obp_requests.put(endpoint, requestBody, accessToken);
+    clearCachesAfterWrite("PUT", endpoint.slice(1), true);
 
     logger.info("WebUI prop created successfully");
     return json(response);

@@ -35,6 +35,7 @@ import { preWarmCache as preWarmResourceDocs } from "$lib/server/resourceDocs";
 import { healthCheckRegistry, OIDCHealthCheckService } from '@obp/shared/health-check';
 import { resolveGrpcTarget } from '@obp/shared/obp';
 import { RedisHealthCheckService, GrpcHealthCheckService } from '@obp/shared/server/health-check';
+import { setWebUiPropsGenerationStore } from '@obp/shared/server/obp';
 import {
   parseRateLimit,
   formatRate,
@@ -137,6 +138,8 @@ if (!env.REDIS_HOST || !env.REDIS_PORT) {
 
   client = new Redis(redisConfig);
 }
+// Saving a webui_prop bumps a generation counter here, which the Portal reads; see webUiProps.ts
+setWebUiPropsGenerationStore(client);
 
 // Start OAuth2 provider manager (handles initialization and retries automatically)
 await oauth2ProviderManager.start();

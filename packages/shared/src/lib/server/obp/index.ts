@@ -37,5 +37,11 @@ export type {
 	RequiredView,
 	ReusableConsent
 } from './consentReuse.js';
-export { getWebUiProps, resolveWebUiValues, _resetWebUiPropsCache } from './webUiProps.js';
-export type { ResolvedWebUiValue, WebUiValueSource } from './webUiProps.js';
+export {
+	getWebUiProps,
+	resolveWebUiValues,
+	bumpWebUiProps,
+	setWebUiPropsGenerationStore,
+	_resetWebUiPropsCache
+} from './webUiProps.js';
+export type { ResolvedWebUiValue, WebUiValueSource, WebUiPropsGenerationStore } from './webUiProps.js';

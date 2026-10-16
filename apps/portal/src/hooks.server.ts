@@ -38,6 +38,7 @@ import { resolveGrpcTarget } from '@obp/shared/obp';
 
 import { redisService } from '$lib/redis/services/RedisService';
 import { RedisHealthCheckService, GrpcHealthCheckService } from '@obp/shared/server/health-check';
+import { setWebUiPropsGenerationStore } from '@obp/shared/server/obp';
 import {
 	parseRateLimit,
 	formatRate,
@@ -101,6 +102,8 @@ checkServerPort();
 
 // Init Redis
 const redisClient = redisService.getClient();
+// The Manager bumps the webui_props generation when it saves one; see webUiProps.ts
+setWebUiPropsGenerationStore(redisClient);
 
 function initHealthChecks() {
 	healthCheckRegistry.register({

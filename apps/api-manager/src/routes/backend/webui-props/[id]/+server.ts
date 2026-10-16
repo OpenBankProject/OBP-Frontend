@@ -21,6 +21,7 @@ import { obp_requests } from "$lib/obp/requests";
 import { obpErrorResponse } from "$lib/obp/errors";
 import { SessionOAuthHelper } from "$lib/oauth/sessionHelper";
 import { createLogger } from '@obp/shared/utils';
+import { clearCachesAfterWrite } from "$lib/server/clearCachesAfterWrite";
 
 const logger = createLogger("WebUIPropAPI");
 
@@ -63,6 +64,7 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 
     const endpoint = `/obp/v6.0.0/management/webui_props/${id}`;
     const response = await obp_requests.put(endpoint, requestBody, accessToken);
+    clearCachesAfterWrite("PUT", endpoint.slice(1), true);
 
     logger.info("WebUI prop updated successfully");
     return json(response);
@@ -101,6 +103,7 @@ export const DELETE: RequestHandler = async ({ params, locals }) => {
     const endpoint = `/obp/v6.0.0/management/webui_props/${id}`;
     logger.info(`Calling DELETE ${endpoint}`);
     const response = await obp_requests.delete(endpoint, accessToken);
+    clearCachesAfterWrite("DELETE", endpoint.slice(1), true);
 
     logger.info("WebUI prop deleted successfully");
     return json(response);

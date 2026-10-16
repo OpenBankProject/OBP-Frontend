@@ -36,6 +36,8 @@
   let version = $state(initial?.version ?? "");
   let title = $state(initial?.title ?? "");
   let description = $state(initial?.description ?? "");
+  // False unless its owner says otherwise, as OBP does on create.
+  let is_publicly_discoverable = $state(initial?.is_publicly_discoverable ?? false);
   let isSubmitting = $state(false);
   let submitError = $state<string | null>(null);
 
@@ -56,6 +58,10 @@
     version: { get: () => version, set: (v) => (version = asText(v).trim()) },
     title: { get: () => title, set: (v) => (title = asText(v)) },
     description: { get: () => description, set: (v) => (description = asText(v)) },
+    is_publicly_discoverable: {
+      get: () => String(is_publicly_discoverable),
+      set: (v) => (is_publicly_discoverable = v === true || asText(v).trim().toLowerCase() === "true"),
+    },
   };
   let opeyPrevious = $state<Record<string, string>>({});
   let opeyFilledFields = $derived(Object.keys(opeyPrevious));
@@ -91,6 +97,7 @@
       "- version (string, required; MAJOR.MINOR.PATCH whose MAJOR equals the N of the base path's vN)",
       "- title (string, required, max 255 characters; the OpenAPI title)",
       "- description (string, optional, max 2000 characters; the OpenAPI description)",
+      "- is_publicly_discoverable (boolean, default false; true lists it in GET /obp/v7.0.0/banks/SPACE/domain-apis for anyone, without logging in. Only that listing: the base path and its OpenAPI document are served either way. Set it only when the user asks for the API to be public)",
       entityNames.length > 0 ? `Dynamic Entities in this space: ${entityNames.join(", ")}.` : "",
       "Current values (empty means unset):",
     ].filter(Boolean);
@@ -117,7 +124,7 @@
     if (versionError) { submitError = `Version: ${versionError}`; return; }
     isSubmitting = true;
     try {
-      await onSubmit({ base_path: base_path.trim(), version: version.trim(), title: title.trim(), description: description.trim() });
+      await onSubmit({ base_path: base_path.trim(), version: version.trim(), title: title.trim(), description: description.trim(), is_publicly_discoverable });
     } catch (e) {
       submitError = e instanceof Error ? e.message : String(e);
     } finally {
@@ -125,7 +132,7 @@
     }
   }
 
-  const fieldLabels: Record<string, string> = { base_path: "Base path", version: "Version", title: "Title", description: "Description" };
+  const fieldLabels: Record<string, string> = { base_path: "Base path", version: "Version", title: "Title", description: "Description", is_publicly_discoverable: "Publicly discoverable" };
   const inputClass = "mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100";
 </script>
 
@@ -176,6 +183,16 @@
   <div>
     <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
     <textarea id="description" name="description" rows="4" maxlength="2000" bind:value={description} class={inputClass} data-testid="field-description"></textarea>
+  </div>
+
+  <div class="flex items-start gap-3">
+    <input id="is_publicly_discoverable" name="is_publicly_discoverable" type="checkbox" bind:checked={is_publicly_discoverable} class="mt-0.5 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600" data-testid="field-publicly-discoverable" />
+    <div>
+      <label for="is_publicly_discoverable" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Publicly discoverable</label>
+      <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+        Anyone, without logging in, can find it in <code class="font-mono">GET /obp/v7.0.0/banks/{bankId}/domain-apis</code>. This only controls that listing: the base path and its OpenAPI document are served either way.
+      </p>
+    </div>
   </div>
 
   {#if submitError}

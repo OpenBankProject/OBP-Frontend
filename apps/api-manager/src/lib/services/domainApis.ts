@@ -30,6 +30,7 @@ export interface DomainApi {
   version: string;
   title: string;
   description: string;
+  is_publicly_discoverable: boolean;
   url: string;
   openapi_url: string;
   created_by_user_id: string;
@@ -42,6 +43,9 @@ export interface DomainApiFormValues {
   version: string;
   title: string;
   description: string;
+  /** Listed by GET /obp/v7.0.0/banks/BANK_ID/domain-apis for anyone, logged in or not. Only that
+   *  listing: the base path and its OpenAPI document are served either way. */
+  is_publicly_discoverable: boolean;
 }
 
 /** The space a page works on: a bank id, or SYS when none is given. */
@@ -100,6 +104,7 @@ function bodyOf(values: DomainApiFormValues): string {
     version: values.version,
     title: values.title,
     ...(values.description ? { description: values.description } : {}),
+    is_publicly_discoverable: values.is_publicly_discoverable,
   });
 }
 

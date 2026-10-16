@@ -27,6 +27,12 @@
  * One fetch serves every prop; the result is cached in-process so public pages
  * do not call OBP on each load. If OBP is unreachable the last good values are
  * served, or none, and callers fall back to their env var / default.
+ *
+ * Bumping: a trusted server-side write (the Manager saving a webui_prop) calls
+ * bumpWebUiProps(), which clears this process's cache and increments a
+ * generation counter in the shared Redis. Every app process compares the
+ * counter with the one its cache was filled under, so the Portal refetches on
+ * its next load too. Without Redis (or if it is slow) the TTL still applies.
  */
 
 import { createLogger } from '$shared/utils/logger';
@@ -36,11 +42,64 @@ import type { ObpGet } from './consentsConfig.js';
 const logger = createLogger('WebUiProps');
 
 const CACHE_TTL_MS = 5 * 60 * 1000;
+const GENERATION_KEY = 'obp_frontend:webui_props:generation';
+// ioredis queues commands while reconnecting; never let a page load wait on it
+const GENERATION_TIMEOUT_MS = 250;
 
-let cache: { values: Map<string, string>; fetchedAt: number } | null = null;
+/** The part of an ioredis client the generation counter needs. */
+export interface WebUiPropsGenerationStore {
+	get(key: string): Promise<string | null>;
+	incr(key: string): Promise<number>;
+}
+
+let generationStore: WebUiPropsGenerationStore | null = null;
+
+let cache: { values: Map<string, string>; fetchedAt: number; generation: string | null } | null = null;
+
+/** Called once from each app's hooks.server.ts with its Redis client. */
+export function setWebUiPropsGenerationStore(store: WebUiPropsGenerationStore | null): void {
+	generationStore = store;
+}
+
+function withTimeout<T>(promise: Promise<T>): Promise<T> {
+	return Promise.race([
+		promise,
+		new Promise<T>((_, reject) => setTimeout(() => reject(new Error('timed out')), GENERATION_TIMEOUT_MS))
+	]);
+}
+
+/** undefined = unknown (no store, or Redis unavailable); the TTL decides then. */
+async function currentGeneration(): Promise<string | null | undefined> {
+	if (!generationStore) return undefined;
+	try {
+		return await withTimeout(generationStore.get(GENERATION_KEY));
+	} catch (err: unknown) {
+		logger.warn(`Could not read the webui_props generation: ${err instanceof Error ? err.message : String(err)}`);
+		return undefined;
+	}
+}
+
+/** After a successful webui_props write: clear this process's cache and tell the other apps. */
+export async function bumpWebUiProps(): Promise<void> {
+	cache = null;
+	if (!generationStore) return;
+	try {
+		await withTimeout(generationStore.incr(GENERATION_KEY));
+		logger.info('Bumped the webui_props generation');
+	} catch (err: unknown) {
+		logger.warn(`Could not bump the webui_props generation: ${err instanceof Error ? err.message : String(err)}`);
+	}
+}
 
 export async function getWebUiProps(obpGet: ObpGet): Promise<Map<string, string>> {
-	if (cache && Date.now() - cache.fetchedAt < CACHE_TTL_MS) return cache.values;
+	const generation = await currentGeneration();
+	if (
+		cache &&
+		Date.now() - cache.fetchedAt < CACHE_TTL_MS &&
+		(generation === undefined || generation === cache.generation)
+	) {
+		return cache.values;
+	}
 
 	try {
 		const json = await obpGet('/obp/v6.0.0/webui-props?what=database');
@@ -50,14 +109,14 @@ export async function getWebUiProps(obpGet: ObpGet): Promise<Map<string, string>
 				values.set(prop.name, prop.value);
 			}
 		}
-		cache = { values, fetchedAt: Date.now() };
+		cache = { values, fetchedAt: Date.now(), generation: generation ?? null };
 		return values;
 	} catch (err: unknown) {
 		const msg = err instanceof Error ? err.message : String(err);
 		logger.warn(`Could not fetch webui_props, using ${cache ? 'cached values' : 'fallbacks'}: ${msg}`);
 		if (cache) {
 			// Retry after another TTL rather than on every request while OBP is down
-			cache = { values: cache.values, fetchedAt: Date.now() };
+			cache = { ...cache, fetchedAt: Date.now(), generation: generation ?? cache.generation };
 			return cache.values;
 		}
 		return new Map();
