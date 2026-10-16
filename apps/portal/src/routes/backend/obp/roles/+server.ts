@@ -32,7 +32,7 @@ export const GET: RequestHandler = async ({ locals }) => {
 
   try {
     const accessToken = session.data.oauth?.access_token;
-    const response = await obp_requests.get("/obp/v2.1.0/roles", accessToken);
+    const response = await obp_requests.get("/obp/v7.0.0/roles", accessToken);
     return json(response);
   } catch (err: unknown) {
     logger.error("Error fetching roles:", err);
