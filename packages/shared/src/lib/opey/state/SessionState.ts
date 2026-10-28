@@ -19,6 +19,8 @@ export interface SessionSnapshot {
     isAuthenticated: boolean;
     status: 'ready' | 'loading' | 'error';
     error?: string;
+    /** HTTP status of the refusal that put the session into 'error', if it came from the server. */
+    errorStatus?: number;
 }
 
 
@@ -34,6 +36,10 @@ export class SessionState {
     }
     private subscribers: Array<(snapshot: SessionSnapshot) => void> = [];
 
+    get current(): SessionSnapshot {
+        return this.snapshot;
+    }
+
     subscribe(fn: (snapshot: SessionSnapshot) => void): () => void {
         this.subscribers.push(fn);
         fn(this.snapshot);
@@ -48,8 +54,8 @@ export class SessionState {
         this.emit();
     }
 
-    setStatus(status: SessionSnapshot['status'], error?: string) {
-        this.snapshot = { ...this.snapshot, status, error}
+    setStatus(status: SessionSnapshot['status'], error?: string, errorStatus?: number) {
+        this.snapshot = { ...this.snapshot, status, error, errorStatus}
         this.emit();
     }
 

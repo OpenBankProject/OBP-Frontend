@@ -523,37 +523,10 @@
 		await sessionController.init();
 	}
 
-	// Add retry logic with exponential backoff
+	// Retry with backoff lives in the controller: a logged-out visitor makes no request, and a
+	// refusal such as 401 is reported once with its cause instead of being retried.
 	async function initializeOpeySessionWithRetry(maxRetries = 3, baseDelay = 1000) {
-		let lastError: string | null = null;
-		for (let attempt = 1; attempt <= maxRetries; attempt++) {
-			try {
-				await initializeOpeySession();
-				if (session.status === 'ready') {
-					logger.debug(`Opey session initialized successfully on attempt ${attempt}`);
-					return;
-				}
-				// Init didn't throw but the session isn't ready — capture whatever
-				// session.error was set to internally so it isn't swallowed.
-				if (session.error) lastError = session.error;
-			} catch (error) {
-				lastError = error instanceof Error ? error.message : String(error);
-				logger.warn(`Session initialization attempt ${attempt} failed:`, error);
-			}
-
-			if (attempt < maxRetries) {
-				const delay = baseDelay * Math.pow(2, attempt - 1); // Exponential backoff
-				logger.debug(`Retrying session initialization in ${delay}ms...`);
-				await new Promise((resolve) => setTimeout(resolve, delay));
-			}
-		}
-
-		// Surface the real underlying cause rather than just "after N attempts".
-		const finalMessage = lastError
-			? `Failed to initialize after ${maxRetries} attempts: ${lastError}`
-			: `Failed to initialize after ${maxRetries} attempts`;
-		logger.error(finalMessage);
-		sessionState.setStatus('error', finalMessage);
+		await sessionController.initWithRetry({ userAuthenticated, maxRetries, baseDelay });
 	}
 
 	/**
@@ -803,7 +776,7 @@
 				<button
 					class="text-s btn flex items-center rounded-lg border border-solid border-primary-500 bg-primary-50-950 px-3"
 					onclick={() => handleSendMessage(question.questionString)}
-					disabled={session?.status !== 'ready'}
+					disabled={session?.status !== 'ready' || !userAuthenticated}
 				>
 					{#if question.icon}
 						<question.icon />
@@ -1106,7 +1079,7 @@
 					: 'Ask me anything...'}
 			class="w-full resize-none border-none bg-transparent p-0.5 outline-none shadow-none focus:outline-none focus:shadow-none focus:ring-0 focus-visible:outline-none max-h-40 overflow-y-auto"
 			style="min-height: 2.5rem;"
-			disabled={session?.status !== 'ready'}
+			disabled={session?.status !== 'ready' || !userAuthenticated}
 			onkeydown={handleKeyPress}
 			oninput={autoResize}
 			rows="1"
