@@ -17,11 +17,11 @@
  */
 import type { PageServerLoad } from "./$types";
 import { error } from "@sveltejs/kit";
-import { FILES_PAGE_SIZE, fileExplorerEndpoints } from "$lib/server/files";
+import { FILES_PAGE_SIZE } from "$lib/server/files";
 
 // The files themselves are loaded by the page, for the bank chosen in the bank selector at the top
 // (the current bank is kept in the browser).
 export const load: PageServerLoad = async ({ locals }) => {
   if (!locals.session?.data?.user) throw error(401, "Unauthorized");
-  return { pageSize: FILES_PAGE_SIZE, endpoints: fileExplorerEndpoints() };
+  return { pageSize: FILES_PAGE_SIZE };
 };

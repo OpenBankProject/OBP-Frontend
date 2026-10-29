@@ -47,4 +47,6 @@ COPY package.json .
 COPY --from=builder /app/proto proto/
 EXPOSE 3003
 ENV NODE_ENV=production
+# No request body limit of the app's own (adapter-node's default is 512K): OBP-API limits file sizes
+ENV BODY_SIZE_LIMIT=Infinity
 CMD [ "node", "build" ]

@@ -16,7 +16,6 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 /** Server-side helpers for the Files pages: OBP-API's v7.0.0 file endpoints. */
-import { explorerResourceDocUrl } from "$lib/server/glossaryCache";
 
 /** The most files OBP-API returns in one page of Get Files of a Space. */
 export const FILES_PAGE_SIZE = 500;
@@ -24,12 +23,4 @@ export const FILES_PAGE_SIZE = 500;
 /** `/obp/v7.0.0/banks/BANK_ID/files/FILE_ID/content` */
 export function fileContentPath(bankId: string, fileId: string): string {
   return `/obp/v7.0.0/banks/${encodeURIComponent(bankId)}/files/${encodeURIComponent(fileId)}/content`;
-}
-
-/** The v7.0.0 file endpoints the pages use, linked to their resource docs in the API Explorer. */
-export function fileExplorerEndpoints() {
-  return [
-    { operation_id: "OBPv7.0.0-getFilesOfSpace", verb: "GET", path: "/obp/v7.0.0/management/banks/BANK_ID/files" },
-    { operation_id: "OBPv7.0.0-getFileContent", verb: "GET", path: "/obp/v7.0.0/banks/BANK_ID/files/FILE_ID/content" },
-  ].map((endpoint) => ({ ...endpoint, url: explorerResourceDocUrl(endpoint.operation_id) }));
 }

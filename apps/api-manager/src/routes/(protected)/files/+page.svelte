@@ -16,7 +16,7 @@
   along with this program. If not, see <https://www.gnu.org/licenses/>.
 -->
 <script lang="ts">
-  import ApiExplorerEndpoints from "$lib/components/ApiExplorerEndpoints.svelte";
+  import { Plus } from "@lucide/svelte";
   import SpaceRoleAlerts from "$lib/components/SpaceRoleAlerts.svelte";
   import { currentBank } from "$lib/stores/currentBank.svelte";
   import { trackedFetch } from "$lib/utils/trackedFetch";
@@ -83,7 +83,7 @@
   }
 
   function formatDate(dateString: string): string {
-    return new Date(dateString).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
+    return new Date(dateString).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short", hourCycle: "h23" });
   }
 </script>
 
@@ -92,11 +92,12 @@
 </svelte:head>
 
 <div class="container mx-auto max-w-7xl px-4 py-8">
-  <div class="mb-6">
+  <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
     <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Files</h1>
+    <a href="/files/create" data-testid="create-link" class="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600">
+      <Plus size={16} /> Create File
+    </a>
   </div>
-
-  <div class="mb-4"><ApiExplorerEndpoints endpoints={data.endpoints} /></div>
 
   {#if !bankId}
     <div class="mb-6 rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300" data-testid="no-bank">
