@@ -885,7 +885,7 @@ function domain(
 }
 
 const buildSection = domain("build", "Build", Hammer,
-  ["/dynamic-entities", "/dynamic-entity-webhooks", "/dynamic-endpoints", "/dynamic-resource-docs", "/glossary-items", "/integration", "/json-schema-validations", "/domain-apis", "/app-studio", "/reports"],
+  ["/dynamic-entities", "/dynamic-entity-webhooks", "/dynamic-endpoints", "/dynamic-resource-docs", "/glossary-items", "/integration", "/json-schema-validations", "/domain-apis", "/files", "/app-studio", "/reports"],
   [
     { label: "Dynamic Entities", items: [
       { href: "/dynamic-entities/system?level=system", label: "System", iconComponent: Box },
@@ -905,6 +905,9 @@ const buildSection = domain("build", "Build", Hammer,
     ] },
     { label: "Publish", items: [
       { href: "/domain-apis", label: "Domain APIs", iconComponent: Globe },
+    ] },
+    { label: "Files", items: [
+      { href: "/files", label: "Files", iconComponent: FileText },
     ] },
     { label: "Glossary", items: [
       { href: "/glossary-items", label: "Dynamic Glossary Items", iconComponent: BookOpen },
