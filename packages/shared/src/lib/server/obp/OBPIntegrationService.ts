@@ -22,6 +22,7 @@ import type { Session } from 'svelte-kit-sessions';
 import type { OBPRequests } from '$shared/obp/requests';
 import type { OBPConsent, OBPConsentInfo } from '$shared/obp/types';
 import { capConsentTtlSeconds } from './consentsConfig.js';
+import { OpeyAuthError } from '$shared/opey/errors';
 
 export interface OBPIntegrationService {
   getOrCreateOpeyConsent(session: Session): Promise<OBPConsent>;
@@ -52,8 +53,18 @@ export class DefaultOBPIntegrationService implements OBPIntegrationService {
       return existingConsentId;
     }
 
+    // A consent created earlier that is still waiting (INITIATED) will not become usable by creating
+    // another one; every extra consent is one more the user has to deal with.
+    const pending = await this.findPendingOpeyConsent(session.data.oauth.access_token);
+    if (pending) {
+      throw this.consentNotAccepted(pending);
+    }
+
     // Create new consent
     const consent = await this.createImplicitConsent(session.data.oauth.access_token);
+    if (consent.status && consent.status !== 'ACCEPTED') {
+      throw this.consentNotAccepted(consent);
+    }
     const userIdentifier = extractUsernameFromJWT(consent.jwt);
     logger.info(`getOrCreateOpeyConsent says: Created new consent JWT - Primary user: ${userIdentifier}`);
     return consent;
@@ -128,6 +139,32 @@ export class DefaultOBPIntegrationService implements OBPIntegrationService {
 			return null;
 		}
 	}
+
+  private consentNotAccepted(consent: { consent_id?: string; status?: string }): OpeyAuthError {
+    return new OpeyAuthError(
+      `Opey consent ${consent.consent_id ?? ''} is in status ${consent.status}, not ACCEPTED: it has to be accepted before the chat can use it`,
+      401
+    );
+  }
+
+  /** The Opey consent of this user that was created but not accepted yet and has not expired. */
+  private async findPendingOpeyConsent(accessToken: string): Promise<OBPConsent | null> {
+    try {
+      const response = await this.obpRequests.get('/obp/v5.1.0/my/consents', accessToken);
+      const consents: OBPConsent[] = response.consents || [];
+      return (
+        consents.find(
+          (c) =>
+            c.consumer_id === this.opeyConsumerId &&
+            c.status === 'INITIATED' &&
+            !(c.jwt_expires_at && this.isConsentExpired(c))
+        ) ?? null
+      );
+    } catch (error) {
+      logger.info('findPendingOpeyConsent says: consent listing failed:', error);
+      return null;
+    }
+  }
 
 	private async createImplicitConsent(accessToken: string): Promise<OBPConsent> {
 		const now = new Date().toISOString().split('.')[0] + 'Z';

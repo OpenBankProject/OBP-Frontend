@@ -21,6 +21,7 @@ import { createLogger } from '../../utils/logger.js';
 import { extractUsernameFromJWT } from '../../utils/jwt.js';
 import { obpErrorResponse } from '../../obp/errors.js';
 import type { OBPConsent } from '../../obp/types.js';
+import { OpeyAuthError, statusForOpeyAnswer } from '../../opey/errors.js';
 
 const logger = createLogger('OpeyAuthHandler');
 
@@ -35,6 +36,18 @@ export interface OpeyAuthHandlerConfig {
 	getSession: (event: any) => any;
 	/** Return the Consent used to authenticate the user with Opey. Called only when both a session and opeyConsumerId are present. */
 	getOrCreateOpeyConsent?: (session: any) => Promise<OBPConsent>;
+}
+
+/** Opey answers errors as `{"detail": "..."}`; fall back to the raw text. */
+function opeyDetail(errorText: string): string {
+	try {
+		const parsed = JSON.parse(errorText);
+		if (typeof parsed?.detail === 'string') return parsed.detail;
+		if (typeof parsed?.message === 'string') return parsed.message;
+	} catch {
+		// not JSON
+	}
+	return errorText;
 }
 
 export function createOpeyAuthHandler(config: OpeyAuthHandlerConfig): {
@@ -55,7 +68,10 @@ export function createOpeyAuthHandler(config: OpeyAuthHandlerConfig): {
 		if (!opeyResponse.ok) {
 			const errorText = await opeyResponse.text();
 			logger.error(`Failed to create anonymous Opey session - Error: ${errorText}`);
-			throw new Error(`Failed to create anonymous Opey session: ${errorText}`);
+			throw new OpeyAuthError(
+				`Failed to create anonymous Opey session: ${opeyDetail(errorText)}`,
+				statusForOpeyAnswer(opeyResponse.status)
+			);
 		}
 
 		logger.info('Successfully created anonymous Opey session');
@@ -104,7 +120,10 @@ export function createOpeyAuthHandler(config: OpeyAuthHandlerConfig): {
 			logger.error(
 				`Failed to create authenticated Opey session - Primary user: ${userIdentifier} - Error: ${errorText}`
 			);
-			throw new Error(`Failed to create authenticated Opey session: ${errorText}`);
+			throw new OpeyAuthError(
+				`Failed to create authenticated Opey session: ${opeyDetail(errorText)}`,
+				statusForOpeyAnswer(opeyResponse.status)
+			);
 		}
 
 		logger.info(
@@ -137,7 +156,7 @@ export function createOpeyAuthHandler(config: OpeyAuthHandlerConfig): {
 			try {
 				return await getAuthenticatedSession(portalSession);
 			} catch (error: unknown) {
-				logger.info('JWT expired for Opey session - user needs to re-authenticate:', error);
+				logger.info('Opey session could not be created for the logged-in user:', error);
 				const { body, status } = obpErrorResponse(error);
 				return json(body, { status });
 			}

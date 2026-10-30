@@ -31,6 +31,17 @@ import type { SessionService } from './SessionService.js';
  * the host app's server route, which is the only place that has
  * access to the OAuth token.
  */
+/** Session start-up refused by the auth route; `status` is its HTTP status. */
+export class OpeySessionError extends Error {
+	status: number;
+
+	constructor(message: string, status: number) {
+		super(message);
+		this.name = 'OpeySessionError';
+		this.status = status;
+	}
+}
+
 export class OpeySessionService implements SessionService {
 	constructor(private authEndpoint: string = '/backend/opey/auth') {}
 
@@ -42,10 +53,10 @@ export class OpeySessionService implements SessionService {
 			credentials: 'include'
 		});
 
-		const data = await response.json();
+		const data = await response.json().catch(() => ({}));
 
 		if (!response.ok) {
-			throw new Error(data.message ?? `HTTP ${response.status}`);
+			throw new OpeySessionError(data.message ?? `HTTP ${response.status}`, response.status);
 		}
 
 		logger.info(`Opey session created - authenticated: ${data.authenticated}`);
