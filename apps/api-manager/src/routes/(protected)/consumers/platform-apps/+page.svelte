@@ -42,7 +42,13 @@
 
   let busy = $state<string | null>(null);
   let actionError = $state<string | null>(null);
-  let markForm = $state({ consumer_id: "", label: "" });
+  // A link can fill in the form (e.g. from OBP-Sentinel: ?consumer_id=...&label=Sentinel).
+  const linkedConsumerId = page.url.searchParams.get("consumer_id");
+  const linkedLabel = page.url.searchParams.get("label");
+  let markForm = $state({
+    consumer_id: linkedConsumerId === null ? "" : linkedConsumerId,
+    label: linkedLabel === null ? "" : linkedLabel,
+  });
 
   async function call(key: string, url: string, method: string, body?: unknown) {
     busy = key;

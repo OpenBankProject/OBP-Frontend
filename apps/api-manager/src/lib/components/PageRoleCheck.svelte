@@ -72,6 +72,20 @@
     return checkRoles(userEntitlements || [], optional, currentBankId, "OR", jitEnabled);
   });
 
+  // One request widget per bank the missing optional roles are held at (usually one), not one per role:
+  // some pages list a dozen optional roles.
+  let optionalRoleGroups = $derived.by(() => {
+    const groups = new Map<string, string[]>();
+    for (const r of missingOptionalRoles) {
+      const bankId = r.bankScoped ? currentBankId : r.bankId;
+      const key = bankId === undefined ? "" : bankId;
+      const roles = groups.get(key);
+      if (roles) roles.push(r.role);
+      else groups.set(key, [r.role]);
+    }
+    return [...groups].map(([bankId, roles]) => ({ bankId, roles }));
+  });
+
   let missingOptionalRoles = $derived(
     optionalCheck && !optionalCheck.hasAllRoles
       ? optionalCheck.missingRoles
@@ -117,12 +131,15 @@
     </div>
   {/if}
   {#if missingOptionalRoles.length > 0}
-    <div class="optional-role-note">
-      <span class="note-icon">&#x2139;&#xFE0F;</span>
-      <span>
-        Some actions on this page require additional roles:
-        {missingOptionalRoles.map((r) => r.role).join(", ")}
-      </span>
+    <!-- The page still renders; each role it lacks can be requested here, as for a required role -->
+    <div class="optional-role-alerts" data-testid="optional-role-alerts">
+      <div class="optional-role-note">
+        <span class="note-icon">&#x2139;&#xFE0F;</span>
+        <span>Some actions on this page require additional roles:</span>
+      </div>
+      {#each optionalRoleGroups as group (group.bankId)}
+        <MissingRoleAlert roles={group.roles} bankId={group.bankId === "" ? undefined : group.bankId} />
+      {/each}
     </div>
   {/if}
   {@render children()}
@@ -221,6 +238,17 @@
     background: rgba(34, 197, 94, 0.1);
     border-color: rgba(34, 197, 94, 0.3);
     color: #4ade80;
+  }
+
+  .optional-role-alerts {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .optional-role-alerts .optional-role-note {
+    margin-bottom: 0;
   }
 
   .optional-role-note {
