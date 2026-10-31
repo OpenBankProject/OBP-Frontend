@@ -49,6 +49,21 @@ function fakeObp(overrides: Partial<ConversationObpRequests> = {}) {
 }
 
 describe('ConversationRowStore', () => {
+	it('writes a bank-level entity at its v7.0.0 URL and finds rows in the wrapped list', async () => {
+		const { obp, calls } = fakeObp({
+			get: vi.fn(async (path: string, token: string) => {
+				calls.push({ method: 'GET', path, token });
+				return { notes_list: [{ bank_id: 'cohort', notes: { notes_id: 'row-5', thread_id: 't9', messages_json: '[]' }, metadata: {} }] };
+			})
+		});
+		const store = new ConversationRowStore('notes', obp, { now, bankId: 'cohort' });
+
+		const outcome = await store.append({ accessToken: 'tok', threadId: 't9', messages: [user('u1', 'Hello')] });
+		expect(outcome).toEqual({ status: 'saved', recordId: 'row-5', messageCount: 1 });
+		expect(calls[0].path).toBe('/obp/v7.0.0/banks/cohort/dynamic-entities/my/notes');
+		expect(calls[1]).toMatchObject({ method: 'PATCH', path: '/obp/v7.0.0/banks/cohort/dynamic-entities/my/notes/row-5' });
+	});
+
 	it('creates the row on the first turn and patches it with the merged transcript on the next', async () => {
 		const { obp, calls } = fakeObp();
 		const store = new ConversationRowStore('notes', obp, { now });

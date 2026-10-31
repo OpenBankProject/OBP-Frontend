@@ -22,6 +22,7 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
 	const user = locals.session.data.user;
 	return {
 		locale: locals.locale,
+		branding: locals.branding,
 		path: url.pathname + url.search,
 		user: user
 			? {

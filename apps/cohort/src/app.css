@@ -27,3 +27,18 @@
 @import '../../../packages/shared/obp-theme.css';
 
 @custom-variant dark (&:where([data-mode=dark], [data-mode=dark] *));
+
+/* Minimal scrollbar, as in the Portal: no track, thin thumb */
+* {
+	scrollbar-width: thin;
+	scrollbar-color: oklch(60% 0 0 / 0.3) transparent;
+}
+
+*:where([data-mode=dark], [data-mode=dark] *) {
+	scrollbar-color: oklch(80% 0 0 / 0.2) transparent;
+}
+
+/* Links: the OBP theme colours them primary-500 (dark navy) in both modes, unreadable on a dark background. */
+[data-mode='dark'] .anchor {
+	color: var(--color-tertiary-300);
+}

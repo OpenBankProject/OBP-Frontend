@@ -1,5 +1,6 @@
 // See https://svelte.dev/docs/kit/types#app.d.ts
 import type { Session } from 'svelte-kit-sessions';
+import type { Branding } from '$lib/branding';
 import type { Locale } from '$lib/i18n';
 
 declare global {
@@ -8,6 +9,7 @@ declare global {
 		interface Locals {
 			session: Session;
 			locale: Locale;
+			branding: Branding;
 		}
 		// interface PageData {}
 		// interface PageState {}

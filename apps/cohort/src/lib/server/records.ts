@@ -45,6 +45,29 @@ export function unwrapList(entity: string, response: any): CohortRecord[] {
 	return items.map((item) => item?.[entity]).filter((record): record is CohortRecord => record != null);
 }
 
+/** Who created and last updated a record, and when; user ids are absent on public reads. */
+export interface RecordMetadata {
+	created?: { at?: string | null; user_id?: string | null; on_behalf_of_user_id?: string | null };
+	updated?: { at?: string | null; user_id?: string | null; on_behalf_of_user_id?: string | null };
+}
+
+/** The records of a v7.0.0 list response with their metadata. */
+export function unwrapListWithMetadata(entity: string, response: any): { record: CohortRecord; metadata: RecordMetadata }[] {
+	const items: any[] = response?.[`${entity}_list`] ?? [];
+	return items
+		.filter((item) => item?.[entity] != null)
+		.map((item) => ({ record: item[entity] as CohortRecord, metadata: (item.metadata ?? {}) as RecordMetadata }));
+}
+
+export async function listRecordsWithMetadata(entity: string, access: Access, token?: string) {
+	return unwrapListWithMetadata(entity, await obpRequests.get(path(entity, access), token));
+}
+
+export async function getRecordWithMetadata(entity: string, access: Access, id: string, token?: string) {
+	const response = await obpRequests.get(path(entity, access, id), token);
+	return { record: response?.[entity] as CohortRecord, metadata: (response?.metadata ?? {}) as RecordMetadata };
+}
+
 export async function listRecords(entity: string, access: Access, token?: string): Promise<CohortRecord[]> {
 	return unwrapList(entity, await obpRequests.get(path(entity, access), token));
 }

@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
+import { PORTAL_OPEY_CONVERSATION_ENTITY } from '@obp/shared/opey';
 import type { SystemDynamicEntityDefinition } from '@obp/shared/server/obp';
 
 /**
@@ -26,6 +27,7 @@ export const PROGRAMME = 'cohort_programme';
 export const CALL = 'cohort_call';
 export const APPLICATION = 'cohort_application';
 export const SCREENING_DECISION = 'cohort_screening_decision';
+export const OPEY_CONVERSATION = 'cohort_opey_conversation';
 
 const text = (example: string, description: string, maxLength = 255, minLength = 0) => ({
 	type: 'string',
@@ -136,9 +138,27 @@ export const screeningDecisionEntity: SystemDynamicEntityDefinition = {
 	}
 };
 
+/**
+ * A conversation with Opey, recorded by Cohort as the User after each message: the audit log of questions and
+ * answers. The Portal's definition (shared, so the two only grow together) under Cohort's name, in Cohort's space.
+ * Personal: each User sees only their own. Community: auditors holding CanGetDynamicEntityRecord_cohort_opey_conversation
+ * at the space read every conversation, read only. Anonymous visitors' chats are not recorded.
+ */
+export const opeyConversationEntity: SystemDynamicEntityDefinition = {
+	...(PORTAL_OPEY_CONVERSATION_ENTITY as SystemDynamicEntityDefinition),
+	entity_name: OPEY_CONVERSATION,
+	has_community_access: true,
+	schema: {
+		...PORTAL_OPEY_CONVERSATION_ENTITY.schema,
+		description:
+			'A conversation between a User and Opey in Cohort, written by Cohort as the User after each message completes. Personal: each User sees only their own conversations; auditors with the Get Role read all of them.'
+	}
+};
+
 export const COHORT_ENTITIES: SystemDynamicEntityDefinition[] = [
 	programmeEntity,
 	callEntity,
 	applicationEntity,
-	screeningDecisionEntity
+	screeningDecisionEntity,
+	opeyConversationEntity
 ];

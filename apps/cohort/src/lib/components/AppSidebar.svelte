@@ -1,12 +1,26 @@
 <script lang="ts">
-	import { ChevronDown, ChevronRight, FileText, KeyRound, Megaphone, Settings, Users } from '@lucide/svelte';
+	import { ChevronDown, ChevronRight, FileText, Inbox, KeyRound, Megaphone, MessagesSquare, Settings, Sparkles, Users } from '@lucide/svelte';
 	import { t, type Locale, type MessageKey } from '$lib/i18n';
 
 	/**
 	 * The navigation of every page, in the Portal's style. It sits on the start side (right in Arabic), and across
 	 * the top on small screens. Visitors who are not logged in see only the public pages.
 	 */
-	let { locale, path, username }: { locale: Locale; path: string; username: string | null } = $props();
+	let {
+		locale,
+		path,
+		username,
+		mode = 'dark',
+		logoUrl,
+		darkLogoUrl
+	}: {
+		locale: Locale;
+		path: string;
+		username: string | null;
+		mode?: 'dark' | 'light';
+		logoUrl: string;
+		darkLogoUrl: string;
+	} = $props();
 
 	interface Item {
 		href: string;
@@ -26,6 +40,9 @@
 			icon: Users,
 			children: [
 				{ href: '/staff/access', label: 'nav_access', icon: KeyRound },
+				{ href: '/staff/applications', label: 'nav_staff_applications', icon: Inbox },
+				{ href: '/staff/conversations', label: 'nav_conversations', icon: MessagesSquare },
+				{ href: '/staff/example-data', label: 'nav_example_data', icon: Sparkles },
 				{ href: '/staff/setup', label: 'nav_setup', icon: Settings }
 			]
 		}
@@ -52,7 +69,9 @@
 	<a
 		href={item.href}
 		class="btn w-full justify-start gap-3 {size}"
-		class:preset-filled-primary-500={current === item.href}
+		class:preset-filled-primary-50-950={current === item.href}
+		class:border={current === item.href}
+		class:border-secondary-500={current === item.href}
 		aria-current={current === item.href ? 'page' : undefined}
 		data-testid="nav-{item.href === '/' ? 'calls' : item.href.slice(1).replace('/', '-')}"
 	>
@@ -61,8 +80,10 @@
 	</a>
 {/snippet}
 
-<aside class="flex flex-col gap-4 bg-primary-50 p-3 md:h-screen md:sticky md:top-0 dark:bg-primary-950">
-	<a href="/" class="px-3 pt-2 text-lg font-semibold" data-testid="brand">{t(locale, 'app_name')}</a>
+<aside class="flex flex-col gap-4 border-e border-surface-100-900 bg-primary-50 p-3 md:overflow-y-auto dark:bg-primary-950">
+	<a href="/" class="px-3 pt-2" data-testid="brand">
+		<img src={mode === 'dark' ? darkLogoUrl : logoUrl} alt={t(locale, 'nav_home')} class="w-40" />
+	</a>
 	<nav aria-label={t(locale, 'nav_main')}>
 		<ul class="flex flex-wrap gap-1 md:flex-col">
 			{#each items as item (item.href)}

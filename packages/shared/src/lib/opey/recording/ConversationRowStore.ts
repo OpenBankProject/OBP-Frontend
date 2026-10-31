@@ -28,6 +28,7 @@
  * entity does not cost a failing request per message.
  */
 import { createLogger } from '../../utils/logger';
+import { dynamicEntityDataPath } from '../../obp/dynamicEntitySpace';
 import {
 	buildConversationRow,
 	mergeMessages,
@@ -70,6 +71,11 @@ export interface ConversationRowStoreOptions {
 	unavailableRetryMs?: number;
 	/** Threads kept in the in-memory cache. Default 1000. */
 	cacheLimit?: number;
+	/**
+	 * The space (bank id) of a bank-level entity, written at its v7.0.0 URL
+	 * (/obp/v7.0.0/banks/BANK_ID/dynamic-entities/my/ENTITY). Unset: the system-level URL.
+	 */
+	bankId?: string;
 }
 
 interface CachedRow {
@@ -108,7 +114,9 @@ export class ConversationRowStore {
 		private readonly obp: ConversationObpRequests,
 		options: ConversationRowStoreOptions = {}
 	) {
-		this.path = `/obp/dynamic-entity/my/${encodeURIComponent(entityName)}`;
+		this.path = options.bankId
+			? `${dynamicEntityDataPath(options.bankId)}/my/${encodeURIComponent(entityName)}`
+			: `/obp/dynamic-entity/my/${encodeURIComponent(entityName)}`;
 		this.idField = `${entityName}_id`;
 		this.listField = `${entityName}_list`;
 		this.now = options.now ?? (() => new Date());
@@ -191,7 +199,9 @@ export class ConversationRowStore {
 	/** The user's row for this thread, if one exists. Personal entities list only the caller's rows. */
 	private async find(threadId: string, accessToken: string): Promise<CachedRow | null> {
 		const data = await this.obp.get(this.path, accessToken);
-		const list: any[] = Array.isArray(data) ? data : Array.isArray(data?.[this.listField]) ? data[this.listField] : [];
+		const items: any[] = Array.isArray(data) ? data : Array.isArray(data?.[this.listField]) ? data[this.listField] : [];
+		// v7.0.0 lists wrap each record as { bank_id, <entity>: record, metadata }.
+		const list = items.map((item) => item?.[this.entityName] ?? item);
 		const found = list.find((r) => r && r.thread_id === threadId);
 		const rowId = found?.[this.idField];
 		if (!found || typeof rowId !== 'string' || !rowId) return null;

@@ -18,7 +18,7 @@
 import { obpRequests } from './obp';
 import { cohortSpace } from './space';
 import { apiManagerUrl } from './appDirectory';
-import { APPLICATION, CALL, PROGRAMME, SCREENING_DECISION } from './entities/definitions';
+import { APPLICATION, CALL, OPEY_CONVERSATION, PROGRAMME, SCREENING_DECISION } from './entities/definitions';
 
 /** A Role staff need at Cohort's space, and the i18n key saying what it is for. */
 export interface StaffRole {
@@ -36,6 +36,7 @@ export const STAFF_ROLES: StaffRole[] = [
 	{ role_name: `CanCreateDynamicEntityRecord_${SCREENING_DECISION}`, purpose: 'access_purpose_decide' },
 	{ role_name: `CanGetDynamicEntityRecord_${SCREENING_DECISION}`, purpose: 'access_purpose_read_decisions' },
 	{ role_name: 'CanGetFileAtOneBank', purpose: 'access_purpose_read_files' },
+	{ role_name: `CanGetDynamicEntityRecord_${OPEY_CONVERSATION}`, purpose: 'access_purpose_read_conversations' },
 	{ role_name: 'CanUpdateFileScanStatusAtOneBank', purpose: 'access_purpose_scan_files' }
 ];
 

@@ -1,14 +1,14 @@
 <script lang="ts">
+	import Badge from '$lib/components/Badge.svelte';
 	import MissingRole from '$lib/components/MissingRole.svelte';
 	import { page } from '$app/state';
-	import { t, type Locale, type MessageKey } from '$lib/i18n';
+	import { t, type Locale } from '$lib/i18n';
 
 	let { data } = $props();
 
 	const locale = $derived(data.locale as Locale);
 	const call = $derived(data.call as Record<string, unknown>);
 	const value = (key: string) => String(call[key] ?? '');
-	const status = (s: string) => (s ? t(locale, `status_${s}` as MessageKey) : '');
 </script>
 
 <p><a class="anchor" href="/staff">{t(locale, 'staff_heading')}</a></p>
@@ -18,7 +18,7 @@
 <dl class="mt-4 grid grid-cols-[max-content_1fr] gap-x-4 gap-y-2" data-testid="staff-call-fields">
 	<dt>{t(locale, 'staff_field_programme')}</dt>
 	<dd>{#if data.programme}<a class="anchor" href="/staff/programmes/{data.programme.id}">{data.programme.name}</a>{:else}{value('programme_id')}{/if}</dd>
-	<dt>{t(locale, 'staff_field_status')}</dt><dd>{status(value('status'))}</dd>
+	<dt>{t(locale, 'staff_field_status')}</dt><dd><Badge {locale} kind="status" value={value('status')} /></dd>
 	<dt>{t(locale, 'staff_field_opens_at')}</dt><dd>{value('opens_at')}</dd>
 	<dt>{t(locale, 'staff_field_closes_at')}</dt><dd>{value('closes_at')}</dd>
 	<dt>{t(locale, 'staff_field_description')}</dt><dd class="whitespace-pre-line">{value('description')}</dd>
@@ -48,9 +48,9 @@
 				{#each data.applications as a (a.id)}
 					<tr>
 						<td><a class="anchor" href="/staff/applications/{a.id}">{a.startup_name || a.id}</a></td>
-						<td>{status(a.status)}</td>
+						<td><Badge {locale} kind="status" value={a.status} /></td>
 						<td>{a.submitted_at}</td>
-						<td>{a.decision ? t(locale, `decision_${a.decision}` as MessageKey) : ''}</td>
+						<td><Badge {locale} kind="decision" value={a.decision} /></td>
 					</tr>
 				{/each}
 			</tbody>

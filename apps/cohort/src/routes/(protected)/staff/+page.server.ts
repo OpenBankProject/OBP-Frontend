@@ -16,8 +16,8 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 import { fail } from '@sveltejs/kit';
-import { latestDecision } from '$lib/screening';
-import { APPLICATION, CALL, PROGRAMME, SCREENING_DECISION } from '$lib/server/entities/definitions';
+import { CALL, PROGRAMME } from '$lib/server/entities/definitions';
+import { staffApplications } from '$lib/server/staffApplications';
 import { messageOf } from '$lib/server/errors';
 import { createRecord, idOf, listRecords, userToken } from '$lib/server/records';
 import { staffAccess } from '$lib/server/staffAccess';
@@ -31,38 +31,33 @@ import type { Actions, PageServerLoad } from './$types';
  */
 export const load: PageServerLoad = async ({ locals }) => {
 	const token = userToken(locals);
-	const [programmes, calls, applications, decisions] = await Promise.allSettled([
+	const [programmes, calls, applications] = await Promise.allSettled([
 		listRecords(PROGRAMME, 'public'),
 		listRecords(CALL, 'public'),
-		listRecords(APPLICATION, 'community', token),
-		listRecords(SCREENING_DECISION, '', token)
+		staffApplications(token!)
 	]);
-	const decisionList = decisions.status === 'fulfilled' ? decisions.value : [];
 	const access = await staffAccess(token!).catch(() => null);
 	const roles = Object.fromEntries((access?.roles ?? []).map((r) => [r.role_name, r]));
 	const programmeList = programmes.status === 'fulfilled' ? programmes.value : [];
 	const callList = calls.status === 'fulfilled' ? calls.value : [];
 	const programmeNames = new Map(programmeList.map((p) => [idOf(PROGRAMME, p), String(p.name ?? '')]));
-	const callTitles = new Map(callList.map((c) => [idOf(CALL, c), String(c.title ?? '')]));
 	return {
-		programmes: programmeList.map((p) => ({ id: idOf(PROGRAMME, p), name: String(p.name ?? ''), status: String(p.status ?? '') })),
+		programmes: programmeList.map((p) => ({
+			id: idOf(PROGRAMME, p),
+			name: String(p.name ?? ''),
+			status: String(p.status ?? ''),
+			starts_on: String(p.starts_on ?? ''),
+			ends_on: String(p.ends_on ?? '')
+		})),
 		calls: callList.map((c) => ({
 			id: idOf(CALL, c),
 			title: String(c.title ?? ''),
 			status: String(c.status ?? ''),
+			opens_at: String(c.opens_at ?? ''),
+			closes_at: String(c.closes_at ?? ''),
 			programme: programmeNames.get(String(c.programme_id)) ?? ''
 		})),
-		applications: applications.status === 'fulfilled'
-			? applications.value.map((a) => ({
-					id: idOf(APPLICATION, a),
-					call: callTitles.get(String(a.call_id)) ?? String(a.call_id),
-					startup_name: String(a.startup_name ?? ''),
-					status: String(a.status ?? ''),
-					eligibility: String(a.eligibility ?? ''),
-					submitted_at: String(a.submitted_at ?? ''),
-					decision: String(latestDecision(idOf(APPLICATION, a), decisionList)?.decision ?? '')
-				}))
-			: [],
+		applications: applications.status === 'fulfilled' ? applications.value : [],
 		space: access?.space ?? '',
 		roles,
 		entitlementRequestsUrl: access?.entitlementRequestsUrl ?? null,

@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { t, type Locale, type MessageKey } from '$lib/i18n';
+	import Badge from '$lib/components/Badge.svelte';
+	import { t, type Locale } from '$lib/i18n';
 
 	let { data } = $props();
 
@@ -13,7 +14,8 @@
 {:else if data.applications.length === 0}
 	<p class="mt-4" data-testid="my-applications-none">{t(locale, 'my_applications_none')}</p>
 {:else}
-	<table class="table mt-4" data-testid="my-applications">
+	<div class="table-wrap mt-4">
+	<table class="table" data-testid="my-applications">
 		<thead>
 			<tr>
 				<th>{t(locale, 'application_call')}</th>
@@ -28,11 +30,12 @@
 				<tr>
 					<td>{application.call}</td>
 					<td>{application.startup_name}</td>
-					<td>{t(locale, `status_${application.status}` as MessageKey)}</td>
-					<td>{application.decision ? t(locale, `decision_${application.decision}` as MessageKey) : ''}</td>
-					<td><a class="anchor" href="/applications/{application.id}">{t(locale, 'application_open')}</a></td>
+					<td><Badge {locale} kind="status" value={application.status} /></td>
+					<td><Badge {locale} kind="decision" value={application.decision} /></td>
+					<td><a class="btn btn-sm preset-tonal" href="/applications/{application.id}">{t(locale, 'application_open')}</a></td>
 				</tr>
 			{/each}
 		</tbody>
 	</table>
+	</div>
 {/if}

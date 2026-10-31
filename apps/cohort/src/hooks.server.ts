@@ -30,6 +30,9 @@ import { redisService } from '$lib/server/redis';
 import { healthCheckRegistry } from '@obp/shared/health-check';
 import { consumerScopesCheck } from '$lib/server/consumerScopes';
 import { ensureCohortEntities } from '$lib/server/entities/bootstrap';
+import { setWebUiPropsGenerationStore } from '@obp/shared/server/obp';
+import { attr } from '$lib/branding';
+import { branding } from '$lib/server/branding';
 
 const logger = createLogger('CohortHooks');
 
@@ -40,6 +43,8 @@ if (!building) {
 				'in the runtime environment (.env, docker-compose or docker run -e SESSION_SECRET=...).'
 		);
 	}
+	// The API Manager bumps the webui_props generation when it saves one, so branding changes show at once.
+	setWebUiPropsGenerationStore(redisService.getClient());
 	await oauth2ProviderManager.start();
 	// Checks Cohort's Consumer Scopes and declares them to OBP as a Platform App, every minute; see /staff/setup.
 	healthCheckRegistry.register(consumerScopesCheck);
@@ -71,10 +76,16 @@ const locale: Handle = async ({ event, resolve }) => {
 		event.request.headers.get('accept-language')
 	);
 	event.locals.locale = current;
+	const brand = await branding();
+	event.locals.branding = brand;
 
 	return resolve(event, {
 		transformPageChunk: ({ html }) =>
-			html.replace('%cohort.lang%', current).replace('%cohort.dir%', dir(current))
+			html
+				.replace('%cohort.lang%', current)
+				.replace('%cohort.dir%', dir(current))
+				.replace('%cohort.theme%', attr(brand.theme))
+				.replace('%cohort.favicon%', attr(brand.faviconUrl))
 	});
 };
 

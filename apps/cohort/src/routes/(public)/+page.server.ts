@@ -19,10 +19,14 @@ import { isCallOpen } from '$lib/applications';
 import { CALL, PROGRAMME } from '$lib/server/entities/definitions';
 import { messageOf } from '$lib/server/errors';
 import { idOf, listRecords } from '$lib/server/records';
+import { env } from '$env/dynamic/private';
+import { env as publicEnv } from '$env/dynamic/public';
 import type { PageServerLoad } from './$types';
 
 /** The open calls, read publicly so visitors see them without logging in. */
 export const load: PageServerLoad = async () => {
+	// The Opey panel shows only where Opey is configured. Its public URL is informational (the connection popover).
+	const opey = env.OPEY_BASE_URL ? { baseUrl: publicEnv.PUBLIC_OPEY_BASE_URL ?? '' } : null;
 	try {
 		const [calls, programmes] = await Promise.all([listRecords(CALL, 'public'), listRecords(PROGRAMME, 'public')]);
 		const programmeNames = new Map(programmes.map((p) => [idOf(PROGRAMME, p), String(p.name ?? '')]));
@@ -35,9 +39,10 @@ export const load: PageServerLoad = async () => {
 				closes_at: String(c.closes_at ?? ''),
 				programme: programmeNames.get(String(c.programme_id)) ?? ''
 			})),
-			error: null
+			error: null,
+			opey
 		};
 	} catch (err) {
-		return { calls: [], error: messageOf(err) };
+		return { calls: [], error: messageOf(err), opey };
 	}
 };

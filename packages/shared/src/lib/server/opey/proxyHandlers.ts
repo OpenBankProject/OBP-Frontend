@@ -49,6 +49,8 @@ export interface OpeyProxyRecordingConfig {
 	entityName: string;
 	/** The app's OBP request helper; calls run as the logged-in user. */
 	obpRequests: ConversationObpRequests;
+	/** The space (bank id) of a bank-level entity; unset for a system-level one. */
+	bankId?: string;
 }
 
 export interface OpeyProxyConfig {
@@ -127,7 +129,9 @@ interface TurnRecording {
 export function createOpeyProxyHandlers(config: OpeyProxyConfig): OpeyProxyHandlers {
 	const { opeyBaseUrl, getAccessToken, requireUser = false, recording, opeyCookieName = 'session' } = config;
 	const fetchImpl = config.fetchImpl ?? ((input, init) => fetch(input, init));
-	const store = recording ? new ConversationRowStore(recording.entityName, recording.obpRequests) : null;
+	const store = recording
+		? new ConversationRowStore(recording.entityName, recording.obpRequests, { bankId: recording.bankId })
+		: null;
 
 	function unconfigured(): Response {
 		logger.error('OPEY_BASE_URL is not configured; cannot proxy to Opey');
