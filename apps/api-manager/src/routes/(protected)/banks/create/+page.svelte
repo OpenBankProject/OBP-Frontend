@@ -17,12 +17,16 @@
 -->
 <script lang="ts">
   import { goto } from "$app/navigation";
+  import { page } from "$app/state";
   import { toast } from "$lib/utils/toastService";
   import { trackedFetch } from "$lib/utils/trackedFetch";
 
-  let bankId = $state("");
-  let fullName = $state("");
-  let bankCode = $state("");
+  // ?bank_id=, ?full_name= and ?bank_code= pre-fill the form, so another app can link here for a bank it needs.
+  const prefill = (name: string) => page.url.searchParams.get(name)?.trim() ?? "";
+
+  let bankId = $state(prefill("bank_id"));
+  let fullName = $state(prefill("full_name"));
+  let bankCode = $state(prefill("bank_code"));
   let logo = $state("");
   let website = $state("");
   let isSubmitting = $state(false);

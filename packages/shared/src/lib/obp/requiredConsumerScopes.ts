@@ -16,11 +16,12 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 /**
- * Platform Apps: the apps an installation runs as part of its OBP deployment (here the Portal and the
- * API Manager; elsewhere Opey, OBP-MCP or a bank's own services), each calling OBP as its own Consumer
- * with an application token (client credentials, no User).
+ * Platform Apps: the apps an installation runs as part of its OBP deployment (here the Portal, the
+ * API Manager and OBP-Cohort; elsewhere Opey, OBP-MCP or a bank's own services), each calling OBP as its
+ * own Consumer with an application token (client credentials, no User).
  *
- * The Scopes the Portal's and the API Manager's Consumers need are listed here. Each app's
+ * The Scopes the Portal's, the API Manager's and OBP-Cohort's Consumers need are listed here (Cohort's
+ * depend on its space, so they come from cohortRequiredConsumerScopes). Each app's
  * "OBP Consumer scopes" check on /status compares the list with the Scopes its Consumer holds, and
  * declares it to OBP (PUT /obp/v7.0.0/consumers/current/platform-app) once an administrator has marked
  * the Consumer as a Platform App; the API Manager's Platform Apps page reads every app's declaration
@@ -30,7 +31,7 @@
 import { DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID } from './dynamicEntitySpace.js';
 
 /** The Platform Apps in this repository. */
-export type PlatformApp = 'portal' | 'api-manager';
+export type PlatformApp = 'portal' | 'api-manager' | 'cohort';
 
 export interface RequiredConsumerScope {
 	role_name: string;
@@ -44,7 +45,7 @@ export interface RequiredConsumerScope {
 
 const SYS = DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID;
 
-export const REQUIRED_CONSUMER_SCOPES: Record<PlatformApp, RequiredConsumerScope[]> = {
+export const REQUIRED_CONSUMER_SCOPES: Record<Exclude<PlatformApp, 'cohort'>, RequiredConsumerScope[]> = {
 	portal: [
 		{
 			role_name: 'CanGetDynamicEntityRecord_obp_portal_page',
@@ -87,6 +88,30 @@ export const REQUIRED_CONSUMER_SCOPES: Record<PlatformApp, RequiredConsumerScope
 		}
 	]
 };
+
+/**
+ * The Scopes OBP-Cohort's Consumer needs. Cohort keeps its records in one space per installation (its
+ * OBP_ENTITY_SPACE_ID: a bank id, or SYS), so the Scopes name that space rather than a fixed one.
+ */
+export function cohortRequiredConsumerScopes(space: string): RequiredConsumerScope[] {
+	return [
+		{
+			role_name: 'CanGetDynamicEntityDefinitions',
+			bank_id: space,
+			needed_for: "Checking that Cohort's entities (application forms, reviews, milestones, sessions) exist in its space."
+		},
+		{
+			role_name: 'CanCreateDynamicEntityDefinition',
+			bank_id: space,
+			needed_for: "Creating Cohort's entities on a new installation, and the entity of each published form."
+		},
+		{
+			role_name: 'CanUpdateDynamicEntityDefinition',
+			bank_id: space,
+			needed_for: "Adding fields to Cohort's entities after an upgrade."
+		}
+	];
+}
 
 export interface HeldScope {
 	role_name: string;

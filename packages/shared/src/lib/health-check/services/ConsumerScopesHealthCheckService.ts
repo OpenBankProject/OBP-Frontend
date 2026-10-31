@@ -113,6 +113,7 @@ export class ConsumerScopesHealthCheckService extends HealthCheckService {
     private declaredAt = 0;
     private declaration = 'not yet declared';
     private consumerId: string | undefined;
+    private lastReport: ConsumerScopesReport | undefined;
 
     constructor(options: ConsumerScopesHealthCheckOptions) {
         super({
@@ -127,6 +128,16 @@ export class ConsumerScopesHealthCheckService extends HealthCheckService {
     /** The consumer_id OBP last said this app's application token belongs to. */
     getConsumerId(): string | undefined {
         return this.consumerId;
+    }
+
+    /** The last check's report: each required Scope, held or not. Undefined until the first check. */
+    getReport(): ConsumerScopesReport | undefined {
+        return this.lastReport;
+    }
+
+    /** What OBP said to the last Platform App declaration, e.g. 'declared' or why it was refused. */
+    getDeclaration(): string {
+        return this.declaration;
     }
 
     async performCheck(): Promise<void> {
@@ -156,6 +167,7 @@ export class ConsumerScopesHealthCheckService extends HealthCheckService {
             }
         }
         if (report.consumer_id) this.consumerId = report.consumer_id;
+        this.lastReport = report;
         const snapshot = consumerScopesSnapshot(report);
         if (report.consumer_id && consumerUrl) snapshot.details!.consumer_id_url = consumerUrl(report.consumer_id);
         if (tokenResult.token !== null) snapshot.details!.platform_app = this.declaration;

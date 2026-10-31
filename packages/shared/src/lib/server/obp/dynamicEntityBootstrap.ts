@@ -16,8 +16,8 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 /**
- * Ensure a system-level dynamic entity definition exists in OBP, using an application
- * access token (client_credentials). Used by apps at startup for the entities they own,
+ * Ensure a dynamic entity definition exists in OBP, in a space (a bank, or SYS for the system
+ * level), using an application access token (client_credentials). Used by apps at startup for the entities they own,
  * e.g. an app's Opey conversation entity. A missing token or scope only logs a warning:
  * the app starts, and the feature that needs the entity reports it as unavailable.
  *
@@ -46,7 +46,6 @@ export interface DynamicEntityBootstrapDeps {
 	accessToken: string | null;
 }
 
-const SYSTEM_ENTITIES = dynamicEntityDefinitionsPath(DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID);
 
 /** Why an existing entity differs from the definition; empty when it is current. */
 export function dynamicEntityDrift(existing: any, definition: SystemDynamicEntityDefinition): string[] {
@@ -60,17 +59,28 @@ export function dynamicEntityDrift(existing: any, definition: SystemDynamicEntit
 	return reasons;
 }
 
+/** ensureDynamicEntity in the system space (SYS). */
 export async function ensureSystemDynamicEntity(
 	definition: SystemDynamicEntityDefinition,
 	deps: DynamicEntityBootstrapDeps
 ): Promise<boolean> {
+	return ensureDynamicEntity(definition, deps, DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID);
+}
+
+/** Create the entity in the space `bankId` (a bank id, or SYS) if it is missing, or add what it lacks. */
+export async function ensureDynamicEntity(
+	definition: SystemDynamicEntityDefinition,
+	deps: DynamicEntityBootstrapDeps,
+	bankId: string
+): Promise<boolean> {
 	const name = definition.entity_name;
+	const entities = dynamicEntityDefinitionsPath(bankId);
 	if (!deps.accessToken) {
 		logger.warn(`Cannot bootstrap '${name}': no application access token (client_credentials).`);
 		return false;
 	}
 	try {
-		const response = await deps.get(SYSTEM_ENTITIES, deps.accessToken);
+		const response = await deps.get(entities, deps.accessToken);
 		const existing = (response?.dynamic_entities ?? []).find((e: { entity_name: string }) => e.entity_name === name);
 		if (existing) {
 			const drift = dynamicEntityDrift(existing, definition);
@@ -83,23 +93,23 @@ export async function ensureSystemDynamicEntity(
 				return true;
 			}
 			try {
-				await deps.put(`${SYSTEM_ENTITIES}/${encodeURIComponent(existing.dynamic_entity_id)}`, definition, deps.accessToken);
+				await deps.put(`${entities}/${encodeURIComponent(existing.dynamic_entity_id)}`, definition, deps.accessToken);
 				logger.info(`Dynamic entity '${name}' updated (${drift.join('; ')}).`);
 			} catch (err) {
-				logger.warn(`Dynamic entity '${name}' exists but could not be updated (${drift.join('; ')}; the consumer needs the CanUpdateDynamicEntityDefinition scope at SYS): ${err}`);
+				logger.warn(`Dynamic entity '${name}' exists but could not be updated (${drift.join('; ')}; the consumer needs the CanUpdateDynamicEntityDefinition scope at ${bankId}): ${err}`);
 			}
 			return true;
 		}
 	} catch (err) {
-		logger.warn(`Could not list system dynamic entities (the consumer needs the CanGetDynamicEntityDefinitions scope at SYS): ${err}`);
+		logger.warn(`Could not list the dynamic entities at ${bankId} (the consumer needs the CanGetDynamicEntityDefinitions scope at ${bankId}): ${err}`);
 		return false;
 	}
 	try {
-		await deps.post(SYSTEM_ENTITIES, definition, deps.accessToken);
+		await deps.post(entities, definition, deps.accessToken);
 		logger.info(`Dynamic entity '${name}' created.`);
 		return true;
 	} catch (err) {
-		logger.warn(`Failed to create dynamic entity '${name}' (the consumer needs the CanCreateDynamicEntityDefinition scope at SYS): ${err}`);
+		logger.warn(`Failed to create dynamic entity '${name}' (the consumer needs the CanCreateDynamicEntityDefinition scope at ${bankId}): ${err}`);
 		return false;
 	}
 }

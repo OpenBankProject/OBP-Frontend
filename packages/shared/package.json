@@ -73,6 +73,10 @@
 			"types": "./src/lib/server/index.ts",
 			"default": "./src/lib/server/index.ts"
 		},
+		"./server/auth": {
+			"types": "./src/lib/server/auth/index.ts",
+			"default": "./src/lib/server/auth/index.ts"
+		},
 		"./server/oauth": {
 			"types": "./src/lib/server/oauth/index.ts",
 			"default": "./src/lib/server/oauth/index.ts"

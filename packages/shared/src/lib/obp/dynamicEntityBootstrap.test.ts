@@ -17,7 +17,7 @@
  */
 /** Lives outside src/lib/server so vitest picks it up. */
 import { describe, it, expect, vi } from 'vitest';
-import { ensureSystemDynamicEntity, dynamicEntityDrift } from '../server/obp/dynamicEntityBootstrap';
+import { ensureDynamicEntity, ensureSystemDynamicEntity, dynamicEntityDrift } from '../server/obp/dynamicEntityBootstrap';
 
 const definition = {
 	entity_name: 'notes',
@@ -73,5 +73,14 @@ describe('dynamicEntityDrift', () => {
 		expect(dynamicEntityDrift({ auth_mode: 'UserOnly', schema: { properties: { title: {}, page: {}, extra: {} } } }, definition)).toEqual([]);
 		expect(dynamicEntityDrift({ schema: { properties: {} } }, definition)).toEqual(['missing properties: title, page']);
 		expect(dynamicEntityDrift({ auth_mode: 'ApplicationOnly', schema: { properties: { title: {}, page: {} } } }, definition)).toEqual(['auth_mode ApplicationOnly -> UserOnly']);
+	});
+});
+
+describe('ensureDynamicEntity', () => {
+	it('lists and creates in the given space', async () => {
+		const d = deps([]);
+		expect(await ensureDynamicEntity(definition, d.deps, 'cohort')).toBe(true);
+		expect(d.get).toHaveBeenCalledWith('/obp/v7.0.0/management/banks/cohort/dynamic-entities', 'app-token');
+		expect(d.post).toHaveBeenCalledWith('/obp/v7.0.0/management/banks/cohort/dynamic-entities', definition, 'app-token');
 	});
 });

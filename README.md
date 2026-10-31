@@ -10,6 +10,7 @@ Before changing code, read [DESIGN_DECISIONS.md](DESIGN_DECISIONS.md).
 apps/
   portal/          # OBP Portal (SvelteKit) — port 5174
   api-manager/     # API Manager II (SvelteKit) — port 3003
+  cohort/          # OBP-Cohort, startup programme management (SvelteKit) — port 5183, see apps/cohort/README.md
 packages/
   shared/          # Shared components & utilities (@obp/shared)
 ```

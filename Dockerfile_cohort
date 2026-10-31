@@ -1,0 +1,65 @@
+# Copyright (C) 2025-2026 TESOBE GmbH
+# SPDX-License-Identifier: AGPL-3.0-or-later
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+FROM node:22-alpine AS builder
+RUN apk add --no-cache git
+WORKDIR /app
+
+# Copy monorepo root manifests and install all workspace dependencies
+COPY package*.json ./
+COPY apps/portal/package*.json ./apps/portal/
+COPY apps/api-manager/package*.json ./apps/api-manager/
+COPY apps/cohort/package*.json ./apps/cohort/
+COPY packages/shared/package*.json ./packages/shared/
+
+RUN npm ci
+
+# Copy full source
+COPY packages/shared/ ./packages/shared/
+COPY apps/cohort/ ./apps/cohort/
+
+# Accept build arguments for environment variables
+# (PUBLIC_* vars are read at runtime via $env/dynamic/public, so they are
+# not needed at build time and must be set on the running container instead.)
+ARG ORIGIN
+
+# Build provenance: the .git directory is not copied into the image, so the commit
+# and branch must be passed in (CI sets these from $GITHUB_SHA / the ref name).
+ARG GIT_COMMIT
+ARG GIT_BRANCH
+
+# Set environment variables for build
+ENV ORIGIN=$ORIGIN
+ENV GIT_COMMIT=$GIT_COMMIT
+ENV GIT_BRANCH=$GIT_BRANCH
+
+# Generate .svelte-kit/ for shared package so its tsconfig.json can resolve during the app build
+RUN npm run prepare --workspace=packages/shared
+
+# Build the portal app (shared package source is consumed directly via workspace symlink)
+RUN npm run build --workspace=apps/cohort
+
+RUN npm prune --production
+
+FROM node:22-alpine
+WORKDIR /app
+COPY --from=builder /app/apps/cohort/build ./build/
+COPY --from=builder /app/node_modules ./node_modules/
+COPY --from=builder /app/apps/cohort/package.json ./package.json
+# gRPC clients load proto definitions from <cwd>/proto at runtime — without this
+# every /backend/chat/*/stream request 500s (ENOENT on proto/chat.proto).
+EXPOSE 3000
+ENV NODE_ENV=production
+CMD [ "node", "build" ]
