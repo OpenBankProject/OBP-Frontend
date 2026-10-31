@@ -19,6 +19,7 @@
 				<th>{t(locale, 'application_call')}</th>
 				<th>{t(locale, 'field_startup_name')}</th>
 				<th>{t(locale, 'application_status')}</th>
+				<th>{t(locale, 'screening_outcome')}</th>
 				<th></th>
 			</tr>
 		</thead>
@@ -28,6 +29,7 @@
 					<td>{application.call}</td>
 					<td>{application.startup_name}</td>
 					<td>{t(locale, `status_${application.status}` as MessageKey)}</td>
+					<td>{application.decision ? t(locale, `decision_${application.decision}` as MessageKey) : ''}</td>
 					<td><a class="anchor" href="/applications/{application.id}">{t(locale, 'application_open')}</a></td>
 				</tr>
 			{/each}

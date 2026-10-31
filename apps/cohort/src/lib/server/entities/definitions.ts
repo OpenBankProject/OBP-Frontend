@@ -25,6 +25,7 @@ import type { SystemDynamicEntityDefinition } from '@obp/shared/server/obp';
 export const PROGRAMME = 'cohort_programme';
 export const CALL = 'cohort_call';
 export const APPLICATION = 'cohort_application';
+export const SCREENING_DECISION = 'cohort_screening_decision';
 
 const text = (example: string, description: string, maxLength = 255, minLength = 0) => ({
 	type: 'string',
@@ -109,4 +110,35 @@ export const applicationEntity: SystemDynamicEntityDefinition = {
 	}
 };
 
-export const COHORT_ENTITIES: SystemDynamicEntityDefinition[] = [programmeEntity, callEntity, applicationEntity];
+/**
+ * A screening decision on an application. Append-only: staff create decisions and nobody is given the update or
+ * delete Roles, so the history stays as it was written. UserXORApplication, so Cohort itself (with the Get Scope)
+ * reads the decisions on an applicant's own application to show them the outcome; applicants hold no Role.
+ */
+export const screeningDecisionEntity: SystemDynamicEntityDefinition = {
+	entity_name: SCREENING_DECISION,
+	has_personal_entity: false,
+	has_public_access: false,
+	has_community_access: false,
+	auth_mode: 'UserXORApplication',
+	schema: {
+		description: 'A screening decision on an application, written by staff. The latest one is the current outcome.',
+		required: ['application_id', 'decision', 'decided_at'],
+		properties: {
+			application_id: text('6fb17583-1e49-4435-bb74-a14fe0996723', 'The cohort_application decided on.', 36, 1),
+			call_id: text('6fb17583-1e49-4435-bb74-a14fe0996723', 'The cohort_call the application is for.', 36),
+			decision: text('shortlisted', 'shortlisted, rejected or needs_info.', 20, 1),
+			reason: text('Strong team, clear market.', 'Why, for staff only.', 4000),
+			message_to_applicant: text('Please add your team size.', 'What the applicant is told.', 4000),
+			decided_by_username: text('felixsmith', 'Who decided, as shown to staff.', 255),
+			decided_at: text('2026-11-25T09:00:00Z', 'When the decision was made (ISO 8601, UTC).', 30, 1)
+		}
+	}
+};
+
+export const COHORT_ENTITIES: SystemDynamicEntityDefinition[] = [
+	programmeEntity,
+	callEntity,
+	applicationEntity,
+	screeningDecisionEntity
+];

@@ -109,6 +109,11 @@ export function cohortRequiredConsumerScopes(space: string): RequiredConsumerSco
 			role_name: 'CanUpdateDynamicEntityDefinition',
 			bank_id: space,
 			needed_for: "Adding fields to Cohort's entities after an upgrade."
+		},
+		{
+			role_name: 'CanGetDynamicEntityRecord_cohort_screening_decision',
+			bank_id: space,
+			needed_for: 'Showing applicants the outcome of screening on their own application.'
 		}
 	];
 }

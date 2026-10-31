@@ -1,13 +1,14 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { APPLICATION_FIELDS } from '$lib/applications';
+	import FileList from '$lib/components/FileList.svelte';
 	import { t, type Locale, type MessageKey } from '$lib/i18n';
 
 	let { data, form } = $props();
 
 	const locale = $derived(data.locale as Locale);
 	const application = $derived(data.application as Record<string, unknown>);
-	const submitted = $derived(application.status === 'submitted');
+	const submitted = $derived(!data.editable);
 	const label = (key: string) => t(locale, `field_${key}` as MessageKey);
 	const value = (key: string) => (application[key] ?? '') as string;
 </script>
@@ -15,6 +16,14 @@
 <h1 class="h2">{t(locale, 'application_heading')}</h1>
 <p class="mt-1">{t(locale, 'application_call')}: {data.callTitle}</p>
 <p>{t(locale, 'application_status')}: {t(locale, `status_${String(application.status)}` as MessageKey)}</p>
+
+{#if data.outcome}
+	<div class="mt-4 preset-tonal-primary rounded p-3" role="status" data-testid="application-outcome">
+		<strong>{t(locale, 'screening_outcome')}: {t(locale, `decision_${data.outcome.decision}` as MessageKey)}</strong>
+		{#if data.outcome.message}<p class="mt-1 whitespace-pre-line">{data.outcome.message}</p>{/if}
+		{#if data.editable}<p class="mt-1">{t(locale, 'screening_reopened')}</p>{/if}
+	</div>
+{/if}
 
 {#if form?.saved}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'application_saved')}</p>{/if}
 {#if form?.missing}
@@ -27,7 +36,7 @@
 {/if}
 
 {#if submitted}
-	<p class="mt-4 preset-tonal-success rounded p-3" data-testid="application-submitted">{t(locale, 'application_submitted_notice')}</p>
+	{#if !data.outcome}<p class="mt-4 preset-tonal-success rounded p-3" data-testid="application-submitted">{t(locale, 'application_submitted_notice')}</p>{/if}
 	<dl class="mt-4 grid grid-cols-[max-content_1fr] gap-x-4 gap-y-2">
 		{#each APPLICATION_FIELDS as field (field.key)}
 			<dt>{label(field.key)}</dt>
@@ -74,3 +83,25 @@
 		</div>
 	</form>
 {/if}
+
+<section class="mt-8 max-w-2xl" data-testid="application-files">
+	<h2 class="h4">{t(locale, 'files_heading')}</h2>
+	{#if data.files.length > 0}
+		<FileList {locale} files={data.files} />
+	{:else}
+		<p>{t(locale, 'files_none')}</p>
+	{/if}
+	{#if form?.uploaded}<p class="mt-2 preset-tonal-success rounded p-3" role="status">{t(locale, 'files_uploaded')}</p>{/if}
+	{#if form?.uploadError}
+		<p class="mt-2 preset-tonal-error rounded p-3" role="alert">
+			{form.uploadError === 'type' ? t(locale, 'files_error_type') : form.uploadError === 'size' ? t(locale, 'files_error_size') : form.uploadError === 'empty' ? t(locale, 'files_error_empty') : `${t(locale, 'staff_error')} ${form.uploadError}`}
+		</p>
+	{/if}
+	{#if !submitted}
+		<form method="POST" action="?/upload" enctype="multipart/form-data" class="mt-4 flex flex-wrap items-center gap-3">
+			<input class="input max-w-sm" type="file" name="file" accept={data.uploadAccept} required data-testid="file-input" />
+			<button class="btn preset-tonal" data-testid="file-upload">{t(locale, 'files_upload')}</button>
+		</form>
+		<p class="mt-2 text-sm">{t(locale, 'files_hint')}</p>
+	{/if}
+</section>

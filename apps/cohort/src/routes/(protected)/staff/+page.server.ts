@@ -16,32 +16,30 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 import { fail } from '@sveltejs/kit';
-import { APPLICATION, CALL, PROGRAMME } from '$lib/server/entities/definitions';
+import { latestDecision } from '$lib/screening';
+import { APPLICATION, CALL, PROGRAMME, SCREENING_DECISION } from '$lib/server/entities/definitions';
 import { messageOf } from '$lib/server/errors';
-import { createRecord, idOf, listRecords, userToken, type CohortRecord } from '$lib/server/records';
+import { createRecord, idOf, listRecords, userToken } from '$lib/server/records';
+import { staffAccess } from '$lib/server/staffAccess';
+import { readCallForm, readProgrammeForm, requestRole, write } from '$lib/server/staffRecords';
 import type { Actions, PageServerLoad } from './$types';
-
-const STATUSES = ['draft', 'open', 'closed'];
-
-const str = (form: FormData, key: string) => String(form.get(key) ?? '').trim();
-
-/** Only the fields that were filled in: empty optional fields are left out of the record. */
-function filled(record: Record<string, string>): CohortRecord {
-	return Object.fromEntries(Object.entries(record).filter(([, v]) => v !== ''));
-}
 
 /**
  * Programmes and calls are read publicly; every application is read through the community URL, which needs
- * CanGetDynamicEntityRecord_cohort_application at Cohort's space. A section the User may not read shows OBP's
- * reason instead.
+ * CanGetDynamicEntityRecord_cohort_application at Cohort's space. Where the User lacks a Role, the section offers to
+ * request it instead.
  */
 export const load: PageServerLoad = async ({ locals }) => {
 	const token = userToken(locals);
-	const [programmes, calls, applications] = await Promise.allSettled([
+	const [programmes, calls, applications, decisions] = await Promise.allSettled([
 		listRecords(PROGRAMME, 'public'),
 		listRecords(CALL, 'public'),
-		listRecords(APPLICATION, 'community', token)
+		listRecords(APPLICATION, 'community', token),
+		listRecords(SCREENING_DECISION, '', token)
 	]);
+	const decisionList = decisions.status === 'fulfilled' ? decisions.value : [];
+	const access = await staffAccess(token!).catch(() => null);
+	const roles = Object.fromEntries((access?.roles ?? []).map((r) => [r.role_name, r]));
 	const programmeList = programmes.status === 'fulfilled' ? programmes.value : [];
 	const callList = calls.status === 'fulfilled' ? calls.value : [];
 	const programmeNames = new Map(programmeList.map((p) => [idOf(PROGRAMME, p), String(p.name ?? '')]));
@@ -61,9 +59,13 @@ export const load: PageServerLoad = async ({ locals }) => {
 					startup_name: String(a.startup_name ?? ''),
 					status: String(a.status ?? ''),
 					eligibility: String(a.eligibility ?? ''),
-					submitted_at: String(a.submitted_at ?? '')
+					submitted_at: String(a.submitted_at ?? ''),
+					decision: String(latestDecision(idOf(APPLICATION, a), decisionList)?.decision ?? '')
 				}))
 			: [],
+		space: access?.space ?? '',
+		roles,
+		entitlementRequestsUrl: access?.entitlementRequestsUrl ?? null,
 		errors: {
 			programmes: programmes.status === 'rejected' ? messageOf(programmes.reason) : null,
 			calls: calls.status === 'rejected' ? messageOf(calls.reason) : null,
@@ -73,41 +75,15 @@ export const load: PageServerLoad = async ({ locals }) => {
 };
 
 export const actions: Actions = {
+	requestRole: async ({ locals, request }) => requestRole(await request.formData(), userToken(locals)!),
 	createProgramme: async ({ locals, request }) => {
-		const form = await request.formData();
-		const status = str(form, 'status');
-		const record = filled({
-			name: str(form, 'name'),
-			description: str(form, 'description'),
-			status: STATUSES.includes(status) ? status : 'draft',
-			starts_on: str(form, 'starts_on'),
-			ends_on: str(form, 'ends_on')
-		});
+		const record = readProgrammeForm(await request.formData());
 		if (!record.name) return fail(400, { form: 'programme', error: 'name' });
-		try {
-			await createRecord(PROGRAMME, '', record, userToken(locals)!);
-		} catch (err) {
-			return fail(400, { form: 'programme', error: messageOf(err) });
-		}
-		return { form: 'programme', created: true };
+		return write('programme', () => createRecord(PROGRAMME, '', record, userToken(locals)!), { created: true });
 	},
 	createCall: async ({ locals, request }) => {
-		const form = await request.formData();
-		const status = str(form, 'status');
-		const record = filled({
-			programme_id: str(form, 'programme_id'),
-			title: str(form, 'title'),
-			description: str(form, 'description'),
-			status: STATUSES.includes(status) ? status : 'draft',
-			opens_at: str(form, 'opens_at'),
-			closes_at: str(form, 'closes_at')
-		});
+		const record = readCallForm(await request.formData());
 		if (!record.programme_id || !record.title) return fail(400, { form: 'call', error: 'title' });
-		try {
-			await createRecord(CALL, '', record, userToken(locals)!);
-		} catch (err) {
-			return fail(400, { form: 'call', error: messageOf(err) });
-		}
-		return { form: 'call', created: true };
+		return write('call', () => createRecord(CALL, '', record, userToken(locals)!), { created: true });
 	}
 };

@@ -62,4 +62,6 @@ COPY --from=builder /app/apps/cohort/package.json ./package.json
 # every /backend/chat/*/stream request 500s (ENOENT on proto/chat.proto).
 EXPOSE 3000
 ENV NODE_ENV=production
+# Room for an applicant's document upload (up to 5 MB) in a form post; adapter-node's default is 512K.
+ENV BODY_SIZE_LIMIT=6M
 CMD [ "node", "build" ]

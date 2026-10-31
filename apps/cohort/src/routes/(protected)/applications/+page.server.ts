@@ -18,6 +18,7 @@
 import { APPLICATION, CALL } from '$lib/server/entities/definitions';
 import { messageOf } from '$lib/server/errors';
 import { idOf, listRecords, userToken } from '$lib/server/records';
+import { outcomesForApplicant } from '$lib/server/decisions';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
@@ -27,12 +28,14 @@ export const load: PageServerLoad = async ({ locals }) => {
 			listRecords(CALL, 'public')
 		]);
 		const callTitles = new Map(calls.map((c) => [idOf(CALL, c), String(c.title ?? '')]));
+		const outcomes = await outcomesForApplicant(applications.map((a) => idOf(APPLICATION, a)));
 		return {
 			applications: applications.map((a) => ({
 				id: idOf(APPLICATION, a),
 				call: callTitles.get(String(a.call_id)) ?? String(a.call_id),
 				startup_name: String(a.startup_name ?? ''),
-				status: String(a.status ?? 'draft')
+				status: String(a.status ?? 'draft'),
+				decision: outcomes[idOf(APPLICATION, a)]?.decision ?? ''
 			})),
 			error: null
 		};
