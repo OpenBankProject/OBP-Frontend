@@ -30,7 +30,7 @@ export async function decisionsAsCohort(): Promise<CohortRecord[]> {
 	try {
 		return await listRecords(SCREENING_DECISION, '', token);
 	} catch (err) {
-		logger.warn('Cohort could not read screening decisions (does it hold the Scope shown on /setup?):', err);
+		logger.warn('Cohort could not read screening decisions (does it hold the Scope shown on /staff/setup?):', err);
 		return [];
 	}
 }

@@ -23,7 +23,7 @@ import { cohortSpace } from './space';
 
 /**
  * Whether Cohort's own OBP Consumer holds the Scopes its application-token calls need. Also declares
- * those needs to OBP as a Platform App, for the API Manager's Platform Apps page; see /setup.
+ * those needs to OBP as a Platform App, for the API Manager's Platform Apps page; see /staff/setup.
  */
 export const consumerScopesCheck = new ConsumerScopesHealthCheckService({
 	serviceName: 'OBP Consumer scopes',

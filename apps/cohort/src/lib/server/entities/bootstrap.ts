@@ -24,7 +24,7 @@ import { COHORT_ENTITIES } from './definitions';
 
 const logger = createLogger('CohortEntities');
 
-/** Whether each of Cohort's entities was found or created at the last attempt, for /setup. */
+/** Whether each of Cohort's entities was found or created at the last attempt, for /staff/setup. */
 let lastResult: { at: string; entities: Record<string, boolean> } | null = null;
 
 export function entitiesStatus() {
@@ -33,7 +33,7 @@ export function entitiesStatus() {
 
 /**
  * Create Cohort's entities in its space, or add the properties they lack, as Cohort's own Consumer. Needs the
- * Scopes listed on /setup; without them this logs why and Cohort's pages report the entities as missing.
+ * Scopes listed on /staff/setup; without them this logs why and Cohort's pages report the entities as missing.
  */
 export async function ensureCohortEntities(): Promise<boolean> {
 	const tokenResult = await requestApplicationAccessToken();

@@ -41,7 +41,7 @@ if (!building) {
 		);
 	}
 	await oauth2ProviderManager.start();
-	// Checks Cohort's Consumer Scopes and declares them to OBP as a Platform App, every minute; see /setup.
+	// Checks Cohort's Consumer Scopes and declares them to OBP as a Platform App, every minute; see /staff/setup.
 	healthCheckRegistry.register(consumerScopesCheck);
 	consumerScopesCheck.start();
 	startEntityBootstrap();

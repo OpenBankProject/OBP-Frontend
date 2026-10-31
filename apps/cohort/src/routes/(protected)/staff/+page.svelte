@@ -20,7 +20,7 @@
 </script>
 
 <h1 class="h2">{t(locale, 'staff_heading')}</h1>
-<p class="mt-1"><a class="anchor" href="/staff/access" data-testid="staff-access-link">{t(locale, 'nav_access')}</a></p>
+<p class="mt-1"><a class="anchor" href="/staff/access" data-testid="staff-access-link">{t(locale, 'nav_access')}</a> · <a class="anchor" href="/staff/setup" data-testid="staff-setup-link">{t(locale, 'nav_setup')}</a></p>
 {#if form?.form === 'role' && form?.requested}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'access_requested_notice')}</p>{/if}
 {#if form?.form === 'role' && form?.error}<p class="mt-4 preset-tonal-error rounded p-3" role="alert">{t(locale, 'staff_error')} {form.error}</p>{/if}
 

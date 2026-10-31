@@ -66,6 +66,8 @@ export const ar: Partial<Record<MessageKey, string>> = {
 	nav_staff: 'الفريق',
 	nav_setup: 'الإعداد',
 	nav_main: 'الرئيسية',
+	nav_open_menu: 'فتح القائمة',
+	nav_close_menu: 'إغلاق القائمة',
 	skip_to_content: 'انتقل إلى المحتوى',
 	calls_open_heading: 'الدعوات المفتوحة',
 	calls_none: 'لا توجد دعوات مفتوحة حاليًا.',

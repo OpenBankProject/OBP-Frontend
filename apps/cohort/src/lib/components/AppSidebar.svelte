@@ -1,60 +1,94 @@
 <script lang="ts">
-	import { FileText, KeyRound, LogOut, Megaphone, Settings, Users } from '@lucide/svelte';
-	import LanguageSwitch from '$lib/components/LanguageSwitch.svelte';
+	import { ChevronDown, ChevronRight, FileText, KeyRound, Megaphone, Settings, Users } from '@lucide/svelte';
 	import { t, type Locale, type MessageKey } from '$lib/i18n';
 
 	/**
-	 * The navigation of the logged-in pages, in the Portal's style. It sits on the start side (right in Arabic),
-	 * and across the top on small screens.
+	 * The navigation of every page, in the Portal's style. It sits on the start side (right in Arabic), and across
+	 * the top on small screens. Visitors who are not logged in see only the public pages.
 	 */
-	let { locale, path, username }: { locale: Locale; path: string; username: string } = $props();
+	let { locale, path, username }: { locale: Locale; path: string; username: string | null } = $props();
 
-	const items: { href: string; label: MessageKey; icon: typeof FileText }[] = [
-		{ href: '/', label: 'nav_calls', icon: Megaphone },
+	interface Item {
+		href: string;
+		label: MessageKey;
+		icon: typeof FileText;
+		public?: boolean;
+		/** A sub menu, as in the API Manager: shown under the item, open while one of its pages is shown. */
+		children?: Item[];
+	}
+
+	const allItems: Item[] = [
+		{ href: '/', label: 'nav_calls', icon: Megaphone, public: true },
 		{ href: '/applications', label: 'nav_my_applications', icon: FileText },
-		{ href: '/staff', label: 'nav_staff', icon: Users },
-		{ href: '/staff/access', label: 'nav_access', icon: KeyRound },
-		{ href: '/setup', label: 'nav_setup', icon: Settings }
+		{
+			href: '/staff',
+			label: 'nav_staff',
+			icon: Users,
+			children: [
+				{ href: '/staff/access', label: 'nav_access', icon: KeyRound },
+				{ href: '/staff/setup', label: 'nav_setup', icon: Settings }
+			]
+		}
 	];
+	const items = $derived(allItems.filter((i) => username || i.public));
 
 	const pathname = $derived(path.split('?')[0]);
 	const matches = (href: string) => (href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(href + '/'));
 	/** The item for the current page: the longest matching href, so /staff/access does not also light up /staff. */
 	const current = $derived(
-		items.filter((i) => matches(i.href)).sort((a, b) => b.href.length - a.href.length)[0]?.href
+		items
+			.flatMap((i) => [i, ...(i.children ?? [])])
+			.filter((i) => matches(i.href))
+			.sort((a, b) => b.href.length - a.href.length)[0]?.href
 	);
+
+	/** Sub menus the visitor opened or closed; until then a sub menu is open while one of its pages is shown. */
+	let toggled = $state<Record<string, boolean>>({});
+	const isOpen = (item: Item) => toggled[item.href] ?? matches(item.href);
 </script>
+
+{#snippet link(item: Item, size: string)}
+	{@const Icon = item.icon}
+	<a
+		href={item.href}
+		class="btn w-full justify-start gap-3 {size}"
+		class:preset-filled-primary-500={current === item.href}
+		aria-current={current === item.href ? 'page' : undefined}
+		data-testid="nav-{item.href === '/' ? 'calls' : item.href.slice(1).replace('/', '-')}"
+	>
+		<Icon class="size-5 shrink-0" aria-hidden="true" />
+		<span>{t(locale, item.label)}</span>
+	</a>
+{/snippet}
 
 <aside class="flex flex-col gap-4 bg-primary-50 p-3 md:h-screen md:sticky md:top-0 dark:bg-primary-950">
 	<a href="/" class="px-3 pt-2 text-lg font-semibold" data-testid="brand">{t(locale, 'app_name')}</a>
 	<nav aria-label={t(locale, 'nav_main')}>
 		<ul class="flex flex-wrap gap-1 md:flex-col">
 			{#each items as item (item.href)}
-				{@const Icon = item.icon}
 				<li>
-					<a
-						href={item.href}
-						class="btn w-full justify-start gap-3 px-3 py-2"
-						class:preset-filled-primary-500={current === item.href}
-						aria-current={current === item.href ? 'page' : undefined}
-						data-testid="nav-{item.href === '/' ? 'calls' : item.href.slice(1).replace('/', '-')}"
-					>
-						<Icon class="size-5 shrink-0" aria-hidden="true" />
-						<span>{t(locale, item.label)}</span>
-					</a>
+					<div class="flex items-center gap-1">
+						{@render link(item, 'px-3 py-2')}
+						{#if item.children}
+							<button
+								type="button"
+								class="btn-icon btn-icon-sm"
+								aria-expanded={isOpen(item)}
+								aria-label={t(locale, isOpen(item) ? 'nav_close_menu' : 'nav_open_menu')}
+								onclick={() => (toggled[item.href] = !isOpen(item))}
+								data-testid="nav-toggle-{item.href.slice(1)}"
+							>
+								{#if isOpen(item)}<ChevronDown class="size-4" aria-hidden="true" />{:else}<ChevronRight class="size-4 rtl:rotate-180" aria-hidden="true" />{/if}
+							</button>
+						{/if}
+					</div>
+					{#if item.children && isOpen(item)}
+						<ul class="ms-6 mt-1 flex flex-col gap-1 border-s border-surface-300-700 ps-2">
+							{#each item.children as child (child.href)}<li>{@render link(child, 'px-3 py-1.5 text-sm')}</li>{/each}
+						</ul>
+					{/if}
 				</li>
 			{/each}
 		</ul>
 	</nav>
-	<div class="mt-auto flex flex-col gap-3 border-t border-surface-200-800 px-3 pt-3">
-		<span class="truncate text-sm" data-testid="header-username">{username}</span>
-		<div class="flex flex-wrap items-center gap-2">
-			<form method="POST" action="/logout">
-				<button type="submit" class="btn btn-sm preset-tonal gap-2" data-testid="logout">
-					<LogOut class="size-4" aria-hidden="true" />{t(locale, 'logout')}
-				</button>
-			</form>
-			<LanguageSwitch {locale} {path} />
-		</div>
-	</div>
 </aside>

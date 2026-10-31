@@ -6,7 +6,7 @@ OBP-Cohort manages startup programmes on the Open Bank Project: calls for applic
 
 - **OBP-API is the only backend.** Cohort has no database of its own. Its records are dynamic entities; users, login, roles, organisations, files, chat and email are OBP features.
 - **One space per installation**, set by `OBP_ENTITY_SPACE_ID` (a bank id, default `cohort`, or `SYS`). Everything Cohort stores lives in it.
-- **Cohort is a Platform App.** It declares the Scopes it needs (`cohortRequiredConsumerScopes` in `packages/shared`) and, with its application token, creates its dynamic entities at startup and adds properties they lack. `/setup` shows the space, the Scopes and the dynamic entities, and links to the API Manager pages that fix what is missing.
+- **Cohort is a Platform App.** It declares the Scopes it needs (`cohortRequiredConsumerScopes` in `packages/shared`) and, with its application token, creates its dynamic entities at startup and adds properties they lack. `/staff/setup` shows the space, the Scopes and the dynamic entities, and links to the API Manager pages that fix what is missing.
 - **Dynamic entity definitions live in code** (`src/lib/server/entities`) and only grow: properties are added, never renamed, retyped or removed.
 - **A third app in OBP-Frontend** (`apps/cohort`), built and deployed as its own image. Programme-specific code stays here; anything another app could use goes into `packages/shared`, never copied.
 
@@ -51,7 +51,7 @@ OBP-Cohort manages startup programmes on the Open Bank Project: calls for applic
 ## Frontend
 
 - **Cohort users do everything in Cohort.** Startups, mentors, reviewers and programme staff never need the Portal or the API Manager; the API Manager is the technical admin console.
-- **Two layouts.** The public pages (`(public)`: open calls, a call, login, setup) are a website with a top bar. The logged-in pages (`(protected)`) have the Portal's sidebar shell, on the start side so it mirrors in Arabic. Cohort has its own sidebar rather than the shared `NavigationSidebar`, whose text is English only.
+- **One sidebar on every page**, in the Portal's style, on the start side so it mirrors in Arabic. Visitors who are not logged in see only the public pages (`(public)`: open calls, a call, login) and a Log in button. Cohort has its own sidebar rather than the shared `NavigationSidebar`, whose text is English only.
 - **List, view, edit.** Staff lists and detail pages need only read access. Editing is a separate page, guarded by the dynamic entity's update Role at the space; a User without it sees a request for the Role there instead of the form. Create and edit share one set of form fields, and a save replaces the whole record.
 - **SvelteKit, Svelte 5, TypeScript.** OBP calls are made server-side.
 - **English and Arabic, including RTL.** All UI text goes through `t()` (`src/lib/i18n`). The locale comes from the `cohort_locale` cookie, then Accept-Language, and sets `lang` and `dir` on `<html>`. Layouts use logical CSS properties.

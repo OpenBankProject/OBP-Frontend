@@ -63,6 +63,8 @@ export const en = {
 	nav_staff: 'Staff',
 	nav_setup: 'Setup',
 	nav_main: 'Main',
+	nav_open_menu: 'Open menu',
+	nav_close_menu: 'Close menu',
 	skip_to_content: 'Skip to content',
 	calls_open_heading: 'Open calls',
 	calls_none: 'There are no open calls at the moment.',
