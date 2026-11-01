@@ -22,7 +22,7 @@ import { parseLoginError } from '$lib/server/loginErrors';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ url, cookies, locals }) => {
-	if (locals.session.data.user) redirect(302, '/dashboard');
+	if (locals.session.data.user) redirect(302, '/');
 
 	rememberReturnTo(cookies, url.searchParams.get(RETURN_TO_PARAM));
 	const loginError = parseLoginError(url.searchParams.get('error'));

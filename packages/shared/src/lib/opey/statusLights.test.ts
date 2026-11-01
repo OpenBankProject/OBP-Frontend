@@ -16,7 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 import { describe, expect, it } from 'vitest';
-import { connectionLight, downComponents, servicesLight, sessionLight } from './statusLights';
+import { connectionLight, downComponents, servicesHint, servicesLight, sessionLight } from './statusLights';
 
 describe('status lights', () => {
 	it('shows a connection green only when healthy', () => {
@@ -33,6 +33,8 @@ describe('status lights', () => {
 		const degraded = { overall: 'degraded', components: { obp: up, mcp: { up: false }, llm: up } };
 		expect(servicesLight(degraded)).toBe('red');
 		expect(downComponents(degraded)).toEqual(['mcp']);
+		const badKey = { overall: 'degraded', components: { obp: up, llm: { up: false, detail: 'the API key is a placeholder' } } };
+		expect(servicesHint(badKey)).toBe('Part of Opey is not working: its AI model (the API key is a placeholder).');
 	});
 
 	it('shows the session green only when it is what the User should have', () => {

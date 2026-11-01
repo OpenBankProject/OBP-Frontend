@@ -76,3 +76,7 @@ export {
 	PORTAL_OPEY_CONVERSATION_ENTITY_NAME,
 	MANAGER_OPEY_CONVERSATION_ENTITY_NAME
 } from './conversationEntities';
+
+// Where Opey's status lights link to (set in each app's root layout)
+export { setOpeyStatusLinks } from './statusLights.js';
+export type { OpeyStatusLinks } from './statusLights.js';

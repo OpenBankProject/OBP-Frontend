@@ -3,9 +3,20 @@
 	import AppSidebar from '$lib/components/AppSidebar.svelte';
 	import TopBar from '$lib/components/TopBar.svelte';
 	import { t, type Locale } from '$lib/i18n';
+	import { setOpeyStatusLinks } from '@obp/shared/opey';
 
 	/** Every page: the sidebar on the start side; beside it the top bar and the page. */
 	let { data, children } = $props();
+
+	// Cohort has no status or consents page of its own: Opey's lights link to the Portal's.
+	setOpeyStatusLinks({
+		get status() {
+			return data.portalUrl ? `${data.portalUrl}/status` : null;
+		},
+		get consents() {
+			return data.portalUrl ? `${data.portalUrl}/user/consents` : null;
+		}
+	});
 
 	const locale = $derived(data.locale as Locale);
 	const appName = $derived(data.branding.name || t(locale, 'app_name'));
@@ -23,7 +34,7 @@
 	<!-- The Portal's background: a conic gradient seen through a blur. -->
 	<div class="min-w-0 bg-conic-250 from-30% via-40% to-50% dark:from-primary-950 dark:via-secondary-500/70 dark:to-primary-950">
 		<div class="flex h-full flex-col backdrop-blur-2xl">
-			<TopBar {locale} {appName} path={data.path} username={data.user?.username ?? null} bind:mode />
+			<TopBar {locale} path={data.path} username={data.user?.username ?? null} bind:mode />
 			<main id="content" class="min-h-0 flex-1 overflow-auto px-4 py-8 md:px-8">
 				<div class="max-w-5xl">{@render children()}</div>
 			</main>

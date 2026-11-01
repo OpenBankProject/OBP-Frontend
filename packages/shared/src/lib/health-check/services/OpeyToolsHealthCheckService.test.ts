@@ -42,15 +42,26 @@ describe('evaluateOpeyToolsStatus', () => {
 		});
 	});
 
-	it('stays healthy when the unauthenticated test call fails but mcp is up', () => {
-		// Inbound-auth OBP-MCP servers reject the unauthenticated probe call even
-		// though per-request authenticated tool loading works — mirrors Opey's
-		// own non-demoting semantics.
+	it("is unhealthy when Opey's own connection to OBP-MCP fails, though OBP-MCP is up", () => {
 		const result = evaluateOpeyToolsStatus({
 			components: { mcp: { up: true, tool_count: 0, test_call: 'failed' } }
 		});
-		expect(result.status).toBe('healthy');
+		expect(result.status).toBe('unhealthy');
 		expect(result.details.test_call).toBe('failed');
+	});
+
+	it('is unknown when the connection could not be checked without a user token', () => {
+		const result = evaluateOpeyToolsStatus({
+			components: { mcp: { up: true, test_call: "skipped: needs a user's token" } }
+		});
+		expect(result.status).toBe('unknown');
+	});
+
+	it("is unhealthy when Opey's OBP-MCP is not the consent-mode copy", () => {
+		const result = evaluateOpeyToolsStatus({
+			components: { mcp: { up: true, test_call: 'ok', obp_mcp_outbound_auth_via: 'oauth' } }
+		});
+		expect(result.status).toBe('unhealthy');
 	});
 
 	it('reports unhealthy with the detail when Opey says mcp is down', () => {

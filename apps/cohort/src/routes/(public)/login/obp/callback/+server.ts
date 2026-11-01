@@ -86,5 +86,5 @@ export const GET: RequestHandler = async ({ url, cookies, locals }) => {
 	await locals.session.save();
 	logger.info(`Session started for ${user.username || user.email} (${user.user_id}) via ${provider}`);
 
-	redirect(302, takeReturnTo(cookies) ?? '/dashboard');
+	redirect(302, takeReturnTo(cookies) ?? '/');
 };

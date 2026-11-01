@@ -33,7 +33,16 @@ import { env as publicEnv } from '$env/dynamic/public';
 import { createOpeyConversationEntityIfNeeded } from '$lib/server/opeyConversations/opeyConversationEntity';
 import { oauth2ProviderManager } from '$lib/oauth/providerManager';
 import { SessionOAuthHelper } from '$lib/oauth/sessionHelper';
-import { healthCheckRegistry, OIDCHealthCheckService, OpeyToolsHealthCheckService } from '@obp/shared/health-check';
+import {
+	healthCheckRegistry,
+	OIDCHealthCheckService,
+	OpeyToolsHealthCheckService,
+	JsonStatusHealthCheckService,
+	evaluateOpeyModel,
+	evaluateOpeyObp,
+	evaluateConsentConfig,
+	evaluateMcpMode
+} from '@obp/shared/health-check';
 import { resolveGrpcTarget } from '@obp/shared/obp';
 
 import { redisService } from '$lib/redis/services/RedisService';
@@ -159,6 +168,53 @@ function initHealthChecks() {
 			})
 		);
 	}
+
+	// The rest of what Opey needs to act for a logged-in User, each with what is wrong in words when it is not.
+	const obpBase = (publicEnv.PUBLIC_OBP_BASE_URL ?? '').replace(/\/+$/, '');
+	if (env.OPEY_BASE_URL) {
+		const opeyStatus = `${env.OPEY_BASE_URL.replace(/\/+$/, '')}/status`;
+		healthCheckRegistry.register(
+			new JsonStatusHealthCheckService({ serviceName: 'Opey (AI model)', url: opeyStatus, evaluate: evaluateOpeyModel })
+		);
+		healthCheckRegistry.register(
+			new JsonStatusHealthCheckService({
+				serviceName: 'Opey (OBP-API)',
+				url: opeyStatus,
+				evaluate: evaluateOpeyObp(obpBase),
+				details: { PUBLIC_OBP_BASE_URL: obpBase }
+			})
+		);
+	}
+	healthCheckRegistry.register(
+		new JsonStatusHealthCheckService({
+			serviceName: 'OBP consents',
+			url: `${obpBase}/obp/v7.0.0/public/consent-config`,
+			evaluate: evaluateConsentConfig
+		})
+	);
+	// The two OBP-MCP copies OBP-API advertises: consent mode for Opey, OAuth mode for MCP clients such as Claude Code.
+	const appDirectoryStatusUrl = (name: string) => async () => {
+		const response = await fetch(`${obpBase}/obp/v6.0.0/app-directory`, { headers: { Accept: 'application/json' } });
+		if (!response.ok) return null;
+		const entry = ((await response.json()).app_directory ?? []).find((e: { name?: string }) => e.name === name);
+		return entry?.value ? `${String(entry.value).replace(/\/+$/, '')}/status` : null;
+	};
+	healthCheckRegistry.register(
+		new JsonStatusHealthCheckService({
+			serviceName: 'OBP-MCP (consent, for Opey)',
+			url: appDirectoryStatusUrl('public_obp_mcp_internal_url'),
+			evaluate: evaluateMcpMode('consent'),
+			missingReason: "public_obp_mcp_internal_url is not in OBP-API's app directory"
+		})
+	);
+	healthCheckRegistry.register(
+		new JsonStatusHealthCheckService({
+			serviceName: 'OBP-MCP (OAuth, for MCP clients)',
+			url: appDirectoryStatusUrl('public_obp_mcp_url'),
+			evaluate: evaluateMcpMode('oauth'),
+			missingReason: "public_obp_mcp_url is not in OBP-API's app directory"
+		})
+	);
 
 	const redisHealthCheck = new RedisHealthCheckService(redisService);
 	healthCheckRegistry.register(redisHealthCheck);

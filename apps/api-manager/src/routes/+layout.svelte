@@ -34,6 +34,7 @@
   // import OpeyInsightBar from "$lib/components/OpeyInsightBar.svelte";
   // import { describeRoute } from "$lib/config/insightMessages"; // only used by the disabled Opey Insights bar
   import { createLogger } from '@obp/shared/utils';
+  import { setOpeyStatusLinks } from '@obp/shared/opey';
   import { CurrentBankPicker } from '@obp/shared/components';
   import { currentBank } from "$lib/stores/currentBank.svelte";
   import { userPreferences } from "$lib/stores/userPreferences.svelte";
@@ -69,6 +70,14 @@
 
   let { data, children } = $props();
   logger.info("📊 Props received from server");
+
+  // Opey's status lights: this app's status page, and the User's consents in the Portal.
+  setOpeyStatusLinks({
+    status: "/status",
+    get consents() {
+      return `${String(data.externalLinks?.PORTAL_URL ?? "").replace(/\/+$/, "")}/user/consents`;
+    },
+  });
   let isAuthenticated = $state(false);
   let isMobileMenuOpen = $state(false);
   let expandedSections = $state<Record<string, boolean>>({});

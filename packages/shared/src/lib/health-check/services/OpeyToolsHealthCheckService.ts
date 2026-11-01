@@ -66,10 +66,8 @@ export interface OpeyToolsEvaluation {
 /**
  * Map an Opey /status payload to a tools-health verdict.
  *
- * Mirrors Opey's own probe semantics: `components.mcp.up` decides health. A
- * failed unauthenticated `test_call` alone does not demote — servers with
- * inbound auth enabled reject the test call even when per-request
- * authenticated tool loading works fine — but it is surfaced in details.
+ * `components.mcp.up` (OBP-MCP reachable) must be true, and Opey's `test_call` - a real connection made the way
+ * a chat makes it - must not have failed; one skipped because it would need a user's token is unknown.
  */
 export function evaluateOpeyToolsStatus(payload: OpeyStatusPayload): OpeyToolsEvaluation {
     const mcp = payload.components?.mcp;
@@ -97,6 +95,31 @@ export function evaluateOpeyToolsStatus(payload: OpeyStatusPayload): OpeyToolsEv
             error: mcp.detail
                 ? `Opey reports its MCP tools down: ${mcp.detail}`
                 : 'Opey reports its MCP tools down — the agent will tell users its API tools are unavailable',
+            details
+        };
+    }
+
+    // Opey's test call connects the way a chat does (with its own token for a consent-mode OBP-MCP). If that is
+    // refused, chats get no tools, even though OBP-MCP answers its /status: e.g. a token without the scopes
+    // OBP-MCP requires, or mcp_servers.json forwarding a user token that consent-mode sessions do not have.
+    if (mcp.test_call === 'failed') {
+        return {
+            status: 'unhealthy',
+            error: "Opey cannot open a session with OBP-MCP, so chats have no tools. Check use_service_token in Opey's mcp_servers.json and OPEY_OIDC_TOKEN_URL / OPEY_OIDC_CLIENT_ID / OPEY_OIDC_CLIENT_SECRET in its .env.",
+            details
+        };
+    }
+    if (typeof mcp.test_call === 'string' && mcp.test_call.startsWith('skipped')) {
+        return {
+            status: 'unknown',
+            error: "Not checked: Opey's OBP-MCP needs a user's token, which consent-mode sessions do not send. Use use_service_token in mcp_servers.json.",
+            details
+        };
+    }
+    if (mcp.obp_mcp_outbound_auth_via && mcp.obp_mcp_outbound_auth_via !== 'consent') {
+        return {
+            status: 'unhealthy',
+            error: `Opey's OBP-MCP runs in ${mcp.obp_mcp_outbound_auth_via} mode; Opey needs the consent-mode copy (public_obp_mcp_internal_url)`,
             details
         };
     }

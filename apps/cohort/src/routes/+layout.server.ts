@@ -15,12 +15,16 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
+import { appDirectory } from '$lib/server/appDirectory';
 import type { LayoutServerLoad } from './$types';
 
 // Only what pages display goes to the browser; tokens stay in the server-side session.
 export const load: LayoutServerLoad = async ({ locals, url }) => {
 	const user = locals.session.data.user;
+	// The Portal, from OBP-API's app directory: Opey's status lights link to its status and consents pages.
+	const portalUrl = ((await appDirectory()).public_obp_portal_url || '').replace(/\/+$/, '') || null;
 	return {
+		portalUrl,
 		locale: locals.locale,
 		branding: locals.branding,
 		path: url.pathname + url.search,

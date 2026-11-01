@@ -36,3 +36,6 @@ export {
 } from './sseProbe.js';
 export type { SseProbeResult } from './sseProbe.js';
 export type { HealthSummary, ServiceHealthView, OverallStatus } from './summarize.js';
+export { JsonStatusHealthCheckService } from './services/JsonStatusHealthCheckService.js';
+export type { JsonStatusHealthCheckOptions, JsonStatusEvaluation } from './services/JsonStatusHealthCheckService.js';
+export { evaluateOpeyModel, evaluateOpeyObp, evaluateConsentConfig, evaluateMcpMode } from './services/stackChecks.js';

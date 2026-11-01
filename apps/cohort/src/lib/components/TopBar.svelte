@@ -4,18 +4,16 @@
 	import ModeSwitch from '$lib/components/ModeSwitch.svelte';
 	import { t, type Locale } from '$lib/i18n';
 
-	/** The bar above every page: the app's title at the start; the User, Log out (or Log in), language and mode at the end. */
+	/** The bar above every page: the User, Log out (or Log in), language and mode, at the end. The name is in the sidebar's logo. */
 	let {
 		locale,
-		appName,
 		path,
 		username,
 		mode = $bindable('dark')
-	}: { locale: Locale; appName: string; path: string; username: string | null; mode?: 'dark' | 'light' } = $props();
+	}: { locale: Locale; path: string; username: string | null; mode?: 'dark' | 'light' } = $props();
 </script>
 
-<header class="z-10 flex min-h-12 shrink-0 flex-wrap items-center gap-3 px-4 py-2 shadow-md md:px-8">
-	<span class="me-auto text-lg font-semibold" data-testid="app-title">{appName}</span>
+<header class="z-10 flex min-h-12 shrink-0 flex-wrap items-center justify-end gap-3 px-4 py-2 shadow-md md:px-8">
 	{#if username}
 		<span class="text-sm" data-testid="header-username">{username}</span>
 		<form method="POST" action="/logout">

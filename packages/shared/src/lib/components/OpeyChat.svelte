@@ -36,14 +36,13 @@
 	import {
 		LIGHT_CLASS,
 		connectionLight,
-		downComponents,
 		servicesLight,
 		sessionLight,
-		sessionText,
 		serverHint,
 		browserHint,
 		servicesHint,
 		sessionHint,
+		getOpeyStatusLinks,
 		type Light,
 		type OpeyServiceStatus
 	} from '$shared/opey/statusLights';
@@ -239,7 +238,15 @@
 	let serverHealthError: string | null = $state(null);
 	let browserHealthError: string | null = $state(null);
 	// Which pip's debug popover is currently open (mutually exclusive).
-	let openPip: 'server' | 'browser' | 'services' | 'auth' | null = $state(null);
+	// Where each light links to; see setOpeyStatusLinks.
+	const statusLinks = getOpeyStatusLinks();
+	// The light being hovered, and where to show its words: drawn in a Portal so no container clips or covers it.
+	type LightId = 'server' | 'browser' | 'services' | 'auth';
+	let hoveredLight: { id: LightId; top: number; right: number } | null = $state(null);
+	function showLightHint(event: Event, id: LightId) {
+		const r = (event.currentTarget as HTMLElement).getBoundingClientRect();
+		hoveredLight = { id, top: r.bottom + 6, right: Math.max(8, window.innerWidth - r.right) };
+	}
 
 	async function fetchServerHealthStatus() {
 		try {
@@ -446,12 +453,18 @@
 	});
 
 	// The four status lights; see $shared/opey/statusLights for what each colour means.
-	const LIGHT_WORD: Record<Light, string> = { green: 'working', amber: 'not checked yet', red: 'not working' };
 	let serverLight: Light = $derived(connectionLight(serverConnectionStatus));
 	let browserLight: Light = $derived(connectionLight(browserConnectionStatus));
 	let opeyServicesLight: Light = $derived(servicesLight(opeyServiceStatus));
 	let sessionInput = $derived({ status: session.status, isAuthenticated: session.isAuthenticated, userAuthenticated });
 	let opeySessionLight: Light = $derived(sessionLight(sessionInput));
+	// The words shown when hovering over each light.
+	let lightHints: Record<LightId, string> = $derived({
+		server: serverHint(serverLight, serverHealthError),
+		browser: browserHint(browserLight, browserHealthError),
+		services: servicesHint(opeyServiceStatus),
+		auth: sessionHint(sessionInput, session.error)
+	});
 
 	async function sendMessage(text: string) {
 		if (!text.trim()) return;
@@ -841,91 +854,53 @@
 	{/if}
 {/snippet}
 
-{#snippet pip(id: 'server' | 'browser' | 'services' | 'auth', title: string, light: Light, summary: string, body: Snippet)}
-	<div class="relative">
-		<button
-			type="button"
-			class="block h-2.5 w-2.5 rounded-full {LIGHT_CLASS[light]} cursor-pointer"
-			data-testid="opey-pip-{id}"
-			data-light={light}
-			onclick={() => (openPip = openPip === id ? null : id)}
-			aria-expanded={openPip === id}
-			aria-label="{title}: {summary}"
-			title={summary}
-		></button>
-		{#if openPip === id}
-			<div
-				class="absolute right-0 top-4 z-20 w-80 max-w-[calc(100vw-2rem)] rounded-md border border-surface-300-700 bg-surface-100-900 p-3 text-xs shadow-lg text-surface-900-100"
-				role="dialog"
-				aria-label={title}
-				data-testid="opey-pip-{id}-popover"
-			>
-				<div class="mb-1 flex items-center justify-between">
-					<span class="flex items-center gap-2 font-semibold">
-						<span class="inline-block h-2.5 w-2.5 rounded-full {LIGHT_CLASS[light]}" aria-hidden="true"></span>
-						{title}
-					</span>
-					<button type="button" class="text-base leading-none" onclick={() => (openPip = null)} aria-label="Close">&times;</button>
-				</div>
-				{@render body()}
-			</div>
+{#snippet pip(id: LightId, label: string, light: Light, href: string | null)}
+	<!-- The one place with a mouse-over: the light's state, in words (see hoveredLight). -->
+	<div
+		class="relative"
+		role="presentation"
+		onpointerenter={(e) => showLightHint(e, id)}
+		onpointerleave={() => (hoveredLight = null)}
+		onfocusin={(e) => showLightHint(e, id)}
+		onfocusout={() => (hoveredLight = null)}
+	>
+		{#if href}
+			<a
+				{href}
+				target={href.startsWith('http') ? '_blank' : undefined}
+				rel={href.startsWith('http') ? 'noopener' : undefined}
+				class="block h-1.5 w-1.5 rounded-full {LIGHT_CLASS[light]}"
+				data-testid="opey-pip-{id}"
+				data-light={light}
+				aria-label="{label}: {lightHints[id]}"
+			></a>
+		{:else}
+			<span class="block h-1.5 w-1.5 rounded-full {LIGHT_CLASS[light]}" data-testid="opey-pip-{id}" data-light={light} role="img" aria-label="{label}: {lightHints[id]}"></span>
 		{/if}
 	</div>
 {/snippet}
 
 {#snippet statusPips(session: SessionSnapshot, consentInfo?: OBPConsentInfo)}
 	{#if options.displayConnectionPips}
-		<div class="flex flex-row items-center gap-1.5" data-testid="opey-status-lights">
-			{#snippet serverBody()}
-				<p class="mb-2">This app's server → Opey: <strong>{LIGHT_WORD[serverLight]}</strong></p>
-				{#if serverHealthError}<p class="mb-2 break-words text-error-600-400">{serverHealthError}</p>{/if}
-				<a href="/backend/status" target="_blank" rel="noopener" class="text-tertiary-600-400 underline"><code class="font-mono text-[11px]">/backend/status</code></a>
-			{/snippet}
-			{@render pip('server', "This app's server → Opey", serverLight, serverHint(serverLight, serverHealthError), serverBody)}
-
-			{#snippet browserBody()}
-				<p class="mb-2">Your browser → this app → Opey: <strong>{LIGHT_WORD[browserLight]}</strong></p>
-				{#if browserHealthError}<p class="mb-2 break-words text-error-600-400">{browserHealthError}</p>{/if}
-				<a href={`${opeyProxyBase}/status`} target="_blank" rel="noopener" class="text-tertiary-600-400 underline"><code class="font-mono text-[11px] break-all">{opeyProxyBase}/status</code></a>
-				{#if options.baseUrl}<p class="mt-1">Opey itself: <code class="font-mono text-[11px] break-all">{options.baseUrl}</code></p>{/if}
-			{/snippet}
-			{@render pip('browser', 'Your browser → this app → Opey', browserLight, browserHint(browserLight, browserHealthError), browserBody)}
-
-			{#snippet servicesBody()}
-				{#if opeyServiceStatus?.components}
-					<ul class="mb-2 space-y-0.5">
-						{#each Object.entries(opeyServiceStatus.components) as [name, component] (name)}
-							<li class="flex items-center gap-2">
-								<span class="inline-block h-2 w-2 rounded-full {LIGHT_CLASS[component.up ? 'green' : 'red']}" aria-hidden="true"></span>
-								<span>{name}: {component.up ? 'up' : 'down'}</span>
-							</li>
-						{/each}
-					</ul>
-					{#if downComponents(opeyServiceStatus).length}<p class="mb-2 text-error-600-400">Down: {downComponents(opeyServiceStatus).join(', ')}</p>{/if}
-				{:else}
-					<p class="mb-2">Opey has not reported its services yet.</p>
-				{/if}
-				{#if obpMcpAuthMode}
-					<p class="mb-2">
-						OBP-MCP → OBP-API: <strong>{obpMcpAuthMode}</strong>.
-						{#if obpMcpAuthMode === 'consent'}Opey calls OBP-API with Consent-JWTs the User granted.{:else if obpMcpAuthMode === 'oauth'}Opey forwards the User's OBP-OIDC token to OBP-API.{:else}Unrecognised: OBP-API calls are refused. Set OBP_AUTHORIZATION_VIA to oauth or consent on OBP-MCP.{/if}
-					</p>
-				{/if}
-				<a href={`${opeyProxyBase}/status`} target="_blank" rel="noopener" class="text-tertiary-600-400 underline"><code class="font-mono text-[11px] break-all">{opeyProxyBase}/status</code></a>
-			{/snippet}
-			{@render pip('services', "Opey's services", opeyServicesLight, servicesHint(opeyServiceStatus), servicesBody)}
-
-			{#snippet sessionBody()}
-				<p class="mb-2"><strong>{sessionText(sessionInput)}</strong>{#if session.isAuthenticated && consentInfo} (consent {consentInfo.consent_id}){/if}</p>
-				{#if session.error}<p class="mb-2 break-words text-error-600-400">{session.error}</p>{/if}
-				{#if userAuthenticated}<a href="/user#opey-consent" class="text-tertiary-600-400 underline">View consent</a>{/if}
-			{/snippet}
-			{@render pip('auth', 'Opey session', opeySessionLight, sessionHint(sessionInput, session.error), sessionBody)}
-
+		<div class="flex flex-row items-center gap-1" data-testid="opey-status-lights">
+			{@render pip('server', "This website's server → Opey", serverLight, statusLinks.status)}
+			{@render pip('browser', 'Your browser → this website → Opey', browserLight, statusLinks.status)}
+			{@render pip('services', "Opey's services", opeyServicesLight, statusLinks.status)}
+			{@render pip('auth', 'Opey session', opeySessionLight, userAuthenticated ? statusLinks.consents : statusLinks.status)}
 			{#if obpMcpAuthMode}
 				<span class="ml-1 rounded-full bg-primary-200-800 px-2 py-0.5 text-[10px] font-mono uppercase tracking-wide" data-testid="obp-mcp-auth-mode">{obpMcpAuthMode}</span>
 			{/if}
 		</div>
+		{#if hoveredLight}
+			<Portal>
+				<span
+					class="pointer-events-none fixed z-[1000] w-72 max-w-[calc(100vw-1rem)] rounded-md bg-surface-800 px-2.5 py-1.5 text-xs text-surface-50 shadow-lg"
+					style="top: {hoveredLight.top}px; right: {hoveredLight.right}px"
+					data-testid="opey-light-hint"
+					aria-hidden="true">{lightHints[hoveredLight.id]}</span
+				>
+			</Portal>
+		{/if}
 	{/if}
 {/snippet}
 

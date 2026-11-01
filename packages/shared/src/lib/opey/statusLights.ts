@@ -28,6 +28,8 @@
  *              they are logged in, anonymous when they are not.
  */
 
+import { getContext, setContext } from 'svelte';
+
 export type Light = 'green' | 'amber' | 'red';
 
 /** Plain colours, not theme colours, so the three states look different in every theme. */
@@ -77,13 +79,6 @@ export function sessionLight({ status, isAuthenticated, userAuthenticated }: Ses
 	return userAuthenticated && !isAuthenticated ? 'red' : 'green';
 }
 
-export function sessionText({ status, isAuthenticated, userAuthenticated }: SessionLightInput): string {
-	if (status === 'loading') return 'Connecting…';
-	if (status === 'error') return userAuthenticated ? 'Opey cannot act as you: no accepted consent' : 'Error';
-	if (isAuthenticated) return 'Acting as you, through your consent';
-	return userAuthenticated ? 'Not acting as you: the session is anonymous' : 'Anonymous (not logged in)';
-}
-
 // The words shown when hovering over a light. One sentence each, in plain language; a technical error, when there
 // is one, follows in brackets.
 
@@ -113,7 +108,12 @@ export function servicesHint(status: OpeyServiceStatus | null): string {
 	const light = servicesLight(status);
 	if (light === 'amber') return 'Waiting for Opey to report how its parts are doing…';
 	if (light === 'green') return 'All of Opey is working: OBP-API, Redis, its conversation store, OBP-MCP (its tools) and its AI model.';
-	const down = downComponents(status).map((name) => COMPONENT_NAMES[name] ?? name);
+	// Each part that is down, with Opey's reason when it gives one (e.g. "the API key is a placeholder").
+	const down = downComponents(status).map((name) => {
+		const detail = status?.components?.[name]?.detail;
+		const label = COMPONENT_NAMES[name] ?? name;
+		return typeof detail === 'string' && detail ? `${label} (${detail})` : label;
+	});
 	return down.length ? `Part of Opey is not working: ${down.join(', ')}.` : 'Opey reports a problem.';
 }
 
@@ -122,11 +122,31 @@ export function sessionHint(input: SessionLightInput, error?: string | null): st
 	if (status === 'loading') return 'Starting your session with Opey…';
 	if (status === 'error') {
 		return userAuthenticated
-			? withError('Opey cannot act as you.', error)
+			? withError('Opey cannot use your Consent.', error)
 			: withError('Opey could not start a session.', error);
 	}
-	if (isAuthenticated) return 'Opey is acting as you, with the consent you gave it.';
+	if (isAuthenticated) return 'Opey is acting on your behalf, with the Consent you gave it.';
 	return userAuthenticated
-		? "You are logged in, but Opey is not acting as you: it has no consent from you."
-		: 'You are chatting with Opey as a visitor. Log in to let Opey act as you.';
+		? "You are logged in, but Opey has no Consent from you."
+		: 'You are chatting with Opey as a visitor. Log in to let Opey act on your behalf.';
+}
+
+/**
+ * Where a click on a light goes: the system status page for the first three, the User's consents for the session.
+ * Set once in an app's root layout; without it the Portal's own pages are used. null means no link.
+ */
+export interface OpeyStatusLinks {
+	status: string | null;
+	consents: string | null;
+}
+
+const LINKS_KEY = Symbol('opeyStatusLinks');
+const DEFAULT_LINKS: OpeyStatusLinks = { status: '/status', consents: '/user/consents' };
+
+export function setOpeyStatusLinks(links: OpeyStatusLinks): void {
+	setContext(LINKS_KEY, links);
+}
+
+export function getOpeyStatusLinks(): OpeyStatusLinks {
+	return getContext<OpeyStatusLinks | undefined>(LINKS_KEY) ?? DEFAULT_LINKS;
 }
