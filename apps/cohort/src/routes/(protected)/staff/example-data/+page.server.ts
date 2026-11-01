@@ -44,7 +44,13 @@ export const load: PageServerLoad = async ({ locals }) => {
 export const actions: Actions = {
 	add: async ({ locals }) => {
 		try {
-			return { form: 'add', added: await addExampleData(userToken(locals)!) };
+			const user = locals.session.data.user;
+			const added = await addExampleData(userToken(locals)!, {
+				user_id: user?.user_id ?? '',
+				username: user?.username ?? 'Example Applicant',
+				email: user?.email ?? ''
+			});
+			return { form: 'add', added };
 		} catch (err) {
 			// What was created before the refusal stays; adding again skips it.
 			return fail(400, { form: 'add', error: messageOf(err) });

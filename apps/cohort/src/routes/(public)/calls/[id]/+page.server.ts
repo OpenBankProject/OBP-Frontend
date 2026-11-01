@@ -19,6 +19,7 @@ import { error, redirect } from '@sveltejs/kit';
 import { loginUrlReturningTo } from '@obp/shared/server/auth';
 import { isCallOpen } from '$lib/applications';
 import { APPLICATION, CALL, PROGRAMME } from '$lib/server/entities/definitions';
+import { myCustomer } from '$lib/server/customers';
 import { createRecord, getRecord, idOf, listRecords, userToken } from '$lib/server/records';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -52,7 +53,10 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 };
 
 export const actions: Actions = {
-	/** Start an application for this call, or continue the one already started. */
+	/**
+	 * Start an application for this call, or continue the one already started. An applicant who is not yet a
+	 * Customer of the space first gives their details.
+	 */
 	apply: async ({ params, locals }) => {
 		const token = userToken(locals);
 		if (!locals.session.data.user || !token) redirect(303, loginUrlReturningTo(`/calls/${params.id}`));
@@ -60,7 +64,9 @@ export const actions: Actions = {
 		const existing = (await listRecords(APPLICATION, 'my', token)).find((a) => a.call_id === params.id);
 		if (existing) redirect(303, `/applications/${idOf(APPLICATION, existing)}`);
 		if (!isCallOpen(call)) error(400, 'This call is not open');
-		const created = await createRecord(APPLICATION, 'my', { call_id: params.id, status: 'draft' }, token);
+		const customer = await myCustomer(token);
+		if (!customer) redirect(303, `/calls/${params.id}/details`);
+		const created = await createRecord(APPLICATION, 'my', { call_id: params.id, status: 'draft', customer_id: customer.customer_id }, token);
 		redirect(303, `/applications/${idOf(APPLICATION, created)}`);
 	}
 };

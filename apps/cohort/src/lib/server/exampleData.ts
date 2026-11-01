@@ -18,6 +18,7 @@
 import { eligibilityOf } from '$lib/applications';
 import { nowUtc } from '$lib/screening';
 import { APPLICATION, CALL, PROGRAMME } from './entities/definitions';
+import { createCustomerForUser, myCustomer } from './customers';
 import { createRecord, idOf, listRecords, type CohortRecord } from './records';
 
 /**
@@ -143,8 +144,16 @@ export interface ExampleResult {
 	skipped: number;
 }
 
-export async function addExampleData(token: string): Promise<ExampleResult> {
+export async function addExampleData(token: string, user: { user_id: string; username: string; email: string }): Promise<ExampleResult> {
 	const result: ExampleResult = { programmes: 0, calls: 0, applications: 0, skipped: 0 };
+	// The applications are the User's own, so the User is their applicant: a Customer of the space, made if needed.
+	const customerId =
+		(await myCustomer(token).catch(() => null))?.customer_id ??
+		(await createCustomerForUser(user.user_id, {
+			legal_name: user.username,
+			mobile_phone_number: '+000 0000 0000',
+			email: user.email
+		}).catch(() => ''));
 	const [programmes, calls, mine] = await Promise.all([
 		listRecords(PROGRAMME, 'public'),
 		listRecords(CALL, 'public'),
@@ -174,7 +183,7 @@ export async function addExampleData(token: string): Promise<ExampleResult> {
 				const submitted = application.status === 'submitted'
 					? { eligibility: eligibilityOf(application), submitted_at: nowUtc() }
 					: {};
-				await createRecord(APPLICATION, 'my', { ...application, call_id: callId, ...submitted }, token);
+				await createRecord(APPLICATION, 'my', { ...application, call_id: callId, ...submitted, ...(customerId ? { customer_id: customerId } : {}) }, token);
 				result.applications++;
 			}
 		}

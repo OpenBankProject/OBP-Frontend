@@ -114,6 +114,21 @@ export function cohortRequiredConsumerScopes(space: string): RequiredConsumerSco
 			role_name: 'CanGetDynamicEntityRecord_cohort_screening_decision',
 			bank_id: space,
 			needed_for: 'Showing applicants the outcome of screening on their own application.'
+		},
+		{
+			role_name: 'CanCreateCustomer',
+			bank_id: space,
+			needed_for: 'Registering each applicant as a Customer of the space (the legal person behind the login), and later each accepted startup.'
+		},
+		{
+			role_name: 'CanCreateUserCustomerLink',
+			bank_id: space,
+			needed_for: "Linking applicants, and later a startup's team, to their Customer."
+		},
+		{
+			role_name: 'CanSendEmailToCustomerAtOneBank',
+			bank_id: space,
+			needed_for: 'Emailing applicants (Customers of the space) that their application was received, and when there is a decision.'
 		}
 	];
 }

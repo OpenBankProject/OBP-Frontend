@@ -107,7 +107,8 @@ export const applicationEntity: SystemDynamicEntityDefinition = {
 			local_resident: { type: 'boolean', example: true, description: "The applicant is a citizen or resident of the programme's country." },
 			incorporated_locally: { type: 'boolean', example: false, description: "The business is incorporated in the programme's country." },
 			eligibility: text('eligible', 'Set on submission: eligible or needs_review.', 20),
-			submitted_at: text('2026-11-20T10:00:00Z', 'When the application was submitted (ISO 8601, UTC).', 30)
+			submitted_at: text('2026-11-20T10:00:00Z', 'When the application was submitted (ISO 8601, UTC).', 30),
+			customer_id: text('7uy8a7e4-6d02-40e3-a129-0b2bf89de9f0', "The applicant's Customer in the space: the legal person, and where emails go.", 36)
 		}
 	}
 };

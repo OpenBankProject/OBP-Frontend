@@ -20,6 +20,8 @@ import { decisionsFor, isDecision, nowUtc } from '$lib/screening';
 import { APPLICATION, CALL, SCREENING_DECISION } from '$lib/server/entities/definitions';
 import { messageOf } from '$lib/server/errors';
 import { createRecord, getRecord, listRecords, userToken, type CohortRecord } from '$lib/server/records';
+import { decisionEmail } from '$lib/emails';
+import { emailCustomer, pageUrl } from '$lib/server/notify';
 import { isStaffRole, requestStaffRole, staffAccess } from '$lib/server/staffAccess';
 import { filesOfApplication, setScanStatus } from '$lib/server/files';
 import type { Actions, PageServerLoad } from './$types';
@@ -110,6 +112,20 @@ export const actions: Actions = {
 		} catch (err) {
 			return fail(400, { error: messageOf(err) });
 		}
+		// The applicant's Customer is told the outcome, never the reason.
+		const call = await getRecord(CALL, 'public', String(app.call_id)).catch(() => null);
+		await emailCustomer(
+			String(app.customer_id ?? ''),
+			decisionEmail({
+				site: locals.branding.name || 'Cohort',
+				call: String(call?.title ?? ''),
+				startup: String(app.startup_name ?? ''),
+				link: pageUrl(`/applications/${params.id}`),
+				decision,
+				message: record.message_to_applicant as string
+			}),
+			`${SCREENING_DECISION}:${params.id}`
+		);
 		return { decided: decision };
 	}
 };

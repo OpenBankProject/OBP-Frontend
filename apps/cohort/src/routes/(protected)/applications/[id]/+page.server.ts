@@ -23,6 +23,9 @@ import { MAX_UPLOAD_BYTES, UPLOAD_MEDIA_TYPES, filesOfApplication, uploadApplica
 import { messageOf } from '$lib/server/errors';
 import { APPLICATION, CALL } from '$lib/server/entities/definitions';
 import { getRecord, updateRecord, userToken } from '$lib/server/records';
+import { submittedEmail } from '$lib/emails';
+import { myCustomer } from '$lib/server/customers';
+import { emailCustomer, pageUrl } from '$lib/server/notify';
 import type { Actions, PageServerLoad } from './$types';
 
 /** The caller's own application: the 'my' URL only finds records the caller owns. */
@@ -78,7 +81,7 @@ export const actions: Actions = {
 		const application = await myApplication(params.id, token);
 		if (!applicantMayEdit(application, await latestFor(params.id))) return fail(400, { submitted: true });
 		const values = readApplicationForm(await request.formData());
-		await updateRecord(APPLICATION, 'my', params.id, { call_id: application.call_id, status: 'draft', ...values }, token);
+		await updateRecord(APPLICATION, 'my', params.id, { call_id: application.call_id, customer_id: application.customer_id, status: 'draft', ...values }, token);
 		return { saved: true };
 	},
 	submit: async ({ params, locals, request }) => {
@@ -89,16 +92,31 @@ export const actions: Actions = {
 		const missing = missingToSubmit(values);
 		if (missing.length > 0) {
 			// Keep what was typed: save it as a draft, and say what is still missing.
-			await updateRecord(APPLICATION, 'my', params.id, { call_id: application.call_id, status: 'draft', ...values }, token);
+			await updateRecord(APPLICATION, 'my', params.id, { call_id: application.call_id, customer_id: application.customer_id, status: 'draft', ...values }, token);
 			return fail(400, { missing });
 		}
 		await updateRecord(APPLICATION, 'my', params.id, {
 			call_id: application.call_id,
+			customer_id: application.customer_id,
 			...values,
 			status: 'submitted',
 			eligibility: eligibilityOf(values),
 			submitted_at: nowUtc()
 		}, token);
+		const call = await getRecord(CALL, 'public', String(application.call_id)).catch(() => null);
+		// Applications started before applicants became Customers have no customer_id; theirs is looked up.
+		const customerId =
+			String(application.customer_id ?? '') || (await myCustomer(token).catch(() => null))?.customer_id || '';
+		await emailCustomer(
+			customerId,
+			submittedEmail({
+				site: locals.branding.name || 'Cohort',
+				call: String(call?.title ?? ''),
+				startup: String(values.startup_name ?? ''),
+				link: pageUrl(`/applications/${params.id}`)
+			}),
+			`${APPLICATION}:${params.id}`
+		);
 		return { submittedNow: true };
 	}
 };
