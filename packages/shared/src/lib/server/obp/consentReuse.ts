@@ -39,6 +39,7 @@
  * match is the most recent — gives a stable, predictable reuse target.
  */
 
+import { getJWTPayload } from '$shared/utils/jwt';
 import { createLogger } from '$shared/utils/logger';
 import type { ObpGet } from './consentsConfig.js';
 
@@ -238,4 +239,23 @@ export async function findReusableConsent(opts: {
 		`findReusableConsent: ✗ no reusable consent found among ${consents.length} candidates. Rejection reasons:\n  ${reasons.join('\n  ')}`
 	);
 	return null;
+}
+
+/**
+ * How long a pending (INITIATED) Opey consent is reused rather than replaced. It is pending only while someone
+ * could still answer its challenge; after that it would block Opey (OBP-API rejects it only hours later).
+ */
+export const PENDING_CONSENT_REUSE_SECONDS = 600;
+
+/**
+ * Whether a pending consent is recent enough to reuse: its JWT was issued (iat) less than `maxAgeSeconds` ago.
+ * The listing's last_action_date has only the day, so the JWT is the clock. Without an iat it is not reused.
+ */
+export function isRecentPendingConsent(
+	consent: { jwt?: string },
+	nowMs: number = Date.now(),
+	maxAgeSeconds: number = PENDING_CONSENT_REUSE_SECONDS
+): boolean {
+	const issuedAt = consent.jwt ? getJWTPayload(consent.jwt)?.iat : undefined;
+	return typeof issuedAt === 'number' && nowMs - issuedAt * 1000 < maxAgeSeconds * 1000;
 }

@@ -16,7 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 import { describe, it, expect } from 'vitest';
-import { normalizeMyResources, myResourcesCovered } from './consentReuse';
+import { normalizeMyResources, myResourcesCovered, isRecentPendingConsent } from './consentReuse';
 
 describe('normalizeMyResources', () => {
 	it('treats absent, null and empty as none', () => {
@@ -56,5 +56,23 @@ describe('myResourcesCovered', () => {
 		expect(myResourcesCovered({ personal_dynamic_entities: [{ bank_id: 'b1', entity_name: 'notes', actions: ['read', 'write'] }] }, required)).toBe(false);
 		expect(myResourcesCovered({ personal_dynamic_entities: [{ bank_id: '', entity_name: 'other', actions: ['read', 'write'] }] }, required)).toBe(false);
 		expect(myResourcesCovered(undefined, required)).toBe(false);
+	});
+});
+
+describe('isRecentPendingConsent', () => {
+	const b64 = (o: object) => Buffer.from(JSON.stringify(o)).toString('base64url');
+	const jwtIssuedAt = (iat: number) => `${b64({ alg: 'HS256' })}.${b64({ iat })}.sig`;
+	const now = Date.UTC(2026, 10, 1, 12, 0, 0);
+
+	it('reuses a pending consent issued within ten minutes, and not an older one', () => {
+		expect(isRecentPendingConsent({ jwt: jwtIssuedAt(now / 1000 - 60) }, now)).toBe(true);
+		expect(isRecentPendingConsent({ jwt: jwtIssuedAt(now / 1000 - 601) }, now)).toBe(false);
+		expect(isRecentPendingConsent({ jwt: jwtIssuedAt(now / 1000 - 6 * 3600) }, now)).toBe(false);
+	});
+
+	it('does not reuse one whose age it cannot tell', () => {
+		expect(isRecentPendingConsent({}, now)).toBe(false);
+		expect(isRecentPendingConsent({ jwt: 'not-a-jwt' }, now)).toBe(false);
+		expect(isRecentPendingConsent({ jwt: `${b64({ alg: 'HS256' })}.${b64({ sub: 'x' })}.sig` }, now)).toBe(false);
 	});
 });

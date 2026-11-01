@@ -13,7 +13,10 @@
 
 <p><a class="anchor" href="/staff">{t(locale, 'staff_heading')}</a></p>
 <h1 class="h2">{value('title')}</h1>
-<p class="mt-1"><a class="btn btn-sm preset-tonal" href="/staff/calls/{page.params.id}/edit" data-testid="staff-edit">{t(locale, 'staff_edit')}</a></p>
+<p class="mt-1 flex gap-2">
+	<a class="btn btn-sm preset-tonal" href="/staff/calls/{page.params.id}/edit" data-testid="staff-edit">{t(locale, 'staff_edit')}</a>
+	<a class="btn btn-sm preset-filled-primary-500" href="/staff/calls/{page.params.id}/evaluation" data-testid="staff-evaluation">{t(locale, 'eval_heading')}</a>
+</p>
 
 <dl class="mt-4 grid grid-cols-[max-content_1fr] gap-x-4 gap-y-2" data-testid="staff-call-fields">
 	<dt>{t(locale, 'staff_field_programme')}</dt>

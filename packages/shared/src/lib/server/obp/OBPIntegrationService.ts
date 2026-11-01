@@ -22,6 +22,7 @@ import type { Session } from 'svelte-kit-sessions';
 import type { OBPRequests } from '$shared/obp/requests';
 import type { OBPConsent, OBPConsentInfo } from '$shared/obp/types';
 import { capConsentTtlSeconds } from './consentsConfig.js';
+import { isRecentPendingConsent } from './consentReuse.js';
 import { OpeyAuthError } from '$shared/opey/errors';
 
 export interface OBPIntegrationService {
@@ -147,7 +148,11 @@ export class DefaultOBPIntegrationService implements OBPIntegrationService {
     );
   }
 
-  /** The Opey consent of this user that was created but not accepted yet and has not expired. */
+  /**
+   * The Opey consent of this user that was created but not accepted yet, has not expired, and is recent enough
+   * that its challenge could still be answered (isRecentPendingConsent). An older one is left for OBP-API to
+   * reject, and a new consent is created instead.
+   */
   private async findPendingOpeyConsent(accessToken: string): Promise<OBPConsent | null> {
     try {
       const response = await this.obpRequests.get('/obp/v5.1.0/my/consents', accessToken);
@@ -157,7 +162,8 @@ export class DefaultOBPIntegrationService implements OBPIntegrationService {
           (c) =>
             c.consumer_id === this.opeyConsumerId &&
             c.status === 'INITIATED' &&
-            !(c.jwt_expires_at && this.isConsentExpired(c))
+            !(c.jwt_expires_at && this.isConsentExpired(c)) &&
+            isRecentPendingConsent(c)
         ) ?? null
       );
     } catch (error) {

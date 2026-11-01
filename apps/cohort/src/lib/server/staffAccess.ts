@@ -18,7 +18,7 @@
 import { obpRequests } from './obp';
 import { cohortSpace } from './space';
 import { apiManagerUrl } from './appDirectory';
-import { APPLICATION, CALL, OPEY_CONVERSATION, PROGRAMME, SCREENING_DECISION } from './entities/definitions';
+import { APPLICATION, CALL, OPEY_CONVERSATION, PROGRAMME, REVIEW, REVIEW_ASSIGNMENT, REVIEWER, REVIEWER_DECISION, RUBRIC_CRITERION, SCREENING_DECISION } from './entities/definitions';
 
 /** A Role staff need at Cohort's space, and the i18n key saying what it is for. */
 export interface StaffRole {
@@ -35,6 +35,13 @@ export const STAFF_ROLES: StaffRole[] = [
 	{ role_name: `CanGetDynamicEntityRecord_${APPLICATION}`, purpose: 'access_purpose_read_applications' },
 	{ role_name: `CanCreateDynamicEntityRecord_${SCREENING_DECISION}`, purpose: 'access_purpose_decide' },
 	{ role_name: `CanGetDynamicEntityRecord_${SCREENING_DECISION}`, purpose: 'access_purpose_read_decisions' },
+	{ role_name: `CanCreateDynamicEntityRecord_${RUBRIC_CRITERION}`, purpose: 'access_purpose_edit_rubric' },
+	{ role_name: `CanGetDynamicEntityRecord_${REVIEWER}`, purpose: 'access_purpose_read_reviewers' },
+	{ role_name: `CanCreateDynamicEntityRecord_${REVIEWER_DECISION}`, purpose: 'access_purpose_accept_reviewers' },
+	{ role_name: `CanGetDynamicEntityRecord_${REVIEWER_DECISION}`, purpose: 'access_purpose_read_reviewer_decisions' },
+	{ role_name: `CanCreateDynamicEntityRecord_${REVIEW_ASSIGNMENT}`, purpose: 'access_purpose_assign_reviewers' },
+	{ role_name: `CanGetDynamicEntityRecord_${REVIEW_ASSIGNMENT}`, purpose: 'access_purpose_read_assignments' },
+	{ role_name: `CanGetDynamicEntityRecord_${REVIEW}`, purpose: 'access_purpose_read_reviews' },
 	{ role_name: 'CanGetFileAtOneBank', purpose: 'access_purpose_read_files' },
 	{ role_name: `CanGetDynamicEntityRecord_${OPEY_CONVERSATION}`, purpose: 'access_purpose_read_conversations' },
 	{ role_name: 'CanUpdateFileScanStatusAtOneBank', purpose: 'access_purpose_scan_files' }

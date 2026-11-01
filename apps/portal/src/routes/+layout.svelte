@@ -304,7 +304,6 @@
 		{sponsorImageUrl}
 		sponsorInfoUrl={env.PUBLIC_SPONSOR_INFO_URL}
 		sponsorNote={env.PUBLIC_SPONSOR_NOTE}
-		legacyPortalUrl={data.externalLinks.LEGACY_PORTAL_URL}
 		hideFooterExtras={hideFooterExtras}
 		collapsedLogoUrl={env.PUBLIC_MINIMAL_LOGO_URL || env.PUBLIC_DARK_LOGO_URL}
 	/>

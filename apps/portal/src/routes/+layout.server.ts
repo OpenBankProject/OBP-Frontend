@@ -91,7 +91,6 @@ export async function load(event: RequestEvent) {
 		API_MANAGER_URL: env.API_MANAGER_URL,
 		SANDBOX_POPULATOR_URL: env.SANDBOX_POPULATOR_URL,
 		SUBSCRIPTIONS_URL: publicEnv.PUBLIC_SUBSCRIPTIONS_URL,
-		LEGACY_PORTAL_URL: publicEnv.PUBLIC_LEGACY_PORTAL_URL
 	};
 
 	// Filter out undefined/null values and warn about missing ones

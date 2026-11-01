@@ -46,7 +46,6 @@ function allowedLinkHosts(portalHost: string, apiHosts: string[] | null): string
 		publicEnv.PUBLIC_OBP_BASE_URL,
 		publicEnv.PUBLIC_OPEY_BASE_URL,
 		publicEnv.PUBLIC_SUBSCRIPTIONS_URL,
-		publicEnv.PUBLIC_LEGACY_PORTAL_URL,
 		env.API_EXPLORER_URL,
 		env.API_MANAGER_URL,
 		env.SANDBOX_POPULATOR_URL,

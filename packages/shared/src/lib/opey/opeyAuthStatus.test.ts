@@ -159,18 +159,27 @@ describe('getOrCreateOpeyConsent with a consent that is not ACCEPTED', () => {
 		};
 	}
 
-	it('does not create another consent while one is INITIATED', async () => {
-		const { post, svc } = obpWith([
-			{
-				consent_id: 'c1',
-				consumer_id: 'opey-consumer',
-				status: 'INITIATED',
-				jwt,
-				jwt_expires_at: new Date(Date.now() + 3600_000).toISOString()
-			}
-		]);
+	/** A consent JWT issued `secondsAgo` seconds ago. */
+	const issued = (secondsAgo: number) =>
+		`x.${Buffer.from(JSON.stringify({ preferred_username: 'u', iat: Math.floor(Date.now() / 1000) - secondsAgo })).toString('base64url')}.y`;
+	const pending = (secondsAgo: number) => ({
+		consent_id: 'c1',
+		consumer_id: 'opey-consumer',
+		status: 'INITIATED',
+		jwt: issued(secondsAgo),
+		jwt_expires_at: new Date(Date.now() + 3600_000).toISOString()
+	});
+
+	it('does not create another consent while a recent one is INITIATED', async () => {
+		const { post, svc } = obpWith([pending(60)]);
 		await expect(svc.getOrCreateOpeyConsent(session)).rejects.toMatchObject({ statusCode: 401 });
 		expect(post).not.toHaveBeenCalled();
+	});
+
+	it('is not stuck on an old INITIATED consent: it creates a new one', async () => {
+		const { post, svc } = obpWith([pending(7 * 3600)], { consent_id: 'c4', status: 'ACCEPTED', jwt });
+		await expect(svc.getOrCreateOpeyConsent(session)).resolves.toMatchObject({ consent_id: 'c4' });
+		expect(post).toHaveBeenCalledTimes(1);
 	});
 
 	it('reports a freshly created consent that comes back INITIATED instead of handing it to Opey', async () => {

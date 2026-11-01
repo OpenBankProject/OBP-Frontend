@@ -50,10 +50,27 @@ export default defineConfig({
 	},
 	plugins: [tailwindcss(), sveltekit()],
 	test: {
-		environment: 'jsdom',
-		include: ['src/**/*.{test,spec}.{js,ts}'],
-		exclude: ['src/lib/server/**'],
-		setupFiles: ['src/test-setup.ts']
+		workspace: [
+			{
+				extends: './vite.config.ts',
+				test: {
+					name: 'client',
+					environment: 'jsdom',
+					include: ['src/**/*.{test,spec}.{js,ts}'],
+					exclude: ['src/lib/server/**'],
+					setupFiles: ['src/test-setup.ts']
+				}
+			},
+			{
+				// Server-only code (src/lib/server) runs in Node, as in the apps.
+				extends: './vite.config.ts',
+				test: {
+					name: 'server',
+					environment: 'node',
+					include: ['src/lib/server/**/*.{test,spec}.{js,ts}']
+				}
+			}
+		]
 	},
 	resolve: {
 		conditions: ['browser']

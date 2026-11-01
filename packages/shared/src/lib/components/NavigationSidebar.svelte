@@ -49,7 +49,6 @@
 		sponsorImageUrl?: string;
 		sponsorInfoUrl?: string;
 		sponsorNote?: string;
-		legacyPortalUrl?: string;
 		hideFooterExtras?: boolean;
 		sections?: NavigationSection[];
 		currentSearch?: string;
@@ -71,7 +70,6 @@
 		sponsorImageUrl,
 		sponsorInfoUrl,
 		sponsorNote,
-		legacyPortalUrl,
 		hideFooterExtras = false,
 		sections = [],
 		currentSearch = '',
@@ -450,15 +448,6 @@
 						{:else}
 							<img src={sponsorImageUrl} alt="Sponsor" class="h-6" />
 						{/if}
-					{/if}
-					{#if legacyPortalUrl}
-						<a
-							href={legacyPortalUrl}
-							class="w-full justify-start text-xs text-tertiary-700-300 hover:underline"
-							aria-label="Switch to Legacy Portal"
-						>
-							<span>Switch to Legacy Portal</span>
-						</a>
 					{/if}
 				</div>
 			{/if}

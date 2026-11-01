@@ -28,6 +28,11 @@ export const CALL = 'cohort_call';
 export const APPLICATION = 'cohort_application';
 export const SCREENING_DECISION = 'cohort_screening_decision';
 export const OPEY_CONVERSATION = 'cohort_opey_conversation';
+export const RUBRIC_CRITERION = 'cohort_rubric_criterion';
+export const REVIEWER = 'cohort_reviewer';
+export const REVIEWER_DECISION = 'cohort_reviewer_decision';
+export const REVIEW_ASSIGNMENT = 'cohort_review_assignment';
+export const REVIEW = 'cohort_review';
 
 const text = (example: string, description: string, maxLength = 255, minLength = 0) => ({
 	type: 'string',
@@ -156,10 +161,138 @@ export const opeyConversationEntity: SystemDynamicEntityDefinition = {
 	}
 };
 
+const integer = (example: number, description: string) => ({ type: 'integer', example, description });
+
+/** A criterion of a call's scoring rubric. Public, so applicants see how they are judged; staff create them. */
+export const rubricCriterionEntity: SystemDynamicEntityDefinition = {
+	entity_name: RUBRIC_CRITERION,
+	has_personal_entity: false,
+	has_public_access: true,
+	has_community_access: false,
+	auth_mode: 'UserOnly',
+	schema: {
+		description: "A criterion of a call's scoring rubric: reviewers score each submitted application on it.",
+		required: ['call_id', 'name', 'max_score'],
+		properties: {
+			call_id: text('6fb17583-1e49-4435-bb74-a14fe0996723', 'The cohort_call this criterion belongs to.', 36, 1),
+			name: text('Team', 'What is scored.', 255, 1),
+			description: text('Does the team have the skills to deliver?', 'Guidance for reviewers.', 2000),
+			max_score: integer(5, 'The highest score (the lowest is 0).'),
+			weight: integer(1, 'How much it counts relative to the other criteria; 1 when not set.'),
+			position: integer(1, 'Its place in the rubric.')
+		}
+	}
+};
+
+/**
+ * Someone who offers to review applications, with their expertise. Personal: each person creates their own, with no
+ * Role. Community: staff holding the Get Role read the whole pool, to assign reviewers from it.
+ */
+export const reviewerEntity: SystemDynamicEntityDefinition = {
+	entity_name: REVIEWER,
+	has_personal_entity: true,
+	personal_requires_role: false,
+	has_public_access: false,
+	has_community_access: true,
+	auth_mode: 'UserOnly',
+	schema: {
+		description: 'A person who offers to review applications. Staff assign reviewers from these.',
+		required: ['user_id', 'display_name'],
+		properties: {
+			user_id: text('9ca9a7e4-6d02-40e3-a129-0b2bf89de9b1', 'The User who offers to review.', 255, 1),
+			display_name: text('Felix Smith', 'The name staff see.', 255, 1),
+			expertise: text('Payments, regulation', 'What they know about.', 1000),
+			status: text('available', 'available or unavailable.', 20)
+		}
+	}
+};
+
+/**
+ * Staff accepting or declining an offer to review. Append-only, like screening decisions: the latest one is the
+ * reviewer's standing, and only an accepted reviewer is assigned applications and sees their assignments. It is not a
+ * field on the offer, which is the reviewer's own record. UserXORApplication, so Cohort itself (with the Get Scope)
+ * reads a reviewer's standing; reviewers hold no Role.
+ */
+export const reviewerDecisionEntity: SystemDynamicEntityDefinition = {
+	entity_name: REVIEWER_DECISION,
+	has_personal_entity: false,
+	has_public_access: false,
+	has_community_access: false,
+	auth_mode: 'UserXORApplication',
+	schema: {
+		description: 'Staff accepting or declining an offer to review. The latest one is the current standing.',
+		required: ['reviewer_user_id', 'decision', 'decided_at'],
+		properties: {
+			reviewer_id: text('6fb17583-1e49-4435-bb74-a14fe0996723', 'The cohort_reviewer offer decided on.', 36),
+			reviewer_user_id: text('9ca9a7e4-6d02-40e3-a129-0b2bf89de9b1', 'The User who offered to review.', 255, 1),
+			decision: text('accepted', 'accepted or declined.', 20, 1),
+			reason: text('Ten years in payments.', 'Why, for staff only.', 4000),
+			decided_by_username: text('janedoe', 'Who decided, as shown to staff.', 255),
+			decided_at: text('2026-11-25T09:00:00Z', 'When the decision was made (ISO 8601, UTC).', 30, 1)
+		}
+	}
+};
+
+/** A reviewer assigned to an application. Staff create assignments; they are never edited. */
+export const reviewAssignmentEntity: SystemDynamicEntityDefinition = {
+	entity_name: REVIEW_ASSIGNMENT,
+	has_personal_entity: false,
+	has_public_access: false,
+	has_community_access: false,
+	auth_mode: 'UserOnly',
+	schema: {
+		description: 'A reviewer assigned to review an application.',
+		required: ['application_id', 'call_id', 'reviewer_user_id', 'assigned_at'],
+		properties: {
+			application_id: text('6fb17583-1e49-4435-bb74-a14fe0996723', 'The cohort_application to review.', 36, 1),
+			call_id: text('6fb17583-1e49-4435-bb74-a14fe0996723', 'Its cohort_call.', 36, 1),
+			reviewer_user_id: text('9ca9a7e4-6d02-40e3-a129-0b2bf89de9b1', 'The reviewer.', 255, 1),
+			reviewer_name: text('Felix Smith', "The reviewer's display name.", 255),
+			assigned_by_username: text('janedoe', 'Who assigned it.', 255),
+			assigned_at: text('2026-11-25T09:00:00Z', 'When (ISO 8601, UTC).', 30, 1),
+			due_on: text('2026-12-05', 'When the review is due (YYYY-MM-DD).', 10)
+		}
+	}
+};
+
+/**
+ * A reviewer's review of an application. Personal: the reviewer writes their own, with no Role. It first records
+ * whether they have a conflict of interest; with one, there are no scores and staff reassign the application.
+ * Community: staff holding the Get Role read every review, for ranking.
+ */
+export const reviewEntity: SystemDynamicEntityDefinition = {
+	entity_name: REVIEW,
+	has_personal_entity: true,
+	personal_requires_role: false,
+	has_public_access: false,
+	has_community_access: true,
+	auth_mode: 'UserOnly',
+	schema: {
+		description: 'A review of an application, written by its reviewer: a conflict-of-interest declaration, and scores.',
+		required: ['assignment_id', 'application_id', 'conflict_of_interest', 'submitted_at'],
+		properties: {
+			assignment_id: text('6fb17583-1e49-4435-bb74-a14fe0996723', 'The cohort_review_assignment.', 36, 1),
+			application_id: text('6fb17583-1e49-4435-bb74-a14fe0996723', 'The cohort_application reviewed.', 36, 1),
+			call_id: text('6fb17583-1e49-4435-bb74-a14fe0996723', 'Its cohort_call.', 36),
+			conflict_of_interest: { type: 'boolean', example: false, description: 'The reviewer declared a conflict of interest.' },
+			conflict_note: text('I advise this company.', 'The conflict, for staff.', 1000),
+			scores_json: text('{"criterion-id":4}', 'The score for each cohort_rubric_criterion, by its id.', 4000),
+			total_score: integer(80, 'The weighted score out of 100.'),
+			comments: text('Strong team; unclear market.', "The reviewer's comments, for staff.", 4000),
+			submitted_at: text('2026-11-28T10:00:00Z', 'When it was submitted (ISO 8601, UTC).', 30, 1)
+		}
+	}
+};
+
 export const COHORT_ENTITIES: SystemDynamicEntityDefinition[] = [
 	programmeEntity,
 	callEntity,
 	applicationEntity,
 	screeningDecisionEntity,
-	opeyConversationEntity
+	opeyConversationEntity,
+	rubricCriterionEntity,
+	reviewerEntity,
+	reviewerDecisionEntity,
+	reviewAssignmentEntity,
+	reviewEntity
 ];

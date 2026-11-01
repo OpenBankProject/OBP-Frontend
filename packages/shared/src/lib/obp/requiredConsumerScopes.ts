@@ -116,6 +116,11 @@ export function cohortRequiredConsumerScopes(space: string): RequiredConsumerSco
 			needed_for: 'Showing applicants the outcome of screening on their own application.'
 		},
 		{
+			role_name: 'CanGetDynamicEntityRecord_cohort_reviewer_decision',
+			bank_id: space,
+			needed_for: 'Showing reviewers their assignments only once staff have accepted their offer to review.'
+		},
+		{
 			role_name: 'CanCreateCustomer',
 			bank_id: space,
 			needed_for: 'Registering each applicant as a Customer of the space (the legal person behind the login), and later each accepted startup.'

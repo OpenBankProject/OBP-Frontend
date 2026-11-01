@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ChevronDown, ChevronRight, FileText, Inbox, KeyRound, Megaphone, MessagesSquare, Settings, Sparkles, Users } from '@lucide/svelte';
+	import { ChevronDown, ChevronRight, ClipboardCheck, FileText, Inbox, KeyRound, Map as MapIcon, Megaphone, MessagesSquare, Settings, Sparkles, UserCheck, Users } from '@lucide/svelte';
 	import { t, type Locale, type MessageKey } from '$lib/i18n';
 
 	/**
@@ -34,6 +34,7 @@
 	const allItems: Item[] = [
 		{ href: '/', label: 'nav_calls', icon: Megaphone, public: true },
 		{ href: '/applications', label: 'nav_my_applications', icon: FileText },
+		{ href: '/review', label: 'nav_review', icon: ClipboardCheck },
 		{
 			href: '/staff',
 			label: 'nav_staff',
@@ -42,10 +43,12 @@
 				{ href: '/staff/access', label: 'nav_access', icon: KeyRound },
 				{ href: '/staff/applications', label: 'nav_staff_applications', icon: Inbox },
 				{ href: '/staff/conversations', label: 'nav_conversations', icon: MessagesSquare },
+				{ href: '/staff/reviewers', label: 'nav_reviewers', icon: UserCheck },
 				{ href: '/staff/example-data', label: 'nav_example_data', icon: Sparkles },
 				{ href: '/staff/setup', label: 'nav_setup', icon: Settings }
 			]
-		}
+		},
+		{ href: '/sitemap', label: 'nav_sitemap', icon: MapIcon, public: true }
 	];
 	const items = $derived(allItems.filter((i) => username || i.public));
 
