@@ -57,7 +57,7 @@ export interface SetupScope {
 
 /**
  * What an administrator needs to make Cohort work: its space, its Consumer, whether OBP accepted its Platform
- * App declaration, and which Scopes are held. Reads the last scheduled check; nothing here makes it check again.
+ * App declaration, which Scopes are held, and which are held but no longer asked for (excess). Reads the last scheduled check; nothing here makes it check again.
  */
 export async function setupStatus() {
 	const space = cohortSpace();
@@ -83,6 +83,8 @@ export async function setupStatus() {
 		problem: report?.problem ?? null,
 		checkedAt: report?.checked_at ?? null,
 		scopes,
+		// null when the check could not read the Consumer's Scopes, so "none" is never claimed without knowing.
+		excessScopes: report && report.state !== 'unknown' ? (report.excess ?? []) : null,
 		entities: COHORT_ENTITIES.map((d) => ({
 			name: d.entity_name,
 			ok: entitiesStatus()?.entities[d.entity_name] ?? null

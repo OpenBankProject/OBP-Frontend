@@ -205,6 +205,23 @@ export function compareConsumerScopes(required: RequiredConsumerScope[], held: H
 	}));
 }
 
+/**
+ * The Scopes the Consumer holds that the app does not ask for (at any bank id), e.g. after the app stopped needing
+ * one. Each is listed once, in OBP's order. An administrator can remove them on the Platform Apps page.
+ */
+export function excessConsumerScopes(required: RequiredConsumerScope[], held: HeldScope[]): HeldScope[] {
+	const wanted = new Set(required.map((r) => `${r.role_name}@${r.bank_id}`));
+	const seen = new Set<string>();
+	return held
+		.map((h) => ({ role_name: h.role_name, bank_id: h.bank_id ?? '' }))
+		.filter((h) => {
+			const key = `${h.role_name}@${h.bank_id}`;
+			if (wanted.has(key) || seen.has(key)) return false;
+			seen.add(key);
+			return true;
+		});
+}
+
 /** The result of an app's check of its own Consumer. */
 export interface ConsumerScopesReport {
 	checked_at: string;
@@ -212,6 +229,8 @@ export interface ConsumerScopesReport {
 	state: 'ok' | 'missing' | 'unknown';
 	consumer_id?: string;
 	scopes: ConsumerScopeStatus[];
+	/** Scopes held but not asked for; absent when the state is unknown. */
+	excess?: HeldScope[];
 	/** Why the state is unknown, or which call failed. */
 	problem?: string;
 }

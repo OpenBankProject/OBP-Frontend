@@ -102,6 +102,38 @@
 	</table>
 </section>
 
+<section class="mt-6" data-testid="setup-excess-scopes">
+	<h2 class="h4">{t(locale, 'setup_excess_scopes')}</h2>
+	{#if data.excessScopes === null}
+		<p class="mt-2">{t(locale, 'setup_excess_unknown')}</p>
+	{:else if data.excessScopes.length === 0}
+		<p class="mt-2">{t(locale, 'setup_excess_none')}</p>
+	{:else}
+		<p class="mt-2">{t(locale, 'setup_excess_text')}</p>
+		<table class="table mt-2">
+			<thead>
+				<tr>
+					<th>{t(locale, 'setup_role')}</th>
+					<th>bank_id</th>
+				</tr>
+			</thead>
+			<tbody>
+				{#each data.excessScopes as scope (scope.role_name + scope.bank_id)}
+					<tr data-testid="setup-excess-{scope.role_name}">
+						<td><code>{scope.role_name}</code></td>
+						<td><code>{scope.bank_id}</code></td>
+					</tr>
+				{/each}
+			</tbody>
+		</table>
+		{#if data.platformAppsUrl}
+			<a class="btn preset-tonal mt-4" href={data.platformAppsUrl} data-testid="setup-excess-platform-apps-link"
+				>{t(locale, 'setup_open_platform_apps')}</a
+			>
+		{/if}
+	{/if}
+</section>
+
 <section class="mt-6" data-testid="setup-entities">
 	<h2 class="h4">{t(locale, 'setup_entities')}</h2>
 	<p class="mt-2 text-sm">{t(locale, 'setup_checked_at')}: {data.entitiesCheckedAt ?? t(locale, 'setup_not_checked')}</p>

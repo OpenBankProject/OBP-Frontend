@@ -50,6 +50,29 @@ describe('evaluateConsumerScopes', () => {
 		expect(snapshot.error).not.toContain('CanMakeThing');
 	});
 
+	it('lists the Scopes held but not asked for, once each, without making the check unhealthy', () => {
+		const report = evaluateConsumerScopes(required, {
+			status: 200,
+			body: {
+				consumer_id: 'c-1',
+				scopes: [
+					{ role_name: 'CanGetThing', bank_id: 'SYS' },
+					{ role_name: 'CanGetThing', bank_id: 'OTHER' },
+					{ role_name: 'CanDropThing', bank_id: '' },
+					{ role_name: 'CanDropThing', bank_id: '' }
+				]
+			}
+		});
+		expect(report.state).toBe('ok');
+		expect(report.excess).toEqual([
+			{ role_name: 'CanGetThing', bank_id: 'OTHER' },
+			{ role_name: 'CanDropThing', bank_id: '' }
+		]);
+		const snapshot = consumerScopesSnapshot(report);
+		expect(snapshot.status).toBe('healthy');
+		expect(snapshot.details!['CanDropThing at (system)']).toBe('excess (not asked for)');
+	});
+
 	it('is unknown when OBP-API has no such endpoint', () => {
 		const report = evaluateConsumerScopes(required, { status: 404, body: { message: 'OBP-10404' } });
 		expect(report.state).toBe('unknown');

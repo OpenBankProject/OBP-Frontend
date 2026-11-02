@@ -56,6 +56,11 @@ export const en = {
 	setup_held: 'Held',
 	setup_entities: 'Dynamic entities in the space',
 	setup_grant: 'Grant in API Manager',
+	setup_excess_scopes: 'Excess Scopes',
+	setup_excess_text:
+		"Cohort's Consumer holds these Scopes, but Cohort no longer asks for them, for example after an upgrade changed what it needs. Cohort works without them; an administrator should remove them, so its Consumer can do no more than it must.",
+	setup_excess_none: "Cohort's Consumer holds no Scope that Cohort does not ask for.",
+	setup_excess_unknown: "Not known: Cohort could not read its Consumer's Scopes (see Scopes above).",
 	setup_yes: 'Yes',
 	setup_no: 'No',
 	setup_unknown: 'Unknown',

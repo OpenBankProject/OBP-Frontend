@@ -20,6 +20,7 @@ import { HealthCheckService } from "./HealthCheckService";
 import type { HealthCheckSnapshot } from "../state/HealthCheckState";
 import {
     compareConsumerScopes,
+    excessConsumerScopes,
     type ConsumerScopesReport,
     type HeldScope,
     type RequiredConsumerScope
@@ -66,9 +67,16 @@ export function evaluateConsumerScopes(required: RequiredConsumerScope[], respon
     if (response.status < 200 || response.status >= 300 || !response.body) {
         return unknown(`GET ${CURRENT_CONSUMER_SCOPES_PATH} answered ${response.status}${response.body?.message ? `: ${response.body.message}` : ''}`);
     }
-    const scopes = compareConsumerScopes(required, response.body.scopes ?? []);
+    const held = response.body.scopes ?? [];
+    const scopes = compareConsumerScopes(required, held);
     const missingRequired = scopes.some((s) => !s.held && !s.optional);
-    return { checked_at, state: missingRequired ? 'missing' : 'ok', consumer_id: response.body.consumer_id, scopes };
+    return {
+        checked_at,
+        state: missingRequired ? 'missing' : 'ok',
+        consumer_id: response.body.consumer_id,
+        scopes,
+        excess: excessConsumerScopes(required, held)
+    };
 }
 
 /** What the answer to the Platform App declaration means, for /status. */
@@ -92,6 +100,8 @@ export function consumerScopesSnapshot(report: ConsumerScopesReport): Pick<Healt
         details[`${s.role_name} at ${s.bank_id || '(system)'}`] =
             report.state === 'unknown' ? 'unknown' : s.held ? 'held' : s.optional ? 'missing (optional)' : 'missing';
     }
+    // Held but not asked for: shown, but the app still works, so it does not make the check unhealthy.
+    for (const s of report.excess ?? []) details[`${s.role_name} at ${s.bank_id || '(system)'}`] = 'excess (not asked for)';
     if (report.state === 'unknown') return { status: 'unknown', error: report.problem, details };
     const missing = report.scopes.filter((s) => !s.held && !s.optional);
     if (missing.length === 0) return { status: 'healthy', error: undefined, details };

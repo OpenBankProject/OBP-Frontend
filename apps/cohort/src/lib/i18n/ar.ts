@@ -59,6 +59,11 @@ export const ar: Partial<Record<MessageKey, string>> = {
 	setup_held: 'ممنوح',
 	setup_entities: 'الكيانات الديناميكية في المساحة',
 	setup_grant: 'امنحه في مدير الواجهات',
+	setup_excess_scopes: 'نطاقات زائدة',
+	setup_excess_text:
+		'يملك مستهلك Cohort هذه النطاقات، لكن Cohort لم يعد يطلبها، مثلًا بعد تحديث غيّر ما يحتاجه. يعمل Cohort بدونها؛ ينبغي أن يزيلها مسؤول كي لا يستطيع مستهلكه أكثر مما يلزم.',
+	setup_excess_none: 'لا يملك مستهلك Cohort أي نطاق لا يطلبه Cohort.',
+	setup_excess_unknown: 'غير معروف: تعذّر على Cohort قراءة نطاقات مستهلكه (انظر النطاقات أعلاه).',
 	setup_yes: 'نعم',
 	setup_no: 'لا',
 	setup_unknown: 'غير معروف',
