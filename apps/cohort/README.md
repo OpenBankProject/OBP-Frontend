@@ -22,6 +22,8 @@ npm run check --workspace=apps/cohort
 ./build_cohort_image.sh
 ```
 
+CI publishes `docker.io/<org>/obp-cohort` on every push to `main`. For Kubernetes, see [docs/kubernetes-deployment.md](docs/kubernetes-deployment.md).
+
 ## Licence
 
 AGPL-3.0-or-later, as the rest of OBP-Frontend.

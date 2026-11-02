@@ -48,7 +48,7 @@ ENV GIT_BRANCH=$GIT_BRANCH
 # Generate .svelte-kit/ for shared package so its tsconfig.json can resolve during the app build
 RUN npm run prepare --workspace=packages/shared
 
-# Build the portal app (shared package source is consumed directly via workspace symlink)
+# Build the cohort app (shared package source is consumed directly via workspace symlink)
 RUN npm run build --workspace=apps/cohort
 
 RUN npm prune --production
@@ -58,8 +58,6 @@ WORKDIR /app
 COPY --from=builder /app/apps/cohort/build ./build/
 COPY --from=builder /app/node_modules ./node_modules/
 COPY --from=builder /app/apps/cohort/package.json ./package.json
-# gRPC clients load proto definitions from <cwd>/proto at runtime — without this
-# every /backend/chat/*/stream request 500s (ENOENT on proto/chat.proto).
 EXPOSE 3000
 ENV NODE_ENV=production
 # Room for an applicant's document upload (up to 5 MB) in a form post; adapter-node's default is 512K.
