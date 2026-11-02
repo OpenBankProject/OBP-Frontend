@@ -78,3 +78,11 @@ export function decisionEmail(v: ApplicationEmailValues & { decision: string; me
 		).join('\n\n----------\n\n')
 	};
 }
+
+/** A reminder Cohort sends on its own: a milestone due soon or overdue, or a call closing on a draft. */
+export function reminderEmail(
+	kind: 'milestone_due' | 'milestone_overdue' | 'call_closing',
+	v: { site: string; startup: string; about: string; on: string; link: string }
+): Email {
+	return inEveryLocale(`email_reminder_${kind}_subject` as MessageKey, ['email_greeting', `email_reminder_${kind}_body` as MessageKey, 'email_reminder_link', 'email_signoff'], { ...v });
+}

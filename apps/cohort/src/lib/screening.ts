@@ -15,10 +15,18 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-/** Screening: the decisions staff make on a submitted application, and what each means for the applicant. */
+/**
+ * The decisions staff make on a submitted application, and what each means for the applicant. Each stage has its own:
+ * screening (after eligibility) and evaluation (approval, after reviewing and ranking). The newest decision of any
+ * stage is the application's current outcome.
+ */
 
-export const DECISIONS = ['shortlisted', 'rejected', 'needs_info'] as const;
+export const SCREENING_DECISIONS = ['shortlisted', 'rejected', 'needs_info'] as const;
+export const EVALUATION_DECISIONS = ['accepted', 'waitlisted', 'rejected'] as const;
+/** Every decision, for labels and filters. */
+export const DECISIONS = ['shortlisted', 'needs_info', 'accepted', 'waitlisted', 'rejected'] as const;
 export type Decision = (typeof DECISIONS)[number];
+export type DecisionStage = 'screening' | 'evaluation';
 
 export interface DecisionRecord {
 	application_id?: unknown;
@@ -27,8 +35,10 @@ export interface DecisionRecord {
 	[key: string]: unknown;
 }
 
-export function isDecision(value: unknown): value is Decision {
-	return typeof value === 'string' && (DECISIONS as readonly string[]).includes(value);
+/** Whether `value` is a decision staff may record at `stage` (screening when not given). */
+export function isDecision(value: unknown, stage: DecisionStage = 'screening'): value is Decision {
+	const allowed: readonly string[] = stage === 'evaluation' ? EVALUATION_DECISIONS : SCREENING_DECISIONS;
+	return typeof value === 'string' && allowed.includes(value);
 }
 
 /** An application's decisions, newest first. decided_at is ISO 8601 UTC, so it sorts as text. */

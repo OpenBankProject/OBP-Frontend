@@ -1,5 +1,7 @@
 <script lang="ts">
+	import Badge from '$lib/components/Badge.svelte';
 	import MissingRole from '$lib/components/MissingRole.svelte';
+	import { EVALUATION_DECISIONS } from '$lib/screening';
 	import { t, type Locale, type MessageKey } from '$lib/i18n';
 
 	let { data, form } = $props();
@@ -26,6 +28,8 @@
 {/if}
 {#if form?.form === 'criterion' && form?.added}<p class="mt-4" role="status">{t(locale, 'eval_criterion_added')}</p>{/if}
 {#if form?.form === 'assign' && form?.assigned}<p class="mt-4" role="status">{t(locale, 'eval_assigned')}</p>{/if}
+{#if form?.form === 'decide' && form?.decided}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'eval_decided')}{#if form.onboarded}{' '}{t(locale, 'eval_onboarded')}{/if}</p>{/if}
+{#if form?.form === 'decide' && form?.onboarded === false}<p class="mt-4 preset-tonal-error rounded p-3" role="alert">{t(locale, 'eval_onboard_failed')} {String(form.onboardError ?? '')}</p>{/if}
 
 <section class="card preset-outlined-surface-200-800 mt-6 p-4" data-testid="eval-rubric">
 	<h2 class="h4">{t(locale, 'eval_rubric')}</h2>
@@ -68,7 +72,7 @@
 		<div class="table-wrap mt-2">
 			<table class="table">
 				<thead>
-					<tr><th>{t(locale, 'eval_rank')}</th><th>{t(locale, 'staff_applicant')}</th><th>{t(locale, 'eval_average')}</th><th>{t(locale, 'eval_reviewers')}</th><th>{t(locale, 'eval_assign')}</th></tr>
+					<tr><th>{t(locale, 'eval_rank')}</th><th>{t(locale, 'staff_applicant')}</th><th>{t(locale, 'eval_average')}</th><th>{t(locale, 'eval_reviewers')}</th><th>{t(locale, 'eval_assign')}</th><th>{t(locale, 'eval_decision')}</th></tr>
 				</thead>
 				<tbody>
 					{#each data.rows as row (row.id)}
@@ -80,7 +84,7 @@
 								{#if row.reviewers.length === 0}<span class="text-sm">{t(locale, 'eval_no_reviewers')}</span>{/if}
 								<ul class="text-sm">
 									{#each row.reviewers as r, i (i)}
-										<li>{r.name}: {statusLabel(r.status)}{#if r.score !== null} ({r.score}){/if}{#if r.due_on && r.status === 'to_do'} · {t(locale, 'eval_due')} {r.due_on}{/if}</li>
+										<li>{r.name}: {statusLabel(r.status)}{#if r.score !== null}{' '}({r.score}){/if}{#if r.due_on && r.status === 'to_do'}{' '}· {t(locale, 'eval_due')} {r.due_on}{/if}</li>
 									{/each}
 								</ul>
 							</td>
@@ -100,6 +104,25 @@
 									</form>
 								{/if}
 							</td>
+							<td data-testid="eval-decision-{row.id}">
+								{#if row.decision}<Badge {locale} kind="decision" value={row.decision} />{/if}
+								{#if missing('decide')}
+									<span class="text-sm">{t(locale, 'eval_decide_needs_role')}</span>
+								{:else}
+									<details class="mt-1">
+										<summary class="btn btn-sm preset-tonal cursor-pointer">{t(locale, 'eval_decide')}</summary>
+										<form method="POST" action="?/decide" class="mt-2 flex min-w-64 flex-col gap-2">
+											<input type="hidden" name="application_id" value={row.id} />
+											<select class="select select-sm" name="decision" required aria-label={t(locale, 'eval_decision')}>
+												{#each EVALUATION_DECISIONS as d (d)}<option value={d}>{t(locale, `decision_${d}` as MessageKey)}</option>{/each}
+											</select>
+											<label class="label"><span class="label-text text-sm">{t(locale, 'screening_message')}</span><textarea class="textarea" name="message_to_applicant" rows="2" maxlength="4000"></textarea></label>
+											<label class="label"><span class="label-text text-sm">{t(locale, 'screening_reason')}</span><textarea class="textarea" name="reason" rows="2" maxlength="4000"></textarea></label>
+											<button class="btn btn-sm preset-filled self-start" data-testid="eval-decide-{row.id}">{t(locale, 'screening_record')}</button>
+										</form>
+									</details>
+								{/if}
+							</td>
 						</tr>
 					{/each}
 				</tbody>
@@ -108,4 +131,9 @@
 	{/if}
 	{#if missing('assign')}{@render roleNeeded('assign')}{/if}
 	{#if missing('pool')}{@render roleNeeded('pool')}{/if}
+	{#if missing('decide')}{@render roleNeeded('decide')}{/if}
+	{#if missing('decisions')}{@render roleNeeded('decisions')}{/if}
+	{#if missing('standing')}{@render roleNeeded('standing')}{/if}
+	{#if missing('onboard')}{@render roleNeeded('onboard')}{/if}
+	{#if missing('participants')}{@render roleNeeded('participants')}{/if}
 </section>

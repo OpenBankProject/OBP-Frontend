@@ -30,6 +30,7 @@ import { redisService } from '$lib/server/redis';
 import { healthCheckRegistry } from '@obp/shared/health-check';
 import { consumerScopesCheck } from '$lib/server/consumerScopes';
 import { ensureCohortEntities } from '$lib/server/entities/bootstrap';
+import { runReminders } from '$lib/server/reminders';
 import { setWebUiPropsGenerationStore } from '@obp/shared/server/obp';
 import { attr } from '$lib/branding';
 import { branding } from '$lib/server/branding';
@@ -50,6 +51,7 @@ if (!building) {
 	healthCheckRegistry.register(consumerScopesCheck);
 	consumerScopesCheck.start();
 	startEntityBootstrap();
+	startReminders();
 }
 
 /**
@@ -68,6 +70,22 @@ function startEntityBootstrap() {
 	};
 	globals[key] = setInterval(() => void attempt(), 5 * 60 * 1000);
 	void attempt();
+}
+
+/**
+ * Send the reminders that are due (milestones due or overdue, calls closing on drafts) every
+ * COHORT_REMINDER_INTERVAL_MINUTES (default 60; 0 turns them off), first a minute after starting.
+ * A dev-server reload starts a new loop and stops the old one.
+ */
+function startReminders() {
+	const key = Symbol.for('obp.cohort.reminders');
+	const globals = globalThis as typeof globalThis & { [key: symbol]: ReturnType<typeof setInterval> | undefined };
+	if (globals[key]) clearInterval(globals[key]);
+	const minutes = Number(env.COHORT_REMINDER_INTERVAL_MINUTES ?? 60);
+	if (!(minutes > 0)) return;
+	const pass = () => void runReminders().catch((err) => console.warn('Reminders pass failed:', err));
+	globals[key] = setInterval(pass, minutes * 60 * 1000);
+	setTimeout(pass, 60 * 1000);
 }
 
 const locale: Handle = async ({ event, resolve }) => {

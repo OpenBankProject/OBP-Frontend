@@ -22,7 +22,7 @@ vi.mock('./appDirectory', () => ({ apiManagerUrl: async () => 'http://localhost:
 const get = vi.fn();
 vi.mock('./obp', () => ({ obpRequests: { get: (path: string) => get(path) } }));
 
-const { staffAccess, isStaffRole } = await import('./staffAccess');
+const { staffAccess, isStaffRole, spaceOfRole } = await import('./staffAccess');
 
 describe('staffAccess', () => {
 	it('marks each Role held or requested at the space only', async () => {
@@ -45,5 +45,21 @@ describe('staffAccess', () => {
 	it('only knows the staff Roles', () => {
 		expect(isStaffRole('CanCreateDynamicEntityRecord_cohort_call')).toBe(true);
 		expect(isStaffRole('CanCreateBank')).toBe(false);
+	});
+
+	it('puts the definition Roles and the Roles on answers at the forms space, and nothing else', async () => {
+		expect(spaceOfRole('CanCreateDynamicEntityDefinition')).toBe('cohort-forms');
+		expect(spaceOfRole('CanUpdateDynamicEntityDefinition')).toBe('cohort-forms');
+		expect(spaceOfRole('CanGetDynamicEntityRecord_cohort_form_6fb175831e49')).toBe('cohort-forms');
+		expect(spaceOfRole('CanCreateDynamicEntityRecord_cohort_form')).toBe('cohort');
+		expect(spaceOfRole('CanGetDynamicEntityRecord_cohort_application')).toBe('cohort');
+		get.mockImplementation(async (path: string) =>
+			path.includes('users/current')
+				? { user_id: 'u1', entitlements: { list: [{ role_name: 'CanCreateDynamicEntityDefinition', bank_id: 'cohort' }] } }
+				: { entitlement_requests: [] }
+		);
+		// Held at Cohort's own space does not count: publishing needs it at the forms space.
+		const role = (await staffAccess('token')).roles.find((r) => r.role_name === 'CanCreateDynamicEntityDefinition')!;
+		expect(role).toMatchObject({ bank_id: 'cohort-forms', held: false });
 	});
 });

@@ -33,6 +33,10 @@ describe('decisions', () => {
 	it('knows the decisions', () => {
 		expect(isDecision('needs_info')).toBe(true);
 		expect(isDecision('accepted')).toBe(false);
+		expect(isDecision('accepted', 'evaluation')).toBe(true);
+		expect(isDecision('waitlisted', 'evaluation')).toBe(true);
+		expect(isDecision('shortlisted', 'evaluation')).toBe(false);
+		expect(isDecision('rejected', 'evaluation')).toBe(true);
 	});
 });
 

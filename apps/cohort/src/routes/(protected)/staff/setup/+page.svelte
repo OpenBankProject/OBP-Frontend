@@ -29,6 +29,21 @@
 	{/if}
 </section>
 
+<section class="mt-6" data-testid="setup-forms-space">
+	<h2 class="h4">{t(locale, 'setup_forms_space')}</h2>
+	<p class="mt-1 max-w-3xl">{t(locale, 'setup_forms_space_text')}</p>
+	<dl class="mt-2 grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1">
+		<dt>{t(locale, 'setup_space_id')}</dt>
+		<dd><code>{data.formsSpace}</code></dd>
+		<dt>{t(locale, 'setup_space_exists')}</dt>
+		<dd data-testid="setup-forms-space-exists">{yesNo(data.formsSpaceExists)}</dd>
+	</dl>
+	{#if data.createFormsBankUrl}
+		<p class="mt-2">{t(locale, 'setup_forms_bank_missing')}</p>
+		<a class="btn preset-filled mt-2" href={data.createFormsBankUrl} data-testid="setup-create-forms-bank-link">{t(locale, 'setup_create_bank')}</a>
+	{/if}
+</section>
+
 <section class="mt-6" data-testid="setup-platform-app">
 	<h2 class="h4">{t(locale, 'setup_platform_app')}</h2>
 	<dl class="mt-2 grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1">
@@ -95,4 +110,10 @@
 			<li data-testid="setup-entity-{entity.name}"><code>{entity.name}</code>: {yesNo(entity.ok)}</li>
 		{/each}
 	</ul>
+</section>
+
+<section class="mt-6" data-testid="setup-example-data">
+	<h2 class="h4">{t(locale, 'example_heading')}</h2>
+	<p class="mt-1">{t(locale, 'setup_example_data_intro')}</p>
+	<a class="btn preset-tonal mt-2" href="/staff/example-data" data-testid="setup-example-data-link">{t(locale, 'setup_example_data_open')}</a>
 </section>

@@ -16,14 +16,14 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 import { error, fail } from '@sveltejs/kit';
-import { decisionsFor, isDecision, nowUtc } from '$lib/screening';
+import { decisionsFor, isDecision } from '$lib/screening';
+import { recordDecision } from '$lib/server/decisions';
 import { APPLICATION, CALL, SCREENING_DECISION } from '$lib/server/entities/definitions';
 import { messageOf } from '$lib/server/errors';
-import { createRecord, getRecord, listRecords, userToken, type CohortRecord } from '$lib/server/records';
-import { decisionEmail } from '$lib/emails';
-import { emailCustomer, pageUrl } from '$lib/server/notify';
+import { getRecord, listRecords, userToken } from '$lib/server/records';
 import { isStaffRole, requestStaffRole, staffAccess } from '$lib/server/staffAccess';
 import { filesOfApplication, setScanStatus } from '$lib/server/files';
+import { answersOnApplication } from '$lib/server/forms';
 import type { Actions, PageServerLoad } from './$types';
 
 /** An application as staff see it, through the community URL (CanGetDynamicEntityRecord_cohort_application). */
@@ -39,11 +39,12 @@ async function application(id: string, token: string | undefined) {
 export const load: PageServerLoad = async ({ params, locals }) => {
 	const token = userToken(locals);
 	const app = await application(params.id, token);
-	const [call, decisions, access, files] = await Promise.allSettled([
+	const [call, decisions, access, files, extra] = await Promise.allSettled([
 		getRecord(CALL, 'public', String(app.call_id)),
 		listRecords(SCREENING_DECISION, '', token),
 		staffAccess(token!),
-		filesOfApplication(params.id, token!)
+		filesOfApplication(params.id, token!),
+		answersOnApplication(app, params.id, token!)
 	]);
 	const roles = access.status === 'fulfilled' ? access.value.roles : [];
 	const lacking = (name: string) => roles.find((r) => r.role_name === name && !r.held) ?? null;
@@ -57,6 +58,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 		files: files.status === 'fulfilled' ? files.value : [],
 		filesError: files.status === 'rejected' ? messageOf(files.reason) : null,
 		application: app,
+		extra: extra.status === 'fulfilled' ? extra.value : null,
 		callTitle: call.status === 'fulfilled' ? String(call.value.title ?? '') : String(app.call_id),
 		decisions: decisions.status === 'fulfilled' ? decisionsFor(params.id, decisions.value) : [],
 		decisionsError: decisions.status === 'rejected' ? messageOf(decisions.reason) : null
@@ -97,35 +99,22 @@ export const actions: Actions = {
 		if (app.status !== 'submitted') return fail(400, { error: 'not_submitted' });
 		const form = await request.formData();
 		const decision = String(form.get('decision') ?? '');
-		if (!isDecision(decision)) return fail(400, { error: 'decision' });
-		const record: CohortRecord = {
-			application_id: params.id,
-			call_id: String(app.call_id ?? ''),
-			decision,
-			reason: String(form.get('reason') ?? '').trim(),
-			message_to_applicant: String(form.get('message_to_applicant') ?? '').trim(),
-			decided_by_username: locals.session.data.user?.username ?? '',
-			decided_at: nowUtc()
-		};
+		if (!isDecision(decision, 'screening')) return fail(400, { error: 'decision' });
 		try {
-			await createRecord(SCREENING_DECISION, '', Object.fromEntries(Object.entries(record).filter(([, v]) => v !== '')), token);
+			await recordDecision({
+				applicationId: params.id,
+				application: app,
+				stage: 'screening',
+				decision,
+				reason: String(form.get('reason') ?? ''),
+				message: String(form.get('message_to_applicant') ?? ''),
+				username: locals.session.data.user?.username ?? '',
+				siteName: locals.branding.name || 'Cohort',
+				token
+			});
 		} catch (err) {
 			return fail(400, { error: messageOf(err) });
 		}
-		// The applicant's Customer is told the outcome, never the reason.
-		const call = await getRecord(CALL, 'public', String(app.call_id)).catch(() => null);
-		await emailCustomer(
-			String(app.customer_id ?? ''),
-			decisionEmail({
-				site: locals.branding.name || 'Cohort',
-				call: String(call?.title ?? ''),
-				startup: String(app.startup_name ?? ''),
-				link: pageUrl(`/applications/${params.id}`),
-				decision,
-				message: record.message_to_applicant as string
-			}),
-			`${SCREENING_DECISION}:${params.id}`
-		);
 		return { decided: decision };
 	}
 };

@@ -74,6 +74,14 @@ describe('dynamicEntityDrift', () => {
 		expect(dynamicEntityDrift({ schema: { properties: {} } }, definition)).toEqual(['missing properties: title, page']);
 		expect(dynamicEntityDrift({ auth_mode: 'ApplicationOnly', schema: { properties: { title: {}, page: {} } } }, definition)).toEqual(['auth_mode ApplicationOnly -> UserOnly']);
 	});
+
+	it('reports an access the definition turns on but the entity lacks, and leaves one turned off alone', () => {
+		const withCommunity = { ...definition, has_community_access: true } as typeof definition;
+		const current = { auth_mode: 'UserOnly', schema: { properties: { title: {}, page: {} } } };
+		expect(dynamicEntityDrift({ ...current, has_community_access: false }, withCommunity)).toEqual(['has_community_access false -> true']);
+		expect(dynamicEntityDrift({ ...current, has_community_access: true }, withCommunity)).toEqual([]);
+		expect(dynamicEntityDrift({ ...current, has_public_access: true }, { ...definition, has_public_access: false } as typeof definition)).toEqual([]);
+	});
 });
 
 describe('ensureDynamicEntity', () => {

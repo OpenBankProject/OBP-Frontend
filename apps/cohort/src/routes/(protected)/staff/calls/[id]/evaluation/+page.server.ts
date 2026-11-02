@@ -17,11 +17,13 @@
  */
 import { error, fail } from '@sveltejs/kit';
 import { assignmentStatus, rankApplications, reviewerStanding } from '$lib/evaluation';
-import { nowUtc } from '$lib/screening';
-import { APPLICATION, CALL, REVIEW, REVIEW_ASSIGNMENT, REVIEWER, RUBRIC_CRITERION } from '$lib/server/entities/definitions';
+import { isDecision, latestDecision, nowUtc } from '$lib/screening';
+import { recordDecision } from '$lib/server/decisions';
+import { onboardAccepted } from '$lib/server/participants';
+import { APPLICATION, CALL, REVIEW, REVIEW_ASSIGNMENT, REVIEWER, PARTICIPANT, REVIEWER_DECISION, RUBRIC_CRITERION, SCREENING_DECISION } from '$lib/server/entities/definitions';
 import { messageOf } from '$lib/server/errors';
-import { assignments, reviewerDecisionsAsCohort, reviewers, reviews, rubricOf } from '$lib/server/evaluation';
-import { createRecord, getRecord, idOf, listRecords, userToken } from '$lib/server/records';
+import { assignments, reviewers, reviews, rubricOf } from '$lib/server/evaluation';
+import { createRecord, getRecord, getRecordWithMetadata, idOf, listRecords, userToken } from '$lib/server/records';
 import { staffAccess } from '$lib/server/staffAccess';
 import { requestRole, write } from '$lib/server/staffRecords';
 import type { Actions, PageServerLoad } from './$types';
@@ -32,7 +34,12 @@ const ROLES = {
 	assign: `CanCreateDynamicEntityRecord_${REVIEW_ASSIGNMENT}`,
 	assignments: `CanGetDynamicEntityRecord_${REVIEW_ASSIGNMENT}`,
 	reviews: `CanGetDynamicEntityRecord_${REVIEW}`,
-	applications: `CanGetDynamicEntityRecord_${APPLICATION}`
+	applications: `CanGetDynamicEntityRecord_${APPLICATION}`,
+	decide: `CanCreateDynamicEntityRecord_${SCREENING_DECISION}`,
+	decisions: `CanGetDynamicEntityRecord_${SCREENING_DECISION}`,
+	standing: `CanGetDynamicEntityRecord_${REVIEWER_DECISION}`,
+	onboard: `CanCreateDynamicEntityRecord_${PARTICIPANT}`,
+	participants: `CanGetDynamicEntityRecord_${PARTICIPANT}`
 };
 
 /**
@@ -42,15 +49,18 @@ const ROLES = {
 export const load: PageServerLoad = async ({ params, locals }) => {
 	const token = userToken(locals)!;
 	const call = await getRecord(CALL, 'public', params.id).catch(() => error(404, 'Call not found'));
-	const [rubric, apps, assigned, written, pool, access, offers] = await Promise.allSettled([
+	const [rubric, apps, assigned, written, pool, access, offers, decided] = await Promise.allSettled([
 		rubricOf(params.id),
 		listRecords(APPLICATION, 'community', token),
 		assignments(token),
 		reviews(token, 'community'),
 		reviewers(token, 'community'),
 		staffAccess(token),
-		reviewerDecisionsAsCohort()
+		// Which offers to review staff accepted, read with the staff member's own Role (a staff action, not a Scope).
+		listRecords(REVIEWER_DECISION, '', token),
+		listRecords(SCREENING_DECISION, '', token)
 	]);
+	const decisionList = decided.status === 'fulfilled' ? decided.value : [];
 	const offerDecisions = offers.status === 'fulfilled' ? offers.value : [];
 	const roles = access.status === 'fulfilled' ? access.value.roles : [];
 	const lacking = Object.fromEntries(
@@ -65,6 +75,8 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 	const rows = submitted
 		.map((a) => ({
 			...a,
+			// The current outcome: the newest decision of any stage (screening, then evaluation).
+			decision: String(latestDecision(a.id, decisionList)?.decision ?? ''),
 			average: ranked.get(a.id)?.average ?? null,
 			rank: ranked.get(a.id)?.rank ?? null,
 			reviewers: callAssignments
@@ -111,7 +123,8 @@ export const actions: Actions = {
 		const reviewerUserId = String(form.get('reviewer_user_id') ?? '');
 		const pool = await reviewers(token, 'community').catch(() => []);
 		const reviewer = pool.find((r) => r.user_id === reviewerUserId);
-		if (!applicationId || !reviewer || reviewerStanding(reviewer.user_id, await reviewerDecisionsAsCohort()) !== 'accepted') {
+		const standings = await listRecords(REVIEWER_DECISION, '', token).catch(() => []);
+		if (!applicationId || !reviewer || reviewerStanding(reviewer.user_id, standings) !== 'accepted') {
 			return fail(400, { form: 'assign', error: 'reviewer' });
 		}
 		const existing = await assignments(token).catch(() => []);
@@ -129,6 +142,45 @@ export const actions: Actions = {
 			...(dueOn ? { due_on: dueOn } : {})
 		};
 		return write('assign', () => createRecord(REVIEW_ASSIGNMENT, '', record, token), { assigned: true });
+	},
+	/** Approval: staff record the evaluation outcome of a ranked application, and the applicant is emailed it. */
+	decide: async ({ params, locals, request }) => {
+		const token = userToken(locals)!;
+		const form = await request.formData();
+		const applicationId = String(form.get('application_id') ?? '');
+		const decision = String(form.get('decision') ?? '');
+		if (!applicationId || !isDecision(decision, 'evaluation')) return fail(400, { form: 'decide', error: 'invalid' });
+		const found = await getRecordWithMetadata(APPLICATION, 'community', applicationId, token).catch(() => null);
+		const application = found?.record;
+		if (!application || String(application.call_id) !== params.id || application.status !== 'submitted') {
+			return fail(400, { form: 'decide', error: 'invalid' });
+		}
+		const username = locals.session.data.user?.username ?? '';
+		const recorded = await write(
+			'decide',
+			() =>
+				recordDecision({
+					applicationId,
+					application,
+					stage: 'evaluation',
+					decision,
+					reason: String(form.get('reason') ?? ''),
+					message: String(form.get('message_to_applicant') ?? ''),
+					username,
+					siteName: locals.branding.name || 'Cohort',
+					token
+				}),
+			{ decided: decision }
+		);
+		if (decision !== 'accepted' || 'status' in recorded) return recorded;
+		// Accepted: onboard the startup into the call's programme. The decision stands even if this fails.
+		const applicantUserId = String(found.metadata.created?.on_behalf_of_user_id ?? found.metadata.created?.user_id ?? '');
+		try {
+			await onboardAccepted({ applicationId, application, applicantUserId, acceptedBy: username, staffToken: token });
+			return { ...recorded, onboarded: true };
+		} catch (err) {
+			return { ...recorded, onboarded: false, onboardError: messageOf(err) };
+		}
 	},
 	requestRole: async ({ locals, request }) => requestRole(await request.formData(), userToken(locals)!)
 };

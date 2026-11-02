@@ -22,14 +22,15 @@ import { cohortSpace } from './space';
 /**
  * Reading and writing Cohort's Dynamic Entity records at their v7.0.0 URLs. `access` picks the URL form:
  * '' (Roles at the space), 'my' (the caller's own personal records), 'public' (anyone, read only) or
- * 'community' (every record, read only, for holders of the Get Role).
+ * 'community' (every record, read only, for holders of the Get Role). The space is Cohort's unless given (the forms
+ * space holds the answers to published forms).
  */
 export type Access = '' | 'my' | 'public' | 'community';
 
 export type CohortRecord = Record<string, unknown>;
 
-function path(entity: string, access: Access, id?: string): string {
-	const base = dynamicEntityDataPath(cohortSpace());
+function path(entity: string, access: Access, id?: string, space = cohortSpace()): string {
+	const base = dynamicEntityDataPath(space);
 	const prefix = access ? `${access}/` : '';
 	return `${base}/${prefix}${encodeURIComponent(entity)}${id ? `/${encodeURIComponent(id)}` : ''}`;
 }
@@ -68,20 +69,24 @@ export async function getRecordWithMetadata(entity: string, access: Access, id: 
 	return { record: response?.[entity] as CohortRecord, metadata: (response?.metadata ?? {}) as RecordMetadata };
 }
 
-export async function listRecords(entity: string, access: Access, token?: string): Promise<CohortRecord[]> {
-	return unwrapList(entity, await obpRequests.get(path(entity, access), token));
+export async function listRecords(entity: string, access: Access, token?: string, space?: string): Promise<CohortRecord[]> {
+	return unwrapList(entity, await obpRequests.get(path(entity, access, undefined, space), token));
 }
 
 export async function getRecord(entity: string, access: Access, id: string, token?: string): Promise<CohortRecord> {
 	return (await obpRequests.get(path(entity, access, id), token))?.[entity] as CohortRecord;
 }
 
-export async function createRecord(entity: string, access: Access, body: CohortRecord, token: string): Promise<CohortRecord> {
-	return (await obpRequests.post(path(entity, access), body, token))?.[entity] as CohortRecord;
+export async function createRecord(entity: string, access: Access, body: CohortRecord, token: string, space?: string): Promise<CohortRecord> {
+	return (await obpRequests.post(path(entity, access, undefined, space), body, token))?.[entity] as CohortRecord;
 }
 
-export async function updateRecord(entity: string, access: Access, id: string, body: CohortRecord, token: string): Promise<CohortRecord> {
-	return (await obpRequests.put(path(entity, access, id), body, token))?.[entity] as CohortRecord;
+export async function updateRecord(entity: string, access: Access, id: string, body: CohortRecord, token: string, space?: string): Promise<CohortRecord> {
+	return (await obpRequests.put(path(entity, access, id, space), body, token))?.[entity] as CohortRecord;
+}
+
+export async function deleteRecord(entity: string, access: Access, id: string, token: string): Promise<void> {
+	await obpRequests.delete(path(entity, access, id), token);
 }
 
 /** The logged-in User's access token, for calls made as them. */

@@ -2,6 +2,9 @@
 	import { enhance } from '$app/forms';
 	import { APPLICATION_FIELDS } from '$lib/applications';
 	import FileList from '$lib/components/FileList.svelte';
+	import FormAnswers from '$lib/components/FormAnswers.svelte';
+	import FormQuestions from '$lib/components/FormQuestions.svelte';
+	import { questionLabel } from '$lib/forms';
 	import { t, type Locale, type MessageKey } from '$lib/i18n';
 
 	let { data, form } = $props();
@@ -31,9 +34,11 @@
 		{t(locale, 'application_missing')}
 		<ul class="list-inside list-disc">
 			{#each form.missing as key (key)}<li>{label(key)}</li>{/each}
+			{#each data.extra?.questions.filter((q) => form.missingQuestions?.includes(q.key)) ?? [] as q (q.key)}<li>{questionLabel(q, locale)}</li>{/each}
 		</ul>
 	</div>
 {/if}
+{#if form?.answersError}<p class="mt-4 preset-tonal-error rounded p-3" role="alert">{t(locale, 'staff_error')} {form.answersError}</p>{/if}
 
 {#if submitted}
 	{#if !data.outcome}<p class="mt-4 preset-tonal-success rounded p-3" data-testid="application-submitted">{t(locale, 'application_submitted_notice')}</p>{/if}
@@ -44,6 +49,7 @@
 				{#if field.kind === 'checkbox'}{application[field.key] ? '✓' : '—'}{:else if field.kind === 'select' && application[field.key]}{t(locale, `stage_${value(field.key)}` as MessageKey)}{:else}{value(field.key)}{/if}
 			</dd>
 		{/each}
+		{#if data.extra}<FormAnswers {locale} questions={data.extra.questions} answers={data.extra.answers} />{/if}
 		<dt>{t(locale, 'application_eligibility')}</dt>
 		<dd>{t(locale, `eligibility_${String(application.eligibility)}` as MessageKey)}</dd>
 		<dt>{t(locale, 'application_submitted_at')}</dt>
@@ -77,6 +83,7 @@
 				</label>
 			{/if}
 		{/each}
+		{#if data.extra}<FormQuestions {locale} questions={data.extra.questions} answers={data.extra.answers} />{/if}
 		<div class="flex gap-3">
 			<button type="submit" formaction="?/save" class="btn preset-tonal" data-testid="application-save">{t(locale, 'application_save')}</button>
 			<button type="submit" formaction="?/submit" class="btn preset-filled" data-testid="application-submit">{t(locale, 'application_submit')}</button>

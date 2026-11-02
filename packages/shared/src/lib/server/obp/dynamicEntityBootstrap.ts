@@ -56,6 +56,11 @@ export function dynamicEntityDrift(existing: any, definition: SystemDynamicEntit
 	const have = Object.keys(existing?.schema?.properties ?? {});
 	const missing = Object.keys(definition.schema?.properties ?? {}).filter((k) => !have.includes(k));
 	if (missing.length > 0) reasons.push(`missing properties: ${missing.join(', ')}`);
+	// Access only grows, as properties do: an access the definition turns on but the entity lacks is drift (e.g. an
+	// entity created before community access was added to its definition). One turned off is left alone.
+	for (const flag of ['has_personal_entity', 'has_community_access', 'has_public_access'] as const) {
+		if ((definition as Record<string, unknown>)[flag] === true && existing?.[flag] === false) reasons.push(`${flag} false -> true`);
+	}
 	return reasons;
 }
 

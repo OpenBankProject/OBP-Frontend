@@ -1,4 +1,6 @@
 <script lang="ts">
+	import FormAnswers from '$lib/components/FormAnswers.svelte';
+	import MissingRole from '$lib/components/MissingRole.svelte';
 	import { t, type Locale, type MessageKey } from '$lib/i18n';
 
 	let { data, form } = $props();
@@ -10,9 +12,9 @@
 
 <p><a class="anchor" href="/review">{t(locale, 'review_heading')}</a></p>
 <h1 class="h2">{t(locale, 'review_one_heading')}</h1>
-<p class="mt-1">{t(locale, 'application_call')}: {data.callTitle}{#if data.assignment.due_on} · {t(locale, 'eval_due')} {data.assignment.due_on}{/if}</p>
+<p class="mt-1">{t(locale, 'application_call')}: {data.callTitle}{#if data.assignment.due_on}{' '}· {t(locale, 'eval_due')} {data.assignment.due_on}{/if}</p>
 
-{#if form?.error}<p class="mt-4 preset-tonal-error rounded p-3" role="alert">{t(locale, `review_error_${form.error}` as MessageKey)}</p>{/if}
+{#if form?.error && form?.form !== 'role'}<p class="mt-4 preset-tonal-error rounded p-3" role="alert">{t(locale, `review_error_${form.error}` as MessageKey)}</p>{/if}
 
 {#if data.step === 'declare'}
 	<section class="card preset-outlined-surface-200-800 mt-6 max-w-2xl p-4" data-testid="review-declare">
@@ -34,7 +36,10 @@
 				<dt>{t(locale, `field_${field.key}` as MessageKey)}</dt>
 				<dd class="whitespace-pre-line">{#if field.kind === 'checkbox'}{application[field.key] ? '✓' : '—'}{:else}{value(field.key)}{/if}</dd>
 			{/each}
+			{#if data.extra && !data.extra.lacking}<FormAnswers {locale} questions={data.extra.questions} answers={data.extra.answers} />{/if}
 		</dl>
+		{#if form?.requested}<p class="mt-2 preset-tonal-success rounded p-3" role="status">{t(locale, 'access_requested_notice')}</p>{/if}
+		{#if data.extra?.lacking}<div class="mt-2"><MissingRole {locale} space={data.space} role={data.extra.lacking} entitlementRequestsUrl={null} action="?declared=none&/requestRole" /></div>{/if}
 	</section>
 	<section class="card preset-outlined-surface-200-800 mt-6 max-w-2xl p-4" data-testid="review-score">
 		<h2 class="h4">{t(locale, 'review_score_heading')}</h2>
@@ -44,7 +49,7 @@
 			<form method="POST" action="?/submit" class="mt-3 flex flex-col gap-3">
 				{#each data.rubric as c (c.id)}
 					<label class="label">
-						<span class="label-text"><strong>{c.name}</strong> (0–{c.max_score}){#if c.weight > 1} · ×{c.weight}{/if}</span>
+						<span class="label-text"><strong>{c.name}</strong> (0–{c.max_score}){#if c.weight > 1}{' '}· ×{c.weight}{/if}</span>
 						{#if c.description}<span class="text-sm">{c.description}</span>{/if}
 						<select class="select w-auto" name="score_{c.id}" required>
 							<option value="" selected disabled>–</option>

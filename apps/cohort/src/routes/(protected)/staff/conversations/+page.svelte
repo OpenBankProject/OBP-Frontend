@@ -1,4 +1,5 @@
 <script lang="ts">
+	import ConversationList from '$lib/components/ConversationList.svelte';
 	import MissingRole from '$lib/components/MissingRole.svelte';
 	import { t, type Locale } from '$lib/i18n';
 
@@ -21,29 +22,6 @@
 	{:else if data.conversations.length === 0}
 		<p>{t(locale, 'conversations_none')}</p>
 	{:else}
-		<div class="table-wrap">
-			<table class="table">
-				<thead>
-					<tr>
-						<th>{t(locale, 'conversation_title')}</th>
-						<th>{t(locale, 'conversation_user')}</th>
-						<th>{t(locale, 'conversation_page')}</th>
-						<th>{t(locale, 'conversation_messages')}</th>
-						<th>{t(locale, 'conversation_updated')}</th>
-					</tr>
-				</thead>
-				<tbody>
-					{#each data.conversations as c (c.id)}
-						<tr>
-							<td><a class="anchor" href="/staff/conversations/{c.id}">{c.title}</a></td>
-							<td><code class="text-xs">{c.user_id}</code></td>
-							<td>{c.page}</td>
-							<td>{c.message_count}</td>
-							<td>{c.updated_at}</td>
-						</tr>
-					{/each}
-				</tbody>
-			</table>
-		</div>
+		<ConversationList {locale} conversations={data.conversations} hrefBase="/staff/conversations" showUser />
 	{/if}
 </section>

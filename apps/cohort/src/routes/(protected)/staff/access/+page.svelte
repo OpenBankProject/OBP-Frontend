@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	import { t, type Locale, type MessageKey } from '$lib/i18n';
 
 	let { data, form } = $props();
@@ -9,6 +10,7 @@
 <h1 class="h2">{t(locale, 'access_heading')}</h1>
 <p class="mt-2">{t(locale, 'access_intro')} <code>{data.space}</code>.</p>
 
+{#if page.url.searchParams.has('no_role')}<p class="mt-4 preset-tonal-warning rounded p-3" role="status" data-testid="access-no-role">{t(locale, 'access_no_role_notice')}</p>{/if}
 {#if form?.error}<p class="mt-4 preset-tonal-error rounded p-3" role="alert">{t(locale, 'staff_error')} {form.error}</p>{/if}
 {#if form?.requested}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'access_requested_notice')}</p>{/if}
 
@@ -16,6 +18,7 @@
 	<thead>
 		<tr>
 			<th>{t(locale, 'setup_role')}</th>
+			<th>{t(locale, 'setup_space_id')}</th>
 			<th>{t(locale, 'setup_needed_for')}</th>
 			<th>{t(locale, 'setup_held')}</th>
 		</tr>
@@ -24,6 +27,7 @@
 		{#each data.roles as role (role.role_name)}
 			<tr data-testid="access-role-{role.role_name}">
 				<td><code>{role.role_name}</code></td>
+				<td><code>{role.bank_id}</code></td>
 				<td>{t(locale, role.purpose as MessageKey)}</td>
 				<td>
 					{#if role.held}

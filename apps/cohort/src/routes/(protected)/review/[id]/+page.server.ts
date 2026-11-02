@@ -23,6 +23,9 @@ import { APPLICATION, CALL, REVIEW, REVIEW_ASSIGNMENT } from '$lib/server/entiti
 import { messageOf } from '$lib/server/errors';
 import { assignmentOf, reviews, rubricOf, standingOf } from '$lib/server/evaluation';
 import { createRecord, getRecord, userToken } from '$lib/server/records';
+import { answersOnApplication } from '$lib/server/forms';
+import { requestRole } from '$lib/server/staffRecords';
+import { cohortSpace } from '$lib/server/space';
 import type { Actions, PageServerLoad } from './$types';
 
 /** The assignment, only for its own reviewer, and only while staff have accepted their offer to review. */
@@ -55,7 +58,10 @@ export const load: PageServerLoad = async ({ params, locals, url }) => {
 	const application = showApplication
 		? await getRecord(APPLICATION, 'community', assignment.application_id, token).catch((err) => error(403, messageOf(err)))
 		: null;
+	const extra = application ? await answersOnApplication(application, assignment.application_id, token).catch(() => null) : null;
 	return {
+		extra,
+		space: cohortSpace(),
 		assignment,
 		callTitle: String(call?.title ?? ''),
 		existing,
@@ -68,6 +74,8 @@ export const load: PageServerLoad = async ({ params, locals, url }) => {
 
 export const actions: Actions = {
 	noConflict: async ({ params }) => redirect(303, `/review/${params.id}?declared=none`),
+	/** Ask for the Get Role on the answers to the call's extra questions. */
+	requestRole: async ({ locals, request }) => requestRole(await request.formData(), userToken(locals)!),
 	conflict: async ({ params, locals, request }) => {
 		const token = userToken(locals)!;
 		const assignment = await myAssignment(params.id, locals);

@@ -2,6 +2,7 @@
 	import Badge from '$lib/components/Badge.svelte';
 	import MissingRole from '$lib/components/MissingRole.svelte';
 	import { page } from '$app/state';
+	import { formTitle } from '$lib/forms';
 	import { t, type Locale } from '$lib/i18n';
 
 	let { data } = $props();
@@ -27,6 +28,17 @@
 	<dt>{t(locale, 'staff_field_description')}</dt><dd class="whitespace-pre-line">{value('description')}</dd>
 </dl>
 <p class="mt-2"><a class="anchor" href="/calls/{page.params.id}">{t(locale, 'staff_public_page')}</a></p>
+
+<section class="mt-8" data-testid="staff-call-forms">
+	<h2 class="h4">{t(locale, 'forms_application_form')}</h2>
+	<p class="text-sm">{t(locale, 'forms_application_form_text')}</p>
+	{#if data.forms.length}
+		<ul class="mt-1 list-inside list-disc">
+			{#each data.forms as f (f.id)}<li><a class="anchor" href="/staff/forms/{f.id}">{formTitle(f, locale)}</a> ({t(locale, 'forms_version')} {f.version}) <Badge {locale} kind="status" value={f.status} /></li>{/each}
+		</ul>
+	{/if}
+	<p class="mt-1"><a class="anchor text-sm" href="/staff/forms">{t(locale, 'forms_new_application_form')}</a></p>
+</section>
 
 
 <section class="mt-8" data-testid="staff-call-applications">

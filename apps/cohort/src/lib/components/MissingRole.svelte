@@ -4,7 +4,8 @@
 	interface Props {
 		locale: Locale;
 		space: string;
-		role: { role_name: string; requested: boolean };
+		/** bank_id, when the Role is held somewhere other than `space` (the forms space). */
+		role: { role_name: string; requested: boolean; bank_id?: string };
 		/** The API Manager's Entitlement Requests page, where administrators accept requests. */
 		entitlementRequestsUrl: string | null;
 		/** The form action that requests a Role, e.g. ?/requestRole. */
@@ -15,7 +16,7 @@
 </script>
 
 <div class="preset-tonal-warning rounded p-3" role="status" data-testid="missing-role-{role.role_name}">
-	<p>{t(locale, 'missing_role_text')} <code>{role.role_name}</code> {t(locale, 'missing_role_at')} <code>{space}</code>.</p>
+	<p>{t(locale, 'missing_role_text')} <code>{role.role_name}</code> {t(locale, 'missing_role_at')} <code>{role.bank_id || space}</code>.</p>
 	<div class="mt-2 flex flex-wrap items-center gap-3">
 		{#if role.requested}
 			<span>{t(locale, 'access_requested')}</span>

@@ -90,6 +90,9 @@
 		// consent_reference_id of consents granted to Opey (it is not a JWT claim).
 		// Defaults to the generic OBP proxy. Set to '' to skip the lookup.
 		consentsUrl?: string;
+		// When set, the consent label under the input is just a link to this page (e.g. the Portal's consents page),
+		// with no details and no lookup; consentsUrl is then not used.
+		consentsPageHref?: string;
 		// Metrics page that accepts ?consent_reference_id=...; when set, the consent
 		// indicator under the input links each reference id to its call log.
 		consentMetricsHref?: string;
@@ -195,8 +198,8 @@
 
 	/**
 	 * consent_reference_id is not in the JWT, only in the /my/consents listing
-	 * (jti == consent_id, so the match is exact). Best effort: the indicator
-	 * falls back to the consent_id until this resolves.
+	 * (jti == consent_id, so the match is exact). The consent_id itself is a credential and is never shown:
+	 * the indicator says "resolving…" until the reference id is known.
 	 */
 	async function resolveConsentReferenceId(consentId: string) {
 		const url = options.consentsUrl ?? '/proxy/obp/v5.1.0/my/consents';
@@ -216,9 +219,14 @@
 		}
 	}
 
+	/** The time, with the date when it is not today: "01:51 PM", or "2 Nov, 01:51 PM". */
 	function formatConsentExpiry(ms: number | null): string {
 		if (ms === null) return 'unknown';
-		return new Date(ms).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+		const at = new Date(ms);
+		const time = at.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+		return at.toDateString() === new Date().toDateString()
+			? time
+			: `${at.toLocaleDateString([], { day: 'numeric', month: 'short' })}, ${time}`;
 	}
 
 	// Server-side Opey connection status (does the app server reach OPEY_BASE_URL?)
@@ -564,7 +572,7 @@
 				...summary,
 				referenceId: previous?.referenceId
 			});
-			if (!previous?.referenceId) void resolveConsentReferenceId(summary.id);
+			if (!previous?.referenceId && !options.consentsPageHref) void resolveConsentReferenceId(summary.id);
 		}
 	}
 
@@ -799,7 +807,20 @@
 {/snippet}
 
 {#snippet consentIndicator()}
-	{#if currentConsent}
+	{#if currentConsent && options.consentsPageHref}
+		<div class="mt-1 flex justify-end text-xs text-surface-600-400">
+			<a
+				href={options.consentsPageHref}
+				target={options.consentsPageHref.startsWith('http') ? '_blank' : undefined}
+				rel={options.consentsPageHref.startsWith('http') ? 'noopener' : undefined}
+				class="flex items-center gap-1 rounded px-1 underline"
+				data-testid="opey-consents-link"
+			>
+				<ShieldCheck class="h-3.5 w-3.5" aria-hidden="true" />
+				<span>Consents</span>
+			</a>
+		</div>
+	{:else if currentConsent}
 		<div class="relative mt-1 flex justify-end text-xs text-surface-600-400">
 			<button
 				type="button"
@@ -821,7 +842,7 @@
 					data-testid="opey-consent-indicator-popover"
 				>
 					<p class="mb-2 font-semibold text-surface-900-100">Consent Opey is using now</p>
-					<div class="space-y-0.5" data-testid="opey-consent-row-{currentConsent.id}">
+					<div class="space-y-0.5" data-testid="opey-consent-row">
 						<div>
 							<span class="opacity-70">consent_reference_id</span>
 							{#if currentConsent.referenceId && options.consentMetricsHref}

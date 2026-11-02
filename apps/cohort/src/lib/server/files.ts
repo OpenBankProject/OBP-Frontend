@@ -62,25 +62,29 @@ function toCohortFile(f: any): CohortFile {
 	};
 }
 
-/** The files attached to an application that the caller may read: their own, or all with CanGetFileAtOneBank. */
-export async function filesOfApplication(applicationId: string, token: string): Promise<CohortFile[]> {
-	const query = new URLSearchParams({ record_type: APPLICATION, record_id: applicationId });
+/** The files attached to a record that the caller may read: their own, or all with CanGetFileAtOneBank. */
+export async function filesOfRecord(recordType: string, recordId: string, token: string): Promise<CohortFile[]> {
+	const query = new URLSearchParams({ record_type: recordType, record_id: recordId });
 	const response = await obpRequests.get(`${filesPath()}?${query}`, token);
 	return (response?.files ?? []).map(toCohortFile);
 }
 
-/** Store a personal file in the applicant's name, attached to their application. */
-export async function uploadApplicationFile(applicationId: string, file: File, token: string): Promise<CohortFile> {
+/** Store a personal file in the User's name, attached to one of their own personal records. */
+export async function uploadRecordFile(recordType: string, recordId: string, file: File, token: string): Promise<CohortFile> {
 	const bytes = Buffer.from(await file.arrayBuffer());
 	const created = await obpRequests.post(`/obp/v7.0.0/banks/${encodeURIComponent(cohortSpace())}/my/files`, {
 		file_name: file.name,
 		media_type: file.type,
 		content_base64: bytes.toString('base64'),
-		record_type: APPLICATION,
-		record_id: applicationId
+		record_type: recordType,
+		record_id: recordId
 	}, token);
 	return toCohortFile(created);
 }
+
+export const filesOfApplication = (applicationId: string, token: string) => filesOfRecord(APPLICATION, applicationId, token);
+export const uploadApplicationFile = (applicationId: string, file: File, token: string) =>
+	uploadRecordFile(APPLICATION, applicationId, file, token);
 
 export async function setScanStatus(fileId: string, status: 'clean' | 'rejected', reason: string, token: string) {
 	return toCohortFile(await obpRequests.put(`${filesPath()}/${encodeURIComponent(fileId)}/scan-status`, { scan_status: status, reason }, token));

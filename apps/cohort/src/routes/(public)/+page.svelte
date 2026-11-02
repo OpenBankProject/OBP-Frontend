@@ -22,9 +22,11 @@
 		bodyClasses: 'bg-opacity-0',
 		footerClasses: 'bg-opacity-0',
 		displayConnectionPips: true,
-		// Cohort serves no generic OBP proxy, so the chat skips the new-entitlements notice and the consent lookup.
+		// Cohort serves no generic OBP proxy, so the chat skips the new-entitlements notice, and its consent label is
+		// a link to the Portal's consents page, where Users see and revoke what they gave Opey.
 		entitlementsUrl: '',
-		consentsUrl: ''
+		consentsUrl: '',
+		...(data.portalUrl ? { consentsPageHref: `${data.portalUrl}/user/consents` } : {})
 	});
 
 	/** What the visitor sees, sent with each message so Opey answers about these calls. */

@@ -15,9 +15,10 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
+import { listConversations } from '$lib/server/conversations';
 import { OPEY_CONVERSATION } from '$lib/server/entities/definitions';
 import { messageOf } from '$lib/server/errors';
-import { idOf, listRecordsWithMetadata, userToken } from '$lib/server/records';
+import { userToken } from '$lib/server/records';
 import { staffAccess } from '$lib/server/staffAccess';
 import { requestRole } from '$lib/server/staffRecords';
 import type { Actions, PageServerLoad } from './$types';
@@ -32,19 +33,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 	const base = { space: access?.space ?? '', entitlementRequestsUrl: access?.entitlementRequestsUrl ?? null };
 	if (role && !role.held) return { ...base, lacking: role, conversations: [], error: null };
 	try {
-		const rows = await listRecordsWithMetadata(OPEY_CONVERSATION, 'community', token);
-		const conversations = rows
-			.map(({ record, metadata }) => ({
-				id: idOf(OPEY_CONVERSATION, record),
-				title: String(record.title ?? ''),
-				user_id: String(metadata.created?.on_behalf_of_user_id ?? metadata.created?.user_id ?? ''),
-				page: String(record.page ?? ''),
-				message_count: Number(record.message_count ?? 0),
-				started_at: String(record.started_at ?? ''),
-				updated_at: String(record.updated_at ?? '')
-			}))
-			.sort((a, b) => b.updated_at.localeCompare(a.updated_at));
-		return { ...base, lacking: null, conversations, error: null };
+		return { ...base, lacking: null, conversations: await listConversations('community', token), error: null };
 	} catch (err) {
 		return { ...base, lacking: null, conversations: [], error: messageOf(err) };
 	}

@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { APPLICATION_FIELDS } from '$lib/applications';
+	import FormAnswers from '$lib/components/FormAnswers.svelte';
 	import MissingRole from '$lib/components/MissingRole.svelte';
 	import FileList from '$lib/components/FileList.svelte';
-	import { DECISIONS } from '$lib/screening';
+	import { SCREENING_DECISIONS } from '$lib/screening';
 	import { t, type Locale, type MessageKey } from '$lib/i18n';
 
 	let { data, form } = $props();
@@ -30,7 +31,10 @@
 			{#if field.kind === 'checkbox'}{application[field.key] ? '✓' : '—'}{:else if field.kind === 'select' && application[field.key]}{t(locale, `stage_${value(field.key)}` as MessageKey)}{:else}{value(field.key)}{/if}
 		</dd>
 	{/each}
+	{#if data.extra && !data.extra.lacking}<FormAnswers {locale} questions={data.extra.questions} answers={data.extra.answers} />{/if}
 </dl>
+{#if data.extra?.lacking}<div class="mt-2"><MissingRole {locale} space={data.space} role={data.extra.lacking} entitlementRequestsUrl={data.entitlementRequestsUrl} /></div>{/if}
+{#if data.extra?.error}<p class="mt-2 preset-tonal-error rounded p-3">{data.extra.error}</p>{/if}
 
 <section class="mt-8" data-testid="staff-files">
 	<h2 class="h4">{t(locale, 'files_heading')}</h2>
@@ -82,7 +86,7 @@
 		<form method="POST" action="?/decide" class="mt-4 flex max-w-xl flex-col gap-2" data-testid="staff-decide">
 			<fieldset class="flex flex-wrap gap-4">
 				<legend class="label-text">{t(locale, 'screening_decision')}</legend>
-				{#each DECISIONS as d (d)}
+				{#each SCREENING_DECISIONS as d (d)}
 					<label class="flex items-center gap-2"><input class="radio" type="radio" name="decision" value={d} required />{decisionLabel(d)}</label>
 				{/each}
 			</fieldset>

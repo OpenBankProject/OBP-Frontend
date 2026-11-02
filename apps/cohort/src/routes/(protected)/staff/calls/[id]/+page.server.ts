@@ -21,6 +21,7 @@ import { APPLICATION, CALL, PROGRAMME, SCREENING_DECISION } from '$lib/server/en
 import { messageOf } from '$lib/server/errors';
 import { getRecord, idOf, listRecords, userToken } from '$lib/server/records';
 import { staffAccess } from '$lib/server/staffAccess';
+import { listForms } from '$lib/server/forms';
 import type { PageServerLoad } from './$types';
 
 /**
@@ -30,17 +31,19 @@ import type { PageServerLoad } from './$types';
 export const load: PageServerLoad = async ({ params, locals }) => {
 	const token = userToken(locals);
 	const call = await getRecord(CALL, 'public', params.id).catch(() => error(404, 'Call not found'));
-	const [programme, applications, decisions, access] = await Promise.allSettled([
+	const [programme, applications, decisions, access, forms] = await Promise.allSettled([
 		getRecord(PROGRAMME, 'public', String(call.programme_id)),
 		listRecords(APPLICATION, 'community', token),
 		listRecords(SCREENING_DECISION, '', token),
-		staffAccess(token!)
+		staffAccess(token!),
+		listForms()
 	]);
 	const roles = access.status === 'fulfilled' ? access.value.roles : [];
 	const lacking = (name: string) => roles.find((r) => r.role_name === name && !r.held) ?? null;
 	const decisionList = decisions.status === 'fulfilled' ? decisions.value : [];
 	return {
 		call,
+		forms: forms.status === 'fulfilled' ? forms.value.filter((f) => f.purpose === 'application' && f.call_id === params.id).sort((a, b) => a.version - b.version) : [],
 		programme: programme.status === 'fulfilled'
 			? { id: String(call.programme_id), name: String(programme.value.name ?? '') }
 			: null,

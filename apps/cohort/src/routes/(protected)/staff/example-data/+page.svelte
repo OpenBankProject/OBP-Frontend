@@ -17,7 +17,7 @@
 			<p class="font-semibold">{p.name} <Badge {locale} kind="status" value={p.status} /></p>
 			<ul class="mt-1 list-inside list-disc text-sm">
 				{#each p.calls as c (c.title)}
-					<li>{c.title} <Badge {locale} kind="status" value={c.status} />{#if c.applications} · {c.applications} {t(locale, 'example_applications')}{/if}</li>
+					<li>{c.title} <Badge {locale} kind="status" value={c.status} />{#if c.applications}{' '}· {c.applications} {t(locale, 'example_applications')}{/if}</li>
 				{/each}
 			</ul>
 		</li>

@@ -16,14 +16,16 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 import { obpRequests } from './obp';
-import { cohortSpace } from './space';
+import { cohortFormsSpace, cohortSpace } from './space';
 import { apiManagerUrl } from './appDirectory';
-import { APPLICATION, CALL, OPEY_CONVERSATION, PROGRAMME, REVIEW, REVIEW_ASSIGNMENT, REVIEWER, REVIEWER_DECISION, RUBRIC_CRITERION, SCREENING_DECISION } from './entities/definitions';
+import { isAnswersRole } from './forms';
+import { APPLICATION, ATTENDANCE, CALL, FORM, MILESTONE, MILESTONE_REPORT, MILESTONE_REVIEW, OPEY_CONVERSATION, PROGRAMME, REVIEW, REVIEW_ASSIGNMENT, PARTICIPANT, REVIEWER, REVIEWER_DECISION, RUBRIC_CRITERION, REMINDER, SCREENING_DECISION, SESSION, SESSION_BOOKING, STAGE_CHANGE } from './entities/definitions';
 
-/** A Role staff need at Cohort's space, and the i18n key saying what it is for. */
+/** A Role staff need, the i18n key saying what it is for, and where: Cohort's space unless it is the forms space. */
 export interface StaffRole {
 	role_name: string;
 	purpose: string;
+	space?: 'forms';
 }
 
 /** The Roles Cohort's staff pages use. Add a line here when a staff page starts needing a new one. */
@@ -42,13 +44,38 @@ export const STAFF_ROLES: StaffRole[] = [
 	{ role_name: `CanCreateDynamicEntityRecord_${REVIEW_ASSIGNMENT}`, purpose: 'access_purpose_assign_reviewers' },
 	{ role_name: `CanGetDynamicEntityRecord_${REVIEW_ASSIGNMENT}`, purpose: 'access_purpose_read_assignments' },
 	{ role_name: `CanGetDynamicEntityRecord_${REVIEW}`, purpose: 'access_purpose_read_reviews' },
+	{ role_name: `CanGetDynamicEntityRecord_${PARTICIPANT}`, purpose: 'access_purpose_read_participants' },
+	{ role_name: `CanCreateDynamicEntityRecord_${PARTICIPANT}`, purpose: 'access_purpose_onboard' },
+	{ role_name: `CanUpdateDynamicEntityRecord_${PARTICIPANT}`, purpose: 'access_purpose_advance_stage' },
+	{ role_name: `CanCreateDynamicEntityRecord_${STAGE_CHANGE}`, purpose: 'access_purpose_record_stage' },
+	{ role_name: `CanGetDynamicEntityRecord_${REMINDER}`, purpose: 'access_purpose_read_reminders' },
+	{ role_name: `CanCreateDynamicEntityRecord_${SESSION}`, purpose: 'access_purpose_create_sessions' },
+	{ role_name: `CanGetDynamicEntityRecord_${SESSION}`, purpose: 'access_purpose_read_sessions' },
+	{ role_name: `CanGetDynamicEntityRecord_${SESSION_BOOKING}`, purpose: 'access_purpose_read_bookings' },
+	{ role_name: `CanCreateDynamicEntityRecord_${ATTENDANCE}`, purpose: 'access_purpose_record_attendance' },
+	{ role_name: `CanGetDynamicEntityRecord_${ATTENDANCE}`, purpose: 'access_purpose_read_attendance' },
+	{ role_name: `CanCreateDynamicEntityRecord_${FORM}`, purpose: 'access_purpose_create_forms' },
+	{ role_name: `CanUpdateDynamicEntityRecord_${FORM}`, purpose: 'access_purpose_edit_forms' },
+	{ role_name: 'CanCreateDynamicEntityDefinition', purpose: 'access_purpose_publish_forms', space: 'forms' },
+	{ role_name: 'CanUpdateDynamicEntityDefinition', purpose: 'access_purpose_grow_forms', space: 'forms' },
+	{ role_name: `CanCreateDynamicEntityRecord_${MILESTONE}`, purpose: 'access_purpose_define_milestones' },
+	{ role_name: `CanGetDynamicEntityRecord_${MILESTONE_REPORT}`, purpose: 'access_purpose_read_milestone_reports' },
+	{ role_name: `CanCreateDynamicEntityRecord_${MILESTONE_REVIEW}`, purpose: 'access_purpose_review_milestones' },
+	{ role_name: `CanGetDynamicEntityRecord_${MILESTONE_REVIEW}`, purpose: 'access_purpose_read_milestone_reviews' },
 	{ role_name: 'CanGetFileAtOneBank', purpose: 'access_purpose_read_files' },
 	{ role_name: `CanGetDynamicEntityRecord_${OPEY_CONVERSATION}`, purpose: 'access_purpose_read_conversations' },
 	{ role_name: 'CanUpdateFileScanStatusAtOneBank', purpose: 'access_purpose_scan_files' }
 ];
 
+/** A staff Role, or the Get Role on a published form's answers (one per form, so not listed above). */
 export function isStaffRole(roleName: string): boolean {
-	return STAFF_ROLES.some((r) => r.role_name === roleName);
+	return STAFF_ROLES.some((r) => r.role_name === roleName) || isAnswersRole(roleName);
+}
+
+/** The bank id a staff Role is held at: the forms space for the definition Roles and the Roles on answers. */
+export function spaceOfRole(roleName: string): string {
+	const forms = isAnswersRole(roleName) || STAFF_ROLES.some((r) => r.role_name === roleName && r.space === 'forms');
+	return forms ? cohortFormsSpace() : cohortSpace();
 }
 
 interface Grant {
@@ -57,10 +84,11 @@ interface Grant {
 }
 
 /**
- * Each staff Role at the space: held, requested (an entitlement request is waiting), or neither. Reads the
- * User's Roles from OBP rather than the session, so a Role granted since login shows at once.
+ * Each staff Role at its space: held, requested (an entitlement request is waiting), or neither. Reads the
+ * User's Roles from OBP rather than the session, so a Role granted since login shows at once. `extra` adds Roles a
+ * page needs beyond the list, such as the Get Role on a form's answers.
  */
-export async function staffAccess(token: string) {
+export async function staffAccess(token: string, extra: StaffRole[] = []) {
 	const space = cohortSpace();
 	const [user, requests, manager] = await Promise.all([
 		obpRequests.get('/obp/v5.1.0/users/current', token),
@@ -69,12 +97,13 @@ export async function staffAccess(token: string) {
 	]);
 	const held: Grant[] = user?.entitlements?.list ?? [];
 	const requested: Grant[] = requests?.entitlement_requests ?? [];
-	const at = (list: Grant[], role: string) => list.some((g) => g.role_name === role && g.bank_id === space);
+	const at = (list: Grant[], role: string) => list.some((g) => g.role_name === role && g.bank_id === spaceOfRole(role));
 	return {
 		user,
 		space,
-		roles: STAFF_ROLES.map((r) => ({
+		roles: [...STAFF_ROLES, ...extra].map((r) => ({
 			...r,
+			bank_id: spaceOfRole(r.role_name),
 			held: at(held, r.role_name),
 			requested: at(requested, r.role_name)
 		})),
@@ -82,7 +111,18 @@ export async function staffAccess(token: string) {
 	};
 }
 
-/** Ask for a staff Role at the space; an administrator accepts it in the API Manager. */
+/**
+ * The staff Roles the User holds at their spaces, read from OBP-API (not the session, so a new grant counts at once).
+ * Holding any of them makes the User staff for the menu and the staff pages; the data on those pages is still
+ * protected by each Role, which OBP-API checks.
+ */
+export async function staffRolesHeld(token: string): Promise<string[]> {
+	const user = await obpRequests.get('/obp/v5.1.0/users/current', token);
+	const held: Grant[] = user?.entitlements?.list ?? [];
+	return STAFF_ROLES.filter((r) => held.some((g) => g.role_name === r.role_name && g.bank_id === spaceOfRole(r.role_name))).map((r) => r.role_name);
+}
+
+/** Ask for a staff Role at its space; an administrator accepts it in the API Manager. */
 export async function requestStaffRole(roleName: string, token: string): Promise<void> {
-	await obpRequests.post('/obp/v6.0.0/entitlement-requests', { bank_id: cohortSpace(), role_name: roleName }, token);
+	await obpRequests.post('/obp/v6.0.0/entitlement-requests', { bank_id: spaceOfRole(roleName), role_name: roleName }, token);
 }

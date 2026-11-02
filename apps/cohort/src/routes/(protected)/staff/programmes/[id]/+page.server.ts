@@ -19,21 +19,24 @@ import { error } from '@sveltejs/kit';
 import { CALL, PROGRAMME } from '$lib/server/entities/definitions';
 import { getRecord, idOf, listRecords, userToken } from '$lib/server/records';
 import { staffAccess } from '$lib/server/staffAccess';
+import { listForms } from '$lib/server/forms';
 import type { PageServerLoad } from './$types';
 
-/** A programme and its calls, read publicly. */
+/** A programme, its calls and its surveys, read publicly. */
 export const load: PageServerLoad = async ({ params, locals }) => {
 	const token = userToken(locals);
 	const programme = await getRecord(PROGRAMME, 'public', params.id).catch(() => error(404, 'Programme not found'));
-	const [calls, access] = await Promise.all([
+	const [calls, access, forms] = await Promise.all([
 		listRecords(CALL, 'public').catch(() => []),
-		staffAccess(token!).catch(() => null)
+		staffAccess(token!).catch(() => null),
+		listForms().catch(() => [])
 	]);
 	return {
 		programme,
 		calls: calls
 			.filter((c) => String(c.programme_id) === params.id)
 			.map((c) => ({ id: idOf(CALL, c), title: String(c.title ?? ''), status: String(c.status ?? '') })),
+		surveys: forms.filter((f) => f.purpose === 'survey' && f.programme_id === params.id).sort((a, b) => a.title.localeCompare(b.title) || a.version - b.version),
 		space: access?.space ?? '',
 		entitlementRequestsUrl: access?.entitlementRequestsUrl ?? null
 	};

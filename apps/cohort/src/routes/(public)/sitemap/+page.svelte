@@ -42,7 +42,7 @@
 <p class="mt-1">{t(locale, 'map_intro')}</p>
 
 <div class="mt-6 grid gap-4 md:grid-cols-2 2xl:grid-cols-4">
-	{#each AUDIENCES as audience (audience)}
+	{#each AUDIENCES.filter((a) => a !== 'staff' || data.isStaff) as audience (audience)}
 		{@const Icon = icons[audience]}
 		<section class="card preset-filled-surface-100-900 p-4" data-testid="map-section-{audience}">
 			<h2 class="h4 flex items-center gap-2">

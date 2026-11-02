@@ -23,7 +23,7 @@
 		</form>
 	</section>
 {:else}
-	<p class="mt-2">{t(locale, 'review_registered_as')} <strong>{data.profile.display_name}</strong>{#if data.profile.expertise} ({data.profile.expertise}){/if}.</p>
+	<p class="mt-2">{t(locale, 'review_registered_as')} <strong>{data.profile.display_name}</strong>{#if data.profile.expertise}{' '}({data.profile.expertise}){/if}.</p>
 	{#if data.standing === 'pending'}
 		<p class="mt-4 preset-tonal rounded p-3" role="status" data-testid="review-pending">{t(locale, 'review_pending')}</p>
 	{:else if data.standing === 'declined'}

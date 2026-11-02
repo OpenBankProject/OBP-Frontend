@@ -103,7 +103,7 @@ export function cohortRequiredConsumerScopes(space: string): RequiredConsumerSco
 		{
 			role_name: 'CanCreateDynamicEntityDefinition',
 			bank_id: space,
-			needed_for: "Creating Cohort's entities on a new installation, and the entity of each published form."
+			needed_for: "Creating Cohort's entities on a new installation. Staff publish forms with their own Role."
 		},
 		{
 			role_name: 'CanUpdateDynamicEntityDefinition',
@@ -119,6 +119,56 @@ export function cohortRequiredConsumerScopes(space: string): RequiredConsumerSco
 			role_name: 'CanGetDynamicEntityRecord_cohort_reviewer_decision',
 			bank_id: space,
 			needed_for: 'Showing reviewers their assignments only once staff have accepted their offer to review.'
+		},
+		{
+			role_name: 'CanGetDynamicEntityRecord_cohort_participant',
+			bank_id: space,
+			needed_for: 'Showing a startup its own place in the programme (onboarding itself is done with the staff member\'s Roles).'
+		},
+		{
+			role_name: 'CanGetDynamicEntityRecord_cohort_milestone_review',
+			bank_id: space,
+			needed_for: 'Showing a startup the outcome of its own milestone reports (staff review them with their own Roles).'
+		},
+		{
+			role_name: 'CanGetDynamicEntityRecord_cohort_application',
+			bank_id: space,
+			needed_for: 'Reminding applicants, on its own, when a call they have a draft for is closing (never shown to anyone).'
+		},
+		{
+			role_name: 'CanGetDynamicEntityRecord_cohort_milestone_report',
+			bank_id: space,
+			needed_for: 'Reminding startups, on its own, of milestones due or overdue (never shown to anyone).'
+		},
+		{
+			role_name: 'CanGetDynamicEntityRecord_cohort_session',
+			bank_id: space,
+			needed_for: "Showing a startup its own programme's sessions to book."
+		},
+		{
+			role_name: 'CanGetDynamicEntityRecord_cohort_session_booking',
+			bank_id: space,
+			needed_for: 'Counting the seats taken on a session when a startup books (who booked is never shown).'
+		},
+		{
+			role_name: 'CanGetDynamicEntityRecord_cohort_attendance',
+			bank_id: space,
+			needed_for: 'Showing a startup the sessions it attended.'
+		},
+		{
+			role_name: 'CanCreateDynamicEntityRecord_cohort_reminder',
+			bank_id: space,
+			needed_for: 'Recording each reminder it emails, so none is sent twice.'
+		},
+		{
+			role_name: 'CanGetDynamicEntityRecord_cohort_reminder',
+			bank_id: space,
+			needed_for: 'Knowing which reminders it has already sent.'
+		},
+		{
+			role_name: 'CanUpdateDynamicEntityRecord_cohort_participant',
+			bank_id: space,
+			needed_for: "Recording the company a startup registers during onboarding."
 		},
 		{
 			role_name: 'CanCreateCustomer',

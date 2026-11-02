@@ -16,10 +16,12 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 import { createLogger } from '@obp/shared/utils';
-import { latestDecision } from '$lib/screening';
+import { decisionEmail } from '$lib/emails';
+import { latestDecision, nowUtc, type Decision, type DecisionStage } from '$lib/screening';
 import { requestApplicationAccessToken } from './applicationToken';
-import { SCREENING_DECISION } from './entities/definitions';
-import { listRecords, type CohortRecord } from './records';
+import { CALL, SCREENING_DECISION } from './entities/definitions';
+import { emailCustomer, pageUrl } from './notify';
+import { createRecord, getRecord, listRecords, type CohortRecord } from './records';
 
 const logger = createLogger('CohortDecisions');
 
@@ -50,4 +52,46 @@ export function forApplicant(decision: CohortRecord | undefined) {
 export async function outcomesForApplicant(applicationIds: string[]) {
 	const all = await decisionsAsCohort();
 	return Object.fromEntries(applicationIds.map((id) => [id, forApplicant(latestDecision(id, all))]));
+}
+
+/**
+ * Record a staff decision on a submitted application (a new, append-only record, as the staff member) and email the
+ * applicant's Customer the outcome and the message for them, never the reason. Throws when the decision cannot be
+ * recorded; a failed email is only logged (by emailCustomer).
+ */
+export async function recordDecision(args: {
+	applicationId: string;
+	application: CohortRecord;
+	stage: DecisionStage;
+	decision: Decision;
+	reason: string;
+	message: string;
+	username: string;
+	siteName: string;
+	token: string;
+}): Promise<void> {
+	const record: CohortRecord = {
+		application_id: args.applicationId,
+		call_id: String(args.application.call_id ?? ''),
+		decision: args.decision,
+		stage: args.stage,
+		reason: args.reason.trim(),
+		message_to_applicant: args.message.trim(),
+		decided_by_username: args.username,
+		decided_at: nowUtc()
+	};
+	await createRecord(SCREENING_DECISION, '', Object.fromEntries(Object.entries(record).filter(([, v]) => v !== '')), args.token);
+	const call = await getRecord(CALL, 'public', String(args.application.call_id)).catch(() => null);
+	await emailCustomer(
+		String(args.application.customer_id ?? ''),
+		decisionEmail({
+			site: args.siteName,
+			call: String(call?.title ?? ''),
+			startup: String(args.application.startup_name ?? ''),
+			link: pageUrl(`/applications/${args.applicationId}`),
+			decision: args.decision,
+			message: args.message.trim()
+		}),
+		`${SCREENING_DECISION}:${args.applicationId}`
+	);
 }

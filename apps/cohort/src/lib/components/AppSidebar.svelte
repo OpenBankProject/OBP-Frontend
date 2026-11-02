@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ChevronDown, ChevronRight, ClipboardCheck, FileText, Inbox, KeyRound, Map as MapIcon, Megaphone, MessagesSquare, Settings, Sparkles, UserCheck, Users } from '@lucide/svelte';
+	import { BellRing, ChartColumn, ChevronDown, ChevronRight, ClipboardCheck, ClipboardList, FileText, Inbox, KeyRound, Map as MapIcon, Megaphone, MessagesSquare, Rocket, Settings, UserCheck, UserRound, Users } from '@lucide/svelte';
 	import { t, type Locale, type MessageKey } from '$lib/i18n';
 
 	/**
@@ -10,6 +10,7 @@
 		locale,
 		path,
 		username,
+		isStaff = false,
 		mode = 'dark',
 		logoUrl,
 		darkLogoUrl
@@ -17,6 +18,8 @@
 		locale: Locale;
 		path: string;
 		username: string | null;
+		/** Holds a staff Role at the space: only then is the Staff section shown. */
+		isStaff?: boolean;
 		mode?: 'dark' | 'light';
 		logoUrl: string;
 		darkLogoUrl: string;
@@ -34,23 +37,28 @@
 	const allItems: Item[] = [
 		{ href: '/', label: 'nav_calls', icon: Megaphone, public: true },
 		{ href: '/applications', label: 'nav_my_applications', icon: FileText },
+		{ href: '/programme', label: 'nav_my_programme', icon: Rocket },
 		{ href: '/review', label: 'nav_review', icon: ClipboardCheck },
+		{ href: '/conversations', label: 'nav_my_conversations', icon: MessagesSquare },
 		{
 			href: '/staff',
 			label: 'nav_staff',
 			icon: Users,
 			children: [
+				{ href: '/staff/dashboard', label: 'nav_dashboard_staff', icon: ChartColumn },
 				{ href: '/staff/access', label: 'nav_access', icon: KeyRound },
 				{ href: '/staff/applications', label: 'nav_staff_applications', icon: Inbox },
 				{ href: '/staff/conversations', label: 'nav_conversations', icon: MessagesSquare },
+				{ href: '/staff/forms', label: 'nav_forms', icon: ClipboardList },
+				{ href: '/staff/participants', label: 'nav_participants', icon: UserRound },
 				{ href: '/staff/reviewers', label: 'nav_reviewers', icon: UserCheck },
-				{ href: '/staff/example-data', label: 'nav_example_data', icon: Sparkles },
+				{ href: '/staff/reminders', label: 'nav_reminders', icon: BellRing },
 				{ href: '/staff/setup', label: 'nav_setup', icon: Settings }
 			]
 		},
 		{ href: '/sitemap', label: 'nav_sitemap', icon: MapIcon, public: true }
 	];
-	const items = $derived(allItems.filter((i) => username || i.public));
+	const items = $derived(allItems.filter((i) => (username || i.public) && (i.href !== '/staff' || isStaff)));
 
 	const pathname = $derived(path.split('?')[0]);
 	const matches = (href: string) => (href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(href + '/'));

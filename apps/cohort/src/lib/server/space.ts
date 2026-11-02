@@ -21,3 +21,12 @@ import { env } from '$env/dynamic/private';
 export function cohortSpace(): string {
 	return env.OBP_ENTITY_SPACE_ID?.trim() || 'cohort';
 }
+
+/**
+ * The space holding the dynamic entities of published forms and their answers, apart from Cohort's own records, so
+ * the Roles that create and change dynamic entity definitions there reach nothing in Cohort's space. Answers refer
+ * to applications and participants in Cohort's space by id; nothing in Cohort's space refers here but the form record.
+ */
+export function cohortFormsSpace(): string {
+	return env.COHORT_FORMS_SPACE_ID?.trim() || `${cohortSpace()}-forms`;
+}

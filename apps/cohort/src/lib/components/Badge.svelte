@@ -10,13 +10,16 @@
 	const TONES: Record<string, string> = {
 		'status:draft': 'preset-tonal-surface',
 		'status:open': 'preset-tonal-success',
+		'status:published': 'preset-tonal-success',
 		'status:closed': 'preset-tonal-warning',
 		'status:submitted': 'preset-tonal-tertiary',
 		'eligibility:eligible': 'preset-tonal-success',
 		'eligibility:needs_review': 'preset-tonal-warning',
 		'decision:shortlisted': 'preset-tonal-success',
 		'decision:rejected': 'preset-tonal-error',
-		'decision:needs_info': 'preset-tonal-warning'
+		'decision:needs_info': 'preset-tonal-warning',
+		'decision:accepted': 'preset-tonal-success',
+		'decision:waitlisted': 'preset-tonal-warning'
 	};
 	const tone = $derived(TONES[`${kind}:${value}`] ?? 'preset-tonal-surface');
 </script>

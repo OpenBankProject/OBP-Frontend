@@ -17,6 +17,7 @@
  */
 import { error, fail } from '@sveltejs/kit';
 import { eligibilityOf, missingToSubmit, readApplicationForm } from '$lib/applications';
+import { answersOf, missingAnswers, readAnswers, type Form } from '$lib/forms';
 import { applicantMayEdit, latestDecision, nowUtc } from '$lib/screening';
 import { decisionsAsCohort, forApplicant } from '$lib/server/decisions';
 import { MAX_UPLOAD_BYTES, UPLOAD_MEDIA_TYPES, filesOfApplication, uploadApplicationFile } from '$lib/server/files';
@@ -26,6 +27,7 @@ import { getRecord, updateRecord, userToken } from '$lib/server/records';
 import { submittedEmail } from '$lib/emails';
 import { myCustomer } from '$lib/server/customers';
 import { emailCustomer, pageUrl } from '$lib/server/notify';
+import { applicationFormOf, listForms, myAnswers, writeMyAnswers } from '$lib/server/forms';
 import type { Actions, PageServerLoad } from './$types';
 
 /** The caller's own application: the 'my' URL only finds records the caller owns. */
@@ -42,21 +44,38 @@ async function latestFor(id: string) {
 	return latestDecision(id, await decisionsAsCohort());
 }
 
+/**
+ * The call's extra questions from the form builder: the form this application already answered, else the call's
+ * published application form, else none.
+ */
+async function extraForm(application: Record<string, unknown>): Promise<Form | null> {
+	const forms = await listForms().catch(() => []);
+	const answered = forms.find((f) => f.id === String(application.form_id ?? '') && f.status !== 'draft');
+	return answered ?? applicationFormOf(String(application.call_id), forms);
+}
+
 export const load: PageServerLoad = async ({ params, locals }) => {
-	const application = await myApplication(params.id, userToken(locals));
-	const [call, latest, files] = await Promise.all([
+	const token = userToken(locals)!;
+	const application = await myApplication(params.id, token);
+	const [call, latest, files, form] = await Promise.all([
 		getRecord(CALL, 'public', String(application.call_id)).catch(() => null),
 		latestFor(params.id),
-		filesOfApplication(params.id, userToken(locals)!).catch(() => [])
+		filesOfApplication(params.id, token).catch(() => []),
+		extraForm(application)
 	]);
+	const editable = applicantMayEdit(application, latest);
+	// A form published after this application was submitted was never asked of it.
+	const asked = form && (application.form_id || editable) ? form : null;
+	const mine = asked ? await myAnswers(asked, params.id, token).catch(() => null) : null;
 	return {
+		extra: asked ? { questions: asked.questions, answers: answersOf(asked.questions, mine?.record) } : null,
 		files,
 		uploadAccept: Object.values(UPLOAD_MEDIA_TYPES).join(','),
 		maxUploadBytes: MAX_UPLOAD_BYTES,
 		application,
 		callTitle: call ? String(call.title ?? '') : String(application.call_id),
 		outcome: forApplicant(latest),
-		editable: applicantMayEdit(application, latest)
+		editable
 	};
 };
 
@@ -80,24 +99,43 @@ export const actions: Actions = {
 		const token = userToken(locals)!;
 		const application = await myApplication(params.id, token);
 		if (!applicantMayEdit(application, await latestFor(params.id))) return fail(400, { submitted: true });
-		const values = readApplicationForm(await request.formData());
-		await updateRecord(APPLICATION, 'my', params.id, { call_id: application.call_id, customer_id: application.customer_id, status: 'draft', ...values }, token);
+		const data = await request.formData();
+		const values = readApplicationForm(data);
+		const form = await extraForm(application);
+		try {
+			if (form) await writeMyAnswers(form, params.id, String(values.startup_name ?? ''), readAnswers(form.questions, data), false, token);
+		} catch (err) {
+			return fail(400, { answersError: messageOf(err) });
+		}
+		await updateRecord(APPLICATION, 'my', params.id, { call_id: application.call_id, customer_id: application.customer_id, ...(form ? { form_id: form.id } : {}), status: 'draft', ...values }, token);
 		return { saved: true };
 	},
 	submit: async ({ params, locals, request }) => {
 		const token = userToken(locals)!;
 		const application = await myApplication(params.id, token);
 		if (!applicantMayEdit(application, await latestFor(params.id))) return fail(400, { submitted: true });
-		const values = readApplicationForm(await request.formData());
+		const data = await request.formData();
+		const values = readApplicationForm(data);
+		const form = await extraForm(application);
+		const answers = form ? readAnswers(form.questions, data) : {};
 		const missing = missingToSubmit(values);
-		if (missing.length > 0) {
+		const missingQuestions = form ? missingAnswers(form.questions, answers).map((q) => q.key) : [];
+		const formId = form ? { form_id: form.id } : {};
+		try {
+			// The answers are written first, so a submitted application always has them.
+			if (form) await writeMyAnswers(form, params.id, String(values.startup_name ?? ''), answers, missing.length === 0 && missingQuestions.length === 0, token);
+		} catch (err) {
+			return fail(400, { answersError: messageOf(err) });
+		}
+		if (missing.length > 0 || missingQuestions.length > 0) {
 			// Keep what was typed: save it as a draft, and say what is still missing.
-			await updateRecord(APPLICATION, 'my', params.id, { call_id: application.call_id, customer_id: application.customer_id, status: 'draft', ...values }, token);
-			return fail(400, { missing });
+			await updateRecord(APPLICATION, 'my', params.id, { call_id: application.call_id, customer_id: application.customer_id, ...formId, status: 'draft', ...values }, token);
+			return fail(400, { missing, missingQuestions });
 		}
 		await updateRecord(APPLICATION, 'my', params.id, {
 			call_id: application.call_id,
 			customer_id: application.customer_id,
+			...formId,
 			...values,
 			status: 'submitted',
 			eligibility: eligibilityOf(values),

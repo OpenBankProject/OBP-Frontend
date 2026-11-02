@@ -19,7 +19,7 @@ import { createLogger } from '@obp/shared/utils';
 import { cohortRequiredConsumerScopes } from '@obp/shared/obp';
 import { obpRequests } from './obp';
 import { consumerScopesCheck } from './consumerScopes';
-import { cohortSpace } from './space';
+import { cohortFormsSpace, cohortSpace } from './space';
 import { apiManagerUrl, createBankUrl, platformAppsUrl } from './appDirectory';
 import { entitiesStatus } from './entities/bootstrap';
 import { COHORT_ENTITIES } from './entities/definitions';
@@ -28,12 +28,13 @@ const logger = createLogger('CohortSetup');
 
 const SYSTEM_SPACE = 'SYS';
 const BANK_CACHE_MS = 60 * 1000;
-let bankChecked: { space: string; at: number; exists: boolean | null } | null = null;
+const bankChecked = new Map<string, { at: number; exists: boolean | null }>();
 
 /** Whether the space's bank exists: true, false, or null when OBP-API could not be asked. SYS always exists. */
 async function spaceExists(space: string): Promise<boolean | null> {
 	if (space === SYSTEM_SPACE) return true;
-	if (bankChecked && bankChecked.space === space && Date.now() - bankChecked.at < BANK_CACHE_MS) return bankChecked.exists;
+	const cached = bankChecked.get(space);
+	if (cached && Date.now() - cached.at < BANK_CACHE_MS) return cached.exists;
 	let exists: boolean | null;
 	try {
 		await obpRequests.get(`/obp/v5.1.0/banks/${encodeURIComponent(space)}`);
@@ -43,7 +44,7 @@ async function spaceExists(space: string): Promise<boolean | null> {
 		exists = err instanceof Error && /OBP-\d+/.test(err.message) ? false : null;
 		if (exists === null) logger.warn(`Could not check bank ${space}:`, err);
 	}
-	bankChecked = { space, at: Date.now(), exists };
+	bankChecked.set(space, { at: Date.now(), exists });
 	return exists;
 }
 
@@ -67,11 +68,15 @@ export async function setupStatus() {
 		? report.scopes.map((s) => ({ role_name: s.role_name, bank_id: s.bank_id, needed_for: s.needed_for,
 				held: report.state === 'unknown' ? null : s.held }))
 		: cohortRequiredConsumerScopes(space).map((s) => ({ ...s, held: null }));
-	const exists = await spaceExists(space);
+	const formsSpace = cohortFormsSpace();
+	const [exists, formsExists] = await Promise.all([spaceExists(space), spaceExists(formsSpace)]);
 	return {
 		space,
 		spaceExists: exists,
 		createBankUrl: manager && exists === false ? createBankUrl(manager, space) : null,
+		formsSpace,
+		formsSpaceExists: formsExists,
+		createFormsBankUrl: manager && formsExists === false ? createBankUrl(manager, formsSpace) : null,
 		consumerId,
 		declaration: consumerScopesCheck.getDeclaration(),
 		state: report?.state ?? 'unknown',
