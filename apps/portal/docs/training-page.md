@@ -43,7 +43,7 @@ The easiest way is the prefilled API Manager form:
 `<API_MANAGER_URL>/dynamic-entities/system/create?template=training-progress`
 (the Portal's missing-entity callout links there; the template lives in
 `apps/api-manager/src/lib/data/dynamicEntityTemplates.ts`). Equivalent raw API call
-(`POST /obp/v4.0.0/management/system-dynamic-entities`):
+(`POST /obp/v5.1.0/management/system-dynamic-entities`):
 
 ```json
 {

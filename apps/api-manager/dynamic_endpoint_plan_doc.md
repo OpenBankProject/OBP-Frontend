@@ -40,32 +40,32 @@ A Dynamic Endpoint is a Swagger/OpenAPI doc that OBP ingests. Each operation in 
 ## Relevant OBP endpoints (reference)
 
 ### Dynamic Endpoint (existing UI)
-- `POST /obp/v4.0.0/management/dynamic-endpoints` — role `CanCreateDynamicEndpoint`
-- `GET /obp/v4.0.0/management/dynamic-endpoints` — role `CanGetDynamicEndpoints`
-- `GET /obp/v4.0.0/management/dynamic-endpoints/{id}`
-- `DELETE /obp/v4.0.0/management/dynamic-endpoints/{id}` — role `CanDeleteDynamicEndpoint`
-- `PUT /obp/v4.0.0/management/dynamic-endpoints/{id}/host` — role `CanUpdateDynamicEndpoint`
+- `POST /obp/v5.1.0/management/dynamic-endpoints` — role `CanCreateDynamicEndpoint`
+- `GET /obp/v5.1.0/management/dynamic-endpoints` — role `CanGetDynamicEndpoints`
+- `GET /obp/v5.1.0/management/dynamic-endpoints/{id}`
+- `DELETE /obp/v5.1.0/management/dynamic-endpoints/{id}` — role `CanDeleteDynamicEndpoint`
+- `PUT /obp/v5.1.0/management/dynamic-endpoints/{id}/host` — role `CanUpdateDynamicEndpoint`
 - Bank-level equivalents under `/management/banks/{bank_id}/dynamic-endpoints/...`
 
 ### Method Routing
-- `POST /obp/v3.1.0/management/method_routings` — role `CanCreateMethodRouting`
-- `GET /obp/v3.1.0/management/method_routings`
-- `PUT /obp/v3.1.0/management/method_routings/{id}`
-- `DELETE /obp/v3.1.0/management/method_routings/{id}`
+- `POST /obp/v5.1.0/management/method_routings` — role `CanCreateMethodRouting`
+- `GET /obp/v5.1.0/management/method_routings`
+- `PUT /obp/v5.1.0/management/method_routings/{id}`
+- `DELETE /obp/v5.1.0/management/method_routings/{id}`
 - Helper: `GET /obp/v6.0.0/system/connector-method-names`
 - Fields: `method_name`, `connector_name`, `is_bank_id_exact_match`, `bank_id_pattern?`, `parameters[]`
 
 ### JSON Schema Validation (per operation_id)
-- `POST /obp/v4.0.0/management/json-schema-validations/{OPERATION_ID}` — role `CanCreateJsonSchemaValidation`
-- `GET /obp/v4.0.0/management/json-schema-validations/{OPERATION_ID}`
-- `PUT /obp/v4.0.0/management/json-schema-validations/{OPERATION_ID}`
-- `DELETE /obp/v4.0.0/management/json-schema-validations/{OPERATION_ID}`
-- `GET /obp/v4.0.0/management/json-schema-validations` — list all
-- `GET /obp/v4.0.0/endpoints/json-schema-validations` — public, no auth (useful for read-only preview)
+- `POST /obp/v5.1.0/management/json-schema-validations/{OPERATION_ID}` — role `CanCreateJsonSchemaValidation`
+- `GET /obp/v5.1.0/management/json-schema-validations/{OPERATION_ID}`
+- `PUT /obp/v5.1.0/management/json-schema-validations/{OPERATION_ID}`
+- `DELETE /obp/v5.1.0/management/json-schema-validations/{OPERATION_ID}`
+- `GET /obp/v5.1.0/management/json-schema-validations` — list all
+- `GET /obp/v5.1.0/endpoints/json-schema-validations` — public, no auth (useful for read-only preview)
 - Request body: a JSON Schema doc (draft-07 is the OBP example).
 
 ### Endpoint Mapping (for `host: dynamic_entity`)
-- `POST /obp/v4.0.0/management/endpoint-mappings` — role `CanCreateEndpointMapping`
+- `POST /obp/v5.1.0/management/endpoint-mappings` — role `CanCreateEndpointMapping`
 - plus GET/PUT/DELETE + bank-level equivalents
 
 ### Role names (to surface on the UI)

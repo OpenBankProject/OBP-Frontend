@@ -94,7 +94,7 @@
         (<a href="{ctx.apiExplorerUrl}/resource-docs?operationid=OBPv5.0.0-getViewsForBankAccount" target="_blank" rel="noopener noreferrer">see in API Explorer</a>){/if}:
     </p>
 
-    <CodeBlock code="GET /obp/v5.0.0/banks/BANK_ID/accounts/ACCOUNT_ID/views" />
+    <CodeBlock code="GET /obp/v5.1.0/banks/BANK_ID/accounts/ACCOUNT_ID/views" />
 
     <h3>Granting Access</h3>
 
