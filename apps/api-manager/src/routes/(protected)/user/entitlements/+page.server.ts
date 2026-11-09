@@ -67,7 +67,7 @@ export async function load({ locals }) {
         try {
             const consumer = await obp_requests.get('/obp/v6.0.0/consumers/current', accessToken);
             if (!consumer?.consumer_id) return null;
-            const scopesResponse = await obp_requests.get(`/obp/v4.0.0/consumers/${consumer.consumer_id}/scopes`, accessToken);
+            const scopesResponse = await obp_requests.get(`/obp/v5.1.0/consumers/${consumer.consumer_id}/scopes`, accessToken);
             return {
                 consumer_id: consumer.consumer_id,
                 app_name: consumer.app_name || '',

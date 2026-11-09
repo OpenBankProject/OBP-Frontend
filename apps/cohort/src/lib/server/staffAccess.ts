@@ -116,7 +116,7 @@ export async function staffAccess(token: string, extra: StaffRole[] = []) {
 	const space = cohortSpace();
 	const [user, requests, manager] = await Promise.all([
 		obpRequests.get('/obp/v5.1.0/users/current', token),
-		obpRequests.get('/obp/v3.0.0/my/entitlement-requests', token).catch(() => ({ entitlement_requests: [] })),
+		obpRequests.get('/obp/v5.1.0/my/entitlement-requests', token).catch(() => ({ entitlement_requests: [] })),
 		apiManagerUrl()
 	]);
 	const held: Grant[] = user?.entitlements?.list ?? [];
