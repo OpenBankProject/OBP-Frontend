@@ -69,7 +69,7 @@ export async function load(event: RequestEvent) {
 		});
 	}
 
-	const url = `/obp/v4.0.0/banks/${encodeURIComponent(bank_id)}/accounts/${encodeURIComponent(
+	const url = `/obp/v5.1.0/banks/${encodeURIComponent(bank_id)}/accounts/${encodeURIComponent(
 		account_id
 	)}/${encodeURIComponent(view_id)}/counterparties/${encodeURIComponent(counterparty_id)}`;
 
