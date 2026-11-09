@@ -67,7 +67,7 @@ export async function createCustomerForUser(
 	);
 	const customerId = String(created?.customer_id ?? '');
 	try {
-		await obpRequests.post(`/obp/v4.0.0/banks/${space()}/user_customer_links`, { user_id: userId, customer_id: customerId }, token);
+		await obpRequests.post(`/obp/v5.1.0/banks/${space()}/user_customer_links`, { user_id: userId, customer_id: customerId }, token);
 	} catch (err) {
 		// The Customer exists but belongs to nobody yet; link it by hand (Create User Customer Link) to reuse it.
 		logger.error(`Customer ${customerId} was created but not linked to User ${userId}:`, err);

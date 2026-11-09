@@ -48,7 +48,7 @@ export const GET: RequestHandler = async ({ locals, params }) => {
   try {
     logger.info(`Fetching customer account links for account: ${account_id} at bank: ${bank_id}`);
 
-    const endpoint = `/obp/v5.0.0/banks/${encodeURIComponent(bank_id)}/accounts/${encodeURIComponent(account_id)}/customer-account-links`;
+    const endpoint = `/obp/v5.1.0/banks/${encodeURIComponent(bank_id)}/accounts/${encodeURIComponent(account_id)}/customer-account-links`;
     const response = await obp_requests.get(endpoint, accessToken);
 
     const links = response.links || [];

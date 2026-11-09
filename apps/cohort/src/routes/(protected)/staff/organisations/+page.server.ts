@@ -53,7 +53,7 @@ interface Member {
 
 /** The Users linked to a Customer, with their usernames where the staff member may look Users up. */
 async function membersOf(customerId: string, token: string): Promise<Member[]> {
-	const response = await obpRequests.get(`/obp/v4.0.0/banks/${space()}/user_customer_links/customers/${encodeURIComponent(customerId)}`, token);
+	const response = await obpRequests.get(`/obp/v5.1.0/banks/${space()}/user_customer_links/customers/${encodeURIComponent(customerId)}`, token);
 	const links: Record<string, unknown>[] = response?.user_customer_links ?? [];
 	return Promise.all(
 		links.map(async (l) => {
@@ -123,7 +123,7 @@ export const actions: Actions = {
 				const customerId = encodeURIComponent(String(customer?.customer_id ?? ''));
 				const attributes = { [ORGANISATION_ATTRIBUTES.kind]: kind, [ORGANISATION_ATTRIBUTES.name_ar]: str(form, 'name_ar'), [ORGANISATION_ATTRIBUTES.website]: str(form, 'website') };
 				for (const [name, value] of Object.entries(attributes).filter(([, v]) => v !== '')) {
-					await obpRequests.post(`/obp/v4.0.0/banks/${space()}/customers/${customerId}/attribute`, { name, type: 'STRING', value }, token);
+					await obpRequests.post(`/obp/v5.1.0/banks/${space()}/customers/${customerId}/attribute`, { name, type: 'STRING', value }, token);
 				}
 			},
 			{ created: true }
@@ -144,12 +144,12 @@ export const actions: Actions = {
 			return fail(400, { form: 'member', error: `member_not_found`, detail: messageOf(err) });
 		}
 		if (!userId) return fail(400, { form: 'member', error: 'member_not_found' });
-		return write('member', () => obpRequests.post(`/obp/v4.0.0/banks/${space()}/user_customer_links`, { user_id: userId, customer_id: customerId }, token), { added: username });
+		return write('member', () => obpRequests.post(`/obp/v5.1.0/banks/${space()}/user_customer_links`, { user_id: userId, customer_id: customerId }, token), { added: username });
 	},
 	removeMember: async ({ locals, request }) => {
 		const linkId = str(await request.formData(), 'link_id');
 		if (!linkId) return fail(400, { form: 'member', error: 'member_missing' });
-		return write('member', () => obpRequests.delete(`/obp/v4.0.0/banks/${space()}/user_customer_links/${encodeURIComponent(linkId)}`, userToken(locals)!), { removed: true });
+		return write('member', () => obpRequests.delete(`/obp/v5.1.0/banks/${space()}/user_customer_links/${encodeURIComponent(linkId)}`, userToken(locals)!), { removed: true });
 	},
 	requestRole: async ({ locals, request }) => requestRole(await request.formData(), userToken(locals)!)
 };

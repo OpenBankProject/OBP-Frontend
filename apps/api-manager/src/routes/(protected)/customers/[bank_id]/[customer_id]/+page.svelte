@@ -148,7 +148,7 @@
 
     try {
       const res = await trackedFetch(
-        `/proxy/obp/v4.0.0/banks/${encodeURIComponent(bankId)}/customers/${encodeURIComponent(customerId)}/attribute`,
+        `/proxy/obp/v5.1.0/banks/${encodeURIComponent(bankId)}/customers/${encodeURIComponent(customerId)}/attribute`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

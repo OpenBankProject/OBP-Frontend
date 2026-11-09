@@ -353,7 +353,7 @@ for (const o of data.organisations ?? []) {
 		});
 		const customerId = encodeURIComponent(String(customer?.customer_id ?? ''));
 		for (const [name, value] of Object.entries({ organisation_kind: o.kind, name_ar: o.name_ar, website: o.website })) {
-			if (value) await obp('POST', `/obp/v4.0.0/banks/${space}/customers/${customerId}/attribute`, staff.token, { name, type: 'STRING', value });
+			if (value) await obp('POST', `/obp/v5.1.0/banks/${space}/customers/${customerId}/attribute`, staff.token, { name, type: 'STRING', value });
 		}
 		organisations.push(customer);
 		count('organisations', true);
@@ -484,7 +484,7 @@ for (const s of data.startups ?? []) {
 					customerId = customers[p.company.legal_name] = String(customer?.customer_id ?? '');
 					count('companies', true);
 					if (s.owner === 'startup') {
-						await obp('POST', `/obp/v4.0.0/banks/${space}/user_customer_links`, staff.token, { user_id: owner.user_id, customer_id: customerId }).catch((err) =>
+						await obp('POST', `/obp/v5.1.0/banks/${space}/user_customer_links`, staff.token, { user_id: owner.user_id, customer_id: customerId }).catch((err) =>
 							errors.push(`link ${p.company.legal_name}: ${err.message}`)
 						);
 					}
