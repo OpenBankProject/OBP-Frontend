@@ -49,7 +49,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 
   try {
     const queryString = url.searchParams.toString();
-    const endpoint = `/obp/v3.1.0/management/method_routings${queryString ? `?${queryString}` : ""}`;
+    const endpoint = `/obp/v5.1.0/management/method_routings${queryString ? `?${queryString}` : ""}`;
     logger.info(`Request: ${endpoint}`);
 
     let response;
@@ -183,7 +183,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
     logger.info("Transformed body for OBP:", obpBody);
 
-    const endpoint = `/obp/v3.1.0/management/method_routings`;
+    const endpoint = `/obp/v5.1.0/management/method_routings`;
     logger.info(`Request: POST ${endpoint}`);
 
     const response = await obp_requests.post(endpoint, obpBody, accessToken);
@@ -248,7 +248,7 @@ export const PUT: RequestHandler = async ({ request, locals }) => {
 
     logger.info("Transformed body for OBP:", obpBody);
 
-    const endpoint = `/obp/v3.1.0/management/method_routings/${methodRoutingId}`;
+    const endpoint = `/obp/v5.1.0/management/method_routings/${methodRoutingId}`;
     logger.info(`Request: PUT ${endpoint}`);
 
     const response = await obp_requests.put(endpoint, obpBody, accessToken);
@@ -284,7 +284,7 @@ export const DELETE: RequestHandler = async ({ locals, url }) => {
     return json({ message: "method_routing_id is required", code: 400 }, { status: 400 });
   }
   try {
-    await obp_requests.delete(`/obp/v3.1.0/management/method_routings/${encodeURIComponent(methodRoutingId)}`, accessToken);
+    await obp_requests.delete(`/obp/v5.1.0/management/method_routings/${encodeURIComponent(methodRoutingId)}`, accessToken);
     logger.info(`Deleted method routing ${methodRoutingId}`);
     return json({ deleted: methodRoutingId });
   } catch (err) {
