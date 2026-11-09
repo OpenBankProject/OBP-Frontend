@@ -56,7 +56,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
     let validations: Array<{ operation_id: string; json_schema: any }> = [];
     try {
       const resp = await obp_requests.get(
-        `/obp/v4.0.0/management/json-schema-validations`,
+        `/obp/v5.1.0/management/json-schema-validations`,
         accessToken,
       );
       validations = resp?.json_schema_validations || [];

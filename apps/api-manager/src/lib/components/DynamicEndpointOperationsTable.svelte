@@ -445,7 +445,7 @@
 
     try {
       const response = await fetch(
-        `/proxy/obp/v4.0.0/management/json-schema-validations/${encodeURIComponent(op.operationId)}`,
+        `/proxy/obp/v5.1.0/management/json-schema-validations/${encodeURIComponent(op.operationId)}`,
         {
           method,
           headers: { "Content-Type": "application/json" },
@@ -479,7 +479,7 @@
 
     try {
       const response = await fetch(
-        `/proxy/obp/v4.0.0/management/json-schema-validations/${encodeURIComponent(op.operationId)}`,
+        `/proxy/obp/v5.1.0/management/json-schema-validations/${encodeURIComponent(op.operationId)}`,
         { method: "DELETE", credentials: "include" },
       );
 
