@@ -78,7 +78,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
     }> = [];
     try {
       const resp = await obp_requests.get(
-        `/obp/v4.0.0/management/banks/${bank_id}/endpoint-mappings`,
+        `/obp/v5.1.0/management/banks/${bank_id}/endpoint-mappings`,
         accessToken,
       );
       mappings = resp?.["endpoint-mappings"] || [];
