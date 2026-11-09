@@ -27,7 +27,7 @@ import {
 import { explorerResourceDocUrl } from "$lib/server/glossaryCache";
 
 const ENDPOINTS = [
-  { operation_id: "OBPv2.2.0-getMessageDocs", verb: "GET", path: "/obp/v2.2.0/message-docs/CONNECTOR" },
+  { operation_id: "OBPv2.2.0-getMessageDocs", verb: "GET", path: "/obp/v5.1.0/message-docs/CONNECTOR" },
 ];
 
 export const load: PageServerLoad = async ({ locals, params }) => {

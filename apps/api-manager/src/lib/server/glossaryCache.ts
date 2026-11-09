@@ -21,14 +21,14 @@ import { env } from "$env/dynamic/private";
 
 const logger = createLogger("GlossaryCache");
 
-/** One item of GET /obp/v4.0.0/api/glossary. */
+/** One item of GET /obp/v5.1.0/api/glossary. */
 export interface GlossaryItem {
   title: string;
   description: { markdown: string; html: string };
 }
 
 const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes: the glossary only changes on an OBP-API deploy
-const GLOSSARY_PATH = "/obp/v4.0.0/api/glossary";
+const GLOSSARY_PATH = "/obp/v5.1.0/api/glossary";
 const DEFAULT_EXPLORER_URL = "https://apiexplorer-ii-sandbox.openbankproject.com";
 
 let items: GlossaryItem[] = [];
