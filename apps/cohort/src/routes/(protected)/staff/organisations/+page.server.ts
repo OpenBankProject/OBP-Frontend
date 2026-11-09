@@ -24,6 +24,7 @@ import { idOf, listRecords, userToken } from '$lib/server/records';
 import { cohortSpace } from '$lib/server/space';
 import { staffAccess } from '$lib/server/staffAccess';
 import { requestRole, write } from '$lib/server/staffRecords';
+import { userIdByUsername } from '$lib/server/users';
 import type { Actions, PageServerLoad } from './$types';
 
 /**
@@ -138,8 +139,7 @@ export const actions: Actions = {
 		if (!customerId || !username) return fail(400, { form: 'member', error: 'member_missing' });
 		let userId: string;
 		try {
-			const user = await obpRequests.get(`/obp/v3.0.0/users/username/${encodeURIComponent(username)}`, token);
-			userId = String(user?.user_id ?? '');
+			userId = await userIdByUsername(username, token);
 		} catch (err) {
 			return fail(400, { form: 'member', error: `member_not_found`, detail: messageOf(err) });
 		}

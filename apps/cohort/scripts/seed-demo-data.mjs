@@ -222,8 +222,10 @@ async function loginValidated(username, password) {
 		return await login(username, password);
 	} catch (err) {
 		if (!superuser || !String(err?.message).includes('OBP-20073')) throw err;
-		const user = await obp('GET', `/obp/v3.0.0/users/username/${encodeURIComponent(username)}`, superuser.token);
-		await obp('PUT', `/obp/v5.1.0/management/users/${encodeURIComponent(user.user_id)}`, superuser.token);
+		const found = await obp('GET', `/obp/v7.0.0/users?username=${encodeURIComponent(username)}`, superuser.token);
+		const users = (found?.users ?? []).filter((u) => u?.username === username && u?.user_id);
+		if (users.length !== 1) throw new Error(`Expected one user with username ${username}, found ${users.length}`);
+		await obp('PUT', `/obp/v5.1.0/management/users/${encodeURIComponent(users[0].user_id)}`, superuser.token);
 		console.log(`Validated the email of ${username}`);
 		return login(username, password);
 	}
