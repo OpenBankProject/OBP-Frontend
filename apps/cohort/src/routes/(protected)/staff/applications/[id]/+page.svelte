@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { APPLICATION_FIELDS } from '$lib/applications';
+	import BookmarkButton from '$lib/components/BookmarkButton.svelte';
 	import FormAnswers from '$lib/components/FormAnswers.svelte';
 	import MissingRole from '$lib/components/MissingRole.svelte';
 	import FileList from '$lib/components/FileList.svelte';
@@ -16,12 +17,15 @@
 </script>
 
 <p><a class="anchor" href="/staff">{t(locale, 'staff_heading')}</a></p>
-<h1 class="h2">{value('startup_name') || t(locale, 'application_heading')}</h1>
+<div class="flex flex-wrap items-start justify-between gap-2">
+	<h1 class="h2">{value('startup_name') || t(locale, 'application_heading')}</h1>
+	<BookmarkButton {locale} kind="application" targetId={data.applicationId} label={value('startup_name') || data.callTitle} path="/staff/applications/{data.applicationId}" bookmarkId={data.bookmarkId} />
+</div>
 <p class="mt-1">{t(locale, 'application_call')}: {data.callTitle}</p>
 <p>
 	{t(locale, 'application_status')}: {t(locale, `status_${value('status') || 'draft'}` as MessageKey)}
 	{#if application.eligibility} · {t(locale, 'application_eligibility')}: {t(locale, `eligibility_${value('eligibility')}` as MessageKey)}{/if}
-	{#if application.submitted_at} · {t(locale, 'application_submitted_at')}: {value('submitted_at')}{/if}
+	{#if application.submitted_at} · {t(locale, 'application_submitted_at')}: {value('submitted_at').slice(0, 10)}{/if}
 </p>
 
 <dl class="mt-4 grid grid-cols-[max-content_1fr] gap-x-4 gap-y-2" data-testid="staff-application-fields">

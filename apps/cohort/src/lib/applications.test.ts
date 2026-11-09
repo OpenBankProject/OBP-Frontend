@@ -16,7 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 import { describe, expect, it } from 'vitest';
-import { eligibilityOf, isCallOpen, missingToSubmit, readApplicationForm } from './applications';
+import { eligibilityOf, eligibilityRulesOf, isCallOpen, missingToSubmit, readApplicationForm, unmetRules } from './applications';
 
 function form(entries: Record<string, string>): FormData {
 	const f = new FormData();
@@ -38,6 +38,26 @@ describe('missingToSubmit', () => {
 		expect(missingToSubmit({ startup_name: 'X', sector: 'payments', stage: 'mvp', problem_statement: 'p', solution: 's' })).toEqual([
 			'market_understanding'
 		]);
+	});
+});
+
+describe('eligibility rules of a call', () => {
+	it('reads the rules from the call, with the default for anything unset or unknown', () => {
+		expect(eligibilityRulesOf({})).toEqual({ residency: 'resident_or_incorporated', min_team_size: null, stages: [] });
+		expect(eligibilityRulesOf({ eligibility_residency: 'resident', eligibility_min_team_size: 2, eligibility_stages: 'mvp, growth,unicorn' })).toEqual({
+			residency: 'resident',
+			min_team_size: 2,
+			stages: ['mvp', 'growth']
+		});
+		expect(eligibilityRulesOf({ eligibility_residency: 'martian', eligibility_min_team_size: 0 })).toMatchObject({ residency: 'resident_or_incorporated', min_team_size: null });
+	});
+
+	it('lists the rules an application does not meet', () => {
+		const rules = eligibilityRulesOf({ eligibility_residency: 'incorporated', eligibility_min_team_size: 3, eligibility_stages: 'mvp,early_revenue' });
+		expect(unmetRules({ incorporated_locally: true, team_size: 3, stage: 'mvp' }, rules)).toEqual([]);
+		expect(unmetRules({ local_resident: true, team_size: 2, stage: 'idea' }, rules)).toEqual(['residency', 'team_size', 'stage']);
+		expect(unmetRules({}, eligibilityRulesOf({ eligibility_residency: 'none' }))).toEqual([]);
+		expect(eligibilityOf({ incorporated_locally: true, team_size: 1, stage: 'mvp' }, rules)).toBe('needs_review');
 	});
 });
 

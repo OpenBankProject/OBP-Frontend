@@ -16,6 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 import { createLogger } from '@obp/shared/utils';
+import { riskOf, type RiskLevel } from '$lib/dashboard';
 import { nowUtc } from '$lib/screening';
 import { requestApplicationAccessToken } from './applicationToken';
 import { CALL, PARTICIPANT } from './entities/definitions';
@@ -45,6 +46,8 @@ export interface Participant {
 	status: string;
 	joined_at: string;
 	graduated_at: string;
+	risk: RiskLevel;
+	risk_note: string;
 }
 
 export function participantOf(record: CohortRecord): Participant {
@@ -59,7 +62,9 @@ export function participantOf(record: CohortRecord): Participant {
 		stage: String(record.stage ?? ''),
 		status: String(record.status ?? ''),
 		joined_at: String(record.joined_at ?? ''),
-		graduated_at: String(record.graduated_at ?? '')
+		graduated_at: String(record.graduated_at ?? ''),
+		risk: riskOf(record.risk),
+		risk_note: String(record.risk_note ?? '')
 	};
 }
 

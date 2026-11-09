@@ -1,4 +1,5 @@
 <script lang="ts">
+	import StagesEditor from './StagesEditor.svelte';
 	import { t, type Locale, type MessageKey } from '$lib/i18n';
 
 	/** The cohort_programme form fields, for creating and editing. `values` is the record being edited, if any. */
@@ -13,3 +14,4 @@
 	<select class="select" name="status">{#each statuses as s (s)}<option value={s} selected={s === v('status')}>{t(locale, `status_${s}` as MessageKey)}</option>{/each}</select></label>
 <label class="label"><span class="label-text">{t(locale, 'staff_field_starts_on')}</span><input class="input" type="date" name="starts_on" value={v('starts_on')} /></label>
 <label class="label"><span class="label-text">{t(locale, 'staff_field_ends_on')}</span><input class="input" type="date" name="ends_on" value={v('ends_on')} /></label>
+<StagesEditor {locale} {values} />

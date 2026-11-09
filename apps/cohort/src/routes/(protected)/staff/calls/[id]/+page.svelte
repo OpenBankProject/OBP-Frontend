@@ -64,7 +64,7 @@
 					<tr>
 						<td><a class="anchor" href="/staff/applications/{a.id}">{a.startup_name || a.id}</a></td>
 						<td><Badge {locale} kind="status" value={a.status} /></td>
-						<td>{a.submitted_at}</td>
+						<td>{a.submitted_at.slice(0, 10)}</td>
 						<td><Badge {locale} kind="decision" value={a.decision} /></td>
 					</tr>
 				{/each}

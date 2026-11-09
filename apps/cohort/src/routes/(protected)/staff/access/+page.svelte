@@ -27,7 +27,7 @@
 		{#each data.roles as role (role.role_name)}
 			<tr data-testid="access-role-{role.role_name}">
 				<td><code>{role.role_name}</code></td>
-				<td><code>{role.bank_id}</code></td>
+				<td>{#if role.bank_id}<code>{role.bank_id}</code>{:else}{t(locale, 'missing_role_system')}{/if}</td>
 				<td>{t(locale, role.purpose as MessageKey)}</td>
 				<td>
 					{#if role.held}

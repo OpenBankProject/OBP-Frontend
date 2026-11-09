@@ -149,6 +149,49 @@ export const LIVE_TAGS: LiveTagDefinition[] = [
 			'obp-glossary-link'
 		],
 		example: '<obp-glossary title="Consent" mode="summary"></obp-glossary>'
+	},
+	{
+		tag: 'obp-calls',
+		description:
+			'The open calls for applications, as cards linking to each call. Only on a site that runs programmes (Cohort); elsewhere it shows nothing.',
+		attributes: [
+			{ name: 'programme', description: 'Only the calls of the programme with this name.' },
+			{ name: 'limit', description: 'Maximum number of calls.', default: '6' },
+			{ name: 'empty', description: 'Text shown when no call is open.' },
+			{ name: 'link-label', description: 'Text of the link to a call, e.g. in the page\'s language.', default: 'View call' },
+			{ name: 'opens-label', description: 'Word before the opening date.', default: 'Opens' },
+			{ name: 'closes-label', description: 'Word before the closing date.', default: 'Closes' }
+		],
+		classes: [
+			'obp-calls',
+			'obp-calls--empty',
+			'obp-calls-empty',
+			'obp-call-card',
+			'obp-call-programme',
+			'obp-call-title',
+			'obp-call-description',
+			'obp-call-dates',
+			'obp-call-link'
+		],
+		example: '<obp-calls limit="3" empty="No calls are open at the moment."></obp-calls>'
+	},
+	{
+		tag: 'obp-programmes',
+		description:
+			'The programmes, as numbered cards with name, description and dates. Lines of a description starting with "- " show as a list. Only on a site that runs programmes (Cohort).',
+		attributes: [{ name: 'limit', description: 'Maximum number of programmes.', default: '6' }],
+		classes: [
+			'obp-programmes',
+			'obp-programmes--empty',
+			'obp-programme-card',
+			'obp-programme-number',
+			'obp-programme-name',
+			'obp-programme-description',
+			'obp-programme-text',
+			'obp-programme-text-list',
+			'obp-programme-dates'
+		],
+		example: '<obp-programmes limit="4"></obp-programmes>'
 	}
 ];
 

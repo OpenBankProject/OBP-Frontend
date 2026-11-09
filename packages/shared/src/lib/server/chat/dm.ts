@@ -15,10 +15,13 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-import { obp_requests } from '$lib/obp/requests';
-import { createLogger } from '@obp/shared/utils';
+import { createLogger } from '$shared/utils/logger';
+import { chatApiPaths } from '$shared/chat/paths';
+import type { ChatObp } from './pages';
 
 const logger = createLogger('StartDm');
+// Direct messages are system rooms: only those can be found by their participants (chat-rooms/search).
+const paths = chatApiPaths({ kind: 'system' });
 
 /**
  * Find or create the 1-on-1 chat room between the current user and the target
@@ -33,12 +36,13 @@ const logger = createLogger('StartDm');
  * /user/chat/dm/[user_id] deep link (cross-app, e.g. from API Manager).
  */
 export async function findOrCreateDm(
+	obp: ChatObp,
 	accessToken: string,
 	currentUserId: string,
 	targetUserId: string
 ): Promise<string> {
-	const searchResponse = await obp_requests.post(
-		'/obp/v6.0.0/chat-rooms/search',
+	const searchResponse = await obp.post(
+		paths.search,
 		{ with_user_ids: [targetUserId], exact_participants: true },
 		accessToken
 	);
@@ -48,8 +52,8 @@ export async function findOrCreateDm(
 		return existing[0].chat_room_id;
 	}
 
-	const newRoom = await obp_requests.post(
-		'/obp/v6.0.0/chat-rooms',
+	const newRoom = await obp.post(
+		paths.rooms,
 		{
 			name: `dm-${currentUserId}-${targetUserId}-${Date.now()}`,
 			description: ''
@@ -63,8 +67,8 @@ export async function findOrCreateDm(
 	}
 
 	if (targetUserId !== currentUserId) {
-		await obp_requests.post(
-			`/obp/v6.0.0/chat-rooms/${newRoomId}/participants`,
+		await obp.post(
+			paths.participants(newRoomId),
 			{ user_id: targetUserId },
 			accessToken
 		);
@@ -77,8 +81,8 @@ export async function findOrCreateDm(
 	// (usernames are not unique across providers), suffix a slice of the room id.
 	// If renaming fails altogether the generated name simply remains.
 	try {
-		const participantsResponse = await obp_requests.get(
-			`/obp/v6.0.0/chat-rooms/${newRoomId}/participants`,
+		const participantsResponse = await obp.get(
+			paths.participants(newRoomId),
 			accessToken
 		);
 		const usernames = (participantsResponse.participants || [])
@@ -87,15 +91,15 @@ export async function findOrCreateDm(
 		if (usernames.length > 0) {
 			const friendly = usernames.join(' & ');
 			try {
-				await obp_requests.put(
-					`/obp/v6.0.0/chat-rooms/${newRoomId}`,
+				await obp.put(
+					paths.room(newRoomId),
 					{ name: friendly, description: '' },
 					accessToken
 				);
 			} catch {
-				await obp_requests
+				await obp
 					.put(
-						`/obp/v6.0.0/chat-rooms/${newRoomId}`,
+						paths.room(newRoomId),
 						{ name: `${friendly} #${newRoomId.slice(0, 4)}`, description: '' },
 						accessToken
 					)

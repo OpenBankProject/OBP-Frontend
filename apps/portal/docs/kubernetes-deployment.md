@@ -56,6 +56,9 @@ data:
   
   # Opey Integration
   OPEY_URL: "http://opey-service:5000"
+  # The Portal's own focus for Opey, appended after Opey's per-instance OPEY_SUPPLEMENTARY_PROMPT
+  # (or OPEY_APP_SUPPLEMENTARY_PROMPT_FILE, e.g. a mounted ConfigMap)
+  # OPEY_APP_SUPPLEMENTARY_PROMPT: "Focus on helping developers find and call the APIs."
   
   # Analytics
   ENABLE_ANALYTICS: "false"

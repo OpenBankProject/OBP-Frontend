@@ -16,7 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 import { error, fail } from '@sveltejs/kit';
-import { eligibilityOf, missingToSubmit, readApplicationForm } from '$lib/applications';
+import { eligibilityOf, eligibilityRulesOf, missingToSubmit, readApplicationForm } from '$lib/applications';
 import { answersOf, missingAnswers, readAnswers, type Form } from '$lib/forms';
 import { applicantMayEdit, latestDecision, nowUtc } from '$lib/screening';
 import { decisionsAsCohort, forApplicant } from '$lib/server/decisions';
@@ -28,6 +28,7 @@ import { submittedEmail } from '$lib/emails';
 import { myCustomer } from '$lib/server/customers';
 import { emailCustomer, pageUrl } from '$lib/server/notify';
 import { applicationFormOf, listForms, myAnswers, writeMyAnswers } from '$lib/server/forms';
+import { emailSettings } from '$lib/server/emailSettings';
 import type { Actions, PageServerLoad } from './$types';
 
 /** The caller's own application: the 'my' URL only finds records the caller owns. */
@@ -132,20 +133,21 @@ export const actions: Actions = {
 			await updateRecord(APPLICATION, 'my', params.id, { call_id: application.call_id, customer_id: application.customer_id, ...formId, status: 'draft', ...values }, token);
 			return fail(400, { missing, missingQuestions });
 		}
+		// Checked against the call's own eligibility rules; without the call, the default rules.
+		const call = await getRecord(CALL, 'public', String(application.call_id)).catch(() => null);
 		await updateRecord(APPLICATION, 'my', params.id, {
 			call_id: application.call_id,
 			customer_id: application.customer_id,
 			...formId,
 			...values,
 			status: 'submitted',
-			eligibility: eligibilityOf(values),
+			eligibility: eligibilityOf(values, eligibilityRulesOf(call)),
 			submitted_at: nowUtc()
 		}, token);
-		const call = await getRecord(CALL, 'public', String(application.call_id)).catch(() => null);
 		// Applications started before applicants became Customers have no customer_id; theirs is looked up.
 		const customerId =
 			String(application.customer_id ?? '') || (await myCustomer(token).catch(() => null))?.customer_id || '';
-		await emailCustomer(
+		if ((await emailSettings()).submitted) await emailCustomer(
 			customerId,
 			submittedEmail({
 				site: locals.branding.name || 'Cohort',

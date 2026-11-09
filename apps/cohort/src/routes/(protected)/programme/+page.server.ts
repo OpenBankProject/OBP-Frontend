@@ -19,12 +19,16 @@ import { fail } from '@sveltejs/kit';
 import { milestoneProgress, todayUtc } from '$lib/milestones';
 import { nowUtc } from '$lib/screening';
 import { attended, byStart, nowLocal } from '$lib/sessions';
+import { stageName, stagesOf } from '$lib/stages';
 import { CALL, MILESTONE_REPORT, PROGRAMME, SESSION_BOOKING } from '$lib/server/entities/definitions';
 import { attendanceOfParticipants, bookingOf, seatsTaken, sessionsOfProgrammes } from '$lib/server/sessions';
 import { messageOf } from '$lib/server/errors';
 import { MAX_UPLOAD_BYTES, UPLOAD_MEDIA_TYPES, uploadRecordFile } from '$lib/server/files';
 import { milestonesOf, reports, reviewsOfParticipants } from '$lib/server/milestones';
 import { listForms, myAnswers } from '$lib/server/forms';
+import { announcementsFor } from '$lib/announcements';
+import { allAnnouncements } from '$lib/server/announcements';
+import { allSlots, feedbackOfParticipants } from '$lib/server/demoDay';
 import { formTitle } from '$lib/forms';
 import { participantsOfUser, registerCompany } from '$lib/server/participants';
 import { createRecord, deleteRecord, getRecord, idOf, listRecords, userToken } from '$lib/server/records';
@@ -36,14 +40,17 @@ export const load: PageServerLoad = async ({ locals }) => {
 	const participants = await participantsOfUser(userId);
 	// The startup's own reports (/my/), and the reviews of them, read by Cohort narrowed to its own participants.
 	const participantIds = participants.map((p) => p.id);
-	const [myReports, myReviews, sessions, taken, myBookings, myAttendance, forms] = await Promise.all([
+	const [myReports, myReviews, sessions, taken, myBookings, myAttendance, forms, announcements, demoSlots, pitchFeedback] = await Promise.all([
 		reports('my', userToken(locals)!).catch(() => []),
 		reviewsOfParticipants(participantIds),
 		sessionsOfProgrammes(participants.map((p) => p.programme_id)),
 		seatsTaken(),
 		listRecords(SESSION_BOOKING, 'my', userToken(locals)!).then((r) => r.map(bookingOf)).catch(() => []),
 		attendanceOfParticipants(participantIds),
-		listForms().catch(() => [])
+		listForms().catch(() => []),
+		allAnnouncements(),
+		allSlots(),
+		feedbackOfParticipants(participantIds)
 	]);
 	const now = nowLocal();
 	const today = todayUtc();
@@ -83,13 +90,21 @@ export const load: PageServerLoad = async ({ locals }) => {
 					return { ...m, status: progress.status, behind: progress.behind, message: progress.latestReview?.message_to_startup ?? '' };
 				}),
 				programme_name: String(programme?.name ?? ''),
+				stage_name: stageName(locals.locale, p.stage, stagesOf(programme)),
+				// Its pitch slots on demo days, with the session's title and time, and the feedback on its pitches.
+				demo_slots: demoSlots
+					.filter((slot) => slot.participant_id === p.id)
+					.map((slot) => ({ ...slot, session: sessions.find((s) => s.id === slot.session_id) }))
+					.filter((slot) => slot.session)
+					.map((slot) => ({ id: slot.id, session_id: slot.session_id, title: slot.session!.title, date: slot.session!.starts_at.slice(0, 10), starts_at: slot.starts_at, position: slot.position })),
+				pitch_feedback: pitchFeedback.filter((f) => f.participant_id === p.id).map((f) => ({ id: f.id, feedback: f.feedback, given_at: f.given_at })),
 				programme_starts_on: String(programme?.starts_on ?? ''),
 				programme_ends_on: String(programme?.ends_on ?? ''),
 				call_title: String(call?.title ?? '')
 			};
 		})
 	);
-	return { programmes, uploadAccept: Object.values(UPLOAD_MEDIA_TYPES).join(',') };
+	return { programmes, announcements: participants.length ? announcementsFor(announcements, participants.map((p) => p.programme_id)).slice(0, 10) : [], uploadAccept: Object.values(UPLOAD_MEDIA_TYPES).join(',') };
 };
 
 const str = (form: FormData, key: string) => String(form.get(key) ?? '').trim();

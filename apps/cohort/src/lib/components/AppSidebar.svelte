@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { BellRing, ChartColumn, ChevronDown, ChevronRight, ClipboardCheck, ClipboardList, FileText, Inbox, KeyRound, Map as MapIcon, Megaphone, MessagesSquare, Rocket, Settings, UserCheck, UserRound, Users } from '@lucide/svelte';
+	import { Archive, Bell, BellRing, Bookmark as BookmarkIcon, Building2, ChartColumn, ChevronDown, ChevronRight, ClipboardCheck, ClipboardList, FileText, MessageCircle, Newspaper, Inbox, KeyRound, Map as MapIcon, Megaphone, MessagesSquare, Rocket, Settings, UserCheck, UserRound, Users } from '@lucide/svelte';
 	import { t, type Locale, type MessageKey } from '$lib/i18n';
 
 	/**
@@ -13,7 +13,8 @@
 		isStaff = false,
 		mode = 'dark',
 		logoUrl,
-		darkLogoUrl
+		darkLogoUrl,
+		pages = []
 	}: {
 		locale: Locale;
 		path: string;
@@ -23,11 +24,15 @@
 		mode?: 'dark' | 'light';
 		logoUrl: string;
 		darkLogoUrl: string;
+		/** The pages published to Cohort with App Studio, in menu order: shown to everyone, after Calls. */
+		pages?: { slug: string; title: string }[];
 	} = $props();
 
 	interface Item {
 		href: string;
 		label: MessageKey;
+		/** Text shown instead of the label's message, for a page's own title. */
+		text?: string;
 		icon: typeof FileText;
 		public?: boolean;
 		/** A sub menu, as in the API Manager: shown under the item, open while one of its pages is shown. */
@@ -36,10 +41,13 @@
 
 	const allItems: Item[] = [
 		{ href: '/', label: 'nav_calls', icon: Megaphone, public: true },
+		{ href: '/updates', label: 'nav_updates', icon: Bell },
 		{ href: '/applications', label: 'nav_my_applications', icon: FileText },
+		{ href: '/saved', label: 'nav_saved', icon: BookmarkIcon },
 		{ href: '/programme', label: 'nav_my_programme', icon: Rocket },
 		{ href: '/review', label: 'nav_review', icon: ClipboardCheck },
 		{ href: '/conversations', label: 'nav_my_conversations', icon: MessagesSquare },
+		{ href: '/discussions', label: 'nav_discussions', icon: MessageCircle },
 		{
 			href: '/staff',
 			label: 'nav_staff',
@@ -51,14 +59,20 @@
 				{ href: '/staff/conversations', label: 'nav_conversations', icon: MessagesSquare },
 				{ href: '/staff/forms', label: 'nav_forms', icon: ClipboardList },
 				{ href: '/staff/participants', label: 'nav_participants', icon: UserRound },
+				{ href: '/staff/organisations', label: 'nav_organisations', icon: Building2 },
 				{ href: '/staff/reviewers', label: 'nav_reviewers', icon: UserCheck },
+				{ href: '/staff/announcements', label: 'nav_announcements', icon: Newspaper },
 				{ href: '/staff/reminders', label: 'nav_reminders', icon: BellRing },
+				{ href: '/staff/retention', label: 'nav_retention', icon: Archive },
 				{ href: '/staff/setup', label: 'nav_setup', icon: Settings }
 			]
 		},
 		{ href: '/sitemap', label: 'nav_sitemap', icon: MapIcon, public: true }
 	];
-	const items = $derived(allItems.filter((i) => (username || i.public) && (i.href !== '/staff' || isStaff)));
+	const pageItems = $derived(pages.map((p): Item => ({ href: `/pages/${p.slug}`, label: 'nav_pages', text: p.title, icon: FileText, public: true })));
+	const items = $derived(
+		[allItems[0], ...pageItems, ...allItems.slice(1)].filter((i) => (username || i.public) && (i.href !== '/staff' || isStaff))
+	);
 
 	const pathname = $derived(path.split('?')[0]);
 	const matches = (href: string) => (href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(href + '/'));
@@ -79,7 +93,7 @@
 	{@const Icon = item.icon}
 	<a
 		href={item.href}
-		class="btn w-full justify-start gap-3 {size}"
+		class="btn h-auto w-full min-w-0 justify-start gap-3 text-start whitespace-normal {size}"
 		class:preset-filled-primary-50-950={current === item.href}
 		class:border={current === item.href}
 		class:border-secondary-500={current === item.href}
@@ -87,11 +101,11 @@
 		data-testid="nav-{item.href === '/' ? 'calls' : item.href.slice(1).replace('/', '-')}"
 	>
 		<Icon class="size-5 shrink-0" aria-hidden="true" />
-		<span>{t(locale, item.label)}</span>
+		<span class="min-w-0 break-words">{item.text ?? t(locale, item.label)}</span>
 	</a>
 {/snippet}
 
-<aside class="flex flex-col gap-4 border-e border-surface-100-900 bg-primary-50 p-3 md:overflow-y-auto dark:bg-primary-950">
+<aside class="flex flex-col gap-4 border-e border-surface-100-900 bg-primary-50 p-3 md:overflow-x-hidden md:overflow-y-auto dark:bg-primary-950">
 	<a href="/" class="px-3 pt-2" data-testid="brand">
 		<img src={mode === 'dark' ? darkLogoUrl : logoUrl} alt={t(locale, 'nav_home')} class="w-40" />
 	</a>
@@ -104,7 +118,7 @@
 						{#if item.children}
 							<button
 								type="button"
-								class="btn-icon btn-icon-sm"
+								class="btn-icon btn-icon-sm shrink-0"
 								aria-expanded={isOpen(item)}
 								aria-label={t(locale, isOpen(item) ? 'nav_close_menu' : 'nav_open_menu')}
 								onclick={() => (toggled[item.href] = !isOpen(item))}

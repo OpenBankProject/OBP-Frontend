@@ -17,7 +17,8 @@
  */
 import { json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { findOrCreateDm } from "$lib/chat/startDm";
+import { findOrCreateDm } from "@obp/shared/server/chat";
+import { obp_requests } from "$lib/obp/requests";
 import { obpErrorResponse } from "@obp/shared/obp";
 import { createLogger } from "@obp/shared/utils";
 
@@ -29,7 +30,7 @@ const logger = createLogger("StartDmAPI");
  * Body: { "user_id": "<target user_id>" }
  * Returns: { "chat_room_id": "<id>" }
  *
- * The find-or-create logic lives in $lib/chat/startDm, shared with the
+ * The find-or-create logic lives in @obp/shared/server/chat, shared with the
  * /user/chat/dm/[user_id] deep link.
  */
 export const POST: RequestHandler = async ({ locals, request }) => {
@@ -54,7 +55,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
   }
 
   try {
-    const chatRoomId = await findOrCreateDm(accessToken, currentUserId, targetUserId);
+    const chatRoomId = await findOrCreateDm(obp_requests, accessToken, currentUserId, targetUserId);
     return json({ chat_room_id: chatRoomId });
   } catch (err: unknown) {
     logger.error("Error starting DM:", err);

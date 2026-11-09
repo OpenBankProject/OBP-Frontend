@@ -21,7 +21,7 @@
  * staff record. starts_at is YYYY-MM-DDTHH:MM in the programme's local time, so it sorts and compares as text.
  */
 
-export const SESSION_KINDS = ['mentoring', 'workshop', 'demo_day'] as const;
+export const SESSION_KINDS = ['mentoring', 'workshop', 'office_hours', 'demo_day'] as const;
 
 export interface Session {
 	id: string;

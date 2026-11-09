@@ -96,6 +96,11 @@ export const REQUIRED_CONSUMER_SCOPES: Record<Exclude<PlatformApp, 'cohort'>, Re
 export function cohortRequiredConsumerScopes(space: string): RequiredConsumerScope[] {
 	return [
 		{
+			role_name: 'CanGetDynamicEntityRecord_obp_portal_page',
+			bank_id: SYS,
+			needed_for: 'Showing the pages published to Cohort with App Studio (About, location, the applicant journey) in its menu, to every visitor.'
+		},
+		{
 			role_name: 'CanGetDynamicEntityDefinitions',
 			bank_id: space,
 			needed_for: "Checking that Cohort's entities (application forms, reviews, milestones, sessions) exist in its space."
@@ -129,6 +134,11 @@ export function cohortRequiredConsumerScopes(space: string): RequiredConsumerSco
 			role_name: 'CanGetDynamicEntityRecord_cohort_milestone_review',
 			bank_id: space,
 			needed_for: 'Showing a startup the outcome of its own milestone reports (staff review them with their own Roles).'
+		},
+		{
+			role_name: 'CanGetDynamicEntityRecord_cohort_pitch_feedback',
+			bank_id: space,
+			needed_for: 'Showing a startup the feedback on its own demo day pitch (staff give it with their own Roles).'
 		},
 		{
 			role_name: 'CanGetDynamicEntityRecord_cohort_application',

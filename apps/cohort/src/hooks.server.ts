@@ -15,11 +15,14 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
+import '@obp/shared/server/monitoring/capture';
+import { requestTelemetry, startTelemetry } from '@obp/shared/server/monitoring';
 import type { Handle } from '@sveltejs/kit';
 import { error, redirect } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
 import { building } from '$app/environment';
 import { env } from '$env/dynamic/private';
+import { env as publicEnv } from '$env/dynamic/public';
 import { sveltekitSessionHandle } from 'svelte-kit-sessions';
 import RedisStore from 'svelte-kit-connect-redis';
 import { createLogger, reloadPathAfterSessionEnds } from '@obp/shared/utils';
@@ -36,6 +39,9 @@ import { attr } from '$lib/branding';
 import { branding } from '$lib/server/branding';
 
 const logger = createLogger('CohortHooks');
+
+// Telemetry for GET /monitoring/telemetry: this app's requests and its calls to OBP-API.
+startTelemetry('cohort', publicEnv.PUBLIC_OBP_BASE_URL);
 
 if (!building) {
 	if (!env.SESSION_SECRET || typeof env.SESSION_SECRET !== 'string') {
@@ -148,6 +154,7 @@ const checkAuthorization: Handle = async ({ event, resolve }) => {
 };
 
 export const handle: Handle = sequence(
+	requestTelemetry,
 	locale,
 	sveltekitSessionHandle({
 		name: SESSION_COOKIE,

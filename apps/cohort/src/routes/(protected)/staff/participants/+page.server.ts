@@ -16,14 +16,15 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 import { fail } from '@sveltejs/kit';
-import { participantProgress } from '$lib/dashboard';
+import { participantProgress, RISK_LEVELS, type RiskLevel } from '$lib/dashboard';
 import { milestoneOf, todayUtc } from '$lib/milestones';
 import { nowUtc } from '$lib/screening';
-import { nextStage } from '$lib/stages';
-import { CALL, MILESTONE, MILESTONE_REPORT, MILESTONE_REVIEW, PARTICIPANT, PROGRAMME, STAGE_CHANGE } from '$lib/server/entities/definitions';
+import { nextStage, stageName, stagesOf, type StageDef } from '$lib/stages';
+import { ATTENDANCE, CALL, MILESTONE, MILESTONE_REPORT, MILESTONE_REVIEW, PARTICIPANT, PROGRAMME, STAGE_CHANGE } from '$lib/server/entities/definitions';
 import { messageOf } from '$lib/server/errors';
 import { reports, reviewsForStaff } from '$lib/server/milestones';
 import { participantOf } from '$lib/server/participants';
+import { attendanceOf } from '$lib/server/sessions';
 import { createRecord, idOf, listRecords, updateRecord, userToken, type CohortRecord } from '$lib/server/records';
 import { staffAccess } from '$lib/server/staffAccess';
 import { requestRole, write } from '$lib/server/staffRecords';
@@ -39,21 +40,25 @@ const ROLES = {
 
 /** Each participant with its progress and the gate to its next stage, read with the staff member's own Roles. */
 async function participantsWithGates(token: string) {
-	const [records, programmes, calls, milestones, reportList, reviewList] = await Promise.all([
+	const [records, programmes, calls, milestones, reportList, reviewList, attendance] = await Promise.all([
 		listRecords(PARTICIPANT, '', token),
 		listRecords(PROGRAMME, 'public').catch(() => []),
 		listRecords(CALL, 'public').catch(() => []),
 		listRecords(MILESTONE, 'public').catch(() => []),
 		reports('community', token).catch(() => []),
-		reviewsForStaff(token).catch(() => [])
+		reviewsForStaff(token).catch(() => []),
+		// For gates on sessions attended; without the Get Role none count.
+		listRecords(ATTENDANCE, '', token).then((r) => r.map(attendanceOf)).catch(() => [])
 	]);
+	const stagesById = new Map<string, StageDef[]>(programmes.map((p) => [idOf(PROGRAMME, p), stagesOf(p)]));
 	const programmeName = new Map(programmes.map((p) => [idOf(PROGRAMME, p), String(p.name ?? '')]));
 	const callTitle = new Map(calls.map((c) => [idOf(CALL, c), String(c.title ?? '')]));
 	const ms = milestones.map((m) => milestoneOf(idOf(MILESTONE, m), m));
 	const today = todayUtc();
 	return records.map((record) => {
 		const p = participantOf(record);
-		const progress = participantProgress(p, programmeName.get(p.programme_id) ?? '', ms, reportList, reviewList, today);
+		const progress = participantProgress(p, programmeName.get(p.programme_id) ?? '', ms, reportList, reviewList, today, attendance);
+		const stages = stagesById.get(p.programme_id);
 		return {
 			record,
 			row: {
@@ -62,7 +67,8 @@ async function participantsWithGates(token: string) {
 				call: callTitle.get(p.call_id) ?? '',
 				milestones_accepted: progress.milestones_accepted,
 				milestones_total: progress.milestones_total,
-				next: nextStage(progress)
+				stages,
+				next: nextStage(progress, stages)
 			}
 		};
 	});
@@ -92,7 +98,7 @@ export const actions: Actions = {
 		const found = (await participantsWithGates(token).catch(() => [])).find((p) => p.row.id === participantId);
 		if (!found) return fail(400, { form: 'advance', error: 'invalid' });
 		const { record, row } = found;
-		if (!row.next.to || row.next.missing) return fail(400, { form: 'advance', error: 'gate' });
+		if (!row.next.to || row.next.missing.length > 0) return fail(400, { form: 'advance', error: 'gate' });
 		const to = row.next.to;
 		const now = nowUtc();
 		const updated: CohortRecord = Object.fromEntries(
@@ -122,8 +128,29 @@ export const actions: Actions = {
 					token
 				);
 			},
-			{ advanced: to }
+			{ advanced: stageName(locals.locale, to, row.stages) }
 		);
+	},
+	/** Raise, change or clear a startup's risk flag, with a note; shown on the dashboard. */
+	flag: async ({ locals, request }) => {
+		const token = userToken(locals)!;
+		const form = await request.formData();
+		const participantId = String(form.get('participant_id') ?? '');
+		const risk = String(form.get('risk') ?? '');
+		if (!participantId || !(RISK_LEVELS as readonly string[]).includes(risk)) return fail(400, { form: 'flag', error: 'invalid' });
+		const record = (await listRecords(PARTICIPANT, '', token).catch(() => [])).find((r) => idOf(PARTICIPANT, r) === participantId);
+		if (!record) return fail(400, { form: 'flag', error: 'invalid' });
+		const note = risk === 'none' ? '' : String(form.get('risk_note') ?? '').trim().slice(0, 1000);
+		const updated: CohortRecord = Object.fromEntries(
+			Object.entries({
+				...record,
+				risk: risk as RiskLevel,
+				risk_note: note,
+				risk_set_by_username: locals.session.data.user?.username ?? '',
+				risk_set_at: nowUtc()
+			}).filter(([key, value]) => key !== `${PARTICIPANT}_id` && value !== null && value !== undefined && (value !== '' || key === 'risk_note'))
+		);
+		return write('flag', () => updateRecord(PARTICIPANT, '', participantId, updated, token), { flagged: risk });
 	},
 	requestRole: async ({ locals, request }) => requestRole(await request.formData(), userToken(locals)!)
 };

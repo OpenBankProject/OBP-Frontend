@@ -1,6 +1,8 @@
 <script lang="ts">
+	import AnnouncementList from '$lib/components/AnnouncementList.svelte';
+	import PublishedPage from '$lib/components/PublishedPage.svelte';
 	import { CalendarClock, CircleHelp, FileText, ListChecks } from '@lucide/svelte';
-	import { OpeyChat, type OpeyChatOptions, type SuggestedQuestion } from '@obp/shared/components';
+	import { OpeyChat, ResizableSplit, type OpeyChatOptions, type SuggestedQuestion } from '@obp/shared/components';
 	import { t, type Locale } from '$lib/i18n';
 
 	let { data } = $props();
@@ -22,6 +24,8 @@
 		bodyClasses: 'bg-opacity-0',
 		footerClasses: 'bg-opacity-0',
 		displayConnectionPips: true,
+		// Requests that name no bank are about Cohort's space.
+		currentBankId: data.opey?.bankId ?? '',
 		// Cohort serves no generic OBP proxy, so the chat skips the new-entitlements notice, and its consent label is
 		// a link to the Portal's consents page, where Users see and revoke what they gave Opey.
 		entitlementsUrl: '',
@@ -35,19 +39,29 @@
 		const calls = data.calls.map(
 			(c) =>
 				`- "${c.title}"${c.programme ? ` (programme: ${c.programme})` : ''}, opens ${c.opens_at || 'now'}, ` +
-				`closes ${c.closes_at || 'not set'}, page /calls/${c.id}${c.description ? `: ${c.description}` : ''}`
+				`closes ${c.closes_at || 'not set'}, page /calls/${c.id}, eligible: ${c.eligibility}${c.description ? `. ${c.description}` : ''}`
 		);
 		return [
 			'Cohort, a startup programme website. The visitor is on the list of open calls for applications:',
 			...calls,
 			'To apply, open a call and press Apply (logging in is needed); an application is saved as a draft until it is submitted.',
-			'Eligible: a local resident, or a business incorporated locally; anyone else is reviewed by a screener.'
+			'An application that does not meet its call\'s eligibility is not refused: a screener reviews it.'
 		].join('\n');
 	}
 </script>
 
-<div class="grid gap-8" class:lg:grid-cols-[minmax(0,1fr)_24rem]={data.opey}>
+{#snippet calls()}
+	{#if data.home}
+		{#if data.announcements.length}<div class="mb-6"><AnnouncementList {locale} announcements={data.announcements} /></div>{/if}
+		<PublishedPage page={data.home} {locale} />
+	{:else}
+		{@render callList()}
+	{/if}
+{/snippet}
+
+{#snippet callList()}
 	<section>
+		{#if data.announcements.length}<div class="mb-6"><AnnouncementList {locale} announcements={data.announcements} /></div>{/if}
 		<h1 class="h2">{t(locale, 'calls_open_heading')}</h1>
 
 		{#if data.error}
@@ -59,8 +73,8 @@
 				{#each data.calls as call (call.id)}
 					<li class="card preset-filled-surface-50-950 flex flex-col gap-2 p-5 shadow-md">
 						{#if call.programme}<span class="badge preset-tonal-tertiary self-start">{call.programme}</span>{/if}
-						<h2 class="h4"><a href="/calls/{call.id}">{call.title}</a></h2>
-						{#if call.description}<p>{call.description}</p>{/if}
+						<h2 class="h4" dir="auto"><a href="/calls/{call.id}">{call.title}</a></h2>
+						{#if call.description}<p dir="auto">{call.description}</p>{/if}
 						<div class="mt-1 flex flex-wrap items-center justify-between gap-3">
 							<p class="flex items-center gap-2 text-sm text-surface-700-300">
 								<CalendarClock class="size-4" aria-hidden="true" />
@@ -74,14 +88,21 @@
 			</ul>
 		{/if}
 	</section>
+{/snippet}
 
-	{#if data.opey}
-		<section class="card preset-outlined-surface-200-800 flex h-[70vh] min-h-96 flex-col overflow-hidden" aria-labelledby="opey-heading" data-testid="opey-panel">
-			<h2 id="opey-heading" class="h5 px-4 pt-3">{t(locale, 'opey_heading')}</h2>
-			<p class="px-4 text-sm text-surface-700-300">{t(locale, 'opey_intro')}</p>
-			<div class="min-h-0 flex-1">
-				<OpeyChat {opeyChatOptions} userAuthenticated={!!data.user} {clientContext} />
-			</div>
-		</section>
-	{/if}
-</div>
+{#snippet opey()}
+	<section class="card preset-outlined-surface-200-800 flex h-[70vh] min-h-96 flex-col overflow-hidden" aria-labelledby="opey-heading" data-testid="opey-panel">
+		<h2 id="opey-heading" class="h5 px-4 pt-3">{t(locale, 'opey_heading')}</h2>
+		<p class="px-4 text-sm text-surface-700-300">{t(locale, 'opey_intro')}</p>
+		<div class="min-h-0 flex-1">
+			<OpeyChat {opeyChatOptions} userAuthenticated={!!data.user} {clientContext} />
+		</div>
+	</section>
+{/snippet}
+
+{#if data.opey}
+	<!-- Drag the divider (or focus it and use the arrow keys) to make Opey wider or narrower; double-click resets. -->
+	<ResizableSplit main={calls} side={opey} defaultSideWidth={384} minSideWidth={300} storageKey="cohort-opey-width" sideTestid="opey-pane" label={t(locale, 'opey_resize')} />
+{:else}
+	{@render calls()}
+{/if}

@@ -207,7 +207,6 @@ const catalogueSection = domain('catalogue', 'Catalogue', Library,
         ] },
         { label: 'Reading', items: [
             { href: '/featured', label: 'Featured', iconComponent: Star },
-            { href: '/pages', label: 'Pages', iconComponent: FileText },
             { href: '/faq', label: 'FAQ', iconComponent: CircleHelp }
         ] }
     ], false, true);

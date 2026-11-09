@@ -71,6 +71,17 @@ export const LANDING_BASE_CSS = `
 
 .obp-landing .obp-stat { font-weight: 800; }
 
+.obp-landing .obp-calls, .obp-landing .obp-programmes { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+.obp-landing .obp-call-card, .obp-landing .obp-programme-card { background: var(--obp-card-bg); color: var(--obp-card-fg); border: 1px solid var(--obp-card-border); border-radius: var(--obp-card-radius); box-shadow: var(--obp-card-shadow); padding: 18px 20px; display: flex; flex-direction: column; gap: 8px; }
+.obp-landing .obp-call-programme, .obp-landing .obp-programme-number { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--obp-accent); font-weight: 600; }
+.obp-landing .obp-call-title, .obp-landing .obp-programme-name { margin: 0; font-size: 18px; line-height: 1.25; }
+.obp-landing .obp-call-title a { color: inherit; text-decoration: none; }
+.obp-landing .obp-call-description, .obp-landing .obp-programme-text { margin: 0; color: var(--obp-card-muted); font-size: 14px; line-height: 1.5; }
+.obp-landing .obp-programme-text-list { margin: 0; padding-inline-start: 20px; font-size: 14px; line-height: 1.5; }
+.obp-landing .obp-call-dates, .obp-landing .obp-programme-dates { font-size: 13px; color: var(--obp-card-muted); }
+.obp-landing .obp-call-link { margin-top: auto; align-self: flex-start; color: var(--obp-accent); font-weight: 600; text-decoration: none; }
+.obp-landing .obp-call-link:hover { text-decoration: underline; }
+
 .obp-landing .obp-glossary { background: var(--obp-card-bg); color: var(--obp-card-fg); border: 1px solid var(--obp-card-border); border-radius: var(--obp-card-radius); padding: 18px 20px; display: flex; flex-direction: column; gap: 10px; }
 .obp-landing .obp-glossary-title { margin: 0; font-size: 18px; line-height: 1.25; }
 .obp-landing .obp-glossary-body, .obp-landing .obp-glossary-excerpt { margin: 0; font-size: 15px; line-height: 1.6; overflow-wrap: anywhere; }

@@ -65,6 +65,7 @@
 				{t(locale, `session_kind_${s.kind}` as MessageKey)} · {s.starts_at.replace('T', ' ')} · {s.duration_minutes} {t(locale, 'sessions_minutes')}
 				{#if s.mentor_name}{' '}· {s.mentor_name}{/if}{#if s.location}{' '}· {s.location}{/if}
 			</p>
+			{#if s.kind === 'demo_day'}<p class="mt-1"><a class="anchor" href="/staff/programmes/{data.programme.id}/sessions/{s.id}/demo-day" data-testid="session-demo-day-{s.id}">{t(locale, 'demo_manage')}</a></p>{/if}
 			<p class="mt-1 text-sm">{t(locale, 'sessions_booked')}: {s.booked.length} / {s.capacity}{#if s.booked.length}{' '}({s.booked.map((b) => b.startup_name).join(', ')}){/if}</p>
 			{#if s.started && s.roll.length && !missing('attendance')}
 				<form method="POST" action="?/attendance" class="mt-2" data-testid="session-attendance-{s.id}">

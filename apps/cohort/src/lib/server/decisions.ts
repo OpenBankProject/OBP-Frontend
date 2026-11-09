@@ -19,6 +19,7 @@ import { createLogger } from '@obp/shared/utils';
 import { decisionEmail } from '$lib/emails';
 import { latestDecision, nowUtc, type Decision, type DecisionStage } from '$lib/screening';
 import { requestApplicationAccessToken } from './applicationToken';
+import { emailSettings } from './emailSettings';
 import { CALL, SCREENING_DECISION } from './entities/definitions';
 import { emailCustomer, pageUrl } from './notify';
 import { createRecord, getRecord, listRecords, type CohortRecord } from './records';
@@ -81,6 +82,7 @@ export async function recordDecision(args: {
 		decided_at: nowUtc()
 	};
 	await createRecord(SCREENING_DECISION, '', Object.fromEntries(Object.entries(record).filter(([, v]) => v !== '')), args.token);
+	if (!(await emailSettings()).decision) return;
 	const call = await getRecord(CALL, 'public', String(args.application.call_id)).catch(() => null);
 	await emailCustomer(
 		String(args.application.customer_id ?? ''),

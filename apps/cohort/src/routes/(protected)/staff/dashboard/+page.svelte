@@ -7,6 +7,7 @@
 	const locale = $derived(data.locale as Locale);
 	const missing = (key: keyof typeof data.lacking) => data.lacking[key];
 	const behind = $derived(data.startups.filter((s) => s.behind > 0));
+	const flagged = $derived(data.startups.filter((s) => s.risk !== 'none').sort((a, b) => (a.risk === b.risk ? 0 : a.risk === 'at_risk' ? -1 : 1)));
 </script>
 
 {#snippet roleNeeded(key: keyof typeof data.lacking)}
@@ -23,7 +24,7 @@
 <section class="card preset-outlined-surface-200-800 mt-6 p-4" data-testid="dashboard-funnel">
 	<div class="flex flex-wrap items-baseline justify-between gap-2">
 		<h2 class="h4">{t(locale, 'dashboard_funnel')}</h2>
-		<a class="anchor text-sm" href="/staff/dashboard/funnel.csv" download data-testid="dashboard-funnel-csv">{t(locale, 'dashboard_csv')}</a>
+		<span class="flex gap-3 text-sm"><a class="anchor" href="/staff/dashboard/funnel.csv" download data-testid="dashboard-funnel-csv">{t(locale, 'dashboard_csv')}</a><a class="anchor" href="/staff/dashboard/funnel.pdf" download data-testid="dashboard-funnel-pdf">{t(locale, 'dashboard_pdf')}</a></span>
 	</div>
 	{@render roleNeeded('applications')}
 	{@render roleNeeded('decisions')}
@@ -60,7 +61,7 @@
 <section class="card preset-outlined-surface-200-800 mt-6 p-4" data-testid="dashboard-programmes">
 	<div class="flex flex-wrap items-baseline justify-between gap-2">
 		<h2 class="h4">{t(locale, 'dashboard_programmes')}</h2>
-		<a class="anchor text-sm" href="/staff/dashboard/startups.csv" download data-testid="dashboard-startups-csv">{t(locale, 'dashboard_csv_startups')}</a>
+		<span class="flex gap-3 text-sm"><a class="anchor" href="/staff/dashboard/startups.csv" download data-testid="dashboard-startups-csv">{t(locale, 'dashboard_csv_startups')}</a><a class="anchor" href="/staff/dashboard/startups.pdf" download data-testid="dashboard-startups-pdf">{t(locale, 'dashboard_pdf_startups')}</a></span>
 	</div>
 	{@render roleNeeded('participants')}
 	{@render roleNeeded('reports')}
@@ -80,6 +81,7 @@
 						<th>{t(locale, 'participants_company')}</th>
 						<th>{t(locale, 'dashboard_completion')}</th>
 						<th>{t(locale, 'dashboard_behind')}</th>
+						<th>{t(locale, 'dashboard_flagged')}</th>
 						<th>{t(locale, 'dashboard_sessions_attended')}</th>
 					</tr>
 				</thead>
@@ -91,6 +93,7 @@
 							<td>{r.companies_registered} / {r.participants}</td>
 							<td>{r.completion === null ? '–' : `${r.completion}%`} <span class="text-sm">({r.milestones_accepted} / {r.milestones_due})</span></td>
 							<td class={r.behind_startups > 0 ? 'preset-tonal-error' : ''}><strong>{r.behind_startups}</strong></td>
+							<td class={r.flagged_startups > 0 ? 'preset-tonal-warning' : ''}><strong>{r.flagged_startups}</strong></td>
 							<td>{r.sessions_attended}</td>
 						</tr>
 					{/each}
@@ -98,6 +101,21 @@
 			</table>
 		</div>
 	{/if}
+</section>
+
+<section class="card preset-outlined-surface-200-800 mt-6 p-4" data-testid="dashboard-flagged">
+	<h2 class="h4">{t(locale, 'dashboard_flagged_list')}</h2>
+	{#if flagged.length === 0}<p class="mt-2">{t(locale, 'dashboard_flagged_none')}</p>{:else}
+		<ul class="mt-2 flex flex-col gap-1">
+			{#each flagged as s (s.participant_id)}
+				<li>
+					<span class="badge {s.risk === 'at_risk' ? 'preset-tonal-error' : 'preset-tonal-warning'}">{t(locale, `risk_${s.risk}` as MessageKey)}</span>
+					<strong>{s.startup_name}</strong> ({s.programme}){#if s.risk_note}: {s.risk_note}{/if}
+				</li>
+			{/each}
+		</ul>
+	{/if}
+	<p class="mt-2 text-sm"><a class="anchor" href="/staff/participants">{t(locale, 'dashboard_flagged_manage')}</a></p>
 </section>
 
 <section class="card preset-outlined-surface-200-800 mt-6 p-4" data-testid="dashboard-behind">

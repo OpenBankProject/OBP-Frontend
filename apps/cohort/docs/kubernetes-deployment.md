@@ -43,6 +43,8 @@ data:
   # OPEY_BASE_URL: "http://opey:5000"
   # PUBLIC_OPEY_BASE_URL: "https://opey.example.com"
   # OPEY_CONSUMER_ID: ""
+  # Cohort's own focus for Opey, appended after Opey's per-instance prompt (or OPEY_APP_SUPPLEMENTARY_PROMPT_FILE)
+  # OPEY_APP_SUPPLEMENTARY_PROMPT: "Answer as the programme office. Keep answers short."
 
   # Optional branding (each can also be set as a webui_prop in the API Manager, which wins)
   # COHORT_NAME: "Cohort"

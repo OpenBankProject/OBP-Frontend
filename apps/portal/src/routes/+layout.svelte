@@ -99,6 +99,12 @@
 	 */
 	const sections: NavigationSection[] = $derived(
 		withApiManager(navigationSections).map((section) => {
+		// The pages published to the Portal with App Studio sit directly in the menu, under Reading.
+		if (section.id === 'catalogue') {
+			const pageItems = (data.sitePages ?? []).map((p) => ({ href: `/pages/${p.slug}`, label: p.title, iconComponent: FileText }));
+			const subsections = (section.subsections ?? []).map((group) => (group.label === 'Reading' ? { ...group, items: [...group.items, ...pageItems] } : group));
+			return { ...section, subsections, items: subsections.flatMap((g) => g.items) };
+		}
 		if (section.id !== 'develop') return section;
 
 		const subsections = (section.subsections ?? []).map((group) => {

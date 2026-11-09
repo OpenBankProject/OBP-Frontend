@@ -53,7 +53,7 @@
 		<dt>{t(locale, 'application_eligibility')}</dt>
 		<dd>{t(locale, `eligibility_${String(application.eligibility)}` as MessageKey)}</dd>
 		<dt>{t(locale, 'application_submitted_at')}</dt>
-		<dd>{value('submitted_at')}</dd>
+		<dd>{value('submitted_at').slice(0, 10)}</dd>
 	</dl>
 {:else}
 	<form method="POST" class="mt-6 flex max-w-2xl flex-col gap-4" use:enhance={() => async ({ update }) => update({ reset: false })}>

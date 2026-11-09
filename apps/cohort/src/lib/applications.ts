@@ -72,12 +72,66 @@ export function missingToSubmit(values: Record<string, unknown>): string[] {
 		.filter((key) => values[key] === undefined || values[key] === null || String(values[key]).trim() === '');
 }
 
+/** Who must the applicant or business be: local in either way (the default), resident, incorporated, or anyone. */
+export const RESIDENCY_RULES = ['resident_or_incorporated', 'resident', 'incorporated', 'none'] as const;
+export type ResidencyRule = (typeof RESIDENCY_RULES)[number];
+
+/** A call's eligibility rules, set by staff on the call. A call that sets none has the default: local either way. */
+export interface EligibilityRules {
+	residency: ResidencyRule;
+	/** The smallest team that is eligible, or null for any size. */
+	min_team_size: number | null;
+	/** The startup stages that are eligible; empty for any. */
+	stages: string[];
+}
+
+export type EligibilityRule = 'residency' | 'team_size' | 'stage';
+
+/** The rules from a cohort_call record's eligibility_ fields. */
+export function eligibilityRulesOf(call: Record<string, unknown> | null | undefined): EligibilityRules {
+	const residency = String(call?.eligibility_residency ?? '');
+	const min = Number(call?.eligibility_min_team_size);
+	return {
+		residency: (RESIDENCY_RULES as readonly string[]).includes(residency) ? (residency as ResidencyRule) : 'resident_or_incorporated',
+		min_team_size: Number.isInteger(min) && min > 0 ? min : null,
+		stages: String(call?.eligibility_stages ?? '')
+			.split(',')
+			.map((s) => s.trim())
+			.filter((s) => STAGES.includes(s))
+	};
+}
+
+/** The rules an application does not meet. */
+export function unmetRules(values: Record<string, unknown>, rules: EligibilityRules): EligibilityRule[] {
+	const unmet: EligibilityRule[] = [];
+	const resident = values.local_resident === true;
+	const incorporated = values.incorporated_locally === true;
+	const local = { resident_or_incorporated: resident || incorporated, resident, incorporated, none: true }[rules.residency];
+	if (!local) unmet.push('residency');
+	if (rules.min_team_size !== null && !(Number(values.team_size) >= rules.min_team_size)) unmet.push('team_size');
+	if (rules.stages.length > 0 && !rules.stages.includes(String(values.stage ?? ''))) unmet.push('stage');
+	return unmet;
+}
+
+/** The rules in plain English, for Opey: who is eligible to a call. */
+export function eligibilityInWords(rules: EligibilityRules): string {
+	const residency = {
+		resident_or_incorporated: 'a local resident, or a business incorporated locally',
+		resident: 'a local resident',
+		incorporated: 'a business incorporated locally',
+		none: 'anyone, wherever they live or are incorporated'
+	}[rules.residency];
+	const team = rules.min_team_size !== null ? `; a team of at least ${rules.min_team_size}` : '';
+	const stages = rules.stages.length ? `; at stage ${rules.stages.join(' or ')}` : '';
+	return `${residency}${team}${stages}`;
+}
+
 /**
- * Who may join: a citizen or resident of the programme's country, or a business incorporated there. Anyone else is not refused
- * but goes to a screener, who decides.
+ * Whether an application meets its call's eligibility rules. One that does not is not refused but goes to a screener,
+ * who decides.
  */
-export function eligibilityOf(values: Record<string, unknown>): 'eligible' | 'needs_review' {
-	return values.local_resident === true || values.incorporated_locally === true ? 'eligible' : 'needs_review';
+export function eligibilityOf(values: Record<string, unknown>, rules: EligibilityRules = eligibilityRulesOf(null)): 'eligible' | 'needs_review' {
+	return unmetRules(values, rules).length === 0 ? 'eligible' : 'needs_review';
 }
 
 export function isCallOpen(call: Record<string, unknown>, today = new Date().toISOString().slice(0, 10)): boolean {

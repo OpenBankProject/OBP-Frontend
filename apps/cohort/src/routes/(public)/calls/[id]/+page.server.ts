@@ -17,10 +17,11 @@
  */
 import { error, redirect } from '@sveltejs/kit';
 import { loginUrlReturningTo } from '@obp/shared/server/auth';
-import { isCallOpen } from '$lib/applications';
+import { eligibilityRulesOf, isCallOpen } from '$lib/applications';
 import { APPLICATION, CALL, PROGRAMME } from '$lib/server/entities/definitions';
 import { myCustomer } from '$lib/server/customers';
 import { createRecord, getRecord, idOf, listRecords, userToken } from '$lib/server/records';
+import { myBookmarkOf } from '$lib/server/bookmarks';
 import type { Actions, PageServerLoad } from './$types';
 
 async function publicCall(id: string) {
@@ -45,10 +46,12 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 			description: String(call.description ?? ''),
 			opens_at: String(call.opens_at ?? ''),
 			closes_at: String(call.closes_at ?? ''),
-			open: isCallOpen(call)
+			open: isCallOpen(call),
+			eligibility: eligibilityRulesOf(call)
 		},
 		programme: programme ? String(programme.name ?? '') : '',
-		myApplicationId: mine ? idOf(APPLICATION, mine) : null
+		myApplicationId: mine ? idOf(APPLICATION, mine) : null,
+		bookmarkId: await myBookmarkOf('call', params.id, token)
 	};
 };
 

@@ -394,6 +394,9 @@
     summary: string;
     author: string;
     updated_at: string;
+    sites: string[];
+    lang: string;
+    menu_position: number | null;
     source_length?: number;
   }
   let currentPage = $state<SavedPage | null>(null);
@@ -401,6 +404,11 @@
   let savedPagesError = $state("");
   let slug = $state("");
   let summary = $state("");
+  /** The sites whose menu shows the page; a new page goes to the Portal until changed. */
+  let sites = $state<string[]>(["portal"]);
+  let lang = $state("");
+  let menuPosition = $state("");
+  const SITE_LABELS: Record<string, string> = { portal: "Portal", cohort: "Cohort" };
   let saving = $state(false);
   let saveError = $state("");
   let saveMessage = $state("");
@@ -429,7 +437,7 @@
     slug = effectiveSlug;
     saving = true;
     try {
-      const body = { slug: effectiveSlug, title: title.trim(), kind: mode, status, summary: summary.trim(), source };
+      const body = { slug: effectiveSlug, title: title.trim(), kind: mode, status, summary: summary.trim(), source, sites, lang: lang.trim(), menu_position: menuPosition.trim() };
       const isUpdate = !!currentPage;
       const response = await fetch(isUpdate ? `/backend/app-studio/pages/${encodeURIComponent(currentPage!.id)}` : "/backend/app-studio/pages", {
         method: isUpdate ? "PUT" : "POST",
@@ -440,7 +448,7 @@
       const data = await response.json();
       if (!response.ok) throw new Error(data?.message ?? `HTTP ${response.status}`);
       currentPage = data.page;
-      saveMessage = status === "published" ? `Published as /pages/${data.page.slug}` : `Saved draft ${data.page.slug}`;
+      saveMessage = status === "published" ? `Published as /pages/${data.page.slug} on ${data.page.sites.map((x: string) => SITE_LABELS[x] ?? x).join(" and ")}` : `Saved draft ${data.page.slug}`;
       await loadSavedPages();
     } catch (e) {
       saveError = e instanceof Error ? e.message : String(e);
@@ -468,6 +476,9 @@
       title = page.title;
       slug = page.slug;
       summary = page.summary;
+      sites = [...page.sites];
+      lang = page.lang;
+      menuPosition = page.menu_position === null ? "" : String(page.menu_position);
       currentPage = page;
       openId = "";
       run();
@@ -495,6 +506,9 @@
     currentPage = null;
     slug = "";
     summary = "";
+    sites = ["portal"];
+    lang = "";
+    menuPosition = "";
     saveMessage = "";
     saveError = "";
   }
@@ -890,12 +904,32 @@
             <span class="font-medium text-gray-700 dark:text-gray-300">Summary</span>
             <input type="text" name="summary" class="rounded-md border border-gray-300 px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-900" placeholder="One line for listings" bind:value={summary} data-testid="app-studio-summary" />
           </label>
+          <fieldset class="flex flex-col gap-1 text-sm" data-testid="app-studio-sites">
+            <legend class="font-medium text-gray-700 dark:text-gray-300">Menu of</legend>
+            <div class="flex gap-3 py-1">
+              {#each Object.entries(SITE_LABELS) as [site, label] (site)}
+                <label class="inline-flex items-center gap-1"><input type="checkbox" value={site} bind:group={sites} data-testid="app-studio-site-{site}" /> {label}</label>
+              {/each}
+            </div>
+          </fieldset>
+          <label class="flex flex-col gap-1 text-sm">
+            <span class="font-medium text-gray-700 dark:text-gray-300">Language</span>
+            <select class="rounded-md border border-gray-300 px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-900" bind:value={lang} data-testid="app-studio-lang">
+              <option value="">Every language</option>
+              <option value="en">English</option>
+              <option value="ar">Arabic</option>
+            </select>
+          </label>
+          <label class="flex flex-col gap-1 text-sm">
+            <span class="font-medium text-gray-700 dark:text-gray-300">Menu position</span>
+            <input type="text" inputmode="numeric" pattern="-?[0-9]*" class="w-24 rounded-md border border-gray-300 px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-900" placeholder="last" bind:value={menuPosition} data-testid="app-studio-menu-position" />
+          </label>
           <div class="flex flex-wrap gap-2">
             <button type="button" class="inline-flex items-center gap-1 rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-60 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700" disabled={saving} onclick={() => savePage("draft")} data-testid="app-studio-save-draft">
               <Save class="h-4 w-4" /> {currentPage ? "Save" : "Save draft"}
             </button>
             <button type="button" class="inline-flex items-center gap-1 rounded-md bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-60" disabled={saving} onclick={() => savePage("published")} data-testid="app-studio-publish-btn">
-              <Globe class="h-4 w-4" /> {currentPage?.status === "published" ? "Republish" : "Publish to Portal"}
+              <Globe class="h-4 w-4" /> {currentPage?.status === "published" ? "Republish" : "Publish"}
             </button>
             {#if currentPage?.status === "published"}
               <button type="button" class="inline-flex items-center gap-1 rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-60 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700" disabled={saving} onclick={() => savePage("draft")} data-testid="app-studio-unpublish">Unpublish</button>
@@ -910,19 +944,19 @@
         <div class="mt-3 flex flex-wrap items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
           {#if currentPage}
             <span data-testid="app-studio-current-page">Editing <code>{currentPage.slug}</code> ({currentPage.kind}, {currentPage.status}, saved {currentPage.updated_at} by {currentPage.author || "unknown"})</span>
-            {#if currentPage.status === "published" && page.data.externalLinks?.PORTAL_URL}
+            {#if currentPage.status === "published" && currentPage.sites.includes("portal") && page.data.externalLinks?.PORTAL_URL}
               <a href="{page.data.externalLinks.PORTAL_URL}/pages/{currentPage.slug}" target="_blank" rel="noopener noreferrer" class="underline" data-testid="app-studio-open-published">Open on the Portal</a>
             {/if}
             <button type="button" class="underline" onclick={startNewPage}>Start a new one</button>
           {:else}
-            <span>Not saved yet. Saved as an <code>obp_portal_page</code> record in OBP; the Portal serves records with status published at <code>/pages/SLUG</code>.</span>
+            <span>Not saved yet. Saved as an <code>obp_portal_page</code> record in OBP; each site ticked above shows a published page in its menu, at <code>/pages/SLUG</code>.</span>
           {/if}
           <label class="ml-auto flex items-center gap-1">
             <FolderOpen class="h-3.5 w-3.5" />
             <select class="rounded-md border border-gray-300 px-2 py-1 text-xs dark:border-gray-600 dark:bg-gray-900" bind:value={openId} onchange={() => openSavedPage(openId)} data-testid="app-studio-open-saved">
               <option value="">Open saved…</option>
               {#each savedPages as sp (sp.id)}
-                <option value={sp.id}>{sp.title} · {sp.kind} · {sp.status}</option>
+                <option value={sp.id}>{sp.title} · {sp.kind} · {sp.status} · {sp.sites.map((x) => SITE_LABELS[x] ?? x).join("+") || "no site"}{sp.lang ? ` · ${sp.lang}` : ""}</option>
               {/each}
             </select>
           </label>

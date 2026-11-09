@@ -16,7 +16,7 @@
 </script>
 
 <div class="preset-tonal-warning rounded p-3" role="status" data-testid="missing-role-{role.role_name}">
-	<p>{t(locale, 'missing_role_text')} <code>{role.role_name}</code> {t(locale, 'missing_role_at')} <code>{role.bank_id || space}</code>.</p>
+	<p>{t(locale, 'missing_role_text')} <code>{role.role_name}</code> {t(locale, 'missing_role_at')} <code>{role.bank_id === '' ? t(locale, 'missing_role_system') : role.bank_id || space}</code>.</p>
 	<div class="mt-2 flex flex-wrap items-center gap-3">
 		{#if role.requested}
 			<span>{t(locale, 'access_requested')}</span>

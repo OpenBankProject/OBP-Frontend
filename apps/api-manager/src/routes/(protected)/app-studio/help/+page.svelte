@@ -205,7 +205,7 @@
     </div>
 
     <div class="rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-200">
-      Published records are served by the Portal{#if data.portalUrl} at <code>{data.portalUrl}/pages/SLUG</code>, listed at <a href="{data.portalUrl}/pages" class="underline">{data.portalUrl}/pages</a>{:else} at <code>/pages/SLUG</code>{/if}. Pages are sanitised and rendered inline with live catalogue data; Apps run in a sandboxed frame and reach OBP through the Portal, anonymously for visitors who are not signed in. The Portal reads the entity with its own application token, so step 3 above must be done first.
+      Published records are served by each site ticked under "Menu of" (the Portal, Cohort or both){#if data.portalUrl}, e.g. at <code>{data.portalUrl}/pages/SLUG</code>{:else} at <code>/pages/SLUG</code>{/if}, and appear directly in that site's menu, ordered by their menu position. A page with a language is shown only to visitors using that language. Pages are sanitised and rendered inline with live catalogue data; Apps run in a sandboxed frame and reach OBP through the site, anonymously for visitors who are not signed in. Each site reads the entity with its own application token, so its Consumer needs the Scope of step 3 first.
     </div>
   </section>
 

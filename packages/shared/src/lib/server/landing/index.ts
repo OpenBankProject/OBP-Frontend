@@ -18,3 +18,4 @@
 export { buildLandingFetchers, findDemoCollectionId } from './fetchers.js';
 export type { LandingLinkConfig, LandingObpGet } from './fetchers.js';
 export { sanitizePageHtml, sanitizeContentHtml } from './sanitize.js';
+export { fetchSitePageRecords, SITE_PAGES_PATH } from './pages.js';

@@ -17,7 +17,8 @@
  */
 import { error, redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import { findOrCreateDm } from '$lib/chat/startDm';
+import { findOrCreateDm } from '@obp/shared/server/chat';
+import { obp_requests } from '$lib/obp/requests';
 import { OBPRequestError } from '@obp/shared/obp';
 import { createLogger } from '@obp/shared/utils';
 
@@ -43,7 +44,7 @@ export const load: PageServerLoad = async (event) => {
 
 	let chatRoomId: string;
 	try {
-		chatRoomId = await findOrCreateDm(accessToken, currentUserId, targetUserId);
+		chatRoomId = await findOrCreateDm(obp_requests, accessToken, currentUserId, targetUserId);
 	} catch (e) {
 		logger.error(`Could not start DM with ${targetUserId}:`, e);
 		if (e instanceof OBPRequestError) {

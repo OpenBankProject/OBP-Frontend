@@ -1,0 +1,137 @@
+<style>
+.hub { --ink: #16314e; --header: #1d3d63; --box: #344e70; --red: #7c1520; --text: #3a4656; --muted: #5d6878; --sand: #f2f2f2; --line: #d9dde3;
+  --obp-accent: #16314e; --obp-card-radius: 14px; --obp-card-border: #d9dde3; --obp-card-muted: #3a4656;
+  color: #16314e; background: #ffffff; border-radius: 16px; overflow: hidden; font-size: 16px; line-height: 1.55; }
+.hub section { padding: 48px 32px; }
+.hub section:nth-of-type(odd) { background: var(--sand); }
+.hub h1 { margin: 0; font-size: clamp(30px, 4vw, 44px); line-height: 1.15; color: var(--ink); font-weight: 700; }
+.hub h2 { margin: 0 0 8px; font-size: 28px; color: var(--ink); }
+.hub h3 { color: var(--ink); }
+.hub p { margin: 0; }
+.hub .lead { color: var(--text); max-width: 680px; margin-bottom: 24px; }
+.hub .eyebrow { font-size: 14px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--red); margin-bottom: 14px; }
+.hub .hero p.sub { font-size: 19px; color: var(--text); max-width: 640px; margin: 18px 0 24px; }
+.hub .note { font-size: 14px; color: var(--muted); margin-top: 16px; }
+.hub .actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.hub .btn { min-height: 46px; padding: 0 24px; border-radius: 8px; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; border: 1px solid var(--ink); color: var(--ink); }
+.hub .btn.primary { background: var(--red); border-color: var(--red); color: #ffffff; }
+.hub .obp-programme-card:nth-child(even) { background: var(--box); color: #fff; border-color: var(--box); }
+.hub .obp-programme-card:nth-child(even) .obp-programme-name { color: #fff; }
+.hub .obp-programme-card:nth-child(even) .obp-programme-number { color: #dfe6ee; }
+.hub .obp-programme-card:nth-child(even) .obp-programme-text, .hub .obp-programme-card:nth-child(even) .obp-programme-dates { color: #e6ebf1; }
+.hub .obp-programme-number::before { content: "Track "; }
+.hub .obp-call-link { background: var(--header); color: #fff; padding: 10px 18px; border-radius: 8px; }
+.hub .obp-calls-empty { color: var(--text); }
+.hub .search { margin-top: 18px; font-weight: 600; }
+.hub .phases { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); counter-reset: phase; }
+.hub .phases > li { counter-increment: phase; background: #fff; border: 1px solid var(--line); border-top: 5px solid var(--red); border-radius: 12px; padding: 18px; }
+.hub .phases > li::before { content: counter(phase); width: 32px; height: 32px; border-radius: 50%; background: var(--header); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; margin-bottom: 10px; }
+.hub .phases h3 { margin: 0 0 6px; font-size: 17px; }
+.hub .phases ul { margin: 0; padding: 0; list-style: none; font-size: 14.5px; color: var(--text); }
+.hub .after { margin-top: 20px; background: var(--header); color: #fff; border-radius: 14px; padding: 22px 26px; display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between; }
+.hub .after strong { display: block; font-size: 18px; }
+.hub .after span { color: #e6ebf1; }
+.hub .two { display: grid; gap: 32px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.hub .two ul { margin: 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 8px; }
+.hub .visit { display: grid; gap: 28px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); align-items: start; }
+.hub .visit p { color: var(--text); margin-bottom: 6px; }
+.hub .map { min-height: 220px; border: 2px dashed #9aa5b3; border-radius: 14px; background: #ffffff; display: flex; align-items: center; justify-content: center; color: var(--muted); text-align: center; padding: 20px; }
+.hub details { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 16px 20px; margin-top: 12px; }
+.hub summary { font-weight: 700; color: var(--ink); cursor: pointer; }
+.hub a:not(.btn):not(.obp-call-link) { color: var(--header); }
+.hub details p { margin-top: 8px; color: var(--text); }
+</style>
+
+<div class="obp-landing hub">
+
+<section class="hero">
+  <p class="eyebrow">Applications open</p>
+  <h1>From idea to graduation, all in one place</h1>
+  <p class="sub">Apply to the Hub, build your product with mentors and partners, and follow your progress online at every step.</p>
+  <div class="actions">
+    <a class="btn primary" href="#calls">Apply now</a>
+    <a class="btn" href="#journey">See the journey</a>
+  </div>
+  <p class="note">Register, apply, upload your documents and follow your status online. No visit or paperwork needed.</p>
+</section>
+
+<section id="programmes">
+  <h2>Programmes</h2>
+  <p class="lead">Two tracks: one for people exploring an idea, and one for companies ready to incubate and accelerate.</p>
+  <obp-programmes limit="4"></obp-programmes>
+</section>
+
+<section id="calls">
+  <h2>Open calls</h2>
+  <p class="lead">Choose a call, read what it is looking for, and apply online.</p>
+  <obp-calls limit="6" empty="No calls are open at the moment. Check back soon." link-label="View call and apply"></obp-calls>
+  <p class="search"><a href="/search">Search calls and programmes</a></p>
+</section>
+
+<section id="journey">
+  <h2>Your journey through the Hub</h2>
+  <p class="lead">Six phases from call for applications to graduation. Each phase is tracked online in your account.</p>
+  <ol class="phases">
+    <li><h3>Call for applications</h3><ul><li>Announcement</li><li>Outreach</li><li>Applications open</li></ul></li>
+    <li><h3>Screening and selection</h3><ul><li>Eligibility check</li><li>Review and scoring</li><li>Selection</li></ul></li>
+    <li><h3>Onboarding and orientation</h3><ul><li>Kick-off</li><li>Introduction to mentors</li><li>Programme roadmap</li></ul></li>
+    <li><h3>Core programme</h3><ul><li>Workshops</li><li>Mentorship</li><li>Milestones and progress reviews</li></ul></li>
+    <li><h3>Demo day and investor showcase</h3><ul><li>Pitch deck</li><li>Demo day</li><li>Investor engagement</li></ul></li>
+    <li><h3>Graduation and post-programme support</h3><ul><li>Certificate</li><li>Alumni network</li><li>Advisory support</li></ul></li>
+  </ol>
+  <div class="after">
+    <div><strong>After graduation</strong><span>Graduates continue to the Regulatory Sandbox or go directly to the licensing process.</span></div>
+    <a class="btn primary" href="#calls">Apply now</a>
+  </div>
+</section>
+
+<section id="eligibility">
+  <div class="two">
+    <div>
+      <h2>Who can apply</h2>
+      <ul>
+        <li>Citizens or residents of Oman</li>
+        <li>Businesses incorporated in Oman</li>
+      </ul>
+    </div>
+    <div>
+      <h2>What we look for</h2>
+      <ul>
+        <li>A strong understanding of the problem, the local market and your solution</li>
+        <li>An idea in line with the latest international fintech developments</li>
+        <li>A positive impact on the development of the financial sector</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="location">
+  <div class="visit">
+    <div>
+      <h2>Visit the Hub</h2>
+      <p>[Hub address, city]</p>
+      <p>[Opening hours]</p>
+      <p>[Contact email and phone]</p>
+      <p><a href="https://www.openstreetmap.org/">Get directions</a></p>
+    </div>
+    <div class="map">[Map or photo of the Hub]</div>
+  </div>
+</section>
+
+<section id="faq">
+  <h2>Frequently asked questions</h2>
+  <details>
+    <summary>How do I apply?</summary>
+    <p>Log in, choose an open call, complete the form, upload your documents and submit. You can save a draft and come back at any time, and you receive a confirmation by email.</p>
+  </details>
+  <details>
+    <summary>How can I follow my application?</summary>
+    <p>Log in to see your status and your next steps. We email you when the status changes.</p>
+  </details>
+  <details>
+    <summary>Is there a fee to apply?</summary>
+    <p>[To be confirmed by the Hub]</p>
+  </details>
+</section>
+
+</div>

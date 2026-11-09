@@ -179,7 +179,7 @@
 		{#if !missing('answers') && !data.answersError}
 			<p class="mt-1">
 				{data.responses.length} {t(locale, 'forms_answers_submitted')}{#if data.drafts}{' '}· {data.drafts} {t(locale, 'forms_answers_drafts')}{/if}
-				{#if data.responses.length}{' '}· <a class="anchor" href="/staff/forms/{f.id}/answers.csv" download data-testid="form-answers-csv">{t(locale, 'dashboard_csv')}</a>{/if}
+				{#if data.responses.length}{' '}· <a class="anchor" href="/staff/forms/{f.id}/answers.csv" download data-testid="form-answers-csv">{t(locale, 'dashboard_csv')}</a> · <a class="anchor" href="/staff/forms/{f.id}/answers.pdf" download data-testid="form-answers-pdf">{t(locale, 'dashboard_pdf')}</a>{/if}
 			</p>
 			{#if data.responses.length}
 				<ol class="mt-3 flex flex-col gap-3">
@@ -206,7 +206,7 @@
 							{#each data.responses as r (r.subject_id)}
 								<tr>
 									<td>{#if f.purpose === 'application'}<a class="anchor" href="/staff/applications/{r.subject_id}">{r.startup_name || r.subject_id}</a>{:else}{r.startup_name || r.subject_id}{/if}</td>
-									<td>{r.submitted_at}</td>
+									<td>{String(r.submitted_at ?? '').slice(0, 10)}</td>
 								</tr>
 							{/each}
 						</tbody>

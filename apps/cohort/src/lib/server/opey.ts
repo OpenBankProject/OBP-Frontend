@@ -20,16 +20,20 @@ import { DefaultOBPIntegrationService } from '@obp/shared/server/obp';
 import { createOpeyProxyHandlers } from '@obp/shared/server/opey';
 import { OPEY_CONVERSATION } from './entities/definitions';
 import { obpRequests } from './obp';
+import { cohortOpeyPrompt } from './opeyGuide';
 import { cohortSpace } from './space';
 
 /**
  * Cohort's Opey proxy: every Opey call from the browser goes through these handlers (see @obp/shared/server/opey).
  * Visitors who are not logged in chat anonymously; a logged-in User's Opey acts through a consent they hold.
  * A logged-in User's conversations are recorded into cohort_opey_conversation in Cohort's space, as that User.
+ * Every message carries Cohort's own focus for Opey (OPEY_APP_SUPPLEMENTARY_PROMPT and where Cohort's data is), set
+ * here on the server.
  */
 export const opeyProxy = createOpeyProxyHandlers({
 	opeyBaseUrl: () => env.OPEY_BASE_URL,
 	getAccessToken: (event) => event.locals.session?.data?.oauth?.access_token,
+	appSupplementaryPrompt: cohortOpeyPrompt,
 	recording: {
 		entityName: OPEY_CONVERSATION,
 		obpRequests,

@@ -17,6 +17,8 @@
  */
 import { fail } from '@sveltejs/kit';
 import { messageOf } from './errors';
+import { eligibilityRulesOf } from '$lib/applications';
+import { parseStages } from '$lib/stages';
 import { isStaffRole, requestStaffRole } from './staffAccess';
 import type { CohortRecord } from './records';
 
@@ -39,20 +41,31 @@ export function readProgrammeForm(form: FormData): CohortRecord {
 		description: str(form, 'description'),
 		status: statusOf(form),
 		starts_on: str(form, 'starts_on'),
-		ends_on: str(form, 'ends_on')
+		ends_on: str(form, 'ends_on'),
+		stages: form.has('stages') ? JSON.stringify(parseStages(str(form, 'stages'))) : ''
 	});
 }
 
-/** A cohort_call record from the call form, used to create and to edit. */
+/** A cohort_call record from the call form, used to create and to edit, with its eligibility rules. */
 export function readCallForm(form: FormData): CohortRecord {
-	return filled({
-		programme_id: str(form, 'programme_id'),
-		title: str(form, 'title'),
-		description: str(form, 'description'),
-		status: statusOf(form),
-		opens_at: str(form, 'opens_at'),
-		closes_at: str(form, 'closes_at')
+	const rules = eligibilityRulesOf({
+		eligibility_residency: str(form, 'eligibility_residency'),
+		eligibility_min_team_size: str(form, 'eligibility_min_team_size'),
+		eligibility_stages: form.getAll('eligibility_stages').map(String).join(',')
 	});
+	return {
+		...filled({
+			programme_id: str(form, 'programme_id'),
+			title: str(form, 'title'),
+			description: str(form, 'description'),
+			status: statusOf(form),
+			opens_at: str(form, 'opens_at'),
+			closes_at: str(form, 'closes_at'),
+			eligibility_residency: rules.residency,
+			eligibility_stages: rules.stages.join(',')
+		}),
+		...(rules.min_team_size !== null ? { eligibility_min_team_size: rules.min_team_size } : {})
+	};
 }
 
 /** Runs a write to OBP-API, turning a refusal into a form error. */

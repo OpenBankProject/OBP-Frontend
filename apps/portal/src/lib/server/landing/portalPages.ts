@@ -16,9 +16,10 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 /**
- * Published App Studio pages, read from the OBP dynamic entity `obp_portal_page` with the
- * Portal's application token. Only records with status "published" ever leave this module,
- * so drafts are invisible to visitors even if the entity holds them.
+ * Published App Studio pages for the Portal: those whose sites include the Portal, read from the OBP dynamic
+ * entity `obp_portal_page` with the Portal's application token. Only records with status "published" ever leave
+ * this module, so drafts are invisible to visitors even if the entity holds them. They appear directly in the
+ * Portal's menu, in their menu order.
  *
  * The Portal's consumer needs the Scope CanGetDynamicEntityRecord_obp_portal_page at bank id SYS (the
  * entity's auth mode is UserOrApplication). See the API Manager's App Studio Help page.
@@ -26,24 +27,18 @@
 import { createLogger } from '@obp/shared/utils';
 import { obp_requests } from '$lib/obp/requests';
 import { OBPRequestError } from '@obp/shared/obp';
+import { publishedPagesFor, SITE_PAGE_ENTITY, type SitePage } from '@obp/shared/landing';
+import { fetchSitePageRecords } from '@obp/shared/server/landing';
 import { requestApplicationAccessToken } from '$lib/server/oauth/applicationToken';
 
 const logger = createLogger('PortalPages');
 
-export const PORTAL_PAGE_ENTITY = 'obp_portal_page';
-const LIST_PATH = `/obp/dynamic-entity/${PORTAL_PAGE_ENTITY}`;
 const CACHE_TTL_MS = 60_000;
 
-export interface PublishedPage {
-	id: string;
-	slug: string;
-	title: string;
-	kind: 'page' | 'app';
-	summary: string;
-	source: string;
-	author: string;
-	updated_at: string;
-}
+/** The Portal is in English: it shows pages in English and those for every language. */
+const PORTAL_LANG = 'en';
+
+export type PublishedPage = SitePage;
 
 export class PortalPagesUnavailable extends Error {
 	constructor(message: string, public readonly cause?: unknown) {
@@ -54,58 +49,29 @@ export class PortalPagesUnavailable extends Error {
 
 let cache: { at: number; pages: PublishedPage[] } | null = null;
 
-function toPage(raw: any): PublishedPage | null {
-	const r = raw?.[PORTAL_PAGE_ENTITY] ?? raw;
-	if (!r || r.status !== 'published') return null;
-	const slug = String(r.slug ?? '').trim();
-	if (!slug) return null;
-	return {
-		id: String(r[`${PORTAL_PAGE_ENTITY}_id`] ?? ''),
-		slug,
-		title: String(r.title ?? slug),
-		kind: r.kind === 'app' ? 'app' : 'page',
-		summary: String(r.summary ?? ''),
-		source: String(r.source ?? ''),
-		author: String(r.author ?? ''),
-		updated_at: String(r.updated_at ?? '')
-	};
-}
-
-/** Every published page, newest first. Cached for a minute. */
+/** Every page published to the Portal, in menu order. Cached for a minute. */
 export async function listPublishedPages(): Promise<PublishedPage[]> {
 	if (cache && Date.now() - cache.at < CACHE_TTL_MS) return cache.pages;
 	const tokenResult = await requestApplicationAccessToken();
 	if (tokenResult.token === null) {
 		throw new PortalPagesUnavailable(`The Portal has no application token to read pages with: ${tokenResult.reason}.`);
 	}
-	const token = tokenResult.token;
-	let response: any;
+	let records: unknown[];
 	try {
-		response = await obp_requests.get(LIST_PATH, token);
+		records = await fetchSitePageRecords((path, token) => obp_requests.get(path, token), tokenResult.token);
 	} catch (e) {
-		// OBP answers 404 until the entity is defined: nothing has been published yet.
-		if (e instanceof OBPRequestError && e.code === '404') {
-			cache = { at: Date.now(), pages: [] };
-			return [];
-		}
 		if (e instanceof OBPRequestError) {
-			logger.error(`Could not read ${PORTAL_PAGE_ENTITY}: ${e.message}`);
+			logger.error(`Could not read ${SITE_PAGE_ENTITY}: ${e.message}`);
 			throw new PortalPagesUnavailable(
-				`OBP refused to list ${PORTAL_PAGE_ENTITY} (${e.message}). The Portal's consumer needs the Scope CanGetDynamicEntityRecord_${PORTAL_PAGE_ENTITY} at bank id SYS, and the entity must exist.`,
+				`OBP refused to list ${SITE_PAGE_ENTITY} (${e.message}). The Portal's consumer needs the Scope CanGetDynamicEntityRecord_${SITE_PAGE_ENTITY} at bank id SYS, and the entity must exist.`,
 				e
 			);
 		}
 		throw new PortalPagesUnavailable(`Could not reach OBP: ${e instanceof Error ? e.message : String(e)}`, e);
 	}
-	const listKey = Object.keys(response ?? {}).find((k) => Array.isArray(response[k]));
-	const records: any[] = listKey ? response[listKey] : Array.isArray(response) ? response : [];
-	const pages = records.map(toPage).filter((p): p is PublishedPage => p !== null);
-	// One slug, one page: the most recently updated wins.
-	pages.sort((a, b) => (b.updated_at > a.updated_at ? 1 : -1));
-	const seen = new Set<string>();
-	const unique = pages.filter((p) => (seen.has(p.slug) ? false : (seen.add(p.slug), true)));
-	cache = { at: Date.now(), pages: unique };
-	return unique;
+	const pages = publishedPagesFor(records, 'portal', PORTAL_LANG);
+	cache = { at: Date.now(), pages };
+	return pages;
 }
 
 export async function getPublishedPage(slug: string): Promise<PublishedPage | null> {

@@ -54,6 +54,28 @@ export interface LandingBank {
 	website?: string;
 }
 
+/** An open call for applications, on a site that runs programmes (Cohort). */
+export interface LandingCall {
+	title: string;
+	description?: string;
+	/** The name of the programme it is for. */
+	programme?: string;
+	/** YYYY-MM-DD, or empty. */
+	opens_at?: string;
+	closes_at?: string;
+	/** The call's page on the site. */
+	href: string;
+}
+
+/** A programme, on a site that runs programmes (Cohort). */
+export interface LandingProgramme {
+	name: string;
+	/** Plain text; lines starting with "- " are shown as a list. */
+	description?: string;
+	starts_on?: string;
+	ends_on?: string;
+}
+
 export interface LandingGlossaryEntry {
 	title: string;
 	/** The rendered body. MUST already be sanitised: it is inserted as is. */
@@ -69,6 +91,10 @@ export interface LandingFetchers {
 	stat(kind: string): Promise<number | string>;
 	/** One glossary item, or undefined when the glossary has no such title. */
 	glossary(title: string): Promise<LandingGlossaryEntry | undefined>;
+	/** The open calls, on a site that runs programmes; absent elsewhere. */
+	calls?(opts: { programme?: string; limit: number }): Promise<LandingCall[]>;
+	/** The programmes, on a site that runs programmes; absent elsewhere. */
+	programmes?(opts: { limit: number }): Promise<LandingProgramme[]>;
 	links: {
 		/** Where a product card links to, e.g. `/products/${code}`. */
 		product(product: LandingProduct): string;
@@ -214,13 +240,83 @@ ${body}
 </section>`;
 }
 
+/** A date, isolated so a right-to-left page does not reorder its digits. Escaped. */
+const date = (d: string | undefined) => `<bdi>${escapeHtml(d)}</bdi>`;
+
+/** Plain text as paragraphs, with runs of "- " lines as a list. Escaped. */
+function textBlocks(text: string, className: string): string {
+	const out: string[] = [];
+	let items: string[] = [];
+	const flush = () => {
+		if (items.length) out.push(`<ul class="${className}-list">${items.map((i) => `<li>${escapeHtml(i)}</li>`).join('')}</ul>`);
+		items = [];
+	};
+	for (const raw of text.split(/\r?\n/)) {
+		const line = raw.trim();
+		const item = /^[-•*]\s+(.*)$/.exec(line);
+		if (item) items.push(item[1]);
+		else {
+			flush();
+			if (line) out.push(`<p class="${className}">${escapeHtml(line)}</p>`);
+		}
+	}
+	flush();
+	return out.join('\n');
+}
+
+async function renderCalls(attrs: Record<string, string>, f: LandingFetchers): Promise<string> {
+	if (!f.calls) throw new Error('this site has no calls for applications');
+	const calls = await f.calls({ programme: attrs.programme || undefined, limit: limitOf(attrs, 6) });
+	if (calls.length === 0) {
+		return `<div class="obp-calls obp-calls--empty">${attrs.empty ? `<p class="obp-calls-empty">${escapeHtml(attrs.empty)}</p>` : ''}</div>`;
+	}
+	const opens = attrs['opens-label'] || 'Opens';
+	const closes = attrs['closes-label'] || 'Closes';
+	const linkLabel = attrs['link-label'] || 'View call';
+	const items = calls
+		.map((c) => {
+			const dates = [c.opens_at ? `${escapeHtml(opens)} ${date(c.opens_at)}` : '', c.closes_at ? `${escapeHtml(closes)} ${date(c.closes_at)}` : '']
+				.filter(Boolean)
+				.join(' · ');
+			return `<article class="obp-call-card">
+${c.programme ? `<div class="obp-call-programme" dir="auto">${escapeHtml(c.programme)}</div>` : ''}
+<h3 class="obp-call-title" dir="auto"><a href="${safeUrl(c.href)}">${escapeHtml(c.title)}</a></h3>
+${c.description ? `<p class="obp-call-description" dir="auto">${escapeHtml(c.description)}</p>` : ''}
+${dates ? `<div class="obp-call-dates">${dates}</div>` : ''}
+<a class="obp-call-link" href="${safeUrl(c.href)}">${escapeHtml(linkLabel)}</a>
+</article>`;
+		})
+		.join('\n');
+	return `<div class="obp-calls">\n${items}\n</div>`;
+}
+
+async function renderProgrammes(attrs: Record<string, string>, f: LandingFetchers): Promise<string> {
+	if (!f.programmes) throw new Error('this site has no programmes');
+	const programmes = await f.programmes({ limit: limitOf(attrs, 6) });
+	if (programmes.length === 0) return `<div class="obp-programmes obp-programmes--empty"></div>`;
+	const items = programmes
+		.map((p, i) => {
+			const dates = [p.starts_on, p.ends_on].filter(Boolean).map((d) => date(d)).join(' – ');
+			return `<article class="obp-programme-card">
+<div class="obp-programme-number">${i + 1}</div>
+<h3 class="obp-programme-name" dir="auto">${escapeHtml(p.name)}</h3>
+${p.description ? `<div class="obp-programme-description" dir="auto">${textBlocks(p.description, 'obp-programme-text')}</div>` : ''}
+${dates ? `<div class="obp-programme-dates">${dates}</div>` : ''}
+</article>`;
+		})
+		.join('\n');
+	return `<div class="obp-programmes">\n${items}\n</div>`;
+}
+
 const RENDERERS: Record<string, (attrs: Record<string, string>, f: LandingFetchers) => Promise<string>> = {
 	'obp-products': renderProducts,
 	'obp-endpoints': renderEndpoints,
 	'obp-banks': renderBanks,
 	'obp-signup': renderSignup,
 	'obp-stat': renderStat,
-	'obp-glossary': renderGlossary
+	'obp-glossary': renderGlossary,
+	'obp-calls': renderCalls,
+	'obp-programmes': renderProgrammes
 };
 
 // Every registered tag must have a renderer; fail at import time if not.

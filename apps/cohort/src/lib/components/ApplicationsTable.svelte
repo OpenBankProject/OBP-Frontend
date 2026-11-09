@@ -35,7 +35,7 @@
 					<td>{a.call}</td>
 					<td><Badge {locale} kind="status" value={a.status} /></td>
 					<td><Badge {locale} kind="eligibility" value={a.eligibility} /></td>
-					<td>{a.submitted_at}</td>
+					<td>{a.submitted_at.slice(0, 10)}</td>
 					<td><Badge {locale} kind="decision" value={a.decision} /></td>
 				</tr>
 			{/each}

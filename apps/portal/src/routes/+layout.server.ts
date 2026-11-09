@@ -26,6 +26,8 @@ import type { ResolvedWebUiValue } from '@obp/shared/server/obp';
 // storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
 import { env } from "$env/dynamic/private";
+import { menuItemOf } from '@obp/shared/landing';
+import { listPublishedPages } from '$lib/server/landing/portalPages';
 import { env as publicEnv } from '$env/dynamic/public';
 
 export interface RootLayoutData {
@@ -37,6 +39,8 @@ export interface RootLayoutData {
     totalUnreadCount?: number;
     publicObpMcpUrl?: string;
     webUiText: Record<WebUiTextKey, ResolvedWebUiValue>;
+    /** The pages published to the Portal with App Studio, shown directly in the menu. */
+    sitePages: { slug: string; title: string }[];
 }
 
 // Operator-configurable text: webui_prop (e.g. webui_welcome_title), then env var, then default
@@ -85,6 +89,13 @@ export async function load(event: RequestEvent) {
 	// Kick off the (cached) app-directory fetch early; awaited before returning
 	const appDirectoryPromise = getAppDirectory();
 	const webUiTextPromise = resolveWebUiValues((path) => obp_requests.get(path), publicEnv, WEB_UI_TEXT);
+	// The menu still works when pages cannot be read: the pages are then missing from it, and /pages/SLUG says why.
+	const sitePagesPromise = listPublishedPages()
+		.then((pages) => pages.map(menuItemOf))
+		.catch((error) => {
+			logger.warn('Could not list the published pages for the menu:', error);
+			return [];
+		});
 
 	let externalLinks = {
 		API_EXPLORER_URL: env.API_EXPLORER_URL,
@@ -141,7 +152,7 @@ export async function load(event: RequestEvent) {
 		}
 	}
 
-	const [appDirectory, webUiText] = await Promise.all([appDirectoryPromise, webUiTextPromise]);
+	const [appDirectory, webUiText, sitePages] = await Promise.all([appDirectoryPromise, webUiTextPromise, sitePagesPromise]);
 
 	return {
 		...data,
@@ -149,6 +160,7 @@ export async function load(event: RequestEvent) {
 		showEarlyAccess,
 		totalUnreadCount,
 		publicObpMcpUrl: appDirectory['public_obp_mcp_url'],
-		webUiText
+		webUiText,
+		sitePages
 	} as RootLayoutData
 }

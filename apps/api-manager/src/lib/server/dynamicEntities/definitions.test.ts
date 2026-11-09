@@ -32,21 +32,21 @@ describe("findDynamicEntityDefinition", () => {
   });
 
   it("finds a definition by its dynamic_entity_id", async () => {
-    expect(await findDynamicEntityDefinition("de-2", "ogcr", "token")).toBe(country);
+    expect(await findDynamicEntityDefinition("de-2", "acme", "token")).toBe(country);
   });
 
   it("finds a definition by its entity name, for links built from the public resource docs", async () => {
-    expect(await findDynamicEntityDefinition("activity", "ogcr", "token")).toBe(activity);
+    expect(await findDynamicEntityDefinition("activity", "acme", "token")).toBe(activity);
   });
 
   it("prefers the id when a name happens to equal another entity's id", async () => {
     get.mockResolvedValue({
       dynamic_entities: [{ dynamic_entity_id: "x", entity_name: "de-1" }, activity],
     });
-    expect(await findDynamicEntityDefinition("de-1", "ogcr", "token")).toBe(activity);
+    expect(await findDynamicEntityDefinition("de-1", "acme", "token")).toBe(activity);
   });
 
   it("is null when nothing matches", async () => {
-    expect(await findDynamicEntityDefinition("parcel", "ogcr", "token")).toBeNull();
+    expect(await findDynamicEntityDefinition("parcel", "acme", "token")).toBeNull();
   });
 });

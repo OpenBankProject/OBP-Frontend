@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { CircleCheck, Circle } from '@lucide/svelte';
+	import AnnouncementList from '$lib/components/AnnouncementList.svelte';
 	import { t, type Locale, type MessageKey } from '$lib/i18n';
 
 	let { data, form } = $props();
@@ -8,6 +9,7 @@
 </script>
 
 <h1 class="h2">{t(locale, 'programme_heading')}</h1>
+{#if data.announcements.length}<div class="mt-6"><AnnouncementList {locale} announcements={data.announcements} testid="programme-announcements" /></div>{/if}
 
 {#if form?.registered}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'programme_company_registered')}</p>{/if}
 {#if form?.reported}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'programme_reported')}</p>{/if}
@@ -33,7 +35,7 @@
 			{#if p.call_title}<dt>{t(locale, 'application_call')}</dt><dd>{p.call_title}</dd>{/if}
 			<dt>{t(locale, 'programme_stage')}</dt>
 			<dd>
-				{t(locale, `participant_stage_${p.stage}` as MessageKey)}
+				{p.stage_name}
 				{#if p.stage === 'graduated' || p.status === 'graduated'}
 					· <a class="anchor" href="/programme/certificate/{p.id}" data-testid="programme-certificate-{p.id}">{t(locale, 'certificate_download')}</a>
 				{/if}
@@ -69,6 +71,18 @@
 				<div><strong>{t(locale, 'programme_step_opey')}</strong><p class="text-sm"><a class="anchor" href="/">{t(locale, 'programme_step_opey_intro')}</a></p></div>
 			</li>
 		</ol>
+
+		{#if p.demo_slots.length || p.pitch_feedback.length}
+			<h3 class="h4 mt-6">{t(locale, 'demo_heading')}</h3>
+			<ul class="mt-2 flex flex-col gap-1" data-testid="programme-demo-{p.id}">
+				{#each p.demo_slots as slot (slot.id)}
+					<li>{slot.title} · {slot.date}{#if slot.starts_at} {slot.starts_at}{/if} · {t(locale, 'demo_your_place')} {slot.position} · <a class="anchor" href="/demo-day/{slot.session_id}">{t(locale, 'demo_public_page')}</a></li>
+				{/each}
+			</ul>
+			{#each p.pitch_feedback as f (f.id)}
+				<div class="card preset-tonal mt-2 p-3"><p class="text-sm">{t(locale, 'demo_feedback')} · {f.given_at.slice(0, 10)}</p><p class="whitespace-pre-line">{f.feedback}</p></div>
+			{/each}
+		{/if}
 
 		<h3 class="h4 mt-6">{t(locale, 'sessions_heading')}</h3>
 		{#if p.sessions.length === 0}<p class="mt-2 text-sm">{t(locale, 'programme_sessions_none')}</p>{/if}

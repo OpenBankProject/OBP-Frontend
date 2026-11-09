@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>National Fintech Innovation Hub</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#14283C}a:hover{color:#8A5F22}
+button{font-family:inherit;cursor:pointer}
+a:focus-visible,button:focus-visible{outline:3px solid #B8894B;outline-offset:2px}
+</style>
+</helmet>
+<div dir="{{dir}}" style="width: 100%; box-sizing: border-box; background: #FBF9F5; color: #1B2430; font-family: 'IBM Plex Sans', 'IBM Plex Sans Arabic', sans-serif; font-size: 16px; line-height: 1.55">
+
+<div style="background: #14283C; color: #FFFFFF; padding: 10px 40px; display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center; font-size: 14px">
+<span>{{t.banner}}</span>
+<a href="#calls" style="color: #F2D9A8; font-weight: 600">{{t.bannerLink}}</a>
+</div>
+
+<header style="background: #FFFFFF; border-bottom: 1px solid #E4DED3; padding: 16px 40px; display: flex; flex-wrap: wrap; gap: 20px; align-items: center; justify-content: space-between">
+<div style="display: flex; align-items: center; gap: 14px">
+<div style="width: 52px; height: 52px; border: 2px dashed #8A93A0; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #5A6573; text-align: center; line-height: 1.2">LOGO</div>
+<div style="display: flex; flex-direction: column">
+<span style="font-weight: 700; font-size: 18px; color: #14283C">{{t.name}}</span>
+<span style="font-size: 13px; color: #5A6573">{{t.tagline}}</span>
+</div>
+</div>
+<nav aria-label="Main" style="display: flex; flex-wrap: wrap; gap: 22px; align-items: center">
+<sc-for list="{{nav}}" as="item" hint-placeholder-count="6">
+<a href="{{item.href}}" style="text-decoration: none; font-weight: 500; font-size: 15px">{{item.label}}</a>
+</sc-for>
+</nav>
+<div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center">
+<button onClick="{{toggleLang}}" aria-label="Switch language" style="min-height: 44px; padding: 0 16px; border: 1px solid #8A93A0; background: #FFFFFF; color: #14283C; border-radius: 8px; font-size: 15px; font-weight: 600">{{t.langButton}}</button>
+<button style="min-height: 44px; padding: 0 18px; border: 1px solid #14283C; background: #FFFFFF; color: #14283C; border-radius: 8px; font-size: 15px; font-weight: 600">{{t.login}}</button>
+<button style="min-height: 44px; padding: 0 18px; border: 1px solid #14283C; background: #14283C; color: #FFFFFF; border-radius: 8px; font-size: 15px; font-weight: 600">{{t.register}}</button>
+</div>
+</header>
+
+<section id="about" style="padding: 64px 40px; background: #F3EEE4">
+<div style="max-width: 1240px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 48px; align-items: stretch">
+<div style="flex: 3 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 22px; justify-content: center">
+<span style="font-size: 14px; font-weight: 600; letter-spacing: 0.08em; color: #8A5F22; text-transform: uppercase">{{t.eyebrow}}</span>
+<h1 style="margin: 0; font-size: 46px; line-height: 1.15; color: #14283C; font-weight: 700">{{t.heroTitle}}</h1>
+<p style="margin: 0; font-size: 19px; color: #36414F; max-width: 640px">{{t.heroSub}}</p>
+<div style="display: flex; flex-wrap: wrap; gap: 12px">
+<a href="#calls" style="min-height: 48px; padding: 0 26px; background: #B8894B; color: #14283C; border-radius: 8px; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center">{{t.cta}}</a>
+<a href="#journey" style="min-height: 48px; padding: 0 26px; border: 1px solid #14283C; color: #14283C; border-radius: 8px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center">{{t.cta2}}</a>
+</div>
+<p style="margin: 0; font-size: 14px; color: #5A6573">Applicants register, apply, upload documents and follow their status online. No visit or paperwork needed.</p>
+</div>
+<div style="flex: 2 1 340px; min-width: 0; background: #FFFFFF; border: 1px solid #DDD5C6; border-radius: 14px; padding: 22px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; align-items: center; gap: 10px">
+<div style="width: 34px; height: 34px; border-radius: 50%; background: #14283C; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 700" aria-hidden="true">?</div>
+<div style="display: flex; flex-direction: column">
+<strong style="color: #14283C">Ask the Hub assistant</strong>
+<span style="font-size: 13px; color: #5A6573">Questions about programmes, eligibility and deadlines</span>
+</div>
+</div>
+<div style="background: #F3EEE4; border-radius: 10px; padding: 14px; font-size: 15px; color: #36414F">Hello. I can tell you which programme fits your startup and what you need to apply.</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<button style="min-height: 44px; padding: 0 14px; border: 1px solid #8A93A0; background: #FFFFFF; color: #14283C; border-radius: 22px; font-size: 14px">Am I eligible?</button>
+<button style="min-height: 44px; padding: 0 14px; border: 1px solid #8A93A0; background: #FFFFFF; color: #14283C; border-radius: 22px; font-size: 14px">How do I apply?</button>
+<button style="min-height: 44px; padding: 0 14px; border: 1px solid #8A93A0; background: #FFFFFF; color: #14283C; border-radius: 22px; font-size: 14px">Deadlines</button>
+<button style="min-height: 44px; padding: 0 14px; border: 1px solid #8A93A0; background: #FFFFFF; color: #14283C; border-radius: 22px; font-size: 14px">Programmes</button>
+</div>
+<div style="display: flex; gap: 8px">
+<label for="ask" style="position: absolute; left: -9999px">Ask a question</label>
+<input id="ask" type="text" placeholder="Type your question" style="flex: 1 1 auto; min-width: 0; min-height: 44px; box-sizing: border-box; padding: 0 12px; border: 1px solid #8A93A0; border-radius: 8px; font-family: inherit; font-size: 15px">
+<button aria-label="Send" style="min-width: 44px; min-height: 44px; border: 0; background: #14283C; color: #FFFFFF; border-radius: 8px; font-size: 18px">↑</button>
+</div>
+</div>
+</div>
+</section>
+
+<section id="programs" style="padding: 72px 40px">
+<div style="max-width: 1240px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<h2 style="margin: 0; font-size: 32px; color: #14283C">{{t.programsTitle}}</h2>
+<p style="margin: 0; color: #36414F; max-width: 720px">Two tracks: one for people exploring an idea, and one for companies ready to incubate and accelerate.</p>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 24px">
+<div style="background: #FFFFFF; border: 1px solid #DDD5C6; border-radius: 14px; padding: 28px; display: flex; flex-direction: column; gap: 14px">
+<span style="font-size: 13px; font-weight: 700; color: #8A5F22; letter-spacing: 0.06em">TRACK 1</span>
+<h3 style="margin: 0; font-size: 24px; color: #14283C">Pre-incubation</h3>
+<p style="margin: 0; color: #36414F">For registered members who want to learn, connect and test ideas.</p>
+<ul style="margin: 0; padding-inline-start: 20px; color: #1B2430; display: flex; flex-direction: column; gap: 6px">
+<li>Open space for networking and seminars</li>
+<li>Innovation challenges and fintech hackathons</li>
+<li>Digital learning portal on fintech trends and technologies</li>
+</ul>
+</div>
+<div style="background: #14283C; color: #FFFFFF; border-radius: 14px; padding: 28px; display: flex; flex-direction: column; gap: 14px">
+<span style="font-size: 13px; font-weight: 700; color: #F2D9A8; letter-spacing: 0.06em">TRACK 2</span>
+<h3 style="margin: 0; font-size: 24px">Incubation and acceleration</h3>
+<p style="margin: 0; color: #E3E8EF">For incubated companies building towards the market and the regulator.</p>
+<ul style="margin: 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 6px">
+<li>Bootcamps and incubation support</li>
+<li>Time-bound acceleration programmes</li>
+<li>Digital mentorship platform and digital sandbox</li>
+<li>Investor matchmaking, pitching support and demo days</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+
+<section id="calls" style="padding: 72px 40px; background: #F3EEE4">
+<div style="max-width: 1240px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px">
+<div style="display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; align-items: end">
+<h2 style="margin: 0; font-size: 32px; color: #14283C">{{t.callsTitle}}</h2>
+<div style="display: flex; gap: 8px; flex-wrap: wrap">
+<label for="q" style="position: absolute; left: -9999px">Search calls</label>
+<input id="q" type="search" placeholder="Search calls and programmes" style="min-height: 44px; box-sizing: border-box; padding: 0 14px; border: 1px solid #8A93A0; border-radius: 8px; font-family: inherit; font-size: 15px; min-width: 260px">
+</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 24px">
+<sc-for list="{{calls}}" as="call" hint-placeholder-count="3">
+<article style="background: #FFFFFF; border: 1px solid #DDD5C6; border-radius: 14px; padding: 24px; display: flex; flex-direction: column; gap: 12px">
+<span style="align-self: flex-start; font-size: 13px; font-weight: 700; padding: 4px 10px; border-radius: 12px; background: #E6F0E9; color: #1D5B36">{{call.status}}</span>
+<h3 style="margin: 0; font-size: 21px; color: #14283C">{{call.title}}</h3>
+<p style="margin: 0; color: #36414F">{{call.text}}</p>
+<div style="font-size: 14px; color: #5A6573">{{call.dates}}</div>
+<div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px">
+<a href="#journey" style="min-height: 44px; padding: 0 20px; background: #14283C; color: #FFFFFF; border-radius: 8px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center">View call</a>
+<a href="#journey" style="min-height: 44px; padding: 0 20px; border: 1px solid #14283C; color: #14283C; border-radius: 8px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center">Apply</a>
+</div>
+</article>
+</sc-for>
+</div>
+<p style="margin: 0; font-size: 14px; color: #5A6573">Programme names and dates are placeholders.</p>
+</div>
+</section>
+
+<section id="journey" style="padding: 72px 40px">
+<div style="max-width: 1240px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<h2 style="margin: 0; font-size: 32px; color: #14283C">{{t.journeyTitle}}</h2>
+<p style="margin: 0; color: #36414F; max-width: 720px">Six phases from call for applications to graduation. Each phase is tracked online in your account.</p>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 16px">
+<sc-for list="{{phases}}" as="ph" hint-placeholder-count="6">
+<div style="background: #FFFFFF; border: 1px solid #DDD5C6; border-top: 5px solid #B8894B; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 10px">
+<span style="width: 34px; height: 34px; border-radius: 50%; background: #14283C; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 700">{{ph.n}}</span>
+<h3 style="margin: 0; font-size: 18px; color: #14283C">{{ph.title}}</h3>
+<div style="white-space: pre-line; font-size: 15px; color: #36414F">{{ph.points}}</div>
+</div>
+</sc-for>
+</div>
+<div style="background: #14283C; color: #FFFFFF; border-radius: 14px; padding: 24px 28px; display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between">
+<div style="display: flex; flex-direction: column; gap: 4px; min-width: 0">
+<strong style="font-size: 18px">After graduation</strong>
+<span style="color: #E3E8EF">Graduates continue to the Fintech Regulatory Sandbox or go directly to the licensing process.</span>
+</div>
+<a href="#calls" style="min-height: 48px; padding: 0 26px; background: #B8894B; color: #14283C; border-radius: 8px; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center">{{t.cta}}</a>
+</div>
+</div>
+</section>
+
+<section id="eligibility" style="padding: 64px 40px; background: #F3EEE4">
+<div style="max-width: 1240px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 40px">
+<div style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 14px">
+<h2 style="margin: 0; font-size: 28px; color: #14283C">Who can apply</h2>
+<ul style="margin: 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 8px; color: #1B2430">
+<li>Citizens or residents of the Sultanate of Oman</li>
+<li>Businesses incorporated in the Sultanate of Oman</li>
+</ul>
+</div>
+<div style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 14px">
+<h2 style="margin: 0; font-size: 28px; color: #14283C">What we look for</h2>
+<ul style="margin: 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 8px; color: #1B2430">
+<li>A strong understanding of the problem, the Omani market and your solution</li>
+<li>An idea in line with the latest international fintech developments</li>
+<li>A positive impact on the development of the financial sector in Oman</li>
+</ul>
+</div>
+</div>
+</section>
+
+<section id="location" style="padding: 72px 40px">
+<div style="max-width: 1240px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 40px">
+<div style="flex: 1 1 380px; min-width: 0; display: flex; flex-direction: column; gap: 14px">
+<h2 style="margin: 0; font-size: 32px; color: #14283C">{{t.locationTitle}}</h2>
+<p style="margin: 0; color: #36414F">[Hub address, city]</p>
+<p style="margin: 0; color: #36414F">[Opening hours]</p>
+<p style="margin: 0; color: #36414F">[Contact email and phone]</p>
+<a href="#location" style="font-weight: 600">Get directions</a>
+</div>
+<div style="flex: 2 1 480px; min-width: 0; height: 280px; border: 2px dashed #8A93A0; border-radius: 14px; background: #EFEAE0; display: flex; align-items: center; justify-content: center; color: #5A6573; font-size: 15px; text-align: center; padding: 20px; box-sizing: border-box">[Embedded map of the Hub location]</div>
+</div>
+</section>
+
+<section id="faq" style="padding: 64px 40px; background: #F3EEE4">
+<div style="max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px">
+<h2 style="margin: 0; font-size: 28px; color: #14283C">{{t.faqTitle}}</h2>
+<div style="background: #FFFFFF; border: 1px solid #DDD5C6; border-radius: 12px; padding: 18px 22px">
+<strong style="color: #14283C">How do I apply?</strong>
+<p style="margin: 6px 0 0 0; color: #36414F">Register, choose an open call, complete the form, upload your documents and submit. You can save your draft and return at any time, and you receive a confirmation by email.</p>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #DDD5C6; border-radius: 12px; padding: 18px 22px">
+<strong style="color: #14283C">How can I follow my application?</strong>
+<p style="margin: 6px 0 0 0; color: #36414F">Sign in to see your status and your next steps. We email you when the status changes.</p>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #DDD5C6; border-radius: 12px; padding: 18px 22px">
+<strong style="color: #14283C">Is there a fee to apply?</strong>
+<p style="margin: 6px 0 0 0; color: #36414F">[To be confirmed by the Hub]</p>
+</div>
+</div>
+</section>
+
+<footer style="background: #14283C; color: #E3E8EF; padding: 40px; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-wrap: wrap; gap: 28px; justify-content: space-between">
+<div style="display: flex; flex-direction: column; gap: 8px; min-width: 0">
+<strong style="color: #FFFFFF; font-size: 18px">{{t.name}}</strong>
+<span>[Partner and supporter logos]</span>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 22px; align-items: flex-start">
+<a href="#about" style="color: #F2D9A8">About</a>
+<a href="#faq" style="color: #F2D9A8">Accessibility</a>
+<a href="#faq" style="color: #F2D9A8">Privacy notice</a>
+<a href="#faq" style="color: #F2D9A8">Terms of use</a>
+</div>
+</div>
+<div style="border-top: 1px solid #3A4D63; padding-top: 14px; font-size: 13px; color: #C3CBD6">Design mockup with placeholder branding and content. The final design follows the official brand guidelines.</div>
+</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1360,"height":3000}}'>
+class Component extends DCLogic {
+renderVals() {
+const lang = (this.state && this.state.lang) || 'en';
+const ar = lang === 'ar';
+const en = {
+banner: 'Applications are open for [Programme name]. Closing [date].',
+bannerLink: 'See open calls',
+name: 'National Fintech Innovation Hub',
+tagline: 'Incubating and accelerating fintech startups in Oman',
+langButton: 'العربية',
+login: 'Log in',
+register: 'Register',
+eyebrow: 'Applications open',
+heroTitle: 'From idea to graduation, all in one place',
+heroSub: 'Apply to the Hub, build your product with mentors and partners, and follow your progress online at every step.',
+cta: 'Apply now',
+cta2: 'See the journey',
+programsTitle: 'Programmes',
+callsTitle: 'Open calls',
+journeyTitle: 'Your journey through the Hub',
+locationTitle: 'Visit the Hub',
+faqTitle: 'Frequently asked questions'
+};
+const arT = {
+banner: 'باب التقديم مفتوح لبرنامج [اسم البرنامج]. آخر موعد [التاريخ].',
+bannerLink: 'عرض الدعوات المفتوحة',
+name: 'مركز الابتكار المالي الوطني',
+tagline: 'احتضان وتسريع الشركات الناشئة في المجال المالي في سلطنة عُمان',
+langButton: 'English',
+login: 'تسجيل الدخول',
+register: 'إنشاء حساب',
+eyebrow: 'التقديم مفتوح',
+heroTitle: 'من الفكرة إلى التخرج، في مكان واحد',
+heroSub: 'قدّم طلبك إلى المركز، وطوّر منتجك مع المرشدين والشركاء، وتابع تقدمك عبر الإنترنت في كل خطوة.',
+cta: 'قدّم طلبك الآن',
+cta2: 'اطّلع على الرحلة',
+programsTitle: 'البرامج',
+callsTitle: 'الدعوات المفتوحة',
+journeyTitle: 'رحلتك عبر المركز',
+locationTitle: 'زيارة المركز',
+faqTitle: 'الأسئلة الشائعة'
+};
+const navEn = ['About the Hub', 'Programmes', 'Journey', 'Open calls', 'Location', 'FAQ'];
+const navAr = ['عن المركز', 'البرامج', 'الرحلة', 'الدعوات المفتوحة', 'الموقع', 'الأسئلة الشائعة'];
+const hrefs = ['#about', '#programs', '#journey', '#calls', '#location', '#faq'];
+const labels = ar ? navAr : navEn;
+return {
+dir: ar ? 'rtl' : 'ltr',
+t: ar ? arT : en,
+toggleLang: () => this.setState({ lang: ar ? 'en' : 'ar' }),
+nav: labels.map((label, i) => ({ label: label, href: hrefs[i] })),
+calls: [
+{ status: 'Open', title: '[Programme name]: Fintech Acceleration', text: 'For startups with a working product and first customers, ready to pilot with a partner bank and prepare for the regulatory sandbox.', dates: 'Opens [date] · Closes [date]' },
+{ status: 'Open', title: '[Programme name]: Incubation intake', text: 'For teams with a fintech idea for compliance, reporting, payments or lending.', dates: 'Opens [date] · Closes [date]' },
+{ status: 'Opening soon', title: '[Innovation challenge or hackathon]', text: 'A short challenge for members to test ideas and meet mentors and partners.', dates: 'Opens [date]' }
+],
+phases: [
+{ n: '1', title: 'Call for applications', points: 'Announcement\nOutreach\nApplications portal opens' },
+{ n: '2', title: 'Screening and selection', points: 'Eligibility check\nShortlisting\nSelection' },
+{ n: '3', title: 'Onboarding and orientation', points: 'Kick-off\nIntroduction to mentors\nProgramme roadmap' },
+{ n: '4', title: 'Core programme', points: 'Workshops\nMentorship\nProduct development\nProgress reviews' },
+{ n: '5', title: 'Demo day and investor showcase', points: 'Pitch deck\nDemo day\nInvestor engagement' },
+{ n: '6', title: 'Graduation and post-programme support', points: 'Alumni network\nAdvisory support\nRegulatory sandbox or licensing' }
+]
+};
+}
+}
+</script>
+</body>
+</html>

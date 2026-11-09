@@ -1,4 +1,6 @@
 <script lang="ts">
+	import BookmarkButton from '$lib/components/BookmarkButton.svelte';
+	import EligibilitySummary from '$lib/components/EligibilitySummary.svelte';
 	import { t, type Locale } from '$lib/i18n';
 
 	let { data } = $props();
@@ -6,13 +8,17 @@
 	const locale = $derived(data.locale as Locale);
 </script>
 
-<h1 class="h2">{data.call.title}</h1>
+<div class="flex flex-wrap items-start justify-between gap-2">
+	<h1 class="h2" dir="auto">{data.call.title}</h1>
+	{#if data.user}<BookmarkButton {locale} kind="call" targetId={data.call.id} label={data.call.title} path="/calls/{data.call.id}" bookmarkId={data.bookmarkId} />{/if}
+</div>
 {#if data.programme}<p class="mt-1">{t(locale, 'call_programme')}: {data.programme}</p>{/if}
-{#if data.call.description}<p class="mt-4 whitespace-pre-line">{data.call.description}</p>{/if}
+{#if data.call.description}<p class="mt-4 whitespace-pre-line" dir="auto">{data.call.description}</p>{/if}
 <p class="mt-4 text-sm">
 	{#if data.call.opens_at}{t(locale, 'call_opens')}: {data.call.opens_at}{/if}
 	{#if data.call.closes_at} · {t(locale, 'call_closes')}: {data.call.closes_at}{/if}
 </p>
+<EligibilitySummary {locale} rules={data.call.eligibility} />
 
 {#if data.myApplicationId}
 	<a class="btn preset-filled mt-6" href="/applications/{data.myApplicationId}" data-testid="call-continue"

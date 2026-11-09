@@ -43,6 +43,12 @@ export const SESSION = 'cohort_session';
 export const SESSION_BOOKING = 'cohort_session_booking';
 export const ATTENDANCE = 'cohort_attendance';
 export const FORM = 'cohort_form';
+export const ANNOUNCEMENT = 'cohort_announcement';
+export const BOOKMARK = 'cohort_bookmark';
+export const EMAIL_SETTING = 'cohort_email_setting';
+export const DEMO_SLOT = 'cohort_demo_slot';
+export const DEMO_GUEST = 'cohort_demo_guest';
+export const PITCH_FEEDBACK = 'cohort_pitch_feedback';
 
 const text = (example: string, description: string, maxLength = 255, minLength = 0) => ({
 	type: 'string',
@@ -67,7 +73,12 @@ export const programmeEntity: SystemDynamicEntityDefinition = {
 			description: text('A six-month programme for fintech startups.', 'What the programme offers.', 4000),
 			status: text('open', 'draft, open or closed.', 20, 1),
 			starts_on: text('2027-01-15', 'First day (YYYY-MM-DD).', 10),
-			ends_on: text('2027-07-15', 'Last day (YYYY-MM-DD).', 10)
+			ends_on: text('2027-07-15', 'Last day (YYYY-MM-DD).', 10),
+			stages: text(
+				'[{"key":"in_programme","gate":{"company":true}},{"key":"graduated","gate":{"milestones":"all"}}]',
+				'The stages after onboarding, in order, each with its gate (JSON); empty for the default. The last is graduated.',
+				4000
+			)
 		}
 	}
 };
@@ -88,7 +99,10 @@ export const callEntity: SystemDynamicEntityDefinition = {
 			description: text('Applications are open to fintech startups.', 'What the call is looking for.', 4000),
 			status: text('open', 'draft, open or closed.', 20, 1),
 			opens_at: text('2026-11-01', 'When applications open (YYYY-MM-DD).', 10),
-			closes_at: text('2026-12-15', 'When applications close (YYYY-MM-DD).', 10)
+			closes_at: text('2026-12-15', 'When applications close (YYYY-MM-DD).', 10),
+			eligibility_residency: text('resident_or_incorporated', 'Who is eligible: resident_or_incorporated (the default), resident, incorporated or none.', 30),
+			eligibility_min_team_size: { type: 'integer', example: 2, description: 'The smallest eligible team; none for any size.' },
+			eligibility_stages: text('mvp,early_revenue', 'The eligible startup stages, comma separated (idea, mvp, early_revenue, growth); empty for any.', 100)
 		}
 	}
 };
@@ -323,7 +337,11 @@ export const participantEntity: SystemDynamicEntityDefinition = {
 			status: text('active', 'active, withdrawn or graduated.', 20, 1),
 			joined_at: text('2026-12-01T09:00:00Z', 'When it was accepted (ISO 8601, UTC).', 30, 1),
 			accepted_by_username: text('janedoe', 'Who accepted the application.', 255),
-			graduated_at: text('2027-06-30T09:00:00Z', 'When it graduated (ISO 8601, UTC).', 30)
+			graduated_at: text('2027-06-30T09:00:00Z', 'When it graduated (ISO 8601, UTC).', 30),
+			risk: text('watch', 'A risk flag raised by staff: none, watch or at_risk.', 20),
+			risk_note: text('The founders disagree about the pivot.', 'Why staff raised the flag.', 1000),
+			risk_set_by_username: text('janedoe', 'Who last set the flag.', 255),
+			risk_set_at: text('2027-02-01T09:00:00Z', 'When the flag was last set (ISO 8601, UTC).', 30)
 		}
 	}
 };
@@ -459,12 +477,12 @@ export const sessionEntity: SystemDynamicEntityDefinition = {
 	has_community_access: false,
 	auth_mode: 'UserXORApplication',
 	schema: {
-		description: 'A session of a programme: mentoring, a workshop or a demo day, with its time, place and seats.',
+		description: 'A session of a programme: mentoring, a workshop, office hours or a demo day, with its time, place and seats.',
 		required: ['programme_id', 'title', 'kind', 'starts_at'],
 		properties: {
 			programme_id: text('6fb17583-1e49-4435-bb74-a14fe0996723', 'The cohort_programme.', 36, 1),
 			title: text('Go-to-market clinic', 'What the session is.', 255, 1),
-			kind: text('mentoring', 'mentoring, workshop or demo_day.', 20, 1),
+			kind: text('mentoring', 'mentoring, workshop, office_hours or demo_day.', 20, 1),
 			starts_at: text('2027-03-01T10:00', 'When it starts (YYYY-MM-DDTHH:MM, local time of the programme).', 20, 1),
 			duration_minutes: integer(60, 'How long it lasts.'),
 			location: text('Innovation Hub, room 2, or an online link', 'Where, or the link to join.', 1000),
@@ -552,6 +570,149 @@ export const formEntity: SystemDynamicEntityDefinition = {
 	}
 };
 
+/**
+ * News from the programme office: call dates, demo day, changes to a session. Public, so anyone reads them without
+ * a Role or Scope; staff publish and remove them with their own Roles. programme_id narrows one to a programme's
+ * startups' page, but it is still public.
+ */
+export const announcementEntity: SystemDynamicEntityDefinition = {
+	entity_name: ANNOUNCEMENT,
+	has_personal_entity: false,
+	has_public_access: true,
+	has_community_access: false,
+	auth_mode: 'UserXORApplication',
+	schema: {
+		description: 'An announcement from the programme office, public: news, call dates, demo day, changes to sessions.',
+		required: ['title', 'published_at'],
+		properties: {
+			title: text('Demo day on 30 June', 'The headline, in English.', 255, 1),
+			title_ar: text('يوم العرض في 30 يونيو', 'The headline, in Arabic.', 255),
+			body: text('Startups pitch to investors and banks from 10:00.', 'The announcement, in English.', 4000),
+			body_ar: text('تعرض الشركات الناشئة على المستثمرين والبنوك من الساعة 10:00.', 'The announcement, in Arabic.', 4000),
+			programme_id: text('6fb17583-1e49-4435-bb74-a14fe0996723', "The cohort_programme it is about, if any; empty for everyone.", 36),
+			published_at: text('2027-06-01T09:00:00Z', 'When it was published (ISO 8601, UTC).', 30, 1),
+			published_by_username: text('janedoe', 'Who published it.', 255)
+		}
+	}
+};
+
+/** Something a User saved to come back to: a call, or (for staff) an application. Personal: each User's own. */
+export const bookmarkEntity: SystemDynamicEntityDefinition = {
+	entity_name: BOOKMARK,
+	has_personal_entity: true,
+	personal_requires_role: false,
+	has_public_access: false,
+	has_community_access: false,
+	auth_mode: 'UserOnly',
+	schema: {
+		description: "Something a User saved to come back to, on their Saved page: their own list.",
+		required: ['kind', 'target_id', 'path'],
+		properties: {
+			kind: text('call', 'call or application.', 20, 1),
+			target_id: text('6fb17583-1e49-4435-bb74-a14fe0996723', 'The id of the record saved.', 36, 1),
+			label: text('Cohort 1 - spring 2027', 'What it was called when saved.', 255),
+			path: text('/calls/6fb17583-1e49-4435-bb74-a14fe0996723', "The Cohort page it was saved from.", 255, 1),
+			saved_at: text('2027-01-10T09:00:00Z', 'When it was saved (ISO 8601, UTC).', 30)
+		}
+	}
+};
+
+/**
+ * Which emails Cohort sends on its own, and when: one record, set by staff with their Roles. Public, as it holds only
+ * switches and days, so Cohort's reminder timer reads it without a Scope.
+ */
+export const emailSettingEntity: SystemDynamicEntityDefinition = {
+	entity_name: EMAIL_SETTING,
+	has_personal_entity: false,
+	has_public_access: true,
+	has_community_access: false,
+	auth_mode: 'UserXORApplication',
+	schema: {
+		description: 'Which emails Cohort sends on its own, and when. One record; without it every email is sent.',
+		required: ['updated_at'],
+		properties: {
+			submitted: { type: 'boolean', example: true, description: 'Email the applicant when they submit an application.' },
+			decision: { type: 'boolean', example: true, description: 'Email the applicant the outcome of a decision.' },
+			milestone_due: { type: 'boolean', example: true, description: 'Remind a startup of a milestone coming due.' },
+			milestone_overdue: { type: 'boolean', example: true, description: 'Remind a startup of an overdue milestone.' },
+			call_closing: { type: 'boolean', example: true, description: 'Remind an applicant of an unsubmitted draft before its call closes.' },
+			due_soon_days: { type: 'integer', example: 7, description: 'Days before a milestone is due to remind.' },
+			closing_soon_days: { type: 'integer', example: 3, description: 'Days before a call closes to remind.' },
+			updated_by_username: text('janedoe', 'Who last changed the settings.', 255),
+			updated_at: text('2027-01-10T09:00:00Z', 'When (ISO 8601, UTC).', 30, 1)
+		}
+	}
+};
+
+/**
+ * A startup's pitch slot on a demo day: the running order. Public, like the demo day page that shows it (only names and
+ * times); staff create and remove slots with their Roles.
+ */
+export const demoSlotEntity: SystemDynamicEntityDefinition = {
+	entity_name: DEMO_SLOT,
+	has_personal_entity: false,
+	has_public_access: true,
+	has_community_access: false,
+	auth_mode: 'UserXORApplication',
+	schema: {
+		description: "A startup's pitch slot on a demo day session: its place in the running order and time.",
+		required: ['session_id', 'participant_id', 'position'],
+		properties: {
+			session_id: text('6fb17583-1e49-4435-bb74-a14fe0996723', 'The demo day cohort_session.', 36, 1),
+			participant_id: text('6fb17583-1e49-4435-bb74-a14fe0996723', 'The cohort_participant pitching.', 36, 1),
+			startup_name: text('Example Pay', 'The startup, as shown on the agenda.', 255),
+			position: { type: 'integer', example: 1, description: 'Its place in the running order, from 1.' },
+			starts_at: text('10:15', 'When it pitches (HH:MM, local time).', 5),
+			pitch_title: text('Payments for every merchant', 'The title of the pitch.', 255)
+		}
+	}
+};
+
+/** Someone invited to a demo day: an investor, a bank, a regulator. Staff only. */
+export const demoGuestEntity: SystemDynamicEntityDefinition = {
+	entity_name: DEMO_GUEST,
+	has_personal_entity: false,
+	has_public_access: false,
+	has_community_access: false,
+	auth_mode: 'UserOnly',
+	schema: {
+		description: 'A guest invited to a demo day session: investors, banks, regulators. Recorded by staff.',
+		required: ['session_id', 'name', 'status'],
+		properties: {
+			session_id: text('6fb17583-1e49-4435-bb74-a14fe0996723', 'The demo day cohort_session.', 36, 1),
+			name: text('Jane Investor', 'Who is invited.', 255, 1),
+			organisation: text('Example Ventures', 'Their organisation.', 255),
+			email: text('jane@example.com', 'Their email address.', 255),
+			status: text('invited', 'invited, confirmed or declined.', 20, 1),
+			invited_by_username: text('janedoe', 'Who recorded the invitation.', 255),
+			invited_at: text('2027-06-01T09:00:00Z', 'When (ISO 8601, UTC).', 30)
+		}
+	}
+};
+
+/**
+ * Feedback on a startup's pitch, given by staff with their Roles (after a rehearsal or the demo day itself); the startup
+ * sees its own through Cohort, narrowed to its participations.
+ */
+export const pitchFeedbackEntity: SystemDynamicEntityDefinition = {
+	entity_name: PITCH_FEEDBACK,
+	has_personal_entity: false,
+	has_public_access: false,
+	has_community_access: false,
+	auth_mode: 'UserXORApplication',
+	schema: {
+		description: "Feedback on a startup's demo day pitch or rehearsal, for the startup.",
+		required: ['session_id', 'participant_id', 'feedback'],
+		properties: {
+			session_id: text('6fb17583-1e49-4435-bb74-a14fe0996723', 'The cohort_session the pitch was at.', 36, 1),
+			participant_id: text('6fb17583-1e49-4435-bb74-a14fe0996723', 'The cohort_participant that pitched.', 36, 1),
+			feedback: text('Lead with the merchant numbers; the deck runs long.', 'What the startup should know.', 4000, 1),
+			given_by_username: text('janedoe', 'Who gave it.', 255),
+			given_at: text('2027-06-30T12:00:00Z', 'When (ISO 8601, UTC).', 30)
+		}
+	}
+};
+
 export const COHORT_ENTITIES: SystemDynamicEntityDefinition[] = [
 	programmeEntity,
 	callEntity,
@@ -572,5 +733,11 @@ export const COHORT_ENTITIES: SystemDynamicEntityDefinition[] = [
 	sessionEntity,
 	sessionBookingEntity,
 	attendanceEntity,
-	formEntity
+	formEntity,
+	announcementEntity,
+	bookmarkEntity,
+	emailSettingEntity,
+	demoSlotEntity,
+	demoGuestEntity,
+	pitchFeedbackEntity
 ];

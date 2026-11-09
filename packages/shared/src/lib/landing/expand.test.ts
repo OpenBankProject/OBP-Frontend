@@ -149,3 +149,45 @@ describe('helpers', () => {
 		expect(safeUrl('data:text/html,hi')).toBe('#');
 	});
 });
+
+describe('programme tags (Cohort)', () => {
+	const call = { title: 'Cohort 1 <b>', description: 'For fintechs', programme: 'Acceleration', opens_at: '2026-11-01', closes_at: '2026-12-15', href: '/calls/c1' };
+
+	it('renders the open calls with labels from the page', async () => {
+		const out = await expandLiveTags(
+			'<obp-calls limit="2" link-label="عرض الدعوة" closes-label="يغلق"></obp-calls>',
+			fetchers({ calls: async ({ limit }) => [call, call, call].slice(0, limit) })
+		);
+		expect(out.match(/obp-call-card/g)).toHaveLength(2);
+		expect(out).toContain('Cohort 1 &lt;b&gt;');
+		expect(out).toContain('href="/calls/c1"');
+		expect(out).toContain('عرض الدعوة');
+		expect(out).toContain('Opens <bdi>2026-11-01</bdi> · يغلق <bdi>2026-12-15</bdi>');
+	});
+
+	it('passes the programme filter and shows the empty text', async () => {
+		let asked: string | undefined;
+		const out = await expandLiveTags(
+			'<obp-calls programme="Incubation" empty="None open"></obp-calls>',
+			fetchers({ calls: async ({ programme }) => ((asked = programme), []) })
+		);
+		expect(asked).toBe('Incubation');
+		expect(out).toContain('obp-calls--empty');
+		expect(out).toContain('None open');
+	});
+
+	it('renders programmes, with "- " lines as a list', async () => {
+		const out = await expandLiveTags(
+			'<obp-programmes></obp-programmes>',
+			fetchers({ programmes: async () => [{ name: 'Pre-incubation', description: 'For members.\n- Seminars\n- Hackathons', starts_on: '2027-01-15' }] })
+		);
+		expect(out).toContain('<p class="obp-programme-text">For members.</p>');
+		expect(out).toContain('<ul class="obp-programme-text-list"><li>Seminars</li><li>Hackathons</li></ul>');
+		expect(out).toContain('obp-programme-number">1<');
+	});
+
+	it('shows nothing on a site without programmes', async () => {
+		expect(await expandLiveTags('<obp-calls></obp-calls>', fetchers(), { onError: 'hide' })).toBe('');
+		expect(await expandLiveTags('<obp-programmes></obp-programmes>', fetchers())).toContain('this site has no programmes');
+	});
+});

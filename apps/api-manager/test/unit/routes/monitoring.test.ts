@@ -97,7 +97,7 @@ describe('role check', () => {
 		Promise.resolve(new Response(JSON.stringify({ allowed_for_auth_modes: modes }), { status }));
 
 	it('asks OBP-API at SYS with the Bearer token and reuses the answer for a minute', async () => {
-		fetchMock.mockImplementation(() => answer(200, ['UserOrApplication']));
+		fetchMock.mockImplementation(() => answer(200, ['UserXORApplication']));
 		expect(await tokenMayUseAnyRole('http://obp', 't', ['CanGetTelemetry'], 0)).toBe('allowed');
 		expect(fetchMock.mock.calls[0][0]).toBe('http://obp/obp/v7.0.0/banks/SYS/my/roles/CanGetTelemetry');
 		expect(fetchMock.mock.calls[0][1].headers.Authorization).toBe('Bearer t');
@@ -106,15 +106,20 @@ describe('role check', () => {
 		await tokenMayUseAnyRole('http://obp', 't', ['CanGetTelemetry'], 60_000);
 		expect(fetchMock).toHaveBeenCalledTimes(2);
 	});
+
+	it('refuses a token OBP-API allows only for ApplicationOnly', async () => {
+		fetchMock.mockReturnValueOnce(answer(200, ['ApplicationOnly']));
+		expect(await tokenMayUseAnyRole('http://obp', 't', ['CanGetTelemetry'])).toBe('forbidden');
+	});
 });
 
 describe('monitoring endpoints', () => {
 	// A fake OBP-API: what each token may do, as GET /banks/SYS/my/roles/ROLE answers it.
 	const tokens: Record<string, Record<string, string[]>> = {
-		'all-reader': { CanGetSystemLogCacheAll: ['UserOrApplication'] },
-		'error-reader': { CanGetSystemLogCacheError: ['UserOrApplication'] },
-		'info-reader': { CanGetSystemLogCacheInfo: ['UserOrApplication'] },
-		'telemetry-reader': { CanGetTelemetry: ['UserOrApplication'] },
+		'all-reader': { CanGetSystemLogCacheAll: ['UserXORApplication'] },
+		'error-reader': { CanGetSystemLogCacheError: ['UserXORApplication'] },
+		'info-reader': { CanGetSystemLogCacheInfo: ['UserXORApplication'] },
+		'telemetry-reader': { CanGetTelemetry: ['UserXORApplication'] },
 		'user-only': { CanGetSystemLogCacheAll: ['UserOnly'], CanGetTelemetry: ['UserOnly'] },
 		'no-roles': {}
 	};
@@ -156,7 +161,7 @@ describe('monitoring endpoints', () => {
 	const capitalised = (level: string) => level.charAt(0).toUpperCase() + level.slice(1);
 
 	it.each(LOG_LEVELS)('returns the %s log cache to a token allowed its level Role or the All Role', async (level) => {
-		tokens[`${level}-only`] = { [`CanGetSystemLogCache${capitalised(level)}`]: ['UserOrApplication'] };
+		tokens[`${level}-only`] = { [`CanGetSystemLogCache${capitalised(level)}`]: ['UserXORApplication'] };
 		for (const token of [`${level}-only`, 'all-reader']) {
 			const res = await getLogs(level, token);
 			expect(res.status).toBe(200);

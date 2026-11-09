@@ -50,7 +50,7 @@
 				{#each data.rubric as c (c.id)}
 					<label class="label">
 						<span class="label-text"><strong>{c.name}</strong> (0–{c.max_score}){#if c.weight > 1}{' '}· ×{c.weight}{/if}</span>
-						{#if c.description}<span class="text-sm">{c.description}</span>{/if}
+						{#if c.description}<span class="text-sm" dir="auto">{c.description}</span>{/if}
 						<select class="select w-auto" name="score_{c.id}" required>
 							<option value="" selected disabled>–</option>
 							{#each Array.from({ length: c.max_score + 1 }, (_, i) => i) as n (n)}<option value={n}>{n}</option>{/each}

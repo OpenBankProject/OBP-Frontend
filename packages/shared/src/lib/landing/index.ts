@@ -18,7 +18,9 @@
 export { LIVE_TAGS, BEHAVIOURS, describeLandingBlocksForOpey } from './registry.js';
 export type { LiveTagDefinition, BehaviourDefinition, BlockAttribute } from './registry.js';
 export { expandLiveTags, escapeHtml, safeUrl } from './expand.js';
-export type { LandingFetchers, LandingProduct, LandingEndpoint, LandingBank, LandingGlossaryEntry, ExpandOptions } from './expand.js';
+export type { LandingFetchers, LandingProduct, LandingEndpoint, LandingBank, LandingGlossaryEntry, LandingCall, LandingProgramme, ExpandOptions } from './expand.js';
 export { initLandingBehaviours, LANDING_BEHAVIOUR_NAMES } from './behaviours.js';
 export { LANDING_BASE_CSS } from './styles.js';
 export { stripActiveContent } from './strip.js';
+export { SITE_PAGE_ENTITY, PAGE_SITES, sitesOf, sitePageOf, byMenuPosition, publishedPagesFor, menuItemOf } from './sitePages.js';
+export type { SitePage, PageSite } from './sitePages.js';

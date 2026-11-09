@@ -76,6 +76,11 @@ export function funnelByCall(calls: { id: string; title: string }[], application
 	});
 }
 
+/** A risk flag staff raise on a startup, with a note: none, something to watch, or at risk. */
+export const RISK_LEVELS = ['none', 'watch', 'at_risk'] as const;
+export type RiskLevel = (typeof RISK_LEVELS)[number];
+export const riskOf = (value: unknown): RiskLevel => ((RISK_LEVELS as readonly unknown[]).includes(value) ? (value as RiskLevel) : 'none');
+
 export interface DashboardParticipant {
 	id: string;
 	programme_id: string;
@@ -83,6 +88,8 @@ export interface DashboardParticipant {
 	customer_id: string;
 	stage: string;
 	status: string;
+	risk?: RiskLevel;
+	risk_note?: string;
 }
 
 export interface ParticipantProgress {
@@ -96,6 +103,8 @@ export interface ParticipantProgress {
 	milestones_total: number;
 	behind: number;
 	sessions_attended: number;
+	risk: RiskLevel;
+	risk_note: string;
 }
 
 export interface ProgrammeRow {
@@ -111,6 +120,8 @@ export interface ProgrammeRow {
 	/** Accepted out of every startup's milestones, 0 to 100; null when there is nothing to count. */
 	completion: number | null;
 	behind_startups: number;
+	/** Startups staff flagged as watch or at risk. */
+	flagged_startups: number;
 	sessions_attended: number;
 }
 
@@ -135,7 +146,9 @@ export function participantProgress(
 		milestones_accepted: progress.filter((p) => p.status === 'accepted').length,
 		milestones_total: own.length,
 		behind: progress.filter((p) => p.behind).length,
-		sessions_attended: sessionsAttended(participant.id, attendance)
+		sessions_attended: sessionsAttended(participant.id, attendance),
+		risk: participant.risk ?? 'none',
+		risk_note: participant.risk_note ?? ''
 	};
 }
 
@@ -149,13 +162,15 @@ export function programmeRows(programmes: { id: string; name: string }[], progre
 			programme: programme.name,
 			participants: rows.length,
 			onboarded: rows.filter((r) => r.stage === 'onboarded').length,
-			in_programme: rows.filter((r) => r.stage === 'in_programme').length,
+			// Any stage between onboarding and graduating: a programme may have its own.
+			in_programme: rows.filter((r) => r.stage !== 'onboarded' && r.stage !== 'graduated' && r.status !== 'graduated').length,
 			graduated: rows.filter((r) => r.stage === 'graduated' || r.status === 'graduated').length,
 			companies_registered: rows.filter((r) => r.company_registered).length,
 			milestones_accepted: accepted,
 			milestones_due: due,
 			completion: due > 0 ? Math.round((accepted / due) * 100) : null,
 			behind_startups: rows.filter((r) => r.behind > 0).length,
+			flagged_startups: rows.filter((r) => r.risk !== 'none').length,
 			sessions_attended: rows.reduce((n, r) => n + r.sessions_attended, 0)
 		};
 	});

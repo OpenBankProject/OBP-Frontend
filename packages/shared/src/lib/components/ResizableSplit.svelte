@@ -20,8 +20,9 @@
 	import type { Snippet } from 'svelte';
 
 	/**
-	 * A main panel with a side panel on the right (e.g. Opey) and a vertical divider between
-	 * them that can be dragged, or moved with the arrow keys once focused. Double-click resets.
+	 * A main panel with a side panel at the end (e.g. Opey: on the right, or on the left in a right-to-left
+	 * language) and a vertical divider between them that can be dragged, or moved with the arrow keys once
+	 * focused. Double-click resets.
 	 * Below the breakpoint the panels stack and there is no divider. The width is remembered
 	 * in this browser under `storageKey`, so every page using the same key opens at the same width.
 	 */
@@ -33,7 +34,8 @@
 		minSideWidth = 256,
 		maxSideFraction = 0.6,
 		storageKey = 'obp-side-panel-width',
-		sideTestid = 'opey-form-pane'
+		sideTestid = 'opey-form-pane',
+		label = 'Resize side panel'
 	}: {
 		main: Snippet;
 		side: Snippet;
@@ -43,6 +45,8 @@
 		maxSideFraction?: number;
 		storageKey?: string;
 		sideTestid?: string;
+		/** The divider's accessible name, in the page's language. */
+		label?: string;
 	} = $props();
 
 	const KEY_STEP = 32;
@@ -51,6 +55,11 @@
 	// svelte-ignore state_referenced_locally
 	let sideWidth = $state(defaultSideWidth);
 	let dragging = $state(false);
+
+	/** Right-to-left: the side panel is on the left, so the directions swap. */
+	function isRtl(): boolean {
+		return !!container && getComputedStyle(container).direction === 'rtl';
+	}
 
 	function clamp(width: number): number {
 		const max = container ? container.clientWidth * maxSideFraction : Infinity;
@@ -83,7 +92,8 @@
 
 	function onPointerMove(event: PointerEvent) {
 		if (!dragging || !container) return;
-		sideWidth = clamp(container.getBoundingClientRect().right - event.clientX);
+		const box = container.getBoundingClientRect();
+		sideWidth = clamp(isRtl() ? event.clientX - box.left : box.right - event.clientX);
 	}
 
 	function onPointerUp(event: PointerEvent) {
@@ -94,8 +104,10 @@
 	}
 
 	function onKeyDown(event: KeyboardEvent) {
-		// The side panel is on the right: ArrowLeft widens it, ArrowRight narrows it
-		const delta = event.key === 'ArrowLeft' ? KEY_STEP : event.key === 'ArrowRight' ? -KEY_STEP : 0;
+		// The arrow pointing away from the side panel widens it: ArrowLeft, or ArrowRight in a right-to-left language
+		const widen = isRtl() ? 'ArrowRight' : 'ArrowLeft';
+		const narrow = isRtl() ? 'ArrowLeft' : 'ArrowRight';
+		const delta = event.key === widen ? KEY_STEP : event.key === narrow ? -KEY_STEP : 0;
 		if (event.key === 'Home') sideWidth = clamp(Infinity);
 		else if (event.key === 'End') sideWidth = clamp(0);
 		else if (delta) sideWidth = clamp(sideWidth + delta);
@@ -125,7 +137,7 @@
 		class="split-handle"
 		role="separator"
 		aria-orientation="vertical"
-		aria-label="Resize side panel"
+		aria-label={label}
 		aria-valuenow={sideWidth}
 		aria-valuemin={minSideWidth}
 		tabindex="0"
@@ -219,7 +231,6 @@
 		transition: background 0.15s;
 	}
 
-	.split-handle:hover::after,
 	.split-handle:focus-visible::after,
 	.split[data-state='dragging'] .split-handle::after {
 		background: rgb(59 130 246);
@@ -234,7 +245,6 @@
 		background: rgb(55 65 81);
 	}
 
-	:global([data-mode='dark']) .split-handle:hover::after,
 	:global([data-mode='dark']) .split-handle:focus-visible::after,
 	:global([data-mode='dark']) .split[data-state='dragging'] .split-handle::after {
 		background: rgb(96 165 250);

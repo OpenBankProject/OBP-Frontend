@@ -24,6 +24,7 @@ import { getRecord, listRecords, userToken } from '$lib/server/records';
 import { isStaffRole, requestStaffRole, staffAccess } from '$lib/server/staffAccess';
 import { filesOfApplication, setScanStatus } from '$lib/server/files';
 import { answersOnApplication } from '$lib/server/forms';
+import { myBookmarkOf } from '$lib/server/bookmarks';
 import type { Actions, PageServerLoad } from './$types';
 
 /** An application as staff see it, through the community URL (CanGetDynamicEntityRecord_cohort_application). */
@@ -49,6 +50,8 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 	const roles = access.status === 'fulfilled' ? access.value.roles : [];
 	const lacking = (name: string) => roles.find((r) => r.role_name === name && !r.held) ?? null;
 	return {
+		applicationId: params.id,
+		bookmarkId: await myBookmarkOf('application', params.id, token),
 		space: access.status === 'fulfilled' ? access.value.space : '',
 		entitlementRequestsUrl: access.status === 'fulfilled' ? access.value.entitlementRequestsUrl : null,
 		lackingDecide: lacking(`CanCreateDynamicEntityRecord_${SCREENING_DECISION}`),

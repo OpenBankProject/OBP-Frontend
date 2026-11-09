@@ -15,19 +15,12 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-import { toCsv } from '$lib/dashboard';
-import { dashboardData } from '$lib/server/dashboard';
 import { userToken } from '$lib/server/records';
+import { startupsReport, reportResponse } from '$lib/server/reports';
 import type { RequestHandler } from './$types';
 
-/** Every participating startup's progress as CSV, read with the staff member's own Roles. */
 export const GET: RequestHandler = async ({ locals }) => {
 	const token = userToken(locals);
 	if (!token) return new Response('Log in first', { status: 401 });
-	const { startups } = await dashboardData(token);
-	const csv = toCsv(
-		['startup', 'programme', 'stage', 'status', 'company_registered', 'milestones_accepted', 'milestones_total', 'milestones_behind', 'sessions_attended'],
-		startups.map((s) => [s.startup_name, s.programme, s.stage, s.status, s.company_registered, s.milestones_accepted, s.milestones_total, s.behind, s.sessions_attended])
-	);
-	return new Response(csv, { headers: { 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': 'attachment; filename="cohort-startups.csv"' } });
+	return reportResponse(await startupsReport(token), 'csv');
 };

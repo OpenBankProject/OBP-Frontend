@@ -17,6 +17,10 @@
  */
 import {
   User,
+  FileClock,
+  History,
+  Gavel,
+  Archive,
   UserRound,
   ShieldUser,
   KeyRound,
@@ -940,7 +944,7 @@ const messagingSection = domain("messaging", "Messaging", MessagesSquare,
   ]);
 
 const governSection = domain("govern", "Govern", Shield,
-  ["/users", "/user-invitations", "/customers", "/consumers", "/rbac", "/abac", "/account-access", "/mandates"],
+  ["/users", "/user-invitations", "/customers", "/consumers", "/rbac", "/abac", "/account-access", "/mandates", "/retention"],
   [
     { label: "Identity", items: [
       { href: "/users", label: "Users", iconComponent: Users },
@@ -973,6 +977,12 @@ const governSection = domain("govern", "Govern", Shield,
       { href: "/account-access/view-permissions", label: "View Permissions", iconComponent: FileCheck },
       { href: "/account-access/account-directory", label: "Account Directory", iconComponent: FolderOpen },
       { href: "/mandates", label: "Mandates", iconComponent: FileSignature },
+    ] },
+    { label: "Data Retention", items: [
+      { href: "/retention", label: "Retention Policies", iconComponent: FileClock },
+      { href: "/retention/runs", label: "Retention Runs", iconComponent: History },
+      { href: "/retention/holds", label: "Legal Holds", iconComponent: Gavel },
+      { href: "/retention/archive", label: "Retention Archive", iconComponent: Archive },
     ] },
   ]);
 

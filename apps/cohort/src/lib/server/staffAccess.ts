@@ -19,13 +19,13 @@ import { obpRequests } from './obp';
 import { cohortFormsSpace, cohortSpace } from './space';
 import { apiManagerUrl } from './appDirectory';
 import { isAnswersRole } from './forms';
-import { APPLICATION, ATTENDANCE, CALL, FORM, MILESTONE, MILESTONE_REPORT, MILESTONE_REVIEW, OPEY_CONVERSATION, PROGRAMME, REVIEW, REVIEW_ASSIGNMENT, PARTICIPANT, REVIEWER, REVIEWER_DECISION, RUBRIC_CRITERION, REMINDER, SCREENING_DECISION, SESSION, SESSION_BOOKING, STAGE_CHANGE } from './entities/definitions';
+import { ANNOUNCEMENT, APPLICATION, DEMO_GUEST, DEMO_SLOT, EMAIL_SETTING, PITCH_FEEDBACK, ATTENDANCE, CALL, FORM, MILESTONE, MILESTONE_REPORT, MILESTONE_REVIEW, OPEY_CONVERSATION, PROGRAMME, REVIEW, REVIEW_ASSIGNMENT, PARTICIPANT, REVIEWER, REVIEWER_DECISION, RUBRIC_CRITERION, REMINDER, SCREENING_DECISION, SESSION, SESSION_BOOKING, STAGE_CHANGE } from './entities/definitions';
 
-/** A Role staff need, the i18n key saying what it is for, and where: Cohort's space unless it is the forms space. */
+/** A Role staff need, the i18n key saying what it is for, and where: Cohort's space, the forms space, or system-wide. */
 export interface StaffRole {
 	role_name: string;
 	purpose: string;
-	space?: 'forms';
+	space?: 'forms' | 'system';
 }
 
 /** The Roles Cohort's staff pages use. Add a line here when a staff page starts needing a new one. */
@@ -64,7 +64,30 @@ export const STAFF_ROLES: StaffRole[] = [
 	{ role_name: `CanGetDynamicEntityRecord_${MILESTONE_REVIEW}`, purpose: 'access_purpose_read_milestone_reviews' },
 	{ role_name: 'CanGetFileAtOneBank', purpose: 'access_purpose_read_files' },
 	{ role_name: `CanGetDynamicEntityRecord_${OPEY_CONVERSATION}`, purpose: 'access_purpose_read_conversations' },
-	{ role_name: 'CanUpdateFileScanStatusAtOneBank', purpose: 'access_purpose_scan_files' }
+	{ role_name: 'CanUpdateFileScanStatusAtOneBank', purpose: 'access_purpose_scan_files' },
+	{ role_name: `CanCreateDynamicEntityRecord_${ANNOUNCEMENT}`, purpose: 'access_purpose_announce' },
+	{ role_name: `CanDeleteDynamicEntityRecord_${ANNOUNCEMENT}`, purpose: 'access_purpose_remove_announcements' },
+	{ role_name: `CanCreateDynamicEntityRecord_${EMAIL_SETTING}`, purpose: 'access_purpose_email_settings' },
+	{ role_name: `CanUpdateDynamicEntityRecord_${EMAIL_SETTING}`, purpose: 'access_purpose_email_settings' },
+	{ role_name: 'CanGetCustomersAtOneBank', purpose: 'access_purpose_read_organisations' },
+	{ role_name: 'CanCreateCustomer', purpose: 'access_purpose_create_organisations' },
+	{ role_name: 'CanCreateCustomerAttributeAtOneBank', purpose: 'access_purpose_create_organisations' },
+	{ role_name: 'CanGetUserCustomerLink', purpose: 'access_purpose_read_members' },
+	{ role_name: 'CanCreateUserCustomerLink', purpose: 'access_purpose_manage_members' },
+	{ role_name: 'CanDeleteUserCustomerLink', purpose: 'access_purpose_manage_members' },
+	{ role_name: 'CanGetAnyUser', purpose: 'access_purpose_find_users', space: 'system' },
+	{ role_name: `CanCreateDynamicEntityRecord_${DEMO_SLOT}`, purpose: 'access_purpose_demo_slots' },
+	{ role_name: `CanDeleteDynamicEntityRecord_${DEMO_SLOT}`, purpose: 'access_purpose_demo_slots' },
+	{ role_name: `CanGetDynamicEntityRecord_${DEMO_GUEST}`, purpose: 'access_purpose_demo_guests' },
+	{ role_name: `CanCreateDynamicEntityRecord_${DEMO_GUEST}`, purpose: 'access_purpose_demo_guests' },
+	{ role_name: `CanUpdateDynamicEntityRecord_${DEMO_GUEST}`, purpose: 'access_purpose_demo_guests' },
+	{ role_name: `CanGetDynamicEntityRecord_${PITCH_FEEDBACK}`, purpose: 'access_purpose_pitch_feedback' },
+	{ role_name: `CanCreateDynamicEntityRecord_${PITCH_FEEDBACK}`, purpose: 'access_purpose_pitch_feedback' },
+	{ role_name: 'CanGetRetentionPolicies', purpose: 'access_purpose_retention_read' },
+	{ role_name: 'CanManageRetentionPolicy', purpose: 'access_purpose_retention_manage' },
+	{ role_name: 'CanRunRetentionPolicy', purpose: 'access_purpose_retention_run' },
+	{ role_name: 'CanApproveRetentionRun', purpose: 'access_purpose_retention_approve' },
+	{ role_name: 'CanGetRetentionRuns', purpose: 'access_purpose_retention_read' }
 ];
 
 /** A staff Role, or the Get Role on a published form's answers (one per form, so not listed above). */
@@ -74,6 +97,7 @@ export function isStaffRole(roleName: string): boolean {
 
 /** The bank id a staff Role is held at: the forms space for the definition Roles and the Roles on answers. */
 export function spaceOfRole(roleName: string): string {
+	if (STAFF_ROLES.some((r) => r.role_name === roleName && r.space === 'system')) return '';
 	const forms = isAnswersRole(roleName) || STAFF_ROLES.some((r) => r.role_name === roleName && r.space === 'forms');
 	return forms ? cohortFormsSpace() : cohortSpace();
 }

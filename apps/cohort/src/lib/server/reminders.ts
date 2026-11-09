@@ -18,6 +18,7 @@
 import { createLogger } from '@obp/shared/utils';
 import { reminderEmail } from '$lib/emails';
 import { milestoneOf, todayUtc } from '$lib/milestones';
+import { emailSettings } from './emailSettings';
 import { planReminders } from '$lib/reminders';
 import { nowUtc } from '$lib/screening';
 import { requestApplicationAccessToken } from './applicationToken';
@@ -49,8 +50,12 @@ export async function runReminders(): Promise<{ sent: number; failed: number }> 
 		listRecords(REMINDER, '', token)
 	]);
 	const applicantCustomer = new Map(applications.map((a) => [idOf(APPLICATION, a), String(a.customer_id ?? '')]));
+	const settings = await emailSettings();
 	const planned = planReminders({
 		today: todayUtc(),
+		dueSoonDays: settings.due_soon_days,
+		closingSoonDays: settings.closing_soon_days,
+		kinds: (['milestone_due', 'milestone_overdue', 'call_closing'] as const).filter((k) => settings[k]),
 		milestones: milestones.map((m) => milestoneOf(idOf(MILESTONE, m), m)),
 		participants: participants.map(participantOf).map((p) => ({
 			id: p.id,

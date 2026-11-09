@@ -39,6 +39,8 @@ declare module 'svelte-kit-sessions' {
 				}>;
 			};
 		};
+		/** When the User last opened their updates (ISO 8601, UTC): newer ones are shown as new. */
+		updates_seen_at?: string;
 		oauth?: {
 			access_token: string;
 			refresh_token?: string;

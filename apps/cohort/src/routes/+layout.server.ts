@@ -15,7 +15,9 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
+import { menuItemOf } from '@obp/shared/landing';
 import { appDirectory } from '$lib/server/appDirectory';
+import { cohortPages, HOME_PAGE_SLUG } from '$lib/server/sitePages';
 import { staffRolesHeld } from '$lib/server/staffAccess';
 import type { LayoutServerLoad } from './$types';
 
@@ -27,9 +29,13 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
 	// Staff (any staff Role at the space) see the Staff menu and its pages; for everyone else they are hidden.
 	const token = locals.session.data.oauth?.access_token;
 	const isStaff = user && token ? (await staffRolesHeld(token).catch(() => [])).length > 0 : false;
+	// The pages published to Cohort with App Studio, in the visitor's language: directly in the menu. The home page is
+	// the start page, not a menu item.
+	const sitePages = (await cohortPages(locals.locale)).filter((p) => p.slug !== HOME_PAGE_SLUG).map(menuItemOf);
 	return {
 		isStaff,
 		portalUrl,
+		sitePages,
 		locale: locals.locale,
 		branding: locals.branding,
 		path: url.pathname + url.search,

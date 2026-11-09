@@ -16,6 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 import PORTAL_PAGE from "$lib/data/portalPageEntity.json";
+import { PAGE_SITES, sitePageOf, type SitePage } from "@obp/shared/landing";
 import { ensureSystemDynamicEntity, recordsFromListResponse as recordsFromList, slugify as slugifyShared } from "$lib/server/dynamicEntities/ensure";
 
 export const PORTAL_PAGE_ENTITY = PORTAL_PAGE.entity_name; // "obp_portal_page"
@@ -28,43 +29,17 @@ export function createPortalPageDynamicEntityIfNeeded(): Promise<boolean> {
 }
 
 /** A saved page as the studio sees it. */
-export interface PortalPageRecord {
-  id: string;
-  slug: string;
-  title: string;
-  kind: "page" | "app";
-  status: "draft" | "published";
-  summary: string;
-  source: string;
-  author: string;
-  updated_at: string;
-}
+export type PortalPageRecord = SitePage;
 
-/**
- * OBP wraps a single record as `{ obp_portal_page: {...} }` (create, read one, update) and
- * lists as `{ obp_portal_page_list: [...] }`; pick out the fields we store either way.
- */
-export function toPortalPageRecord(input: any): PortalPageRecord {
-  const raw = input?.[PORTAL_PAGE_ENTITY] && typeof input[PORTAL_PAGE_ENTITY] === "object" ? input[PORTAL_PAGE_ENTITY] : input;
-  return {
-    id: String(raw?.[PORTAL_PAGE_ID_FIELD] ?? raw?.id ?? ""),
-    slug: String(raw?.slug ?? ""),
-    title: String(raw?.title ?? ""),
-    kind: raw?.kind === "app" ? "app" : "page",
-    status: raw?.status === "published" ? "published" : "draft",
-    summary: String(raw?.summary ?? ""),
-    source: String(raw?.source ?? ""),
-    author: String(raw?.author ?? ""),
-    updated_at: String(raw?.updated_at ?? ""),
-  };
-}
+/** OBP wraps a single record as `{ obp_portal_page: {...} }` and lists as `{ obp_portal_page_list: [...] }`. */
+export const toPortalPageRecord = (input: any): PortalPageRecord => sitePageOf(input);
 
 export const recordsFromListResponse = recordsFromList;
 
 export const slugify = slugifyShared;
 
 /** Validate and normalise a page body from the studio. */
-export function normalisePageBody(body: any, username: string): { ok: true; data: Record<string, string> } | { ok: false; message: string } {
+export function normalisePageBody(body: any, username: string): { ok: true; data: Record<string, string | number> } | { ok: false; message: string } {
   const title = String(body?.title ?? "").trim();
   if (!title) return { ok: false, message: "title is required" };
   const slug = slugify(String(body?.slug ?? "").trim() || title);
@@ -76,8 +51,16 @@ export function normalisePageBody(body: any, username: string): { ok: true; data
   if (!source.trim()) return { ok: false, message: "source is required" };
   if (source.length > 500000) return { ok: false, message: "source is larger than 500000 characters" };
   const summary = String(body?.summary ?? "").slice(0, 500);
-  return {
-    ok: true,
-    data: { slug, title, kind, status, summary, source, author: username, updated_at: new Date().toISOString().split(".")[0] + "Z" },
-  };
+  const requested: string[] = (Array.isArray(body?.sites) ? body.sites : String(body?.sites ?? "").split(",")).map((x: unknown) => String(x).trim().toLowerCase());
+  const unknownSite = requested.find((x) => x && !(PAGE_SITES as readonly string[]).includes(x));
+  if (unknownSite) return { ok: false, message: `unknown site ${unknownSite}; sites are ${PAGE_SITES.join(", ")}` };
+  const sites = PAGE_SITES.filter((x) => requested.includes(x));
+  if (status === "published" && sites.length === 0) return { ok: false, message: "choose at least one site to publish to" };
+  const lang = String(body?.lang ?? "").trim().toLowerCase();
+  if (lang && !/^[a-z]{2,3}(-[a-z0-9]{2,8})?$/.test(lang)) return { ok: false, message: "lang must be a language code such as en or ar, or empty" };
+  const position = String(body?.menu_position ?? "").trim();
+  if (position && !/^-?\d{1,6}$/.test(position)) return { ok: false, message: "menu_position must be a whole number, or empty" };
+  const data: Record<string, string | number> = { slug, title, kind, status, summary, source, sites: sites.join(","), lang, author: username, updated_at: new Date().toISOString().split(".")[0] + "Z" };
+  if (position) data.menu_position = Number(position);
+  return { ok: true, data };
 }

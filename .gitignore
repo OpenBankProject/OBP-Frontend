@@ -11,3 +11,6 @@ security-scan.log
 security-fix.log
 .idea
 *.code-workspace
+
+# Local drafts, mockups and demo files that must never be committed, in any app
+DO_NOT_COMMIT/

@@ -26,16 +26,16 @@ import {
 
 describe('dynamic entity space paths', () => {
 	it('uses one v7.0.0 path for every space, SYS when no bank is given', () => {
-		expect(dynamicEntityDefinitionsPath('ogcr')).toBe('/obp/v7.0.0/management/banks/ogcr/dynamic-entities');
+		expect(dynamicEntityDefinitionsPath('acme')).toBe('/obp/v7.0.0/management/banks/acme/dynamic-entities');
 		expect(dynamicEntityDefinitionsPath(null)).toBe('/obp/v7.0.0/management/banks/SYS/dynamic-entities');
 		expect(dynamicEntityDataPath('SYS')).toBe('/obp/v7.0.0/banks/SYS/dynamic-entities');
-		expect(dynamicEntityRecordsPath('ogcr', 'parcel')).toBe('/obp/v7.0.0/banks/ogcr/dynamic-entities/parcel');
+		expect(dynamicEntityRecordsPath('acme', 'parcel')).toBe('/obp/v7.0.0/banks/acme/dynamic-entities/parcel');
 	});
 });
 
 describe('dynamicEntityOperationId', () => {
 	it('ends in the bank id for a bank entity', () => {
-		expect(dynamicEntityOperationId('createparcel', 'ogcr')).toBe('OBPv7.0.0-dynamicEntity_createparcel_ogcr');
+		expect(dynamicEntityOperationId('createparcel', 'acme')).toBe('OBPv7.0.0-dynamicEntity_createparcel_acme');
 	});
 
 	it('ends in an empty bank id for the system space', () => {
@@ -48,6 +48,6 @@ describe('dynamicEntityRecordIdPlaceholder', () => {
 	it('writes the record id as OBP-API resource docs do', () => {
 		expect(dynamicEntityRecordIdPlaceholder('activity_co_benefit')).toBe('ACTIVITY_CO_BENEFIT_ID');
 		expect(dynamicEntityRecordIdPlaceholder('PeronalFriends')).toBe('PERONAL_FRIENDS_ID');
-		expect(dynamicEntityRecordIdPlaceholder('OGCR-DynamicEntities-log')).toBe('OGCR-DYNAMIC_ENTITIES-LOG_ID');
+		expect(dynamicEntityRecordIdPlaceholder('ACME-DynamicEntities-log')).toBe('ACME-DYNAMIC_ENTITIES-LOG_ID');
 	});
 });

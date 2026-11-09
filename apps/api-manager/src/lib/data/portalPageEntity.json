@@ -6,7 +6,7 @@
   "personal_requires_role": false,
   "auth_mode": "UserOrApplication",
   "schema": {
-    "description": "A page or app authored in App Studio for the OBP Portal. kind=page is HTML+CSS with live-data tags and behaviours (no script); kind=app is a self-contained web app run in a sandboxed iframe. Only status=published records are served by the Portal.",
+    "description": "A page or app authored in App Studio, shown in the menu of the sites it names (the Portal, Cohort or both). kind=page is HTML+CSS with live-data tags and behaviours (no script); kind=app is a self-contained web app run in a sandboxed iframe. Only status=published records are served.",
     "required": [
       "slug",
       "title",
@@ -21,7 +21,7 @@
         "minLength": 1,
         "maxLength": 120,
         "example": "hackathon-2026",
-        "description": "URL segment under /pages/ on the Portal. Lower-case letters, digits and hyphens."
+        "description": "URL segment under /pages/ on each site. Lower-case letters, digits and hyphens."
       },
       "title": {
         "type": "string",
@@ -71,6 +71,25 @@
         "maxLength": 30,
         "example": "2026-09-03T10:15:00Z",
         "description": "ISO 8601 time of the last save."
+      },
+      "sites": {
+        "type": "string",
+        "minLength": 0,
+        "maxLength": 100,
+        "example": "portal,cohort",
+        "description": "The sites whose menu shows the page, comma separated: portal, cohort. A page without it is a Portal page."
+      },
+      "lang": {
+        "type": "string",
+        "minLength": 0,
+        "maxLength": 10,
+        "example": "ar",
+        "description": "The page's language, e.g. en or ar; empty for every language. A site shows the pages in its visitor's language."
+      },
+      "menu_position": {
+        "type": "integer",
+        "example": 1,
+        "description": "Its place in the menu, lower first; pages without one follow, by title."
       }
     }
   }

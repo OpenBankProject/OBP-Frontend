@@ -27,7 +27,7 @@
 {/if}
 {#if form?.error}<p class="mt-4 preset-tonal-error rounded p-3" role="alert">{form.error === 'closed' ? t(locale, 'survey_closed') : `${t(locale, 'staff_error')} ${form.error}`}</p>{/if}
 
-{#if data.submitted_at}<p class="mt-4 text-sm">{t(locale, 'survey_submitted_at')} {data.submitted_at}</p>{/if}
+{#if data.submitted_at}<p class="mt-4 text-sm">{t(locale, 'survey_submitted_at')} {String(data.submitted_at).slice(0, 10)}</p>{/if}
 
 {#if data.open}
 	<form method="POST" class="mt-6 flex max-w-2xl flex-col gap-4" use:enhance={() => async ({ update }) => update({ reset: false })} data-testid="survey-form">

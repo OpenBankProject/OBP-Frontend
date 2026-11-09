@@ -49,6 +49,8 @@ export interface ReminderInput {
 	sent: Set<string>;
 	dueSoonDays?: number;
 	closingSoonDays?: number;
+	/** The kinds staff left switched on; all when unset. */
+	kinds?: ReminderKind[];
 }
 
 /** Whole days from `from` to `to`, both YYYY-MM-DD. */
@@ -61,7 +63,7 @@ export function planReminders(input: ReminderInput): PlannedReminder[] {
 	const closingSoon = input.closingSoonDays ?? 3;
 	const planned: PlannedReminder[] = [];
 	const add = (r: PlannedReminder) => {
-		if (r.customer_id && !input.sent.has(r.key)) planned.push(r);
+		if (r.customer_id && !input.sent.has(r.key) && (!input.kinds || input.kinds.includes(r.kind))) planned.push(r);
 	};
 
 	for (const p of input.participants.filter((p) => p.status === 'active')) {

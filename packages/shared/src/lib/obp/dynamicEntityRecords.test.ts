@@ -30,7 +30,7 @@ describe('dynamicEntityListKey', () => {
 	});
 
 	it('keeps dashes and splits acronym boundaries like Lift snakify', () => {
-		expect(dynamicEntityListKey('OGCR-DynamicEntities-log')).toBe('ogcr-dynamic_entities-log_list');
+		expect(dynamicEntityListKey('ACME-DynamicEntities-log')).toBe('acme-dynamic_entities-log_list');
 	});
 
 	it('strips trailing dashes/underscores before the _list suffix', () => {

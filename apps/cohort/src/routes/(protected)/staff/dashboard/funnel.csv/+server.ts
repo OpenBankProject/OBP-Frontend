@@ -15,19 +15,12 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-import { toCsv } from '$lib/dashboard';
-import { dashboardData } from '$lib/server/dashboard';
 import { userToken } from '$lib/server/records';
+import { funnelReport, reportResponse } from '$lib/server/reports';
 import type { RequestHandler } from './$types';
 
-/** The funnel of each call as CSV, read with the staff member's own Roles. */
 export const GET: RequestHandler = async ({ locals }) => {
 	const token = userToken(locals);
 	if (!token) return new Response('Log in first', { status: 401 });
-	const { funnel } = await dashboardData(token);
-	const csv = toCsv(
-		['call', 'started', 'submitted', 'eligible', 'shortlisted', 'accepted', 'waitlisted', 'not_selected'],
-		funnel.map((r) => [r.call, r.started, r.submitted, r.eligible, r.shortlisted, r.accepted, r.waitlisted, r.rejected])
-	);
-	return new Response(csv, { headers: { 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': 'attachment; filename="cohort-funnel.csv"' } });
+	return reportResponse(await funnelReport(token), 'csv');
 };

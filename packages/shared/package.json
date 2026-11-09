@@ -61,6 +61,10 @@
 			"types": "./src/lib/markdown/index.ts",
 			"svelte": "./src/lib/markdown/index.ts"
 		},
+		"./chat": {
+			"types": "./src/lib/chat/index.ts",
+			"svelte": "./src/lib/chat/index.ts"
+		},
 		"./landing": {
 			"types": "./src/lib/landing/index.ts",
 			"svelte": "./src/lib/landing/index.ts"
@@ -108,6 +112,10 @@
 		"./server/opey": {
 			"types": "./src/lib/server/opey/index.ts",
 			"default": "./src/lib/server/opey/index.ts"
+		},
+		"./server/chat": {
+			"types": "./src/lib/server/chat/index.ts",
+			"default": "./src/lib/server/chat/index.ts"
 		},
 		"./server/monitoring": {
 			"types": "./src/lib/server/monitoring/index.ts",

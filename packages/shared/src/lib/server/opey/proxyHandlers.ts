@@ -62,6 +62,12 @@ export interface OpeyProxyConfig {
 	requireUser?: boolean;
 	/** Record each turn into a conversation entity. Unset means the proxy only forwards. */
 	recording?: OpeyProxyRecordingConfig;
+	/**
+	 * This app's own focus for Opey (OPEY_APP_SUPPLEMENTARY_PROMPT), added by the server to every chat request as
+	 * `app_supplementary_prompt`; Opey appends it after its per-instance supplementary prompt. Read per request.
+	 * A value the browser sent in that field is always dropped.
+	 */
+	appSupplementaryPrompt?: () => string | undefined;
 	/** Name of Opey's session cookie, the only cookie forwarded. Default 'session'. */
 	opeyCookieName?: string;
 	fetchImpl?: typeof fetch;
@@ -115,6 +121,24 @@ export function conversationRecordedEvent(entityName: string, outcome: Conversat
 function threadIdParam(event: RequestEvent): string {
 	const value = (event.params as Record<string, string | undefined>).threadId;
 	return typeof value === 'string' ? value : '';
+}
+
+/**
+ * A chat request body with the app's own prompt set by the server: the browser's `app_supplementary_prompt`, if any,
+ * is dropped, and the app's is added when it has one. A body that is not a JSON object is passed on as it is.
+ */
+export function withAppSupplementaryPrompt(bodyText: string, prompt: string | undefined): string {
+	let body: unknown;
+	try {
+		body = JSON.parse(bodyText);
+	} catch {
+		return bodyText;
+	}
+	if (!body || typeof body !== 'object' || Array.isArray(body)) return bodyText;
+	const record = body as Record<string, unknown>;
+	if (!prompt?.trim() && !('app_supplementary_prompt' in record)) return bodyText;
+	const { app_supplementary_prompt: _dropped, ...rest } = record;
+	return JSON.stringify(prompt?.trim() ? { ...rest, app_supplementary_prompt: prompt.trim() } : rest);
 }
 
 interface TurnRecording {
@@ -244,7 +268,7 @@ export function createOpeyProxyHandlers(config: OpeyProxyConfig): OpeyProxyHandl
 		const accessToken = getAccessToken(event);
 		if (requireUser && !accessToken) return unauthorized();
 
-		const bodyText = await event.request.text();
+		const bodyText = withAppSupplementaryPrompt(await event.request.text(), config.appSupplementaryPrompt?.());
 		let body: any = null;
 		try {
 			body = JSON.parse(bodyText);
@@ -279,11 +303,14 @@ export function createOpeyProxyHandlers(config: OpeyProxyConfig): OpeyProxyHandl
 		const url = new URL(`${base}/stream/${encodeURIComponent(threadId)}/regenerate`);
 		if (messageId) url.searchParams.set('message_id', messageId);
 
+		// The regenerated answer needs the app's focus again; an Opey without the body field ignores it.
+		const appPrompt = config.appSupplementaryPrompt?.()?.trim();
 		let upstream: Response;
 		try {
 			upstream = await fetchImpl(url, {
 				method: 'POST',
-				headers: upstreamHeaders(event, { 'Content-Type': 'application/json', Accept: 'text/event-stream' })
+				headers: upstreamHeaders(event, { 'Content-Type': 'application/json', Accept: 'text/event-stream' }),
+				...(appPrompt ? { body: JSON.stringify({ app_supplementary_prompt: appPrompt }) } : {})
 			});
 		} catch (err) {
 			return upstreamFailure('regenerate', err);
@@ -319,7 +346,7 @@ export function createOpeyProxyHandlers(config: OpeyProxyConfig): OpeyProxyHandl
 		const base = opeyBaseUrl();
 		if (!base) return unconfigured();
 		if (requireUser && !getAccessToken(event)) return unauthorized();
-		const bodyText = await event.request.text();
+		const bodyText = withAppSupplementaryPrompt(await event.request.text(), config.appSupplementaryPrompt?.());
 		try {
 			const upstream = await fetchImpl(`${base}/invoke`, {
 				method: 'POST',

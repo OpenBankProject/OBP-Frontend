@@ -18,7 +18,7 @@ STEP 1: Fetch Entity Definitions
       {
         "dynamicEntityId": "abc-123",
         "userId": "user-1",
-        "OGCR2Parcel": {
+        "ACME2Parcel": {
           "description": "...",
           "type": "object",
           "properties": {...}
@@ -29,7 +29,7 @@ STEP 1: Fetch Entity Definitions
   }
   
   Extract:
-  → Entity Name: "OGCR2Parcel"
+  → Entity Name: "ACME2Parcel"
   → Entity ID: "abc-123"
   → Schema: {...properties...}
 
@@ -40,20 +40,20 @@ STEP 2: For EACH Entity, Fetch Data Records
   GET /obp/dynamic-entity/{entityName}
   
   Example:
-  GET /obp/dynamic-entity/OGCR2Parcel
+  GET /obp/dynamic-entity/ACME2Parcel
   
   Response (Raw):
   {
-    "ogcr2_parcel_list": [
-      { "ogcr2_parcel_id": "1", ... },
-      { "ogcr2_parcel_id": "2", ... }
+    "acme2_parcel_list": [
+      { "acme2_parcel_id": "1", ... },
+      { "acme2_parcel_id": "2", ... }
     ]
   }
   
   Process:
-  1. Store rawResponse = { "ogcr2_parcel_list": [...] }
-  2. Get responseKeys = ["ogcr2_parcel_list"]
-  3. Find keys ending with "_list" → ["ogcr2_parcel_list"]
+  1. Store rawResponse = { "acme2_parcel_list": [...] }
+  2. Get responseKeys = ["acme2_parcel_list"]
+  3. Find keys ending with "_list" → ["acme2_parcel_list"]
   4. Check if it's an array → YES
   5. Count records → 2
 
@@ -64,12 +64,12 @@ STEP 3: Create Diagnostic Object
   
   {
     "dynamicEntityId": "abc-123",
-    "entityName": "OGCR2Parcel",
+    "entityName": "ACME2Parcel",
     "recordCount": 2,              ← Successfully counted!
     "error": undefined,            ← No error
     "schema": {...},
-    "responseKeys": ["ogcr2_parcel_list"],
-    "triedKeys": ["ogcr2_parcel_list"],
+    "responseKeys": ["acme2_parcel_list"],
+    "triedKeys": ["acme2_parcel_list"],
     "rawResponse": {...}           ← Full API response saved
   }
 
@@ -79,7 +79,7 @@ STEP 4: Display in UI
   (No API call - just rendering)
   
   ┌─────────────────────────────────────────┐
-  │ OGCR2Parcel              [Has Data]     │
+  │ ACME2Parcel              [Has Data]     │
   │ ID: abc-123                             │
   │                                         │
   │ Record Count: 2                         │
@@ -102,8 +102,8 @@ SUMMARY OF API ENDPOINTS USED:
 2. GET /obp/dynamic-entity/{entityName}
    → Fetches data records for specific entity (called ONCE per entity)
    → Examples:
-     - GET /obp/dynamic-entity/OGCR2Parcel
-     - GET /obp/dynamic-entity/OGCR2Project
+     - GET /obp/dynamic-entity/ACME2Parcel
+     - GET /obp/dynamic-entity/ACME2Project
      - GET /obp/dynamic-entity/Person
 ```
 

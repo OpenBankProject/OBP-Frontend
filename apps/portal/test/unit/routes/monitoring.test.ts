@@ -34,10 +34,10 @@ import { LOG_LEVELS, clearLogCache, clearRoleCheckCache, record } from '@obp/sha
 describe('monitoring endpoints', () => {
 	// A fake OBP-API: what each token may do, as GET /banks/SYS/my/roles/ROLE answers it.
 	const tokens: Record<string, Record<string, string[]>> = {
-		'all-reader': { CanGetSystemLogCacheAll: ['UserOrApplication'] },
-		'error-reader': { CanGetSystemLogCacheError: ['UserOrApplication'] },
-		'info-reader': { CanGetSystemLogCacheInfo: ['UserOrApplication'] },
-		'telemetry-reader': { CanGetTelemetry: ['UserOrApplication'] },
+		'all-reader': { CanGetSystemLogCacheAll: ['UserXORApplication'] },
+		'error-reader': { CanGetSystemLogCacheError: ['UserXORApplication'] },
+		'info-reader': { CanGetSystemLogCacheInfo: ['UserXORApplication'] },
+		'telemetry-reader': { CanGetTelemetry: ['UserXORApplication'] },
 		'user-only': { CanGetSystemLogCacheAll: ['UserOnly'], CanGetTelemetry: ['UserOnly'] },
 		'no-roles': {}
 	};
@@ -79,7 +79,7 @@ describe('monitoring endpoints', () => {
 	const capitalised = (level: string) => level.charAt(0).toUpperCase() + level.slice(1);
 
 	it.each(LOG_LEVELS)('returns the %s log cache to a token allowed its level Role or the All Role', async (level) => {
-		tokens[`${level}-only`] = { [`CanGetSystemLogCache${capitalised(level)}`]: ['UserOrApplication'] };
+		tokens[`${level}-only`] = { [`CanGetSystemLogCache${capitalised(level)}`]: ['UserXORApplication'] };
 		for (const token of [`${level}-only`, 'all-reader']) {
 			const res = await getLogs(level, token);
 			expect(res.status).toBe(200);
