@@ -75,7 +75,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		lacking.read
 			? Promise.resolve([])
 			: obpRequests
-					.get(`/obp/v4.0.0/banks/${space()}/customers?${organisationsQuery()}`, token)
+					.get(`/obp/v7.0.0/banks/${space()}/customers?${organisationsQuery()}`, token)
 					.then((r) => (r?.customers ?? []) as Parameters<typeof organisationOfCustomer>[0][])
 					.catch(() => []),
 		listRecords(PARTICIPANT, '', token).catch(() => [])

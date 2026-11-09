@@ -340,7 +340,7 @@ for (const c of data.calls ?? []) {
 
 // Organisations: CORPORATE Customers of the space, with their kind, Arabic name and website as Customer Attributes.
 const KINDS = ['bank_fi', 'university', 'regulator', 'partner'];
-const organisations = await obp('GET', `/obp/v4.0.0/banks/${space}/customers?${KINDS.map((k) => `organisation_kind=${k}`).join('&')}`, staff.token)
+const organisations = await obp('GET', `/obp/v7.0.0/banks/${space}/customers?organisation_kind=${KINDS.join(',')}`, staff.token)
 	.then((r) => r?.customers ?? [])
 	.catch(() => []);
 for (const o of data.organisations ?? []) {
