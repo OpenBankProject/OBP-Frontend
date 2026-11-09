@@ -36,7 +36,8 @@ describe('organisations as Customers', () => {
 		expect(organisationOfCustomer({ customer_id: 'c-2', legal_name: 'X' }).kind).toBe('partner');
 	});
 
-	it('lists every kind staff create, but not startups', () => {
-		expect(organisationsQuery()).toBe('organisation_kind=bank_fi&organisation_kind=university&organisation_kind=regulator&organisation_kind=partner');
+	it('lists every kind staff create, but not startups, as one parameter with comma-separated values', () => {
+		// OBP-API refuses a query parameter name given twice (OBP-09016); v7.0.0 accepts several values separated by commas.
+		expect(organisationsQuery()).toBe('organisation_kind=bank_fi,university,regulator,partner');
 	});
 });

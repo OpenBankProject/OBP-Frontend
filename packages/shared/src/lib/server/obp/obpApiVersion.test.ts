@@ -17,12 +17,7 @@ const OLD_VERSION = /obp\/(v(?:[1-4])\.\d+\.\d+|v5\.0\.0)(?![\d.])/g;
 const OLD_VERSION_LITERAL = /['"`](v(?:[1-4])\.\d+\.\d+|v5\.0\.0)['"`]/g;
 
 /** file (repo-relative) + path fragment -> why it is still below v5.1.0 */
-const NO_V510_EQUIVALENT: Record<string, string> = {
-	'apps/cohort/src/routes/(protected)/staff/organisations/+page.server.ts|/obp/v4.0.0/banks/${space()}/customers?':
-		'v4.0.0 filters customers by attribute; v5.1.0 serves getCustomersAtOneBank without attribute filtering',
-	'apps/cohort/scripts/seed-demo-data.mjs|/obp/v4.0.0/banks/${space}/customers?':
-		'v4.0.0 filters customers by attribute; v5.1.0 serves getCustomersAtOneBank without attribute filtering'
-};
+const NO_V510_EQUIVALENT: Record<string, string> = {};
 
 function sourceFiles(dir: string): string[] {
 	const out: string[] = [];
