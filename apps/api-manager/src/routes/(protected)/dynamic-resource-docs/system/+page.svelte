@@ -69,7 +69,7 @@
     successMessage = null;
     try {
       const response = await fetch(
-        `/proxy/obp/v4.0.0/management/dynamic-resource-docs/${encodeURIComponent(id)}`,
+        `/proxy/obp/v5.1.0/management/dynamic-resource-docs/${encodeURIComponent(id)}`,
         { method: "DELETE", credentials: "include" },
       );
       if (!response.ok) {

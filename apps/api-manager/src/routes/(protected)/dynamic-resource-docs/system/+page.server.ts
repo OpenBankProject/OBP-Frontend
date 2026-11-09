@@ -39,7 +39,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 
   try {
     const resp = await obp_requests.get(
-      `/obp/v4.0.0/management/dynamic-resource-docs`,
+      `/obp/v5.1.0/management/dynamic-resource-docs`,
       accessToken,
     );
     const docs = resp?.["dynamic-resource-docs"] || [];

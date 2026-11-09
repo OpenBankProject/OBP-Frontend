@@ -67,7 +67,7 @@
     if (!docId) throw new Error("Missing doc id");
     successMessage = null;
     const response = await fetch(
-      `/proxy/obp/v4.0.0/management/dynamic-resource-docs/${encodeURIComponent(docId)}`,
+      `/proxy/obp/v5.1.0/management/dynamic-resource-docs/${encodeURIComponent(docId)}`,
       {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -140,7 +140,7 @@
     isDeleting = true;
     try {
       const response = await fetch(
-        `/proxy/obp/v4.0.0/management/dynamic-resource-docs/${encodeURIComponent(docId)}`,
+        `/proxy/obp/v5.1.0/management/dynamic-resource-docs/${encodeURIComponent(docId)}`,
         { method: "DELETE", credentials: "include" },
       );
       if (!response.ok) {
