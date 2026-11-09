@@ -73,13 +73,13 @@ export const actions = {
 
         try {
             // Call OBP API to validate the invitation
-            // POST /obp/v4.0.0/banks/{BANK_ID}/user-invitations
+            // POST /obp/v5.1.0/banks/{BANK_ID}/user-invitations
             const requestBody: OBPUserInvitationValidateRequestBody = {
                 secret_key: parseInt(secretKey)
             };
 
             const response = await obp_requests.post(
-                `/obp/v4.0.0/banks/${effectiveBankId}/user-invitations`,
+                `/obp/v5.1.0/banks/${effectiveBankId}/user-invitations`,
                 requestBody
             ) as OBPUserInvitation;
 
@@ -204,7 +204,7 @@ export const actions = {
 
         try {
             // Option B: Create user account directly via REST API
-            // POST /obp/v4.0.0/banks/{BANK_ID}/user-invitation
+            // POST /obp/v5.1.0/banks/{BANK_ID}/user-invitation
             const requestBody: OBPUserInvitationAcceptRequestBody = {
                 secret_key: parseInt(secretKey),
                 username: username.trim(),
@@ -223,7 +223,7 @@ export const actions = {
             });
 
             const response = await obp_requests.post(
-                `/obp/v4.0.0/banks/${effectiveBankId}/user-invitation`,
+                `/obp/v5.1.0/banks/${effectiveBankId}/user-invitation`,
                 requestBody
             );
 
