@@ -63,7 +63,7 @@ export async function load(event: RequestEvent) {
 
 	try {
 		const consentRequest = await obp_requests.get(
-			`/obp/v5.0.0/consumer/consent-requests/${consentRequestId}`,
+			`/obp/v5.1.0/consumer/consent-requests/${consentRequestId}`,
 			token
 		);
 
@@ -156,7 +156,7 @@ export const actions = {
 
 		try {
 			const response = await obp_requests.post(
-				`/obp/v5.0.0/consumer/consent-requests/${consentRequestId}/IMPLICIT/consents`,
+				`/obp/v5.1.0/consumer/consent-requests/${consentRequestId}/IMPLICIT/consents`,
 				{},
 				token
 			);

@@ -60,7 +60,7 @@ export const actions = {
 		try {
 			// Step 1: Submit OTP challenge
 			const challengeResponse = await obp_requests.post(
-				`/obp/v3.1.0/banks/${defaultBankId}/consents/${consentId}/challenge`,
+				`/obp/v5.1.0/banks/${defaultBankId}/consents/${consentId}/challenge`,
 				{ answer: otp },
 				token
 			);
