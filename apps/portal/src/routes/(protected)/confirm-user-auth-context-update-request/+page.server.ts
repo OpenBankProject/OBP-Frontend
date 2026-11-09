@@ -59,7 +59,7 @@ export const actions = {
 
 		try {
 			const response = await obp_requests.post(
-				`/obp/v5.0.0/banks/${bankId}/users/current/auth-context-updates/${authContextUpdateId}/challenge`,
+				`/obp/v5.1.0/banks/${bankId}/users/current/auth-context-updates/${authContextUpdateId}/challenge`,
 				{ answer },
 				token
 			);

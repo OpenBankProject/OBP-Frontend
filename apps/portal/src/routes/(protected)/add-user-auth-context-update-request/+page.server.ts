@@ -63,7 +63,7 @@ export const actions = {
 
 		try {
 			const response = await obp_requests.post(
-				`/obp/v5.0.0/banks/${bankId}/users/current/auth-context-updates/${scaMethod}`,
+				`/obp/v5.1.0/banks/${bankId}/users/current/auth-context-updates/${scaMethod}`,
 				{ key, value },
 				token
 			);
