@@ -79,7 +79,7 @@
     try {
       const [productResponse, tagsResponse] = await Promise.all([
         trackedFetch(
-          `/proxy/obp/v4.0.0/banks/${bankId}/products/${encodeURIComponent(productCode)}`,
+          `/proxy/obp/v5.1.0/banks/${bankId}/products/${encodeURIComponent(productCode)}`,
         ),
         trackedFetch(
           `/proxy/obp/v6.0.0/banks/${bankId}/products/${encodeURIComponent(productCode)}/tags`,
@@ -157,7 +157,7 @@
     isSubmitting = true;
     try {
       const response = await trackedFetch(
-        `/proxy/obp/v5.0.0/banks/${bankId}/products/${encodeURIComponent(productCode)}`,
+        `/proxy/obp/v5.1.0/banks/${bankId}/products/${encodeURIComponent(productCode)}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -195,7 +195,7 @@
           let attrResponse: Response;
           if (attr.product_attribute_id) {
             attrResponse = await trackedFetch(
-              `/proxy/obp/v4.0.0/banks/${bankId}/products/${encodeURIComponent(productCode)}/attributes/${attr.product_attribute_id}`,
+              `/proxy/obp/v5.1.0/banks/${bankId}/products/${encodeURIComponent(productCode)}/attributes/${attr.product_attribute_id}`,
               {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
@@ -209,7 +209,7 @@
             );
           } else {
             attrResponse = await trackedFetch(
-              `/proxy/obp/v4.0.0/banks/${bankId}/products/${encodeURIComponent(productCode)}/attribute`,
+              `/proxy/obp/v5.1.0/banks/${bankId}/products/${encodeURIComponent(productCode)}/attribute`,
               {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },

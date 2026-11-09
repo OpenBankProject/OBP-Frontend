@@ -54,7 +54,7 @@
 
   async function putProduct(bankId: string, code: string) {
     const response = await trackedFetch(
-      `/proxy/obp/v5.0.0/banks/${bankId}/products/${encodeURIComponent(code)}`,
+      `/proxy/obp/v5.1.0/banks/${bankId}/products/${encodeURIComponent(code)}`,
       {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -99,7 +99,7 @@
 
   async function postAttribute(bankId: string, code: string, attr: CustomAttribute) {
     const response = await trackedFetch(
-      `/proxy/obp/v4.0.0/banks/${bankId}/products/${encodeURIComponent(code)}/attribute`,
+      `/proxy/obp/v5.1.0/banks/${bankId}/products/${encodeURIComponent(code)}/attribute`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
