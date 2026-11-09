@@ -123,7 +123,7 @@
     try {
       let url: string;
       if (type === "email") {
-        url = `/proxy/obp/v4.0.0/users/email/${encodeURIComponent(trimmed)}/terminator`;
+        url = `/proxy/obp/v5.1.0/users/email/${encodeURIComponent(trimmed)}/terminator`;
       } else if (type === "userid") {
         url = `/proxy/obp/v6.0.0/users/user-id/${encodeURIComponent(trimmed)}`;
       } else {

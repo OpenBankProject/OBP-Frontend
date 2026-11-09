@@ -58,7 +58,7 @@ async function membersOf(customerId: string, token: string): Promise<Member[]> {
 	return Promise.all(
 		links.map(async (l) => {
 			const userId = String(l.user_id ?? '');
-			const user = await obpRequests.get(`/obp/v3.0.0/users/user_id/${encodeURIComponent(userId)}`, token).catch(() => null);
+			const user = await obpRequests.get(`/obp/v5.1.0/users/user_id/${encodeURIComponent(userId)}`, token).catch(() => null);
 			return { link_id: String(l.user_customer_link_id ?? ''), user_id: userId, username: String(user?.username ?? '') };
 		})
 	);
