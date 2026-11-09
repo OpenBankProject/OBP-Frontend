@@ -123,7 +123,7 @@ export const actions = {
 				const transactionRequestId = formData.get('transactionRequestId') as string;
 
 				await obp_requests.post(
-					`/obp/v4.0.0/banks/${bankId}/accounts/${accountId}/${viewId}/transaction-request-types/${transactionRequestType}/transaction-requests/${transactionRequestId}/challenge`,
+					`/obp/v5.1.0/banks/${bankId}/accounts/${accountId}/${viewId}/transaction-request-types/${transactionRequestType}/transaction-requests/${transactionRequestId}/challenge`,
 					{ id, answer: otp },
 					token
 				);

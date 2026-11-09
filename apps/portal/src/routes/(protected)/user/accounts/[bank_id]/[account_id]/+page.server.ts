@@ -44,7 +44,7 @@ export async function load(event: RequestEvent) {
 		error(400, { message: 'bank_id and account_id are required.' });
 	}
 
-	const viewsUrl = `/obp/v5.0.0/banks/${encodeURIComponent(bank_id)}/accounts/${encodeURIComponent(account_id)}/views`;
+	const viewsUrl = `/obp/v5.1.0/banks/${encodeURIComponent(bank_id)}/accounts/${encodeURIComponent(account_id)}/views`;
 
 	let defaultView: string | null = null;
 	try {

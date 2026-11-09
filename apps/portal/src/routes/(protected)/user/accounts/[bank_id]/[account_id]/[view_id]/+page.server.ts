@@ -91,8 +91,8 @@ export async function load(event: RequestEvent) {
 
 	const accountUrl = `/obp/v7.0.0/banks/${encodeURIComponent(bank_id)}/accounts/${encodeURIComponent(account_id)}/${encodeURIComponent(view_id)}/account`;
 	const transactionsUrl = `/obp/v6.0.0/banks/${encodeURIComponent(bank_id)}/accounts/${encodeURIComponent(account_id)}/${encodeURIComponent(view_id)}/transactions?limit=10&sort_direction=DESC`;
-	const viewsUrl = `/obp/v5.0.0/banks/${encodeURIComponent(bank_id)}/accounts/${encodeURIComponent(account_id)}/views`;
-	const myAccountsUrl = '/obp/v3.0.0/my/accounts';
+	const viewsUrl = `/obp/v5.1.0/banks/${encodeURIComponent(bank_id)}/accounts/${encodeURIComponent(account_id)}/views`;
+	const myAccountsUrl = '/obp/v5.1.0/my/accounts';
 
 	const [accountResult, transactionsResult, viewsResult, myAccountsResult] =
 		await Promise.allSettled([
