@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('./obp', () => ({ obpRequests: { get: vi.fn() } }));
 
 const { obpRequests } = await import('./obp');
-const { userIdByUsername } = await import('./users');
+const { memberLookupError, userIdByUsername } = await import('./users');
 const get = vi.mocked(obpRequests.get);
 
 describe('userIdByUsername', () => {
@@ -35,5 +35,24 @@ describe('userIdByUsername', () => {
 			]
 		});
 		await expect(userIdByUsername('ada', 'token-1')).rejects.toThrow(/2 users/);
+	});
+});
+
+describe('memberLookupError', () => {
+	beforeEach(() => get.mockReset());
+
+	it('tells an ambiguous username apart from one nobody has', async () => {
+		get.mockResolvedValue({
+			users: [
+				{ user_id: 'u-3', username: 'ada', provider: 'local' },
+				{ user_id: 'u-4', username: 'ada', provider: 'keycloak' }
+			]
+		});
+		const ambiguous = await userIdByUsername('ada', 'token-1').catch((e) => e);
+		expect(memberLookupError(ambiguous)).toBe('member_ambiguous');
+
+		get.mockResolvedValue({ users: [] });
+		const missing = await userIdByUsername('nobody', 'token-1').catch((e) => e);
+		expect(memberLookupError(missing)).toBe('member_not_found');
 	});
 });
