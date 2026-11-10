@@ -852,6 +852,7 @@ export const ar: Partial<Record<MessageKey, string>> = {
 	organisation_members_saved: 'تم حفظ أشخاص المؤسسة.',
 	member_missing: 'أدخل اسم مستخدم.',
 	member_not_found: 'لا يوجد مستخدم بهذا الاسم.',
+	member_ambiguous: 'هذا الاسم مستخدم لدى أكثر من مزوّد تسجيل دخول، ولا يمكن معرفة المستخدم المقصود.',
 	files_heading: 'المستندات',
 	files_none: 'لا توجد مستندات بعد.',
 	files_name: 'الاسم',

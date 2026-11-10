@@ -24,7 +24,7 @@ import { idOf, listRecords, userToken } from '$lib/server/records';
 import { cohortSpace } from '$lib/server/space';
 import { staffAccess } from '$lib/server/staffAccess';
 import { requestRole, write } from '$lib/server/staffRecords';
-import { userIdByUsername } from '$lib/server/users';
+import { memberLookupError, userIdByUsername } from '$lib/server/users';
 import type { Actions, PageServerLoad } from './$types';
 
 /**
@@ -141,7 +141,7 @@ export const actions: Actions = {
 		try {
 			userId = await userIdByUsername(username, token);
 		} catch (err) {
-			return fail(400, { form: 'member', error: `member_not_found`, detail: messageOf(err) });
+			return fail(400, { form: 'member', error: memberLookupError(err), detail: messageOf(err) });
 		}
 		if (!userId) return fail(400, { form: 'member', error: 'member_not_found' });
 		return write('member', () => obpRequests.post(`/obp/v5.1.0/banks/${space()}/user_customer_links`, { user_id: userId, customer_id: customerId }, token), { added: username });

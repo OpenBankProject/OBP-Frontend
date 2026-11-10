@@ -19,6 +19,13 @@ import { obpRequests } from '$lib/server/obp';
 
 type UserRow = { user_id?: string; username?: string; provider?: string };
 
+/** Users of more than one identity provider have the username: which one is meant cannot be told. */
+export class AmbiguousUsernameError extends Error {}
+
+/** The form error key for a failed lookup: an ambiguous username, or none found (or the lookup failed). */
+export const memberLookupError = (err: unknown) =>
+	err instanceof AmbiguousUsernameError ? 'member_ambiguous' : 'member_not_found';
+
 /**
  * The user_id of the User with exactly this username (needs CanGetAnyUser).
  *
@@ -35,7 +42,7 @@ export async function userIdByUsername(username: string, token: string): Promise
 	);
 	if (users.length === 0) throw new Error(`No user with username ${username}`);
 	if (users.length > 1)
-		throw new Error(
+		throw new AmbiguousUsernameError(
 			`${users.length} users have the username ${username} (providers: ${users.map((u) => u.provider).join(', ')})`
 		);
 	return String(users[0].user_id);
