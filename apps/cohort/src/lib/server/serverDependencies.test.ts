@@ -40,10 +40,13 @@ function sourceFiles(dir: string): string[] {
 describe('server dependencies', () => {
 	it('lists the packages of the landing sanitiser it imports, so the server build keeps them external', () => {
 		const importsSanitiser = sourceFiles(join(APP, 'src')).some((file) =>
-			/from ['"]@obp\/shared\/server\/landing['"]|sanitizePageHtml|sanitizeContentHtml/.test(readFileSync(file, 'utf8'))
+			/from ['"]@obp\/shared\/server\/landing['"]|sanitizePageHtml|sanitizeContentHtml/.test(
+				readFileSync(file, 'utf8')
+			)
 		);
 		expect(importsSanitiser).toBe(true);
-		const dependencies = JSON.parse(readFileSync(join(APP, 'package.json'), 'utf8')).dependencies ?? {};
+		const dependencies =
+			JSON.parse(readFileSync(join(APP, 'package.json'), 'utf8')).dependencies ?? {};
 		expect(SANITISER_PACKAGES.filter((name) => !(name in dependencies))).toEqual([]);
 	});
 });
