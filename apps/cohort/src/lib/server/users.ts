@@ -26,9 +26,17 @@ type UserRow = { user_id?: string; username?: string; provider?: string };
  * by Users of more than one provider is refused rather than guessed.
  */
 export async function userIdByUsername(username: string, token: string): Promise<string> {
-	const response = await obpRequests.get(`/obp/v7.0.0/users?username=${encodeURIComponent(username)}`, token);
-	const users: UserRow[] = (response?.users ?? []).filter((u: UserRow) => u?.username === username && u?.user_id);
+	const response = await obpRequests.get(
+		`/obp/v7.0.0/users?username=${encodeURIComponent(username)}`,
+		token
+	);
+	const users: UserRow[] = (response?.users ?? []).filter(
+		(u: UserRow) => u?.username === username && u?.user_id
+	);
 	if (users.length === 0) throw new Error(`No user with username ${username}`);
-	if (users.length > 1) throw new Error(`${users.length} users have the username ${username} (providers: ${users.map((u) => u.provider).join(', ')})`);
+	if (users.length > 1)
+		throw new Error(
+			`${users.length} users have the username ${username} (providers: ${users.map((u) => u.provider).join(', ')})`
+		);
 	return String(users[0].user_id);
 }

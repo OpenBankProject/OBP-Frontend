@@ -10,7 +10,9 @@ describe('userIdByUsername', () => {
 	beforeEach(() => get.mockReset());
 
 	it('looks the user up with GET /obp/v7.0.0/users?username=', async () => {
-		get.mockResolvedValue({ users: [{ user_id: 'u-1', username: 'ada lovelace', provider: 'local' }] });
+		get.mockResolvedValue({
+			users: [{ user_id: 'u-1', username: 'ada lovelace', provider: 'local' }]
+		});
 		await expect(userIdByUsername('ada lovelace', 'token-1')).resolves.toBe('u-1');
 		expect(get).toHaveBeenCalledWith('/obp/v7.0.0/users?username=ada%20lovelace', 'token-1');
 	});
