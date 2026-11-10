@@ -16,10 +16,11 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 import { fail } from '@sveltejs/kit';
-import { isOrganisationKind, ORGANISATION_ATTRIBUTES, organisationOfCustomer, organisationsFromCustomers, organisationsQuery, type OrganisationKind } from '$lib/organisations';
+import { isOrganisationKind, ORGANISATION_ATTRIBUTES, organisationsFromCustomers, organisationsQuery, type OrganisationKind } from '$lib/organisations';
 import { PARTICIPANT } from '$lib/server/entities/definitions';
 import { messageOf } from '$lib/server/errors';
 import { obpRequests } from '$lib/server/obp';
+import { organisationCustomers } from '$lib/server/organisationCustomers';
 import { idOf, listRecords, userToken } from '$lib/server/records';
 import { cohortSpace } from '$lib/server/space';
 import { staffAccess } from '$lib/server/staffAccess';
@@ -74,10 +75,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 	const [customers, participants] = await Promise.all([
 		lacking.read
 			? Promise.resolve([])
-			: obpRequests
-					.get(`/obp/v7.0.0/banks/${space()}/customers?${organisationsQuery()}`, token)
-					.then((r) => (r?.customers ?? []) as Parameters<typeof organisationOfCustomer>[0][])
-					.catch(() => []),
+			: organisationCustomers(space(), organisationsQuery(), token).catch(() => []),
 		listRecords(PARTICIPANT, '', token).catch(() => [])
 	]);
 	const organisations: { id: string; name: string; name_ar: string; kind: OrganisationKind; customer_id: string; website: string }[] = [
