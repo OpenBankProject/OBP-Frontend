@@ -26,7 +26,8 @@ const MAX_PAGES = 50;
 /**
  * Every Customer of the space matching the attribute query, from
  * GET /obp/v7.0.0/banks/BANK_ID/customers. The endpoint pages its results (50 by default),
- * so pages are read until one is not full.
+ * so pages are read until one is empty: a page can be short before the end, when a matching
+ * attribute belongs to a Customer that no longer exists.
  */
 export async function organisationCustomers(
 	space: string,
@@ -41,7 +42,7 @@ export async function organisationCustomers(
 		);
 		const customers: CustomerWithAttributes[] = response?.customers ?? [];
 		all.push(...customers);
-		if (customers.length < PAGE_SIZE) break;
+		if (customers.length === 0) break;
 	}
 	return all;
 }
