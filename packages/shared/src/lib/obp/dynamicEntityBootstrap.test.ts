@@ -21,7 +21,6 @@ import { ensureDynamicEntity, ensureSystemDynamicEntity, dynamicEntityDrift } fr
 
 const definition = {
 	entity_name: 'notes',
-	auth_mode: 'UserOnly',
 	schema: { properties: { title: { type: 'string' }, page: { type: 'string' } } }
 };
 
@@ -41,21 +40,21 @@ describe('ensureSystemDynamicEntity', () => {
 	});
 
 	it('leaves a current entity alone', async () => {
-		const d = deps([{ dynamic_entity_id: 'de-1', entity_name: 'notes', auth_mode: 'UserOnly', schema: { properties: { title: {}, page: {} } } }]);
+		const d = deps([{ dynamic_entity_id: 'de-1', entity_name: 'notes', schema: { properties: { title: {}, page: {} } } }]);
 		expect(await ensureSystemDynamicEntity(definition, d.deps)).toBe(true);
 		expect(d.post).not.toHaveBeenCalled();
 		expect(d.put).not.toHaveBeenCalled();
 	});
 
 	it('updates an entity that lacks a property the definition has', async () => {
-		const d = deps([{ dynamic_entity_id: 'de-1', entity_name: 'notes', auth_mode: 'UserOnly', schema: { properties: { title: {} } } }]);
+		const d = deps([{ dynamic_entity_id: 'de-1', entity_name: 'notes', schema: { properties: { title: {} } } }]);
 		expect(await ensureSystemDynamicEntity(definition, d.deps)).toBe(true);
 		expect(d.put).toHaveBeenCalledWith('/obp/v7.0.0/management/banks/SYS/dynamic-entities/de-1', definition, 'app-token');
 		expect(d.post).not.toHaveBeenCalled();
 	});
 
-	it('updates when auth_mode differs and still reports true if the update fails', async () => {
-		const d = deps([{ dynamic_entity_id: 'de-1', entity_name: 'notes', auth_mode: 'UserOrApplication', schema: { properties: { title: {}, page: {} } } }]);
+	it('still reports true if the update fails', async () => {
+		const d = deps([{ dynamic_entity_id: 'de-1', entity_name: 'notes', schema: { properties: { title: {} } } }]);
 		d.put.mockRejectedValueOnce(new Error('403'));
 		expect(await ensureSystemDynamicEntity(definition, d.deps)).toBe(true);
 		expect(d.put).toHaveBeenCalledTimes(1);
@@ -70,14 +69,15 @@ describe('ensureSystemDynamicEntity', () => {
 
 describe('dynamicEntityDrift', () => {
 	it('names what differs and never asks to remove properties', () => {
-		expect(dynamicEntityDrift({ auth_mode: 'UserOnly', schema: { properties: { title: {}, page: {}, extra: {} } } }, definition)).toEqual([]);
+		expect(dynamicEntityDrift({ schema: { properties: { title: {}, page: {}, extra: {} } } }, definition)).toEqual([]);
 		expect(dynamicEntityDrift({ schema: { properties: {} } }, definition)).toEqual(['missing properties: title, page']);
-		expect(dynamicEntityDrift({ auth_mode: 'ApplicationOnly', schema: { properties: { title: {}, page: {} } } }, definition)).toEqual(['auth_mode ApplicationOnly -> UserOnly']);
+		// auth_mode no longer changes access, so an older OBP-API that still returns it is not drift
+		expect(dynamicEntityDrift({ auth_mode: 'ApplicationOnly', schema: { properties: { title: {}, page: {} } } }, definition)).toEqual([]);
 	});
 
 	it('reports an access the definition turns on but the entity lacks, and leaves one turned off alone', () => {
 		const withCommunity = { ...definition, has_community_access: true } as typeof definition;
-		const current = { auth_mode: 'UserOnly', schema: { properties: { title: {}, page: {} } } };
+		const current = { schema: { properties: { title: {}, page: {} } } };
 		expect(dynamicEntityDrift({ ...current, has_community_access: false }, withCommunity)).toEqual(['has_community_access false -> true']);
 		expect(dynamicEntityDrift({ ...current, has_community_access: true }, withCommunity)).toEqual([]);
 		expect(dynamicEntityDrift({ ...current, has_public_access: true }, { ...definition, has_public_access: false } as typeof definition)).toEqual([]);

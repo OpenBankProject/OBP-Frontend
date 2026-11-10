@@ -47,7 +47,6 @@
   }
 
   const entityOk = $derived(data.entity.exists);
-  const authModeOk = $derived(data.entity.exists && data.entity.auth_mode === data.requiredAuthMode);
 </script>
 
 <svelte:head>
@@ -86,39 +85,35 @@
       Three things have to be in place.
     </p>
 
-    <!-- Step 1: OBP-API supports auth_mode -->
-    <div class="mb-4 rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800" data-testid="help-step-obp" data-state={data.entity.obp_supports_auth_mode ? "ok" : "missing"}>
+    <!-- Step 1: the Portal's consumer is a Platform App -->
+    <div class="mb-4 rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800" data-testid="help-step-platform-app">
       <div class="flex items-start gap-3">
-        {#if data.entity.obp_supports_auth_mode}<CircleCheck class="mt-0.5 h-5 w-5 flex-shrink-0 text-green-600" />{:else}<CircleAlert class="mt-0.5 h-5 w-5 flex-shrink-0 text-yellow-600" />{/if}
+        <Search class="mt-0.5 h-5 w-5 flex-shrink-0 text-gray-500" />
         <div>
-          <h3 class="font-semibold text-gray-900 dark:text-gray-100">1. OBP-API with dynamic entity auth modes</h3>
+          <h3 class="font-semibold text-gray-900 dark:text-gray-100">1. Mark the Portal's consumer as a Platform App</h3>
           <p class="mt-1 text-sm text-gray-700 dark:text-gray-300">
-            {#if data.entity.obp_supports_auth_mode}
-              This OBP-API returns <code>auth_mode</code> on dynamic entity definitions, so a consumer's Scope can grant access to an entity's data endpoints.
-            {:else}
-              This OBP-API does not return <code>auth_mode</code> on dynamic entity definitions. Its data endpoints only check the calling user's Entitlements, so step 3 must use the fallback described there until OBP-API is upgraded.
-            {/if}
+            The Portal reads published pages as itself, with its own consumer. OBP-API counts that consumer's Scopes only if it is a Platform App.
+            Mark it on the <a href="/consumers/platform-apps" class="underline">Platform Apps</a> page. The list of consumers in step 3 shows which ones are Platform Apps.
           </p>
         </div>
       </div>
     </div>
 
     <!-- Step 2: the entity -->
-    <div class="mb-4 rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800" data-testid="help-step-entity" data-state={authModeOk ? "ok" : entityOk ? "auth-mode" : "missing"}>
+    <div class="mb-4 rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800" data-testid="help-step-entity" data-state={entityOk ? "ok" : "missing"}>
       <div class="flex items-start gap-3">
-        {#if authModeOk}<CircleCheck class="mt-0.5 h-5 w-5 flex-shrink-0 text-green-600" />{:else if entityOk}<CircleAlert class="mt-0.5 h-5 w-5 flex-shrink-0 text-yellow-600" />{:else}<CircleX class="mt-0.5 h-5 w-5 flex-shrink-0 text-red-600" />{/if}
+        {#if entityOk}<CircleCheck class="mt-0.5 h-5 w-5 flex-shrink-0 text-green-600" />{:else}<CircleX class="mt-0.5 h-5 w-5 flex-shrink-0 text-red-600" />{/if}
         <div class="min-w-0 flex-1">
           <h3 class="font-semibold text-gray-900 dark:text-gray-100">2. The <code>{data.entityName}</code> dynamic entity</h3>
           {#if data.entity.exists}
             <p class="mt-1 text-sm text-gray-700 dark:text-gray-300">
               Exists, id <code>{data.entity.dynamic_entity_id}</code>{#if data.entity.record_count !== null}, {data.entity.record_count} record{data.entity.record_count === 1 ? "" : "s"}{/if}.
-              Auth mode is <code>{data.entity.auth_mode}</code>{#if !authModeOk}, but the Portal needs <code>{data.requiredAuthMode}</code>. The API Manager updates it at its next start if its consumer may edit entities; otherwise edit the entity and set it{/if}.
             </p>
             <a href="/dynamic-entities/system/{data.entity.dynamic_entity_id}" class="mt-2 inline-block text-sm underline">Open the entity</a>
           {:else}
             <p class="mt-1 text-sm text-gray-700 dark:text-gray-300">
               Not found. The API Manager creates it at startup when its own consumer holds the scopes <code>CanGetDynamicEntityDefinitions</code> and <code>CanCreateDynamicEntityDefinition</code> at <code>SYS</code>, the system space.
-              Otherwise create it from the template, which prefills every field including the auth mode:
+              Otherwise create it from the template, which prefills every field:
             </p>
             <a href="/dynamic-entities/system/create?template=obp-portal-page" class="mt-2 inline-flex items-center gap-1 rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700" data-testid="help-create-entity">
               Create {data.entityName} from the template
@@ -129,7 +124,7 @@
             <ul class="mt-2 list-disc space-y-1 pl-5 text-gray-700 dark:text-gray-300">
               <li><code>slug</code>, <code>title</code>, <code>kind</code> (page or app), <code>status</code> (draft or published), <code>summary</code>, <code>source</code>, <code>author</code>, <code>updated_at</code>.</li>
               <li>Not personal, not public, not community: drafts must never be readable by anyone but the editors and the Portal.</li>
-              <li>Auth mode <code>{data.requiredAuthMode}</code>: editors use their Entitlements, the Portal uses its consumer's Scope.</li>
+              <li>Editors use their Entitlements. The Portal uses its consumer's Scope, as a Platform App.</li>
             </ul>
           </details>
         </div>
@@ -160,6 +155,7 @@
                 <li class="flex flex-wrap items-center gap-3 px-3 py-2 text-sm" data-testid="help-consumer-row" data-state={check?.state ?? "unchecked"}>
                   <div class="min-w-0 flex-1">
                     <span class="font-medium text-gray-900 dark:text-gray-100">{c.app_name}</span>{#if !c.enabled}<span class="ml-2 text-xs text-red-600">disabled</span>{/if}
+                    {#if c.platform_app === true}<span class="ml-2 text-xs text-green-700 dark:text-green-300" data-testid="help-consumer-platform-app">Platform App</span>{:else if c.platform_app === false}<span class="ml-2 text-xs text-yellow-700 dark:text-yellow-300" data-testid="help-consumer-not-platform-app">not a Platform App</span>{/if}
                     <div class="truncate text-xs text-gray-500 dark:text-gray-400">{c.developer_email} · <code>{c.consumer_id}</code></div>
                   </div>
                   {#if check?.state === "granted"}
@@ -180,13 +176,6 @@
             </ul>
           </div>
 
-          <details class="mt-3 text-sm">
-            <summary class="cursor-pointer text-gray-600 dark:text-gray-400">Fallback for an OBP-API without auth modes</summary>
-            <p class="mt-2 text-gray-700 dark:text-gray-300">
-              Older OBP-API checks only the calling user's Entitlements on entity data endpoints. A client-credentials token still resolves to a user: OBP creates a resource user for the client's service account the first time the Portal calls it, named after the token subject (a UUID).
-              After the Portal's first call, find that user on the <a href="/users" class="underline">Users</a> page and grant it the Entitlement <code>{data.getRole}</code>. Remove it again once OBP-API is upgraded and the Scope is in place.
-            </p>
-          </details>
         </div>
       </div>
     </div>

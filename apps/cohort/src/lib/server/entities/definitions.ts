@@ -64,7 +64,6 @@ export const programmeEntity: SystemDynamicEntityDefinition = {
 	has_personal_entity: false,
 	has_public_access: true,
 	has_community_access: false,
-	auth_mode: 'UserOnly',
 	schema: {
 		description: 'A programme of the innovation hub, e.g. an incubation or acceleration track.',
 		required: ['name', 'status'],
@@ -89,7 +88,6 @@ export const callEntity: SystemDynamicEntityDefinition = {
 	has_personal_entity: false,
 	has_public_access: true,
 	has_community_access: false,
-	auth_mode: 'UserOnly',
 	schema: {
 		description: 'A call for applications to a programme.',
 		required: ['programme_id', 'title', 'status'],
@@ -118,7 +116,6 @@ export const applicationEntity: SystemDynamicEntityDefinition = {
 	personal_requires_role: false,
 	has_public_access: false,
 	has_community_access: true,
-	auth_mode: 'UserOnly',
 	schema: {
 		description: 'An application to a call, owned by the applicant. Saved as a draft until it is submitted.',
 		required: ['call_id', 'status'],
@@ -145,7 +142,7 @@ export const applicationEntity: SystemDynamicEntityDefinition = {
 
 /**
  * A screening decision on an application. Append-only: staff create decisions and nobody is given the update or
- * delete Roles, so the history stays as it was written. UserXORApplication, so Cohort itself (with the Get Scope)
+ * delete Roles, so the history stays as it was written. Cohort itself, as a Platform App with the Get Scope,
  * reads the decisions on an applicant's own application to show them the outcome; applicants hold no Role.
  */
 export const screeningDecisionEntity: SystemDynamicEntityDefinition = {
@@ -153,7 +150,6 @@ export const screeningDecisionEntity: SystemDynamicEntityDefinition = {
 	has_personal_entity: false,
 	has_public_access: false,
 	has_community_access: false,
-	auth_mode: 'UserXORApplication',
 	schema: {
 		description:
 			'A decision on an application, written by staff: at screening or at evaluation (approval, after ranking). The latest one, of any stage, is the current outcome.',
@@ -196,7 +192,6 @@ export const rubricCriterionEntity: SystemDynamicEntityDefinition = {
 	has_personal_entity: false,
 	has_public_access: true,
 	has_community_access: false,
-	auth_mode: 'UserOnly',
 	schema: {
 		description: "A criterion of a call's scoring rubric: reviewers score each submitted application on it.",
 		required: ['call_id', 'name', 'max_score'],
@@ -221,7 +216,6 @@ export const reviewerEntity: SystemDynamicEntityDefinition = {
 	personal_requires_role: false,
 	has_public_access: false,
 	has_community_access: true,
-	auth_mode: 'UserOnly',
 	schema: {
 		description: 'A person who offers to review applications. Staff assign reviewers from these.',
 		required: ['user_id', 'display_name'],
@@ -237,7 +231,7 @@ export const reviewerEntity: SystemDynamicEntityDefinition = {
 /**
  * Staff accepting or declining an offer to review. Append-only, like screening decisions: the latest one is the
  * reviewer's standing, and only an accepted reviewer is assigned applications and sees their assignments. It is not a
- * field on the offer, which is the reviewer's own record. UserXORApplication, so Cohort itself (with the Get Scope)
+ * field on the offer, which is the reviewer's own record. Cohort itself, as a Platform App with the Get Scope,
  * reads a reviewer's standing; reviewers hold no Role.
  */
 export const reviewerDecisionEntity: SystemDynamicEntityDefinition = {
@@ -245,7 +239,6 @@ export const reviewerDecisionEntity: SystemDynamicEntityDefinition = {
 	has_personal_entity: false,
 	has_public_access: false,
 	has_community_access: false,
-	auth_mode: 'UserXORApplication',
 	schema: {
 		description: 'Staff accepting or declining an offer to review. The latest one is the current standing.',
 		required: ['reviewer_user_id', 'decision', 'decided_at'],
@@ -266,7 +259,6 @@ export const reviewAssignmentEntity: SystemDynamicEntityDefinition = {
 	has_personal_entity: false,
 	has_public_access: false,
 	has_community_access: false,
-	auth_mode: 'UserOnly',
 	schema: {
 		description: 'A reviewer assigned to review an application.',
 		required: ['application_id', 'call_id', 'reviewer_user_id', 'assigned_at'],
@@ -293,7 +285,6 @@ export const reviewEntity: SystemDynamicEntityDefinition = {
 	personal_requires_role: false,
 	has_public_access: false,
 	has_community_access: true,
-	auth_mode: 'UserOnly',
 	schema: {
 		description: 'A review of an application, written by its reviewer: a conflict-of-interest declaration, and scores.',
 		required: ['assignment_id', 'application_id', 'conflict_of_interest', 'submitted_at'],
@@ -312,7 +303,7 @@ export const reviewEntity: SystemDynamicEntityDefinition = {
 };
 
 /**
- * A startup's place in a programme, from its acceptance. Cohort keeps these as itself (UserXORApplication, with the
+ * A startup's place in a programme, from its acceptance. Cohort keeps these as itself (as a Platform App, with the
  * Create, Get and Update Scopes): it creates one when an application is accepted at evaluation, and fills in
  * customer_id when the startup registers its company (a CORPORATE Customer, its applicant linked to it). The startup
  * sees its own through Cohort; staff read all with the Get Role. Milestones, sessions and attendance refer to it.
@@ -322,7 +313,6 @@ export const participantEntity: SystemDynamicEntityDefinition = {
 	has_personal_entity: false,
 	has_public_access: false,
 	has_community_access: false,
-	auth_mode: 'UserXORApplication',
 	schema: {
 		description: "A startup's place in a programme: created when its application is accepted, then onboarded.",
 		required: ['programme_id', 'application_id', 'user_id', 'stage', 'status', 'joined_at'],
@@ -352,7 +342,6 @@ export const milestoneEntity: SystemDynamicEntityDefinition = {
 	has_personal_entity: false,
 	has_public_access: true,
 	has_community_access: false,
-	auth_mode: 'UserOnly',
 	schema: {
 		description: "A milestone of a programme: what its startups must reach, and by when.",
 		required: ['programme_id', 'title'],
@@ -376,7 +365,6 @@ export const milestoneReportEntity: SystemDynamicEntityDefinition = {
 	personal_requires_role: false,
 	has_public_access: false,
 	has_community_access: true,
-	auth_mode: 'UserOnly',
 	schema: {
 		description: "A startup's report on reaching a milestone, with evidence files attached.",
 		required: ['milestone_id', 'participant_id', 'submitted_at'],
@@ -400,7 +388,6 @@ export const milestoneReviewEntity: SystemDynamicEntityDefinition = {
 	has_personal_entity: false,
 	has_public_access: false,
 	has_community_access: false,
-	auth_mode: 'UserXORApplication',
 	schema: {
 		description: 'Staff accepting a milestone report, or returning it with a message for the startup.',
 		required: ['report_id', 'milestone_id', 'participant_id', 'decision', 'decided_at'],
@@ -425,7 +412,6 @@ export const stageChangeEntity: SystemDynamicEntityDefinition = {
 	has_personal_entity: false,
 	has_public_access: false,
 	has_community_access: false,
-	auth_mode: 'UserOnly',
 	schema: {
 		description: "A startup moving to the next stage of its programme, recorded by staff.",
 		required: ['participant_id', 'from_stage', 'to_stage', 'changed_at'],
@@ -451,7 +437,6 @@ export const reminderEntity: SystemDynamicEntityDefinition = {
 	has_personal_entity: false,
 	has_public_access: false,
 	has_community_access: false,
-	auth_mode: 'UserXORApplication',
 	schema: {
 		description: 'A reminder Cohort emailed on its own, recorded once so it is never sent twice.',
 		required: ['reminder_key', 'kind', 'sent_at'],
@@ -475,7 +460,6 @@ export const sessionEntity: SystemDynamicEntityDefinition = {
 	has_personal_entity: false,
 	has_public_access: false,
 	has_community_access: false,
-	auth_mode: 'UserXORApplication',
 	schema: {
 		description: 'A session of a programme: mentoring, a workshop, office hours or a demo day, with its time, place and seats.',
 		required: ['programme_id', 'title', 'kind', 'starts_at'],
@@ -502,7 +486,6 @@ export const sessionBookingEntity: SystemDynamicEntityDefinition = {
 	personal_requires_role: false,
 	has_public_access: false,
 	has_community_access: true,
-	auth_mode: 'UserXORApplication',
 	schema: {
 		description: "A startup's seat at a session, booked by the startup.",
 		required: ['session_id', 'participant_id', 'booked_at'],
@@ -521,7 +504,6 @@ export const attendanceEntity: SystemDynamicEntityDefinition = {
 	has_personal_entity: false,
 	has_public_access: false,
 	has_community_access: false,
-	auth_mode: 'UserXORApplication',
 	schema: {
 		description: 'Whether a startup attended a session, recorded by staff.',
 		required: ['session_id', 'participant_id', 'attended', 'recorded_at'],
@@ -546,7 +528,6 @@ export const formEntity: SystemDynamicEntityDefinition = {
 	has_personal_entity: false,
 	has_public_access: true,
 	has_community_access: false,
-	auth_mode: 'UserOnly',
 	schema: {
 		description: "A form from the form builder: a call's extra application questions, or a survey of a programme's startups.",
 		required: ['purpose', 'title', 'status'],
@@ -580,7 +561,6 @@ export const announcementEntity: SystemDynamicEntityDefinition = {
 	has_personal_entity: false,
 	has_public_access: true,
 	has_community_access: false,
-	auth_mode: 'UserXORApplication',
 	schema: {
 		description: 'An announcement from the programme office, public: news, call dates, demo day, changes to sessions.',
 		required: ['title', 'published_at'],
@@ -603,7 +583,6 @@ export const bookmarkEntity: SystemDynamicEntityDefinition = {
 	personal_requires_role: false,
 	has_public_access: false,
 	has_community_access: false,
-	auth_mode: 'UserOnly',
 	schema: {
 		description: "Something a User saved to come back to, on their Saved page: their own list.",
 		required: ['kind', 'target_id', 'path'],
@@ -626,7 +605,6 @@ export const emailSettingEntity: SystemDynamicEntityDefinition = {
 	has_personal_entity: false,
 	has_public_access: true,
 	has_community_access: false,
-	auth_mode: 'UserXORApplication',
 	schema: {
 		description: 'Which emails Cohort sends on its own, and when. One record; without it every email is sent.',
 		required: ['updated_at'],
@@ -653,7 +631,6 @@ export const demoSlotEntity: SystemDynamicEntityDefinition = {
 	has_personal_entity: false,
 	has_public_access: true,
 	has_community_access: false,
-	auth_mode: 'UserXORApplication',
 	schema: {
 		description: "A startup's pitch slot on a demo day session: its place in the running order and time.",
 		required: ['session_id', 'participant_id', 'position'],
@@ -674,7 +651,6 @@ export const demoGuestEntity: SystemDynamicEntityDefinition = {
 	has_personal_entity: false,
 	has_public_access: false,
 	has_community_access: false,
-	auth_mode: 'UserOnly',
 	schema: {
 		description: 'A guest invited to a demo day session: investors, banks, regulators. Recorded by staff.',
 		required: ['session_id', 'name', 'status'],
@@ -699,7 +675,6 @@ export const pitchFeedbackEntity: SystemDynamicEntityDefinition = {
 	has_personal_entity: false,
 	has_public_access: false,
 	has_community_access: false,
-	auth_mode: 'UserXORApplication',
 	schema: {
 		description: "Feedback on a startup's demo day pitch or rehearsal, for the startup.",
 		required: ['session_id', 'participant_id', 'feedback'],

@@ -122,14 +122,6 @@
   // Row level access: the per-row ACL replaces the entity's Get/Update/Delete roles on the
   // System routes. Mutually exclusive with public and community access (OBP-API rejects the combination).
   let useRowLevelAccess = $state(template?.useRowLevelAccess ?? false);
-  // Who may hold the entity's roles on its data endpoints (OBP-API v6.0.0 auth_mode).
-  const AUTH_MODES = [
-    { value: "UserOnly", label: "Users only (default)", hint: "The calling User must hold the Entitlement." },
-    { value: "ApplicationOnly", label: "Applications only", hint: "The calling Consumer must hold the Scope; no User is needed." },
-    { value: "UserOrApplication", label: "Users or applications", hint: "Either the User's Entitlement or the Consumer's Scope is enough." },
-    { value: "UserAndApplication", label: "Users and applications", hint: "Both the User's Entitlement and the Consumer's Scope are required." },
-  ];
-  let authMode = $state<string>(template?.authMode ?? "UserOnly");
   let isSubmitting = $state(false);
   let schemaError = $state("");
 
@@ -194,7 +186,6 @@
         has_community_access: hasCommunityAccess,
         personal_requires_role: personalRequiresRole,
         use_row_level_access: useRowLevelAccess,
-        auth_mode: authMode,
       };
 
       const createUrl = `/proxy${dynamicEntityDefinitionsPath(
@@ -547,26 +538,13 @@
         </div>
       </div>
 
-      <!-- Auth mode -->
-      <div>
-        <label for="authMode" class="text-sm font-medium text-gray-700 dark:text-gray-300">
-          Who may hold this entity's roles
-        </label>
-        <select
-          id="authMode"
-          name="auth_mode"
-          bind:value={authMode}
-          class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
-          data-testid="dynamic-entity-auth-mode"
-        >
-          {#each AUTH_MODES as m (m.value)}
-            <option value={m.value} disabled={m.value === "ApplicationOnly" && hasPersonalEntity}>{m.label}</option>
-          {/each}
-        </select>
+      <!-- Who may use the entity -->
+      <div data-testid="dynamic-entity-roles-note">
+        <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Who may use this entity</p>
         <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-          {AUTH_MODES.find((m) => m.value === authMode)?.hint}
-          The roles are CanCreate, CanGet, CanUpdate and CanDelete for this entity; grant them to Users as Entitlements or to Consumers as Scopes.
-          Personal (<code>/my/</code>) endpoints always require a User{hasPersonalEntity ? ", so a personal entity cannot be applications-only" : ""}.
+          The roles are CanCreate, CanGet, CanUpdate and CanDelete for this entity. Grant them to people as
+          Entitlements. An application that uses the entity by itself needs them as Scopes, and must be a Platform App.
+          Personal (<code>/my/</code>) endpoints always need a User.
         </p>
       </div>
 

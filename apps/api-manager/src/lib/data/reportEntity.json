@@ -4,7 +4,6 @@
   "has_public_access": false,
   "has_community_access": false,
   "personal_requires_role": false,
-  "auth_mode": "UserOnly",
   "schema": {
     "description": "A report authored on the API Manager's Reports page. definition is JavaScript that runs in a sandboxed frame in the viewer's browser, calls OBP through the API Manager with the viewer's own access, and emits rows; parameters describes the inputs the viewer fills in before a run. Never served to the public.",
     "required": ["slug", "title", "definition", "parameters", "updated_at"],

@@ -21,8 +21,8 @@
  * this module, so drafts are invisible to visitors even if the entity holds them. They appear directly in the
  * Portal's menu, in their menu order.
  *
- * The Portal's consumer needs the Scope CanGetDynamicEntityRecord_obp_portal_page at bank id SYS (the
- * entity's auth mode is UserOrApplication). See the API Manager's App Studio Help page.
+ * The Portal's consumer must be a Platform App and hold the Scope CanGetDynamicEntityRecord_obp_portal_page at
+ * bank id SYS. See the API Manager's App Studio Help page.
  */
 import { createLogger } from '@obp/shared/utils';
 import { obp_requests } from '$lib/obp/requests';

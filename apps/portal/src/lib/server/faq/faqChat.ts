@@ -19,7 +19,7 @@
  * "Start a chat" on a FAQ question: get the question's group chat, creating and linking it on
  * first use. The room is created as the visitor (they become its first participant). Linking
  * it to the public FAQ record needs the Update role on the entity, which the Portal's own
- * consumer holds as a Scope (entity auth_mode UserOrApplication), so that part uses the
+ * consumer holds as a Scope (the Portal is a Platform App), so that part uses the
  * application token.
  */
 import { createLogger } from '@obp/shared/utils';

@@ -71,7 +71,6 @@ export function answersDefinition(form: Form, entityName: string, questions: Que
 		personal_requires_role: false,
 		has_public_access: false,
 		has_community_access: true,
-		auth_mode: 'UserOnly',
 		schema: {
 			description: `Answers to the ${form.purpose === 'survey' ? 'survey' : 'application form'} "${form.title || form.title_ar}" (version ${form.version}; the cohort_form ${form.id} in space ${home}).`,
 			required: ['subject_id'],

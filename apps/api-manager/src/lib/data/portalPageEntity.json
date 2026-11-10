@@ -4,7 +4,6 @@
   "has_public_access": false,
   "has_community_access": false,
   "personal_requires_role": false,
-  "auth_mode": "UserOrApplication",
   "schema": {
     "description": "A page or app authored in App Studio, shown in the menu of the sites it names (the Portal, Cohort or both). kind=page is HTML+CSS with live-data tags and behaviours (no script); kind=app is a self-contained web app run in a sandboxed iframe. Only status=published records are served.",
     "required": [

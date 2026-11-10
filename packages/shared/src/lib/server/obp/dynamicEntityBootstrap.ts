@@ -22,8 +22,7 @@
  * the app starts, and the feature that needs the entity reports it as unavailable.
  *
  * An entity that already exists is brought up to date when the definition in the repo
- * has moved on: a different auth_mode, or schema properties the instance does not have
- * yet (for example a field added to the conversation record). Properties are only ever
+ * has moved on: schema properties the instance does not have yet (for example a field added to the conversation record). Properties are only ever
  * added, never removed, so rows written by an older build stay valid.
  */
 import { createLogger } from '$shared/utils/logger';
@@ -33,7 +32,6 @@ const logger = createLogger('DynamicEntityBootstrap');
 
 export interface SystemDynamicEntityDefinition {
 	entity_name: string;
-	auth_mode?: string;
 	schema?: { properties?: Record<string, unknown>; [k: string]: unknown };
 	[k: string]: unknown;
 }
@@ -50,9 +48,6 @@ export interface DynamicEntityBootstrapDeps {
 /** Why an existing entity differs from the definition; empty when it is current. */
 export function dynamicEntityDrift(existing: any, definition: SystemDynamicEntityDefinition): string[] {
 	const reasons: string[] = [];
-	const currentMode = existing?.auth_mode ?? 'UserOnly';
-	const wantedMode = definition.auth_mode ?? 'UserOnly';
-	if (currentMode !== wantedMode) reasons.push(`auth_mode ${currentMode} -> ${wantedMode}`);
 	const have = Object.keys(existing?.schema?.properties ?? {});
 	const missing = Object.keys(definition.schema?.properties ?? {}).filter((k) => !have.includes(k));
 	if (missing.length > 0) reasons.push(`missing properties: ${missing.join(', ')}`);

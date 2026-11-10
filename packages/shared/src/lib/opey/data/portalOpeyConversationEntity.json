@@ -4,7 +4,6 @@
   "has_public_access": false,
   "has_community_access": false,
   "personal_requires_role": false,
-  "auth_mode": "UserOnly",
   "schema": {
     "description": "A conversation between a User and Opey in the Portal, written by the Portal as the User after each message completes. Personal: each User sees only their own conversations under My Data.",
     "required": [

@@ -29,10 +29,7 @@ const logger = createLogger("AppStudioHelp");
 export interface EntityStatus {
   exists: boolean;
   dynamic_entity_id: string;
-  auth_mode: string;
   record_count: number | null;
-  /** True when the running OBP-API returns auth_mode on entity definitions (i.e. supports it). */
-  obp_supports_auth_mode: boolean;
 }
 
 export interface ConsumerSummary {
@@ -40,6 +37,8 @@ export interface ConsumerSummary {
   app_name: string;
   developer_email: string;
   enabled: boolean;
+  /** Its Scopes count for the app itself. Null when the Platform Apps could not be listed. */
+  platform_app: boolean | null;
 }
 
 export const load: PageServerLoad = async ({ locals }) => {
@@ -50,7 +49,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 
   const warnings: string[] = [];
 
-  let entity: EntityStatus = { exists: false, dynamic_entity_id: "", auth_mode: "", record_count: null, obp_supports_auth_mode: false };
+  let entity: EntityStatus = { exists: false, dynamic_entity_id: "", record_count: null };
   try {
     const response = await obp_requests.get(dynamicEntityDefinitionsPath(DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID), token);
     const entities: any[] = response?.dynamic_entities ?? [];
@@ -58,13 +57,21 @@ export const load: PageServerLoad = async ({ locals }) => {
     entity = {
       exists: !!found,
       dynamic_entity_id: found?.dynamic_entity_id ?? "",
-      auth_mode: found?.auth_mode ?? (found ? "UserOnly" : ""),
       record_count: typeof found?.record_count === "number" ? found.record_count : null,
-      obp_supports_auth_mode: entities.some((e) => "auth_mode" in e),
     };
   } catch (e) {
     logger.warn("Could not list system dynamic entities:", e);
     warnings.push(`Could not read the dynamic entities from OBP: ${e instanceof Error ? e.message : String(e)}`);
+  }
+
+  // The Portal's Scopes only count for the Portal itself if its consumer is a Platform App
+  let platformApps: Set<string> | null = null;
+  try {
+    const response = await obp_requests.get("/obp/v7.0.0/management/platform-apps", token);
+    platformApps = new Set((response?.platform_apps ?? []).map((a: any) => a.consumer_id));
+  } catch (e) {
+    logger.warn("Could not list Platform Apps:", e);
+    warnings.push(`Could not list the Platform Apps: ${e instanceof Error ? e.message : String(e)}`);
   }
 
   let consumers: ConsumerSummary[] = [];
@@ -75,6 +82,7 @@ export const load: PageServerLoad = async ({ locals }) => {
       app_name: c.app_name,
       developer_email: c.developer_email,
       enabled: !!c.enabled,
+      platform_app: platformApps ? platformApps.has(c.consumer_id) : null,
     }));
   } catch (e) {
     logger.warn("Could not list consumers:", e);
@@ -83,7 +91,6 @@ export const load: PageServerLoad = async ({ locals }) => {
 
   return {
     entityName: portalPageEntity.entity_name,
-    requiredAuthMode: portalPageEntity.auth_mode,
     getRole: `CanGetDynamicEntityRecord_${portalPageEntity.entity_name}`,
     editorRoles: ["Create", "Update", "Delete"].map((op) => `Can${op}DynamicEntityRecord_${portalPageEntity.entity_name}`),
     entity,

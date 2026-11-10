@@ -93,11 +93,11 @@ describe('role check', () => {
 	});
 	afterEach(() => vi.unstubAllGlobals());
 
-	const answer = (status: number, modes: string[] = []) =>
-		Promise.resolve(new Response(JSON.stringify({ allowed_for_auth_modes: modes }), { status }));
+	const answer = (status: number, allowed = false) =>
+		Promise.resolve(new Response(JSON.stringify({ allowed }), { status }));
 
 	it('asks OBP-API at SYS with the Bearer token and reuses the answer for a minute', async () => {
-		fetchMock.mockImplementation(() => answer(200, ['UserXORApplication']));
+		fetchMock.mockImplementation(() => answer(200, true));
 		expect(await tokenMayUseAnyRole('http://obp', 't', ['CanGetTelemetry'], 0)).toBe('allowed');
 		expect(fetchMock.mock.calls[0][0]).toBe('http://obp/obp/v7.0.0/banks/SYS/my/roles/CanGetTelemetry');
 		expect(fetchMock.mock.calls[0][1].headers.Authorization).toBe('Bearer t');
@@ -107,20 +107,20 @@ describe('role check', () => {
 		expect(fetchMock).toHaveBeenCalledTimes(2);
 	});
 
-	it('refuses a token OBP-API allows only for ApplicationOnly', async () => {
-		fetchMock.mockReturnValueOnce(answer(200, ['ApplicationOnly']));
+	it('refuses a token OBP-API does not allow', async () => {
+		fetchMock.mockReturnValueOnce(answer(200, false));
 		expect(await tokenMayUseAnyRole('http://obp', 't', ['CanGetTelemetry'])).toBe('forbidden');
 	});
 });
 
 describe('monitoring endpoints', () => {
 	// A fake OBP-API: what each token may do, as GET /banks/SYS/my/roles/ROLE answers it.
-	const tokens: Record<string, Record<string, string[]>> = {
-		'all-reader': { CanGetSystemLogCacheAll: ['UserXORApplication'] },
-		'error-reader': { CanGetSystemLogCacheError: ['UserXORApplication'] },
-		'info-reader': { CanGetSystemLogCacheInfo: ['UserXORApplication'] },
-		'telemetry-reader': { CanGetTelemetry: ['UserXORApplication'] },
-		'user-only': { CanGetSystemLogCacheAll: ['UserOnly'], CanGetTelemetry: ['UserOnly'] },
+	const tokens: Record<string, Record<string, boolean>> = {
+		'all-reader': { CanGetSystemLogCacheAll: true },
+		'error-reader': { CanGetSystemLogCacheError: true },
+		'info-reader': { CanGetSystemLogCacheInfo: true },
+		'telemetry-reader': { CanGetTelemetry: true },
+		'not-allowed': { CanGetSystemLogCacheAll: false, CanGetTelemetry: false },
 		'no-roles': {}
 	};
 	const fakeObpApi = vi.fn(async (url: string, init: any) => {
@@ -128,7 +128,7 @@ describe('monitoring endpoints', () => {
 		if (!url.startsWith('http://obp/obp/v7.0.0/banks/SYS/my/roles/')) return new Response('{}', { status: 404 });
 		if (!(token in tokens)) return new Response('{}', { status: 401 });
 		const role = decodeURIComponent(url.split('/').pop()!);
-		return new Response(JSON.stringify({ allowed_for_auth_modes: tokens[token][role] ?? [] }), { status: 200 });
+		return new Response(JSON.stringify({ allowed: tokens[token][role] ?? false }), { status: 200 });
 	});
 
 	const call = async (
@@ -161,7 +161,7 @@ describe('monitoring endpoints', () => {
 	const capitalised = (level: string) => level.charAt(0).toUpperCase() + level.slice(1);
 
 	it.each(LOG_LEVELS)('returns the %s log cache to a token allowed its level Role or the All Role', async (level) => {
-		tokens[`${level}-only`] = { [`CanGetSystemLogCache${capitalised(level)}`]: ['UserXORApplication'] };
+		tokens[`${level}-only`] = { [`CanGetSystemLogCache${capitalised(level)}`]: true };
 		for (const token of [`${level}-only`, 'all-reader']) {
 			const res = await getLogs(level, token);
 			expect(res.status).toBe(200);
@@ -171,7 +171,7 @@ describe('monitoring endpoints', () => {
 
 	it.each(LOG_LEVELS)('refuses the %s log cache to tokens without its Roles, returning no lines', async (level) => {
 		const otherLevel = level === 'error' ? 'info-reader' : 'error-reader';
-		for (const token of ['no-roles', 'telemetry-reader', 'user-only', otherLevel]) {
+		for (const token of ['no-roles', 'telemetry-reader', 'not-allowed', otherLevel]) {
 			const res = await getLogs(level, token);
 			expect(res.status).toBe(403);
 			expect(res.body.entries).toBeUndefined();
@@ -201,7 +201,7 @@ describe('monitoring endpoints', () => {
 		const ok = await getTelemetry('telemetry-reader');
 		expect(ok.status).toBe(200);
 		expect(ok.body.meters.length).toBeGreaterThan(0);
-		for (const token of ['all-reader', 'user-only', 'no-roles']) {
+		for (const token of ['all-reader', 'not-allowed', 'no-roles']) {
 			const res = await getTelemetry(token);
 			expect(res.status).toBe(403);
 			expect(res.body.meters).toBeUndefined();

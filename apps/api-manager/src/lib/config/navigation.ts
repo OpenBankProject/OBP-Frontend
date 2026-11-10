@@ -944,7 +944,7 @@ const messagingSection = domain("messaging", "Messaging", MessagesSquare,
   ]);
 
 const governSection = domain("govern", "Govern", Shield,
-  ["/users", "/user-invitations", "/customers", "/consumers", "/rbac", "/abac", "/account-access", "/mandates", "/retention"],
+  ["/users", "/user-invitations", "/customers", "/consumers", "/setup", "/rbac", "/abac", "/account-access", "/mandates", "/retention"],
   [
     { label: "Identity", items: [
       { href: "/users", label: "Users", iconComponent: Users },
@@ -957,6 +957,7 @@ const governSection = domain("govern", "Govern", Shield,
     { label: "Consumers", items: [
       { href: "/consumers", label: "Consumers", iconComponent: KeyRound },
       { href: "/consumers/platform-apps", label: "Platform Apps", iconComponent: AppWindow },
+      { href: "/setup", label: "Setup", iconComponent: Settings },
     ] },
     { label: "Roles", items: [
       { href: "/rbac/roles", label: "Roles", iconComponent: Shield },

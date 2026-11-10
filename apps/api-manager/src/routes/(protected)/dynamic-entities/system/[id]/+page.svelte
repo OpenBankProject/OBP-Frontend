@@ -310,7 +310,6 @@
       has_community_access: entity.has_community_access || false,
       personal_requires_role: entity.personal_requires_role || false,
       use_row_level_access: entity.use_row_level_access ?? false,
-      auth_mode: entity.auth_mode ?? "UserOnly",
     };
   }
 
@@ -534,25 +533,6 @@
               No
             </span>
           {/if}
-        </dd>
-      </div>
-      <div>
-        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
-          Who may hold the roles
-        </dt>
-        <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100" data-testid="dynamic-entity-auth-mode">
-          {entity.auth_mode ?? "UserOnly"}
-          <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-            {#if entity.auth_mode === "ApplicationOnly"}
-              Consumers with the Scope; no User needed.
-            {:else if entity.auth_mode === "UserOrApplication"}
-              A User's Entitlement or a Consumer's Scope.
-            {:else if entity.auth_mode === "UserAndApplication"}
-              Both a User's Entitlement and a Consumer's Scope.
-            {:else}
-              Users with the Entitlement.
-            {/if}
-          </p>
         </dd>
       </div>
       <div>

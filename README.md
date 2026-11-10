@@ -103,3 +103,23 @@ import { OpeyChat } from '@obp/shared/components';
 import { createOpeyAuthHandler } from '@obp/shared/server/opey';
 import { deduplicateRoles } from '@obp/shared/opey';
 ```
+
+## Writing documentation
+
+Write page text, help text, error messages, README files and code comments in plain English. Plain English is
+not simplified English: it keeps the meaning and the detail, and says it clearly. Two UK guides explain how:
+
+- [Clear language](https://guidance.publishing.service.gov.uk/writing-to-gov-uk-standards/writing-guidelines/clear-language/) from GOV.UK
+- [How to write in plain English](https://www.plainenglish.co.uk/how-to-write-in-plain-english) from the Plain English Campaign
+
+In short:
+
+- Keep sentences to 15 to 20 words on average, and split any sentence over 25 words.
+- Use the active voice: "The Portal shows the consent", not "the consent is shown".
+- Use short, familiar words: "start", not "commence"; "before", not "prior to".
+- Explain a technical term the first time you use it. Specialists prefer plain English too.
+- Write full sentences. Avoid long chains joined by semicolons, and make sure every "it" and "they" clearly
+  refers to one thing.
+- Give an example when a rule is hard to follow on its own.
+
+Most explanatory text in the apps comes from the OBP glossary in OBP-API, which follows the same rules.

@@ -38,8 +38,6 @@ export interface DynamicEntityTemplate {
 	personalRequiresRole: boolean;
 	/** OBP-API v6.0.0 use_row_level_access: per-record access lists replace the entity Get/Update/Delete roles. */
 	useRowLevelAccess?: boolean;
-	/** OBP-API v6.0.0 auth_mode: UserOnly (default) | ApplicationOnly | UserOrApplication | UserAndApplication. */
-	authMode?: string;
 }
 
 /** The App Studio pages entity, kept in one place: the API Manager bootstraps it from the same definition. */
@@ -50,8 +48,7 @@ const portalPageTemplate: DynamicEntityTemplate = {
 	hasPersonalEntity: portalPageEntity.has_personal_entity,
 	hasPublicAccess: portalPageEntity.has_public_access,
 	hasCommunityAccess: portalPageEntity.has_community_access,
-	personalRequiresRole: portalPageEntity.personal_requires_role,
-	authMode: portalPageEntity.auth_mode
+	personalRequiresRole: portalPageEntity.personal_requires_role
 };
 
 /** The Portal's FAQ entity (public read; edit records in the entity's CRUD page). */
@@ -62,8 +59,7 @@ const developerFaqTemplate: DynamicEntityTemplate = {
 	hasPersonalEntity: developerFaqEntity.has_personal_entity,
 	hasPublicAccess: developerFaqEntity.has_public_access,
 	hasCommunityAccess: developerFaqEntity.has_community_access,
-	personalRequiresRole: developerFaqEntity.personal_requires_role,
-	authMode: developerFaqEntity.auth_mode
+	personalRequiresRole: developerFaqEntity.personal_requires_role
 };
 
 export const dynamicEntityTemplates: Record<string, DynamicEntityTemplate> = {

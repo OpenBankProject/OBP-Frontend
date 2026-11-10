@@ -16,39 +16,22 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 import { env } from '$env/dynamic/private';
-import { resolveWebUiValues } from '@obp/shared/server/obp';
-import { createLogger } from '@obp/shared/utils';
 import { DEFAULT_BRANDING, safeTheme, safeUrl, type Branding } from '$lib/branding';
-import { obpRequests } from './obp';
-
-const logger = createLogger('CohortBranding');
 
 /**
- * Each value comes from a webui_prop (set in the API Manager, takes effect without a restart), then an env var,
- * then the default. The webui_prop name is the env var's, lower case, after webui_: COHORT_NAME → webui_cohort_name.
+ * Cohort's branding comes from its environment variables only (COHORT_NAME, COHORT_LOGO_URL, COHORT_DARK_LOGO_URL,
+ * COHORT_FAVICON_URL, COHORT_THEME, COHORT_STYLESHEET_URL), each with a built-in default. Branding is Cohort's own
+ * setting, so it is read from one place: a change takes effect when Cohort restarts.
  */
-export const BRANDING_SETTINGS = {
-	name: { envVar: 'COHORT_NAME', default: DEFAULT_BRANDING.name },
-	logoUrl: { envVar: 'COHORT_LOGO_URL', default: DEFAULT_BRANDING.logoUrl },
-	darkLogoUrl: { envVar: 'COHORT_DARK_LOGO_URL', default: DEFAULT_BRANDING.darkLogoUrl },
-	faviconUrl: { envVar: 'COHORT_FAVICON_URL', default: DEFAULT_BRANDING.faviconUrl },
-	theme: { envVar: 'COHORT_THEME', default: DEFAULT_BRANDING.theme },
-	stylesheetUrl: { envVar: 'COHORT_STYLESHEET_URL', default: DEFAULT_BRANDING.stylesheetUrl }
-};
-
 export async function branding(): Promise<Branding> {
-	try {
-		const v = await resolveWebUiValues(obpRequests.get, env, BRANDING_SETTINGS);
-		return {
-			name: v.name.value.trim(),
-			logoUrl: safeUrl(v.logoUrl.value, DEFAULT_BRANDING.logoUrl),
-			darkLogoUrl: safeUrl(v.darkLogoUrl.value, DEFAULT_BRANDING.darkLogoUrl),
-			faviconUrl: safeUrl(v.faviconUrl.value, DEFAULT_BRANDING.faviconUrl),
-			theme: safeTheme(v.theme.value),
-			stylesheetUrl: v.stylesheetUrl.value.trim() ? safeUrl(v.stylesheetUrl.value, '') : ''
-		};
-	} catch (err) {
-		logger.warn('Could not read branding; using the defaults:', err);
-		return DEFAULT_BRANDING;
-	}
+	const value = (name: string) => (env[name] ?? '').trim();
+	const stylesheet = value('COHORT_STYLESHEET_URL');
+	return {
+		name: value('COHORT_NAME'),
+		logoUrl: safeUrl(value('COHORT_LOGO_URL'), DEFAULT_BRANDING.logoUrl),
+		darkLogoUrl: safeUrl(value('COHORT_DARK_LOGO_URL'), DEFAULT_BRANDING.darkLogoUrl),
+		faviconUrl: safeUrl(value('COHORT_FAVICON_URL'), DEFAULT_BRANDING.faviconUrl),
+		theme: value('COHORT_THEME') ? safeTheme(value('COHORT_THEME')) : DEFAULT_BRANDING.theme,
+		stylesheetUrl: stylesheet ? safeUrl(stylesheet, '') : ''
+	};
 }

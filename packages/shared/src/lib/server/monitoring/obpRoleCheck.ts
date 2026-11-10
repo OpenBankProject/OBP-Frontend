@@ -18,8 +18,8 @@
 import { createHash } from 'crypto';
 
 // Whether an OBP-API token may see what this app guards with an OBP Role. OBP-API answers, through
-// GET /obp/v7.0.0/banks/SYS/my/roles/ROLE_NAME, with the same rules its own endpoints use: the token's
-// User holds the Role, or its Consumer holds it as a Scope (auth mode UserXORApplication).
+// GET /obp/v7.0.0/banks/SYS/my/roles/ROLE_NAME, with the same rules its own endpoints use: a person needs the
+// Role as an Entitlement, and an application acting as itself (a Platform App) needs it as a Scope.
 
 export type RoleCheck = 'allowed' | 'unauthorized' | 'forbidden';
 
@@ -43,7 +43,7 @@ async function checkRole(obpApiHost: string, token: string, role: string): Promi
 		return 'forbidden';
 	}
 	const body = await response.json();
-	return body.allowed_for_auth_modes?.includes('UserXORApplication') ? 'allowed' : 'forbidden';
+	return body.allowed === true ? 'allowed' : 'forbidden';
 }
 
 /** Allowed if the token may use any one of the Roles, as an endpoint needing any of them would decide. */

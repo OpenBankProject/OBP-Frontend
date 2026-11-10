@@ -24,8 +24,8 @@ export type { SystemDynamicEntityDefinition };
 
 /**
  * Ensure a system-level dynamic entity exists in OBP, creating it at startup with the API
- * Manager's application token; an existing entity whose auth_mode or schema properties fall
- * behind the definition is updated. One implementation for every app: @obp/shared/server/obp.
+ * Manager's application token; an existing entity whose schema properties fall behind the
+ * definition is updated. One implementation for every app: @obp/shared/server/obp.
  */
 export async function ensureSystemDynamicEntity(definition: SystemDynamicEntityDefinition): Promise<boolean> {
   const accessToken = await getApplicationAccessToken();

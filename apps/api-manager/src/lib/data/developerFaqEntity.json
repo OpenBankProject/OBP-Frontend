@@ -4,7 +4,6 @@
   "has_public_access": true,
   "has_community_access": false,
   "personal_requires_role": false,
-  "auth_mode": "UserOrApplication",
   "schema": {
     "description": "Frequently asked questions shown on the Portal's /faq page. Public: anyone can read the records; editing needs the entity's roles. Answers are Markdown. A visitor's 'Start a chat' creates a group chat for the question: the Portal links it with its consumer's Update scope.",
     "required": [

@@ -29,13 +29,7 @@
 
 /** Props whose value is used as-is (e.g. as an href), never parsed as markdown. */
 export const WEB_UI_PROPS_NOT_MARKDOWN: readonly string[] = [
-	'webui_support_platform_url',
-	'webui_cohort_name',
-	'webui_cohort_logo_url',
-	'webui_cohort_dark_logo_url',
-	'webui_cohort_favicon_url',
-	'webui_cohort_theme',
-	'webui_cohort_stylesheet_url'
+	'webui_support_platform_url'
 ];
 
 export function isWebUiPropMarkdown(name: string): boolean {
@@ -68,13 +62,7 @@ export const KNOWN_WEB_UI_PROPS: KnownWebUiProp[] = [
 	fromEnvVar('PUBLIC_WELCOME_DESCRIPTION_MANAGER', 'API Manager home'),
 	{ name: 'webui_terms_and_conditions', usedBy: 'Portal registration' },
 	{ name: 'webui_privacy_policy', usedBy: 'Portal registration' },
-	{ name: 'webui_support_platform_url', usedBy: 'Portal and API Manager support' },
-	fromEnvVar('COHORT_NAME', 'Cohort title', true),
-	fromEnvVar('COHORT_LOGO_URL', 'Cohort logo (light mode)', true),
-	fromEnvVar('COHORT_DARK_LOGO_URL', 'Cohort logo (dark mode)', true),
-	fromEnvVar('COHORT_FAVICON_URL', 'Cohort favicon', true),
-	fromEnvVar('COHORT_THEME', 'Cohort theme (data-theme)', true),
-	fromEnvVar('COHORT_STYLESHEET_URL', 'Cohort extra stylesheet', true)
+	{ name: 'webui_support_platform_url', usedBy: 'Portal and API Manager support' }
 ];
 
 export function findKnownWebUiProp(name: string): KnownWebUiProp | undefined {
