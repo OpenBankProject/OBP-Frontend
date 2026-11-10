@@ -16,7 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 import { fail } from '@sveltejs/kit';
-import { isOrganisationKind, ORGANISATION_ATTRIBUTES, organisationOfCustomer, organisationsQuery, type OrganisationKind } from '$lib/organisations';
+import { isOrganisationKind, ORGANISATION_ATTRIBUTES, organisationOfCustomer, organisationsFromCustomers, organisationsQuery, type OrganisationKind } from '$lib/organisations';
 import { PARTICIPANT } from '$lib/server/entities/definitions';
 import { messageOf } from '$lib/server/errors';
 import { obpRequests } from '$lib/server/obp';
@@ -81,7 +81,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		listRecords(PARTICIPANT, '', token).catch(() => [])
 	]);
 	const organisations: { id: string; name: string; name_ar: string; kind: OrganisationKind; customer_id: string; website: string }[] = [
-		...customers.map(organisationOfCustomer),
+		...organisationsFromCustomers(customers),
 		// A startup's registered company is an organisation too, once; listed from its participation.
 		...[...new Map(participants.filter((p) => p.customer_id).map((p) => [String(p.customer_id), p])).values()].map((p) => ({
 			id: `participant:${idOf(PARTICIPANT, p)}`,

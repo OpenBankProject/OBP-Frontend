@@ -50,6 +50,19 @@ export function organisationOfCustomer(c: { customer_id?: unknown; legal_name?: 
 	};
 }
 
+type CustomerWithAttributes = Parameters<typeof organisationOfCustomer>[0];
+
+/**
+ * The organisations among Customers: only those whose organisation_kind attribute is a kind staff create.
+ * The query asks OBP-API for these already; an OBP-API that does not filter by attribute returns every
+ * Customer, without attributes, and none of them is then taken for an organisation.
+ */
+export function organisationsFromCustomers(customers: CustomerWithAttributes[]) {
+	const isCreatable = (c: CustomerWithAttributes) =>
+		(CREATABLE_KINDS as readonly string[]).includes(String((c.customer_attributes ?? []).find((a) => a.name === ORGANISATION_ATTRIBUTES.kind)?.value ?? ''));
+	return customers.filter(isCreatable).map(organisationOfCustomer);
+}
+
 /**
  * The query listing the organisations staff created: Customers whose organisation_kind is any creatable kind.
  * One parameter with comma-separated values, as GET /obp/v7.0.0/banks/BANK_ID/customers takes them.
