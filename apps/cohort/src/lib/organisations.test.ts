@@ -36,15 +36,21 @@ describe('organisations as Customers', () => {
 		expect(organisationOfCustomer({ customer_id: 'c-2', legal_name: 'X' }).kind).toBe('partner');
 	});
 
-	it('keeps only Customers whose organisation_kind is a kind staff create', () => {
-		// An OBP-API without attribute filtering returns every Customer, without attributes.
-		const kept = organisationsFromCustomers([
+	it('lists every Customer OBP-API returns for the query, because OBP-API filters by organisation_kind', () => {
+		const listed = organisationsFromCustomers([
 			{ customer_id: 'c-1', legal_name: 'Uni', customer_attributes: [{ name: 'organisation_kind', value: 'university' }] },
-			{ customer_id: 'c-2', legal_name: 'Applicant' },
-			{ customer_id: 'c-3', legal_name: 'Startup Co', customer_attributes: [{ name: 'organisation_kind', value: 'startup' }] },
-			{ customer_id: 'c-4', legal_name: 'Other', customer_attributes: [{ name: 'organisation_kind', value: 'unknown' }] }
+			{ customer_id: 'c-2', legal_name: 'Bank', customer_attributes: [{ name: 'organisation_kind', value: 'bank_fi' }] }
 		]);
-		expect(kept.map((o) => o.id)).toEqual(['c-1']);
+		expect(listed.map((o) => [o.id, o.kind])).toEqual([
+			['c-1', 'university'],
+			['c-2', 'bank_fi']
+		]);
+	});
+
+	it('does not filter the Customers a second time', () => {
+		// The query asks OBP-API for the kinds staff create; Cohort shows what OBP-API returns.
+		const listed = organisationsFromCustomers([{ customer_id: 'c-3', legal_name: 'Other' }]);
+		expect(listed.map((o) => o.id)).toEqual(['c-3']);
 	});
 
 	it('lists every kind staff create, but not startups, as one parameter with comma-separated values', () => {
