@@ -37,6 +37,7 @@ describe('organisations as Customers', () => {
 	});
 
 	it('lists every Customer OBP-API returns for the query, because OBP-API filters by organisation_kind', () => {
+		// Tests that each Customer becomes one organisation, in OBP-API's order, with the kind from its attribute.
 		const listed = organisationsFromCustomers([
 			{ customer_id: 'c-1', legal_name: 'Uni', customer_attributes: [{ name: 'organisation_kind', value: 'university' }] },
 			{ customer_id: 'c-2', legal_name: 'Bank', customer_attributes: [{ name: 'organisation_kind', value: 'bank_fi' }] }
@@ -48,12 +49,14 @@ describe('organisations as Customers', () => {
 	});
 
 	it('does not filter the Customers a second time', () => {
-		// The query asks OBP-API for the kinds staff create; Cohort shows what OBP-API returns.
+		// Tests that Cohort trusts OBP-API's answer: the query asks OBP-API for the kinds staff create, and a
+		// Customer without organisation_kind is still listed, not dropped by a second filter in Cohort.
 		const listed = organisationsFromCustomers([{ customer_id: 'c-3', legal_name: 'Other' }]);
 		expect(listed.map((o) => o.id)).toEqual(['c-3']);
 	});
 
 	it('lists every kind staff create, but not startups, as one parameter with comma-separated values', () => {
+		// Tests the query Cohort sends: one organisation_kind parameter with the four kinds, without startup.
 		// OBP-API refuses a query parameter name given twice (OBP-09016); v7.0.0 accepts several values separated by commas.
 		expect(organisationsQuery()).toBe('organisation_kind=bank_fi,university,regulator,partner');
 	});
