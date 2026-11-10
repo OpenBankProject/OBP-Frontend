@@ -31,7 +31,7 @@ Hola (TPP app)                    OBP API                      Hydra (Auth)
    - Extracts consent_id from claims
    - Exchanges code for tokens
      (access_token, refresh_token)
-   - Fetches /obp/v4.0.0/users/current
+   - Fetches /obp/v5.1.0/users/current
    - Displays accounts page
 ```
 

@@ -437,7 +437,7 @@
 
     try {
       const res = await trackedFetch(
-        `/proxy/obp/v3.1.0/banks/${encodeURIComponent(bankId)}/accounts/${encodeURIComponent(accountId)}/products/${encodeURIComponent(productCode)}/attribute`,
+        `/proxy/obp/v5.1.0/banks/${encodeURIComponent(bankId)}/accounts/${encodeURIComponent(accountId)}/products/${encodeURIComponent(productCode)}/attribute`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

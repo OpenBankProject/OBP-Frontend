@@ -222,8 +222,10 @@ async function loginValidated(username, password) {
 		return await login(username, password);
 	} catch (err) {
 		if (!superuser || !String(err?.message).includes('OBP-20073')) throw err;
-		const user = await obp('GET', `/obp/v3.0.0/users/username/${encodeURIComponent(username)}`, superuser.token);
-		await obp('PUT', `/obp/v5.1.0/management/users/${encodeURIComponent(user.user_id)}`, superuser.token);
+		const found = await obp('GET', `/obp/v7.0.0/users?username=${encodeURIComponent(username)}`, superuser.token);
+		const users = (found?.users ?? []).filter((u) => u?.username === username && u?.user_id);
+		if (users.length !== 1) throw new Error(`Expected one user with username ${username}, found ${users.length}`);
+		await obp('PUT', `/obp/v5.1.0/management/users/${encodeURIComponent(users[0].user_id)}`, superuser.token);
 		console.log(`Validated the email of ${username}`);
 		return login(username, password);
 	}
@@ -353,7 +355,7 @@ for (const o of data.organisations ?? []) {
 		});
 		const customerId = encodeURIComponent(String(customer?.customer_id ?? ''));
 		for (const [name, value] of Object.entries({ organisation_kind: o.kind, name_ar: o.name_ar, website: o.website })) {
-			if (value) await obp('POST', `/obp/v4.0.0/banks/${space}/customers/${customerId}/attribute`, staff.token, { name, type: 'STRING', value });
+			if (value) await obp('POST', `/obp/v5.1.0/banks/${space}/customers/${customerId}/attribute`, staff.token, { name, type: 'STRING', value });
 		}
 		organisations.push(customer);
 		count('organisations', true);
@@ -484,7 +486,7 @@ for (const s of data.startups ?? []) {
 					customerId = customers[p.company.legal_name] = String(customer?.customer_id ?? '');
 					count('companies', true);
 					if (s.owner === 'startup') {
-						await obp('POST', `/obp/v4.0.0/banks/${space}/user_customer_links`, staff.token, { user_id: owner.user_id, customer_id: customerId }).catch((err) =>
+						await obp('POST', `/obp/v5.1.0/banks/${space}/user_customer_links`, staff.token, { user_id: owner.user_id, customer_id: customerId }).catch((err) =>
 							errors.push(`link ${p.company.legal_name}: ${err.message}`)
 						);
 					}

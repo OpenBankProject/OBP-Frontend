@@ -39,7 +39,7 @@ export interface OperationChoice {
   summary: string;
 }
 
-const BASE = "/proxy/obp/v4.0.0/management/json-schema-validations";
+const BASE = "/proxy/obp/v5.1.0/management/json-schema-validations";
 
 export const EXAMPLE_SCHEMA = `{
   "$schema": "http://json-schema.org/draft-07/schema",

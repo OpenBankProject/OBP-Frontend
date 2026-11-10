@@ -48,7 +48,7 @@ This route handles the complete user invitation acceptance flow. When a user rec
 ### 5. Account Creation (Option B - Full Portal Flow)
 - Form submits to `?/accept` action
 - Server validates all required fields (username, password, password match, terms)
-- Server calls PUT /obp/v4.0.0/banks/{BANK_ID}/user-invitation with full user data
+- Server calls PUT /obp/v5.1.0/banks/{BANK_ID}/user-invitation with full user data
 - Account is created directly via REST API
 - Redirects to login page with success message
 - User can immediately log in with their new credentials
@@ -64,7 +64,7 @@ This route handles the complete user invitation acceptance flow. When a user rec
 
 **API Call:**
 ```
-POST /obp/v4.0.0/banks/{BANK_ID}/user-invitations
+POST /obp/v5.1.0/banks/{BANK_ID}/user-invitations
 Body: { "secret_key": 5819479115482092878 }
 ```
 
@@ -92,7 +92,7 @@ Body: { "secret_key": 5819479115482092878 }
 
 **API Call:**
 ```
-PUT /obp/v4.0.0/banks/{BANK_ID}/user-invitation
+PUT /obp/v5.1.0/banks/{BANK_ID}/user-invitation
 Body: { secret_key, username, password, first_name, last_name, email, company, country }
 ```
 

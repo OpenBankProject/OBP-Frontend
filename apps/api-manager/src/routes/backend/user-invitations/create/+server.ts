@@ -52,7 +52,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
     }
 
     logger.info("=== CREATE USER INVITATION ===");
-    const endpoint = `/obp/v4.0.0/banks/${bank_id}/user-invitation`;
+    const endpoint = `/obp/v5.1.0/banks/${bank_id}/user-invitation`;
     logger.info(`Request: POST ${endpoint}`);
     logger.info(`Data:`, { first_name, last_name, email, company, country, purpose });
 

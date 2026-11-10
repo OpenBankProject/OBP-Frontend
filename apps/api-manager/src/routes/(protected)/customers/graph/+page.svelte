@@ -146,7 +146,7 @@
 
     try {
       const res = await trackedFetch(
-        `/proxy/obp/v4.0.0/banks/${encodeURIComponent(bankId)}/user_customer_links/customers/${encodeURIComponent(customerId)}`,
+        `/proxy/obp/v5.1.0/banks/${encodeURIComponent(bankId)}/user_customer_links/customers/${encodeURIComponent(customerId)}`,
       );
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));

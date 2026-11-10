@@ -34,7 +34,7 @@ export const load: PageServerLoad = async ({ locals }) => {
   let validations: JsonSchemaValidation[] = [];
   let loadError: string | null = null;
   try {
-    const resp = await obp_requests.get("/obp/v4.0.0/management/json-schema-validations", token);
+    const resp = await obp_requests.get("/obp/v5.1.0/management/json-schema-validations", token);
     validations = resp?.json_schema_validations ?? [];
   } catch (e) {
     logger.error("Could not load JSON Schema Validations:", e);

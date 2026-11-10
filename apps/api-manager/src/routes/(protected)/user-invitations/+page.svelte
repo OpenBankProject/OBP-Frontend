@@ -62,7 +62,7 @@
 
     try {
       const response = await trackedFetch(
-        `/proxy/obp/v4.0.0/banks/${encodeURIComponent(selectedBankId)}/user-invitations`,
+        `/proxy/obp/v5.1.0/banks/${encodeURIComponent(selectedBankId)}/user-invitations`,
       );
 
       if (!response.ok) {

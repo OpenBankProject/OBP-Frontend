@@ -9,7 +9,7 @@
 	const locale = $derived(data.locale as Locale);
 	const missing = (key: keyof typeof data.lacking) => data.lacking[key];
 	const creatable = CREATABLE_KINDS;
-	const errorText = (e: string) => (['organisation_missing', 'member_missing', 'member_not_found'].includes(e) ? t(locale, e as MessageKey) : `${t(locale, 'staff_error')} ${e}`);
+	const errorText = (e: string) => (['organisation_missing', 'member_missing', 'member_not_found', 'member_ambiguous'].includes(e) ? t(locale, e as MessageKey) : `${t(locale, 'staff_error')} ${e}`);
 </script>
 
 <h1 class="h2">{t(locale, 'organisations_heading')}</h1>

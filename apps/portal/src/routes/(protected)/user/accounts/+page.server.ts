@@ -61,7 +61,7 @@ export async function load(event: RequestEvent) {
 	let fetchError: string | null = null;
 
 	try {
-		const accountsResponse = await obp_requests.get('/obp/v3.0.0/my/accounts', accessToken);
+		const accountsResponse = await obp_requests.get('/obp/v5.1.0/my/accounts', accessToken);
 		accounts = accountsResponse.accounts ?? [];
 	} catch (e) {
 		logger.error('Failed to fetch user accounts:', e);

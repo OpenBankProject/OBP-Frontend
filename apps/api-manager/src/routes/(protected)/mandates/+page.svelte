@@ -201,7 +201,7 @@
     try {
       // First get accounts for this customer
       const accountsRes = await trackedFetch(
-        `/proxy/obp/v4.0.0/customers/${encodeURIComponent(customerId)}/accounts-minimal`
+        `/proxy/obp/v5.1.0/customers/${encodeURIComponent(customerId)}/accounts-minimal`
       );
       if (!accountsRes.ok) {
         const data = await accountsRes.json().catch(() => ({}));

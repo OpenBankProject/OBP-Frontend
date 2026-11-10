@@ -849,6 +849,7 @@ export const en = {
 	organisation_members_saved: 'The people of the organisation are saved.',
 	member_missing: 'Give a username.',
 	member_not_found: 'No user has that username.',
+	member_ambiguous: 'Users of more than one login provider have that username; it cannot be told which one is meant.',
 	files_heading: 'Documents',
 	files_none: 'No documents yet.',
 	files_name: 'Name',

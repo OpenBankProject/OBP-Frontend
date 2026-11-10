@@ -548,7 +548,7 @@
     submitError = null;
     try {
       const response = await fetch(
-        "/proxy/obp/v4.0.0/management/dynamic-resource-docs/endpoint-code",
+        "/proxy/obp/v5.1.0/management/dynamic-resource-docs/endpoint-code",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

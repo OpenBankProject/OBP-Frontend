@@ -67,7 +67,7 @@
     try {
       const [productResponse, tagsResponse] = await Promise.all([
         trackedFetch(
-          `/proxy/obp/v4.0.0/banks/${bankId}/products/${encodeURIComponent(productCode)}`,
+          `/proxy/obp/v5.1.0/banks/${bankId}/products/${encodeURIComponent(productCode)}`,
         ),
         trackedFetch(
           `/proxy/obp/v6.0.0/banks/${bankId}/products/${encodeURIComponent(productCode)}/tags`,

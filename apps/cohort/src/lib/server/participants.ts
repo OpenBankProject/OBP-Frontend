@@ -140,7 +140,7 @@ export async function registerCompany(
 		token
 	);
 	const customerId = String(created?.customer_id ?? '');
-	await obpRequests.post(`/obp/v4.0.0/banks/${space}/user_customer_links`, { user_id: userId, customer_id: customerId }, token);
+	await obpRequests.post(`/obp/v5.1.0/banks/${space}/user_customer_links`, { user_id: userId, customer_id: customerId }, token);
 	// A PUT replaces the record: send its fields (not its own id field) with the customer_id added.
 	const body: CohortRecord = Object.fromEntries(
 		Object.entries({ ...found.record, customer_id: customerId }).filter(

@@ -157,7 +157,7 @@
         <dt class="text-gray-500 dark:text-gray-400">Signing</dt>
         <dd class="text-xs text-gray-900 dark:text-gray-100">
           {#if w.signature_status === "signed"}
-            Signed: each request carries OBP-Signature, verifiable with the key at /obp/v3.1.0/certs.
+            Signed: each request carries OBP-Signature, verifiable with the key at /obp/v5.1.0/certs.
           {:else}
             Not signed on this instance (it has no stable server key). Requests carry OBP-Signature-Status: not_configured.
           {/if}

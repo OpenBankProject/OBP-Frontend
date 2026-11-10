@@ -52,7 +52,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 
   try {
     const result = await obp_requests.post(
-      `/obp/v3.1.0/banks/${encodeURIComponent(bankId)}/consents/${encodeURIComponent(consentId)}/challenge`,
+      `/obp/v5.1.0/banks/${encodeURIComponent(bankId)}/consents/${encodeURIComponent(consentId)}/challenge`,
       { answer },
       token,
     );

@@ -62,8 +62,8 @@
   // Endpoint-mapping CRUD base: bank-level when bankId is set, otherwise system.
   const mappingsBase = $derived(
     bankId
-      ? `/proxy/obp/v4.0.0/management/banks/${encodeURIComponent(bankId)}/endpoint-mappings`
-      : `/proxy/obp/v4.0.0/management/endpoint-mappings`,
+      ? `/proxy/obp/v5.1.0/management/banks/${encodeURIComponent(bankId)}/endpoint-mappings`
+      : `/proxy/obp/v5.1.0/management/endpoint-mappings`,
   );
 
   // Dynamic endpoints are served under /obp/dynamic-endpoint/ (no API version, no /banks/ segment
@@ -445,7 +445,7 @@
 
     try {
       const response = await fetch(
-        `/proxy/obp/v4.0.0/management/json-schema-validations/${encodeURIComponent(op.operationId)}`,
+        `/proxy/obp/v5.1.0/management/json-schema-validations/${encodeURIComponent(op.operationId)}`,
         {
           method,
           headers: { "Content-Type": "application/json" },
@@ -479,7 +479,7 @@
 
     try {
       const response = await fetch(
-        `/proxy/obp/v4.0.0/management/json-schema-validations/${encodeURIComponent(op.operationId)}`,
+        `/proxy/obp/v5.1.0/management/json-schema-validations/${encodeURIComponent(op.operationId)}`,
         { method: "DELETE", credentials: "include" },
       );
 

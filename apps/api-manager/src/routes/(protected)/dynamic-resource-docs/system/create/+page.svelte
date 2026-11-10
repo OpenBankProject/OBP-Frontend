@@ -58,7 +58,7 @@
 
   async function handleSubmit(values: DynamicResourceDocFormValues) {
     const response = await fetch(
-      `/proxy/obp/v4.0.0/management/dynamic-resource-docs`,
+      `/proxy/obp/v5.1.0/management/dynamic-resource-docs`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },

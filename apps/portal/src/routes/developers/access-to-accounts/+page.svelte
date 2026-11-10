@@ -41,7 +41,7 @@
     </p>
 
     <CodeBlock
-        code={`curl -X GET "https://YOUR_OBP_HOST/obp/v3.0.0/my/accounts" \\
+        code={`curl -X GET "https://YOUR_OBP_HOST/obp/v5.1.0/my/accounts" \\
   -H "Content-Type: application/json" \\
   -H "Authorization: DirectLogin token=YOUR_TOKEN"`}
         apiHost={ctx.apiHost}
@@ -124,7 +124,7 @@
         (<a href="{ctx.apiExplorerUrl}/resource-docs?operationid=OBPv2.0.0-publicAccountsAtOneBank" target="_blank" rel="noopener noreferrer">see in API Explorer</a>){/if}:
     </p>
 
-    <CodeBlock code="GET /obp/v2.0.0/banks/BANK_ID/accounts/public" />
+    <CodeBlock code="GET /obp/v5.1.0/banks/BANK_ID/accounts/public" />
 
     <h3>Counterparties</h3>
 
@@ -134,7 +134,7 @@
         (<a href="{ctx.apiExplorerUrl}/resource-docs?operationid=OBPv4.0.0-getExplicitCounterpartiesForAccount" target="_blank" rel="noopener noreferrer">see in API Explorer</a>){/if}:
     </p>
 
-    <CodeBlock code="GET /obp/v4.0.0/banks/BANK_ID/accounts/ACCOUNT_ID/VIEW_ID/counterparties" />
+    <CodeBlock code="GET /obp/v5.1.0/banks/BANK_ID/accounts/ACCOUNT_ID/VIEW_ID/counterparties" />
 
     <p>
         You can also create counterparties, which is needed before making
@@ -150,7 +150,7 @@
         (<a href="{ctx.apiExplorerUrl}/resource-docs?operationid=OBPv3.1.0-checkFundsAvailable" target="_blank" rel="noopener noreferrer">see in API Explorer</a>){/if}:
     </p>
 
-    <CodeBlock code="GET /obp/v3.1.0/banks/BANK_ID/accounts/ACCOUNT_ID/VIEW_ID/funds-available" />
+    <CodeBlock code="GET /obp/v5.1.0/banks/BANK_ID/accounts/ACCOUNT_ID/VIEW_ID/funds-available" />
 
     <h3>Accessing Accounts as a Third Party</h3>
 

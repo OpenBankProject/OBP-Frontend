@@ -34,9 +34,9 @@ const logger = createLogger("MessageDocsPage");
 
 /** The endpoints behind this page, linked to their resource docs in the API Explorer. */
 const ENDPOINTS = [
-  { operation_id: "OBPv2.2.0-getMessageDocs", verb: "GET", path: "/obp/v2.2.0/message-docs/CONNECTOR" },
+  { operation_id: "OBPv2.2.0-getMessageDocs", verb: "GET", path: "/obp/v5.1.0/message-docs/CONNECTOR" },
   { operation_id: "OBPv6.0.0-getMessageDocsJsonSchema", verb: "GET", path: "/obp/v6.0.0/message-docs/CONNECTOR/json-schema" },
-  { operation_id: "OBPv3.1.0-getMessageDocsSwagger", verb: "GET", path: "/obp/v3.1.0/message-docs/CONNECTOR/swagger2.0" },
+  { operation_id: "OBPv3.1.0-getMessageDocsSwagger", verb: "GET", path: "/obp/v5.1.0/message-docs/CONNECTOR/swagger2.0" },
 ];
 
 export const load: PageServerLoad = async ({ locals, params, url }) => {

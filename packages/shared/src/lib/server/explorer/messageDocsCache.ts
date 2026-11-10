@@ -121,7 +121,7 @@ async function fetchConnector(
 	const promise = (async () => {
 		try {
 			const resp = await obp.get(
-				`/obp/v2.2.0/message-docs/${encodeURIComponent(connector)}`,
+				`/obp/v5.1.0/message-docs/${encodeURIComponent(connector)}`,
 				token
 			);
 			const docs = (resp?.message_docs ?? []) as MessageDoc[];

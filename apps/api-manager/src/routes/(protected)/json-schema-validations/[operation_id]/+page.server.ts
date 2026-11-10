@@ -31,7 +31,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   const operationId = params.operation_id;
   let validation: any;
   try {
-    validation = await obp_requests.get(`/obp/v4.0.0/management/json-schema-validations/${encodeURIComponent(operationId)}`, token);
+    validation = await obp_requests.get(`/obp/v5.1.0/management/json-schema-validations/${encodeURIComponent(operationId)}`, token);
   } catch (e) {
     throw error(404, `No JSON Schema Validation for ${operationId}: ${e instanceof Error ? e.message : String(e)}`);
   }

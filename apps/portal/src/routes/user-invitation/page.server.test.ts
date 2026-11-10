@@ -65,7 +65,7 @@ describe('user-invitation accept action', () => {
 		actions.accept({ request: createMockRequest(form) } as never);
 
 	// The regression this file exists for. OBP-API serves
-	// /obp/v4.0.0/banks/{BANK_ID}/user-invitation as POST only -- there is no PUT on that
+	// /obp/v5.1.0/banks/{BANK_ID}/user-invitation as POST only -- there is no PUT on that
 	// path at any version, so the previous `obp_requests.put` could only ever 404 and
 	// accepting an invitation could never complete. Asserting the verb, not just the URL,
 	// is what makes this test able to fail if it regresses.
@@ -80,7 +80,7 @@ describe('user-invitation accept action', () => {
 
 		expect(obp_requests.put).not.toHaveBeenCalled();
 		expect(obp_requests.post).toHaveBeenCalledWith(
-			'/obp/v4.0.0/banks/gh.29.uk/user-invitation',
+			'/obp/v5.1.0/banks/gh.29.uk/user-invitation',
 			expect.objectContaining({
 				secret_key: 12345,
 				username: 'inviteduser',

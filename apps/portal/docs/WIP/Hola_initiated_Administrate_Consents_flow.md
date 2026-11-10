@@ -24,7 +24,7 @@ Hola (TPP app)                    OBP API                      Hydra (Auth)
 4. Hola /main endpoint:
    - Validates id_token
    - Exchanges code for tokens
-   - Fetches /obp/v4.0.0/users/current
+   - Fetches /obp/v5.1.0/users/current
    - Displays consents management page
 ```
 

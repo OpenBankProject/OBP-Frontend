@@ -32,7 +32,7 @@ const logger = createLogger("ActiveConnector");
 
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes: the prop only changes on a restart, routings can change
 const CONFIG_PROPS_PATH = "/obp/v6.0.0/management/config-props";
-const METHOD_ROUTINGS_PATH = "/obp/v3.1.0/management/method_routings";
+const METHOD_ROUTINGS_PATH = "/obp/v5.1.0/management/method_routings";
 
 /** The connector star falls back to when no Method Routing matches a method. */
 export const STAR_FALLBACK_CONNECTOR = "mapped";
