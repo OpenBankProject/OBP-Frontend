@@ -974,5 +974,19 @@ export const ar: Partial<Record<MessageKey, string>> = {
 	access_purpose_read_form_answers: 'قراءة جميع إجابات هذا النموذج',
 	setup_forms_space: 'مساحة النماذج',
 	setup_forms_space_text: 'كل نموذج منشور كيان ديناميكي يحفظ إجاباته، ويُحفظ في هذه المساحة بعيدًا عن سجلات Cohort الأساسية. تُمنح هنا الأدوار التي تنشئ هذه الكيانات الديناميكية وتعدّلها، فلا تصل إلى أي شيء في مساحة Cohort. تُضبط عبر COHORT_FORMS_SPACE_ID.',
-	setup_forms_bank_missing: 'تُنشر النماذج في هذا البنك، لذا يجب إنشاؤه قبل نشر أول نموذج.'
+	setup_forms_bank_missing: 'تُنشر النماذج في هذا البنك، لذا يجب إنشاؤه قبل نشر أول نموذج.',
+	platform_setup_intro: 'ما يفعله المسؤول في مدير الواجهات (API Manager) ليعمل Cohort: تعليم مستهلك Cohort كتطبيق منصة (Platform App)، ثم منحه النطاقات أدناه. تحتاج هذه الصفحة إلى تسجيل دخول، لكن دون دور موظف.',
+	platform_setup_no_manager_heading: 'عنوان مدير الواجهات غير مضبوط',
+	platform_setup_no_manager_text: 'يجد Cohort مدير الواجهات في دليل التطبيقات في OBP-API، ولا يحتوي الدليل على public_obp_api_manager_url. بدونه لا يستطيع Cohort الربط بالصفحات التي يُعلَّم فيها مستهلكه كتطبيق منصة ويُمنح نطاقاته. أضفه إلى إعدادات OBP-API، مثلًا:',
+	platform_setup_no_manager_after: 'ثم أعد تشغيل OBP-API. يقرأ Cohort دليل التطبيقات مجددًا خلال خمس دقائق.',
+	platform_setup_not_set: 'غير مضبوط (public_obp_api_manager_url)',
+	platform_setup_mark_text: 'أولًا علّم مستهلك Cohort كتطبيق منصة؛ النموذج في صفحة تطبيقات المنصة معبّأ مسبقًا. ثم امنح هناك كل نطاق ناقص.',
+	platform_setup_staff_heading: 'مساحات Cohort وكياناته',
+	platform_setup_staff_text: 'بقية الإعداد (مساحات Cohort وكياناته الديناميكية وأي نطاقات زائدة) في صفحة إعداد الموظفين، وتحتاج إلى تسجيل دخول بأحد أدوار الموظفين في Cohort.',
+	platform_setup_staff_link: 'فتح إعداد الموظفين',
+	map_platform_setup: 'الإعداد',
+	map_platform_setup_about: 'جانب تطبيق المنصة من إعداد Cohort: مستهلكه ونطاقاته ورابط مدير الواجهات.',
+	staff_setup_platform_link: 'إعداد تطبيق المنصة',
+	staff_setup_no_manager_text: 'روابط مدير الواجهات أدناه غير متاحة. طريقة ضبطه:',
+	nav_platform_setup: 'الإعداد'
 };

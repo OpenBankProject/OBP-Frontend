@@ -74,7 +74,8 @@ export const PAGES: Record<string, { title: MessageKey; about: MessageKey }> = {
 	'/staff/conversations': { title: 'map_conversations', about: 'map_conversations_about' },
 	'/staff/conversations/[id]': { title: 'map_conversation', about: 'map_conversation_about' },
 	'/staff/example-data': { title: 'map_example_data', about: 'map_example_data_about' },
-	'/staff/setup': { title: 'map_setup', about: 'map_setup_about' }
+	'/staff/setup': { title: 'map_setup', about: 'map_setup_about' },
+	'/setup': { title: 'map_platform_setup', about: 'map_platform_setup_about' }
 };
 
 export interface MapPage {

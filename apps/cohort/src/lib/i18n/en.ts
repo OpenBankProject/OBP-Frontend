@@ -971,7 +971,21 @@ export const en = {
 	access_purpose_read_form_answers: 'Reading every answer to this form',
 	setup_forms_space: 'Forms space',
 	setup_forms_space_text: 'Each published form is a dynamic entity holding its answers, kept in this space apart from Cohort\'s own records. The Roles that create and change those dynamic entities are granted here, so they reach nothing in Cohort\'s space. Set it with COHORT_FORMS_SPACE_ID.',
-	setup_forms_bank_missing: 'Forms are published into this bank, so it must exist before the first form is published.'
+	setup_forms_bank_missing: 'Forms are published into this bank, so it must exist before the first form is published.',
+	platform_setup_intro: 'What an administrator does in the API Manager so that Cohort works: mark Cohort\'s Consumer as a Platform App, then grant it the Scopes below. This page needs a login, but no staff Role.',
+	platform_setup_no_manager_heading: 'The API Manager URL is not set',
+	platform_setup_no_manager_text: 'Cohort finds the API Manager in OBP-API\'s app directory, and it has no public_obp_api_manager_url. Without it, Cohort can\'t link to the pages where its Consumer is marked as a Platform App and granted its Scopes. Add it to OBP-API\'s props, for example:',
+	platform_setup_no_manager_after: 'Then restart OBP-API. Cohort reads the app directory again within five minutes.',
+	platform_setup_not_set: 'Not set (public_obp_api_manager_url)',
+	platform_setup_mark_text: 'First mark Cohort\'s Consumer as a Platform App. The form on the Platform Apps page is already filled in. Then grant each missing Scope there.',
+	platform_setup_staff_heading: 'Cohort\'s spaces and entities',
+	platform_setup_staff_text: 'The rest of the setup (Cohort\'s spaces, its dynamic entities and any excess Scopes) is on the staff setup page. It needs a login with one of Cohort\'s staff Roles.',
+	platform_setup_staff_link: 'Open staff setup',
+	map_platform_setup: 'Setup',
+	map_platform_setup_about: 'The Platform App side of Cohort\'s setup: its Consumer, its Scopes and the API Manager link.',
+	staff_setup_platform_link: 'Platform App setup',
+	staff_setup_no_manager_text: 'Links to the API Manager are missing below. How to set it:',
+	nav_platform_setup: 'Setup'
 } as const;
 
 export type MessageKey = keyof typeof en;

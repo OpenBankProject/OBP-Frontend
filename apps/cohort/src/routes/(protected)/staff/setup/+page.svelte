@@ -12,6 +12,13 @@
 </script>
 
 <h1 class="h2">{t(locale, 'setup_heading')}</h1>
+<p class="mt-1"><a class="anchor" href="/setup" data-testid="staff-setup-platform-link">{t(locale, 'staff_setup_platform_link')}</a></p>
+{#if !data.apiManagerUrl}
+	<p class="mt-4 max-w-3xl rounded-lg border-2 border-error-500 preset-tonal-error p-4" role="alert" data-testid="staff-setup-no-api-manager">
+		<strong>{t(locale, 'platform_setup_no_manager_heading')}.</strong> {t(locale, 'staff_setup_no_manager_text')}
+		<a class="anchor" href="/setup">/setup</a>
+	</p>
+{/if}
 
 <section class="mt-6" data-testid="setup-space">
 	<h2 class="h4">{t(locale, 'setup_space')}</h2>

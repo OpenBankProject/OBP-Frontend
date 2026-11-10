@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Archive, Bell, BellRing, Bookmark as BookmarkIcon, Building2, ChartColumn, ChevronDown, ChevronRight, ClipboardCheck, ClipboardList, FileText, MessageCircle, Newspaper, Inbox, KeyRound, Map as MapIcon, Megaphone, MessagesSquare, Rocket, Settings, UserCheck, UserRound, Users } from '@lucide/svelte';
+	import { Archive, Bell, BellRing, Bookmark as BookmarkIcon, Building2, ChartColumn, ChevronDown, ChevronRight, ClipboardCheck, ClipboardList, FileText, MessageCircle, Newspaper, Inbox, KeyRound, Megaphone, MessagesSquare, Rocket, Settings, UserCheck, UserRound, Users } from '@lucide/svelte';
 	import { t, type Locale, type MessageKey } from '$lib/i18n';
 
 	/**
@@ -66,8 +66,7 @@
 				{ href: '/staff/retention', label: 'nav_retention', icon: Archive },
 				{ href: '/staff/setup', label: 'nav_setup', icon: Settings }
 			]
-		},
-		{ href: '/sitemap', label: 'nav_sitemap', icon: MapIcon, public: true }
+		}
 	];
 	const pageItems = $derived(pages.map((p): Item => ({ href: `/pages/${p.slug}`, label: 'nav_pages', text: p.title, icon: FileText, public: true })));
 	const items = $derived(
@@ -137,4 +136,8 @@
 			{/each}
 		</ul>
 	</nav>
+	<footer class="mt-auto flex flex-wrap gap-x-3 gap-y-1 px-3 pt-2 pb-1 text-xs text-surface-700-300" data-testid="sidebar-footer">
+		<a class="hover:underline" href="/sitemap" aria-current={pathname === '/sitemap' ? 'page' : undefined} data-testid="nav-sitemap">{t(locale, 'nav_sitemap')}</a>
+		{#if username}<a class="hover:underline" href="/setup" aria-current={pathname === '/setup' ? 'page' : undefined} data-testid="nav-setup">{t(locale, 'nav_platform_setup')}</a>{/if}
+	</footer>
 </aside>

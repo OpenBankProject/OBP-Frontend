@@ -50,6 +50,9 @@
   let expanding = $state(false);
   let expandError = $state("");
   let landingEl = $state<HTMLElement | null>(null);
+  // The source the preview was last drawn from, and a counter so a late answer cannot replace a newer one
+  let expandedFor = $state<string | null>(null);
+  let expandSeq = 0;
 
   function run() {
     runId += 1;
@@ -59,6 +62,9 @@
   }
 
   async function expandLanding() {
+    const html = source;
+    const seq = ++expandSeq;
+    expandedFor = html;
     expanding = true;
     expandError = "";
     try {
@@ -66,18 +72,29 @@
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ html: source }),
+        body: JSON.stringify({ html }),
       });
       const data = await response.json();
+      if (seq !== expandSeq) return;
       if (!response.ok) throw new Error(data?.message ?? `HTTP ${response.status}`);
       expandedHtml = data.html ?? "";
     } catch (e) {
+      if (seq !== expandSeq) return;
       expandError = e instanceof Error ? e.message : String(e);
       expandedHtml = "";
     } finally {
-      expanding = false;
+      if (seq === expandSeq) expanding = false;
     }
   }
+
+  // A page's preview follows the editor: shortly after the source changes (typed, pasted or set by Opey), it is
+  // drawn again, so it never shows an older page under the one being saved. An app still waits for Run, because
+  // running it executes its code.
+  $effect(() => {
+    if (mode !== "page" || source === expandedFor) return;
+    const timer = setTimeout(run, 700);
+    return () => clearTimeout(timer);
+  });
 
   // Wire behaviours into the inline landing preview each time it re-renders.
   $effect(() => {
@@ -969,6 +986,7 @@
       <!-- App at page width sits under the editor; height follows the app's content -->
       {#if mode === "app" && previewWidth === "desktop"}
         <section data-testid="app-studio-preview" data-state="ready">
+          <h2 class="mb-2 text-base font-semibold text-gray-900 dark:text-gray-100" data-testid="app-studio-preview-heading">Preview</h2>
           <div class="mb-2 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
             <span>{title || "Untitled app"} · run {runId} · page width</span>
             <button type="button" class="inline-flex items-center gap-1 rounded-md border border-gray-300 px-2 py-1 dark:border-gray-600" onclick={() => (previewWidth = "phone")} data-testid="app-studio-width-phone"><Smartphone class="h-3.5 w-3.5" /> Phone width</button>
@@ -980,6 +998,7 @@
       <!-- Landing preview at desktop width sits under the editor, full column width -->
       {#if mode === "page" && previewWidth === "desktop"}
         <section data-testid="app-studio-preview" data-state={expanding ? "rendering" : expandError ? "error" : "ready"}>
+          <h2 class="mb-2 text-base font-semibold text-gray-900 dark:text-gray-100" data-testid="app-studio-preview-heading">Preview</h2>
           <div class="mb-2 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
             <span>{title || "Untitled page"} · run {runId}{expanding ? " · rendering…" : ""}</span>
             <button type="button" class="inline-flex items-center gap-1 rounded-md border border-gray-300 px-2 py-1 dark:border-gray-600" onclick={() => (previewWidth = "phone")} data-testid="app-studio-width-phone"><Smartphone class="h-3.5 w-3.5" /> Phone width</button>
@@ -1000,6 +1019,7 @@
     <!-- Phone-sized preview column (either mode at phone width) -->
     {#if previewWidth === "phone"}
       <section class="xl:sticky xl:top-8 xl:self-start" data-testid="app-studio-preview" data-state={mode === "page" ? (expanding ? "rendering" : expandError ? "error" : "ready") : "ready"}>
+        <h2 class="mb-2 text-base font-semibold text-gray-900 dark:text-gray-100" data-testid="app-studio-preview-heading">Preview</h2>
         {#if mode === "app"}
           <AppStudioPreview {source} {runId} onRequest={handleAppRequest} onLog={pushLog} onNavigate={handleAppNavigate} />
           <p class="mt-2 flex items-center justify-center gap-3 text-center text-xs text-gray-500 dark:text-gray-400">

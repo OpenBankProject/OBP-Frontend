@@ -1,0 +1,28 @@
+{
+  "name": "OBP-Frontend-Crimson",
+  "author": "Portal/Opey Development Setup",
+  "themes": [
+    {
+      "name": "OBP-Frontend-Crimson",
+      "appearance": "dark",
+      "style": {
+        "background": "#1e1e1e",
+        "foreground": "#d4d4d4",
+        "cursor": "#B91C1C",
+        "selection": "#B91C1C33",
+        "selected_line_background": "#B91C1C11",
+        "line_number": "#858585",
+        "active_line_number": "#B91C1C",
+        "find_highlight": "#B91C1C",
+        "border": "#B91C1C66",
+        "panel_background": "#252526",
+        "panel_focused_border": "#B91C1C",
+        "tab_bar_background": "#2d2d30",
+        "tab_active_background": "#B91C1C88",
+        "status_bar_background": "#B91C1C66",
+        "title_bar_background": "#B91C1C44",
+        "toolbar_background": "#37373d"
+      }
+    }
+  ]
+}
