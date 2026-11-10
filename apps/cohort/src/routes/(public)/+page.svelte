@@ -1,53 +1,12 @@
 <script lang="ts">
 	import AnnouncementList from '$lib/components/AnnouncementList.svelte';
 	import PublishedPage from '$lib/components/PublishedPage.svelte';
-	import { CalendarClock, CircleHelp, FileText, ListChecks } from '@lucide/svelte';
-	import { OpeyChat, ResizableSplit, type OpeyChatOptions, type SuggestedQuestion } from '@obp/shared/components';
+	import { CalendarClock } from '@lucide/svelte';
 	import { t, type Locale } from '$lib/i18n';
 
 	let { data } = $props();
 
 	const locale = $derived(data.locale as Locale);
-
-	const suggestedQuestions: SuggestedQuestion[] = $derived([
-		{ questionString: t(locale, 'opey_q_eligible'), pillTitle: t(locale, 'opey_pill_eligible'), icon: ListChecks },
-		{ questionString: t(locale, 'opey_q_apply'), pillTitle: t(locale, 'opey_pill_apply'), icon: FileText },
-		{ questionString: t(locale, 'opey_q_deadlines'), pillTitle: t(locale, 'opey_pill_deadlines'), icon: CalendarClock },
-		{ questionString: t(locale, 'opey_q_programmes'), pillTitle: t(locale, 'opey_pill_programmes'), icon: CircleHelp }
-	]);
-
-	const opeyChatOptions: Partial<OpeyChatOptions> = $derived({
-		baseUrl: data.opey?.baseUrl,
-		displayHeader: false,
-		currentlyActiveUserName: data.user?.username ?? '',
-		suggestedQuestions,
-		bodyClasses: 'bg-opacity-0',
-		footerClasses: 'bg-opacity-0',
-		displayConnectionPips: true,
-		// Requests that name no bank are about Cohort's space.
-		currentBankId: data.opey?.bankId ?? '',
-		// Cohort serves no generic OBP proxy, so the chat skips the new-entitlements notice, and its consent label is
-		// a link to the Portal's consents page, where Users see and revoke what they gave Opey.
-		entitlementsUrl: '',
-		consentsUrl: '',
-		...(data.portalUrl ? { consentsPageHref: `${data.portalUrl}/user/consents` } : {})
-	});
-
-	/** What the visitor sees, sent with each message so Opey answers about these calls. */
-	function clientContext(): string {
-		if (data.calls.length === 0) return 'Cohort, a startup programme website. No calls for applications are open.';
-		const calls = data.calls.map(
-			(c) =>
-				`- "${c.title}"${c.programme ? ` (programme: ${c.programme})` : ''}, opens ${c.opens_at || 'now'}, ` +
-				`closes ${c.closes_at || 'not set'}, page /calls/${c.id}, eligible: ${c.eligibility}${c.description ? `. ${c.description}` : ''}`
-		);
-		return [
-			'Cohort, a startup programme website. The visitor is on the list of open calls for applications:',
-			...calls,
-			'To apply, open a call and press Apply (logging in is needed); an application is saved as a draft until it is submitted.',
-			'An application that does not meet its call\'s eligibility is not refused: a screener reviews it.'
-		].join('\n');
-	}
 </script>
 
 {#snippet calls()}
@@ -90,19 +49,4 @@
 	</section>
 {/snippet}
 
-{#snippet opey()}
-	<section class="card preset-outlined-surface-200-800 flex h-[70vh] min-h-96 flex-col overflow-hidden" aria-labelledby="opey-heading" data-testid="opey-panel">
-		<h2 id="opey-heading" class="h5 px-4 pt-3">{t(locale, 'opey_heading')}</h2>
-		<p class="px-4 text-sm text-surface-700-300">{t(locale, 'opey_intro')}</p>
-		<div class="min-h-0 flex-1">
-			<OpeyChat {opeyChatOptions} userAuthenticated={!!data.user} {clientContext} />
-		</div>
-	</section>
-{/snippet}
-
-{#if data.opey}
-	<!-- Drag the divider (or focus it and use the arrow keys) to make Opey wider or narrower; double-click resets. -->
-	<ResizableSplit main={calls} side={opey} defaultSideWidth={384} minSideWidth={300} storageKey="cohort-opey-width" sideTestid="opey-pane" label={t(locale, 'opey_resize')} />
-{:else}
-	{@render calls()}
-{/if}
+{@render calls()}

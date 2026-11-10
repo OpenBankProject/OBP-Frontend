@@ -71,6 +71,22 @@ export class ChatState {
 		this.emit(); // Notify subscribers about the change
 	}
 
+	/**
+	 * Puts back a conversation saved earlier (see OpeyChat's rememberAs option): its thread id and messages. A reply that
+	 * was still coming in when the page went away is marked as cut off, and a "waiting" placeholder is dropped.
+	 */
+	restore(threadId: string, messages: BaseMessage[]): void {
+		this.threadId = threadId;
+		this.messages = messages
+			.filter((m) => !m.isLoading)
+			.map((m) => ({
+				...m,
+				timestamp: new Date(m.timestamp),
+				...(m.isStreaming ? { isStreaming: false, cancelled: true } : {})
+			}));
+		this.emit();
+	}
+
 	/** Record what the proxy said about saving this thread (see the conversation_recorded stream event). */
 	setConversationRecord(info: ConversationRecordInfo | null): void {
 		this.conversationRecord = info;

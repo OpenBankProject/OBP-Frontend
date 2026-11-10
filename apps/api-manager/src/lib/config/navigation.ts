@@ -624,6 +624,11 @@ function buildAppStudioItems(): NavigationItem[] {
       iconComponent: Smartphone,
     },
     {
+      href: "/app-studio/pages",
+      label: "Pages",
+      iconComponent: FileText,
+    },
+    {
       href: "/app-studio/blocks",
       label: "Page Blocks",
       iconComponent: LayoutTemplate,
@@ -924,6 +929,7 @@ const buildSection = domain("build", "Build", Hammer,
     ] },
     { label: "Apps", items: [
       { href: "/app-studio", label: "App Studio", iconComponent: Smartphone },
+      { href: "/app-studio/pages", label: "Pages", iconComponent: FileText },
       { href: "/app-studio/blocks", label: "Page Blocks", iconComponent: LayoutTemplate },
       { href: "/reports", label: "Reports", iconComponent: FileSpreadsheet },
     ] },

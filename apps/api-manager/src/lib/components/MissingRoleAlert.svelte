@@ -78,16 +78,17 @@
     Array.from(rolesMetadata.values()).some((requires) => requires),
   );
 
-  // The effective bank_id to use: empty for system-wide, otherwise provided prop or currentBank
+  // The bank_id to request the role at: the bank the caller named (as shown above), else empty for a system-wide role,
+  // else the bank chosen in My Account.
   let effectiveBankId = $derived(
-    scopeChoice === "system" ? "" : (bankId || selectedBankId)
+    bankId ? bankId : scopeChoice === "system" ? "" : selectedBankId
   );
 
   async function handleRequestClick() {
     if (isSubmitting) return;
 
     // Validate bank selection if bank-scoped
-    if (scopeChoice === "bank" && !bankId && !selectedBankId) {
+    if (!bankId && scopeChoice === "bank" && !selectedBankId) {
       submitError = "Please select a bank in My Account for this bank-scoped role.";
       return;
     }

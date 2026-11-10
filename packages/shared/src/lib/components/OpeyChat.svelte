@@ -96,6 +96,15 @@
 		// Metrics page that accepts ?consent_reference_id=...; when set, the consent
 		// indicator under the input links each reference id to its call log.
 		consentMetricsHref?: string;
+		// Whether to show a box for each tool Opey calls (List Endpoints by Tag, OBP API Request, ...). Default true.
+		// When false, only the tool calls waiting for the user (a consent to give, a call to approve) are shown.
+		showToolCalls?: boolean;
+		// When set, the conversation is saved in this browser tab under this name and comes back after a page reload.
+		// It is kept until the tab is closed. Use a name per user, so one user never sees another's conversation.
+		rememberAs?: string;
+		// The text shown in the empty message box once the user is logged in. Default: about the OBP API at first, then
+		// "Ask me anything...".
+		inputPlaceholder?: string;
 		headerClasses?: string; // Optional classes for the header
 		footerClasses?: string;
 		bodyClasses?: string;
@@ -114,6 +123,9 @@
 		// Live description of the page (form fields, types, current values). Called
 		// per message so it always reflects what the user currently sees.
 		clientContext?: () => string;
+		// Called with the number of messages whenever the conversation changes, e.g. so a panel can stay small while
+		// the conversation is empty.
+		onMessageCount?: (count: number) => void;
 	}
 	// Default chat options (baseUrl must be supplied by the consuming app)
 	const defaultChatOptions: Omit<OpeyChatOptions, 'baseUrl'> = {
@@ -130,10 +142,18 @@
 		belowSuggestions,
 		currentBankId = '',
 		clientTools,
-		clientContext
+		clientContext,
+		onMessageCount
 	}: Props = $props();
 	// Merge default options with the provided options
 	const options = { ...defaultChatOptions, ...opeyChatOptions } as OpeyChatOptions;
+
+	/** A tool call is hidden when the app turned tool calls off, unless it waits for the user's consent or approval. */
+	function isShown(message: { role: string }): boolean {
+		if (message.role !== 'tool' || options.showToolCalls !== false) return true;
+		const tool = message as ToolMessage;
+		return !!(tool.waitingForConsent || tool.waitingForApproval);
+	}
 
 	const opeyProxyBase = (options.proxyBaseUrl ?? '/backend/opey').replace(/\/$/, '');
 
@@ -402,6 +422,30 @@
 		}
 	}
 
+	/** Puts back the conversation saved under options.rememberAs, if there is one. Returns whether it did. */
+	function restoreConversation(): boolean {
+		if (!options.rememberAs) return false;
+		try {
+			const saved = JSON.parse(sessionStorage.getItem(options.rememberAs) ?? 'null');
+			if (!saved?.threadId || !Array.isArray(saved.messages) || saved.messages.length === 0) return false;
+			chatState.restore(saved.threadId, saved.messages);
+			return true;
+		} catch {
+			return false;
+		}
+	}
+
+	/** Saves the conversation under options.rememberAs once no reply is coming in, so it survives a page reload. */
+	function rememberConversation(c: ChatStateSnapshot) {
+		if (!options.rememberAs || c.messages.some((m) => m.isStreaming || m.isLoading)) return;
+		try {
+			if (c.messages.length === 0) sessionStorage.removeItem(options.rememberAs);
+			else sessionStorage.setItem(options.rememberAs, JSON.stringify({ threadId: c.threadId, messages: c.messages }));
+		} catch {
+			// The tab's storage is full or switched off: the conversation still works, it just won't survive a reload.
+		}
+	}
+
 	// Clean up blob URL and health check interval when component is destroyed
 	onDestroy(() => {
 		if (diagramUrl) {
@@ -430,9 +474,14 @@
 	onMount(async () => {
 		logger.debug('OpeyChat component mounted with options:', options);
 		unsubscribeSession = sessionState.subscribe((s) => (session = s));
-		unsubscribeChat = chatState.subscribe((c) => (chat = c));
+		const restored = restoreConversation();
+		unsubscribeChat = chatState.subscribe((c) => {
+			chat = c;
+			rememberConversation(c);
+			onMessageCount?.(c.messages.length);
+		});
 
-		if (options.initialAssistantMessage) {
+		if (options.initialAssistantMessage && !restored) {
 			chatState.addMessage({
 				id: crypto.randomUUID(),
 				role: 'assistant',
@@ -753,6 +802,7 @@
 	>
 		<div class="space-y-4 min-w-0">
 			{#each chat.messages as message, index (message.id)}
+				{#if isShown(message)}
 				<ChatMessage
 					{message}
 					previousMessageRole={index > 0 ? chat.messages[index - 1].role : undefined}
@@ -766,6 +816,7 @@
 					onConsent={handleConsent}
 					onConsentDeny={handleConsentDeny}
 				/>
+				{/if}
 			{/each}
 		</div>
 	</article>
@@ -982,7 +1033,9 @@
 			bind:value={messageInput}
 			placeholder={!userAuthenticated
 				? 'Please log in to ask me anything...'
-				: chat.messages.length === 0
+				: options.inputPlaceholder
+					? options.inputPlaceholder
+					: chat.messages.length === 0
 					? 'Ask me about the Open Bank Project API'
 					: 'Ask me anything...'}
 			class="w-full resize-none border-none bg-transparent p-0.5 outline-none shadow-none focus:outline-none focus:shadow-none focus:ring-0 focus-visible:outline-none max-h-40 overflow-y-auto"

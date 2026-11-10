@@ -18,6 +18,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { page } from "$app/state";
+  import { replaceState } from "$app/navigation";
   import { env } from "$env/dynamic/public";
   import { OpeyChat, AppStudioPreview } from "@obp/shared/components";
   import { appStudioPathToProxyPath } from "@obp/shared/components";
@@ -25,6 +26,7 @@
   import { describeLandingBlocksForOpey, initLandingBehaviours, LANDING_BASE_CSS } from "@obp/shared/landing";
   import { Smartphone, LayoutTemplate, Monitor, Play, Copy, Download, RotateCcw, Landmark, ListOrdered, Wand2, Megaphone, Handshake, KeyRound, ShieldCheck, Save, Globe, FolderOpen, Trash2 } from "@lucide/svelte";
   import { formBridge } from "$lib/stores/formBridge.svelte";
+  import MissingRoleAlert from "$lib/components/MissingRoleAlert.svelte";
   import { STARTER_APP_TITLE, STARTER_APP_HTML, STARTER_LANDING_TITLE, STARTER_LANDING_HTML } from "./starters";
 
   // ---- Modes ------------------------------------------------------------------
@@ -129,11 +131,15 @@
     run();
   }
 
+  // True when the blocks demo handed a page over, so App Studio shows it instead of reopening the last page.
+  let handedOver = false;
+
   onMount(() => {
     // A page handed over from the blocks demo ("Open in App Studio").
     if (mode === "page") {
       const handed = sessionStorage.getItem("app-studio:landing-source");
       if (handed) {
+        handedOver = true;
         source = handed;
         title = sessionStorage.getItem("app-studio:landing-title") ?? STARTER_LANDING_TITLE;
         sessionStorage.removeItem("app-studio:landing-source");
@@ -431,6 +437,18 @@
   let saveMessage = $state("");
   let openId = $state("");
 
+  /**
+   * A "missing one or more roles" error from OBP, e.g. "OBP-20006: User is missing one or more roles:
+   * CanDeleteDynamicEntityRecord_obp_portal_page at Bank(SYS)", split into the roles and the bank, so the page can
+   * offer to request them. Null for any other error.
+   */
+  function parseMissingRoles(msg: string) {
+    const m = msg.match(/OBP-(\d+):.*?missing one or more roles:\s*([\w\s,]+?)(?:\s+at Bank\(([^)]*)\))?\s*(?:\.|$|\n|Current)/is);
+    if (!m) return null;
+    return { code: m[1], roles: m[2].split(",").map((r) => r.trim()).filter(Boolean), bankId: m[3] ?? "" };
+  }
+  const saveMissingRoles = $derived(saveError ? parseMissingRoles(saveError) : null);
+
   const slugFromTitle = (t: string) => t.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 120);
 
   async function loadSavedPages() {
@@ -465,6 +483,7 @@
       const data = await response.json();
       if (!response.ok) throw new Error(data?.message ?? `HTTP ${response.status}`);
       currentPage = data.page;
+      rememberLastPage(data.page.id);
       saveMessage = status === "published" ? `Published as /pages/${data.page.slug} on ${data.page.sites.map((x: string) => SITE_LABELS[x] ?? x).join(" and ")}` : `Saved draft ${data.page.slug}`;
       await loadSavedPages();
     } catch (e) {
@@ -497,6 +516,7 @@
       lang = page.lang;
       menuPosition = page.menu_position === null ? "" : String(page.menu_position);
       currentPage = page;
+      rememberLastPage(page.id);
       openId = "";
       run();
     } catch (e) {
@@ -513,6 +533,7 @@
       if (!response.ok) throw new Error(data?.message ?? `HTTP ${response.status}`);
       saveMessage = `Deleted ${currentPage.slug}`;
       currentPage = null;
+      rememberLastPage(null);
       await loadSavedPages();
     } catch (e) {
       saveError = e instanceof Error ? e.message : String(e);
@@ -521,6 +542,7 @@
 
   function startNewPage() {
     currentPage = null;
+    rememberLastPage(null);
     slug = "";
     summary = "";
     sites = ["portal"];
@@ -530,8 +552,54 @@
     saveError = "";
   }
 
+  // The saved page last opened or saved in this browser. App Studio opens it again on the next visit, instead of the
+  // example; "Start a new one" and deleting the page forget it.
+  const LAST_PAGE_KEY = "app-studio:last-page";
+  function rememberLastPage(id: string | null) {
+    try {
+      if (id) localStorage.setItem(LAST_PAGE_KEY, id);
+      else localStorage.removeItem(LAST_PAGE_KEY);
+    } catch {}
+  }
+
+  /**
+   * Which page to show first: the one named in the address (?page=ID, from the Pages list), a new one (?new=1), the
+   * page handed over from the blocks demo, or else the page last worked on in this browser. With none, the example.
+   */
+  async function openFirstPage() {
+    const asked = page.url.searchParams.get("page");
+    const fresh = page.url.searchParams.get("new");
+    // Take them out of the address, so a later reload reopens the page last worked on, not this one again.
+    if (asked || fresh) {
+      const url = new URL(page.url);
+      url.searchParams.delete("page");
+      url.searchParams.delete("new");
+      try {
+        replaceState(url, page.state);
+      } catch {}
+    }
+    if (fresh) {
+      rememberLastPage(null);
+      return;
+    }
+    if (handedOver) return;
+    let last: string | null = null;
+    try {
+      last = localStorage.getItem(LAST_PAGE_KEY);
+    } catch {}
+    const id = asked || last;
+    if (!id) return;
+    await openSavedPage(id);
+    // The last page was deleted since, or can't be read: show the example and forget it.
+    if (!asked && !currentPage) {
+      rememberLastPage(null);
+      saveError = "";
+    }
+  }
+
   onMount(() => {
     void loadSavedPages();
+    void openFirstPage();
   });
 
   // ---- Opey: the page is a one-field form Opey fills via set_form_fields -----------
@@ -977,10 +1045,18 @@
               {/each}
             </select>
           </label>
+          <a href="/app-studio/pages" class="underline" data-testid="app-studio-all-pages">All pages</a>
           {#if saveMessage}<span class="text-emerald-700 dark:text-emerald-300" data-testid="app-studio-save-message">{saveMessage}</span>{/if}
-          {#if saveError}<span class="text-red-700 dark:text-red-300" data-testid="app-studio-save-error">{saveError}</span>{/if}
+          {#if saveError && !saveMissingRoles}<span class="text-red-700 dark:text-red-300" data-testid="app-studio-save-error">{saveError}</span>{/if}
           {#if savedPagesError}<span class="text-red-700 dark:text-red-300">{savedPagesError}</span>{/if}
         </div>
+        {#if saveMissingRoles}
+          {#key saveError}
+            <div class="mt-3" data-testid="app-studio-missing-role">
+              <MissingRoleAlert roles={saveMissingRoles.roles} errorCode={saveMissingRoles.code} message={saveError} bankId={saveMissingRoles.bankId || undefined} />
+            </div>
+          {/key}
+        {/if}
       </section>
 
       <!-- App at page width sits under the editor; height follows the app's content -->

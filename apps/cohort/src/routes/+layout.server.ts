@@ -16,7 +16,10 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 import { menuItemOf } from '@obp/shared/landing';
+import { env } from '$env/dynamic/private';
+import { env as publicEnv } from '$env/dynamic/public';
 import { appDirectory } from '$lib/server/appDirectory';
+import { cohortSpace } from '$lib/server/space';
 import { cohortPages, HOME_PAGE_SLUG } from '$lib/server/sitePages';
 import { staffRolesHeld } from '$lib/server/staffAccess';
 import type { LayoutServerLoad } from './$types';
@@ -32,8 +35,12 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
 	// The pages published to Cohort with App Studio, in the visitor's language: directly in the menu. The home page is
 	// the start page, not a menu item.
 	const sitePages = (await cohortPages(locals.locale)).filter((p) => p.slug !== HOME_PAGE_SLUG).map(menuItemOf);
+	// Opey shows on every page where it is configured. Its public URL is informational (the connection popover).
+	// Cohort's bank_id is Opey's default bank; where its data is goes with each message from the server (lib/server/opey).
+	const opey = env.OPEY_BASE_URL ? { baseUrl: publicEnv.PUBLIC_OPEY_BASE_URL ?? '', bankId: cohortSpace() } : null;
 	return {
 		isStaff,
+		opey,
 		portalUrl,
 		sitePages,
 		locale: locals.locale,

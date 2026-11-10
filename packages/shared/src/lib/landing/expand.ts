@@ -112,6 +112,16 @@ export interface ExpandOptions {
 	onError?: 'show' | 'hide';
 }
 
+/**
+ * A tag only some sites can fill, used on a site that can't, e.g. <obp-calls> (Cohort's open calls) in the App Studio
+ * preview. A preview shows a note saying where it is filled in, not an error.
+ */
+class NotOnThisSite extends Error {
+	constructor(public what: string) {
+		super(`this site has no ${what}`);
+	}
+}
+
 export function escapeHtml(value: unknown): string {
 	return String(value ?? '')
 		.replace(/&/g, '&amp;')
@@ -265,7 +275,7 @@ function textBlocks(text: string, className: string): string {
 }
 
 async function renderCalls(attrs: Record<string, string>, f: LandingFetchers): Promise<string> {
-	if (!f.calls) throw new Error('this site has no calls for applications');
+	if (!f.calls) throw new NotOnThisSite('calls for applications');
 	const calls = await f.calls({ programme: attrs.programme || undefined, limit: limitOf(attrs, 6) });
 	if (calls.length === 0) {
 		return `<div class="obp-calls obp-calls--empty">${attrs.empty ? `<p class="obp-calls-empty">${escapeHtml(attrs.empty)}</p>` : ''}</div>`;
@@ -291,7 +301,7 @@ ${dates ? `<div class="obp-call-dates">${dates}</div>` : ''}
 }
 
 async function renderProgrammes(attrs: Record<string, string>, f: LandingFetchers): Promise<string> {
-	if (!f.programmes) throw new Error('this site has no programmes');
+	if (!f.programmes) throw new NotOnThisSite('programmes');
 	const programmes = await f.programmes({ limit: limitOf(attrs, 6) });
 	if (programmes.length === 0) return `<div class="obp-programmes obp-programmes--empty"></div>`;
 	const items = programmes
@@ -343,6 +353,10 @@ export async function expandLiveTags(html: string, fetchers: LandingFetchers, op
 			try {
 				return await RENDERERS[tag](attrs, fetchers);
 			} catch (e) {
+				if (e instanceof NotOnThisSite)
+					return onError === 'show'
+						? `<div class="obp-block-note">${escapeHtml(`<${tag}>: the ${e.what} are shown here on a site that runs programmes, such as Cohort.`)}</div>`
+						: '';
 				const message = e instanceof Error ? e.message : String(e);
 				return onError === 'show'
 					? `<div class="obp-block-error" role="alert">${escapeHtml(`<${tag}> could not be rendered: ${message}`)}</div>`

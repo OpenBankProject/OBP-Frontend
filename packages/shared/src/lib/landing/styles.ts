@@ -103,5 +103,6 @@ export const LANDING_BASE_CSS = `
 .obp-landing [data-behaviour="carousel"] [data-track] { flex: 1; display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
 .obp-landing [data-behaviour="carousel"] [data-track] > * { scroll-snap-align: start; flex: 0 0 min(80%, 300px); }
 
+.obp-landing .obp-block-note { background: #f8fafc; color: #475569; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 10px 14px; font-size: 14px; }
 .obp-landing .obp-block-error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; border-radius: 8px; padding: 10px 14px; font-size: 14px; }
 `;

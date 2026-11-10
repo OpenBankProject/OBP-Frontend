@@ -1,6 +1,7 @@
 <script lang="ts">
 	import '../app.css';
 	import AppSidebar from '$lib/components/AppSidebar.svelte';
+	import CohortOpey from '$lib/components/CohortOpey.svelte';
 	import TopBar from '$lib/components/TopBar.svelte';
 	import { t, type Locale } from '$lib/i18n';
 	import { setOpeyStatusLinks } from '@obp/shared/opey';
@@ -41,3 +42,6 @@
 		</div>
 	</div>
 </div>
+{#if data.opey}
+	<CohortOpey {locale} opey={data.opey} user={data.user} portalUrl={data.portalUrl} />
+{/if}

@@ -187,7 +187,7 @@ export const en = {
 	programme_company_registered: 'Your company is registered.',
 	programme_company_missing: 'Please give the legal name, email and phone of the company.',
 	programme_step_opey: 'Ask Opey',
-	programme_step_opey_intro: 'Opey, the assistant on the open calls page, answers questions about the programme.',
+	programme_step_opey_intro: 'Opey, the assistant behind the button at the bottom of every page, answers questions about the programme.',
 	programme_step_milestones: 'Milestones',
 	participant_stage_onboarded: 'Onboarded',
 	participant_stage_in_programme: 'In the programme',
@@ -577,15 +577,12 @@ export const en = {
 	calls_open_heading: 'Open calls',
 	opey_heading: 'Ask Opey',
 	opey_intro: 'Questions about the programmes, eligibility or how to apply.',
-	opey_resize: 'Drag to make Opey wider or narrower',
 	opey_pill_eligible: 'Am I eligible?',
 	opey_q_eligible: 'Who is eligible to apply?',
 	opey_pill_apply: 'How to apply',
 	opey_q_apply: 'How do I apply to a call?',
 	opey_pill_deadlines: 'Deadlines',
 	opey_q_deadlines: 'When do the open calls close?',
-	opey_pill_programmes: 'Programmes',
-	opey_q_programmes: 'What do the programmes offer?',
 	calls_none: 'There are no open calls at the moment.',
 	call_programme: 'Programme',
 	call_opens: 'Opens',
@@ -985,7 +982,15 @@ export const en = {
 	map_platform_setup_about: 'The Platform App side of Cohort\'s setup: its Consumer, its Scopes and the API Manager link.',
 	staff_setup_platform_link: 'Platform App setup',
 	staff_setup_no_manager_text: 'Links to the API Manager are missing below. How to set it:',
-	nav_platform_setup: 'Setup'
+	nav_platform_setup: 'Setup',
+	opey_open: 'Ask Opey',
+	opey_close: 'Close Opey',
+	opey_drag: 'Drag to move Opey. Double-click to put it back.',
+	opey_resize: 'Drag to resize Opey',
+	opey_new_chat: 'New conversation',
+	opey_placeholder: 'Ask me anything',
+	opey_minimise: 'Minimise Opey',
+	opey_restore: 'Show Opey again'
 } as const;
 
 export type MessageKey = keyof typeof en;

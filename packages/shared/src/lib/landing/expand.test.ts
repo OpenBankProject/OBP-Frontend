@@ -188,6 +188,8 @@ describe('programme tags (Cohort)', () => {
 
 	it('shows nothing on a site without programmes', async () => {
 		expect(await expandLiveTags('<obp-calls></obp-calls>', fetchers(), { onError: 'hide' })).toBe('');
-		expect(await expandLiveTags('<obp-programmes></obp-programmes>', fetchers())).toContain('this site has no programmes');
+		const preview = await expandLiveTags('<obp-programmes></obp-programmes>', fetchers());
+		expect(preview).toContain('obp-block-note');
+		expect(preview).not.toContain('obp-block-error');
 	});
 });

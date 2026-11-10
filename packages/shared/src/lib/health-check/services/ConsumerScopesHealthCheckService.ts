@@ -32,7 +32,7 @@ export const CURRENT_CONSUMER_SCOPES_PATH = '/obp/v7.0.0/consumers/current/scope
 export const CURRENT_CONSUMER_PLATFORM_APP_PATH = '/obp/v7.0.0/consumers/current/platform-app';
 
 /** Declare again this often once a declaration has been accepted, in case an administrator re-marked the app. */
-const REDECLARE_AFTER_MS = 60 * 60 * 1000;
+const REDECLARE_AFTER_MS = 5 * 60 * 1000;
 
 /** An application token, or why there is none (the shape of requestApplicationAccessToken's result). */
 export type ApplicationTokenSource = () => Promise<{ token: string } | { token: null; reason: string }>;
