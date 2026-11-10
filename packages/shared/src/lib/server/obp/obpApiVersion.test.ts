@@ -11,7 +11,10 @@ const REPO_ROOT = resolve(fileURLToPath(new URL('.', import.meta.url)), '../../.
 const SOURCE_ROOTS = ['apps', 'packages'];
 const SKIP_DIRS = new Set(['node_modules', '.svelte-kit', 'build', 'dist', 'test-results', 'docs']);
 const EXTENSIONS = ['.ts', '.js', '.mjs', '.cjs', '.svelte'];
-const OLD_VERSION = /\/obp\/(v(?:[1-4])\.\d+\.\d+|v5\.0\.0)\//g;
+/** obp/vX.Y.Z in a path, with or without a leading slash, followed by anything but more of the version. */
+const OLD_VERSION = /obp\/(v(?:[1-4])\.\d+\.\d+|v5\.0\.0)(?![\d.])/g;
+/** A string literal that is only a version, as in `const API_VERSION = 'v4.0.0'`, used to build paths. */
+const OLD_VERSION_LITERAL = /['"`](v(?:[1-4])\.\d+\.\d+|v5\.0\.0)['"`]/g;
 
 /** file (repo-relative) + path fragment -> why it is still below v5.1.0 */
 const NO_V510_EQUIVALENT: Record<string, string> = {
@@ -41,7 +44,10 @@ function callsBelowV510(): string[] {
 			readFileSync(file, 'utf8')
 				.split('\n')
 				.forEach((line, i) => {
-					for (const match of line.matchAll(OLD_VERSION)) {
+					// A version-only literal in a comment documents something; it builds no path.
+					const comment = /^\s*(\/\/|\/?\*)/.test(line);
+					const literals = comment ? [] : [...line.matchAll(OLD_VERSION_LITERAL)];
+					for (const match of [...line.matchAll(OLD_VERSION), ...literals]) {
 						const allowed = Object.keys(NO_V510_EQUIVALENT).some((key) => {
 							const [keyFile, fragment] = key.split('|');
 							return keyFile === rel && line.includes(fragment);
@@ -61,6 +67,18 @@ describe('OBP-API version used by the app stack', () => {
 
 	it('calls OBP-API on v5.1.0 or newer', () => {
 		expect(callsBelowV510()).toEqual([]);
+	});
+
+	it('recognises the ways a path below v5.1.0 can be written', () => {
+		const flagged = (line: string) =>
+			[...line.matchAll(OLD_VERSION), ...line.matchAll(OLD_VERSION_LITERAL)].length > 0;
+		expect(flagged("'/obp/v4.0.0' + path")).toBe(true);
+		expect(flagged('`/obp/v4.0.0?limit=1`')).toBe(true);
+		expect(flagged('`${base}obp/v3.1.0/banks`')).toBe(true);
+		expect(flagged("const API_VERSION = 'v4.0.0';")).toBe(true);
+		expect(flagged('`/obp/v5.1.0/banks`')).toBe(false);
+		expect(flagged("const API_VERSION = 'v6.0.0';")).toBe(false);
+		expect(flagged("operation_id: 'OBPv4.0.0-getBanks'")).toBe(false);
 	});
 
 	it('keeps the list of calls without a v5.1.0 equivalent current', () => {
