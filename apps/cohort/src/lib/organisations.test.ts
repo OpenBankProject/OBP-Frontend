@@ -16,7 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 import { describe, expect, it } from 'vitest';
-import { organisationOfCustomer, organisationsQuery } from './organisations';
+import { organisationOfCustomer, organisationsFromCustomers, organisationsQuery } from './organisations';
 
 describe('organisations as Customers', () => {
 	it('reads an organisation from a Customer and its attributes', () => {
@@ -34,6 +34,17 @@ describe('organisations as Customers', () => {
 
 	it('treats an unknown or missing kind as a partner', () => {
 		expect(organisationOfCustomer({ customer_id: 'c-2', legal_name: 'X' }).kind).toBe('partner');
+	});
+
+	it('keeps only Customers whose organisation_kind is a kind staff create', () => {
+		// An OBP-API without attribute filtering returns every Customer, without attributes.
+		const kept = organisationsFromCustomers([
+			{ customer_id: 'c-1', legal_name: 'Uni', customer_attributes: [{ name: 'organisation_kind', value: 'university' }] },
+			{ customer_id: 'c-2', legal_name: 'Applicant' },
+			{ customer_id: 'c-3', legal_name: 'Startup Co', customer_attributes: [{ name: 'organisation_kind', value: 'startup' }] },
+			{ customer_id: 'c-4', legal_name: 'Other', customer_attributes: [{ name: 'organisation_kind', value: 'unknown' }] }
+		]);
+		expect(kept.map((o) => o.id)).toEqual(['c-1']);
 	});
 
 	it('lists every kind staff create, but not startups, as one parameter with comma-separated values', () => {
