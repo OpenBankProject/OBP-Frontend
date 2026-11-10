@@ -16,7 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 import { describe, expect, it } from 'vitest';
-import { organisationOfCustomer, organisationsQuery } from './organisations';
+import { organisationOfCustomer, organisationsFromCustomers, organisationsQuery } from './organisations';
 
 describe('organisations as Customers', () => {
 	it('reads an organisation from a Customer and its attributes', () => {
@@ -36,7 +36,28 @@ describe('organisations as Customers', () => {
 		expect(organisationOfCustomer({ customer_id: 'c-2', legal_name: 'X' }).kind).toBe('partner');
 	});
 
-	it('lists every kind staff create, but not startups', () => {
-		expect(organisationsQuery()).toBe('organisation_kind=bank_fi&organisation_kind=university&organisation_kind=regulator&organisation_kind=partner');
+	it('lists every Customer OBP-API returns for the query, because OBP-API filters by organisation_kind', () => {
+		// Tests that each Customer becomes one organisation, in OBP-API's order, with the kind from its attribute.
+		const listed = organisationsFromCustomers([
+			{ customer_id: 'c-1', legal_name: 'Uni', customer_attributes: [{ name: 'organisation_kind', value: 'university' }] },
+			{ customer_id: 'c-2', legal_name: 'Bank', customer_attributes: [{ name: 'organisation_kind', value: 'bank_fi' }] }
+		]);
+		expect(listed.map((o) => [o.id, o.kind])).toEqual([
+			['c-1', 'university'],
+			['c-2', 'bank_fi']
+		]);
+	});
+
+	it('does not filter the Customers a second time', () => {
+		// Tests that Cohort trusts OBP-API's answer: the query asks OBP-API for the kinds staff create, and a
+		// Customer without organisation_kind is still listed, not dropped by a second filter in Cohort.
+		const listed = organisationsFromCustomers([{ customer_id: 'c-3', legal_name: 'Other' }]);
+		expect(listed.map((o) => o.id)).toEqual(['c-3']);
+	});
+
+	it('lists every kind staff create, but not startups, as one parameter with comma-separated values', () => {
+		// Tests the query Cohort sends: one organisation_kind parameter with the four kinds, without startup.
+		// OBP-API refuses a query parameter name given twice (OBP-09016); v7.0.0 accepts several values separated by commas.
+		expect(organisationsQuery()).toBe('organisation_kind=bank_fi,university,regulator,partner');
 	});
 });

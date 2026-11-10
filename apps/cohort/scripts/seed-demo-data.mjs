@@ -340,9 +340,15 @@ for (const c of data.calls ?? []) {
 
 // Organisations: CORPORATE Customers of the space, with their kind, Arabic name and website as Customer Attributes.
 const KINDS = ['bank_fi', 'university', 'regulator', 'partner'];
-const organisations = await obp('GET', `/obp/v4.0.0/banks/${space}/customers?${KINDS.map((k) => `organisation_kind=${k}`).join('&')}`, staff.token)
-	.then((r) => r?.customers ?? [])
-	.catch(() => []);
+// Every page: OBP-API pages the list, and a page can be short before the end.
+const organisations = [];
+for (let offset = 0; offset < 10000; offset += 200) {
+	const page = await obp('GET', `/obp/v7.0.0/banks/${space}/customers?organisation_kind=${KINDS.join(',')}&limit=200&offset=${offset}`, staff.token)
+		.then((r) => r?.customers ?? [])
+		.catch(() => []);
+	if (page.length === 0) break;
+	organisations.push(...page);
+}
 for (const o of data.organisations ?? []) {
 	await step(`organisation ${o.name}`, async () => {
 		if (organisations.some((c) => c.legal_name === o.name)) return count('organisations', false);

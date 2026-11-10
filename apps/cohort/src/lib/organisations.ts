@@ -50,5 +50,18 @@ export function organisationOfCustomer(c: { customer_id?: unknown; legal_name?: 
 	};
 }
 
-/** The query listing the organisations staff created: Customers whose organisation_kind is any creatable kind. */
-export const organisationsQuery = () => CREATABLE_KINDS.map((k) => `${ORGANISATION_ATTRIBUTES.kind}=${k}`).join('&');
+type CustomerWithAttributes = Parameters<typeof organisationOfCustomer>[0];
+
+/**
+ * The organisations OBP-API returns for organisationsQuery(). OBP-API filters the Customers by their
+ * organisation_kind attribute, so Cohort shows each of them as it is.
+ */
+export function organisationsFromCustomers(customers: CustomerWithAttributes[]) {
+	return customers.map(organisationOfCustomer);
+}
+
+/**
+ * The query listing the organisations staff created: Customers whose organisation_kind is any creatable kind.
+ * One parameter with comma-separated values, as GET /obp/v7.0.0/banks/BANK_ID/customers takes them.
+ */
+export const organisationsQuery = () => `${ORGANISATION_ATTRIBUTES.kind}=${CREATABLE_KINDS.map(encodeURIComponent).join(',')}`;
