@@ -472,13 +472,11 @@
         }
 
         try {
-            const res = await fetch(proxied(api.messages(data.chatRoom.chat_room_id)), {
+            // The message id is in the path: OBP-API serves PUT .../messages/{id}, not PUT .../messages.
+            const res = await fetch(proxied(api.message(data.chatRoom.chat_room_id, editingMessageId)), {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    chat_message_id: editingMessageId,
-                    content: editContent.trim()
-                })
+                body: JSON.stringify({ content: editContent.trim() })
             });
 
             const result = await res.json();

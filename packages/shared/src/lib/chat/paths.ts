@@ -33,7 +33,11 @@ export function chatApiPaths(scope: ChatScope) {
 		rooms,
 		room,
 		messages: (id: string) => `${room(id)}/messages`,
+		/** One message: where it is edited. */
+		message,
 		participants: (id: string) => `${room(id)}/participants`,
+		/** One participant: where they are removed. */
+		participant: (roomId: string, userId: string) => `${room(roomId)}/participants/${encodeURIComponent(userId)}`,
 		joiningKey: (id: string) => `${room(id)}/joining-key`,
 		reactions: (roomId: string, messageId: string) => `${message(roomId, messageId)}/reactions`,
 		reaction: (roomId: string, messageId: string, emoji: string) => `${message(roomId, messageId)}/reactions/${encodeURIComponent(emoji)}`,
