@@ -1459,14 +1459,23 @@
   },
   {
    "verb": "DELETE",
-   "path": "/obp/v6.0.0/chat-rooms/CHAT_ROOM_ID/participants",
+   "path": "/obp/v6.0.0/chat-rooms/CHAT_ROOM_ID/participants/USER_ID",
    "source": "apps/api-manager/src/routes/(protected)/chat-rooms/[chat_room_id]/+page.svelte",
    "needles": [
-    "`/proxy/obp/v6.0.0/chat-rooms/${encodeURIComponent(chatRoomId)}/participants?user_id=${encodeURIComponent(userId)}&level=${level}${bankParam}`"
+    "`/proxy${paths.participant(chatRoomId, userId)}`"
    ],
    "reads": [],
-   "undocumented_endpoint": "OBP-API documents removing a participant only as DELETE /obp/v6.0.0/chat-rooms/CHAT_ROOM_ID/participants/USER_ID (user id in the path, also in v7.0.0); the code sends it as a query parameter instead.",
-   "note": "The user id is sent as the user_id query parameter."
+   "note": "Built by chatApiPaths (participant); the bank-level path is used for a bank's room."
+  },
+  {
+   "verb": "DELETE",
+   "path": "/obp/v6.0.0/banks/BANK_ID/chat-rooms/CHAT_ROOM_ID/participants/USER_ID",
+   "source": "apps/api-manager/src/routes/(protected)/chat-rooms/[chat_room_id]/+page.svelte",
+   "needles": [
+    "`/proxy${paths.participant(chatRoomId, userId)}`"
+   ],
+   "reads": [],
+   "note": "Built by chatApiPaths (participant); the bank-level path is used for a bank's room."
   },
   {
    "verb": "GET",
@@ -6436,13 +6445,12 @@
   },
   {
    "verb": "PUT",
-   "path": "/obp/v6.0.0/management/system-views/SYS_VIEW_ID",
+   "path": "/obp/v6.0.0/system-views/UPD_VIEW_ID",
    "source": "apps/api-manager/src/routes/backend/system-views/[view_id]/+server.ts",
    "needles": [
-    "`/obp/v6.0.0/management/system-views/${view_id}`"
+    "`/obp/v6.0.0/system-views/${encodeURIComponent(view_id)}`"
    ],
-   "reads": [],
-   "undocumented_endpoint": "OBP-API documents /obp/v6.0.0/management/system-views/SYS_VIEW_ID only for GET; PUT of a system view is documented at /obp/v6.0.0/system-views/UPD_VIEW_ID (updateSystemView)."
+   "reads": []
   },
   {
    "verb": "GET",
@@ -8917,10 +8925,10 @@
   },
   {
    "verb": "PUT",
-   "path": "/obp/v6.0.0/banks/BANK_ID/chat-rooms/CHAT_ROOM_ID/messages",
+   "path": "/obp/v6.0.0/banks/BANK_ID/chat-rooms/CHAT_ROOM_ID/messages/CHAT_MESSAGE_ID",
    "source": "packages/shared/src/lib/chat/paths.ts",
    "needles": [
-    "`${room(id)}/messages`",
+    "`${room(roomId)}/messages/${encodeURIComponent(messageId)}`",
     "`${rooms}/${encodeURIComponent(id)}`",
     "`${V}/banks/${encodeURIComponent(scope.bankId)}/chat-rooms`",
     "const V = '/obp/v6.0.0'"
@@ -8928,8 +8936,7 @@
    "reads": [
     "updated_at"
    ],
-   "undocumented_endpoint": "OBP-API documents editing a message only at PUT .../chat-rooms/CHAT_ROOM_ID/messages/CHAT_MESSAGE_ID, not at .../messages.",
-   "note": "Built by chatApiPaths; called from ChatRoomView.svelte (saveEdit), which PUTs to the messages list with chat_message_id in the body."
+   "note": "Built by chatApiPaths (message); called from ChatRoomView.svelte (saveEdit) with the new content in the body."
   },
   {
    "verb": "POST",
@@ -9130,10 +9137,10 @@
   },
   {
    "verb": "PUT",
-   "path": "/obp/v6.0.0/chat-rooms/CHAT_ROOM_ID/messages",
+   "path": "/obp/v6.0.0/chat-rooms/CHAT_ROOM_ID/messages/CHAT_MESSAGE_ID",
    "source": "packages/shared/src/lib/chat/paths.ts",
    "needles": [
-    "`${room(id)}/messages`",
+    "`${room(roomId)}/messages/${encodeURIComponent(messageId)}`",
     "`${rooms}/${encodeURIComponent(id)}`",
     "`${V}/chat-rooms`",
     "const V = '/obp/v6.0.0'"
@@ -9141,8 +9148,7 @@
    "reads": [
     "updated_at"
    ],
-   "undocumented_endpoint": "OBP-API documents editing a message only at PUT .../chat-rooms/CHAT_ROOM_ID/messages/CHAT_MESSAGE_ID, not at .../messages.",
-   "note": "Built by chatApiPaths; called from ChatRoomView.svelte (saveEdit), which PUTs to the messages list with chat_message_id in the body."
+   "note": "Built by chatApiPaths (message); called from ChatRoomView.svelte (saveEdit) with the new content in the body."
   },
   {
    "verb": "POST",

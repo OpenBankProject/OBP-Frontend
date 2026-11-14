@@ -6,7 +6,7 @@
    "git_commit": "474d4bcc554f1d8e9516e12d85be121d92410aa5"
   }
  },
- "taken_at": "2026-11-12T23:43:43Z",
+ "taken_at": "2026-11-14T13:41:42Z",
  "endpoints": [
   {
    "verb": "GET",
@@ -2222,9 +2222,19 @@
   },
   {
    "verb": "DELETE",
-   "path": "/obp/v6.0.0/chat-rooms/CHAT_ROOM_ID/participants",
+   "path": "/obp/v6.0.0/chat-rooms/CHAT_ROOM_ID/participants/USER_ID",
    "docs_from": "https://k8s.openbankproject.com",
-   "missing": true
+   "operation_id": "OBPv6.0.0-removeSystemChatRoomParticipant",
+   "documented_path": "/obp/v6.0.0/chat-rooms/CHAT_ROOM_ID/participants/USER_ID",
+   "fields": []
+  },
+  {
+   "verb": "DELETE",
+   "path": "/obp/v6.0.0/banks/BANK_ID/chat-rooms/CHAT_ROOM_ID/participants/USER_ID",
+   "docs_from": "https://k8s.openbankproject.com",
+   "operation_id": "OBPv6.0.0-removeBankChatRoomParticipant",
+   "documented_path": "/obp/v6.0.0/banks/BANK_ID/chat-rooms/CHAT_ROOM_ID/participants/USER_ID",
+   "fields": []
   },
   {
    "verb": "GET",
@@ -9896,9 +9906,29 @@
   },
   {
    "verb": "PUT",
-   "path": "/obp/v6.0.0/management/system-views/SYS_VIEW_ID",
+   "path": "/obp/v6.0.0/system-views/UPD_VIEW_ID",
    "docs_from": "https://k8s.openbankproject.com",
-   "missing": true
+   "operation_id": "OBPv6.0.0-updateSystemView",
+   "documented_path": "/obp/v6.0.0/system-views/UPD_VIEW_ID",
+   "fields": [
+    "account_id",
+    "alias",
+    "allowed_actions",
+    "allowed_actions[]",
+    "bank_id",
+    "can_grant_access_to_views",
+    "can_grant_access_to_views[]",
+    "can_revoke_access_to_views",
+    "can_revoke_access_to_views[]",
+    "description",
+    "hide_metadata_if_alias_used",
+    "is_firehose",
+    "is_public",
+    "is_system",
+    "metadata_view",
+    "view_id",
+    "view_name"
+   ]
   },
   {
    "verb": "GET",
@@ -13824,9 +13854,30 @@
   },
   {
    "verb": "PUT",
-   "path": "/obp/v6.0.0/banks/BANK_ID/chat-rooms/CHAT_ROOM_ID/messages",
+   "path": "/obp/v6.0.0/banks/BANK_ID/chat-rooms/CHAT_ROOM_ID/messages/CHAT_MESSAGE_ID",
    "docs_from": "https://k8s.openbankproject.com",
-   "missing": true
+   "operation_id": "OBPv6.0.0-editBankChatMessage",
+   "documented_path": "/obp/v6.0.0/banks/BANK_ID/chat-rooms/CHAT_ROOM_ID/messages/CHAT_MESSAGE_ID",
+   "fields": [
+    "chat_message_id",
+    "chat_room_id",
+    "content",
+    "created_at",
+    "is_deleted",
+    "mentioned_user_ids",
+    "mentioned_user_ids[]",
+    "message_type",
+    "reactions",
+    "reactions[]",
+    "reply_to_message_id",
+    "sender_consumer_id",
+    "sender_consumer_name",
+    "sender_provider",
+    "sender_user_id",
+    "sender_username",
+    "thread_id",
+    "updated_at"
+   ]
   },
   {
    "verb": "POST",
@@ -14076,9 +14127,30 @@
   },
   {
    "verb": "PUT",
-   "path": "/obp/v6.0.0/chat-rooms/CHAT_ROOM_ID/messages",
+   "path": "/obp/v6.0.0/chat-rooms/CHAT_ROOM_ID/messages/CHAT_MESSAGE_ID",
    "docs_from": "https://k8s.openbankproject.com",
-   "missing": true
+   "operation_id": "OBPv6.0.0-editSystemChatMessage",
+   "documented_path": "/obp/v6.0.0/chat-rooms/CHAT_ROOM_ID/messages/CHAT_MESSAGE_ID",
+   "fields": [
+    "chat_message_id",
+    "chat_room_id",
+    "content",
+    "created_at",
+    "is_deleted",
+    "mentioned_user_ids",
+    "mentioned_user_ids[]",
+    "message_type",
+    "reactions",
+    "reactions[]",
+    "reply_to_message_id",
+    "sender_consumer_id",
+    "sender_consumer_name",
+    "sender_provider",
+    "sender_user_id",
+    "sender_username",
+    "thread_id",
+    "updated_at"
+   ]
   },
   {
    "verb": "POST",
