@@ -71,6 +71,19 @@
 					</div>
 				</div>
 
+				{#if !consumer.enabled}
+					<div
+						class="mb-4 rounded-lg bg-warning-50 p-3 dark:bg-warning-900/20"
+						role="alert"
+						data-testid="consumer-disabled-warning-{consumer.consumer_id}"
+					>
+						<p class="text-sm text-warning-700 dark:text-warning-300">
+							This Consumer is disabled. Its key and secret will not work until an administrator enables it.
+							Ask an administrator of this API to enable Consumer ID <code>{consumer.consumer_id}</code>.
+						</p>
+					</div>
+				{/if}
+
 				<!-- Description -->
 				{#if consumer.description}
 					<p class="mb-4 text-sm text-gray-700 dark:text-gray-300">

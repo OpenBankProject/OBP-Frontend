@@ -37,7 +37,19 @@
   import { setOpeyStatusLinks } from '@obp/shared/opey';
   import { CurrentBankPicker } from '@obp/shared/components';
   import { currentBank } from "$lib/stores/currentBank.svelte";
+  import { rolesCache } from "$lib/stores/rolesCache.svelte";
+  import { setRoleRequests } from "@obp/shared/roles";
   import { userPreferences } from "$lib/stores/userPreferences.svelte";
+
+  // The shared role widgets (MissingRoleAlert and the ones built on it) use the bank chosen here, and OBP's list of
+  // Roles to tell bank Roles from system Roles. Requests go to this app's /backend/rbac/entitlement-requests.
+  setRoleRequests({
+    currentBankId: () => currentBank.bankId,
+    roleRequiresBank: async (roleName) => {
+      await rolesCache.fetchRoles();
+      return rolesCache.requiresBankId(roleName);
+    },
+  });
   import { onMount } from "svelte";
   import { invalidate } from "$app/navigation";
 
@@ -287,6 +299,12 @@
     //{ label: 'FAQs', href: '/faq', iconComponent: MessageCircleQuestion },
   ]);
 
+  // OBP-API's App Directory: every app of this OBP instance, with their status links.
+  // OBP-API's root now sends browsers to the Portal, so the directory is at /apps.
+  const appDirectoryUrl = env.PUBLIC_OBP_BASE_URL
+    ? `${env.PUBLIC_OBP_BASE_URL.replace(/\/+$/, "")}/apps`
+    : "";
+
   let footerLinks = $state([
     //{ href: '/privacy', label: 'Privacy Policy' },
     {
@@ -294,6 +312,7 @@
       label: "GitHub",
     },
     { href: "/about", label: "About" },
+    ...(appDirectoryUrl ? [{ href: appDirectoryUrl, label: "App Directory" }] : []),
   ]); //{ href: '/terms', label: 'Terms of Service' },
 
   // Default logo URL, can be overridden by PUBLIC_LOGO_URL in .env

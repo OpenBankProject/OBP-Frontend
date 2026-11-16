@@ -17,7 +17,7 @@
  */
 /**
  * Platform Apps: the apps an installation runs as part of its OBP deployment (here the Portal, the
- * API Manager and OBP-Cohort; elsewhere Opey, OBP-MCP or a bank's own services), each calling OBP as its
+ * API Manager, OBP-Cohort and OBP-Conformator; elsewhere Opey, OBP-MCP or a bank's own services), each calling OBP as its
  * own Consumer with an application token (client credentials, no User).
  *
  * The Scopes the Portal's, the API Manager's and OBP-Cohort's Consumers need are listed here (Cohort's
@@ -31,7 +31,7 @@
 import { DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID } from './dynamicEntitySpace.js';
 
 /** The Platform Apps in this repository. */
-export type PlatformApp = 'portal' | 'api-manager' | 'cohort';
+export type PlatformApp = 'portal' | 'api-manager' | 'cohort' | 'conformator';
 
 export interface RequiredConsumerScope {
 	role_name: string;
@@ -45,7 +45,7 @@ export interface RequiredConsumerScope {
 
 const SYS = DYNAMIC_ENTITY_SYSTEM_SPACE_BANK_ID;
 
-export const REQUIRED_CONSUMER_SCOPES: Record<Exclude<PlatformApp, 'cohort'>, RequiredConsumerScope[]> = {
+export const REQUIRED_CONSUMER_SCOPES: Record<Exclude<PlatformApp, 'cohort' | 'conformator'>, RequiredConsumerScope[]> = {
 	portal: [
 		{
 			role_name: 'CanGetDynamicEntityRecord_obp_portal_page',
@@ -213,6 +213,35 @@ export function compareConsumerScopes(required: RequiredConsumerScope[], held: H
 		...r,
 		held: held.some((h) => h.role_name === r.role_name && (h.bank_id ?? '') === r.bank_id)
 	}));
+}
+
+/**
+ * The Scopes OBP-Conformator's Consumer needs in its central space (its OBP_ENTITY_SPACE_ID). It needs none in
+ * participants' spaces: the regulator's administrators set those up, and staff read them, with their own Roles.
+ */
+export function conformatorRequiredConsumerScopes(space: string): RequiredConsumerScope[] {
+	return [
+		{
+			role_name: 'CanGetDynamicEntityDefinitions',
+			bank_id: space,
+			needed_for: "Checking that Conformator's dynamic entities (the test catalogue, participants and reports) exist in its central space."
+		},
+		{
+			role_name: 'CanCreateDynamicEntityDefinition',
+			bank_id: space,
+			needed_for: "Creating Conformator's dynamic entities on a new installation."
+		},
+		{
+			role_name: 'CanUpdateDynamicEntityDefinition',
+			bank_id: space,
+			needed_for: "Adding fields to Conformator's dynamic entities after an upgrade."
+		},
+		{
+			role_name: 'CanGetBankLevelDynamicEndpoint',
+			bank_id: space,
+			needed_for: 'Serving the OpenAPI document of a suite whose file was loaded into OBP as dynamic endpoints, for the runner and the test editor.'
+		}
+	];
 }
 
 /**

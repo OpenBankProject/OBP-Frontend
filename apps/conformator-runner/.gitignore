@@ -1,0 +1,10 @@
+node_modules
+dist
+.env
+.env.*
+!.env.example
+# Secrets participants give the runner: never committed
+credentials/
+dev/certs/
+dev/openid-suite/conformance-suite/
+dev/openid-suite/suite-certificate.pem

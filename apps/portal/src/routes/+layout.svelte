@@ -188,13 +188,18 @@
 			: [])
 	]);
 
+	// OBP-API's App Directory: every app of this OBP instance, with their status links.
+	// OBP-API's root now sends browsers to the Portal, so the directory is at /apps.
+	const appDirectoryUrl = env.PUBLIC_OBP_BASE_URL ? `${env.PUBLIC_OBP_BASE_URL.replace(/\/+$/, '')}/apps` : '';
+
 	let footerLinks = $state([
 		{
 			href: 'https://github.com/OpenBankProject',
 			label: 'GitHub',
 			iconLight: '/github-mark.svg',
 			iconDark: '/github-mark-white.svg'
-		}
+		},
+		...(appDirectoryUrl ? [{ href: appDirectoryUrl, label: 'App Directory' }] : [])
 	]);
 
 	// Default logo URL, can be overridden by PUBLIC_LOGO_URL in .env

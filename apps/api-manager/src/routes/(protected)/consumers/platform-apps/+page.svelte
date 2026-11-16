@@ -153,6 +153,7 @@
         class="rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
         data-testid="platform-app-{app.consumer_id}"
         data-state={app.state}
+        data-consumer-enabled={String(app.consumer_enabled)}
       >
         <div class="flex flex-wrap items-baseline justify-between gap-2 px-6 pt-5 pb-3">
           <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{app.label}</h2>
@@ -173,6 +174,17 @@
             {/if}
           </div>
         </div>
+
+        {#if !app.consumer_enabled}
+          <p
+            class="mx-6 mb-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-300"
+            role="alert"
+            data-testid="platform-app-{app.consumer_id}-consumer-disabled"
+          >
+            This Consumer is disabled, so the app cannot get a token, declare its Scopes or call OBP.
+            <a class="underline" href="/consumers/{encodeURIComponent(app.consumer_id)}/edit">Enable the Consumer</a>.
+          </p>
+        {/if}
 
         <dl class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 px-6 pb-4 text-sm text-gray-700 dark:text-gray-300">
           <dt class="font-medium">Consumer</dt>
