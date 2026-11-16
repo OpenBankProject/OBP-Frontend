@@ -1,5 +1,5 @@
 {
- "about": "Every OBP-API call that the Portal, API Manager, Cohort and the shared package make from their source code. Each entry gives the verb, the path (OBP placeholders in capitals), the source file, the text in that file that makes the call (needles) and the response fields the code reads. packages/shared/src/lib/server/obp/obpApiContract.test.ts checks this list against the source and against snapshot.json, which obp-api-contract/snapshot.py writes from an OBP-API's resource docs. not_calls lists source lines that name an OBP-API path without calling it, such as help text, example code and path helpers whose calls are listed at their callers. Not listed: calls through the generic proxy (/proxy/obp/...) whose path the browser or the route chooses at run time, records of the Dynamic Entities the apps define themselves (/obp/dynamic-entity/... and their v7.0.0 bank-level form), and dynamic endpoints. Not covered yet: the Berlin Group and UK Open Banking calls of the Portal, because snapshot.py reads only OBP resource docs.",
+ "about": "Every OBP-API call that the Portal, API Manager, Cohort and the shared package make from their source code. Each entry gives the verb, the path (OBP placeholders in capitals), the source file, the text in that file that makes the call (needles) and the response fields the code reads. packages/shared/src/lib/server/obp/obpApiContract.test.ts checks this list against the source and against snapshot.json, which obp-api-contract/snapshot.py writes from an OBP-API's resource docs. not_calls lists source lines that name an OBP-API path without calling it, such as help text, example code and path helpers whose calls are listed at their callers. Only the source of the apps and of the shared package is read (apps/*/src and packages/*/src); scripts outside src, such as apps/cohort/scripts/seed-demo-data.mjs, apps/portal/debug-oauth.cjs and apps/api-manager/verify-obp-config.cjs, are out of scope. Not listed: calls through the generic proxy (/proxy/obp/...) whose path the browser or the route chooses at run time, records of the Dynamic Entities the apps define themselves (/obp/dynamic-entity/... and their v7.0.0 bank-level form), and dynamic endpoints. Not covered yet: the Berlin Group and UK Open Banking calls of the Portal, because snapshot.py reads only OBP resource docs.",
  "calls": [
   {
    "verb": "GET",
@@ -9760,6 +9760,13 @@
    "reason": "help text in the form description given to Opey"
   },
   {
+   "source": "apps/api-manager/src/lib/components/DynamicEndpointOperationsTable.svelte",
+   "needles": [
+    "if (!url.startsWith(\"/obp/\")) {"
+   ],
+   "reason": "check on the URL typed into the try-it box; the call itself goes through the generic /proxy"
+  },
+  {
    "source": "apps/api-manager/src/lib/components/DynamicResourceDocForm.svelte",
    "needles": [
     "Read them with GET /obp/v7.0.0/management/banks/${space}/dynamic-entities before changing a name"
@@ -9793,6 +9800,13 @@
     "`${obpBaseUrl}/obp/v6.0.0`"
    ],
    "reason": "base URL constant (OBP_API_URL); the calls built on it are listed at their callers: apps/api-manager/src/routes/+layout.server.ts, apps/api-manager/src/routes/login/[provider]/callback/+server.ts, apps/api-manager/src/routes/login/obp/callback/+server.ts"
+  },
+  {
+   "source": "apps/api-manager/src/lib/server/developerFaq/faqEntity.ts",
+   "needles": [
+    "`/obp/dynamic-entity/${FAQ_ENTITY}`"
+   ],
+   "reason": "path of the records of the app-defined Dynamic Entity; the calls on it are in the backend routes that use FAQ_DATA_PATH"
   },
   {
    "source": "apps/api-manager/src/lib/server/domainApis.ts",
@@ -9877,6 +9891,27 @@
     "get: (path: string, token: string) => obp_requests.get(path, token),"
    ],
    "reason": "passes obp_requests to the shared ensureSystemDynamicEntity in packages/shared/src/lib/server/obp, which builds the paths"
+  },
+  {
+   "source": "apps/api-manager/src/lib/server/portalPages/portalPageEntity.ts",
+   "needles": [
+    "`/obp/dynamic-entity/${PORTAL_PAGE_ENTITY}`"
+   ],
+   "reason": "path of the records of the app-defined Dynamic Entity; the calls on it are in the backend routes that use PORTAL_PAGE_DATA_PATH"
+  },
+  {
+   "source": "apps/api-manager/src/lib/server/reports/reportEntity.ts",
+   "needles": [
+    "`/obp/dynamic-entity/${REPORT_ENTITY}`"
+   ],
+   "reason": "path of the records of the app-defined Dynamic Entity; the calls on it are in the backend routes that use REPORT_DATA_PATH"
+  },
+  {
+   "source": "apps/api-manager/src/lib/services/InsightService.ts",
+   "needles": [
+    "fetch('/proxy/obp/dynamic-entity/my/opey_notebook', {"
+   ],
+   "reason": "records of the app-defined personal Dynamic Entity opey_notebook, not part of OBP-API's static docs"
   },
   {
    "source": "apps/api-manager/src/lib/services/dynamicEntityWebhooks.ts",
@@ -9970,6 +10005,14 @@
     "`/obp/dynamic-entity/public/${entityName}`"
    ],
    "reason": "paths under /obp/dynamic-entity/... (records of entities the apps define)"
+  },
+  {
+   "source": "apps/api-manager/src/routes/(protected)/dynamic-entities/personal/[entityName]/+page.svelte",
+   "needles": [
+    "`/proxy/obp/dynamic-entity/my/${entityName}`,",
+    "`/proxy/obp/dynamic-entity/my/${entityName}/${recordId}`,"
+   ],
+   "reason": "records of an entity the apps define (/obp/dynamic-entity/my/...), reached through the generic /proxy"
   },
   {
    "source": "apps/api-manager/src/routes/(protected)/dynamic-entities/system/[id]/+page.svelte",
@@ -10260,6 +10303,13 @@
    "reason": "Berlin Group paths, not covered yet."
   },
   {
+   "source": "apps/portal/src/routes/(protected)/training/+page.svelte",
+   "needles": [
+    "const ENTITY_PATH = '/proxy/obp/dynamic-entity/my/training_progress';"
+   ],
+   "reason": "records of the app-defined personal Dynamic Entity training_progress, not part of OBP-API's static docs"
+  },
+  {
    "source": "apps/portal/src/routes/(protected)/uk-consent-request/+page.server.ts",
    "needles": [
     "`/open-banking/v4.0.1/aisp/account-access-consents/${consentId}`",
@@ -10364,6 +10414,13 @@
    "reason": "generic proxy pass-through helper: the App chooses the whole OBP path"
   },
   {
+   "source": "packages/shared/src/lib/components/appStudioShim.ts",
+   "needles": [
+    "return `${proxyBase}/${trimmed.slice('/obp/'.length)}`;"
+   ],
+   "reason": "turns an /obp/... path chosen at run time into a /proxy path; the path is not known here"
+  },
+  {
    "source": "packages/shared/src/lib/health-check/services/OIDCHealthCheckService.ts",
    "needles": [
     "'not available: this OBP-API has no GET /obp/v7.0.0/consumers/current/identity'"
@@ -10405,6 +10462,13 @@
     "`/obp/dynamic-entity/${SITE_PAGE_ENTITY}`"
    ],
    "reason": "app-defined Dynamic Entity records (obp_portal_page), not part of OBP-API's static docs"
+  },
+  {
+   "source": "packages/shared/src/lib/server/obp/obpProxy.ts",
+   "needles": [
+    "const prefix = options.pathPrefix ?? '/obp';"
+   ],
+   "reason": "base path of the generic proxy; the path after it is chosen by the caller at run time"
   }
  ]
 }

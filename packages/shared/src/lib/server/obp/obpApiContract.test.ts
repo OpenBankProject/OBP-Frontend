@@ -16,9 +16,21 @@ const REPO_ROOT = resolve(fileURLToPath(new URL('.', import.meta.url)), '../../.
 const CONTRACT_DIR = join(REPO_ROOT, 'obp-api-contract');
 const SOURCE_ROOTS = ['apps', 'packages'];
 const SKIP_DIRS = new Set(['node_modules', '.svelte-kit', 'build', 'dist']);
-const EXTENSIONS = ['.ts', '.js', '.svelte'];
-/** A line that builds an OBP-API path: `/obp/v6.0.0/...`, `/obp/${API_VERSION}/...` or `${OBP_API_URL}/...`. */
-const OBP_PATH = /obp\/(v\d|\$\{)|\$\{OBP_API_URL\}/;
+const EXTENSIONS = ['.ts', '.js', '.svelte', '.mjs', '.cjs', '.mts', '.cts'];
+/**
+ * A line that builds an OBP-API path: `/obp/v6.0.0/...`, `/obp/v${major}.0.0/...`, `/obp/${API_VERSION}/...`,
+ * `'/obp/' + version`, `/obp/dynamic-entity/...`, `${OBP_API_URL}/...`, `${V}/...` (V holding `/obp/v6.0.0`),
+ * `${API}/v6.0.0/...` (API holding `/obp`) or any other path with a version segment such as `/v5.1.0/`.
+ */
+const OBP_PATH = new RegExp(
+	[
+		String.raw`obp\/(v\d|v\$\{|\$\{|dynamic-entity|['"\x60])`,
+		String.raw`\$\{OBP_API_URL\}`,
+		String.raw`\$\{V\}\/`,
+		String.raw`['"\x60]\/obp['"\x60]`,
+		String.raw`\/v\d+\.\d+\.\d+(?![\d.])`
+	].join('|')
+);
 const COMMENT = /^\s*(\/\/|\*|\/\*)/;
 
 interface Call {
@@ -203,6 +215,18 @@ describe('OBP-API contract', () => {
 		expect(OBP_PATH.test('`/proxy/obp/v6.0.0/banks/${bankId}`')).toBe(true);
 		expect(OBP_PATH.test('`/obp/${API_VERSION}/banks`')).toBe(true);
 		expect(OBP_PATH.test('`${OBP_API_URL}/users/current`')).toBe(true);
-		expect(OBP_PATH.test("'/obp/dynamic-entity/my/notes'")).toBe(false);
+		// Paths assembled from pieces, and the base-path constants they are built on.
+		for (const line of [
+			'`${V}/chat-rooms/${id}/messages`',
+			'`/obp/v${major}.0.0/banks`',
+			"'/obp/' + version + '/banks'",
+			"const API = '/obp';",
+			'`${API}/v6.0.0/banks/${bankId}`',
+			"fetch('/proxy/obp/dynamic-entity/my/notes')"
+		])
+			expect(OBP_PATH.test(line), line).toBe(true);
+		for (const line of ["'/obp-oidc/.well-known/openid-configuration'", "'/api/v2/things'"])
+			expect(OBP_PATH.test(line), line).toBe(false);
+		expect(EXTENSIONS).toEqual(expect.arrayContaining(['.mjs', '.cjs', '.mts', '.cts']));
 	});
 });
