@@ -19,6 +19,7 @@
   import { enhance } from "$app/forms";
   import { invalidateAll } from "$app/navigation";
   import MissingRoleAlert from "$lib/components/MissingRoleAlert.svelte";
+  import ConsumerApiProductSubscriptions from "$lib/components/ConsumerApiProductSubscriptions.svelte";
   import { currentBank } from "$lib/stores/currentBank.svelte";
 
   import { pageDataSummary } from "$lib/stores/pageDataSummary.svelte";
@@ -650,6 +651,8 @@
     {/each}
   </div>
 </div>
+
+<ConsumerApiProductSubscriptions consumerId={consumer.consumer_id} />
 
 <!-- Scopes Section -->
 <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">

@@ -18,6 +18,7 @@
 import { obpRequests } from './obp';
 import { centralSpace } from './space';
 import { apiManagerUrl } from './appDirectory';
+import { CREATE_ORGANISATION_ROLE, GET_ORGANISATION_ROLE } from './organisations';
 import { PARTICIPANT, PARTICIPANT_DECISION, REPORT, REPORT_EVENT, REQUIREMENT, SUITE, TEST } from './entities/definitions';
 
 /** A Role the regulator's staff need, what it is for, and where: the central space, or system-wide. */
@@ -38,11 +39,15 @@ export const STAFF_ROLES: StaffRole[] = [
 	{ role_name: 'CanCreateBankLevelDynamicEndpoint', purpose: "Loading a suite's OpenAPI file into OBP as dynamic endpoints." },
 	{ role_name: `CanGetDynamicEntityRecord_${PARTICIPANT}`, purpose: 'Seeing the participant register.' },
 	{ role_name: `CanCreateDynamicEntityRecord_${PARTICIPANT}`, purpose: 'Registering participants.' },
+	{ role_name: `CanUpdateDynamicEntityRecord_${PARTICIPANT}`, purpose: 'Linking a participant to its Organisation.' },
+	{ role_name: CREATE_ORGANISATION_ROLE, purpose: "Creating a participant's Organisation: the people who take part for it." },
+	{ role_name: GET_ORGANISATION_ROLE, purpose: "Seeing a participant's Organisation and its members, to give them access to the participant's space." },
 	{ role_name: `CanGetDynamicEntityRecord_${PARTICIPANT_DECISION}`, purpose: "Seeing participants' lifecycle." },
 	{ role_name: `CanCreateDynamicEntityRecord_${PARTICIPANT_DECISION}`, purpose: 'Admitting, suspending and graduating participants.' },
 	{ role_name: `CanCreateDynamicEntityRecord_${REPORT}`, purpose: 'Issuing conformance reports.' },
 	{ role_name: `CanCreateDynamicEntityRecord_${REPORT_EVENT}`, purpose: 'Superseding and withdrawing reports.' },
-	{ role_name: 'CanCreateBank', purpose: "Creating a participant's own space.", system: true }
+	{ role_name: 'CanCreateBank', purpose: "Creating a participant's own space.", system: true },
+	{ role_name: 'CanGetAnyUser', purpose: "Finding a person by username, to name the first admin of a participant's Organisation, or to add a reviewer or approver.", system: true }
 ];
 
 /** The bank id a staff Role is held at: '' for a system Role, else the central space. */
@@ -91,9 +96,13 @@ export async function staffAccess(token: string) {
 	};
 }
 
-/** The staff Roles in a list of grants. Holding any makes the User staff for the menu; OBP-API still checks each Role. */
+/**
+ * The staff Roles at the central space in a list of grants. Holding any makes the User staff for the menu; system
+ * Roles such as CanGetAnyUser do not count on their own, as an OBP administrator may hold them for other reasons.
+ * OBP-API still checks each Role.
+ */
 export function staffRolesIn(held: Grant[]): string[] {
-	return STAFF_ROLES.filter((r) => holds(held, r.role_name, spaceOfRole(r.role_name))).map((r) => r.role_name);
+	return STAFF_ROLES.filter((r) => !r.system && holds(held, r.role_name, centralSpace())).map((r) => r.role_name);
 }
 
 /** The staff Roles the User holds, read from OBP-API. */

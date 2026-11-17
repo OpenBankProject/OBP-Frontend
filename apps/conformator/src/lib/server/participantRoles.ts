@@ -68,13 +68,20 @@ export const REVIEWER_ROLES: string[] = [...REGULATOR_READ, create(REVIEW_ASSIGN
 /** Approvers make the final decision. They cannot assess, so whoever reviews the evidence does not also approve it. */
 export const APPROVER_ROLES: string[] = [...REGULATOR_READ, create(APPROVAL)];
 
-/** The sets of Roles staff can give someone at a participant's space. */
+/**
+ * The sets of Roles at a participant's space. The participant's people get theirs from its Organisation's members
+ * (organisationAccess.ts); staff give the regulator's reviewers and approvers theirs by username.
+ */
 export const ROLE_SETS = {
 	participant: { label: "the organisation's people", roles: PARTICIPANT_MEMBER_ROLES },
 	reviewer: { label: 'a reviewer for the regulator', roles: REVIEWER_ROLES },
 	approver: { label: 'an approver for the regulator', roles: APPROVER_ROLES }
 } as const;
 export type RoleSet = keyof typeof ROLE_SETS;
+
+/** The sets staff give the regulator's own people, by username. */
+export const REGULATOR_ROLE_SETS = ['reviewer', 'approver'] as const;
+export type RegulatorRoleSet = (typeof REGULATOR_ROLE_SETS)[number];
 
 /** The Role that marks a participant's space as one the User belongs to, for their list of spaces. */
 export const MEMBER_MARKER_ROLE = get(SYSTEM);

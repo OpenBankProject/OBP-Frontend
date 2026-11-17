@@ -148,7 +148,7 @@ export function cohortRequiredConsumerScopes(space: string): RequiredConsumerSco
 		{
 			role_name: 'CanGetDynamicEntityRecord_cohort_milestone_report',
 			bank_id: space,
-			needed_for: 'Reminding startups, on its own, of milestones due or overdue (never shown to anyone).'
+			needed_for: 'Reminding startups, on its own, of milestones due or overdue, and showing a startup team the reports its members have made (never another startup\'s).'
 		},
 		{
 			role_name: 'CanGetDynamicEntityRecord_cohort_session',
@@ -158,7 +158,7 @@ export function cohortRequiredConsumerScopes(space: string): RequiredConsumerSco
 		{
 			role_name: 'CanGetDynamicEntityRecord_cohort_session_booking',
 			bank_id: space,
-			needed_for: 'Counting the seats taken on a session when a startup books (who booked is never shown).'
+			needed_for: 'Counting the seats taken on a session when a startup books, and showing a startup team its own bookings (never another startup\'s).'
 		},
 		{
 			role_name: 'CanGetDynamicEntityRecord_cohort_attendance',

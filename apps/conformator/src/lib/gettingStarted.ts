@@ -179,7 +179,7 @@ export function regulatorSteps(f: RegulatorFacts): Step[] {
 		{
 			key: 'participant',
 			title: 'Register a participant',
-			what: 'Register the bank, payment service provider or third-party provider, admit it, and set up its own space. Then add its people to the space, so they can log in and test.',
+			what: 'Register the bank, payment service provider or third-party provider, naming the first admin of its Organisation, then admit it and set up its own space. The Organisation’s members get access to the space, so they can log in and test.',
 			who: 'Staff who manage participants.',
 			href: '/staff/participants',
 			action: 'Open participants',

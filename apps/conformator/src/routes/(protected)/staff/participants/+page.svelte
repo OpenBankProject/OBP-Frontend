@@ -42,7 +42,7 @@
 {/if}
 
 <h2 class="h4 mt-8">Register a participant</h2>
-<p class="mt-1 max-w-3xl">Registering records the organisation. Admitting it and setting up its own space happen on its page.</p>
+<p class="mt-1 max-w-3xl">Registering records the organisation and creates its Organisation, with the first admin named here, who then adds the rest of its people. Admitting it and setting up its own space happen on its page.</p>
 {#if data.can.create}
 	<FormProblems problems={form?.problems} />
 	<form method="POST" action="?/register" class="mt-2 grid max-w-3xl gap-3">
@@ -55,9 +55,11 @@
 			</label>
 			<label class="label"><span>Space id (leave empty to make one from the name)</span><input class="input" name="space_id" maxlength="36" value={values.space_id ?? ''} placeholder="{data.space}-example-bank" /></label>
 		</div>
+		<label class="label"><span>Username of the first admin of its Organisation</span><input class="input" name="admin_username" required maxlength="100" value={values.admin_username ?? ''} /></label>
 		<label class="flex items-start gap-2 text-sm"><input class="checkbox mt-0.5" type="checkbox" name="is_reference" checked={values.is_reference === 'on'} /> <span>This is the OBP sandbox itself: the reference that suites are run against before participants use them.</span></label>
 		<div><button class="btn preset-filled" data-testid="participant-register">Register</button></div>
 	</form>
 {:else}
-	<div class="mt-2"><MissingRoleAlert roles={[data.roles.create]} bankId={data.space || undefined} /></div>
+	<div class="mt-2"><MissingRoleAlert roles={data.roles.create} bankId={data.space || undefined} /></div>
+	<div class="mt-2"><MissingRoleAlert roles={[data.roles.findUser]} bankId={undefined} /></div>
 {/if}

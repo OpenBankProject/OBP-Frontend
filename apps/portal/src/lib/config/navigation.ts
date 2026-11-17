@@ -35,7 +35,7 @@ function buildMyAccountItems(): NavigationItem[] {
     ];
 
     // The Portal's own subscriptions page (apply for / cancel API Product Subscriptions).
-    // It also links to the external billing service when PUBLIC_SUBSCRIPTIONS_URL is set.
+    // For products billed through Stripe it links to OBP-Stripe (PUBLIC_SUBSCRIPTIONS_URL) to pay or manage billing.
     items.push({
         href: '/subscriptions',
         label: 'Subscriptions',

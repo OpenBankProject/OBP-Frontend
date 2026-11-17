@@ -25,6 +25,8 @@
     logErrorDetails,
   } from "$lib/utils/errorHandler";
   import { trackedFetch } from "$lib/utils/trackedFetch";
+  import ApiProductSubscriptionsPanel from "$lib/components/ApiProductSubscriptionsPanel.svelte";
+  import { productIsSelfSubscribe } from "$lib/utils/apiProductSubscriptions";
 
   const bankId = $page.params.bank_id!;
   const productCode = $page.params.product_code!;
@@ -414,6 +416,12 @@
         </div>
       </div>
     {/if}
+
+    <ApiProductSubscriptionsPanel
+      {bankId}
+      {productCode}
+      selfSubscribe={productIsSelfSubscribe(product.attributes)}
+    />
 
     <!-- Fees -->
     {#if product.fees && product.fees.length > 0}

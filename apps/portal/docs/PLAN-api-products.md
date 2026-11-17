@@ -2,7 +2,15 @@
 
 **Status:** Planning Phase
 **Created:** 2026-02-05
-**Last Updated:** 2026-02-05
+**Last Updated:** 2026-11-17
+
+> **Superseded for checkout and orders.** Subscribing now follows OBP-API's
+> `docs/API_PRODUCT_SUBSCRIPTION_PLAN.md`: the Portal's `/subscriptions` page creates an API Product
+> Subscription (v7.0.0). For a product whose `BILLING_SYSTEM` is `stripe`, it then sends the user to
+> OBP-Stripe at `{PUBLIC_SUBSCRIPTIONS_URL}/checkout?api_product_subscription_id=...`. OBP-Stripe takes the
+> payment and makes the subscription active. The old `/checkout/[product_code]` route, the account
+> application step and `STRIPE_CHECKOUT_URL` have been removed. Sections 4.3, 4.4, 5 and Phases 3 to 5 below
+> describe that earlier design and are kept only as history.
 
 ## 1. Overview
 
@@ -129,7 +137,7 @@ When subscription is active, OBP-Stripe webhooks provision:
 | `/products/[product_code]` | Product detail page | No |
 | `/user/orders` | Customer's orders/subscriptions | Yes |
 | `/user/orders/[order_id]` | Order detail/status | Yes |
-| `/checkout/[product_code]` | Checkout flow (Stripe redirect) | Yes |
+| `/subscriptions` | Subscribe a consumer to an API product; pay or manage billing in OBP-Stripe | Yes |
 
 ### 4.2 `/products` Page Implementation
 
@@ -322,10 +330,9 @@ src/
 │   │   └── [product_code]/
 │   │       ├── +page.server.ts   # Load single product
 │   │       └── +page.svelte      # Product detail
-│   ├── checkout/
-│   │   └── [product_code]/
-│   │       ├── +page.server.ts   # Create order, redirect to Stripe
-│   │       └── +page.svelte      # Loading/redirect UI
+│   ├── subscriptions/
+│   │   ├── +page.server.ts       # Create the subscription, redirect to OBP-Stripe checkout
+│   │   └── +page.svelte          # Apply form and the user's subscriptions
 │   └── (protected)/
 │       └── user/
 │           └── orders/

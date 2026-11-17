@@ -177,6 +177,16 @@ export const SITE_MAP: Record<string, PageRoleConfig> = {
   "/products/collections": {
     required: [],
   },
+  // The Subscriptions section; OBP-API checks each Role at the product's bank.
+  "/products/[bank_id]/[product_code]": {
+    required: [],
+    optional: [
+      { role: "CanGetApiProductSubscriptionAtOneBank", bankScoped: true },
+      { role: "CanUpdateApiProductSubscriptionStatusAtOneBank", bankScoped: true },
+      { role: "CanCreateApiProductSubscriptionAtOneBank", bankScoped: true },
+      { role: "CanDeleteApiProductSubscriptionAtOneBank", bankScoped: true },
+    ],
+  },
   "/products/bootstrap": {
     required: [{ role: "CanUpdateApiProduct", bankScoped: true }],
     optional: [{ role: "CanDeleteApiProduct", bankScoped: true }],

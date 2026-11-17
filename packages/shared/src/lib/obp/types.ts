@@ -228,7 +228,6 @@ export interface OBPProductCollection {
 export interface APIProductDetails {
     product: OBPProduct;
     apiCollectionId?: string;
-    stripePriceId?: string;
     category?: string;
     rateLimitPerSecond?: number;
     rateLimitPerMinute?: number;

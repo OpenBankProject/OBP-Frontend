@@ -146,6 +146,7 @@ export const participantEntity = entity(
 		space_id: text('conformator-example-bank', "The bank id of the participant's own space.", 64, 1),
 		customer_id: id('', 'The CORPORATE Customer for the organisation, once created.'),
 		consumer_id: id('', "The participant's sandbox Consumer, once registered."),
+		organisation_id: id('', "The participant's Organisation in OBP-API: its people, whose members get the participant's Roles in its space."),
 		is_reference: boolean(false, 'Whether this is the OBP sandbox itself, which suites are run against before participants use them.')
 	}
 );

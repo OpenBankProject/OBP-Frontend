@@ -24,6 +24,7 @@ import { fields } from '$lib/server/forms';
 import { roleCheck } from '$lib/server/staffAccess';
 import { centralSpace, isSpaceId, proposedParticipantSpace } from '$lib/server/space';
 import { currentStage } from '$lib/participants';
+import { CREATE_ORGANISATION_ROLE, createOrganisation, userIdByUsername, type Organisation } from '$lib/server/organisations';
 import type { Actions, PageServerLoad } from './$types';
 
 const GET_ROLE = `CanGetDynamicEntityRecord_${PARTICIPANT}`;
@@ -57,32 +58,56 @@ export const load: PageServerLoad = async ({ locals }) => {
 		participants,
 		problem,
 		categories: PARTICIPANT_CATEGORIES,
-		can: { read: can(GET_ROLE), create: can(CREATE_ROLE), readStages: can(GET_DECISIONS_ROLE) },
-		roles: { read: GET_ROLE, create: CREATE_ROLE, readStages: GET_DECISIONS_ROLE },
+		can: {
+			read: can(GET_ROLE),
+			// Registering also creates the participant's Organisation, naming its first admin found by username.
+			create: can(CREATE_ROLE) && can(CREATE_ORGANISATION_ROLE) && can('CanGetAnyUser', ''),
+			readStages: can(GET_DECISIONS_ROLE)
+		},
+		roles: { read: GET_ROLE, create: [CREATE_ROLE, CREATE_ORGANISATION_ROLE], findUser: 'CanGetAnyUser', readStages: GET_DECISIONS_ROLE },
 		space: centralSpace()
 	};
 };
 
 export const actions: Actions = {
 	register: async ({ locals, request }) => {
+		const token = userToken(locals)!;
 		const form = await request.formData();
 		const { text, problems } = fields(form);
 		const legalName = text('legal_name', 'The legal name', { required: true, max: 255 });
+		const adminUsername = text('admin_username', "The username of the Organisation's first admin", { required: true, max: 100 });
 		const body = {
 			legal_name: legalName,
 			category: text('category', 'The category', { required: true }),
 			space_id: text('space_id', 'The space id', { max: 36 }).toLowerCase() || proposedParticipantSpace(legalName),
 			is_reference: form.get('is_reference') === 'on'
 		};
+		const values = { ...body, admin_username: adminUsername };
 		if (!isOneOf(PARTICIPANT_CATEGORIES, body.category)) problems.push('Choose the kind of organisation.');
 		if (!isSpaceId(body.space_id)) problems.push('The space id may use only lower-case letters, digits and hyphens, up to 36 characters.');
 		if (body.space_id === centralSpace()) problems.push('A participant cannot use the central space.');
-		if (problems.length) return fail(400, { problems, values: body });
+		if (problems.length) return fail(400, { problems, values });
+
+		let adminUserId: string;
+		try {
+			adminUserId = await userIdByUsername(adminUsername, token);
+		} catch (err) {
+			return fail(400, { problems: [`The User ${adminUsername} could not be found: ${messageOf(err)}`], values });
+		}
+		let organisation: Organisation;
+		try {
+			organisation = await createOrganisation(legalName, adminUserId, token);
+		} catch (err) {
+			return fail(400, { problems: [`The Organisation could not be created: ${messageOf(err)}`], values });
+		}
 		let created;
 		try {
-			created = await createRecord(PARTICIPANT, body, userToken(locals)!);
+			created = await createRecord(PARTICIPANT, { ...body, organisation_id: organisation.organisation_id }, token);
 		} catch (err) {
-			return fail(400, { problems: [messageOf(err)], values: body });
+			return fail(400, {
+				problems: [`The Organisation ${organisation.organisation_id} was created, but the participant could not be registered: ${messageOf(err)}`],
+				values
+			});
 		}
 		redirect(303, `/staff/participants/${encodeURIComponent(idOf(PARTICIPANT, created))}`);
 	}

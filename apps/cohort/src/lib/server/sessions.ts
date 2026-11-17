@@ -26,7 +26,7 @@ const logger = createLogger('CohortSessions');
 /**
  * Reading sessions, bookings and attendance. Staff read them with their own Roles. For a startup, Cohort reads them
  * with its Scopes and narrows them on the server: the sessions of the startup's own programmes, the number of seats
- * taken on each (never who took them), and the startup's own attendance.
+ * taken on each (never who took them), the bookings its own team made, and its own attendance.
  */
 
 export function bookingOf(r: CohortRecord): Booking {
@@ -75,6 +75,14 @@ export const seatsTaken = () =>
 			return counts;
 		},
 		new Map<string, number>()
+	);
+
+/** The bookings made for these participants (the startup's own, by anyone in its team), read as Cohort. */
+export const bookingsOfParticipants = (participantIds: string[]) =>
+	asCohort(
+		'session bookings',
+		async (token) => (await listRecords(SESSION_BOOKING, 'community', token)).map(bookingOf).filter((b) => participantIds.includes(b.participant_id)),
+		[] as Booking[]
 	);
 
 /** The attendance of these participants (the startup's own), read as Cohort. */

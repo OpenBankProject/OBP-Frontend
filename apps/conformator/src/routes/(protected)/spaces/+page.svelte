@@ -13,7 +13,7 @@
 
 <h1 class="h2">Your organisation</h1>
 {#if data.spaces.length === 0}
-	<p class="mt-4 max-w-3xl">You are not a member of any participant yet. The regulator gives your organisation's people access once it is admitted. Ask them to add you.</p>
+	<p class="mt-4 max-w-3xl">You are not a member of any participant yet. Once the regulator has admitted your organisation, the members of its Organisation in OBP get access here. Ask one of its admins to add you.</p>
 {:else}
 	<ul class="mt-4 flex flex-col gap-2" data-testid="my-spaces">
 		{#each data.spaces as space (space.id)}

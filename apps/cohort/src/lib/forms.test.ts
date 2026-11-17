@@ -16,7 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 import { describe, expect, it } from 'vitest';
-import { answerText, entityNameFor, formOf, growthProblem, keyFor, missingAnswers, parseOptions, parseQuestions, readAnswers, summarise, type Question } from './forms';
+import { answerText, entityNameFor, formOf, growthProblem, keyFor, missingAnswers, newestPerSubject, parseOptions, parseQuestions, readAnswers, summarise, type Question } from './forms';
 
 const funding: Question = { key: 'funding_raised', kind: 'number', label: 'Funding raised', label_ar: 'التمويل المحصّل', required: true, published: true };
 const round: Question = { key: 'round', kind: 'select', label: 'Round', label_ar: 'الجولة', options: [{ en: 'Seed', ar: 'تمويل أولي' }, { en: 'Series A', ar: 'الجولة أ' }] };
@@ -115,5 +115,17 @@ describe('summarise', () => {
 		expect(r).toMatchObject({ answered: 3, counts: [{ label: 'Seed', count: 2 }, { label: 'Series A', count: 1 }] });
 		expect(p).toMatchObject({ answered: 2, counts: [{ label: '✓', count: 1 }, { label: '—', count: 1 }] });
 		expect(n).toMatchObject({ answered: 1, answers: ['Good'] });
+	});
+});
+
+describe('newestPerSubject', () => {
+	it("keeps one answer per startup, the newest, so a team's answer and older personal ones count once", () => {
+		const kept = newestPerSubject([
+			{ answers_id: 'personal-1', subject_id: 'p1', submitted_at: '2027-03-01T09:00:00Z' },
+			{ answers_id: 'team', subject_id: 'p1', submitted_at: '2027-04-01T09:00:00Z' },
+			{ answers_id: 'personal-2', subject_id: 'p1', submitted_at: '2027-03-15T09:00:00Z' },
+			{ answers_id: 'other', subject_id: 'p2', submitted_at: '2027-03-02T09:00:00Z' }
+		]);
+		expect(kept.map((k) => k.answers_id).sort()).toEqual(['other', 'team']);
 	});
 });

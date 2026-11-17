@@ -10,7 +10,7 @@ Read [DESIGN_DECISIONS.md](DESIGN_DECISIONS.md) before changing anything.
 
 - Login through OBP-API's OIDC providers, and the setup page (`/setup`, a login but no Role needed): the central space, the Consumer's Scopes and the dynamic entities.
 - The test catalogue: requirements, versioned suites and their tests, with the test definition format checked as you save. Drafts are approved, then frozen; a change is a new version. The catalogue is public at `/catalogue`.
-- The participant register: registering, the lifecycle (admitted to exited), and setting up each participant's own space with its dynamic entities and the runner's Scopes there. Staff add the organisation's people to its space.
+- The participant register: registering, the lifecycle (admitted to exited), and setting up each participant's own space with its dynamic entities and the runner's Scopes there. Each participant's people are an Organisation in OBP-API, created when the participant is registered, with its first admin named; its members get access to its space, and staff bring that access in line with the members.
 - For participants (`/spaces`): their systems, starting a run against an approved suite, and each run's results, with the summary, what was expected and what happened, and the requests and responses. The run page updates itself until the run ends.
 - The runner, in `apps/conformator-runner`, which carries out the runs.
 - Review: a participant submits a finished run, adds evidence (with files) for evidence and control tests, asks for waivers and appeals results or decisions. The regulator's reviewers (`/reviews`) assess tests and decide waivers and appeals; an approver, who cannot also assess, makes the final decision.
@@ -47,14 +47,14 @@ Then, as an administrator:
 
 The reference is the OBP sandbox itself, registered as a participant, so a suite can be run against it before participants use it.
 
-1. On Participants, register "OBP sandbox" with "This is the OBP sandbox itself" ticked. Admit it and set up its space.
-2. Add yourself to its space as one of the organisation's people, then add a system in Your organisation: an API provider whose base URL is OBP-API's (`http://localhost:8080` on a laptop), whose discovery URL is OBP-OIDC's (`http://localhost:9000/obp-oidc/.well-known/openid-configuration`), and whose API profile is the OBP API version it serves, such as `UKv3.1`. For a loaded file with mock answers, use OBP-API's `/obp/dynamic-endpoint` as the base URL and the set's id as the API profile.
+1. On Participants, register "OBP sandbox" with "This is the OBP sandbox itself" ticked, and yourself as the first admin of its Organisation. Admit it and set up its space, which gives you access to it.
+2. Add a system in Your organisation: an API provider whose base URL is OBP-API's (`http://localhost:8080` on a laptop), whose discovery URL is OBP-OIDC's (`http://localhost:9000/obp-oidc/.well-known/openid-configuration`), and whose API profile is the OBP API version it serves, such as `UKv3.1`. For a loaded file with mock answers, use OBP-API's `/obp/dynamic-endpoint` as the base URL and the set's id as the API profile.
 3. In the runner's credentials folder, give that system a `secrets.json` with the runner's own OIDC client (`client_id`, `client_secret`) and a test user's OBP token as `customer_access_token`. The client id stays there, never in a record people see.
 
 ### Trying it end to end
 
 1. On `/staff/example-data`, add the example suite.
-2. Register a participant, admit it and set up its space on its page. Add yourself as one of the organisation's people, and someone else (or a second account) as a reviewer and as an approver.
+2. Register a participant, with yourself as the first admin of its Organisation, then admit it and set up its space on its page. Add someone else (or a second account) as a reviewer and as an approver.
 3. In Your organisation, add a system. Then in `apps/conformator-runner`, run `dev/make-dev-certs.sh <system id>` and `node dev/fake-bank.mjs`, and give the system the base URL, discovery URL and client id the script prints.
 4. Start a run of the example suite. Submit it, add evidence for the two evidence tests, and review and approve it with the other accounts. The report is then public at `/reports/<reference>`.
 

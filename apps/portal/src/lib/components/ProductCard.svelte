@@ -164,14 +164,14 @@
         {#if showSubscribeButton}
             {#if isLoggedIn}
                 <a
-                    href="/subscriptions?api_product_code={product.product.product_code}"
+                    href={`/subscriptions?bank_id=${encodeURIComponent(product.product.bank_id)}&api_product_code=${encodeURIComponent(product.product.product_code)}`}
                     class="btn preset-filled-primary-500 w-full text-center"
                 >
                     Subscribe
                 </a>
             {:else}
                 <a
-                    href="/login?redirect=/subscriptions?api_product_code={product.product.product_code}"
+                    href={`/login?redirect=${encodeURIComponent(`/subscriptions?bank_id=${encodeURIComponent(product.product.bank_id)}&api_product_code=${encodeURIComponent(product.product.product_code)}`)}`}
                     class="btn preset-outlined-primary-500 w-full text-center"
                 >
                     Sign in to Subscribe

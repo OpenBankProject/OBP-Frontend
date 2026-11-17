@@ -27,6 +27,8 @@ import { participantOf } from '$lib/server/participants';
 import { attendanceOf } from '$lib/server/sessions';
 import { createRecord, idOf, listRecords, updateRecord, userToken, type CohortRecord } from '$lib/server/records';
 import { staffAccess } from '$lib/server/staffAccess';
+import { teamForStaff, teamMembersForStaff } from '$lib/server/teams';
+import type { OrganisationMember } from '$lib/teams';
 import { requestRole, write } from '$lib/server/staffRecords';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -35,7 +37,8 @@ const ROLES = {
 	reports: `CanGetDynamicEntityRecord_${MILESTONE_REPORT}`,
 	reviews: `CanGetDynamicEntityRecord_${MILESTONE_REVIEW}`,
 	advance: `CanUpdateDynamicEntityRecord_${PARTICIPANT}`,
-	history: `CanCreateDynamicEntityRecord_${STAGE_CHANGE}`
+	history: `CanCreateDynamicEntityRecord_${STAGE_CHANGE}`,
+	team: 'CanGetOrganisationAtOneBank'
 };
 
 /** Each participant with its progress and the gate to its next stage, read with the staff member's own Roles. */
@@ -74,18 +77,41 @@ async function participantsWithGates(token: string) {
 	});
 }
 
+/**
+ * The team of each participant that has one: its name and members, read with the staff member's own
+ * CanGetOrganisationAtOneBank Role at SYS, where founders' teams are. A team that cannot be read shows its id only.
+ */
+async function staffTeams(rows: { organisation_id: string }[], token: string) {
+	const teamIds = [...new Set(rows.map((row) => row.organisation_id).filter(Boolean))];
+	return new Map(
+		await Promise.all(
+			teamIds.map(async (organisationId) => {
+				const [team, members] = await Promise.all([
+					teamForStaff(organisationId, token).catch(() => null),
+					teamMembersForStaff(organisationId, token).catch(() => null)
+				]);
+				return [organisationId, { name: team?.name ?? '', members }] as const;
+			})
+		)
+	);
+}
+
 export const load: PageServerLoad = async ({ locals }) => {
 	const token = userToken(locals)!;
 	const access = await staffAccess(token).catch(() => null);
 	const roles = access?.roles ?? [];
 	const lacking = Object.fromEntries(Object.entries(ROLES).map(([k, name]) => [k, roles.find((r) => r.role_name === name && !r.held) ?? null]));
 	const base = { space: access?.space ?? '', entitlementRequestsUrl: access?.entitlementRequestsUrl ?? null, lacking };
-	if (lacking.read) return { ...base, participants: [], error: null };
+	if (lacking.read) return { ...base, participants: [], teamChoices: [], error: null };
 	try {
-		const participants = (await participantsWithGates(token)).map((p) => p.row).sort((a, b) => b.joined_at.localeCompare(a.joined_at));
-		return { ...base, participants, error: null };
+		const rows = (await participantsWithGates(token)).map((p) => p.row).sort((a, b) => b.joined_at.localeCompare(a.joined_at));
+		const teams = lacking.team ? new Map<string, { name: string; members: OrganisationMember[] | null }>() : await staffTeams(rows, token);
+		const participants = rows.map((row) => ({ ...row, team: teams.get(row.organisation_id) ?? null }));
+		// The teams already in this programme, to choose from when correcting a participant's team; any other is pasted by id.
+		const teamChoices = [...teams.entries()].map(([organisationId, team]) => ({ organisation_id: organisationId, name: team.name })).sort((a, b) => a.name.localeCompare(b.name));
+		return { ...base, participants, teamChoices, error: null };
 	} catch (err) {
-		return { ...base, participants: [], error: messageOf(err) };
+		return { ...base, participants: [], teamChoices: [], error: messageOf(err) };
 	}
 };
 
@@ -151,6 +177,29 @@ export const actions: Actions = {
 			}).filter(([key, value]) => key !== `${PARTICIPANT}_id` && value !== null && value !== undefined && (value !== '' || key === 'risk_note'))
 		);
 		return write('flag', () => updateRecord(PARTICIPANT, '', participantId, updated, token), { flagged: risk });
+	},
+	/**
+	 * Set or correct a startup's team, or clear it, with the staff member's own Roles. The team must exist. An id
+	 * typed in wins over the list.
+	 */
+	team: async ({ locals, request }) => {
+		const token = userToken(locals)!;
+		const form = await request.formData();
+		const participantId = String(form.get('participant_id') ?? '');
+		const organisationId = String(form.get('organisation_id_typed') ?? '').trim() || String(form.get('organisation_id') ?? '').trim();
+		const record = (await listRecords(PARTICIPANT, '', token).catch(() => [])).find((r) => idOf(PARTICIPANT, r) === participantId);
+		if (!record) return fail(400, { form: 'team', error: 'invalid' });
+		if (organisationId) {
+			const team = await teamForStaff(organisationId, token).catch(() => null);
+			if (!team?.organisation_id) return fail(400, { form: 'team', error: 'team_unknown' });
+		}
+		// A PUT replaces the record, so leaving organisation_id out clears it.
+		const updated: CohortRecord = Object.fromEntries(
+			Object.entries({ ...record, organisation_id: organisationId }).filter(
+				([key, value]) => key !== `${PARTICIPANT}_id` && value !== '' && value !== null && value !== undefined
+			)
+		);
+		return write('team', () => updateRecord(PARTICIPANT, '', participantId, updated, token), { teamSet: true });
 	},
 	requestRole: async ({ locals, request }) => requestRole(await request.formData(), userToken(locals)!)
 };

@@ -26,6 +26,7 @@ data:
   # External Links
   PUBLIC_API_EXPLORER_URL: "https://apiexplorer.example.com"
   PUBLIC_API_MANAGER_URL: "https://apimanager.example.com"
+  # Base URL of OBP-Stripe (card payment for API products billed through Stripe)
   PUBLIC_SUBSCRIPTIONS_URL: "https://subscriptions.example.com"
   
   # UI Customization
