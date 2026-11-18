@@ -12,6 +12,80 @@
    "note": "Registered as the 'OBP API (REST)' health check; the shared HealthCheckService GETs the URL and only looks at the HTTP status."
   },
   {
+   "verb": "GET",
+   "path": "/obp/v7.0.0/banks/BANK_ID/api-products/API_PRODUCT_CODE/subscriptions",
+   "source": "apps/api-manager/src/lib/components/ApiProductSubscriptionsPanel.svelte",
+   "needles": [
+    "`/proxy/obp/${SUBSCRIPTIONS_API_VERSION}/banks/${encodeURIComponent(bankId)}/api-products/${encodeURIComponent(productCode)}/subscriptions`"
+   ],
+   "reads": [
+    "api_product_subscriptions[].created_at",
+    "api_product_subscriptions[].api_product_subscription_id",
+    "api_product_subscriptions[].consumer_id",
+    "api_product_subscriptions[].status",
+    "api_product_subscriptions[].start_date",
+    "api_product_subscriptions[].end_date",
+    "api_product_subscriptions[].created_by_user_id",
+    "api_product_subscriptions[].attributes[].api_product_subscription_attribute_id",
+    "api_product_subscriptions[].attributes[].name",
+    "api_product_subscriptions[].attributes[].value"
+   ],
+   "undocumented_fields": [
+    "api_product_subscriptions[].end_date"
+   ],
+   "note": "The list is read through the Proxy; subscriptionsPath is also the path of the POST that enrols a consumer. end_date is shown for an open-ended subscription as \"Open-ended\"; the v7.0.0 docs do not list it because their example leaves it empty (OBP-API returns it when set: ApiProductSubscriptionJsonV700.end_date)."
+  },
+  {
+   "verb": "POST",
+   "path": "/obp/v7.0.0/banks/BANK_ID/api-products/API_PRODUCT_CODE/subscriptions",
+   "source": "apps/api-manager/src/lib/components/ApiProductSubscriptionsPanel.svelte",
+   "needles": [
+    "`/proxy/obp/${SUBSCRIPTIONS_API_VERSION}/banks/${encodeURIComponent(bankId)}/api-products/${encodeURIComponent(productCode)}/subscriptions`"
+   ],
+   "reads": [
+    "status"
+   ],
+   "note": "Enrols a consumer; only the status of the new subscription is read."
+  },
+  {
+   "verb": "PUT",
+   "path": "/obp/v7.0.0/management/api-product-subscriptions/API_PRODUCT_SUBSCRIPTION_ID/status",
+   "source": "apps/api-manager/src/lib/components/ApiProductSubscriptionsPanel.svelte",
+   "needles": [
+    "`/proxy/obp/${SUBSCRIPTIONS_API_VERSION}/management/api-product-subscriptions/${encodeURIComponent(subscription.api_product_subscription_id)}/status`"
+   ],
+   "reads": []
+  },
+  {
+   "verb": "DELETE",
+   "path": "/obp/v7.0.0/management/api-product-subscriptions/API_PRODUCT_SUBSCRIPTION_ID",
+   "source": "apps/api-manager/src/lib/components/ApiProductSubscriptionsPanel.svelte",
+   "needles": [
+    "`/proxy/obp/${SUBSCRIPTIONS_API_VERSION}/management/api-product-subscriptions/${encodeURIComponent(subscription.api_product_subscription_id)}`,"
+   ],
+   "reads": []
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v7.0.0/management/consumers/CONSUMER_ID/api-product-subscriptions",
+   "source": "apps/api-manager/src/lib/components/ConsumerApiProductSubscriptions.svelte",
+   "needles": [
+    "`/proxy/obp/${SUBSCRIPTIONS_API_VERSION}/management/consumers/${encodeURIComponent(consumerId)}/api-product-subscriptions`"
+   ],
+   "reads": [
+    "api_product_subscriptions[].created_at",
+    "api_product_subscriptions[].bank_id",
+    "api_product_subscriptions[].api_product_code",
+    "api_product_subscriptions[].status",
+    "api_product_subscriptions[].start_date",
+    "api_product_subscriptions[].end_date"
+   ],
+   "undocumented_fields": [
+    "api_product_subscriptions[].end_date"
+   ],
+   "note": "end_date is shown for an open-ended subscription as \"Open-ended\"; the v7.0.0 docs do not list it because their example leaves it empty (OBP-API returns it when set: ApiProductSubscriptionJsonV700.end_date)."
+  },
+  {
    "verb": "POST",
    "path": "/obp/v5.1.0/management/banks/BANK_ID/endpoint-mappings",
    "source": "apps/api-manager/src/lib/components/DynamicEndpointOperationsTable.svelte",
@@ -6930,6 +7004,117 @@
   },
   {
    "verb": "GET",
+   "path": "/obp/v7.0.0/my/organisations",
+   "source": "apps/cohort/src/lib/server/teams.ts",
+   "needles": [
+    "obpRequests.get(MY, userToken)",
+    "const MY = '/obp/v7.0.0/my/organisations';"
+   ],
+   "reads": [
+    "organisations[].organisation_id",
+    "organisations[].bank_id",
+    "organisations[].name",
+    "organisations[].status",
+    "organisations[].member_role"
+   ],
+   "undocumented_endpoint": "The OBP-API whose resource docs the snapshot is taken from does not document the Organisation endpoints."
+  },
+  {
+   "verb": "POST",
+   "path": "/obp/v7.0.0/my/organisations",
+   "source": "apps/cohort/src/lib/server/teams.ts",
+   "needles": [
+    "obpRequests.post(MY, { name: details.name,",
+    "const MY = '/obp/v7.0.0/my/organisations';"
+   ],
+   "reads": [
+    "organisation_id"
+   ],
+   "undocumented_endpoint": "The OBP-API whose resource docs the snapshot is taken from does not document the Organisation endpoints."
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v7.0.0/my/organisations/ORGANISATION_ID/members",
+   "source": "apps/cohort/src/lib/server/teams.ts",
+   "needles": [
+    "obpRequests.get(`${organisationPath(organisationId)}/members`, userToken)",
+    "const organisationPath = (organisationId: string) => `${MY}/${encodeURIComponent(organisationId)}`;",
+    "const MY = '/obp/v7.0.0/my/organisations';"
+   ],
+   "reads": [
+    "members[].user_id",
+    "members[].username",
+    "members[].member_role"
+   ],
+   "undocumented_endpoint": "The OBP-API whose resource docs the snapshot is taken from does not document the Organisation endpoints."
+  },
+  {
+   "verb": "POST",
+   "path": "/obp/v7.0.0/my/organisations/ORGANISATION_ID/members",
+   "source": "apps/cohort/src/lib/server/teams.ts",
+   "needles": [
+    "obpRequests.post(`${organisationPath(organisationId)}/members`, { user_id: memberUserId, member_role: memberRole }, userToken)",
+    "const MY = '/obp/v7.0.0/my/organisations';"
+   ],
+   "reads": [],
+   "undocumented_endpoint": "The OBP-API whose resource docs the snapshot is taken from does not document the Organisation endpoints."
+  },
+  {
+   "verb": "PUT",
+   "path": "/obp/v7.0.0/my/organisations/ORGANISATION_ID/members/USER_ID",
+   "source": "apps/cohort/src/lib/server/teams.ts",
+   "needles": [
+    "obpRequests.put(memberPath(organisationId, memberUserId), { member_role: memberRole }, userToken)",
+    "const memberPath = (organisationId: string, memberUserId: string) => `${organisationPath(organisationId)}/members/${encodeURIComponent(memberUserId)}`;",
+    "const MY = '/obp/v7.0.0/my/organisations';"
+   ],
+   "reads": [],
+   "undocumented_endpoint": "The OBP-API whose resource docs the snapshot is taken from does not document the Organisation endpoints."
+  },
+  {
+   "verb": "DELETE",
+   "path": "/obp/v7.0.0/my/organisations/ORGANISATION_ID/members/USER_ID",
+   "source": "apps/cohort/src/lib/server/teams.ts",
+   "needles": [
+    "obpRequests.delete(memberPath(organisationId, memberUserId), userToken)",
+    "const memberPath = (organisationId: string, memberUserId: string) => `${organisationPath(organisationId)}/members/${encodeURIComponent(memberUserId)}`;",
+    "const MY = '/obp/v7.0.0/my/organisations';"
+   ],
+   "reads": [],
+   "undocumented_endpoint": "The OBP-API whose resource docs the snapshot is taken from does not document the Organisation endpoints."
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v7.0.0/management/organisations/ORGANISATION_ID",
+   "source": "apps/cohort/src/lib/server/teams.ts",
+   "needles": [
+    "obpRequests.get(`${MANAGEMENT}/${encodeURIComponent(organisationId)}`, staffToken)",
+    "const MANAGEMENT = '/obp/v7.0.0/management/organisations';"
+   ],
+   "reads": [
+    "organisation_id",
+    "bank_id",
+    "name"
+   ],
+   "undocumented_endpoint": "The OBP-API whose resource docs the snapshot is taken from does not document the Organisation endpoints."
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v7.0.0/management/organisations/ORGANISATION_ID/members",
+   "source": "apps/cohort/src/lib/server/teams.ts",
+   "needles": [
+    "obpRequests.get(`${MANAGEMENT}/${encodeURIComponent(organisationId)}/members`, staffToken)",
+    "const MANAGEMENT = '/obp/v7.0.0/management/organisations';"
+   ],
+   "reads": [
+    "members[].user_id",
+    "members[].username",
+    "members[].member_role"
+   ],
+   "undocumented_endpoint": "The OBP-API whose resource docs the snapshot is taken from does not document the Organisation endpoints."
+  },
+  {
+   "verb": "GET",
    "path": "/obp/v7.0.0/users",
    "source": "apps/cohort/src/lib/server/users.ts",
    "needles": [
@@ -7016,6 +7201,380 @@
     "entitlements.list"
    ],
    "note": "The user is stored in the session; Cohort reads user_id, username, email and the number of entitlements from it."
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v7.0.0/consumers/current/scopes",
+   "source": "apps/conformator-runner/src/obp.ts",
+   "needles": [
+    "call('GET', '/obp/v7.0.0/consumers/current/scopes')"
+   ],
+   "reads": [
+    "consumer_id"
+   ]
+  },
+  {
+   "verb": "PUT",
+   "path": "/obp/v7.0.0/consumers/current/platform-app",
+   "source": "apps/conformator-runner/src/obp.ts",
+   "needles": [
+    "call('PUT', '/obp/v7.0.0/consumers/current/platform-app', {"
+   ],
+   "reads": [],
+   "note": "Only success or failure is read."
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v6.0.0/app-directory",
+   "source": "apps/conformator/src/lib/server/appDirectory.ts",
+   "needles": [
+    "'/obp/v6.0.0/app-directory'"
+   ],
+   "reads": [
+    "app_directory[].name",
+    "app_directory[].value"
+   ]
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v7.0.0/banks/BANK_ID/files",
+   "source": "apps/conformator/src/lib/server/files.ts",
+   "needles": [
+    "obpRequests.get(`${filesPath(space)}?${query}`, token)",
+    "const filesPath = (space: string) => `/obp/v7.0.0/banks/${encodeURIComponent(space)}/files`;"
+   ],
+   "reads": [
+    "files[].file_id",
+    "files[].file_name",
+    "files[].media_type",
+    "files[].size_in_bytes",
+    "files[].scan_status"
+   ],
+   "note": "Query record_type and record_id select the files attached to one record."
+  },
+  {
+   "verb": "POST",
+   "path": "/obp/v7.0.0/banks/BANK_ID/files",
+   "source": "apps/conformator/src/lib/server/files.ts",
+   "needles": [
+    "obpRequests.post(filesPath(space), {",
+    "const filesPath = (space: string) => `/obp/v7.0.0/banks/${encodeURIComponent(space)}/files`;"
+   ],
+   "reads": [
+    "file_id",
+    "file_name",
+    "media_type",
+    "size_in_bytes",
+    "scan_status"
+   ]
+  },
+  {
+   "verb": "POST",
+   "path": "/obp/v7.0.0/banks/BANK_ID/files/FILE_ID/attachments",
+   "source": "apps/conformator/src/lib/server/files.ts",
+   "needles": [
+    "obpRequests.post(`${filesPath(space)}/${encodeURIComponent(created.file_id)}/attachments`",
+    "const filesPath = (space: string) => `/obp/v7.0.0/banks/${encodeURIComponent(space)}/files`;"
+   ],
+   "reads": []
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v7.0.0/banks/BANK_ID/files/FILE_ID/content",
+   "source": "apps/conformator/src/lib/server/files.ts",
+   "needles": [
+    "fetch(`${env.PUBLIC_OBP_BASE_URL}${filesPath(space)}/${encodeURIComponent(fileId)}/content`",
+    "const filesPath = (space: string) => `/obp/v7.0.0/banks/${encodeURIComponent(space)}/files`;"
+   ],
+   "reads": [],
+   "note": "Raw file bytes, passed on unread to the download route."
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v5.1.0/entitlement-requests",
+   "source": "apps/conformator/src/lib/server/gettingStarted.ts",
+   "needles": [
+    "obpRequests.get('/obp/v5.1.0/entitlement-requests', token)"
+   ],
+   "reads": [
+    "entitlement_requests[].role_name"
+   ]
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v5.1.0/well-known",
+   "source": "apps/conformator/src/lib/server/oauth.ts",
+   "needles": [
+    "wellKnownEndpoint: '/obp/v5.1.0/well-known'"
+   ],
+   "reads": [
+    "well_known_uris[].provider",
+    "well_known_uris[].url"
+   ],
+   "undocumented_fields": [
+    "well_known_uris[].provider",
+    "well_known_uris[].url"
+   ],
+   "note": "Conformator passes this path to the shared OAuth2ProviderManager, which GETs it (providerManager.ts fetchWellKnownUris) and reads each provider and url."
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v5.1.0/users/username/USERNAME",
+   "source": "apps/conformator/src/lib/server/organisations.ts",
+   "needles": [
+    "obpRequests.get(`/obp/v5.1.0/users/username/${encodeURIComponent(username)}`, token)"
+   ],
+   "reads": [
+    "user_id"
+   ],
+   "undocumented_endpoint": "Not documented in the resource docs of v5.1.0, v6.0.0 or v7.0.0 of the OBP-API the snapshot is taken from: its v5.1.0 and later versions leave out getUserByUsername (GET /users/username/USERNAME) and document GET /obp/v5.1.0/users/provider/PROVIDER/username/USERNAME instead."
+  },
+  {
+   "verb": "POST",
+   "path": "/obp/v7.0.0/management/organisations",
+   "source": "apps/conformator/src/lib/server/organisations.ts",
+   "needles": [
+    "obpRequests.post('/obp/v7.0.0/management/organisations',"
+   ],
+   "reads": [
+    "organisation_id",
+    "name"
+   ],
+   "undocumented_endpoint": "The OBP-API whose resource docs the snapshot is taken from does not document the Organisation endpoints."
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v7.0.0/management/organisations/ORGANISATION_ID",
+   "source": "apps/conformator/src/lib/server/organisations.ts",
+   "needles": [
+    "obpRequests.get(`/obp/v7.0.0/management/organisations/${encodeURIComponent(organisationId)}`, token)"
+   ],
+   "reads": [
+    "name",
+    "status",
+    "organisation_id"
+   ],
+   "undocumented_endpoint": "The OBP-API whose resource docs the snapshot is taken from does not document the Organisation endpoints."
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v7.0.0/management/organisations/ORGANISATION_ID/members",
+   "source": "apps/conformator/src/lib/server/organisations.ts",
+   "needles": [
+    "obpRequests.get(`/obp/v7.0.0/management/organisations/${encodeURIComponent(organisationId)}/members`, token)"
+   ],
+   "reads": [
+    "members[].user_id",
+    "members[].username",
+    "members[].member_role"
+   ],
+   "undocumented_endpoint": "The OBP-API whose resource docs the snapshot is taken from does not document the Organisation endpoints."
+  },
+  {
+   "verb": "POST",
+   "path": "/obp/v6.0.0/banks",
+   "source": "apps/conformator/src/lib/server/participantSpace.ts",
+   "needles": [
+    "'/obp/v6.0.0/banks',"
+   ],
+   "reads": []
+  },
+  {
+   "verb": "POST",
+   "path": "/obp/v7.0.0/users/USER_ID/entitlements",
+   "source": "apps/conformator/src/lib/server/participantSpace.ts",
+   "needles": [
+    "obpRequests.post(`/obp/v7.0.0/users/${encodeURIComponent(user.user_id)}/entitlements`, { bank_id: space, role_name: role }, token)",
+    "obpRequests.post(`/obp/v7.0.0/users/${encodeURIComponent(user.user_id)}/entitlements`, { bank_id: space, role_name: roleName }, token)",
+    "obpRequests.post(`/obp/v7.0.0/users/${encodeURIComponent(grant.user_id)}/entitlements`, { bank_id: space, role_name: grant.role_name }, token)"
+   ],
+   "reads": []
+  },
+  {
+   "verb": "POST",
+   "path": "/obp/v7.0.0/consumers/CONSUMER_ID/scopes",
+   "source": "apps/conformator/src/lib/server/participantSpace.ts",
+   "needles": [
+    "obpRequests.post(`/obp/v7.0.0/consumers/${encodeURIComponent(runner)}/scopes`"
+   ],
+   "reads": []
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v5.1.0/users/username/USERNAME",
+   "source": "apps/conformator/src/lib/server/participantSpace.ts",
+   "needles": [
+    "user = await obpRequests.get(`/obp/v5.1.0/users/username/${encodeURIComponent(username)}`, token);"
+   ],
+   "reads": [
+    "user_id",
+    "entitlements.list[].role_name",
+    "entitlements.list[].bank_id"
+   ],
+   "undocumented_endpoint": "Not documented in the resource docs of v5.1.0, v6.0.0 or v7.0.0 of the OBP-API the snapshot is taken from: its v5.1.0 and later versions leave out getUserByUsername (GET /users/username/USERNAME) and document GET /obp/v5.1.0/users/provider/PROVIDER/username/USERNAME instead."
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v5.1.0/banks/BANK_ID/entitlements",
+   "source": "apps/conformator/src/lib/server/participantSpace.ts",
+   "needles": [
+    "obpRequests.get(`/obp/v5.1.0/banks/${encodeURIComponent(space)}/entitlements`, token)"
+   ],
+   "reads": [
+    "list[].entitlement_id",
+    "list[].role_name",
+    "list[].bank_id",
+    "list[].user_id"
+   ]
+  },
+  {
+   "verb": "DELETE",
+   "path": "/obp/v7.0.0/banks/BANK_ID/entitlements/ENTITLEMENT_ID",
+   "source": "apps/conformator/src/lib/server/participantSpace.ts",
+   "needles": [
+    "obpRequests.delete(`/obp/v7.0.0/banks/${encodeURIComponent(space)}/entitlements/${encodeURIComponent(removal.entitlement_id)}`, token)"
+   ],
+   "reads": [],
+   "undocumented_endpoint": "Not documented in the resource docs of v7.0.0 of the OBP-API the snapshot is taken from: they document DELETE /obp/v7.0.0/entitlements/ENTITLEMENT_ID (Role CanDeleteEntitlementAtAnyBank), not a delete at a bank."
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v7.0.0/management/banks/BANK_ID/dynamic-entities",
+   "source": "apps/conformator/src/lib/server/participantSpace.ts",
+   "needles": [
+    "obpRequests.get(dynamicEntityDefinitionsPath(space), token)"
+   ],
+   "reads": [
+    "dynamic_entities[].entity_name"
+   ],
+   "note": "The path comes from the shared dynamicEntityDefinitionsPath."
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v5.1.0/banks/BANK_ID",
+   "source": "apps/conformator/src/lib/server/setupStatus.ts",
+   "needles": [
+    "`/obp/v5.1.0/banks/${encodeURIComponent(bankId)}`"
+   ],
+   "reads": [],
+   "note": "Only checks that the space's bank exists; the body is not read."
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v6.0.0/api/versions",
+   "source": "apps/conformator/src/lib/server/sources.ts",
+   "needles": [
+    "obpRequests.get('/obp/v6.0.0/api/versions')"
+   ],
+   "reads": [
+    "scanned_api_versions[].is_active",
+    "scanned_api_versions[].fully_qualified_version",
+    "scanned_api_versions[].api_standard",
+    "scanned_api_versions[].api_short_version"
+   ]
+  },
+  {
+   "verb": "POST",
+   "path": "/obp/v5.1.0/management/banks/BANK_ID/dynamic-endpoints",
+   "source": "apps/conformator/src/lib/server/sources.ts",
+   "needles": [
+    "obpRequests.post(dynamicEndpointsPath(), body, token)",
+    "const dynamicEndpointsPath = () => `/obp/v5.1.0/management/banks/${encodeURIComponent(centralSpace())}/dynamic-endpoints`;"
+   ],
+   "reads": [
+    "dynamic_endpoint_id"
+   ]
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v5.1.0/management/banks/BANK_ID/dynamic-endpoints/DYNAMIC_ENDPOINT_ID",
+   "source": "apps/conformator/src/lib/server/sources.ts",
+   "needles": [
+    "obpRequests.get(`${dynamicEndpointsPath()}/${encodeURIComponent(String(suite.dynamic_endpoint_id))}`, token ?? undefined)",
+    "const dynamicEndpointsPath = () => `/obp/v5.1.0/management/banks/${encodeURIComponent(centralSpace())}/dynamic-endpoints`;"
+   ],
+   "reads": [
+    "swagger_string"
+   ]
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v5.1.0/resource-docs/API_VERSION/openapi",
+   "source": "apps/conformator/src/lib/server/sources.ts",
+   "needles": [
+    "/obp/v5.1.0/resource-docs/${encodeURIComponent(version)}/openapi`"
+   ],
+   "reads": [],
+   "note": "The address is stored as a suite's openapi_url and fetched later by suiteDocument and by the runner; the OpenAPI document is read for its paths and schemas."
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v5.1.0/banks/BANK_ID",
+   "source": "apps/conformator/src/lib/server/spaces.ts",
+   "needles": [
+    "`/obp/v5.1.0/banks/${encodeURIComponent(space)}`"
+   ],
+   "reads": [
+    "full_name"
+   ]
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v5.1.0/users/current",
+   "source": "apps/conformator/src/lib/server/staffAccess.ts",
+   "needles": [
+    "obpRequests.get('/obp/v5.1.0/users/current', token)"
+   ],
+   "reads": [
+    "user_id",
+    "entitlements.list",
+    "entitlements.list[].role_name",
+    "entitlements.list[].bank_id"
+   ]
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v5.1.0/my/entitlement-requests",
+   "source": "apps/conformator/src/lib/server/staffAccess.ts",
+   "needles": [
+    "obpRequests.get('/obp/v5.1.0/my/entitlement-requests', token)"
+   ],
+   "reads": [
+    "entitlement_requests[].role_name",
+    "entitlement_requests[].bank_id"
+   ]
+  },
+  {
+   "verb": "POST",
+   "path": "/obp/v5.1.0/entitlement-requests",
+   "source": "apps/conformator/src/lib/server/staffAccess.ts",
+   "needles": [
+    "obpRequests.post('/obp/v5.1.0/entitlement-requests', { bank_id: spaceOfRole(roleName), role_name: roleName }, token)"
+   ],
+   "reads": []
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v5.1.0/users/current",
+   "source": "apps/conformator/src/routes/(public)/login/obp/callback/+server.ts",
+   "needles": [
+    "obpRequests.get('/obp/v5.1.0/users/current', accessToken)"
+   ],
+   "reads": [
+    "user_id",
+    "username",
+    "email"
+   ]
+  },
+  {
+   "verb": "POST",
+   "path": "/obp/v5.1.0/entitlement-requests",
+   "source": "apps/conformator/src/routes/backend/rbac/entitlement-requests/+server.ts",
+   "needles": [
+    "obpRequests.post('/obp/v5.1.0/entitlement-requests', { bank_id: bankId, role_name: roleName }, token)"
+   ],
+   "reads": [],
+   "note": "The created request is passed on to the Role alert widget unread."
   },
   {
    "verb": "GET",
@@ -7207,68 +7766,6 @@
    "reads": [
     "user_auth_context_update_id"
    ]
-  },
-  {
-   "verb": "GET",
-   "path": "/obp/v6.0.0/banks",
-   "source": "apps/portal/src/routes/(protected)/checkout/[product_code]/+page.server.ts",
-   "needles": [
-    "`/obp/${API_VERSION}/banks`",
-    "const API_VERSION = 'v6.0.0'"
-   ],
-   "reads": [
-    "banks[].id"
-   ],
-   "undocumented_fields": [
-    "banks[].id"
-   ],
-   "note": "findProduct reads bank.id of each bank to build the api-products path; the v6.0.0 docs name the field bank_id, so bank.id looks like a leftover from an older bank shape."
-  },
-  {
-   "verb": "POST",
-   "path": "/obp/v6.0.0/banks/BANK_ID/account-applications",
-   "source": "apps/portal/src/routes/(protected)/checkout/[product_code]/+page.server.ts",
-   "needles": [
-    "`/obp/${API_VERSION}/banks/${bankId}/account-applications`",
-    "const API_VERSION = 'v6.0.0'"
-   ],
-   "reads": [
-    "account_application_id"
-   ]
-  },
-  {
-   "verb": "GET",
-   "path": "/obp/v6.0.0/banks/BANK_ID/api-products/API_PRODUCT_CODE",
-   "source": "apps/portal/src/routes/(protected)/checkout/[product_code]/+page.server.ts",
-   "needles": [
-    "`/obp/${API_VERSION}/banks/${bank.id}/api-products/${productCode}`",
-    "const API_VERSION = 'v6.0.0'"
-   ],
-   "reads": [
-    "bank_id",
-    "api_product_code",
-    "parent_api_product_code",
-    "name",
-    "more_info_url",
-    "terms_and_conditions_url",
-    "description",
-    "meta",
-    "attributes",
-    "collection_id",
-    "category",
-    "monthly_subscription_amount",
-    "monthly_subscription_currency",
-    "per_second_call_limit",
-    "per_minute_call_limit",
-    "per_hour_call_limit",
-    "per_day_call_limit",
-    "per_week_call_limit",
-    "per_month_call_limit"
-   ],
-   "undocumented_fields": [
-    "meta"
-   ],
-   "note": "mapApiProductDetails copies these fields into the page data; the attributes list is passed on but its items are not read; meta is copied although the docs do not list it."
   },
   {
    "verb": "GET",
@@ -8718,6 +9215,28 @@
    ]
   },
   {
+   "verb": "GET",
+   "path": "/obp/v6.0.0/banks/BANK_ID/api-products/API_PRODUCT_CODE",
+   "source": "apps/portal/src/routes/subscriptions/+page.server.ts",
+   "needles": [
+    "`/obp/${PRODUCTS_API_VERSION}/banks/${encodeURIComponent(bankId)}/api-products/${encodeURIComponent(apiProductCode)}`",
+    "const PRODUCTS_API_VERSION = 'v6.0.0'"
+   ],
+   "reads": [
+    "attributes[].name",
+    "attributes[].is_active",
+    "attributes[].value",
+    "bank_id",
+    "api_product_code",
+    "name",
+    "category",
+    "description",
+    "monthly_subscription_amount",
+    "monthly_subscription_currency"
+   ],
+   "note": "The subscribe action reads the product's BILLING_SYSTEM attribute; only billing_system of the result is used."
+  },
+  {
    "verb": "POST",
    "path": "/obp/v5.1.0/banks/BANK_ID/user-invitation",
    "source": "apps/portal/src/routes/user-invitation/+page.server.ts",
@@ -9740,6 +10259,34 @@
  ],
  "not_calls": [
   {
+   "source": "apps/api-manager/src/lib/components/ApiProductSubscriptionsPanel.svelte",
+   "needles": [
+    "{ operation_id: \"OBPv7.0.0-getApiProductSubscriptionsByProduct\", verb: \"GET\", path: \"/obp/v7.0.0/banks/BANK_ID/api-products/API_PRODUCT_CODE/subscriptions\" }"
+   ],
+   "reason": "endpoint list that builds links to the API Explorer; nothing is requested"
+  },
+  {
+   "source": "apps/api-manager/src/lib/components/ApiProductSubscriptionsPanel.svelte",
+   "needles": [
+    "{ operation_id: \"OBPv7.0.0-createApiProductSubscription\", verb: \"POST\", path: \"/obp/v7.0.0/banks/BANK_ID/api-products/API_PRODUCT_CODE/subscriptions\" }"
+   ],
+   "reason": "endpoint list that builds links to the API Explorer; nothing is requested"
+  },
+  {
+   "source": "apps/api-manager/src/lib/components/ApiProductSubscriptionsPanel.svelte",
+   "needles": [
+    "{ operation_id: \"OBPv7.0.0-updateApiProductSubscriptionStatus\", verb: \"PUT\", path: \"/obp/v7.0.0/management/api-product-subscriptions/API_PRODUCT_SUBSCRIPTION_ID/status\" }"
+   ],
+   "reason": "endpoint list that builds links to the API Explorer; nothing is requested"
+  },
+  {
+   "source": "apps/api-manager/src/lib/components/ApiProductSubscriptionsPanel.svelte",
+   "needles": [
+    "{ operation_id: \"OBPv7.0.0-deleteApiProductSubscription\", verb: \"DELETE\", path: \"/obp/v7.0.0/management/api-product-subscriptions/API_PRODUCT_SUBSCRIPTION_ID\" }"
+   ],
+   "reason": "endpoint list that builds links to the API Explorer; nothing is requested"
+  },
+  {
    "source": "apps/api-manager/src/lib/components/DomainApiForm.svelte",
    "needles": [
     "/carbon-registry/v1/ENTITY answers what /obp/v7.0.0/banks/SPACE/dynamic-entities/ENTITY answers"
@@ -10222,6 +10769,13 @@
    "reason": "form answers are records of the app's own Dynamic Entities (see records.ts)"
   },
   {
+   "source": "apps/cohort/src/lib/server/forms.ts",
+   "needles": [
+    "return `${dynamicEntityDataPath(cohortFormsSpace())}/${encodeURIComponent(entityName)}/${encodeURIComponent(recordId)}/access`;"
+   ],
+   "reason": "shares one answers record of Cohort's own Dynamic Entity with a team's Organisation at /obp/v7.0.0/banks/BANK_ID/dynamic-entities/ENTITY/RECORD_ID/access: entities the app defines itself, documented only per entity on the instance that has them (like /obp/dynamic-entity/...)"
+  },
+  {
    "source": "apps/cohort/src/lib/server/opeyGuide.ts",
    "needles": [
     "const base = dynamicEntityDataPath(space);"
@@ -10248,6 +10802,34 @@
     "fetchSitePageRecords((path, t) => obpRequests.get(path, t), app.token)"
    ],
    "reason": "reads the obp_portal_page Dynamic Entity records (/obp/dynamic-entity/obp_portal_page) through the shared fetchSitePageRecords"
+  },
+  {
+   "source": "apps/conformator-runner/src/obp.ts",
+   "needles": [
+    "`/obp/v7.0.0/banks/${encodeURIComponent(space)}/dynamic-entities/${access ? `${access}/` : ''}${encodeURIComponent(entity)}${id ? `/${encodeURIComponent(id)}` : ''}`;"
+   ],
+   "reason": "reads and writes the participant's and the central space's own Dynamic Entity records at /obp/v7.0.0/banks/BANK_ID/dynamic-entities/[public/]ENTITY: entities the apps define themselves, documented only per entity on the instance that has them (like /obp/dynamic-entity/...)"
+  },
+  {
+   "source": "apps/conformator/src/lib/server/entities/bootstrap.ts",
+   "needles": [
+    "for (const definition of definitions) entities[definition.entity_name] = await ensureDynamicEntity(definition, deps, space);"
+   ],
+   "reason": "hands obpRequests to the shared ensureDynamicEntity; its calls are listed at packages/shared/src/lib/server/obp/dynamicEntityBootstrap.ts"
+  },
+  {
+   "source": "apps/conformator/src/lib/server/opeyGuide.ts",
+   "needles": [
+    "const base = dynamicEntityDataPath(space);"
+   ],
+   "reason": "builds Dynamic Entity record URLs as text for Opey's prompt; nothing is requested"
+  },
+  {
+   "source": "apps/conformator/src/lib/server/records.ts",
+   "needles": [
+    "const base = dynamicEntityDataPath(where.space ?? centralSpace());"
+   ],
+   "reason": "reads and writes Conformator's own Dynamic Entity records at /obp/v7.0.0/banks/BANK_ID/dynamic-entities/[public/]ENTITY: entities the app defines itself, documented only per entity on the instance that has them (like /obp/dynamic-entity/...)"
   },
   {
    "source": "apps/portal/src/lib/server/faq/faqChat.ts",
