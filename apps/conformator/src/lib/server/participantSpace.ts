@@ -27,6 +27,7 @@ import { runnerConsumerId } from './space';
 import { ROLE_SETS, type RegulatorRoleSet } from './participantRoles';
 import { ACTIVE_STATUS, membersWithAccess, planAccess, type AccessPlan, type OrganisationMember, type SpaceEntitlement } from './organisationAccess';
 import { getOrganisation, organisationMembers, type Organisation } from './organisations';
+import { userByUsername } from './users';
 
 /**
  * The Roles at a participant's space that bringing its access in line with its Organisation needs, besides
@@ -128,13 +129,13 @@ export async function setUpParticipantSpace(space: string, legalName: string, to
 /**
  * Give one of the regulator's people (a reviewer or an approver) their set of Roles at a participant's space, with the
  * administrator's own token: they hold CanCreateEntitlementAtOneBank there once they have set the space up. Finds the
- * User by username, which needs the system Role CanGetAnyUser. Roles already held are left as they are. The
+ * User by username at the provider the administrator used (see userByUsername), which needs the system Role CanGetAnyUser. Roles already held are left as they are. The
  * participant's own people get their Roles from its Organisation instead (bringAccessInLine).
  */
 export async function addRegulatorPerson(space: string, username: string, set: RegulatorRoleSet, token: string): Promise<SpaceStep[]> {
 	let user: { user_id: string; entitlements?: { list: Array<{ role_name: string; bank_id: string }> } };
 	try {
-		user = await obpRequests.get(`/obp/v5.1.0/users/username/${encodeURIComponent(username)}`, token);
+		user = await userByUsername(username, token);
 	} catch (err) {
 		return [{ step: `Find the User ${username}`, ok: false, detail: messageOf(err) }];
 	}

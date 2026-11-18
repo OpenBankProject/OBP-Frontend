@@ -40,6 +40,35 @@ describe('chat paths', () => {
 	});
 });
 
+describe('chat paths of one message and one participant', () => {
+	// OBP-API edits a message at .../messages/CHAT_MESSAGE_ID and removes a participant at
+	// .../participants/USER_ID. It serves no PUT on .../messages and no DELETE on .../participants.
+	it('name the message in the path', () => {
+		// Tests the system-level and the bank-level path of one message.
+		expect(chatApiPaths({ kind: 'system' }).message('r1', 'm 1')).toBe('/obp/v6.0.0/chat-rooms/r1/messages/m%201');
+		expect(chatApiPaths({ kind: 'bank', bankId: 'cohort' }).message('r1', 'm1')).toBe(
+			'/obp/v6.0.0/banks/cohort/chat-rooms/r1/messages/m1'
+		);
+	});
+
+	it('name the participant in the path', () => {
+		// Tests the system-level and the bank-level path of one participant.
+		expect(chatApiPaths({ kind: 'system' }).participant('r1', 'u/1')).toBe(
+			'/obp/v6.0.0/chat-rooms/r1/participants/u%2F1'
+		);
+		expect(chatApiPaths({ kind: 'bank', bankId: 'cohort' }).participant('r1', 'u1')).toBe(
+			'/obp/v6.0.0/banks/cohort/chat-rooms/r1/participants/u1'
+		);
+	});
+
+	it('are let through by the chat proxy of the scope', () => {
+		// Tests that an app's chat proxy forwards the message path, so editing works in Cohort too.
+		const cohort = { kind: 'bank', bankId: 'cohort' } as const;
+		const path = chatApiPaths(cohort).message('r1', 'm1').replace(/^\/obp\//, '');
+		expect(chatProxyAllows(cohort, path)).toBe(true);
+	});
+});
+
 describe('chatProxyAllows', () => {
 	const cohort = { kind: 'bank', bankId: 'cohort' } as const;
 	it("lets through only the scope's rooms and read markers", () => {

@@ -18,6 +18,7 @@
 <script lang="ts">
   import { page } from "$app/state";
   import { trackedFetch } from "$lib/utils/trackedFetch";
+  import { chatApiPaths } from "@obp/shared/chat";
   import type { OBPChatRoom, OBPChatRoomParticipant } from "$lib/obp/types";
 
   const chatRoomId = $derived(page.params.chat_room_id);
@@ -92,9 +93,11 @@
     error = null;
     successMessage = null;
     try {
-      const bankParam = bankId ? `&bank_id=${encodeURIComponent(bankId)}` : "";
+      // The user id is in the path, and a bank's room is under its bank: OBP-API serves
+      // DELETE .../participants/{user_id}, not DELETE .../participants?user_id=.
+      const paths = chatApiPaths(bankId ? { kind: "bank", bankId } : { kind: "system" });
       const res = await trackedFetch(
-        `/proxy/obp/v6.0.0/chat-rooms/${encodeURIComponent(chatRoomId)}/participants?user_id=${encodeURIComponent(userId)}&level=${level}${bankParam}`,
+        `/proxy${paths.participant(chatRoomId, userId)}`,
         { method: "DELETE" },
       );
       if (!res.ok) {

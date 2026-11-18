@@ -17,6 +17,7 @@
  */
 import { obpRequests } from './obp';
 import { centralSpace } from './space';
+import { userByUsername } from './users';
 import type { OrganisationMember } from './organisationAccess';
 
 /**
@@ -39,9 +40,9 @@ export interface Organisation {
 	status: string;
 }
 
-/** Find a User by username, which needs the system Role CanGetAnyUser. */
+/** Find a User's id by username, which needs the system Role CanGetAnyUser. See userByUsername. */
 export async function userIdByUsername(username: string, token: string): Promise<string> {
-	const user = await obpRequests.get(`/obp/v5.1.0/users/username/${encodeURIComponent(username)}`, token);
+	const user = await userByUsername(username, token);
 	return String(user?.user_id ?? '');
 }
 

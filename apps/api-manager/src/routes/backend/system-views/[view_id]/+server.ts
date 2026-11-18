@@ -97,7 +97,8 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
       requestBody.can_revoke_access_to_views = can_revoke_access_to_views;
     }
 
-    const endpoint = `/obp/v6.0.0/management/system-views/${view_id}`;
+    // OBP-API updates a system view here; /management/system-views/{id} only answers GET.
+    const endpoint = `/obp/v6.0.0/system-views/${encodeURIComponent(view_id)}`;
     logger.info(`PUT ${endpoint}`);
     logger.info(
       "Request body being sent to OBP:",
