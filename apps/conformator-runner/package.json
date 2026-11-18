@@ -1,0 +1,25 @@
+{
+	"name": "obp-conformator-runner",
+	"private": true,
+	"version": "0.1.0",
+	"description": "OBP-Conformator-Runner: runs Conformator's tests against participants' non-production systems.",
+	"license": "AGPL-3.0-or-later",
+	"author": "TESOBE GmbH",
+	"type": "module",
+	"scripts": {
+		"build": "esbuild src/main.ts --bundle --platform=node --target=node22 --format=esm --outfile=dist/main.js --define:__RUNNER_VERSION__=\\\"$npm_package_version\\\"",
+		"start": "node --env-file-if-exists=.env dist/main.js",
+		"dev": "npm run build && npm run start",
+		"check": "tsc --noEmit",
+		"test": "vitest --run"
+	},
+	"dependencies": {
+		"@obp/shared": "*",
+		"@cfworker/json-schema": "^4.1.1"
+	},
+	"devDependencies": {
+		"esbuild": "*",
+		"typescript": "^5.0.0",
+		"vitest": "^3.0.0"
+	}
+}

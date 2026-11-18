@@ -18,9 +18,12 @@
 import { createLogger } from '@obp/shared/utils';
 const logger = createLogger('ConsumerRegisterSuccessServer');
 import type { RequestEvent } from '@sveltejs/kit';
+import { env as publicEnv } from '$env/dynamic/public';
 
 export async function load(event: RequestEvent ) {
     const { cookies } = event;
+    // The OBP-API host these credentials work with, shown so the developer knows where to use them
+    const apiHost = (publicEnv.PUBLIC_OBP_BASE_URL ?? '').replace(/\/+$/, '');
 
     const consumerDataCookie = cookies.get('consumer_data');
     logger.debug("Consumer Data Cookie:", consumerDataCookie);
@@ -35,7 +38,8 @@ export async function load(event: RequestEvent ) {
             logger.debug("Parsed Consumer Data:", consumerData);
             
             return {
-                consumerData
+                consumerData,
+                apiHost
             }
         } catch (error) {
             logger.error("Failed to parse consumer data cookie:", error);
@@ -47,6 +51,7 @@ export async function load(event: RequestEvent ) {
     }
 
     return {
-        consumerData: null
+        consumerData: null,
+        apiHost
     }
 }

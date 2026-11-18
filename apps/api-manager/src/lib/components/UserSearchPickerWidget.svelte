@@ -16,7 +16,8 @@
   along with this program. If not, see <https://www.gnu.org/licenses/>.
 -->
 <script lang="ts">
-  import { Search, User, X } from "@lucide/svelte";
+  import { Search, User, UserCheck, X } from "@lucide/svelte";
+  import { page } from "$app/state";
   import { trackedFetch } from "$lib/utils/trackedFetch";
   import {
     extractErrorFromResponse,
@@ -32,8 +33,12 @@
     provider_id: string;
   }
 
+  // What the pages need from the chosen user. The logged-in user (from the session) has these but not
+  // the provider fields, so "Me" passes this smaller shape.
+  type SelectedUser = Pick<UserResult, "user_id" | "username" | "email">;
+
   interface Props {
-    onSelect: (user: UserResult) => void;
+    onSelect: (user: SelectedUser) => void;
     selectedUserId?: string;
     selectedUsername?: string;
     disabled?: boolean;
@@ -212,7 +217,15 @@
     }, 300);
   }
 
-  function handleSelectUser(user: UserResult) {
+  // The logged-in user, from the root layout. Lets an admin pick themselves, for example to grant
+  // themselves a Role.
+  let me = $derived<SelectedUser | null>(
+    page.data.userId
+      ? { user_id: page.data.userId, username: page.data.username, email: page.data.email }
+      : null,
+  );
+
+  function handleSelectUser(user: SelectedUser) {
     selectedUserId = user.user_id;
     selectedUsername = user.username;
     searchQuery = `${user.username} (${user.email})`;
@@ -291,6 +304,20 @@
         <div class="loading-spinner">⏳</div>
       {/if}
     </div>
+      {#if me}
+        <button
+          type="button"
+          class="me-button"
+          data-testid="user-search-me"
+          data-state={selectedUserId === me.user_id ? "selected" : "unselected"}
+          onclick={() => me && handleSelectUser(me)}
+          title="Select yourself ({me.username})"
+          {disabled}
+        >
+          <UserCheck size={16} />
+          <span>Me</span>
+        </button>
+      {/if}
     </div>
 
     {#if searchQuery.trim() && !selectedUserId}
@@ -366,6 +393,42 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+  }
+
+  .me-button {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.625rem 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    background: white;
+    color: #374151;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+
+  .me-button:hover:not(:disabled) {
+    background: #f9fafb;
+    border-color: #667eea;
+  }
+
+  .me-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  :global([data-mode="dark"]) .me-button {
+    background: rgb(var(--color-surface-700));
+    border-color: rgb(var(--color-surface-600));
+    color: var(--color-surface-100);
+  }
+
+  :global([data-mode="dark"]) .me-button:hover:not(:disabled) {
+    background: rgb(var(--color-surface-600));
   }
 
   .provider-select {

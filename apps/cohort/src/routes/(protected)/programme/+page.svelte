@@ -11,13 +11,18 @@
 <h1 class="h2">{t(locale, 'programme_heading')}</h1>
 {#if data.announcements.length}<div class="mt-6"><AnnouncementList {locale} announcements={data.announcements} testid="programme-announcements" /></div>{/if}
 
+{#if form?.teamChosen}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'team_chosen')}</p>{/if}
+{#if form?.memberAdded}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'team_member_added')}</p>{/if}
+{#if form?.memberChanged}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'team_member_changed')}</p>{/if}
+{#if form?.memberRemoved}<p class="mt-4" role="status">{t(locale, 'team_member_removed')}</p>{/if}
+{#if form?.left}<p class="mt-4" role="status">{t(locale, 'team_left')}</p>{/if}
 {#if form?.registered}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'programme_company_registered')}</p>{/if}
 {#if form?.reported}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'programme_reported')}</p>{/if}
 {#if form?.booked}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'programme_booked')}</p>{/if}
 {#if form?.cancelled}<p class="mt-4" role="status">{t(locale, 'programme_cancelled')}</p>{/if}
 {#if form?.error}
 	<p class="mt-4 preset-tonal-error rounded p-3" role="alert">
-		{['company_missing', 'not_yours', 'file_type', 'file_size', 'report_empty', 'session_closed', 'session_full'].includes(String(form.error))
+		{['company_missing', 'team_missing', 'member_missing', 'not_yours', 'file_type', 'file_size', 'report_empty', 'session_closed', 'session_full'].includes(String(form.error))
 			? t(locale, `programme_error_${form.error}` as MessageKey)
 			: `${t(locale, 'staff_error')} ${String(form.error)}`}
 	</p>
@@ -48,6 +53,80 @@
 
 		<h3 class="h4 mt-6">{t(locale, 'programme_getting_started')}</h3>
 		<ol class="mt-2 flex flex-col gap-3">
+			<li class="flex gap-2" data-testid="programme-team-{p.id}">
+				{#if p.team}<CircleCheck class="size-5 shrink-0 text-success-600-400" aria-hidden="true" />{:else}<Circle class="size-5 shrink-0" aria-hidden="true" />{/if}
+				<div class="flex-1">
+					<strong>{t(locale, 'team_heading')}{#if p.team?.name}: {p.team.name}{/if}</strong>
+					{#if p.team}
+						{#if p.team.members === null}
+							<p class="text-sm">{t(locale, 'team_members_unreadable')}</p>
+						{:else}
+							<ul class="mt-2 flex flex-col gap-1" data-testid="programme-team-members-{p.id}">
+								{#each p.team.members as member (member.user_id)}
+									<li class="flex flex-wrap items-center gap-2">
+										<span>{member.username || member.user_id}</span>
+										<span class="badge preset-tonal">{t(locale, member.member_role === 'admin' ? 'team_role_admin' : 'team_role_member')}</span>
+										{#if p.team.my_role === 'admin' && member.user_id !== data.userId}
+											<form method="POST" action="?/memberRole" class="flex items-center gap-1">
+												<input type="hidden" name="participant_id" value={p.id} />
+												<input type="hidden" name="user_id" value={member.user_id} />
+												<input type="hidden" name="member_role" value={member.member_role === 'admin' ? 'member' : 'admin'} />
+												<button class="btn btn-sm preset-tonal">{t(locale, member.member_role === 'admin' ? 'team_make_member' : 'team_make_admin')}</button>
+											</form>
+											<form method="POST" action="?/removeMember">
+												<input type="hidden" name="participant_id" value={p.id} />
+												<input type="hidden" name="user_id" value={member.user_id} />
+												<button class="btn btn-sm preset-tonal" data-testid="programme-team-remove-{member.user_id}">{t(locale, 'team_remove')}</button>
+											</form>
+										{:else if member.user_id === data.userId}
+											<form method="POST" action="?/removeMember">
+												<input type="hidden" name="participant_id" value={p.id} />
+												<input type="hidden" name="user_id" value={member.user_id} />
+												<button class="btn btn-sm preset-tonal" data-testid="programme-team-leave-{p.id}">{t(locale, 'team_leave')}</button>
+											</form>
+										{/if}
+									</li>
+								{/each}
+							</ul>
+						{/if}
+						{#if p.team.my_role === 'admin'}
+							<form method="POST" action="?/addMember" class="mt-2 flex max-w-xl flex-wrap items-end gap-2" data-testid="programme-team-add-{p.id}">
+								<input type="hidden" name="participant_id" value={p.id} />
+								<label class="label flex-1"><span class="label-text">{t(locale, 'team_add_user_id')} *</span><input class="input" name="user_id" required maxlength="255" /></label>
+								<label class="label w-auto">
+									<span class="label-text">{t(locale, 'team_role')}</span>
+									<select class="select" name="member_role">
+										<option value="member">{t(locale, 'team_role_member')}</option>
+										<option value="admin">{t(locale, 'team_role_admin')}</option>
+									</select>
+								</label>
+								<button class="btn preset-filled-primary-500">{t(locale, 'team_add')}</button>
+							</form>
+						{/if}
+						<p class="mt-2 text-sm">{t(locale, 'team_your_user_id')} <code class="text-xs">{data.userId}</code></p>
+					{:else if p.can_choose_team}
+						<p class="text-sm">{t(locale, 'team_intro')}</p>
+						{#if data.teamsToChoose.length}
+							<form method="POST" action="?/team" class="mt-2 flex max-w-md flex-col gap-2" data-testid="programme-team-pick-{p.id}">
+								<input type="hidden" name="participant_id" value={p.id} />
+								<label class="label">
+									<span class="label-text">{t(locale, 'team_pick')}</span>
+									<select class="select" name="organisation_id" required>
+										{#each data.teamsToChoose as team (team.organisation_id)}<option value={team.organisation_id}>{team.name}</option>{/each}
+									</select>
+								</label>
+								<button class="btn preset-tonal self-start">{t(locale, 'team_pick_submit')}</button>
+							</form>
+						{/if}
+						<form method="POST" action="?/team" class="mt-2 flex max-w-md flex-col gap-2" data-testid="programme-team-create-{p.id}">
+							<input type="hidden" name="participant_id" value={p.id} />
+							<label class="label"><span class="label-text">{t(locale, 'team_name')} *</span><input class="input" name="name" required maxlength="255" value={p.startup_name} /></label>
+							<label class="label"><span class="label-text">{t(locale, 'team_website')}</span><input class="input" name="website" type="url" maxlength="255" /></label>
+							<button class="btn preset-filled-primary-500 self-start" data-testid="programme-team-create-submit-{p.id}">{t(locale, 'team_create')}</button>
+						</form>
+					{/if}
+				</div>
+			</li>
 			<li class="flex gap-2">
 				{#if p.customer_id}<CircleCheck class="size-5 shrink-0 text-success-600-400" aria-hidden="true" />{:else}<Circle class="size-5 shrink-0" aria-hidden="true" />{/if}
 				<div class="flex-1">
@@ -101,6 +180,8 @@
 								<input type="hidden" name="booking_id" value={s.booking_id} />
 								<button class="btn btn-sm preset-tonal" data-testid="programme-cancel-{s.id}">{t(locale, 'programme_session_cancel')}</button>
 							</form>
+						{:else if s.booked}
+							<p class="mt-2"><span class="badge preset-tonal-success">{t(locale, 'programme_session_booked_by_team')}</span></p>
 						{:else if s.seats_left > 0}
 							<form method="POST" action="?/book" class="mt-2 flex items-center gap-2">
 								<input type="hidden" name="participant_id" value={p.id} />

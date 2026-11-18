@@ -1,0 +1,42 @@
+# Copyright (C) 2026 TESOBE GmbH
+# SPDX-License-Identifier: AGPL-3.0-or-later
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+FROM node:22-alpine AS builder
+WORKDIR /app
+
+COPY package*.json ./
+COPY apps/portal/package*.json ./apps/portal/
+COPY apps/api-manager/package*.json ./apps/api-manager/
+COPY apps/cohort/package*.json ./apps/cohort/
+COPY apps/conformator/package*.json ./apps/conformator/
+COPY apps/conformator-runner/package*.json ./apps/conformator-runner/
+COPY packages/shared/package*.json ./packages/shared/
+
+RUN npm ci
+
+COPY packages/shared/ ./packages/shared/
+COPY apps/conformator-runner/ ./apps/conformator-runner/
+
+# esbuild bundles the runner and the shared code it uses into one file with no runtime dependencies.
+RUN npm run build --workspace=apps/conformator-runner
+
+FROM node:22-alpine
+WORKDIR /app
+COPY --from=builder /app/apps/conformator-runner/dist/main.js ./main.js
+ENV NODE_ENV=production
+# Secrets participants give the runner: mount them here (for example a Kubernetes Secret).
+ENV RUNNER_CREDENTIALS_DIR=/credentials
+USER node
+CMD [ "node", "main.js" ]

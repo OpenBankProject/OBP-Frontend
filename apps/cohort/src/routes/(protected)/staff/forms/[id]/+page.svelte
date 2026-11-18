@@ -178,7 +178,7 @@
 		{#if data.answersError}<p class="mt-2 preset-tonal-error rounded p-3">{data.answersError}</p>{/if}
 		{#if !missing('answers') && !data.answersError}
 			<p class="mt-1">
-				{data.responses.length} {t(locale, 'forms_answers_submitted')}{#if data.drafts}{' '}· {data.drafts} {t(locale, 'forms_answers_drafts')}{/if}
+				{data.answeredCount} {t(locale, f.purpose === 'survey' ? 'forms_answers_teams' : 'forms_answers_submitted')}{#if data.drafts}{' '}· {data.drafts} {t(locale, 'forms_answers_drafts')}{/if}
 				{#if data.responses.length}{' '}· <a class="anchor" href="/staff/forms/{f.id}/answers.csv" download data-testid="form-answers-csv">{t(locale, 'dashboard_csv')}</a> · <a class="anchor" href="/staff/forms/{f.id}/answers.pdf" download data-testid="form-answers-pdf">{t(locale, 'dashboard_pdf')}</a>{/if}
 			</p>
 			{#if data.responses.length}
@@ -203,7 +203,7 @@
 					<table class="table">
 						<thead><tr><th>{t(locale, f.purpose === 'survey' ? 'forms_startup' : 'forms_application')}</th><th>{t(locale, 'application_submitted_at')}</th></tr></thead>
 						<tbody>
-							{#each data.responses as r (r.subject_id)}
+							{#each data.responses as r (r.answers_id)}
 								<tr>
 									<td>{#if f.purpose === 'application'}<a class="anchor" href="/staff/applications/{r.subject_id}">{r.startup_name || r.subject_id}</a>{:else}{r.startup_name || r.subject_id}{/if}</td>
 									<td>{String(r.submitted_at ?? '').slice(0, 10)}</td>

@@ -24,9 +24,10 @@ import { idOf, listRecords, type Access, type CohortRecord } from './records';
 const logger = createLogger('CohortMilestones');
 
 /**
- * Reading milestones. A programme's milestones are public. Reports are the startup's own personal records (read
- * through /my/), or every report through the community URL for staff with the Get Role. Reviews are read by staff
- * with their own Role; a startup's own are read by Cohort, narrowed to its own participant records.
+ * Reading milestones. A programme's milestones are public. Reports are personal records of whoever in the startup's
+ * team wrote them, so a team's reports are read by Cohort and narrowed to its own participant records; staff read every
+ * report through the community URL with the Get Role. Reviews are read by staff with their own Role; a startup's own
+ * are read by Cohort, narrowed to its own participant records.
  */
 
 export async function milestonesOf(programmeId: string): Promise<Milestone[]> {
@@ -58,6 +59,23 @@ export function reviewOf(record: CohortRecord): MilestoneReview {
 /** The caller's own reports ('my'), or every report for staff ('community'). */
 export async function reports(access: Extract<Access, 'my' | 'community'>, token: string): Promise<MilestoneReport[]> {
 	return (await listRecords(MILESTONE_REPORT, access, token)).map(reportOf);
+}
+
+/**
+ * The reports of a startup's team, read as Cohort (its Get Scope, through the community URL) and narrowed to the given
+ * participant ids, which the caller has already checked the logged-in User may see. Empty, and logged, when Cohort
+ * cannot read them.
+ */
+export async function reportsOfParticipants(participantIds: string[]): Promise<MilestoneReport[]> {
+	if (participantIds.length === 0) return [];
+	const { token } = await requestApplicationAccessToken();
+	if (!token) return [];
+	try {
+		return (await reports('community', token)).filter((report) => participantIds.includes(report.participant_id));
+	} catch (err) {
+		logger.warn('Cohort could not read milestone reports (does it hold the Scope shown on /staff/setup?):', err);
+		return [];
+	}
 }
 
 /** Every review, read with the staff member's own Role. */

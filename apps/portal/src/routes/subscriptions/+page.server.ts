@@ -19,9 +19,10 @@ import { createLogger } from '@obp/shared/utils';
 const logger = createLogger('SubscriptionsServer');
 
 import type { RequestEvent, Actions } from '@sveltejs/kit';
-import { fail } from '@sveltejs/kit';
+import { fail, redirect } from '@sveltejs/kit';
 import { env as publicEnv } from '$env/dynamic/public';
 import { obp_requests } from '$lib/obp/requests';
+import { stripeCheckoutUrl } from '$lib/subscriptions/billingLinks';
 import { OBPRequestError, OBPRateLimitError, OBPTimeoutError } from '@obp/shared/obp';
 import type {
 	OBPConsumer,
@@ -52,12 +53,6 @@ export interface SubscribableProduct {
 	action: SubscribeAction;
 	/** True when attributes could not be loaded, so self_subscribe / billing_system are defaults. */
 	attributes_unknown: boolean;
-}
-
-interface ExternalServiceStatus {
-	subscriptionsUrl: string;
-	status: 'available' | 'error' | 'unavailable' | 'not_configured';
-	statusMessage: string;
 }
 
 function attributeValue(attributes: OBPProductAttribute[], name: string): string | undefined {
@@ -174,39 +169,6 @@ async function loadMySubscriptions(token: string, warnings: string[]): Promise<O
 	}
 }
 
-/** The optional external subscriptions service (PUBLIC_SUBSCRIPTIONS_URL), kept from the original page. */
-async function checkExternalService(): Promise<ExternalServiceStatus> {
-	const subscriptionsUrl = publicEnv.PUBLIC_SUBSCRIPTIONS_URL || '';
-	if (!subscriptionsUrl) {
-		return {
-			subscriptionsUrl: '',
-			status: 'not_configured',
-			statusMessage: 'The subscriptions service URL is not configured.'
-		};
-	}
-	try {
-		const response = await fetch(subscriptionsUrl, { method: 'HEAD', signal: AbortSignal.timeout(10000) });
-		if (response.ok) {
-			logger.info(`Subscriptions service is available at ${subscriptionsUrl} (HTTP ${response.status})`);
-			return { subscriptionsUrl, status: 'available', statusMessage: 'The subscriptions service is available.' };
-		}
-		logger.warn(`Subscriptions service returned HTTP ${response.status} at ${subscriptionsUrl}`);
-		return {
-			subscriptionsUrl,
-			status: 'error',
-			statusMessage: `The subscriptions service returned HTTP ${response.status}.`
-		};
-	} catch (e) {
-		const errorMsg = e instanceof Error ? e.message : String(e);
-		logger.error(`Subscriptions service is not reachable at ${subscriptionsUrl}:`, e);
-		return {
-			subscriptionsUrl,
-			status: 'unavailable',
-			statusMessage: `The subscriptions service is not reachable: ${errorMsg}`
-		};
-	}
-}
-
 export async function load(event: RequestEvent) {
 	const token = event.locals.session?.data?.oauth?.access_token;
 	const isLoggedIn = !!token;
@@ -219,7 +181,8 @@ export async function load(event: RequestEvent) {
 	};
 
 	const warnings: string[] = [];
-	const externalPromise = checkExternalService();
+	// The base URL of OBP-Stripe. The page links to it for products billed through Stripe.
+	const billingServiceUrl = publicEnv.PUBLIC_SUBSCRIPTIONS_URL || '';
 
 	if (!token) {
 		return {
@@ -229,18 +192,34 @@ export async function load(event: RequestEvent) {
 			products: [] as SubscribableProduct[],
 			consumers: [] as OBPConsumer[],
 			subscriptions: [] as OBPApiProductSubscription[],
-			external: await externalPromise
+			billingServiceUrl
 		};
 	}
 
-	const [products, consumers, subscriptions, external] = await Promise.all([
+	const [products, consumers, subscriptions] = await Promise.all([
 		loadSubscribableProducts(token, warnings),
 		loadMyConsumers(token, warnings),
-		loadMySubscriptions(token, warnings),
-		externalPromise
+		loadMySubscriptions(token, warnings)
 	]);
 
-	return { isLoggedIn, preselect, warnings, products, consumers, subscriptions, external };
+	return { isLoggedIn, preselect, warnings, products, consumers, subscriptions, billingServiceUrl };
+}
+
+/**
+ * The product's BILLING_SYSTEM attribute, lower-cased; "none" when it is absent.
+ * Returns "unknown" when the product cannot be read, so the action does not guess.
+ */
+async function loadBillingSystem(token: string, bankId: string, apiProductCode: string): Promise<string> {
+	try {
+		const detail = await obp_requests.get(
+			`/obp/${PRODUCTS_API_VERSION}/banks/${encodeURIComponent(bankId)}/api-products/${encodeURIComponent(apiProductCode)}`,
+			token
+		);
+		return toSubscribableProduct(detail, detail?.attributes ?? []).billing_system;
+	} catch (e) {
+		logger.warn(`Could not load the billing system of ${bankId}/${apiProductCode}:`, e);
+		return 'unknown';
+	}
 }
 
 /**
@@ -290,20 +269,17 @@ export const actions = {
 		if (startDate) body.start_date = startDate;
 		if (endDate) body.end_date = endDate;
 
+		// The product's BILLING_SYSTEM decides what happens after a "requested" subscription is created.
+		// It is read here, not taken from the form, so the page cannot be told the wrong value.
+		const billingSystem = await loadBillingSystem(token, bankId, apiProductCode);
+
+		let subscription: OBPApiProductSubscription;
 		try {
-			const subscription: OBPApiProductSubscription = await obp_requests.post(
+			subscription = await obp_requests.post(
 				`/obp/${SUBSCRIPTIONS_API_VERSION}/banks/${encodeURIComponent(bankId)}/api-products/${encodeURIComponent(apiProductCode)}/subscriptions`,
 				body,
 				token
 			);
-			logger.info(
-				`Created api product subscription ${subscription?.api_product_subscription_id} (${subscription?.status}) for consumer ${consumerId} to ${bankId}/${apiProductCode}`
-			);
-			const message =
-				subscription?.status === 'active'
-					? `Subscription to ${apiProductCode} is active.`
-					: `Subscription to ${apiProductCode} has been requested and is awaiting approval or payment.`;
-			return { action: 'subscribe', success: true, message, subscription };
 		} catch (e) {
 			logger.error('Error creating api product subscription:', e);
 			return fail(400, {
@@ -311,6 +287,34 @@ export const actions = {
 				message: describeError(e, 'Could not create the subscription.')
 			});
 		}
+		logger.info(
+			`Created api product subscription ${subscription?.api_product_subscription_id} (${subscription?.status}) for consumer ${consumerId} to ${bankId}/${apiProductCode}`
+		);
+
+		if (subscription?.status === 'active') {
+			return { action: 'subscribe', success: true, message: `Subscription to ${apiProductCode} is active.`, subscription };
+		}
+
+		if (billingSystem === 'stripe' && subscription?.status === 'requested') {
+			const checkoutUrl = stripeCheckoutUrl(publicEnv.PUBLIC_SUBSCRIPTIONS_URL, subscription.api_product_subscription_id);
+			if (checkoutUrl) {
+				// OBP-Stripe takes the payment and then makes the subscription active.
+				redirect(303, checkoutUrl);
+			}
+			return {
+				action: 'subscribe',
+				success: true,
+				message: `Subscription to ${apiProductCode} has been requested. This product is paid by card, but card payment is not available on this installation yet, so the subscription stays requested.`,
+				subscription
+			};
+		}
+
+		return {
+			action: 'subscribe',
+			success: true,
+			message: `Subscription to ${apiProductCode} has been requested. It becomes active once the bank approves it or the invoice is paid.`,
+			subscription
+		};
 	},
 
 	cancel: async ({ request, locals }) => {

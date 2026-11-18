@@ -32,6 +32,8 @@ export interface PlatformAppScope {
 export interface PlatformApp {
   consumer_id: string;
   consumer_name: string;
+  /** False while the Consumer is disabled: the app cannot get a token until an administrator enables it. */
+  consumer_enabled: boolean;
   label: string;
   marked_by_user_id: string;
   marked_at: string;

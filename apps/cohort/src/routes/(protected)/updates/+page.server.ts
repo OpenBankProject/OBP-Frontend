@@ -22,16 +22,16 @@ import { nowLocal } from '$lib/sessions';
 import { updatesFeed } from '$lib/updates';
 import { allAnnouncements } from '$lib/server/announcements';
 import { outcomesForApplicant } from '$lib/server/decisions';
-import { APPLICATION, CALL, SESSION_BOOKING } from '$lib/server/entities/definitions';
-import { milestonesOf, reports, reviewsOfParticipants } from '$lib/server/milestones';
+import { APPLICATION, CALL } from '$lib/server/entities/definitions';
+import { milestonesOf, reportsOfParticipants, reviewsOfParticipants } from '$lib/server/milestones';
 import { participantsOfUser } from '$lib/server/participants';
 import { idOf, listRecords, userToken } from '$lib/server/records';
-import { bookingOf, sessionsOfProgrammes } from '$lib/server/sessions';
+import { bookingsOfParticipants, sessionsOfProgrammes } from '$lib/server/sessions';
 import type { PageServerLoad } from './$types';
 
 /**
  * The User's updates, read as on their own pages: their applications (/my/) and outcomes, their programmes' records
- * through Cohort narrowed to their own participants, and the public announcements. Opening the page marks them seen.
+ * through Cohort narrowed to the participants they see (their team's), and the public announcements. Opening the page marks them seen.
  */
 export const load: PageServerLoad = async ({ locals }) => {
 	const token = userToken(locals)!;
@@ -39,17 +39,17 @@ export const load: PageServerLoad = async ({ locals }) => {
 	const [applications, calls, participants, announcements] = await Promise.all([
 		listRecords(APPLICATION, 'my', token).catch(() => []),
 		listRecords(CALL, 'public').catch(() => []),
-		participantsOfUser(userId),
+		participantsOfUser(userId, token),
 		allAnnouncements()
 	]);
 	const participantIds = participants.map((p) => p.id);
 	const programmeIds = participants.map((p) => p.programme_id);
 	const [outcomes, myReports, myReviews, sessions, bookings, milestoneLists] = await Promise.all([
 		outcomesForApplicant(applications.map((a) => idOf(APPLICATION, a))).catch(() => ({}) as Awaited<ReturnType<typeof outcomesForApplicant>>),
-		reports('my', token).catch(() => []),
+		reportsOfParticipants(participantIds),
 		reviewsOfParticipants(participantIds),
 		sessionsOfProgrammes(programmeIds),
-		listRecords(SESSION_BOOKING, 'my', token).then((r) => r.map(bookingOf)).catch(() => []),
+		bookingsOfParticipants(participantIds),
 		Promise.all(participants.map((p) => milestonesOf(p.programme_id).catch(() => [])))
 	]);
 

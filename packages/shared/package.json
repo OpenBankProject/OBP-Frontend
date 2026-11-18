@@ -61,6 +61,15 @@
 			"types": "./src/lib/markdown/index.ts",
 			"svelte": "./src/lib/markdown/index.ts"
 		},
+		"./roles": {
+			"types": "./src/lib/roles/index.ts",
+			"svelte": "./src/lib/roles/index.ts"
+		},
+		"./conformator": {
+			"types": "./src/lib/conformator/index.ts",
+			"svelte": "./src/lib/conformator/index.ts",
+			"default": "./src/lib/conformator/index.ts"
+		},
 		"./chat": {
 			"types": "./src/lib/chat/index.ts",
 			"svelte": "./src/lib/chat/index.ts"
@@ -142,7 +151,8 @@
 		"markdown-it": "^14.1.0",
 		"prismjs": "^1.30.0",
 		"svelte-kit-connect-redis": "^0.1.0",
-		"svelte-kit-sessions": "^0.4.0"
+		"svelte-kit-sessions": "^0.4.0",
+		"yaml": "^2.9.0"
 	},
 	"devDependencies": {
 		"@playwright/test": "^1.49.1",

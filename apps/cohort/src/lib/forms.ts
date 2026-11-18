@@ -247,6 +247,19 @@ export type QuestionSummary =
 	| { key: string; kind: 'text' | 'textarea' | 'date'; answered: number; answers: string[] };
 
 /** What the responses say, question by question: counts of each choice, the range and average of numbers, the texts. */
+/**
+ * One answer per subject (an application, or a startup's participation), the newest submitted. A survey used to be
+ * answered by each person and is now answered once per team, so older personal answers can sit beside the team's.
+ */
+export function newestPerSubject<T extends { subject_id: string; submitted_at: string }>(responses: T[]): T[] {
+	const newest = new Map<string, T>();
+	for (const response of responses) {
+		const kept = newest.get(response.subject_id);
+		if (!kept || response.submitted_at > kept.submitted_at) newest.set(response.subject_id, response);
+	}
+	return [...newest.values()];
+}
+
 export function summarise(questions: Question[], responses: Answers[], locale: Locale): QuestionSummary[] {
 	return questions.map((q) => {
 		const given = responses.map((r) => r[q.key]).filter((v) => v !== undefined && v !== '');
