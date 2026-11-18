@@ -7335,7 +7335,7 @@
    "reads": [
     "user_id"
    ],
-   "undocumented_endpoint": "Not documented in the resource docs of v5.1.0, v6.0.0 or v7.0.0 of the OBP-API the snapshot is taken from: its v5.1.0 and later versions leave out getUserByUsername (GET /users/username/USERNAME) and document GET /obp/v5.1.0/users/provider/PROVIDER/username/USERNAME instead."
+   "undocumented_endpoint": "Not documented in the resource docs of v5.1.0, v6.0.0 or v7.0.0 of the OBP-API the snapshot is taken from: its v5.1.0 and later versions leave out getUserByUsername (GET /users/username/USERNAME). The path still answers: checked on k8s.openbankproject.com on 2026-11-18, where v5.0.0 and older are switched off, it returned 200 for the caller's own username on v5.1.0, v6.0.0 and v7.0.0 (and 404 on v4.0.0 and v5.0.0). It is not a documented contract, so a later OBP-API may drop it."
   },
   {
    "verb": "POST",
@@ -7419,7 +7419,7 @@
     "entitlements.list[].role_name",
     "entitlements.list[].bank_id"
    ],
-   "undocumented_endpoint": "Not documented in the resource docs of v5.1.0, v6.0.0 or v7.0.0 of the OBP-API the snapshot is taken from: its v5.1.0 and later versions leave out getUserByUsername (GET /users/username/USERNAME) and document GET /obp/v5.1.0/users/provider/PROVIDER/username/USERNAME instead."
+   "undocumented_endpoint": "Not documented in the resource docs of v5.1.0, v6.0.0 or v7.0.0 of the OBP-API the snapshot is taken from: its v5.1.0 and later versions leave out getUserByUsername (GET /users/username/USERNAME). The path still answers: checked on k8s.openbankproject.com on 2026-11-18, where v5.0.0 and older are switched off, it returned 200 for the caller's own username on v5.1.0, v6.0.0 and v7.0.0 (and 404 on v4.0.0 and v5.0.0). It is not a documented contract, so a later OBP-API may drop it."
   },
   {
    "verb": "GET",
