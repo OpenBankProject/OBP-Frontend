@@ -6,7 +6,7 @@
    "git_commit": "474d4bcc554f1d8e9516e12d85be121d92410aa5"
   }
  },
- "taken_at": "2026-11-18T11:03:40Z",
+ "taken_at": "2026-11-18T11:22:39Z",
  "endpoints": [
   {
    "verb": "GET",
@@ -11301,12 +11301,6 @@
    ]
   },
   {
-   "verb": "GET",
-   "path": "/obp/v5.1.0/users/username/USERNAME",
-   "docs_from": "https://k8s.openbankproject.com",
-   "missing": true
-  },
-  {
    "verb": "POST",
    "path": "/obp/v7.0.0/management/organisations",
    "docs_from": "https://k8s.openbankproject.com",
@@ -11365,12 +11359,6 @@
     "role_name",
     "scope_id"
    ]
-  },
-  {
-   "verb": "GET",
-   "path": "/obp/v5.1.0/users/username/USERNAME",
-   "docs_from": "https://k8s.openbankproject.com",
-   "missing": true
   },
   {
    "verb": "GET",
@@ -15743,6 +15731,67 @@
     "entitlements.list[].bank_id",
     "entitlements.list[].entitlement_id",
     "entitlements.list[].role_name",
+    "provider",
+    "provider_id",
+    "user_id",
+    "username",
+    "views",
+    "views.list",
+    "views.list[]",
+    "views.list[].account_id",
+    "views.list[].bank_id",
+    "views.list[].view_id"
+   ]
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v5.1.0/users/current",
+   "docs_from": "https://k8s.openbankproject.com",
+   "operation_id": "OBPv3.0.0-getCurrentUser",
+   "documented_path": "/obp/v5.1.0/users/current",
+   "fields": [
+    "email",
+    "entitlements",
+    "entitlements.list",
+    "entitlements.list[]",
+    "entitlements.list[].bank_id",
+    "entitlements.list[].entitlement_id",
+    "entitlements.list[].role_name",
+    "provider",
+    "provider_id",
+    "user_id",
+    "username",
+    "views",
+    "views.list",
+    "views.list[]",
+    "views.list[].account_id",
+    "views.list[].bank_id",
+    "views.list[].view_id"
+   ]
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v5.1.0/users/provider/PROVIDER/username/USERNAME",
+   "docs_from": "https://k8s.openbankproject.com",
+   "operation_id": "OBPv5.1.0-getUserByProviderAndUsername",
+   "documented_path": "/obp/v5.1.0/users/provider/PROVIDER/username/USERNAME",
+   "fields": [
+    "agreements",
+    "agreements[]",
+    "agreements[].text",
+    "agreements[].type",
+    "email",
+    "entitlements",
+    "entitlements.list",
+    "entitlements.list[]",
+    "entitlements.list[].bank_id",
+    "entitlements.list[].entitlement_id",
+    "entitlements.list[].role_name",
+    "first_name",
+    "is_deleted",
+    "is_locked",
+    "last_marketing_agreement_signed_date",
+    "last_name",
     "provider",
     "provider_id",
     "user_id",

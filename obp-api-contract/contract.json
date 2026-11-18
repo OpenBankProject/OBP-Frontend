@@ -7326,18 +7326,6 @@
    "note": "Conformator passes this path to the shared OAuth2ProviderManager, which GETs it (providerManager.ts fetchWellKnownUris) and reads each provider and url."
   },
   {
-   "verb": "GET",
-   "path": "/obp/v5.1.0/users/username/USERNAME",
-   "source": "apps/conformator/src/lib/server/organisations.ts",
-   "needles": [
-    "obpRequests.get(`/obp/v5.1.0/users/username/${encodeURIComponent(username)}`, token)"
-   ],
-   "reads": [
-    "user_id"
-   ],
-   "undocumented_endpoint": "Not documented in the resource docs of v5.1.0, v6.0.0 or v7.0.0 of the OBP-API the snapshot is taken from: its v5.1.0 and later versions leave out getUserByUsername (GET /users/username/USERNAME). The path still answers: checked on k8s.openbankproject.com on 2026-11-18, where v5.0.0 and older are switched off, it returned 200 for the caller's own username on v5.1.0, v6.0.0 and v7.0.0 (and 404 on v4.0.0 and v5.0.0). It is not a documented contract, so a later OBP-API may drop it."
-  },
-  {
    "verb": "POST",
    "path": "/obp/v7.0.0/management/organisations",
    "source": "apps/conformator/src/lib/server/organisations.ts",
@@ -7406,20 +7394,6 @@
     "obpRequests.post(`/obp/v7.0.0/consumers/${encodeURIComponent(runner)}/scopes`"
    ],
    "reads": []
-  },
-  {
-   "verb": "GET",
-   "path": "/obp/v5.1.0/users/username/USERNAME",
-   "source": "apps/conformator/src/lib/server/participantSpace.ts",
-   "needles": [
-    "user = await obpRequests.get(`/obp/v5.1.0/users/username/${encodeURIComponent(username)}`, token);"
-   ],
-   "reads": [
-    "user_id",
-    "entitlements.list[].role_name",
-    "entitlements.list[].bank_id"
-   ],
-   "undocumented_endpoint": "Not documented in the resource docs of v5.1.0, v6.0.0 or v7.0.0 of the OBP-API the snapshot is taken from: its v5.1.0 and later versions leave out getUserByUsername (GET /users/username/USERNAME). The path still answers: checked on k8s.openbankproject.com on 2026-11-18, where v5.0.0 and older are switched off, it returned 200 for the caller's own username on v5.1.0, v6.0.0 and v7.0.0 (and 404 on v4.0.0 and v5.0.0). It is not a documented contract, so a later OBP-API may drop it."
   },
   {
    "verb": "GET",
@@ -10281,6 +10255,32 @@
     "username"
    ],
    "note": "A plain GET Request (the draft's DELETE was wrong); the user goes into the session, where user_id, email and username are read."
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v5.1.0/users/current",
+   "source": "apps/conformator/src/lib/server/users.ts",
+   "needles": [
+    "obpRequests.get('/obp/v5.1.0/users/current', token)"
+   ],
+   "reads": [
+    "provider"
+   ],
+   "note": "Reads which identity provider the signed-in person used, so the next call finds a User at that provider."
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v5.1.0/users/provider/PROVIDER/username/USERNAME",
+   "source": "apps/conformator/src/lib/server/users.ts",
+   "needles": [
+    "`/obp/v5.1.0/users/provider/${encodeURIComponent(provider)}/username/${encodeURIComponent(username)}`"
+   ],
+   "reads": [
+    "user_id",
+    "entitlements.list[].role_name",
+    "entitlements.list[].bank_id"
+   ],
+   "note": "Finds one User by identity provider and username. Needs the system Role CanGetAnyUser."
   }
  ],
  "not_calls": [
