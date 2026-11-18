@@ -23,8 +23,19 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
  */
 
 const records: Record<string, unknown[]> = {};
+/** The Organisations GET /my/organisations returns for the User whose token is the key. */
+const organisationsOf: Record<string, unknown[]> = {};
 
 vi.mock('./applicationToken', () => ({ requestApplicationAccessToken: async () => ({ token: 'cohort-token' }) }));
+vi.mock('./obp', () => ({
+	obpRequests: {
+		get: async (endpoint: string, token: string) => {
+			if (endpoint === '/obp/v7.0.0/my/organisations') return { organisations: organisationsOf[token] ?? [] };
+			throw new Error(`Unexpected call ${endpoint}`);
+		}
+	}
+}));
+vi.mock('./space', () => ({ cohortSpace: () => 'cohort', cohortFormsSpace: () => 'cohort-forms' }));
 vi.mock('./records', async (importOriginal) => {
 	const original = await importOriginal<typeof import('./records')>();
 	return { ...original, listRecords: async (entity: string) => records[entity] ?? [] };
@@ -33,11 +44,12 @@ vi.mock('./records', async (importOriginal) => {
 const { participantsOfUser } = await import('./participants');
 const { outcomesForApplicant } = await import('./decisions');
 const { standingOf } = await import('./evaluation');
-const { reviewsOfParticipants } = await import('./milestones');
-const { attendanceOfParticipants, seatsTaken, sessionsOfProgrammes } = await import('./sessions');
+const { reportsOfParticipants, reviewsOfParticipants } = await import('./milestones');
+const { attendanceOfParticipants, bookingsOfParticipants, seatsTaken, sessionsOfProgrammes } = await import('./sessions');
 
 beforeEach(() => {
 	for (const key of Object.keys(records)) delete records[key];
+	for (const key of Object.keys(organisationsOf)) delete organisationsOf[key];
 });
 
 describe("reads made with Cohort's own token", () => {
@@ -46,8 +58,19 @@ describe("reads made with Cohort's own token", () => {
 			{ cohort_participant_id: 'p1', user_id: 'me', programme_id: 'prog', application_id: 'a1', stage: 'onboarded', status: 'active', joined_at: '2026-11-01T09:00:00Z' },
 			{ cohort_participant_id: 'p2', user_id: 'someone-else', programme_id: 'prog', application_id: 'a2', stage: 'onboarded', status: 'active', joined_at: '2026-11-01T09:00:00Z' }
 		];
-		expect((await participantsOfUser('me')).map((p) => p.id)).toEqual(['p1']);
-		expect(await participantsOfUser('nobody')).toEqual([]);
+		expect((await participantsOfUser('me', 'my-token')).map((p) => p.id)).toEqual(['p1']);
+		expect(await participantsOfUser('nobody', 'nobody-token')).toEqual([]);
+	});
+
+	it("give a team's members its participation, and its applicant only through the team once it has one", async () => {
+		records.cohort_participant = [
+			{ cohort_participant_id: 'p1', user_id: 'founder', organisation_id: 'team-a', programme_id: 'prog', application_id: 'a1', stage: 'onboarded', status: 'active', joined_at: '2026-11-01T09:00:00Z' },
+			{ cohort_participant_id: 'p2', user_id: 'other-founder', organisation_id: 'team-b', programme_id: 'prog', application_id: 'a2', stage: 'onboarded', status: 'active', joined_at: '2026-11-01T09:00:00Z' }
+		];
+		organisationsOf['teammate-token'] = [{ organisation_id: 'team-a', bank_id: 'cohort', name: 'A', status: 'active', member_role: 'member' }];
+		expect((await participantsOfUser('teammate', 'teammate-token')).map((p) => p.id)).toEqual(['p1']);
+		// The founder has left team A: being its applicant no longer counts.
+		expect(await participantsOfUser('founder', 'founder-token')).toEqual([]);
 	});
 
 	it("give an applicant only the outcome of the applications asked for, without the staff reason", async () => {
@@ -79,6 +102,15 @@ describe("reads made with Cohort's own token", () => {
 		expect(await reviewsOfParticipants([])).toEqual([]);
 	});
 
+	it("give a startup only its own team's milestone reports", async () => {
+		records.cohort_milestone_report = [
+			{ cohort_milestone_report_id: 'r1', milestone_id: 'm1', participant_id: 'mine', note: 'Done', submitted_at: '2027-02-01T10:00:00Z' },
+			{ cohort_milestone_report_id: 'r2', milestone_id: 'm1', participant_id: 'theirs', note: 'Secret', submitted_at: '2027-02-01T10:00:00Z' }
+		];
+		expect((await reportsOfParticipants(['mine'])).map((r) => r.id)).toEqual(['r1']);
+		expect(await reportsOfParticipants([])).toEqual([]);
+	});
+
 	it("give a startup only its own programme's sessions, a seat count without names, and its own attendance", async () => {
 		records.cohort_session = [
 			{ cohort_session_id: 's1', programme_id: 'mine', title: 'Clinic', kind: 'mentoring', starts_at: '2027-03-01T10:00', capacity: 2 },
@@ -97,5 +129,6 @@ describe("reads made with Cohort's own token", () => {
 		expect([...taken.entries()]).toEqual([['s1', 2]]);
 		expect(JSON.stringify([...taken.entries()])).not.toContain('Secret Co');
 		expect((await attendanceOfParticipants(['me'])).map((a) => a.participant_id)).toEqual(['me']);
+		expect((await bookingsOfParticipants(['me'])).map((b) => b.id)).toEqual(['b2']);
 	});
 });

@@ -323,6 +323,11 @@ export const participantEntity: SystemDynamicEntityDefinition = {
 			user_id: text('9ca9a7e4-6d02-40e3-a129-0b2bf89de9b1', 'The applicant: the User who represents the startup.', 255, 1),
 			startup_name: text('Example Pay', 'The name of the startup, from its application.', 255),
 			customer_id: text('7uy8a7e4-6d02-40e3-a129-0b2bf89de9f0', "The startup's CORPORATE Customer, once it has registered its company.", 36),
+			organisation_id: text(
+				'8ca8a7e4-6d02-48e3-a029-0b2bf89de9f0',
+				"The startup's team: an OBP Organisation, chosen by the applicant at onboarding. Its members see this participation.",
+				36
+			),
 			stage: text('onboarded', 'Where it is in the programme: onboarded, in_programme or graduated.', 30, 1),
 			status: text('active', 'active, withdrawn or graduated.', 20, 1),
 			joined_at: text('2026-12-01T09:00:00Z', 'When it was accepted (ISO 8601, UTC).', 30, 1),

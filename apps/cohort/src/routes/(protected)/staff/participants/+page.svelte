@@ -16,14 +16,15 @@
 {#if form?.form === 'role' && form?.requested}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'access_requested_notice')}</p>{/if}
 {#if form?.error}
 	<p class="mt-4 preset-tonal-error rounded p-3" role="alert">
-		{#if ['invalid', 'gate'].includes(String(form.error))}{t(locale, `stage_error_${form.error}` as MessageKey)}{:else}{t(locale, 'staff_error')} {String(form.error)}{/if}
+		{#if ['invalid', 'gate'].includes(String(form.error))}{t(locale, `stage_error_${form.error}` as MessageKey)}{:else if form.error === 'team_unknown'}{t(locale, 'team_error_unknown')}{:else}{t(locale, 'staff_error')} {String(form.error)}{/if}
 	</p>
 {/if}
+{#if form?.form === 'team' && form?.teamSet}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'team_saved')}</p>{/if}
 {#if form?.form === 'flag' && form?.flagged}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'risk_saved')}</p>{/if}
 {#if form?.form === 'advance' && form?.advanced}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'stage_advanced')} {form.advanced}.</p>{/if}
 
 <section class="card preset-outlined-surface-200-800 mt-6 p-4" data-testid="participants">
-	{#each ['reports', 'reviews', 'advance', 'history'] as const as key (key)}
+	{#each ['reports', 'reviews', 'advance', 'history', 'team'] as const as key (key)}
 		{#if missing(key)}<div class="mb-2"><MissingRole {locale} space={data.space} role={missing(key)!} entitlementRequestsUrl={data.entitlementRequestsUrl} /></div>{/if}
 	{/each}
 	{#if missing('read')}
@@ -39,6 +40,7 @@
 					<tr>
 						<th>{t(locale, 'programme_startup')}</th>
 						<th>{t(locale, 'participants_programme')}</th>
+						<th>{t(locale, 'team_heading')}</th>
 						<th>{t(locale, 'programme_stage')}</th>
 						<th>{t(locale, 'participants_company')}</th>
 						<th>{t(locale, 'milestones_heading')}</th>
@@ -52,6 +54,36 @@
 						<tr>
 							<td><a class="anchor" href="/staff/applications/{p.application_id}">{p.startup_name || p.application_id}</a></td>
 							<td>{p.programme}{#if p.call}<span class="block text-sm">{t(locale, 'application_call')}: {p.call}</span>{/if}</td>
+							<td class="min-w-44" data-testid="participant-team-{p.id}">
+								{#if !p.organisation_id}
+									<span class="text-sm">{t(locale, 'team_none_yet')}</span>
+								{:else if !p.team}
+									<code class="text-xs">{p.organisation_id}</code>
+								{:else}
+									{p.team.name || p.organisation_id}
+									{#if p.team.members}
+										<ul class="text-sm">
+											{#each p.team.members as member (member.user_id)}
+												<li>{member.username || member.user_id}{#if member.member_role === 'admin'}{' '}({t(locale, 'team_role_admin')}){/if}</li>
+											{/each}
+										</ul>
+									{/if}
+								{/if}
+								{#if !missing('advance') && !missing('team')}
+									<details class="mt-1">
+										<summary class="btn btn-sm preset-tonal cursor-pointer">{t(locale, p.organisation_id ? 'team_change' : 'team_set')}</summary>
+										<form method="POST" action="?/team" class="mt-1 flex flex-col gap-1">
+											<input type="hidden" name="participant_id" value={p.id} />
+											<select class="select select-sm" name="organisation_id" aria-label={t(locale, 'team_heading')} value={p.organisation_id}>
+												<option value="">{t(locale, 'team_none')}</option>
+												{#each data.teamChoices as team (team.organisation_id)}<option value={team.organisation_id}>{team.name || team.organisation_id}</option>{/each}
+											</select>
+											<input class="input input-sm" name="organisation_id_typed" maxlength="36" aria-label={t(locale, 'team_paste_id')} placeholder={t(locale, 'team_paste_id')} />
+											<button class="btn btn-sm preset-tonal self-start" data-testid="participant-team-save-{p.id}">{t(locale, 'team_save')}</button>
+										</form>
+									</details>
+								{/if}
+							</td>
 							<td>{stageName(locale, p.stage, p.stages)}</td>
 							<td>{t(locale, p.customer_id ? 'participants_company_yes' : 'participants_company_no')}</td>
 							<td>{p.milestones_accepted} / {p.milestones_total}</td>

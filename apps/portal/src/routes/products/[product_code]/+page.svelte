@@ -123,14 +123,14 @@
 				<div class="mt-4">
 					{#if data.isLoggedIn}
 						<a
-							href="/subscriptions?api_product_code={data.product.product.product_code}"
+							href={`/subscriptions?bank_id=${encodeURIComponent(data.product.product.bank_id)}&api_product_code=${encodeURIComponent(data.product.product.product_code)}`}
 							class="btn preset-filled-primary-500 px-8"
 						>
 							Subscribe Now
 						</a>
 					{:else}
 						<a
-							href="/login?redirect=/subscriptions?api_product_code={data.product.product.product_code}"
+							href={`/login?redirect=${encodeURIComponent(`/subscriptions?bank_id=${encodeURIComponent(data.product.product.bank_id)}&api_product_code=${encodeURIComponent(data.product.product.product_code)}`)}`}
 							class="btn preset-outlined-primary-500 px-8"
 						>
 							Sign in to Subscribe

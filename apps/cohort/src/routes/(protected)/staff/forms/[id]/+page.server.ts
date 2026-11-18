@@ -16,7 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 import { error, fail } from '@sveltejs/kit';
-import { answersOf, entityNameFor, growthProblem, keyFor, parseOptions, QUESTION_KINDS, summarise, type Form, type Question, type QuestionKind } from '$lib/forms';
+import { answersOf, entityNameFor, growthProblem, keyFor, parseOptions, QUESTION_KINDS, summarise, type Form, type Question, type QuestionKind, newestPerSubject } from '$lib/forms';
 import type { Locale } from '$lib/i18n';
 import { nowUtc } from '$lib/screening';
 import { CALL, FORM, PROGRAMME } from '$lib/server/entities/definitions';
@@ -65,16 +65,19 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 		grow: lackingOf(ROLES.grow),
 		answers: published ? lackingOf(answersRole(form.entity_name)) : null
 	};
-	let responses: { subject_id: string; startup_name: string; submitted_at: string; answers: Record<string, unknown> }[] = [];
+	let responses: { answers_id: string; subject_id: string; startup_name: string; submitted_at: string; answers: Record<string, unknown> }[] = [];
 	let answersError: string | null = null;
 	if (published && !lacking.answers) {
 		try {
-			responses = (await answersRecords(form, 'community', token)).map((r) => ({ subject_id: r.subject_id, startup_name: r.startup_name, submitted_at: r.submitted_at, answers: answersOf(form.questions, r.record) }));
+			responses = (await answersRecords(form, 'community', token)).map((r) => ({ answers_id: r.id, subject_id: r.subject_id, startup_name: r.startup_name, submitted_at: r.submitted_at, answers: answersOf(form.questions, r.record) }));
 		} catch (err) {
 			answersError = messageOf(err);
 		}
 	}
 	const submitted = responses.filter((r) => r.submitted_at);
+	// Counted per application or per startup: the newest submitted answer of each. A team normally has one answers
+	// record, but two members saving their first answers at the same moment can make two.
+	const counted = newestPerSubject(submitted);
 	// The other versions: every application form of the call, or the survey this one replaces and its replacement.
 	const sameTarget = (versions.status === 'fulfilled' ? versions.value : []).filter(
 		(f) => f.id !== form.id && (form.purpose === 'application' ? f.purpose === 'application' && f.call_id === form.call_id : f.id === form.replaces_form_id || f.replaces_form_id === form.id)
@@ -87,8 +90,9 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 		otherVersions: sameTarget.map((f) => ({ id: f.id, version: f.version, status: f.status })).sort((a, b) => a.version - b.version),
 		lacking,
 		responses: submitted.sort((a, b) => b.submitted_at.localeCompare(a.submitted_at)),
-		drafts: responses.length - submitted.length,
-		summary: summarise(form.questions, submitted.map((r) => r.answers as never), locals.locale as Locale),
+		answeredCount: counted.length,
+		drafts: new Set(responses.filter((r) => !r.submitted_at && !counted.some((c) => c.subject_id === r.subject_id)).map((r) => r.subject_id)).size,
+		summary: summarise(form.questions, counted.map((r) => r.answers as never), locals.locale as Locale),
 		answersError,
 		space: access.status === 'fulfilled' ? access.value.space : '',
 		entitlementRequestsUrl: access.status === 'fulfilled' ? access.value.entitlementRequestsUrl : null

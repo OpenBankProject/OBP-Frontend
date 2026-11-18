@@ -21,7 +21,7 @@ vi.mock('$env/dynamic/private', () => ({ env: { OBP_ENTITY_SPACE_ID: 'cohort' } 
 const obp = vi.hoisted(() => ({ get: vi.fn(), post: vi.fn(), put: vi.fn(), delete: vi.fn() }));
 vi.mock('./obp', () => ({ obpRequests: obp }));
 
-const { answersDefinition, answersRecords, formRecord, isAnswersRole, publishDefinition, writeMyAnswers } = await import('./forms');
+const { answersDefinition, answersRecords, formRecord, isAnswersRole, publishDefinition, teamAnswers, writeMyAnswers, writeTeamAnswers } = await import('./forms');
 const { formOf } = await import('$lib/forms');
 
 const form = formOf('6fb17583-1e49-4435-bb74-a14fe0996723', {
@@ -48,6 +48,11 @@ describe('answersDefinition', () => {
 		expect(properties.round.example).toBe('Seed');
 		// OBP-API needs an example on every property.
 		expect(Object.values(properties).every((p) => p.example !== undefined)).toBe(true);
+	});
+	it('uses row-level access for a survey, so each answer can be shared with its team, and not for an application form', () => {
+		expect(answersDefinition(form, 'cohort_form_6fb175831e49', form.questions).use_row_level_access).toBe(true);
+		const applicationForm = { ...form, purpose: 'application' as const };
+		expect(answersDefinition(applicationForm, 'cohort_form_6fb175831e49', form.questions).use_row_level_access).toBeUndefined();
 	});
 	it('names the space its subject_id points into, so the link can be followed', () => {
 		const definition = answersDefinition(form, 'cohort_form_6fb175831e49', form.questions);
@@ -91,5 +96,47 @@ describe('the forms space', () => {
 		await writeMyAnswers(published, 'participant-1', 'Example Pay', { funding_raised: 10 }, true, 'token');
 		expect(obp.post.mock.calls.at(-1)![0]).toContain('/banks/cohort-forms/');
 		expect(obp.post.mock.calls.at(-1)![1]).toMatchObject({ subject_id: 'participant-1', funding_raised: 10 });
+	});
+});
+
+describe("a team's answers to a survey", () => {
+	const published = { ...form, status: 'published' as const, entity_name: 'cohort_form_6fb175831e49', questions: form.questions.map((q) => ({ ...q, published: true })) };
+	const participant = { id: 'participant-1', startup_name: 'Example Pay', organisation_id: 'team-a' };
+	const accessUrl = (recordId: string) => `/obp/v7.0.0/banks/cohort-forms/dynamic-entities/cohort_form_6fb175831e49/${recordId}/access`;
+
+	it('are read with the member\'s own token, and found by the participant', async () => {
+		obp.get.mockResolvedValueOnce({ cohort_form_6fb175831e49_list: [{ cohort_form_6fb175831e49: { cohort_form_6fb175831e49_id: 'r1', subject_id: 'participant-1' } }] });
+		expect((await teamAnswers(published, 'participant-1', 'member-token'))?.id).toBe('r1');
+		expect(obp.get.mock.calls.at(-1)).toEqual(['/obp/v7.0.0/banks/cohort-forms/dynamic-entities/cohort_form_6fb175831e49', 'member-token']);
+	});
+
+	it('are created as the first member\'s record and shared with the team\'s Organisation', async () => {
+		obp.get.mockResolvedValueOnce({ cohort_form_6fb175831e49_list: [] });
+		obp.post.mockResolvedValueOnce({ cohort_form_6fb175831e49: { cohort_form_6fb175831e49_id: 'new-record' } });
+		obp.put.mockResolvedValueOnce({});
+		await writeTeamAnswers(published, participant, { funding_raised: 10 }, false, 'member-token');
+		expect(obp.post.mock.calls.at(-1)![0]).toBe('/obp/v7.0.0/banks/cohort-forms/dynamic-entities/my/cohort_form_6fb175831e49');
+		expect(obp.post.mock.calls.at(-1)![2]).toBe('member-token');
+		expect(obp.put.mock.calls.at(-1)).toEqual([accessUrl('new-record'), { organisation_id: 'team-a', can_read: true, can_update: true }, 'member-token']);
+	});
+
+	it('show a failure to share a record the member has just created', async () => {
+		obp.get.mockResolvedValueOnce({ cohort_form_6fb175831e49_list: [] });
+		obp.post.mockResolvedValueOnce({ cohort_form_6fb175831e49: { cohort_form_6fb175831e49_id: 'new-record' } });
+		obp.put.mockRejectedValueOnce(new Error('OBP-30646: Organisation not found.'));
+		await expect(writeTeamAnswers(published, participant, {}, false, 'member-token')).rejects.toThrow('OBP-30646');
+	});
+
+	it('are updated in place by another member, who may not be able to share them again', async () => {
+		obp.get.mockResolvedValueOnce({ cohort_form_6fb175831e49_list: [{ cohort_form_6fb175831e49: { cohort_form_6fb175831e49_id: 'r1', subject_id: 'participant-1', submitted_at: '' } }] });
+		obp.put.mockResolvedValueOnce({ cohort_form_6fb175831e49: { cohort_form_6fb175831e49_id: 'r1' } });
+		obp.put.mockRejectedValueOnce(new Error('OBP-20006: missing grant access on this row'));
+		await writeTeamAnswers(published, participant, { pilot: true }, true, 'teammate-token');
+		const [updateUrl, updateBody, updateToken] = obp.put.mock.calls.at(-2)!;
+		expect(updateUrl).toBe('/obp/v7.0.0/banks/cohort-forms/dynamic-entities/cohort_form_6fb175831e49/r1');
+		expect(updateBody).toMatchObject({ subject_id: 'participant-1', pilot: true });
+		expect(updateBody.submitted_at).toBeTruthy();
+		expect(updateToken).toBe('teammate-token');
+		expect(obp.put.mock.calls.at(-1)![0]).toBe(accessUrl('r1'));
 	});
 });

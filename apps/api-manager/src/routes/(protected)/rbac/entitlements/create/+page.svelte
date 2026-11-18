@@ -38,13 +38,17 @@
   // Read URL parameters
   const urlUsername = $page.url.searchParams.get("username") || "";
   const urlRole = $page.url.searchParams.get("role") || "";
+  // A link from another app (such as a Platform App's setup page) names the bank the Role is for;
+  // otherwise the bank is the one picked in the API Manager.
+  const urlBankId = $page.url.searchParams.get("bank_id")?.trim() || "";
+  let roleBankId = $derived(urlBankId || currentBank.bankId);
 
   // Form state
   let userId = $state("");
   let username = $state(urlUsername);
   let roleName = $state(urlRole);
   let roleScope = $state<"all" | "system" | "bank">("all");
-  let bankId = $state(currentBank.bankId);
+  let bankId = $state(urlBankId || currentBank.bankId);
   let roleSearchQuery = $state("");
   let isSubmitting = $state(false);
   let formError = $state("");
@@ -90,7 +94,7 @@
   // Sync bankId based on whether the role needs a bank
   $effect(() => {
     if (selectedRoleRequiresBank) {
-      bankId = grantAtSystemSpace && roleCanBeHeldAtSystemSpace ? SYSTEM_SPACE : currentBank.bankId;
+      bankId = grantAtSystemSpace && roleCanBeHeldAtSystemSpace ? SYSTEM_SPACE : roleBankId;
     } else {
       bankId = "";
     }
@@ -219,7 +223,7 @@
                 onchange={() => (grantAtSystemSpace = false)}
                 disabled={isSubmitting}
               />
-              Bank <code>{currentBank.bankId || "(none selected)"}</code>
+              Bank <code>{roleBankId || "(none selected)"}</code>
             </label>
             <label>
               <input

@@ -18,12 +18,12 @@
 import { error } from '@sveltejs/kit';
 import { PROGRAMME } from '$lib/server/entities/definitions';
 import { participantsOfUser } from '$lib/server/participants';
-import { getRecord } from '$lib/server/records';
+import { getRecord, userToken } from '$lib/server/records';
 import type { PageServerLoad } from './$types';
 
 /** The graduation certificate of one of the User's own participations, once it has graduated. */
 export const load: PageServerLoad = async ({ params, locals }) => {
-	const participant = (await participantsOfUser(locals.session.data.user?.user_id ?? '')).find((p) => p.id === params.id);
+	const participant = (await participantsOfUser(locals.session.data.user?.user_id ?? '', userToken(locals)!)).find((p) => p.id === params.id);
 	if (!participant) error(404, 'Not found');
 	if (participant.status !== 'graduated' && participant.stage !== 'graduated') error(403, 'This startup has not graduated yet.');
 	const programme = await getRecord(PROGRAMME, 'public', participant.programme_id).catch(() => null);

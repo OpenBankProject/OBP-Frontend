@@ -18,11 +18,13 @@
 import { createLogger } from '@obp/shared/utils';
 import { riskOf, type RiskLevel } from '$lib/dashboard';
 import { nowUtc } from '$lib/screening';
+import { canSeeParticipant, type MyOrganisation } from '$lib/teams';
 import { requestApplicationAccessToken } from './applicationToken';
 import { CALL, PARTICIPANT } from './entities/definitions';
 import { obpRequests } from './obp';
 import { createRecord, getRecord, idOf, listRecords, updateRecord, type CohortRecord } from './records';
 import { cohortSpace } from './space';
+import { myOrganisations } from './teams';
 
 const logger = createLogger('CohortParticipants');
 
@@ -30,8 +32,12 @@ const logger = createLogger('CohortParticipants');
  * Onboarding. When staff accept an application at evaluation, the startup becomes a participant of the call's
  * programme, created with the staff member's own Roles (Get and Create on cohort_participant): a staff action is never
  * done with Cohort's Scopes. What the startup does itself runs as Cohort, narrowed to its own records: seeing its
- * participation, and registering its company (a CORPORATE Customer, the applicant linked to it, and its customer_id on
- * the participant, with Cohort's Get and Update Scopes).
+ * participation, choosing its team, and registering its company (a CORPORATE Customer, the applicant linked to it, and
+ * its customer_id on the participant, with Cohort's Get and Update Scopes).
+ *
+ * A startup is a team: an OBP Organisation named in the participant's organisation_id. A User sees a participation if
+ * they are a member of its team (read from /my/organisations with their own token), or, only while it has no team yet,
+ * if they are its applicant (user_id).
  */
 
 export interface Participant {
@@ -42,6 +48,7 @@ export interface Participant {
 	user_id: string;
 	startup_name: string;
 	customer_id: string;
+	organisation_id: string;
 	stage: string;
 	status: string;
 	joined_at: string;
@@ -59,6 +66,7 @@ export function participantOf(record: CohortRecord): Participant {
 		user_id: String(record.user_id ?? ''),
 		startup_name: String(record.startup_name ?? ''),
 		customer_id: String(record.customer_id ?? ''),
+		organisation_id: String(record.organisation_id ?? ''),
 		stage: String(record.stage ?? ''),
 		status: String(record.status ?? ''),
 		joined_at: String(record.joined_at ?? ''),
@@ -80,14 +88,46 @@ export async function participantsAsCohort(): Promise<{ record: CohortRecord; pa
 	return records.map((record) => ({ record, participant: participantOf(record) }));
 }
 
-/** The programmes the User's startup takes part in. Empty, and logged, when Cohort cannot read them. */
-export async function participantsOfUser(userId: string): Promise<Participant[]> {
+/**
+ * The User's Organisations, read with their own token. Empty, and logged, when OBP-API cannot give them (for example
+ * before it has Organisations), so the applicant still sees a participation that has no team yet.
+ */
+export async function myOrganisationsOrNone(userToken: string): Promise<MyOrganisation[]> {
 	try {
-		return (await participantsAsCohort()).map((p) => p.participant).filter((p) => p.user_id === userId);
+		return await myOrganisations(userToken);
+	} catch (err) {
+		logger.warn("Cohort could not read the User's Organisations:", err);
+		return [];
+	}
+}
+
+/** The participations the User may see, with their records, read as Cohort and narrowed to the User. */
+async function visibleParticipants(userId: string, userToken: string) {
+	const [all, organisations] = await Promise.all([participantsAsCohort(), myOrganisationsOrNone(userToken)]);
+	const organisationIds = organisations.map((organisation) => organisation.organisation_id);
+	return all.filter((p) => canSeeParticipant(p.participant, userId, organisationIds));
+}
+
+/**
+ * The programmes the User's startup takes part in: those of the teams they belong to, and those they applied for that
+ * have no team yet. Empty, and logged, when Cohort cannot read them.
+ */
+export async function participantsOfUser(userId: string, userToken: string): Promise<Participant[]> {
+	try {
+		return (await visibleParticipants(userId, userToken)).map((p) => p.participant);
 	} catch (err) {
 		logger.warn('Cohort could not read participants (does it hold the Scopes shown on /staff/setup?):', err);
 		return [];
 	}
+}
+
+/** A participant record for a PUT, which replaces the record: its fields without its own id field or empty values. */
+function replacementBody(record: CohortRecord, changes: CohortRecord): CohortRecord {
+	return Object.fromEntries(
+		Object.entries({ ...record, ...changes }).filter(
+			([key, value]) => key !== `${PARTICIPANT}_id` && value !== '' && value !== null && value !== undefined
+		)
+	);
 }
 
 /**
@@ -120,19 +160,19 @@ export async function onboardAccepted(args: {
 }
 
 /**
- * Register the startup's company: a CORPORATE Customer of the space (kyc_status false), its applicant linked to it,
- * and its customer_id on the participant. Only the participant's own User may do this, and only once.
+ * Register the startup's company: a CORPORATE Customer of the space (kyc_status false), the User linked to it, and its
+ * customer_id on the participant. Anyone who can see the participation may do this, and only once.
  */
 export async function registerCompany(
 	participantId: string,
 	userId: string,
+	userToken: string,
 	details: { legal_name: string; mobile_phone_number: string; email: string }
 ): Promise<string> {
-	const token = await cohortToken();
-	const all = await participantsAsCohort();
-	const found = all.find((p) => p.participant.id === participantId && p.participant.user_id === userId);
+	const found = (await visibleParticipants(userId, userToken)).find((p) => p.participant.id === participantId);
 	if (!found) throw new Error('This is not your programme.');
 	if (found.participant.customer_id) return found.participant.customer_id;
+	const token = await cohortToken();
 	const space = encodeURIComponent(cohortSpace());
 	const created = await obpRequests.post(
 		`/obp/v6.0.0/banks/${space}/customers`,
@@ -141,12 +181,23 @@ export async function registerCompany(
 	);
 	const customerId = String(created?.customer_id ?? '');
 	await obpRequests.post(`/obp/v5.1.0/banks/${space}/user_customer_links`, { user_id: userId, customer_id: customerId }, token);
-	// A PUT replaces the record: send its fields (not its own id field) with the customer_id added.
-	const body: CohortRecord = Object.fromEntries(
-		Object.entries({ ...found.record, customer_id: customerId }).filter(
-			([key, value]) => key !== `${PARTICIPANT}_id` && value !== '' && value !== null && value !== undefined
-		)
-	);
-	await updateRecord(PARTICIPANT, '', participantId, body, token);
+	await updateRecord(PARTICIPANT, '', participantId, replacementBody(found.record, { customer_id: customerId }), token);
 	return customerId;
+}
+
+/**
+ * Record the startup's team on the participant, with Cohort's Update Scope. Only the applicant may, only while the
+ * participation has no team, and only with an active team the applicant is an admin of (so they can manage who is in
+ * it). Staff correct a team on the Participants page with their own Roles. After this, the team's members see the
+ * participation and the applicant sees it as a member.
+ */
+export async function recordTeam(participantId: string, userId: string, userToken: string, organisationId: string): Promise<void> {
+	const [all, organisations] = await Promise.all([participantsAsCohort(), myOrganisationsOrNone(userToken)]);
+	const found = all.find((p) => p.participant.id === participantId && p.participant.user_id === userId && !p.participant.organisation_id);
+	if (!found) throw new Error('This is not your programme, or it already has a team.');
+	const team = organisations.find(
+		(organisation) => organisation.organisation_id === organisationId && organisation.status === 'active' && organisation.member_role === 'admin'
+	);
+	if (!team) throw new Error('You are not an admin of that team.');
+	await updateRecord(PARTICIPANT, '', participantId, replacementBody(found.record, { organisation_id: organisationId }), await cohortToken());
 }

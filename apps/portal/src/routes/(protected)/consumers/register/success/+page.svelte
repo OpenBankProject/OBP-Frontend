@@ -20,12 +20,17 @@
     const logger = createLogger('ConsumerRegisterSuccessPage');
     const { data } = $props()
     const consumerData = data.consumerData || {};
+    const apiHost: string = data.apiHost || '';
+    // OBP-API enables a Consumer registered here only when its consumers_enabled_by_default prop allows it
+    const isDisabled = consumerData.enabled === false;
 
     let copied = $state(false)
 
     async function clickToCopy() {
-        const formattedCredentials = Object.entries(consumerData)
-            .map(([key, value]) => `${key}: ${value}`)
+        const lines = Object.entries(consumerData)
+            .map(([key, value]) => `${key}: ${value}`);
+        // The API host goes first, so the copied credentials say where they work
+        const formattedCredentials = (apiHost ? [`api_host: ${apiHost}`, ...lines] : lines)
             .join('\n');
 
         try {
@@ -54,7 +59,20 @@
         <p class="text-center text-warning-400">
             You will not be able to retrieve them again.
         </p>
+        {#if isDisabled}
+            <div class="rounded-lg bg-warning-50 p-3 dark:bg-warning-900/20" role="alert" data-testid="consumer-disabled-warning">
+                <p class="text-sm text-warning-700 dark:text-warning-300">
+                    This Consumer is disabled. Its key and secret will not work until an administrator enables it.
+                    Ask an administrator of this API to enable Consumer ID <code>{consumerData.consumer_id}</code>.
+                </p>
+            </div>
+        {/if}
         <div class="preset-filled-primary-50-950 shadow-md rounded-lg p-4 m-1.5">
+            {#if apiHost}
+                <p class="mb-2" data-testid="consumer-api-host">
+                    <strong class="text-tertiary-400">API Host:</strong> {apiHost}
+                </p>
+            {/if}
             <ul class="list-inside space-y-2">
                 {#each Object.entries(consumerData) as [key, value]}
                     {#if key === 'created_by_user'}

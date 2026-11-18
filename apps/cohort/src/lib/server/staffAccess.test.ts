@@ -53,6 +53,8 @@ describe('staffAccess', () => {
 		expect(spaceOfRole('CanGetDynamicEntityRecord_cohort_form_6fb175831e49')).toBe('cohort-forms');
 		expect(spaceOfRole('CanCreateDynamicEntityRecord_cohort_form')).toBe('cohort');
 		expect(spaceOfRole('CanGetDynamicEntityRecord_cohort_application')).toBe('cohort');
+		// Founders create their teams for themselves, so OBP-API puts them at SYS, and staff read them there.
+		expect(spaceOfRole('CanGetOrganisationAtOneBank')).toBe('SYS');
 		get.mockImplementation(async (path: string) =>
 			path.includes('users/current')
 				? { user_id: 'u1', entitlements: { list: [{ role_name: 'CanCreateDynamicEntityDefinition', bank_id: 'cohort' }] } }

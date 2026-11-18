@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-import { dynamicEntityDefinitionsPath } from '@obp/shared/obp';
+import { dynamicEntityDataPath, dynamicEntityDefinitionsPath } from '@obp/shared/obp';
 import type { SystemDynamicEntityDefinition } from '@obp/shared/server/obp';
 import { answersOf, formOf, type Answers, type Form, type Question } from '$lib/forms';
 import { nowUtc } from '$lib/screening';
@@ -31,8 +31,11 @@ import { cohortFormsSpace, cohortSpace } from './space';
  * need there reach nothing of Cohort's own. Staff build and publish forms with their own Roles: publishing creates the
  * form's dynamic entity with the staff member's CanCreateDynamicEntityDefinition at the forms space (and OBP-API grants
  * them its Record Roles there), and adding questions later updates it with CanUpdateDynamicEntityDefinition. Each
- * applicant or startup writes their own answers as a personal record of that dynamic entity; staff read them all
- * through its community URL with its Get Role at the forms space.
+ * applicant writes their own answers to an application form as a personal record of that dynamic entity. A survey is
+ * answered once per startup team. Its dynamic entity uses row-level access: the member who first saves answers creates
+ * the record with their own token and shares it with the team's OBP Organisation, so every member reads and updates it
+ * while they belong to the team. Staff read every answer through the community URL with the Get Role at the forms
+ * space.
  */
 
 /** The Role that reads every answer to a form. */
@@ -71,6 +74,8 @@ export function answersDefinition(form: Form, entityName: string, questions: Que
 		personal_requires_role: false,
 		has_public_access: false,
 		has_community_access: true,
+		// A survey's answers belong to a team: each record is shared with the team's Organisation (see writeTeamAnswers).
+		...(form.purpose === 'survey' ? { use_row_level_access: true } : {}),
 		schema: {
 			description: `Answers to the ${form.purpose === 'survey' ? 'survey' : 'application form'} "${form.title || form.title_ar}" (version ${form.version}; the cohort_form ${form.id} in space ${home}).`,
 			required: ['subject_id'],
@@ -170,6 +175,55 @@ export async function writeMyAnswers(form: Form, subjectId: string, startupName:
 	};
 	if (existing) await updateRecord(form.entity_name, 'my', existing.id, record, token, cohortFormsSpace());
 	else await createRecord(form.entity_name, 'my', record, token, cohortFormsSpace());
+}
+
+/**
+ * A team's answers to a survey: the record for this participant that the logged-in User may read, which is the one
+ * shared with their team. The caller has already checked that the User may see the participant. Null before anyone
+ * in the team has answered.
+ */
+export async function teamAnswers(form: Form, participantId: string, token: string): Promise<AnswersRecord | null> {
+	if (!form.entity_name || form.status === 'draft') return null;
+	const records = await listRecords(form.entity_name, '', token, cohortFormsSpace());
+	return records.map((r) => answersRecordOf(form.entity_name, r)).find((a) => a.subject_id === participantId) ?? null;
+}
+
+/** The access list path of one answers record, in the forms space. */
+function accessPath(entityName: string, recordId: string): string {
+	return `${dynamicEntityDataPath(cohortFormsSpace())}/${encodeURIComponent(entityName)}/${encodeURIComponent(recordId)}/access`;
+}
+
+/**
+ * Write a team's answers to a survey with the logged-in User's token (only questions published in the dynamic
+ * entity). The first member to save creates the record, and every save shares it with the team's Organisation so all
+ * its members can read and update it. Sharing again changes nothing. Sharing on later saves matters when the team was
+ * chosen after the first answers were saved. A member without can_grant on the record is refused, which only happens
+ * once it is already shared with them, so that refusal is ignored.
+ */
+export async function writeTeamAnswers(
+	form: Form,
+	participant: { id: string; startup_name: string; organisation_id: string },
+	answers: Answers,
+	submitted: boolean,
+	token: string
+): Promise<void> {
+	const published = new Set(form.questions.filter((q) => q.published).map((q) => q.key));
+	const existing = await teamAnswers(form, participant.id, token);
+	const record: CohortRecord = {
+		subject_id: participant.id,
+		...(participant.startup_name ? { startup_name: participant.startup_name } : {}),
+		...Object.fromEntries(Object.entries(answers).filter(([key]) => published.has(key))),
+		...(submitted ? { submitted_at: nowUtc() } : existing?.submitted_at ? { submitted_at: existing.submitted_at } : {})
+	};
+	const recordId = existing
+		? (await updateRecord(form.entity_name, '', existing.id, record, token, cohortFormsSpace()), existing.id)
+		: idOf(form.entity_name, await createRecord(form.entity_name, 'my', record, token, cohortFormsSpace()));
+	if (participant.organisation_id && recordId) {
+		const share = obpRequests.put(accessPath(form.entity_name, recordId), { organisation_id: participant.organisation_id, can_read: true, can_update: true }, token);
+		// The member who has just created the record holds can_grant, so a refusal then is a real failure and is shown.
+		if (existing) await share.catch(() => undefined);
+		else await share;
+	}
 }
 
 /**

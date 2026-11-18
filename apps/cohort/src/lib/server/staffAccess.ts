@@ -21,11 +21,14 @@ import { apiManagerUrl } from './appDirectory';
 import { isAnswersRole } from './forms';
 import { ANNOUNCEMENT, APPLICATION, DEMO_GUEST, DEMO_SLOT, EMAIL_SETTING, PITCH_FEEDBACK, ATTENDANCE, CALL, FORM, MILESTONE, MILESTONE_REPORT, MILESTONE_REVIEW, OPEY_CONVERSATION, PROGRAMME, REVIEW, REVIEW_ASSIGNMENT, PARTICIPANT, REVIEWER, REVIEWER_DECISION, RUBRIC_CRITERION, REMINDER, SCREENING_DECISION, SESSION, SESSION_BOOKING, STAGE_CHANGE } from './entities/definitions';
 
-/** A Role staff need, the i18n key saying what it is for, and where: Cohort's space, the forms space, or system-wide. */
+/**
+ * A Role staff need, the i18n key saying what it is for, and where: Cohort's space, the forms space, SYS (where startup
+ * teams are, since founders create them for themselves) or system-wide.
+ */
 export interface StaffRole {
 	role_name: string;
 	purpose: string;
-	space?: 'forms' | 'system';
+	space?: 'forms' | 'sys' | 'system';
 }
 
 /** The Roles Cohort's staff pages use. Add a line here when a staff page starts needing a new one. */
@@ -48,6 +51,7 @@ export const STAFF_ROLES: StaffRole[] = [
 	{ role_name: `CanCreateDynamicEntityRecord_${PARTICIPANT}`, purpose: 'access_purpose_onboard' },
 	{ role_name: `CanUpdateDynamicEntityRecord_${PARTICIPANT}`, purpose: 'access_purpose_advance_stage' },
 	{ role_name: `CanCreateDynamicEntityRecord_${STAGE_CHANGE}`, purpose: 'access_purpose_record_stage' },
+	{ role_name: 'CanGetOrganisationAtOneBank', purpose: 'access_purpose_read_teams', space: 'sys' },
 	{ role_name: `CanGetDynamicEntityRecord_${REMINDER}`, purpose: 'access_purpose_read_reminders' },
 	{ role_name: `CanCreateDynamicEntityRecord_${SESSION}`, purpose: 'access_purpose_create_sessions' },
 	{ role_name: `CanGetDynamicEntityRecord_${SESSION}`, purpose: 'access_purpose_read_sessions' },
@@ -98,6 +102,7 @@ export function isStaffRole(roleName: string): boolean {
 /** The bank id a staff Role is held at: the forms space for the definition Roles and the Roles on answers. */
 export function spaceOfRole(roleName: string): string {
 	if (STAFF_ROLES.some((r) => r.role_name === roleName && r.space === 'system')) return '';
+	if (STAFF_ROLES.some((r) => r.role_name === roleName && r.space === 'sys')) return 'SYS';
 	const forms = isAnswersRole(roleName) || STAFF_ROLES.some((r) => r.role_name === roleName && r.space === 'forms');
 	return forms ? cohortFormsSpace() : cohortSpace();
 }

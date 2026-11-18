@@ -16,7 +16,7 @@
   along with this program. If not, see <https://www.gnu.org/licenses/>.
 -->
 <script lang="ts">
-  import { Mail } from "@lucide/svelte";
+  import { Mail, UserCheck } from "@lucide/svelte";
   import { onMount } from "svelte";
   import { page } from "$app/state";
   import type { PageData } from "./$types";
@@ -216,13 +216,26 @@
 
   <div class="flex items-center justify-between mb-6">
     <h1 class="text-3xl font-bold">Search Users</h1>
-    <a
-      href="/user-invitations"
-      class="btn btn-secondary flex items-center gap-2"
-    >
-      <Mail size={18} />
-      <span>User Invitations</span>
-    </a>
+    <div class="flex items-center gap-2">
+      {#if page.data.userId}
+        <a
+          href="/users/{encodeURIComponent(page.data.userId)}"
+          class="btn btn-secondary flex items-center gap-2"
+          data-testid="users-me-link"
+          title="Go to your own user ({page.data.username})"
+        >
+          <UserCheck size={18} />
+          <span>Me</span>
+        </a>
+      {/if}
+      <a
+        href="/user-invitations"
+        class="btn btn-secondary flex items-center gap-2"
+      >
+        <Mail size={18} />
+        <span>User Invitations</span>
+      </a>
+    </div>
   </div>
 
   <!-- Smart Search Panel -->
