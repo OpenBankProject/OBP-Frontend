@@ -70,8 +70,8 @@
 	const menuItems: NavigationItem[] = $derived([
 		{ href: '/', label: 'Home', iconComponent: House },
 		{ href: '/start', label: 'Getting started', iconComponent: Footprints },
-		{ href: '/catalogue', label: 'Test catalogue', iconComponent: BookOpen },
-		{ href: '/reports', label: 'Check a report', iconComponent: FileCheck2 },
+		...((data.content.suites ?? 0) > 0 ? [{ href: '/catalogue', label: 'Test catalogue', iconComponent: BookOpen }] : []),
+		...((data.content.reports ?? 0) > 0 ? [{ href: '/reports', label: 'Check a report', iconComponent: FileCheck2 }] : []),
 		...(data.user ? [{ href: '/spaces', label: 'Your organisation', iconComponent: Building2 }] : []),
 		...(data.isReviewer ? [{ href: '/reviews', label: 'Reviews', iconComponent: ClipboardCheck }] : []),
 		...(data.user ? [{ href: '/setup', label: 'Setup', iconComponent: Settings }] : [])

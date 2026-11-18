@@ -141,6 +141,11 @@
       <MissingRoleAlert roles={["CanCreateScopeAtAnyBank"]} message="You need this role to add the missing Scopes" />
     </div>
   {/if}
+  {#if !canUnmark && data.apps.length > 0}
+    <div class="mb-6" data-testid="platform-apps-unmark-forbidden">
+      <MissingRoleAlert roles={["CanDeletePlatformApp"]} message="You need this role to unmark a Platform App" />
+    </div>
+  {/if}
   {#each blockedBankIds as bankId (bankId)}
     <div class="mb-6" data-testid="platform-apps-grant-forbidden-{bankId}">
       <MissingRoleAlert roles={["CanCreateScopeAtOneBank"]} {bankId} message="You need this role to add the missing Scopes at {bankId}" />

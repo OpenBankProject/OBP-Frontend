@@ -23,10 +23,14 @@
 </p>
 <ul class="mt-6 flex flex-wrap gap-3">
 	<li><a class="btn preset-filled" href="/start" data-testid="home-start">Getting started</a></li>
-	<li><a class="btn preset-tonal" href="/catalogue">See the test catalogue</a></li>
-	<li><a class="btn preset-tonal" href="/reports">Check a report</a></li>
+	<!-- Each link is shown only when there is something behind it. When OBP-API cannot be reached the count is null and the link is not shown. -->
+	{#if (data.content.suites ?? 0) > 0}
+		<li><a class="btn preset-tonal" href="/catalogue" data-testid="home-catalogue">See the test catalogue</a></li>
+	{:else if data.content.suites === 0 && data.isStaff}
+		<li><a class="btn preset-tonal" href="/staff/suites" data-testid="home-build-catalogue">Build the test catalogue</a></li>
+	{/if}
+	{#if (data.content.reports ?? 0) > 0}<li><a class="btn preset-tonal" href="/reports" data-testid="home-reports">Check a report</a></li>{/if}
 	{#if data.isStaff}<li><a class="btn preset-tonal" href="/staff/participants">Participants</a></li>{/if}
-	{#if !data.user}<li><a class="btn preset-tonal" href="/login">Log in</a></li>{/if}
 </ul>
 
 <!-- Written to stand on its own, so it can become the Glossary item "Conformator" in OBP-API. -->
