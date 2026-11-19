@@ -74,7 +74,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   let lockStatus = null;
   if (user?.provider && user?.username) {
     try {
-      const lockEndpoint = `/obp/v6.0.0/users/${encodeURIComponent(user.provider)}/${encodeURIComponent(user.username)}/lock-status`;
+      const lockEndpoint = `/obp/v5.1.0/users/${encodeURIComponent(user.provider)}/${encodeURIComponent(user.username)}/lock-status`;
       lockStatus = await obp_requests.get(lockEndpoint, accessToken);
       logger.info(`Lock status fetched for ${user.username}`);
     } catch (err) {
@@ -127,7 +127,7 @@ export const actions = {
     }
 
     try {
-      const unlockEndpoint = `/obp/v6.0.0/users/${encodeURIComponent(user.provider)}/${encodeURIComponent(user.username)}/lock-status`;
+      const unlockEndpoint = `/obp/v5.1.0/users/${encodeURIComponent(user.provider)}/${encodeURIComponent(user.username)}/lock-status`;
       const result = await obp_requests.put(unlockEndpoint, {}, token);
 
       logger.info(`User ${user.username} unlocked successfully`, result);

@@ -56,7 +56,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 
   try {
     logger.info("=== ENTITLEMENTS API CALL ===");
-    const endpoint = `/obp/v6.0.0/entitlements`;
+    const endpoint = `/obp/v5.1.0/entitlements`;
     logger.info(`Request: ${endpoint}`);
 
     const response: EntitlementsResponse = await obp_requests.get(

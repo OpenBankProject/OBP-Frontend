@@ -159,7 +159,7 @@ export async function load(event: RequestEvent) {
   // Fetch rate limiting info
   try {
     rateLimitingInfo = await obp_requests.get(
-      `/obp/v6.0.0/rate-limiting`,
+      `/obp/v5.1.0/rate-limiting`,
       token,
     );
     logger.debug(`Rate limiting info: enabled=${rateLimitingInfo?.enabled}, active=${rateLimitingInfo?.is_active}`);
@@ -183,7 +183,7 @@ export async function load(event: RequestEvent) {
   // Fetch scopes for this consumer
   try {
     const scopesResponse = await obp_requests.get(
-      `/obp/v6.0.0/consumers/${consumerId}/scopes`,
+      `/obp/v5.1.0/consumers/${consumerId}/scopes`,
       token,
     );
     scopes = scopesResponse?.list || [];
@@ -196,7 +196,7 @@ export async function load(event: RequestEvent) {
   // Fetch available roles
   try {
     const rolesResponse = await obp_requests.get(
-      `/obp/v6.0.0/roles`,
+      `/obp/v5.1.0/roles`,
       token,
     );
     availableRoles = rolesResponse?.roles || [];
@@ -263,7 +263,7 @@ export const actions = {
       logger.info(`Setting consumer ${consumerId} enabled=${enabled}`);
 
       await obp_requests.put(
-        `/obp/v6.0.0/management/consumers/${consumerId}`,
+        `/obp/v5.1.0/management/consumers/${consumerId}`,
         { enabled },
         token,
       );
@@ -311,7 +311,7 @@ export const actions = {
       logger.info(`Adding scope ${role_name} to consumer ${consumerId}`);
 
       await obp_requests.post(
-        `/obp/v6.0.0/consumers/${consumerId}/scopes`,
+        `/obp/v5.1.0/consumers/${consumerId}/scopes`,
         { role_name, bank_id },
         token,
       );
@@ -358,7 +358,7 @@ export const actions = {
       logger.info(`Deleting scope ${scope_id} from consumer ${consumerId}`);
 
       await obp_requests.delete(
-        `/obp/v6.0.0/consumers/${consumerId}/scope/${scope_id}`,
+        `/obp/v5.1.0/consumers/${consumerId}/scope/${scope_id}`,
         token,
       );
 

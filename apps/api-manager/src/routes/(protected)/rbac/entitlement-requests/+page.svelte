@@ -188,7 +188,7 @@
             "✅ OBP-30216 detected! Entitlement already exists. Attempting to delete request...",
           );
           const deleteResponse = await trackedFetch(
-            `/proxy/obp/v6.0.0/entitlement-requests/${requestId}`,
+            `/proxy/obp/v5.1.0/entitlement-requests/${requestId}`,
             {
               method: "DELETE",
             },
@@ -233,7 +233,7 @@
 
       // Step 2: Delete the entitlement request
       const deleteResponse = await trackedFetch(
-        `/proxy/obp/v6.0.0/entitlement-requests/${requestId}`,
+        `/proxy/obp/v5.1.0/entitlement-requests/${requestId}`,
         {
           method: "DELETE",
         },
@@ -280,7 +280,7 @@
 
     try {
       const response = await trackedFetch(
-        `/proxy/obp/v6.0.0/entitlement-requests/${requestId}`,
+        `/proxy/obp/v5.1.0/entitlement-requests/${requestId}`,
         {
           method: "DELETE",
         },

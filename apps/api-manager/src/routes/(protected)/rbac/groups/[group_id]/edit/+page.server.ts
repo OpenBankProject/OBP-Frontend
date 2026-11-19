@@ -71,7 +71,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     logger.info("=== FETCHING GROUP FOR EDIT ===");
     logger.info(`Group ID: ${group_id}`);
     const groupEndpoint = `/obp/v6.0.0/management/groups/${group_id}`;
-    const rolesEndpoint = `/obp/v6.0.0/roles`;
+    const rolesEndpoint = `/obp/v5.1.0/roles`;
 
     const [group, rolesResponse] = await Promise.all([
       obp_requests.get(groupEndpoint, accessToken) as Promise<Group>,

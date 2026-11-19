@@ -101,7 +101,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
     // Fetch collection details
     logger.info("=== FETCHING COLLECTION DETAILS ===");
-    const collectionsEndpoint = `/obp/v6.0.0/management/api-collections`;
+    const collectionsEndpoint = `/obp/v5.1.0/management/api-collections`;
     logger.info(`Request: ${collectionsEndpoint}`);
 
     let collection: ApiCollection | null = null;

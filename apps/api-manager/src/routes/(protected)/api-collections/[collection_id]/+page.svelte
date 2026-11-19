@@ -97,7 +97,7 @@
 
     try {
       const response = await trackedFetch(
-        `/proxy/obp/v6.0.0/my/api-collection-ids/${collection.api_collection_id}/api-collection-endpoint-ids/${endpointId}`,
+        `/proxy/obp/v5.1.0/my/api-collection-ids/${collection.api_collection_id}/api-collection-endpoint-ids/${endpointId}`,
         {
           method: "DELETE",
         },

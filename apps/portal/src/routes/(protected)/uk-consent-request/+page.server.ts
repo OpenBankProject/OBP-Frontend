@@ -113,7 +113,7 @@ export async function load(event: RequestEvent) {
 	// An empty list with no error reads as "you hold nothing here"; this keeps the reason instead.
 	let accountsError = '';
 	try {
-		const accountsResponse = await obp_requests.get('/obp/v6.0.0/my/accounts', token);
+		const accountsResponse = await obp_requests.get('/obp/v5.1.0/my/accounts', token);
 		userAccounts = (accountsResponse.accounts || [])
 			.filter((account: any) => account.bank_id === bankId)
 			.map((account: any) => ({

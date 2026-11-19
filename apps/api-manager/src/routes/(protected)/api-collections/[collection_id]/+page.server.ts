@@ -79,7 +79,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   try {
     logger.info("=== FETCHING API COLLECTION DETAIL ===");
     logger.info(`Collection ID: ${collection_id}`);
-    const endpoint = `/obp/v6.0.0/my/api-collections/${collection_id}`;
+    const endpoint = `/obp/v5.1.0/my/api-collections/${collection_id}`;
     logger.info(`Request: ${endpoint}`);
 
     const response: ApiCollection = await obp_requests.get(
@@ -91,7 +91,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
     // Fetch collection endpoints
     logger.info("=== FETCHING API COLLECTION ENDPOINTS ===");
-    const endpointsEndpoint = `/obp/v6.0.0/my/api-collection-ids/${collection_id}/api-collection-endpoints`;
+    const endpointsEndpoint = `/obp/v5.1.0/my/api-collection-ids/${collection_id}/api-collection-endpoints`;
     logger.info(`Request: ${endpointsEndpoint}`);
 
     let endpoints: ApiCollectionEndpoint[] = [];

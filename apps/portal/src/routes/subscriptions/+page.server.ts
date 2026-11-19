@@ -32,7 +32,6 @@ import type {
 } from '$lib/obp/types';
 
 // API Products are v6.0.0; the subscription endpoints that extend them are v7.0.0.
-const PRODUCTS_API_VERSION = 'v6.0.0';
 const SUBSCRIPTIONS_API_VERSION = 'v7.0.0';
 
 /** Which button the product's attributes call for (see OBP-API API_PRODUCT_SUBSCRIPTION_PLAN.md, Phase 4). */
@@ -106,7 +105,7 @@ function describeError(e: unknown, fallback: string): string {
 async function loadSubscribableProducts(token: string, warnings: string[]): Promise<SubscribableProduct[]> {
 	let rawProducts: any[] = [];
 	try {
-		const response = await obp_requests.get(`/obp/${PRODUCTS_API_VERSION}/api-products`, token);
+		const response = await obp_requests.get(`/obp/v6.0.0/api-products`, token);
 		rawProducts = response?.api_products || [];
 	} catch (e) {
 		logger.error('Error fetching api products:', e);
@@ -118,7 +117,7 @@ async function loadSubscribableProducts(token: string, warnings: string[]): Prom
 		rawProducts.map(async (raw) => {
 			try {
 				const detail = await obp_requests.get(
-					`/obp/${PRODUCTS_API_VERSION}/banks/${encodeURIComponent(raw.bank_id)}/api-products/${encodeURIComponent(raw.api_product_code)}`,
+					`/obp/v6.0.0/banks/${encodeURIComponent(raw.bank_id)}/api-products/${encodeURIComponent(raw.api_product_code)}`,
 					token
 				);
 				return toSubscribableProduct(detail ?? raw, detail?.attributes ?? []);
@@ -140,7 +139,7 @@ async function loadSubscribableProducts(token: string, warnings: string[]): Prom
 async function loadMyConsumers(token: string, warnings: string[]): Promise<OBPConsumer[]> {
 	try {
 		const response = await obp_requests.get(
-			`/obp/${PRODUCTS_API_VERSION}/management/users/current/consumers`,
+			`/obp/v5.1.0/management/users/current/consumers`,
 			token
 		);
 		const consumers: OBPConsumer[] = response?.consumers || [];
@@ -212,7 +211,7 @@ export async function load(event: RequestEvent) {
 async function loadBillingSystem(token: string, bankId: string, apiProductCode: string): Promise<string> {
 	try {
 		const detail = await obp_requests.get(
-			`/obp/${PRODUCTS_API_VERSION}/banks/${encodeURIComponent(bankId)}/api-products/${encodeURIComponent(apiProductCode)}`,
+			`/obp/v6.0.0/banks/${encodeURIComponent(bankId)}/api-products/${encodeURIComponent(apiProductCode)}`,
 			token
 		);
 		return toSubscribableProduct(detail, detail?.attributes ?? []).billing_system;

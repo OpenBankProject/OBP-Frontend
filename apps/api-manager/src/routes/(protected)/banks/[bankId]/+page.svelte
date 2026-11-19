@@ -70,7 +70,7 @@
     isSubmittingAttr = true;
 
     try {
-      const response = await trackedFetch(`/proxy/obp/v6.0.0/banks/${bank.bank_id}/attribute`, {
+      const response = await trackedFetch(`/proxy/obp/v5.1.0/banks/${bank.bank_id}/attribute`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

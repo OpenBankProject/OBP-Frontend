@@ -28,7 +28,7 @@ export async function load({ locals }) {
 
     async function getUserEntitlements() {
         try {
-            const response = await obp_requests.get('/obp/v6.0.0/my/entitlements', accessToken);
+            const response = await obp_requests.get('/obp/v5.1.0/my/entitlements', accessToken);
             return response.list || [];
         } catch (e) {
             logger.error('Error fetching user entitlements:', e);
@@ -38,7 +38,7 @@ export async function load({ locals }) {
 
     async function getAllAvalilableEntitlements(): Promise<Array<{ role: string, requires_bank_id: boolean }>> {
         try {
-            const allEntitlements = await obp_requests.get('/obp/v6.0.0/roles', accessToken);
+            const allEntitlements = await obp_requests.get('/obp/v5.1.0/roles', accessToken);
             return allEntitlements.roles;
         } catch (e) {
             logger.error('Error fetching all available entitlements:', e);
@@ -122,12 +122,12 @@ export const actions = {
         }
         // Make request to OBP to add the entitlement
         try {
-            const response = await obp_requests.post(`/obp/v6.0.0/users/${currentUserId}/entitlements`, requestBody, token);
+            const response = await obp_requests.post(`/obp/v5.1.0/users/${currentUserId}/entitlements`, requestBody, token);
             logger.info("Entitlement added successfully:", response);
 
             // Fetch updated entitlements from the API to refresh the session
             try {
-                const updatedEntitlements = await obp_requests.get('/obp/v6.0.0/my/entitlements', token);
+                const updatedEntitlements = await obp_requests.get('/obp/v5.1.0/my/entitlements', token);
                 // Update the session with the new entitlements
                 if (updatedEntitlements && locals.session.data.user) {
                     (locals.session.data.user as any).entitlements = updatedEntitlements;

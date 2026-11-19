@@ -314,10 +314,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/well-known",
+   "path": "/obp/v5.1.0/well-known",
    "source": "apps/api-manager/src/lib/oauth/providerManager.ts",
    "needles": [
-    "\"/obp/v6.0.0/well-known\""
+    "\"/obp/v5.1.0/well-known\""
    ],
    "reads": [
     "well_known_uris",
@@ -766,10 +766,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/roles",
+   "path": "/obp/v5.1.0/roles",
    "source": "apps/api-manager/src/lib/stores/rolesCache.svelte.ts",
    "needles": [
-    "\"/proxy/obp/v6.0.0/roles\""
+    "\"/proxy/obp/v5.1.0/roles\""
    ],
    "reads": [
     "roles",
@@ -1031,10 +1031,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/banks/BANK_ID/accounts/ACCOUNT_ID/VIEW_ID/counterparties",
+   "path": "/obp/v5.1.0/banks/BANK_ID/accounts/ACCOUNT_ID/VIEW_ID/counterparties",
    "source": "apps/api-manager/src/routes/(protected)/account-access/accounts/[bank_id]/[account_id]/[view_id]/counterparties/+page.svelte",
    "needles": [
-    "`/proxy/obp/v6.0.0/banks/${encodeURIComponent(bankId)}/accounts/${encodeURIComponent(accountId)}/${encodeURIComponent(viewId)}/counterparties`"
+    "`/proxy/obp/v5.1.0/banks/${encodeURIComponent(bankId)}/accounts/${encodeURIComponent(accountId)}/${encodeURIComponent(viewId)}/counterparties`"
    ],
    "reads": [
     "counterparties[].counterparty_id",
@@ -1291,10 +1291,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/my/api-collections",
+   "path": "/obp/v5.1.0/my/api-collections",
    "source": "apps/api-manager/src/routes/(protected)/api-collections/+page.server.ts",
    "needles": [
-    "`/obp/v6.0.0/my/api-collections`"
+    "`/obp/v5.1.0/my/api-collections`"
    ],
    "reads": [
     "api_collections[].api_collection_id",
@@ -1305,10 +1305,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/my/api-collection-ids/API_COLLECTION_ID/api-collection-endpoints",
+   "path": "/obp/v5.1.0/my/api-collection-ids/API_COLLECTION_ID/api-collection-endpoints",
    "source": "apps/api-manager/src/routes/(protected)/api-collections/[collection_id]/+page.server.ts",
    "needles": [
-    "`/obp/v6.0.0/my/api-collection-ids/${collection_id}/api-collection-endpoints`"
+    "`/obp/v5.1.0/my/api-collection-ids/${collection_id}/api-collection-endpoints`"
    ],
    "reads": [
     "api_collection_endpoints[].api_collection_endpoint_id",
@@ -1317,10 +1317,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/my/api-collections/API_COLLECTION_ID",
+   "path": "/obp/v5.1.0/my/api-collections/API_COLLECTION_ID",
    "source": "apps/api-manager/src/routes/(protected)/api-collections/[collection_id]/+page.server.ts",
    "needles": [
-    "`/obp/v6.0.0/my/api-collections/${collection_id}`"
+    "`/obp/v5.1.0/my/api-collections/${collection_id}`"
    ],
    "reads": [
     "api_collection_id",
@@ -1332,19 +1332,19 @@
   },
   {
    "verb": "DELETE",
-   "path": "/obp/v6.0.0/my/api-collection-ids/API_COLLECTION_ID/api-collection-endpoint-ids/API_COLLECTION_ENDPOINT_ID",
+   "path": "/obp/v5.1.0/my/api-collection-ids/API_COLLECTION_ID/api-collection-endpoint-ids/API_COLLECTION_ENDPOINT_ID",
    "source": "apps/api-manager/src/routes/(protected)/api-collections/[collection_id]/+page.svelte",
    "needles": [
-    "`/proxy/obp/v6.0.0/my/api-collection-ids/${collection.api_collection_id}/api-collection-endpoint-ids/${endpointId}`"
+    "`/proxy/obp/v5.1.0/my/api-collection-ids/${collection.api_collection_id}/api-collection-endpoint-ids/${endpointId}`"
    ],
    "reads": []
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/my/api-collections/API_COLLECTION_ID",
+   "path": "/obp/v5.1.0/my/api-collections/API_COLLECTION_ID",
    "source": "apps/api-manager/src/routes/(protected)/api-collections/[collection_id]/delete/+page.server.ts",
    "needles": [
-    "`/obp/v6.0.0/my/api-collections/${collection_id}`"
+    "`/obp/v5.1.0/my/api-collections/${collection_id}`"
    ],
    "reads": [
     "api_collection_id",
@@ -1355,10 +1355,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/my/api-collections/API_COLLECTION_ID",
+   "path": "/obp/v5.1.0/my/api-collections/API_COLLECTION_ID",
    "source": "apps/api-manager/src/routes/(protected)/api-collections/[collection_id]/edit/+page.server.ts",
    "needles": [
-    "`/obp/v6.0.0/my/api-collections/${collection_id}`"
+    "`/obp/v5.1.0/my/api-collections/${collection_id}`"
    ],
    "reads": [
     "api_collection_id",
@@ -1408,10 +1408,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/consumers/CONSUMER_ID/scopes",
+   "path": "/obp/v5.1.0/consumers/CONSUMER_ID/scopes",
    "source": "apps/api-manager/src/routes/(protected)/app-studio/help/+page.svelte",
    "needles": [
-    "`/proxy/obp/v6.0.0/consumers/${encodeURIComponent(consumerId)}/scopes`"
+    "`/proxy/obp/v5.1.0/consumers/${encodeURIComponent(consumerId)}/scopes`"
    ],
    "reads": [
     "list[].role_name"
@@ -1473,10 +1473,10 @@
   },
   {
    "verb": "POST",
-   "path": "/obp/v6.0.0/banks/BANK_ID/attribute",
+   "path": "/obp/v5.1.0/banks/BANK_ID/attribute",
    "source": "apps/api-manager/src/routes/(protected)/banks/[bankId]/+page.svelte",
    "needles": [
-    "`/proxy/obp/v6.0.0/banks/${bank.bank_id}/attribute`"
+    "`/proxy/obp/v5.1.0/banks/${bank.bank_id}/attribute`"
    ],
    "reads": [],
    "note": "On success the page reloads its data; the response body is not read."
@@ -1495,10 +1495,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/banks/BANK_ID/currencies",
+   "path": "/obp/v5.1.0/banks/BANK_ID/currencies",
    "source": "apps/api-manager/src/routes/(protected)/banks/fx-rates/+page.svelte",
    "needles": [
-    "`/proxy/obp/v6.0.0/banks/${encodeURIComponent(bankId)}/currencies`"
+    "`/proxy/obp/v5.1.0/banks/${encodeURIComponent(bankId)}/currencies`"
    ],
    "reads": [
     "currencies[].alphanumeric_code"
@@ -1506,10 +1506,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/banks/BANK_ID/fx/FROM_CURRENCY_CODE/TO_CURRENCY_CODE",
+   "path": "/obp/v5.1.0/banks/BANK_ID/fx/FROM_CURRENCY_CODE/TO_CURRENCY_CODE",
    "source": "apps/api-manager/src/routes/(protected)/banks/fx-rates/+page.svelte",
    "needles": [
-    "`/proxy/obp/v6.0.0/banks/${encodeURIComponent(currentBank.bankId)}/fx/${encodeURIComponent(fromCurrency)}/${encodeURIComponent(toCurrency)}`"
+    "`/proxy/obp/v5.1.0/banks/${encodeURIComponent(currentBank.bankId)}/fx/${encodeURIComponent(fromCurrency)}/${encodeURIComponent(toCurrency)}`"
    ],
    "reads": [
     "conversion_value",
@@ -1830,19 +1830,19 @@
   },
   {
    "verb": "DELETE",
-   "path": "/obp/v6.0.0/consumers/CONSUMER_ID/scope/SCOPE_ID",
+   "path": "/obp/v5.1.0/consumers/CONSUMER_ID/scope/SCOPE_ID",
    "source": "apps/api-manager/src/routes/(protected)/consumers/[consumer_id]/edit/+page.server.ts",
    "needles": [
-    "`/obp/v6.0.0/consumers/${consumerId}/scope/${scope_id}`"
+    "`/obp/v5.1.0/consumers/${consumerId}/scope/${scope_id}`"
    ],
    "reads": []
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/consumers/CONSUMER_ID/scopes",
+   "path": "/obp/v5.1.0/consumers/CONSUMER_ID/scopes",
    "source": "apps/api-manager/src/routes/(protected)/consumers/[consumer_id]/edit/+page.server.ts",
    "needles": [
-    "`/obp/v6.0.0/consumers/${consumerId}/scopes`"
+    "`/obp/v5.1.0/consumers/${consumerId}/scopes`"
    ],
    "reads": [
     "list[].scope_id",
@@ -1852,10 +1852,10 @@
   },
   {
    "verb": "POST",
-   "path": "/obp/v6.0.0/consumers/CONSUMER_ID/scopes",
+   "path": "/obp/v5.1.0/consumers/CONSUMER_ID/scopes",
    "source": "apps/api-manager/src/routes/(protected)/consumers/[consumer_id]/edit/+page.server.ts",
    "needles": [
-    "`/obp/v6.0.0/consumers/${consumerId}/scopes`"
+    "`/obp/v5.1.0/consumers/${consumerId}/scopes`"
    ],
    "reads": []
   },
@@ -1873,10 +1873,10 @@
   },
   {
    "verb": "PUT",
-   "path": "/obp/v6.0.0/management/consumers/CONSUMER_ID",
+   "path": "/obp/v5.1.0/management/consumers/CONSUMER_ID",
    "source": "apps/api-manager/src/routes/(protected)/consumers/[consumer_id]/edit/+page.server.ts",
    "needles": [
-    "`/obp/v6.0.0/management/consumers/${consumerId}`"
+    "`/obp/v5.1.0/management/consumers/${consumerId}`"
    ],
    "reads": []
   },
@@ -1898,10 +1898,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/rate-limiting",
+   "path": "/obp/v5.1.0/rate-limiting",
    "source": "apps/api-manager/src/routes/(protected)/consumers/[consumer_id]/edit/+page.server.ts",
    "needles": [
-    "`/obp/v6.0.0/rate-limiting`"
+    "`/obp/v5.1.0/rate-limiting`"
    ],
    "reads": [
     "enabled",
@@ -1912,10 +1912,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/roles",
+   "path": "/obp/v5.1.0/roles",
    "source": "apps/api-manager/src/routes/(protected)/consumers/[consumer_id]/edit/+page.server.ts",
    "needles": [
-    "`/obp/v6.0.0/roles`"
+    "`/obp/v5.1.0/roles`"
    ],
    "reads": [
     "roles[].role",
@@ -2049,10 +2049,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/management/consumers/CONSUMER_ID/consumer/rate-limits",
+   "path": "/obp/v5.1.0/management/consumers/CONSUMER_ID/consumer/rate-limits",
    "source": "apps/api-manager/src/routes/(protected)/consumers/[consumer_id]/rate-limits/+page.server.ts",
    "needles": [
-    "`/obp/v6.0.0/management/consumers/${consumerId}/consumer/rate-limits`"
+    "`/obp/v5.1.0/management/consumers/${consumerId}/consumer/rate-limits`"
    ],
    "reads": [
     "limits[].rate_limiting_id",
@@ -2068,10 +2068,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/rate-limiting",
+   "path": "/obp/v5.1.0/rate-limiting",
    "source": "apps/api-manager/src/routes/(protected)/consumers/[consumer_id]/rate-limits/+page.server.ts",
    "needles": [
-    "`/obp/v6.0.0/rate-limiting`"
+    "`/obp/v5.1.0/rate-limiting`"
    ],
    "reads": [
     "enabled",
@@ -2094,10 +2094,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/management/consumers/CONSUMER_ID/consumer/rate-limits",
+   "path": "/obp/v5.1.0/management/consumers/CONSUMER_ID/consumer/rate-limits",
    "source": "apps/api-manager/src/routes/(protected)/consumers/[consumer_id]/rate-limits/[rate_limiting_id]/delete/+page.server.ts",
    "needles": [
-    "`/obp/v6.0.0/management/consumers/${consumerId}/consumer/rate-limits`"
+    "`/obp/v5.1.0/management/consumers/${consumerId}/consumer/rate-limits`"
    ],
    "reads": [
     "limits[].rate_limiting_id",
@@ -2135,10 +2135,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/management/consumers/CONSUMER_ID/consumer/rate-limits",
+   "path": "/obp/v5.1.0/management/consumers/CONSUMER_ID/consumer/rate-limits",
    "source": "apps/api-manager/src/routes/(protected)/consumers/[consumer_id]/rate-limits/[rate_limiting_id]/edit/+page.server.ts",
    "needles": [
-    "`/obp/v6.0.0/management/consumers/${consumerId}/consumer/rate-limits`"
+    "`/obp/v5.1.0/management/consumers/${consumerId}/consumer/rate-limits`"
    ],
    "reads": [
     "limits[].rate_limiting_id",
@@ -2508,10 +2508,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/management/banks/BANK_ID/dynamic-endpoints",
+   "path": "/obp/v5.1.0/management/banks/BANK_ID/dynamic-endpoints",
    "source": "apps/api-manager/src/routes/(protected)/dynamic-endpoints/bank/+page.svelte",
    "needles": [
-    "`/proxy/obp/v6.0.0/management/banks/${bankId}/dynamic-endpoints`"
+    "`/proxy/obp/v5.1.0/management/banks/${bankId}/dynamic-endpoints`"
    ],
    "reads": [
     "dynamic_endpoints",
@@ -2524,10 +2524,10 @@
   },
   {
    "verb": "DELETE",
-   "path": "/obp/v6.0.0/management/banks/BANK_ID/dynamic-endpoints/DYNAMIC_ENDPOINT_ID",
+   "path": "/obp/v5.1.0/management/banks/BANK_ID/dynamic-endpoints/DYNAMIC_ENDPOINT_ID",
    "source": "apps/api-manager/src/routes/(protected)/dynamic-endpoints/bank/+page.svelte",
    "needles": [
-    "`/proxy/obp/v6.0.0/management/banks/${selectedBankId}/dynamic-endpoints/${endpointId}`"
+    "`/proxy/obp/v5.1.0/management/banks/${selectedBankId}/dynamic-endpoints/${endpointId}`"
    ],
    "reads": []
   },
@@ -2563,10 +2563,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/management/banks/BANK_ID/dynamic-endpoints/DYNAMIC_ENDPOINT_ID",
+   "path": "/obp/v5.1.0/management/banks/BANK_ID/dynamic-endpoints/DYNAMIC_ENDPOINT_ID",
    "source": "apps/api-manager/src/routes/(protected)/dynamic-endpoints/bank/[bank_id]/[id]/+page.server.ts",
    "needles": [
-    "`/obp/v6.0.0/management/banks/${bank_id}/dynamic-endpoints/${id}`"
+    "`/obp/v5.1.0/management/banks/${bank_id}/dynamic-endpoints/${id}`"
    ],
    "reads": [
     "dynamic_endpoint_id",
@@ -2587,29 +2587,29 @@
   },
   {
    "verb": "DELETE",
-   "path": "/obp/v6.0.0/management/banks/BANK_ID/dynamic-endpoints/DYNAMIC_ENDPOINT_ID",
+   "path": "/obp/v5.1.0/management/banks/BANK_ID/dynamic-endpoints/DYNAMIC_ENDPOINT_ID",
    "source": "apps/api-manager/src/routes/(protected)/dynamic-endpoints/bank/[bank_id]/[id]/+page.svelte",
    "needles": [
-    "`/proxy/obp/v6.0.0/management/banks/${bankId}/dynamic-endpoints/${endpoint.dynamic_endpoint_id}`"
+    "`/proxy/obp/v5.1.0/management/banks/${bankId}/dynamic-endpoints/${endpoint.dynamic_endpoint_id}`"
    ],
    "reads": []
   },
   {
    "verb": "POST",
-   "path": "/obp/v6.0.0/management/banks/BANK_ID/dynamic-endpoints",
+   "path": "/obp/v5.1.0/management/banks/BANK_ID/dynamic-endpoints",
    "source": "apps/api-manager/src/routes/(protected)/dynamic-endpoints/bank/[bank_id]/create/+page.svelte",
    "needles": [
-    "`/proxy/obp/v6.0.0/management/banks/${bankId}/dynamic-endpoints`"
+    "`/proxy/obp/v5.1.0/management/banks/${bankId}/dynamic-endpoints`"
    ],
    "reads": [],
    "note": "Only the status is checked; the page then navigates to the list."
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/management/dynamic-endpoints",
+   "path": "/obp/v5.1.0/management/dynamic-endpoints",
    "source": "apps/api-manager/src/routes/(protected)/dynamic-endpoints/system/+page.server.ts",
    "needles": [
-    "\"/obp/v6.0.0/management/dynamic-endpoints\""
+    "\"/obp/v5.1.0/management/dynamic-endpoints\""
    ],
    "reads": [
     "dynamic_endpoints",
@@ -2622,10 +2622,10 @@
   },
   {
    "verb": "DELETE",
-   "path": "/obp/v6.0.0/management/dynamic-endpoints/DYNAMIC_ENDPOINT_ID",
+   "path": "/obp/v5.1.0/management/dynamic-endpoints/DYNAMIC_ENDPOINT_ID",
    "source": "apps/api-manager/src/routes/(protected)/dynamic-endpoints/system/+page.svelte",
    "needles": [
-    "`/proxy/obp/v6.0.0/management/dynamic-endpoints/${endpointId}`"
+    "`/proxy/obp/v5.1.0/management/dynamic-endpoints/${endpointId}`"
    ],
    "reads": []
   },
@@ -2661,10 +2661,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/management/dynamic-endpoints/DYNAMIC_ENDPOINT_ID",
+   "path": "/obp/v5.1.0/management/dynamic-endpoints/DYNAMIC_ENDPOINT_ID",
    "source": "apps/api-manager/src/routes/(protected)/dynamic-endpoints/system/[id]/+page.server.ts",
    "needles": [
-    "`/obp/v6.0.0/management/dynamic-endpoints/${id}`"
+    "`/obp/v5.1.0/management/dynamic-endpoints/${id}`"
    ],
    "reads": [
     "dynamic_endpoint_id",
@@ -2685,19 +2685,19 @@
   },
   {
    "verb": "DELETE",
-   "path": "/obp/v6.0.0/management/dynamic-endpoints/DYNAMIC_ENDPOINT_ID",
+   "path": "/obp/v5.1.0/management/dynamic-endpoints/DYNAMIC_ENDPOINT_ID",
    "source": "apps/api-manager/src/routes/(protected)/dynamic-endpoints/system/[id]/+page.svelte",
    "needles": [
-    "`/proxy/obp/v6.0.0/management/dynamic-endpoints/${endpoint.dynamic_endpoint_id}`"
+    "`/proxy/obp/v5.1.0/management/dynamic-endpoints/${endpoint.dynamic_endpoint_id}`"
    ],
    "reads": []
   },
   {
    "verb": "POST",
-   "path": "/obp/v6.0.0/management/dynamic-endpoints",
+   "path": "/obp/v5.1.0/management/dynamic-endpoints",
    "source": "apps/api-manager/src/routes/(protected)/dynamic-endpoints/system/create/+page.svelte",
    "needles": [
-    "`/proxy/obp/v6.0.0/management/dynamic-endpoints`"
+    "`/proxy/obp/v5.1.0/management/dynamic-endpoints`"
    ],
    "reads": [],
    "note": "Only the status is checked; the page then navigates to the list."
@@ -3655,10 +3655,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/my/api-collections",
+   "path": "/obp/v5.1.0/my/api-collections",
    "source": "apps/api-manager/src/routes/(protected)/products/[bank_id]/[product_code]/edit/+page.server.ts",
    "needles": [
-    "`/obp/v6.0.0/my/api-collections`"
+    "`/obp/v5.1.0/my/api-collections`"
    ],
    "reads": [
     "api_collections[].api_collection_id",
@@ -3704,10 +3704,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/my/api-collections/name/API_COLLECTION_NAME",
+   "path": "/obp/v5.1.0/my/api-collections/name/API_COLLECTION_NAME",
    "source": "apps/api-manager/src/routes/(protected)/products/bootstrap/+page.svelte",
    "needles": [
-    "`/proxy/obp/v6.0.0/my/api-collections/name/${encodeURIComponent(collection.collection_name)}`"
+    "`/proxy/obp/v5.1.0/my/api-collections/name/${encodeURIComponent(collection.collection_name)}`"
    ],
    "reads": [
     "api_collection_id"
@@ -3716,10 +3716,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/banks/BANK_ID/product-collections/COLLECTION_CODE",
+   "path": "/obp/v5.1.0/banks/BANK_ID/product-collections/COLLECTION_CODE",
    "source": "apps/api-manager/src/routes/(protected)/products/collections/+page.svelte",
    "needles": [
-    "`/proxy/obp/v6.0.0/banks/${selectedBankId}/product-collections/${encodeURIComponent(collectionCode.trim())}`"
+    "`/proxy/obp/v5.1.0/banks/${selectedBankId}/product-collections/${encodeURIComponent(collectionCode.trim())}`"
    ],
    "reads": [
     "collection_code",
@@ -3733,10 +3733,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/my/api-collections",
+   "path": "/obp/v5.1.0/my/api-collections",
    "source": "apps/api-manager/src/routes/(protected)/products/create/+page.server.ts",
    "needles": [
-    "`/obp/v6.0.0/my/api-collections`"
+    "`/obp/v5.1.0/my/api-collections`"
    ],
    "reads": [
     "api_collections[].api_collection_id",
@@ -3965,10 +3965,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/entitlement-requests",
+   "path": "/obp/v5.1.0/entitlement-requests",
    "source": "apps/api-manager/src/routes/(protected)/rbac/entitlement-requests/+page.server.ts",
    "needles": [
-    "`/obp/v6.0.0/entitlement-requests?limit=${limit}&offset=${offset}&sort_direction=${sortDirection}`"
+    "`/obp/v5.1.0/entitlement-requests?limit=${limit}&offset=${offset}&sort_direction=${sortDirection}`"
    ],
    "reads": [
     "entitlement_requests[].entitlement_request_id",
@@ -3983,20 +3983,20 @@
   },
   {
    "verb": "DELETE",
-   "path": "/obp/v6.0.0/entitlement-requests/ENTITLEMENT_REQUEST_ID",
+   "path": "/obp/v5.1.0/entitlement-requests/ENTITLEMENT_REQUEST_ID",
    "source": "apps/api-manager/src/routes/(protected)/rbac/entitlement-requests/+page.svelte",
    "needles": [
-    "`/proxy/obp/v6.0.0/entitlement-requests/${requestId}`"
+    "`/proxy/obp/v5.1.0/entitlement-requests/${requestId}`"
    ],
    "reads": [],
    "note": "Called after accepting (granting the role) or on decline; only the status and the error message are used."
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/entitlements",
+   "path": "/obp/v5.1.0/entitlements",
    "source": "apps/api-manager/src/routes/(protected)/rbac/entitlements/+page.server.ts",
    "needles": [
-    "`/obp/v6.0.0/entitlements`"
+    "`/obp/v5.1.0/entitlements`"
    ],
    "reads": [
     "list[].entitlement_id",
@@ -4024,10 +4024,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/entitlements",
+   "path": "/obp/v5.1.0/entitlements",
    "source": "apps/api-manager/src/routes/(protected)/rbac/entitlements/[entitlement_id]/delete/+page.server.ts",
    "needles": [
-    "`/obp/v6.0.0/entitlements`"
+    "`/obp/v5.1.0/entitlements`"
    ],
    "reads": [
     "list[].entitlement_id",
@@ -4043,10 +4043,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/users/user_id/USER_ID",
+   "path": "/obp/v5.1.0/users/user_id/USER_ID",
    "source": "apps/api-manager/src/routes/(protected)/rbac/entitlements/[entitlement_id]/delete/+page.server.ts",
    "needles": [
-    "`/obp/v6.0.0/users/user_id/${entitlement.user_id}`"
+    "`/obp/v5.1.0/users/user_id/${entitlement.user_id}`"
    ],
    "reads": [
     "username",
@@ -4055,10 +4055,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/roles",
+   "path": "/obp/v5.1.0/roles",
    "source": "apps/api-manager/src/routes/(protected)/rbac/entitlements/bulk-grant/+page.server.ts",
    "needles": [
-    "\"/obp/v6.0.0/roles\""
+    "\"/obp/v5.1.0/roles\""
    ],
    "reads": [
     "roles[].role",
@@ -4067,10 +4067,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/users/USER_ID/entitlements",
+   "path": "/obp/v5.1.0/users/USER_ID/entitlements",
    "source": "apps/api-manager/src/routes/(protected)/rbac/entitlements/bulk-revoke/+page.svelte",
    "needles": [
-    "`/proxy/obp/v6.0.0/users/${encodeURIComponent(uid)}/entitlements`"
+    "`/proxy/obp/v5.1.0/users/${encodeURIComponent(uid)}/entitlements`"
    ],
    "reads": [
     "list[].entitlement_id",
@@ -4080,10 +4080,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/roles",
+   "path": "/obp/v5.1.0/roles",
    "source": "apps/api-manager/src/routes/(protected)/rbac/entitlements/create/+page.server.ts",
    "needles": [
-    "`/obp/v6.0.0/roles`"
+    "`/obp/v5.1.0/roles`"
    ],
    "reads": [
     "roles[].role",
@@ -4199,10 +4199,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/roles",
+   "path": "/obp/v5.1.0/roles",
    "source": "apps/api-manager/src/routes/(protected)/rbac/groups/[group_id]/edit/+page.server.ts",
    "needles": [
-    "`/obp/v6.0.0/roles`"
+    "`/obp/v5.1.0/roles`"
    ],
    "reads": [
     "roles[].role",
@@ -4222,10 +4222,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/roles",
+   "path": "/obp/v5.1.0/roles",
    "source": "apps/api-manager/src/routes/(protected)/rbac/groups/create/+page.server.ts",
    "needles": [
-    "`/obp/v6.0.0/roles`"
+    "`/obp/v5.1.0/roles`"
    ],
    "reads": [
     "roles[].role",
@@ -4311,10 +4311,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/entitlements",
+   "path": "/obp/v5.1.0/entitlements",
    "source": "apps/api-manager/src/routes/(protected)/rbac/roles/[role]/+page.server.ts",
    "needles": [
-    "`/obp/v6.0.0/entitlements?role=${encodeURIComponent(roleName)}`"
+    "`/obp/v5.1.0/entitlements?role=${encodeURIComponent(roleName)}`"
    ],
    "reads": [
     "list[].username",
@@ -4325,10 +4325,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/roles",
+   "path": "/obp/v5.1.0/roles",
    "source": "apps/api-manager/src/routes/(protected)/rbac/roles/[role]/+page.server.ts",
    "needles": [
-    "`/obp/v6.0.0/roles`"
+    "`/obp/v5.1.0/roles`"
    ],
    "reads": [
     "roles[].role",
@@ -4894,10 +4894,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/management/api-collections",
+   "path": "/obp/v5.1.0/management/api-collections",
    "source": "apps/api-manager/src/routes/(protected)/system/featured-collections/+page.server.ts",
    "needles": [
-    "`/obp/v6.0.0/management/api-collections`"
+    "`/obp/v5.1.0/management/api-collections`"
    ],
    "reads": [
     "api_collections[].api_collection_id",
@@ -4920,10 +4920,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/management/api-collections",
+   "path": "/obp/v5.1.0/management/api-collections",
    "source": "apps/api-manager/src/routes/(protected)/system/featured-collections/[collection_id]/delete/+page.server.ts",
    "needles": [
-    "`/obp/v6.0.0/management/api-collections`"
+    "`/obp/v5.1.0/management/api-collections`"
    ],
    "reads": [
     "api_collections[].api_collection_id",
@@ -4945,10 +4945,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/management/api-collections",
+   "path": "/obp/v5.1.0/management/api-collections",
    "source": "apps/api-manager/src/routes/(protected)/system/featured-collections/[collection_id]/edit/+page.server.ts",
    "needles": [
-    "`/obp/v6.0.0/management/api-collections`"
+    "`/obp/v5.1.0/management/api-collections`"
    ],
    "reads": [
     "api_collections[].api_collection_id",
@@ -4969,10 +4969,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/management/api-collections",
+   "path": "/obp/v5.1.0/management/api-collections",
    "source": "apps/api-manager/src/routes/(protected)/system/featured-collections/add/+page.server.ts",
    "needles": [
-    "`/obp/v6.0.0/management/api-collections`"
+    "`/obp/v5.1.0/management/api-collections`"
    ],
    "reads": [
     "api_collections[].api_collection_id",
@@ -5004,10 +5004,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/system/log-cache/all",
+   "path": "/obp/v5.1.0/system/log-cache/all",
    "source": "apps/api-manager/src/routes/(protected)/system/log-cache/+page.svelte",
    "needles": [
-    "`/proxy/obp/v6.0.0/system/log-cache/${level}`"
+    "`/proxy/obp/v5.1.0/system/log-cache/${level}`"
    ],
    "reads": [
     "entries[].timestamp",
@@ -5023,10 +5023,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/system/log-cache/debug",
+   "path": "/obp/v5.1.0/system/log-cache/debug",
    "source": "apps/api-manager/src/routes/(protected)/system/log-cache/+page.svelte",
    "needles": [
-    "`/proxy/obp/v6.0.0/system/log-cache/${level}`"
+    "`/proxy/obp/v5.1.0/system/log-cache/${level}`"
    ],
    "reads": [
     "entries[].timestamp",
@@ -5042,10 +5042,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/system/log-cache/error",
+   "path": "/obp/v5.1.0/system/log-cache/error",
    "source": "apps/api-manager/src/routes/(protected)/system/log-cache/+page.svelte",
    "needles": [
-    "`/proxy/obp/v6.0.0/system/log-cache/${level}`"
+    "`/proxy/obp/v5.1.0/system/log-cache/${level}`"
    ],
    "reads": [
     "entries[].timestamp",
@@ -5061,10 +5061,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/system/log-cache/info",
+   "path": "/obp/v5.1.0/system/log-cache/info",
    "source": "apps/api-manager/src/routes/(protected)/system/log-cache/+page.svelte",
    "needles": [
-    "`/proxy/obp/v6.0.0/system/log-cache/${level}`"
+    "`/proxy/obp/v5.1.0/system/log-cache/${level}`"
    ],
    "reads": [
     "entries[].timestamp",
@@ -5080,10 +5080,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/system/log-cache/warning",
+   "path": "/obp/v5.1.0/system/log-cache/warning",
    "source": "apps/api-manager/src/routes/(protected)/system/log-cache/+page.svelte",
    "needles": [
-    "`/proxy/obp/v6.0.0/system/log-cache/${level}`"
+    "`/proxy/obp/v5.1.0/system/log-cache/${level}`"
    ],
    "reads": [
     "entries[].timestamp",
@@ -5476,10 +5476,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/my/entitlement-requests",
+   "path": "/obp/v5.1.0/my/entitlement-requests",
    "source": "apps/api-manager/src/routes/(protected)/user/+page.server.ts",
    "needles": [
-    "`/obp/v6.0.0/my/entitlement-requests`"
+    "`/obp/v5.1.0/my/entitlement-requests`"
    ],
    "reads": [
     "entitlement_requests[].role_name",
@@ -5489,10 +5489,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/my/consents",
+   "path": "/obp/v5.1.0/my/consents",
    "source": "apps/api-manager/src/routes/(protected)/user/consents/+page.server.ts",
    "needles": [
-    "'/obp/v6.0.0/my/consents'"
+    "'/obp/v5.1.0/my/consents'"
    ],
    "reads": [
     "consents[].consent_id",
@@ -5514,10 +5514,10 @@
   },
   {
    "verb": "DELETE",
-   "path": "/obp/v6.0.0/my/consents/CONSENT_ID",
+   "path": "/obp/v5.1.0/my/consents/CONSENT_ID",
    "source": "apps/api-manager/src/routes/(protected)/user/consents/+page.server.ts",
    "needles": [
-    "`/obp/v6.0.0/my/consents/${consentId}`"
+    "`/obp/v5.1.0/my/consents/${consentId}`"
    ],
    "reads": []
   },
@@ -5560,10 +5560,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/my/entitlements",
+   "path": "/obp/v5.1.0/my/entitlements",
    "source": "apps/api-manager/src/routes/(protected)/user/entitlements/+page.server.ts",
    "needles": [
-    "'/obp/v6.0.0/my/entitlements'"
+    "'/obp/v5.1.0/my/entitlements'"
    ],
    "reads": [
     "list[].role_name",
@@ -5574,10 +5574,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/roles",
+   "path": "/obp/v5.1.0/roles",
    "source": "apps/api-manager/src/routes/(protected)/user/entitlements/+page.server.ts",
    "needles": [
-    "'/obp/v6.0.0/roles'"
+    "'/obp/v5.1.0/roles'"
    ],
    "reads": [
     "roles[].role",
@@ -5587,10 +5587,10 @@
   },
   {
    "verb": "POST",
-   "path": "/obp/v6.0.0/users/USER_ID/entitlements",
+   "path": "/obp/v5.1.0/users/USER_ID/entitlements",
    "source": "apps/api-manager/src/routes/(protected)/user/entitlements/+page.server.ts",
    "needles": [
-    "`/obp/v6.0.0/users/${currentUserId}/entitlements`"
+    "`/obp/v5.1.0/users/${currentUserId}/entitlements`"
    ],
    "reads": [],
    "note": "The response is only logged."
@@ -5631,10 +5631,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/roles",
+   "path": "/obp/v5.1.0/roles",
    "source": "apps/api-manager/src/routes/(protected)/users/+page.svelte",
    "needles": [
-    "\"/proxy/obp/v6.0.0/roles\""
+    "\"/proxy/obp/v5.1.0/roles\""
    ],
    "reads": [
     "roles[].role"
@@ -5656,10 +5656,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/users/provider/PROVIDER/username/USERNAME",
+   "path": "/obp/v5.1.0/users/provider/PROVIDER/username/USERNAME",
    "source": "apps/api-manager/src/routes/(protected)/users/[provider]/[username]/+page.server.ts",
    "needles": [
-    "`/obp/v6.0.0/users/provider/${encodeURIComponent(provider)}/username/${encodeURIComponent(username)}`"
+    "`/obp/v5.1.0/users/provider/${encodeURIComponent(provider)}/username/${encodeURIComponent(username)}`"
    ],
    "reads": [
     "username",
@@ -5701,10 +5701,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/users/PROVIDER/USERNAME/lock-status",
+   "path": "/obp/v5.1.0/users/PROVIDER/USERNAME/lock-status",
    "source": "apps/api-manager/src/routes/(protected)/users/[provider]/[username]/lock/+page.server.ts",
    "needles": [
-    "const lockEndpoint = `/obp/v6.0.0/users/${encodeURIComponent(provider)}/${encodeURIComponent(username)}/lock-status`"
+    "const lockEndpoint = `/obp/v5.1.0/users/${encodeURIComponent(provider)}/${encodeURIComponent(username)}/lock-status`"
    ],
    "reads": [
     "bad_attempts_since_last_success_or_reset",
@@ -5713,20 +5713,20 @@
   },
   {
    "verb": "POST",
-   "path": "/obp/v6.0.0/users/PROVIDER/USERNAME/locks",
+   "path": "/obp/v5.1.0/users/PROVIDER/USERNAME/locks",
    "source": "apps/api-manager/src/routes/(protected)/users/[provider]/[username]/lock/+page.server.ts",
    "needles": [
-    "const lockEndpoint = `/obp/v6.0.0/users/${encodeURIComponent(provider)}/${encodeURIComponent(username)}/locks`"
+    "const lockEndpoint = `/obp/v5.1.0/users/${encodeURIComponent(provider)}/${encodeURIComponent(username)}/locks`"
    ],
    "reads": [],
    "note": "The response is only logged."
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/users/provider/PROVIDER/username/USERNAME",
+   "path": "/obp/v5.1.0/users/provider/PROVIDER/username/USERNAME",
    "source": "apps/api-manager/src/routes/(protected)/users/[provider]/[username]/lock/+page.server.ts",
    "needles": [
-    "`/obp/v6.0.0/users/provider/${encodeURIComponent(provider)}/username/${encodeURIComponent(username)}`"
+    "`/obp/v5.1.0/users/provider/${encodeURIComponent(provider)}/username/${encodeURIComponent(username)}`"
    ],
    "reads": [
     "username",
@@ -5736,10 +5736,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/users/PROVIDER/USERNAME/lock-status",
+   "path": "/obp/v5.1.0/users/PROVIDER/USERNAME/lock-status",
    "source": "apps/api-manager/src/routes/(protected)/users/[provider]/[username]/unlock/+page.server.ts",
    "needles": [
-    "const lockEndpoint = `/obp/v6.0.0/users/${encodeURIComponent(provider)}/${encodeURIComponent(username)}/lock-status`"
+    "const lockEndpoint = `/obp/v5.1.0/users/${encodeURIComponent(provider)}/${encodeURIComponent(username)}/lock-status`"
    ],
    "reads": [
     "bad_attempts_since_last_success_or_reset",
@@ -5748,20 +5748,20 @@
   },
   {
    "verb": "PUT",
-   "path": "/obp/v6.0.0/users/PROVIDER/USERNAME/lock-status",
+   "path": "/obp/v5.1.0/users/PROVIDER/USERNAME/lock-status",
    "source": "apps/api-manager/src/routes/(protected)/users/[provider]/[username]/unlock/+page.server.ts",
    "needles": [
-    "const unlockEndpoint = `/obp/v6.0.0/users/${encodeURIComponent(provider)}/${encodeURIComponent(username)}/lock-status`"
+    "const unlockEndpoint = `/obp/v5.1.0/users/${encodeURIComponent(provider)}/${encodeURIComponent(username)}/lock-status`"
    ],
    "reads": [],
    "note": "Unlocks the user; the response is only logged."
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/users/provider/PROVIDER/username/USERNAME",
+   "path": "/obp/v5.1.0/users/provider/PROVIDER/username/USERNAME",
    "source": "apps/api-manager/src/routes/(protected)/users/[provider]/[username]/unlock/+page.server.ts",
    "needles": [
-    "`/obp/v6.0.0/users/provider/${encodeURIComponent(provider)}/username/${encodeURIComponent(username)}`"
+    "`/obp/v5.1.0/users/provider/${encodeURIComponent(provider)}/username/${encodeURIComponent(username)}`"
    ],
    "reads": [
     "username",
@@ -5808,10 +5808,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/users/PROVIDER/USERNAME/lock-status",
+   "path": "/obp/v5.1.0/users/PROVIDER/USERNAME/lock-status",
    "source": "apps/api-manager/src/routes/(protected)/users/[user_id]/lock/+page.server.ts",
    "needles": [
-    "const lockEndpoint = `/obp/v6.0.0/users/${encodeURIComponent(user.provider)}/${encodeURIComponent(user.username)}/lock-status`"
+    "const lockEndpoint = `/obp/v5.1.0/users/${encodeURIComponent(user.provider)}/${encodeURIComponent(user.username)}/lock-status`"
    ],
    "reads": [
     "bad_attempts_since_last_success_or_reset",
@@ -5820,10 +5820,10 @@
   },
   {
    "verb": "POST",
-   "path": "/obp/v6.0.0/users/PROVIDER/USERNAME/locks",
+   "path": "/obp/v5.1.0/users/PROVIDER/USERNAME/locks",
    "source": "apps/api-manager/src/routes/(protected)/users/[user_id]/lock/+page.server.ts",
    "needles": [
-    "const lockEndpoint = `/obp/v6.0.0/users/${encodeURIComponent(user.provider)}/${encodeURIComponent(user.username)}/locks`"
+    "const lockEndpoint = `/obp/v5.1.0/users/${encodeURIComponent(user.provider)}/${encodeURIComponent(user.username)}/locks`"
    ],
    "reads": [],
    "note": "Locks the user; the response is only logged."
@@ -5873,10 +5873,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/users/PROVIDER/USERNAME/lock-status",
+   "path": "/obp/v5.1.0/users/PROVIDER/USERNAME/lock-status",
    "source": "apps/api-manager/src/routes/(protected)/users/[user_id]/unlock/+page.server.ts",
    "needles": [
-    "const lockEndpoint = `/obp/v6.0.0/users/${encodeURIComponent(user.provider)}/${encodeURIComponent(user.username)}/lock-status`"
+    "const lockEndpoint = `/obp/v5.1.0/users/${encodeURIComponent(user.provider)}/${encodeURIComponent(user.username)}/lock-status`"
    ],
    "reads": [
     "bad_attempts_since_last_success_or_reset",
@@ -5885,10 +5885,10 @@
   },
   {
    "verb": "PUT",
-   "path": "/obp/v6.0.0/users/PROVIDER/USERNAME/lock-status",
+   "path": "/obp/v5.1.0/users/PROVIDER/USERNAME/lock-status",
    "source": "apps/api-manager/src/routes/(protected)/users/[user_id]/unlock/+page.server.ts",
    "needles": [
-    "const unlockEndpoint = `/obp/v6.0.0/users/${encodeURIComponent(user.provider)}/${encodeURIComponent(user.username)}/lock-status`"
+    "const unlockEndpoint = `/obp/v5.1.0/users/${encodeURIComponent(user.provider)}/${encodeURIComponent(user.username)}/lock-status`"
    ],
    "reads": [],
    "note": "Unlocks the user; the response is only logged."
@@ -6020,10 +6020,10 @@
   },
   {
    "verb": "POST",
-   "path": "/obp/v6.0.0/my/api-collections",
+   "path": "/obp/v5.1.0/my/api-collections",
    "source": "apps/api-manager/src/routes/backend/api-collections/+server.ts",
    "needles": [
-    "`/obp/v6.0.0/my/api-collections`"
+    "`/obp/v5.1.0/my/api-collections`"
    ],
    "reads": [
     "api_collection_id"
@@ -6032,28 +6032,28 @@
   },
   {
    "verb": "DELETE",
-   "path": "/obp/v6.0.0/my/api-collections/API_COLLECTION_ID",
+   "path": "/obp/v5.1.0/my/api-collections/API_COLLECTION_ID",
    "source": "apps/api-manager/src/routes/backend/api-collections/[collection_id]/+server.ts",
    "needles": [
-    "`/obp/v6.0.0/my/api-collections/${collection_id}`"
+    "`/obp/v5.1.0/my/api-collections/${collection_id}`"
    ],
    "reads": []
   },
   {
    "verb": "PUT",
-   "path": "/obp/v6.0.0/my/api-collections/API_COLLECTION_ID",
+   "path": "/obp/v5.1.0/my/api-collections/API_COLLECTION_ID",
    "source": "apps/api-manager/src/routes/backend/api-collections/[collection_id]/+server.ts",
    "needles": [
-    "`/obp/v6.0.0/my/api-collections/${collection_id}`"
+    "`/obp/v5.1.0/my/api-collections/${collection_id}`"
    ],
    "reads": []
   },
   {
    "verb": "POST",
-   "path": "/obp/v6.0.0/my/api-collection-ids/API_COLLECTION_ID/api-collection-endpoints",
+   "path": "/obp/v5.1.0/my/api-collection-ids/API_COLLECTION_ID/api-collection-endpoints",
    "source": "apps/api-manager/src/routes/backend/api-collections/[collection_id]/endpoints/+server.ts",
    "needles": [
-    "`/obp/v6.0.0/my/api-collection-ids/${collection_id}/api-collection-endpoints`"
+    "`/obp/v5.1.0/my/api-collection-ids/${collection_id}/api-collection-endpoints`"
    ],
    "reads": []
   },
@@ -6072,11 +6072,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/management/users/current/consumers",
+   "path": "/obp/v5.1.0/management/users/current/consumers",
    "source": "apps/api-manager/src/routes/backend/app-studio/consent/+server.ts",
    "needles": [
-    "`/obp/${API_VERSION}/management/users/current/consumers`",
-    "const API_VERSION = \"v6.0.0\""
+    "`/obp/v5.1.0/management/users/current/consumers`"
    ],
    "reads": [
     "consumers",
@@ -6087,11 +6086,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/my/accounts",
+   "path": "/obp/v5.1.0/my/accounts",
    "source": "apps/api-manager/src/routes/backend/app-studio/consent/+server.ts",
    "needles": [
-    "`/obp/${API_VERSION}/my/accounts`",
-    "const API_VERSION = \"v6.0.0\""
+    "`/obp/v5.1.0/my/accounts`"
    ],
    "reads": [
     "accounts",
@@ -6103,11 +6101,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/my/entitlements",
+   "path": "/obp/v5.1.0/my/entitlements",
    "source": "apps/api-manager/src/routes/backend/app-studio/consent/+server.ts",
    "needles": [
-    "`/obp/${API_VERSION}/my/entitlements`",
-    "const API_VERSION = \"v6.0.0\""
+    "`/obp/v5.1.0/my/entitlements`"
    ],
    "reads": [
     "list",
@@ -6143,10 +6140,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/management/connector/metrics",
+   "path": "/obp/v5.1.0/management/connector/metrics",
    "source": "apps/api-manager/src/routes/backend/connector-metrics/+server.ts",
    "needles": [
-    "`/obp/v6.0.0/management/connector/metrics?${queryParams.toString()}`"
+    "`/obp/v5.1.0/management/connector/metrics?${queryParams.toString()}`"
    ],
    "reads": [
     "metrics",
@@ -6173,19 +6170,19 @@
   },
   {
    "verb": "PUT",
-   "path": "/obp/v6.0.0/management/banks/BANK_ID/dynamic-endpoints/DYNAMIC_ENDPOINT_ID/host",
+   "path": "/obp/v5.1.0/management/banks/BANK_ID/dynamic-endpoints/DYNAMIC_ENDPOINT_ID/host",
    "source": "apps/api-manager/src/routes/backend/dynamic-endpoints/bank/[bank_id]/[id]/host/+server.ts",
    "needles": [
-    "`/obp/v6.0.0/management/banks/${bank_id}/dynamic-endpoints/${id}/host`"
+    "`/obp/v5.1.0/management/banks/${bank_id}/dynamic-endpoints/${id}/host`"
    ],
    "reads": []
   },
   {
    "verb": "PUT",
-   "path": "/obp/v6.0.0/management/dynamic-endpoints/DYNAMIC_ENDPOINT_ID/host",
+   "path": "/obp/v5.1.0/management/dynamic-endpoints/DYNAMIC_ENDPOINT_ID/host",
    "source": "apps/api-manager/src/routes/backend/dynamic-endpoints/system/[id]/host/+server.ts",
    "needles": [
-    "`/obp/v6.0.0/management/dynamic-endpoints/${id}/host`"
+    "`/obp/v5.1.0/management/dynamic-endpoints/${id}/host`"
    ],
    "reads": []
   },
@@ -6262,10 +6259,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/management/connector-methods",
+   "path": "/obp/v5.1.0/management/connector-methods",
    "source": "apps/api-manager/src/routes/backend/integration/connector-methods/+server.ts",
    "needles": [
-    "`/obp/v6.0.0/management/connector-methods`"
+    "`/obp/v5.1.0/management/connector-methods`"
    ],
    "reads": [
     "connectors_methods"
@@ -6362,10 +6359,10 @@
   },
   {
    "verb": "POST",
-   "path": "/obp/v6.0.0/banks/BANK_ID/accounts/BANK_ACCOUNT_ID/views",
+   "path": "/obp/v5.1.0/banks/BANK_ID/accounts/BANK_ACCOUNT_ID/views",
    "source": "apps/api-manager/src/routes/backend/obp/banks/[bank_id]/accounts/[account_id]/views/+server.ts",
    "needles": [
-    "`/obp/v6.0.0/banks/${bank_id}/accounts/${account_id}/views`"
+    "`/obp/v5.1.0/banks/${bank_id}/accounts/${account_id}/views`"
    ],
    "reads": [
     "id"
@@ -6430,10 +6427,10 @@
   },
   {
    "verb": "POST",
-   "path": "/obp/v6.0.0/entitlement-requests",
+   "path": "/obp/v5.1.0/entitlement-requests",
    "source": "apps/api-manager/src/routes/backend/rbac/entitlement-requests/+server.ts",
    "needles": [
-    "`/obp/v6.0.0/entitlement-requests`"
+    "`/obp/v5.1.0/entitlement-requests`"
    ],
    "reads": []
   },
@@ -6510,10 +6507,10 @@
   },
   {
    "verb": "POST",
-   "path": "/obp/v6.0.0/system-views",
+   "path": "/obp/v5.1.0/system-views",
    "source": "apps/api-manager/src/routes/backend/system-views/+server.ts",
    "needles": [
-    "`/obp/v6.0.0/system-views`"
+    "`/obp/v5.1.0/system-views`"
    ],
    "reads": []
   },
@@ -7003,10 +7000,10 @@
   },
   {
    "verb": "POST",
-   "path": "/obp/v6.0.0/entitlement-requests",
+   "path": "/obp/v5.1.0/entitlement-requests",
    "source": "apps/cohort/src/lib/server/staffAccess.ts",
    "needles": [
-    "'/obp/v6.0.0/entitlement-requests'"
+    "'/obp/v5.1.0/entitlement-requests'"
    ],
    "reads": []
   },
@@ -7788,28 +7785,28 @@
   },
   {
    "verb": "PUT",
-   "path": "/obp/v6.0.0/banks/BANK_ID/consents/CONSENT_ID",
+   "path": "/obp/v5.1.0/banks/BANK_ID/consents/CONSENT_ID",
    "source": "apps/portal/src/routes/(protected)/confirm-bg-consent-request/+page.server.ts",
    "needles": [
-    "`/obp/v6.0.0/banks/${defaultBankId}/consents/${consentId}`"
+    "`/obp/v5.1.0/banks/${defaultBankId}/consents/${consentId}`"
    ],
    "reads": []
   },
   {
    "verb": "PUT",
-   "path": "/obp/v6.0.0/management/banks/BANK_ID/consents/CONSENT_ID/account-access",
+   "path": "/obp/v5.1.0/management/banks/BANK_ID/consents/CONSENT_ID/account-access",
    "source": "apps/portal/src/routes/(protected)/confirm-bg-consent-request/+page.server.ts",
    "needles": [
-    "`/obp/v6.0.0/management/banks/${defaultBankId}/consents/${consentId}/account-access`"
+    "`/obp/v5.1.0/management/banks/${defaultBankId}/consents/${consentId}/account-access`"
    ],
    "reads": []
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/my/accounts",
+   "path": "/obp/v5.1.0/my/accounts",
    "source": "apps/portal/src/routes/(protected)/confirm-bg-consent-request/+page.server.ts",
    "needles": [
-    "'/obp/v6.0.0/my/accounts'"
+    "'/obp/v5.1.0/my/accounts'"
    ],
    "reads": [
     "accounts[].account_routings[].scheme",
@@ -8030,10 +8027,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/my/accounts",
+   "path": "/obp/v5.1.0/my/accounts",
    "source": "apps/portal/src/routes/(protected)/uk-consent-request/+page.server.ts",
    "needles": [
-    "'/obp/v6.0.0/my/accounts'"
+    "'/obp/v5.1.0/my/accounts'"
    ],
    "reads": [
     "accounts[].bank_id",
@@ -8282,11 +8279,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/my/api-collections",
+   "path": "/obp/v5.1.0/my/api-collections",
    "source": "apps/portal/src/routes/(protected)/user/api-collections/+page.server.ts",
    "needles": [
-    "`/obp/${API_VERSION}/my/api-collections`",
-    "const API_VERSION = 'v6.0.0'"
+    "`/obp/v5.1.0/my/api-collections`"
    ],
    "reads": [
     "api_collections[].api_collection_name",
@@ -8298,42 +8294,38 @@
   },
   {
    "verb": "POST",
-   "path": "/obp/v6.0.0/my/api-collections",
+   "path": "/obp/v5.1.0/my/api-collections",
    "source": "apps/portal/src/routes/(protected)/user/api-collections/+page.server.ts",
    "needles": [
-    "`/obp/${API_VERSION}/my/api-collections`",
-    "const API_VERSION = 'v6.0.0'"
+    "`/obp/v5.1.0/my/api-collections`"
    ],
    "reads": []
   },
   {
    "verb": "DELETE",
-   "path": "/obp/v6.0.0/my/api-collections/API_COLLECTION_ID",
+   "path": "/obp/v5.1.0/my/api-collections/API_COLLECTION_ID",
    "source": "apps/portal/src/routes/(protected)/user/api-collections/+page.server.ts",
    "needles": [
-    "`/obp/${API_VERSION}/my/api-collections/${collectionId}`",
-    "const API_VERSION = 'v6.0.0'"
+    "`/obp/v5.1.0/my/api-collections/${collectionId}`"
    ],
    "reads": []
   },
   {
    "verb": "DELETE",
-   "path": "/obp/v6.0.0/my/api-collection-ids/API_COLLECTION_ID/api-collection-endpoint-ids/API_COLLECTION_ENDPOINT_ID",
+   "path": "/obp/v5.1.0/my/api-collection-ids/API_COLLECTION_ID/api-collection-endpoint-ids/API_COLLECTION_ENDPOINT_ID",
    "source": "apps/portal/src/routes/(protected)/user/api-collections/[collection_id]/+page.server.ts",
    "needles": [
-    "`/obp/${API_VERSION}/my/api-collection-ids/${collectionId}/api-collection-endpoint-ids/${endpointId}`",
-    "const API_VERSION = 'v6.0.0'"
+    "`/obp/v5.1.0/my/api-collection-ids/${collectionId}/api-collection-endpoint-ids/${endpointId}`"
    ],
    "reads": []
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/my/api-collection-ids/API_COLLECTION_ID/api-collection-endpoints",
+   "path": "/obp/v5.1.0/my/api-collection-ids/API_COLLECTION_ID/api-collection-endpoints",
    "source": "apps/portal/src/routes/(protected)/user/api-collections/[collection_id]/+page.server.ts",
    "needles": [
-    "`/obp/${API_VERSION}/my/api-collection-ids/${collectionId}/api-collection-endpoints`",
-    "`/obp/${API_VERSION}/my/api-collection-ids/${sourceCollectionId}/api-collection-endpoints`",
-    "const API_VERSION = 'v6.0.0'"
+    "`/obp/v5.1.0/my/api-collection-ids/${collectionId}/api-collection-endpoints`",
+    "`/obp/v5.1.0/my/api-collection-ids/${sourceCollectionId}/api-collection-endpoints`"
    ],
    "reads": [
     "api_collection_endpoints[].api_collection_endpoint_id",
@@ -8343,23 +8335,21 @@
   },
   {
    "verb": "POST",
-   "path": "/obp/v6.0.0/my/api-collection-ids/API_COLLECTION_ID/api-collection-endpoints",
+   "path": "/obp/v5.1.0/my/api-collection-ids/API_COLLECTION_ID/api-collection-endpoints",
    "source": "apps/portal/src/routes/(protected)/user/api-collections/[collection_id]/+page.server.ts",
    "needles": [
-    "`/obp/${API_VERSION}/my/api-collection-ids/${collectionId}/api-collection-endpoints`",
-    "`/obp/${API_VERSION}/my/api-collection-ids/${targetCollectionId}/api-collection-endpoints`",
-    "const API_VERSION = 'v6.0.0'"
+    "`/obp/v5.1.0/my/api-collection-ids/${collectionId}/api-collection-endpoints`",
+    "`/obp/v5.1.0/my/api-collection-ids/${targetCollectionId}/api-collection-endpoints`"
    ],
    "reads": [],
    "note": "Called in the addEndpoint action (line 114) and in the copyFrom loop (line 244)."
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/my/api-collections",
+   "path": "/obp/v5.1.0/my/api-collections",
    "source": "apps/portal/src/routes/(protected)/user/api-collections/[collection_id]/+page.server.ts",
    "needles": [
-    "`/obp/${API_VERSION}/my/api-collections`",
-    "const API_VERSION = 'v6.0.0'"
+    "`/obp/v5.1.0/my/api-collections`"
    ],
    "reads": [
     "api_collections[].api_collection_id",
@@ -8368,11 +8358,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/my/api-collections/API_COLLECTION_ID",
+   "path": "/obp/v5.1.0/my/api-collections/API_COLLECTION_ID",
    "source": "apps/portal/src/routes/(protected)/user/api-collections/[collection_id]/+page.server.ts",
    "needles": [
-    "`/obp/${API_VERSION}/my/api-collections/${collectionId}`",
-    "const API_VERSION = 'v6.0.0'"
+    "`/obp/v5.1.0/my/api-collections/${collectionId}`"
    ],
    "reads": [
     "api_collection_id",
@@ -8384,11 +8373,10 @@
   },
   {
    "verb": "PUT",
-   "path": "/obp/v6.0.0/my/api-collections/API_COLLECTION_ID",
+   "path": "/obp/v5.1.0/my/api-collections/API_COLLECTION_ID",
    "source": "apps/portal/src/routes/(protected)/user/api-collections/[collection_id]/+page.server.ts",
    "needles": [
-    "`/obp/${API_VERSION}/my/api-collections/${collectionId}`",
-    "const API_VERSION = 'v6.0.0'"
+    "`/obp/v5.1.0/my/api-collections/${collectionId}`"
    ],
    "reads": []
   },
@@ -8449,10 +8437,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/management/users/current/consumers",
+   "path": "/obp/v5.1.0/management/users/current/consumers",
    "source": "apps/portal/src/routes/(protected)/user/consumers/+page.server.ts",
    "needles": [
-    "'/obp/v6.0.0/management/users/current/consumers'"
+    "'/obp/v5.1.0/management/users/current/consumers'"
    ],
    "reads": [
     "consumers[].created",
@@ -8523,10 +8511,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/management/users/current/consumers",
+   "path": "/obp/v5.1.0/management/users/current/consumers",
    "source": "apps/portal/src/routes/(protected)/user/my-activity-dashboard/+page.server.ts",
    "needles": [
-    "'/obp/v6.0.0/management/users/current/consumers'"
+    "'/obp/v5.1.0/management/users/current/consumers'"
    ],
    "reads": [
     "consumers[].consumer_id",
@@ -8687,11 +8675,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/api-collections/API_COLLECTION_ID/api-collection-endpoints",
+   "path": "/obp/v5.1.0/api-collections/API_COLLECTION_ID/api-collection-endpoints",
    "source": "apps/portal/src/routes/collections/[collection_id]/+page.server.ts",
    "needles": [
-    "`/obp/${API_VERSION}/api-collections/${collectionId}/api-collection-endpoints`",
-    "const API_VERSION = 'v6.0.0'"
+    "`/obp/v5.1.0/api-collections/${collectionId}/api-collection-endpoints`"
    ],
    "reads": [
     "api_collection_endpoints[].operation_id",
@@ -8700,11 +8687,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/api-collections/sharable/API_COLLECTION_ID",
+   "path": "/obp/v5.1.0/api-collections/sharable/API_COLLECTION_ID",
    "source": "apps/portal/src/routes/collections/[collection_id]/+page.server.ts",
    "needles": [
-    "`/obp/${API_VERSION}/api-collections/sharable/${collectionId}`",
-    "const API_VERSION = 'v6.0.0'"
+    "`/obp/v5.1.0/api-collections/sharable/${collectionId}`"
    ],
    "reads": [
     "api_collection_id",
@@ -8718,8 +8704,7 @@
    "path": "/obp/v6.0.0/resource-docs/API_VERSION/obp",
    "source": "apps/portal/src/routes/collections/[collection_id]/+page.server.ts",
    "needles": [
-    "`/obp/${API_VERSION}/resource-docs/${API_VERSION}/obp`",
-    "const API_VERSION = 'v6.0.0'"
+    "`/obp/v6.0.0/resource-docs/v6.0.0/obp`"
    ],
    "reads": [
     "resource_docs[].operation_id",
@@ -8741,11 +8726,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/api-collections/API_COLLECTION_ID/api-collection-endpoints",
+   "path": "/obp/v5.1.0/api-collections/API_COLLECTION_ID/api-collection-endpoints",
    "source": "apps/portal/src/routes/featured/+page.server.ts",
    "needles": [
-    "`/obp/${API_VERSION}/api-collections/${collection.api_collection_id}/api-collection-endpoints`",
-    "const API_VERSION = 'v6.0.0'"
+    "`/obp/v5.1.0/api-collections/${collection.api_collection_id}/api-collection-endpoints`"
    ],
    "reads": [
     "api_collection_endpoints[].operation_id"
@@ -8753,11 +8737,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/api-collections/featured",
+   "path": "/obp/v5.1.0/api-collections/featured",
    "source": "apps/portal/src/routes/featured/+page.server.ts",
    "needles": [
-    "`/obp/${API_VERSION}/api-collections/featured`",
-    "const API_VERSION = 'v6.0.0'"
+    "`/obp/v5.1.0/api-collections/featured`"
    ],
    "reads": [
     "api_collections[].api_collection_id"
@@ -8768,8 +8751,7 @@
    "path": "/obp/v6.0.0/api/popular-endpoints",
    "source": "apps/portal/src/routes/featured/+page.server.ts",
    "needles": [
-    "`/obp/${API_VERSION}/api/popular-endpoints`",
-    "const API_VERSION = 'v6.0.0'"
+    "`/obp/v6.0.0/api/popular-endpoints`"
    ],
    "reads": [
     "operation_ids"
@@ -8780,8 +8762,7 @@
    "path": "/obp/v6.0.0/resource-docs/API_VERSION/obp",
    "source": "apps/portal/src/routes/featured/+page.server.ts",
    "needles": [
-    "`/obp/${API_VERSION}/resource-docs/${API_VERSION}/obp`",
-    "const API_VERSION = 'v6.0.0'"
+    "`/obp/v6.0.0/resource-docs/v6.0.0/obp`"
    ],
    "reads": [
     "resource_docs[].operation_id",
@@ -8808,8 +8789,7 @@
    "path": "/obp/v6.0.0/root",
    "source": "apps/portal/src/routes/featured/+page.server.ts",
    "needles": [
-    "`/obp/${API_VERSION}/root`",
-    "const API_VERSION = 'v6.0.0'"
+    "`/obp/v6.0.0/root`"
    ],
    "reads": [],
    "note": "Only checks that OBP-API answers."
@@ -8843,11 +8823,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/banks/BANK_ID/products/PRODUCT_CODE",
+   "path": "/obp/v5.1.0/banks/BANK_ID/products/PRODUCT_CODE",
    "source": "apps/portal/src/routes/financial-products/[bank_id]/[product_code]/+page.server.ts",
    "needles": [
-    "`/obp/${API_VERSION}/banks/${encodeURIComponent(bankId)}/products/${encodeURIComponent(productCode)}`",
-    "const API_VERSION = 'v6.0.0'"
+    "`/obp/v5.1.0/banks/${encodeURIComponent(bankId)}/products/${encodeURIComponent(productCode)}`"
    ],
    "reads": [
     "product_code",
@@ -8987,11 +8966,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/api-collections/API_COLLECTION_ID/api-collection-endpoints",
+   "path": "/obp/v5.1.0/api-collections/API_COLLECTION_ID/api-collection-endpoints",
    "source": "apps/portal/src/routes/products/[product_code]/+page.server.ts",
    "needles": [
-    "`/obp/${API_VERSION}/api-collections/${product.apiCollectionId}/api-collection-endpoints`",
-    "const API_VERSION = 'v6.0.0'"
+    "`/obp/v5.1.0/api-collections/${product.apiCollectionId}/api-collection-endpoints`"
    ],
    "reads": [
     "api_collection_endpoints[].operation_id"
@@ -9002,8 +8980,7 @@
    "path": "/obp/v6.0.0/banks",
    "source": "apps/portal/src/routes/products/[product_code]/+page.server.ts",
    "needles": [
-    "`/obp/${API_VERSION}/banks`",
-    "const API_VERSION = 'v6.0.0'"
+    "`/obp/v6.0.0/banks`"
    ],
    "reads": [
     "banks[].id|banks[].bank_id"
@@ -9015,8 +8992,7 @@
    "path": "/obp/v6.0.0/banks/BANK_ID/api-products/API_PRODUCT_CODE",
    "source": "apps/portal/src/routes/products/[product_code]/+page.server.ts",
    "needles": [
-    "`/obp/${API_VERSION}/banks/${bank.id}/api-products/${productCode}`",
-    "const API_VERSION = 'v6.0.0'"
+    "`/obp/v6.0.0/banks/${bank.id}/api-products/${productCode}`"
    ],
    "reads": [
     "bank_id",
@@ -9049,8 +9025,7 @@
    "path": "/obp/v6.0.0/resource-docs/API_VERSION/obp",
    "source": "apps/portal/src/routes/products/[product_code]/+page.server.ts",
    "needles": [
-    "`/obp/${API_VERSION}/resource-docs/${API_VERSION}/obp`",
-    "const API_VERSION = 'v6.0.0'"
+    "`/obp/v6.0.0/resource-docs/v6.0.0/obp`"
    ],
    "reads": [
     "resource_docs[].operation_id",
@@ -9097,8 +9072,7 @@
    "path": "/obp/v6.0.0/api-products",
    "source": "apps/portal/src/routes/subscriptions/+page.server.ts",
    "needles": [
-    "`/obp/${PRODUCTS_API_VERSION}/api-products`",
-    "const PRODUCTS_API_VERSION = 'v6.0.0'"
+    "`/obp/v6.0.0/api-products`"
    ],
    "reads": [
     "api_products[].bank_id",
@@ -9116,8 +9090,7 @@
    "path": "/obp/v6.0.0/banks/BANK_ID/api-products/API_PRODUCT_CODE",
    "source": "apps/portal/src/routes/subscriptions/+page.server.ts",
    "needles": [
-    "`/obp/${PRODUCTS_API_VERSION}/banks/${encodeURIComponent(raw.bank_id)}/api-products/${encodeURIComponent(raw.api_product_code)}`",
-    "const PRODUCTS_API_VERSION = 'v6.0.0'"
+    "`/obp/v6.0.0/banks/${encodeURIComponent(raw.bank_id)}/api-products/${encodeURIComponent(raw.api_product_code)}`"
    ],
    "reads": [
     "attributes[].name",
@@ -9135,11 +9108,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/management/users/current/consumers",
+   "path": "/obp/v5.1.0/management/users/current/consumers",
    "source": "apps/portal/src/routes/subscriptions/+page.server.ts",
    "needles": [
-    "`/obp/${PRODUCTS_API_VERSION}/management/users/current/consumers`",
-    "const PRODUCTS_API_VERSION = 'v6.0.0'"
+    "`/obp/v5.1.0/management/users/current/consumers`"
    ],
    "reads": [
     "consumers[].created",
@@ -9201,8 +9173,7 @@
    "path": "/obp/v6.0.0/banks/BANK_ID/api-products/API_PRODUCT_CODE",
    "source": "apps/portal/src/routes/subscriptions/+page.server.ts",
    "needles": [
-    "`/obp/${PRODUCTS_API_VERSION}/banks/${encodeURIComponent(bankId)}/api-products/${encodeURIComponent(apiProductCode)}`",
-    "const PRODUCTS_API_VERSION = 'v6.0.0'"
+    "`/obp/v6.0.0/banks/${encodeURIComponent(bankId)}/api-products/${encodeURIComponent(apiProductCode)}`"
    ],
    "reads": [
     "attributes[].name",
@@ -9963,11 +9934,10 @@
   },
   {
    "verb": "GET",
-   "path": "/obp/v6.0.0/api-collections/API_COLLECTION_ID/api-collection-endpoints",
+   "path": "/obp/v5.1.0/api-collections/API_COLLECTION_ID/api-collection-endpoints",
    "source": "packages/shared/src/lib/server/landing/fetchers.ts",
    "needles": [
-    "`/obp/${API_VERSION}/api-collections/${encodeURIComponent(collection)}/api-collection-endpoints`",
-    "const API_VERSION = 'v6.0.0'"
+    "`/obp/v5.1.0/api-collections/${encodeURIComponent(collection)}/api-collection-endpoints`"
    ],
    "reads": [
     "api_collection_endpoints[].operation_id"
@@ -9978,8 +9948,7 @@
    "path": "/obp/v6.0.0/api-products",
    "source": "packages/shared/src/lib/server/landing/fetchers.ts",
    "needles": [
-    "`/obp/${API_VERSION}/api-products`",
-    "const API_VERSION = 'v6.0.0'"
+    "`/obp/v6.0.0/api-products`"
    ],
    "reads": [
     "api_products[].tags",
@@ -9998,8 +9967,7 @@
    "path": "/obp/v6.0.0/banks",
    "source": "packages/shared/src/lib/server/landing/fetchers.ts",
    "needles": [
-    "`/obp/${API_VERSION}/banks`",
-    "const API_VERSION = 'v6.0.0'"
+    "`/obp/v6.0.0/banks`"
    ],
    "reads": [
     "banks[].bank_id",
@@ -10013,8 +9981,7 @@
    "path": "/obp/v6.0.0/resource-docs/API_VERSION/obp",
    "source": "packages/shared/src/lib/server/landing/fetchers.ts",
    "needles": [
-    "`/obp/${API_VERSION}/resource-docs/${API_VERSION}/obp`",
-    "const API_VERSION = 'v6.0.0'"
+    "`/obp/v6.0.0/resource-docs/v6.0.0/obp`"
    ],
    "reads": [
     "resource_docs[].operation_id",
@@ -10281,6 +10248,421 @@
     "entitlements.list[].bank_id"
    ],
    "note": "Finds one User by identity provider and username. Needs the system Role CanGetAnyUser."
+  },
+  {
+   "verb": "POST",
+   "path": "/obp/v6.0.0/users",
+   "source": "apps/sandbox-populator/src/lib/obp/client.ts",
+   "needles": [
+    "this.url('/obp/v6.0.0/users')"
+   ],
+   "reads": [
+    "user_id",
+    "username",
+    "email"
+   ]
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v6.0.0/users/current",
+   "source": "apps/sandbox-populator/src/lib/obp/client.ts",
+   "needles": [
+    "this.url('/obp/v6.0.0/users/current')"
+   ],
+   "reads": [
+    "user_id",
+    "username"
+   ]
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v6.0.0/banks",
+   "source": "apps/sandbox-populator/src/lib/obp/client.ts",
+   "needles": [
+    "this.url('/obp/v6.0.0/banks')"
+   ],
+   "reads": [
+    "banks",
+    "banks[].bank_id",
+    "banks[].bank_code",
+    "banks[].full_name"
+   ]
+  },
+  {
+   "verb": "POST",
+   "path": "/obp/v6.0.0/banks",
+   "source": "apps/sandbox-populator/src/lib/obp/client.ts",
+   "needles": [
+    "this.url('/obp/v6.0.0/banks')"
+   ],
+   "reads": [
+    "bank_id",
+    "bank_code",
+    "full_name"
+   ]
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v6.0.0/banks/BANK_ID",
+   "source": "apps/sandbox-populator/src/lib/obp/client.ts",
+   "needles": [
+    "this.url(`/obp/v6.0.0/banks/${bankId}`)"
+   ],
+   "reads": [
+    "bank_id"
+   ],
+   "note": "getBank reads bank_id; bankExists only looks at the HTTP status."
+  },
+  {
+   "verb": "POST",
+   "path": "/obp/v5.1.0/users/USER_ID/entitlements",
+   "source": "apps/sandbox-populator/src/lib/obp/client.ts",
+   "needles": [
+    "this.url(`/obp/v5.1.0/users/${userId}/entitlements`)"
+   ],
+   "reads": []
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v5.1.0/my/accounts",
+   "source": "apps/sandbox-populator/src/lib/obp/client.ts",
+   "needles": [
+    "this.url('/obp/v5.1.0/my/accounts')"
+   ],
+   "reads": [
+    "accounts"
+   ]
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v6.0.0/banks/BANK_ID/accounts",
+   "source": "apps/sandbox-populator/src/lib/obp/client.ts",
+   "needles": [
+    "this.url(`/obp/v6.0.0/banks/${bankId}/accounts`)"
+   ],
+   "reads": [
+    "accounts",
+    "accounts[].account_id",
+    "accounts[].label",
+    "accounts[].currency"
+   ],
+   "undocumented_fields": [
+    "accounts[].currency"
+   ],
+   "note": "currency is read as account.currency || '', so an account without it shows no currency."
+  },
+  {
+   "verb": "POST",
+   "path": "/obp/v5.1.0/banks/BANK_ID/accounts",
+   "source": "apps/sandbox-populator/src/lib/obp/client.ts",
+   "needles": [
+    "this.url(`/obp/v5.1.0/banks/${bankId}/accounts`)"
+   ],
+   "reads": [
+    "account_id",
+    "label",
+    "currency"
+   ],
+   "undocumented_fields": [
+    "currency"
+   ],
+   "note": "currency is read as account.currency for the results list; the request sets it, so the shown value is the one asked for."
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v5.1.0/banks/BANK_ID/accounts/ACCOUNT_ID/VIEW_ID/counterparties",
+   "source": "apps/sandbox-populator/src/lib/obp/client.ts",
+   "needles": [
+    "this.url(`/obp/v5.1.0/banks/${bankId}/accounts/${accountId}/${viewId}/counterparties`)"
+   ],
+   "reads": [
+    "counterparties",
+    "counterparties[].counterparty_id",
+    "counterparties[].name"
+   ]
+  },
+  {
+   "verb": "POST",
+   "path": "/obp/v5.1.0/banks/BANK_ID/accounts/ACCOUNT_ID/VIEW_ID/counterparties",
+   "source": "apps/sandbox-populator/src/lib/obp/client.ts",
+   "needles": [
+    "this.url(`/obp/v5.1.0/banks/${bankId}/accounts/${accountId}/${viewId}/counterparties`)"
+   ],
+   "reads": [
+    "counterparty_id"
+   ]
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v5.1.0/banks/BANK_ID/currencies",
+   "source": "apps/sandbox-populator/src/lib/obp/client.ts",
+   "needles": [
+    "this.url(`/obp/v5.1.0/banks/${bankId}/currencies`)"
+   ],
+   "reads": [
+    "currencies",
+    "currencies[].currency_code"
+   ],
+   "undocumented_fields": [
+    "currencies[].currency_code"
+   ],
+   "note": "getCurrenciesAtBank is not called by the app at present."
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v5.1.0/banks/BANK_ID/fx/FROM_CURRENCY_CODE/TO_CURRENCY_CODE",
+   "source": "apps/sandbox-populator/src/lib/obp/client.ts",
+   "needles": [
+    "this.url(`/obp/v5.1.0/banks/${bankId}/fx/${fromCurrency}/${toCurrency}`)"
+   ],
+   "reads": [
+    "conversion_value"
+   ]
+  },
+  {
+   "verb": "PUT",
+   "path": "/obp/v5.1.0/banks/BANK_ID/fx",
+   "source": "apps/sandbox-populator/src/lib/obp/client.ts",
+   "needles": [
+    "this.url(`/obp/v5.1.0/banks/${bankId}/fx`)"
+   ],
+   "reads": []
+  },
+  {
+   "verb": "POST",
+   "path": "/obp/v5.1.0/banks/BANK_ID/management/historical/transactions",
+   "source": "apps/sandbox-populator/src/lib/obp/client.ts",
+   "needles": [
+    "this.url(`/obp/v5.1.0/banks/${bankId}/management/historical/transactions`)"
+   ],
+   "reads": [
+    "transaction_id"
+   ]
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v6.0.0/banks/BANK_ID/accounts/ACCOUNT_ID/VIEW_ID/transactions",
+   "source": "apps/sandbox-populator/src/lib/obp/client.ts",
+   "needles": [
+    "this.url(`/obp/v6.0.0/banks/${bankId}/accounts/${accountId}/${viewId}/transactions`)"
+   ],
+   "reads": [
+    "transactions",
+    "transactions[].transaction_id",
+    "transactions[].other_account.id",
+    "transactions[].details.value.amount",
+    "transactions[].details.value.currency",
+    "transactions[].details.description"
+   ],
+   "undocumented_fields": [
+    "transactions[].other_account.id"
+   ],
+   "note": "read as txn.other_account?.id || '', so a transaction without it shows no counterpart account."
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v5.1.0/banks/BANK_ID/accounts/ACCOUNT_ID/VIEW_ID/transaction-requests",
+   "source": "apps/sandbox-populator/src/lib/obp/client.ts",
+   "needles": [
+    "this.url(`/obp/v5.1.0/banks/${bankId}/accounts/${accountId}/${viewId}/transaction-requests`)"
+   ],
+   "reads": [
+    "transaction_requests"
+   ],
+   "undocumented_fields": [
+    "transaction_requests"
+   ],
+   "note": "getTransactionRequestsForAccount is not called by the app at present."
+  },
+  {
+   "verb": "POST",
+   "path": "/obp/v5.1.0/banks/BANK_ID/accounts/ACCOUNT_ID/VIEW_ID/transaction-request-types/ACCOUNT/transaction-requests",
+   "source": "apps/sandbox-populator/src/lib/obp/client.ts",
+   "needles": [
+    "`/obp/v5.1.0/banks/${fromBankId}/accounts/${fromAccountId}/${viewId}/transaction-request-types/ACCOUNT/transaction-requests`"
+   ],
+   "reads": [
+    "id",
+    "status"
+   ]
+  },
+  {
+   "verb": "POST",
+   "path": "/obp/v5.1.0/banks/BANK_ID/accounts/ACCOUNT_ID/VIEW_ID/transaction-request-types/COUNTERPARTY/transaction-requests",
+   "source": "apps/sandbox-populator/src/lib/obp/client.ts",
+   "needles": [
+    "`/obp/v5.1.0/banks/${fromBankId}/accounts/${fromAccountId}/${viewId}/transaction-request-types/COUNTERPARTY/transaction-requests`"
+   ],
+   "reads": [
+    "id",
+    "status"
+   ]
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v6.0.0/banks/BANK_ID/customers",
+   "source": "apps/sandbox-populator/src/lib/obp/client.ts",
+   "needles": [
+    "this.url(`/obp/v6.0.0/banks/${bankId}/customers`)"
+   ],
+   "reads": [
+    "customers",
+    "customers[].customer_id",
+    "customers[].legal_name"
+   ]
+  },
+  {
+   "verb": "POST",
+   "path": "/obp/v6.0.0/banks/BANK_ID/customers",
+   "source": "apps/sandbox-populator/src/lib/obp/client.ts",
+   "needles": [
+    "this.url(`/obp/v6.0.0/banks/${bankId}/customers`)"
+   ],
+   "reads": [
+    "customer_id",
+    "legal_name"
+   ]
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v6.0.0/banks/BANK_ID/corporate-customers",
+   "source": "apps/sandbox-populator/src/lib/obp/client.ts",
+   "needles": [
+    "this.url(`/obp/v6.0.0/banks/${bankId}/corporate-customers`)"
+   ],
+   "reads": [
+    "customers",
+    "customers[].customer_id",
+    "customers[].legal_name"
+   ]
+  },
+  {
+   "verb": "POST",
+   "path": "/obp/v6.0.0/banks/BANK_ID/corporate-customers",
+   "source": "apps/sandbox-populator/src/lib/obp/client.ts",
+   "needles": [
+    "this.url(`/obp/v6.0.0/banks/${bankId}/corporate-customers`)"
+   ],
+   "reads": [
+    "customer_id",
+    "legal_name"
+   ]
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v5.1.0/banks/BANK_ID/user_customer_links/users/USER_ID",
+   "source": "apps/sandbox-populator/src/lib/obp/client.ts",
+   "needles": [
+    "this.url(`/obp/v5.1.0/banks/${bankId}/user_customer_links/users/${userId}`)"
+   ],
+   "reads": [
+    "user_customer_links",
+    "user_customer_links[].customer_id"
+   ]
+  },
+  {
+   "verb": "POST",
+   "path": "/obp/v5.1.0/banks/BANK_ID/user_customer_links",
+   "source": "apps/sandbox-populator/src/lib/obp/client.ts",
+   "needles": [
+    "this.url(`/obp/v5.1.0/banks/${bankId}/user_customer_links`)"
+   ],
+   "reads": []
+  },
+  {
+   "verb": "POST",
+   "path": "/obp/v6.0.0/banks/BANK_ID/customer-links",
+   "source": "apps/sandbox-populator/src/lib/obp/client.ts",
+   "needles": [
+    "this.url(`/obp/v6.0.0/banks/${bankId}/customer-links`)"
+   ],
+   "reads": []
+  },
+  {
+   "verb": "POST",
+   "path": "/obp/v5.1.0/banks/BANK_ID/customer-account-links",
+   "source": "apps/sandbox-populator/src/lib/obp/client.ts",
+   "needles": [
+    "this.url(`/obp/v5.1.0/banks/${bankId}/customer-account-links`)"
+   ],
+   "reads": []
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v6.0.0/my/personal-data-fields",
+   "source": "apps/sandbox-populator/src/lib/obp/client.ts",
+   "needles": [
+    "this.url('/obp/v6.0.0/my/personal-data-fields')"
+   ],
+   "reads": [
+    "user_attributes",
+    "user_attributes[].name",
+    "user_attributes[].value",
+    "user_attributes[].user_attribute_id"
+   ]
+  },
+  {
+   "verb": "POST",
+   "path": "/obp/v6.0.0/my/personal-data-fields",
+   "source": "apps/sandbox-populator/src/lib/obp/client.ts",
+   "needles": [
+    "this.url('/obp/v6.0.0/my/personal-data-fields')"
+   ],
+   "reads": []
+  },
+  {
+   "verb": "PUT",
+   "path": "/obp/v6.0.0/my/personal-data-fields/USER_ATTRIBUTE_ID",
+   "source": "apps/sandbox-populator/src/lib/obp/client.ts",
+   "needles": [
+    "this.url(`/obp/v6.0.0/my/personal-data-fields/${attributeId}`)"
+   ],
+   "reads": []
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v6.0.0/app-directory",
+   "source": "apps/sandbox-populator/src/lib/obp/client.ts",
+   "needles": [
+    "`${requireObpBaseUrl(baseUrl)}/obp/v6.0.0/app-directory`"
+   ],
+   "reads": [
+    "app_directory",
+    "app_directory[].name",
+    "app_directory[].value"
+   ]
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v5.1.0/well-known",
+   "source": "apps/sandbox-populator/src/lib/oauth/providerManager.ts",
+   "needles": [
+    "'/obp/v5.1.0/well-known'"
+   ],
+   "reads": [
+    "well_known_uris",
+    "well_known_uris[].provider",
+    "well_known_uris[].url"
+   ],
+   "undocumented_fields": [
+    "well_known_uris",
+    "well_known_uris[].provider",
+    "well_known_uris[].url"
+   ],
+   "note": "The shared OAuth2ProviderManager reads well_known_uris[].provider and .url to set up the login providers."
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v6.0.0/users/current",
+   "source": "apps/sandbox-populator/src/routes/login/obp/callback/+server.ts",
+   "needles": [
+    "`${env.PUBLIC_OBP_BASE_URL}/obp/v6.0.0/users/current`"
+   ],
+   "reads": [
+    "user_id",
+    "email",
+    "username"
+   ]
   }
  ],
  "not_calls": [
@@ -11071,6 +11453,13 @@
     "const prefix = options.pathPrefix ?? '/obp';"
    ],
    "reason": "base path of the generic proxy; the path after it is chosen by the caller at run time"
+  },
+  {
+   "source": "packages/shared/src/lib/server/landing/fetchers.ts",
+   "needles": [
+    "`${links.explorerUrl}/resource-docs/v6.0.0?operationid=${encodeURIComponent(e.operation_id)}`"
+   ],
+   "reason": "link to the API Explorer page for an endpoint; nothing is requested"
   }
  ]
 }

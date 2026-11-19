@@ -134,7 +134,7 @@ export const POST: RequestHandler = async ({ locals, params, request }) => {
     });
 
     // Make the API call to create the custom view
-    const endpoint = `/obp/v6.0.0/banks/${bank_id}/accounts/${account_id}/views`;
+    const endpoint = `/obp/v5.1.0/banks/${bank_id}/accounts/${account_id}/views`;
     logger.info(`Creating custom view at: ${endpoint}`);
 
     const response = await obp_requests.post(endpoint, payload, accessToken);

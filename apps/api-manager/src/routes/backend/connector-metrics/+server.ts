@@ -68,7 +68,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
     }
 
     logger.info("=== CONNECTOR METRICS API CALL ===");
-    const endpoint = `/obp/v6.0.0/management/connector/metrics?${queryParams.toString()}`;
+    const endpoint = `/obp/v5.1.0/management/connector/metrics?${queryParams.toString()}`;
     logger.info(`Request: ${endpoint}`);
 
     const response = await obp_requests.get(endpoint, accessToken);

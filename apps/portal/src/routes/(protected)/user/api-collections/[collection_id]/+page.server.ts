@@ -25,7 +25,6 @@ import { OBPRequestError } from '@obp/shared/obp';
 import { env } from '$env/dynamic/private';
 import { getOperationIds } from '$lib/obp/operationIdsCache';
 
-const API_VERSION = 'v6.0.0';
 
 export async function load(event: RequestEvent) {
 	const token = event.locals.session.data.oauth?.access_token;
@@ -41,7 +40,7 @@ export async function load(event: RequestEvent) {
 	let collection: OBPApiCollection | undefined;
 	try {
 		collection = await obp_requests.get(
-			`/obp/${API_VERSION}/my/api-collections/${collectionId}`,
+			`/obp/v5.1.0/my/api-collections/${collectionId}`,
 			token
 		);
 	} catch (e) {
@@ -55,7 +54,7 @@ export async function load(event: RequestEvent) {
 	let endpointsResponse: OBPApiCollectionEndpointsResponse | undefined;
 	try {
 		endpointsResponse = await obp_requests.get(
-			`/obp/${API_VERSION}/my/api-collection-ids/${collectionId}/api-collection-endpoints`,
+			`/obp/v5.1.0/my/api-collection-ids/${collectionId}/api-collection-endpoints`,
 			token
 		);
 	} catch (e) {
@@ -66,13 +65,13 @@ export async function load(event: RequestEvent) {
 	const endpoints = endpointsResponse?.api_collection_endpoints || [];
 
 	// Get cached operation IDs for search
-	const availableOperations = await getOperationIds(API_VERSION, token);
+	const availableOperations = await getOperationIds('v6.0.0', token);
 
 	// Fetch all user's collections for "Copy From" dropdown
 	let allCollections: OBPApiCollection[] = [];
 	try {
 		const collectionsResponse: OBPApiCollectionsResponse = await obp_requests.get(
-			`/obp/${API_VERSION}/my/api-collections`,
+			`/obp/v5.1.0/my/api-collections`,
 			token
 		);
 		// Filter out the current collection
@@ -111,7 +110,7 @@ export const actions = {
 
 		try {
 			await obp_requests.post(
-				`/obp/${API_VERSION}/my/api-collection-ids/${collectionId}/api-collection-endpoints`,
+				`/obp/v5.1.0/my/api-collection-ids/${collectionId}/api-collection-endpoints`,
 				{ operation_id: operationId },
 				token
 			);
@@ -145,7 +144,7 @@ export const actions = {
 
 		try {
 			await obp_requests.delete(
-				`/obp/${API_VERSION}/my/api-collection-ids/${collectionId}/api-collection-endpoint-ids/${endpointId}`,
+				`/obp/v5.1.0/my/api-collection-ids/${collectionId}/api-collection-endpoint-ids/${endpointId}`,
 				token
 			);
 			return { success: true, message: 'Endpoint removed successfully.' };
@@ -180,7 +179,7 @@ export const actions = {
 
 		try {
 			await obp_requests.put(
-				`/obp/${API_VERSION}/my/api-collections/${collectionId}`,
+				`/obp/v5.1.0/my/api-collections/${collectionId}`,
 				{ api_collection_name: name, description, is_sharable },
 				token
 			);
@@ -216,7 +215,7 @@ export const actions = {
 		let sourceEndpoints: { operation_id: string }[] = [];
 		try {
 			const response: OBPApiCollectionEndpointsResponse = await obp_requests.get(
-				`/obp/${API_VERSION}/my/api-collection-ids/${sourceCollectionId}/api-collection-endpoints`,
+				`/obp/v5.1.0/my/api-collection-ids/${sourceCollectionId}/api-collection-endpoints`,
 				token
 			);
 			sourceEndpoints = response?.api_collection_endpoints || [];
@@ -241,7 +240,7 @@ export const actions = {
 		for (const endpoint of sourceEndpoints) {
 			try {
 				await obp_requests.post(
-					`/obp/${API_VERSION}/my/api-collection-ids/${targetCollectionId}/api-collection-endpoints`,
+					`/obp/v5.1.0/my/api-collection-ids/${targetCollectionId}/api-collection-endpoints`,
 					{ operation_id: endpoint.operation_id },
 					token
 				);

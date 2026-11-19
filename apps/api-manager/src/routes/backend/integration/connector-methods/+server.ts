@@ -45,7 +45,7 @@ export const GET: RequestHandler = async ({ locals }) => {
 
   try {
     logger.info("=== CONNECTOR METHODS API CALL ===");
-    const endpoint = `/obp/v6.0.0/management/connector-methods`;
+    const endpoint = `/obp/v5.1.0/management/connector-methods`;
     logger.info(`Request: ${endpoint}`);
 
     const response = await obp_requests.get(endpoint, accessToken);

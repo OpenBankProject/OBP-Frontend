@@ -54,7 +54,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   // Fetch user details
   let user = null;
   try {
-    const endpoint = `/obp/v6.0.0/users/provider/${encodeURIComponent(provider)}/username/${encodeURIComponent(username)}`;
+    const endpoint = `/obp/v5.1.0/users/provider/${encodeURIComponent(provider)}/username/${encodeURIComponent(username)}`;
     const response = await obp_requests.get(endpoint, accessToken);
     if (response) {
       user = response;
@@ -74,7 +74,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   // Fetch lock status (non-fatal if it fails)
   let lockStatus = null;
   try {
-    const lockEndpoint = `/obp/v6.0.0/users/${encodeURIComponent(provider)}/${encodeURIComponent(username)}/lock-status`;
+    const lockEndpoint = `/obp/v5.1.0/users/${encodeURIComponent(provider)}/${encodeURIComponent(username)}/lock-status`;
     lockStatus = await obp_requests.get(lockEndpoint, accessToken);
     logger.info(`Lock status fetched for ${username}`);
   } catch (err) {
@@ -112,7 +112,7 @@ export const actions = {
     }
 
     try {
-      const lockEndpoint = `/obp/v6.0.0/users/${encodeURIComponent(provider)}/${encodeURIComponent(username)}/locks`;
+      const lockEndpoint = `/obp/v5.1.0/users/${encodeURIComponent(provider)}/${encodeURIComponent(username)}/locks`;
       const result = await obp_requests.post(lockEndpoint, {}, token);
 
       logger.info(`User ${username} locked successfully`, result);

@@ -65,7 +65,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
       requestBody.description = description;
     }
 
-    const endpoint = `/obp/v6.0.0/my/api-collections`;
+    const endpoint = `/obp/v5.1.0/my/api-collections`;
     logger.info(`POST ${endpoint}`);
     logger.info(`Request body: ${JSON.stringify(requestBody)}`);
 

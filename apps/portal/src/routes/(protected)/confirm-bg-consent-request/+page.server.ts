@@ -81,7 +81,7 @@ export async function load(event: RequestEvent) {
 		// Step 4: Get user's accounts for IBAN selection
 		let userAccounts: any[] = [];
 		try {
-			const accountsResponse = await obp_requests.get('/obp/v6.0.0/my/accounts', token);
+			const accountsResponse = await obp_requests.get('/obp/v5.1.0/my/accounts', token);
 			userAccounts = accountsResponse.accounts || [];
 		} catch (e) {
 			logger.warn('Could not fetch user accounts:', e);
@@ -172,7 +172,7 @@ export const actions = {
 				}
 
 				await obp_requests.put(
-					`/obp/v6.0.0/management/banks/${defaultBankId}/consents/${consentId}/account-access`,
+					`/obp/v5.1.0/management/banks/${defaultBankId}/consents/${consentId}/account-access`,
 					{ access },
 					token
 				);
@@ -208,7 +208,7 @@ export const actions = {
 
 		try {
 			await obp_requests.put(
-				`/obp/v6.0.0/banks/${defaultBankId}/consents/${consentId}`,
+				`/obp/v5.1.0/banks/${defaultBankId}/consents/${consentId}`,
 				{ status: 'REJECTED' },
 				token
 			);

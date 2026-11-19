@@ -64,7 +64,7 @@
     entitlements = [];
 
     try {
-      const res = await trackedFetch(`/proxy/obp/v6.0.0/users/${encodeURIComponent(uid)}/entitlements`);
+      const res = await trackedFetch(`/proxy/obp/v5.1.0/users/${encodeURIComponent(uid)}/entitlements`);
       if (res.ok) {
         const data = await res.json();
         entitlements = data.list || [];

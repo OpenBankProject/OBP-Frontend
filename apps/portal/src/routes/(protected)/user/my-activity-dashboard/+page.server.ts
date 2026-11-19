@@ -51,7 +51,7 @@ export async function load(event: RequestEvent) {
 	const { query, filters } = buildMyMetricsQuery(event.url.searchParams);
 	const pageEndpoint = `/obp/${API_VERSION}/my/metrics?${query.toString()}`;
 	const summaryEndpoint = `/obp/${API_VERSION}/my/metrics?${buildMyMetricsSummaryQuery(query).toString()}`;
-	const consumersEndpoint = '/obp/v6.0.0/management/users/current/consumers';
+	const consumersEndpoint = '/obp/v5.1.0/management/users/current/consumers';
 	const apiExplorerUrl = env.API_EXPLORER_URL || '';
 
 	// The visible page is the only fetch that decides the page's error state; the

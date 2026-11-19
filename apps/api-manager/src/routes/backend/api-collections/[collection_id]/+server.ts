@@ -72,7 +72,7 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
       requestBody.description = description;
     }
 
-    const endpoint = `/obp/v6.0.0/my/api-collections/${collection_id}`;
+    const endpoint = `/obp/v5.1.0/my/api-collections/${collection_id}`;
     logger.info(`PUT ${endpoint}`);
     logger.info(`Request body: ${JSON.stringify(requestBody)}`);
 
@@ -116,7 +116,7 @@ export const DELETE: RequestHandler = async ({ params, locals }) => {
     logger.info("=== DELETE API COLLECTION ===");
     logger.info(`Collection ID: ${collection_id}`);
 
-    const endpoint = `/obp/v6.0.0/my/api-collections/${collection_id}`;
+    const endpoint = `/obp/v5.1.0/my/api-collections/${collection_id}`;
     logger.info(`DELETE ${endpoint}`);
 
     const response = await obp_requests.delete(endpoint, accessToken);

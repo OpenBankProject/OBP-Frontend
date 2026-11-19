@@ -36,7 +36,7 @@
   async function checkScope(consumerId: string) {
     scopeChecks = { ...scopeChecks, [consumerId]: { state: "checking" } };
     try {
-      const response = await fetch(`/proxy/obp/v6.0.0/consumers/${encodeURIComponent(consumerId)}/scopes`, { credentials: "include" });
+      const response = await fetch(`/proxy/obp/v5.1.0/consumers/${encodeURIComponent(consumerId)}/scopes`, { credentials: "include" });
       const body = await response.json();
       if (!response.ok) throw new Error(body?.message ?? `HTTP ${response.status}`);
       const has = (body?.list ?? []).some((s: any) => s.role_name === data.getRole);

@@ -90,7 +90,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
       requestBody.can_revoke_access_to_views = can_revoke_access_to_views;
     }
 
-    const endpoint = `/obp/v6.0.0/system-views`;
+    const endpoint = `/obp/v5.1.0/system-views`;
     logger.info(`POST ${endpoint}`);
     logger.info(
       "Request body being sent to OBP:",

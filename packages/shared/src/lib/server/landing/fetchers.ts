@@ -28,7 +28,6 @@ import { loadGlossaryEntry, excerptFromMarkdown } from '../explorer/glossaryCach
 import { sanitizeContentHtml } from './sanitize.js';
 
 const logger = createLogger('LandingFetchers');
-const API_VERSION = 'v6.0.0';
 
 export type LandingObpGet = (path: string, accessToken?: string) => Promise<any>;
 
@@ -45,7 +44,7 @@ export interface LandingLinkConfig {
 let resourceDocsCache: { at: number; byOperationId: Map<string, any> } | null = null;
 async function getResourceDocs(obpGet: LandingObpGet, token?: string): Promise<Map<string, any>> {
 	if (resourceDocsCache && Date.now() - resourceDocsCache.at < 10 * 60 * 1000) return resourceDocsCache.byOperationId;
-	const response = await obpGet(`/obp/${API_VERSION}/resource-docs/${API_VERSION}/obp`, token);
+	const response = await obpGet(`/obp/v6.0.0/resource-docs/v6.0.0/obp`, token);
 	const byOperationId = new Map<string, any>();
 	for (const doc of response?.resource_docs ?? []) byOperationId.set(doc.operation_id, doc);
 	resourceDocsCache = { at: Date.now(), byOperationId };
@@ -68,7 +67,7 @@ function mapProduct(raw: any): LandingProduct {
 export function buildLandingFetchers(obpGet: LandingObpGet, token: string | undefined, links: LandingLinkConfig): LandingFetchers {
 	let productsPromise: Promise<any[]> | null = null;
 	const allProducts = () =>
-		(productsPromise ??= obpGet(`/obp/${API_VERSION}/api-products`, token).then((r) => r?.api_products ?? []));
+		(productsPromise ??= obpGet(`/obp/v6.0.0/api-products`, token).then((r) => r?.api_products ?? []));
 
 	return {
 		products: async ({ tag, bank, limit }) => {
@@ -78,7 +77,7 @@ export function buildLandingFetchers(obpGet: LandingObpGet, token: string | unde
 			return products.slice(0, limit).map(mapProduct);
 		},
 		endpoints: async ({ collection, limit }) => {
-			const response = await obpGet(`/obp/${API_VERSION}/api-collections/${encodeURIComponent(collection)}/api-collection-endpoints`, token);
+			const response = await obpGet(`/obp/v5.1.0/api-collections/${encodeURIComponent(collection)}/api-collection-endpoints`, token);
 			const operationIds: string[] = (response?.api_collection_endpoints ?? []).map((e: any) => e.operation_id).slice(0, limit);
 			const docs = await getResourceDocs(obpGet, token).catch((e) => {
 				logger.warn('Resource docs unavailable, endpoints shown without summaries:', e);
@@ -90,7 +89,7 @@ export function buildLandingFetchers(obpGet: LandingObpGet, token: string | unde
 			});
 		},
 		banks: async ({ limit }) => {
-			const response = await obpGet(`/obp/${API_VERSION}/banks`, token);
+			const response = await obpGet(`/obp/v6.0.0/banks`, token);
 			return (response?.banks ?? []).slice(0, limit).map((b: any): LandingBank => ({
 				id: b.bank_id,
 				full_name: b.full_name,
@@ -105,7 +104,7 @@ export function buildLandingFetchers(obpGet: LandingObpGet, token: string | unde
 				case 'product-count':
 					return (await allProducts()).length;
 				case 'bank-count':
-					return ((await obpGet(`/obp/${API_VERSION}/banks`, token))?.banks ?? []).length;
+					return ((await obpGet(`/obp/v6.0.0/banks`, token))?.banks ?? []).length;
 				default:
 					throw new Error(`Unknown stat kind "${kind}"`);
 			}
@@ -129,7 +128,7 @@ export function buildLandingFetchers(obpGet: LandingObpGet, token: string | unde
 		links: {
 			product: (p) => `${links.portalUrl}/products/${encodeURIComponent(p.api_product_code)}`,
 			endpoint: (e) =>
-				links.explorerUrl ? `${links.explorerUrl}/resource-docs/${API_VERSION}?operationid=${encodeURIComponent(e.operation_id)}` : undefined,
+				links.explorerUrl ? `${links.explorerUrl}/resource-docs/v6.0.0?operationid=${encodeURIComponent(e.operation_id)}` : undefined,
 			signup: `${links.portalUrl}/register`,
 			glossary: (title) => `${links.portalUrl}${explorerGlossaryTitleUrl(title)}`
 		}
@@ -138,6 +137,6 @@ export function buildLandingFetchers(obpGet: LandingObpGet, token: string | unde
 
 /** The first catalogue product's collection id, for examples that need one. */
 export async function findDemoCollectionId(obpGet: LandingObpGet, token?: string): Promise<string> {
-	const raw: any[] = (await obpGet(`/obp/${API_VERSION}/api-products`, token))?.api_products ?? [];
+	const raw: any[] = (await obpGet(`/obp/v6.0.0/api-products`, token))?.api_products ?? [];
 	return raw.find((p) => p.collection_id)?.collection_id ?? '';
 }

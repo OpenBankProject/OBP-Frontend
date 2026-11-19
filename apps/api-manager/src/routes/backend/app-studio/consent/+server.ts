@@ -25,7 +25,6 @@ import { CONSENT_FORBIDDEN_ROLES } from "@obp/shared/opey";
 import { capConsentTtlSeconds } from "@obp/shared/server/obp";
 
 const logger = createLogger("AppStudioConsentAPI");
-const API_VERSION = "v6.0.0";
 
 function tokenOr401(locals: App.Locals): string | Response {
   const session = locals.session;
@@ -44,9 +43,9 @@ export const GET: RequestHandler = async ({ locals }) => {
   if (token instanceof Response) return token;
   try {
     const [consumers, accounts, entitlements] = await Promise.all([
-      obp_requests.get(`/obp/${API_VERSION}/management/users/current/consumers`, token),
-      obp_requests.get(`/obp/${API_VERSION}/my/accounts`, token),
-      obp_requests.get(`/obp/${API_VERSION}/my/entitlements`, token),
+      obp_requests.get(`/obp/v5.1.0/management/users/current/consumers`, token),
+      obp_requests.get(`/obp/v5.1.0/my/accounts`, token),
+      obp_requests.get(`/obp/v5.1.0/my/entitlements`, token),
     ]);
     const forbidden = new Set<string>(CONSENT_FORBIDDEN_ROLES);
     return json({

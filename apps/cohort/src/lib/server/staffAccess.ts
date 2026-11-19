@@ -153,5 +153,5 @@ export async function staffRolesHeld(token: string): Promise<string[]> {
 
 /** Ask for a staff Role at its space; an administrator accepts it in the API Manager. */
 export async function requestStaffRole(roleName: string, token: string): Promise<void> {
-	await obpRequests.post('/obp/v6.0.0/entitlement-requests', { bank_id: spaceOfRole(roleName), role_name: roleName }, token);
+	await obpRequests.post('/obp/v5.1.0/entitlement-requests', { bank_id: spaceOfRole(roleName), role_name: roleName }, token);
 }

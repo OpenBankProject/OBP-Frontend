@@ -68,7 +68,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
         accessToken,
       ),
       obp_requests.get(
-        `/obp/v6.0.0/my/api-collections`,
+        `/obp/v5.1.0/my/api-collections`,
         accessToken,
       ) as Promise<ApiCollectionsResponse>,
     ]);

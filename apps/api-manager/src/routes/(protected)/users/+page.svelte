@@ -32,7 +32,7 @@
   $effect(() => {
     async function fetchRoles() {
       try {
-        const response = await fetch("/proxy/obp/v6.0.0/roles");
+        const response = await fetch("/proxy/obp/v5.1.0/roles");
         const result = await response.json();
         if (result.roles) {
           roles = result.roles.map((r: any) => r.role).sort();

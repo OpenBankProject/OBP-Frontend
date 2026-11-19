@@ -27,7 +27,6 @@ import { obp_requests } from '$lib/obp/requests';
 import { OBPRequestError, OBPErrorBase } from '@obp/shared/obp';
 import { env } from '$env/dynamic/private';
 
-const API_VERSION = 'v6.0.0';
 
 export interface FeaturedEndpoint {
 	operation_id: string;
@@ -45,7 +44,7 @@ export async function load(event: RequestEvent) {
 
 	// First check if OBP-API is responding by calling /root
 	try {
-		await obp_requests.get(`/obp/${API_VERSION}/root`);
+		await obp_requests.get(`/obp/v6.0.0/root`);
 	} catch (e) {
 		logger.error('OBP-API is not responding:', e);
 		return { endpoints: [], message: 'OBP-API is not responding. Please check that the API server is running.', apiExplorerUrl };
@@ -54,7 +53,7 @@ export async function load(event: RequestEvent) {
 	// Fetch featured collections (public endpoint)
 	let collectionsResponse: OBPApiCollectionsResponse | undefined;
 	try {
-		collectionsResponse = await obp_requests.get(`/obp/${API_VERSION}/api-collections/featured`);
+		collectionsResponse = await obp_requests.get(`/obp/v5.1.0/api-collections/featured`);
 	} catch (e) {
 		let errorMsg: string;
 		if (e instanceof OBPRequestError) {
@@ -82,7 +81,7 @@ export async function load(event: RequestEvent) {
 		try {
 			// Fetch endpoints for this collection (public endpoint)
 			const endpointsResponse: OBPApiCollectionEndpointsResponse = await obp_requests.get(
-				`/obp/${API_VERSION}/api-collections/${collection.api_collection_id}/api-collection-endpoints`
+				`/obp/v5.1.0/api-collections/${collection.api_collection_id}/api-collection-endpoints`
 			);
 
 			if (endpointsResponse?.api_collection_endpoints) {
@@ -114,7 +113,7 @@ export async function load(event: RequestEvent) {
 	const MIN_ENDPOINTS = 20;
 	if (allEndpoints.length < MIN_ENDPOINTS) {
 		try {
-			const popularResponse = await obp_requests.get(`/obp/${API_VERSION}/api/popular-endpoints`);
+			const popularResponse = await obp_requests.get(`/obp/v6.0.0/api/popular-endpoints`);
 
 			if (popularResponse?.operation_ids && popularResponse.operation_ids.length > 0) {
 				logDebug(`Popular endpoints returned ${popularResponse.operation_ids.length} operation_ids`);
@@ -153,7 +152,7 @@ export async function load(event: RequestEvent) {
 	if (allEndpoints.length > 0) {
 		try {
 			const resourceDocs = await obp_requests.get(
-				`/obp/${API_VERSION}/resource-docs/${API_VERSION}/obp`,
+				`/obp/v6.0.0/resource-docs/v6.0.0/obp`,
 				token
 			);
 

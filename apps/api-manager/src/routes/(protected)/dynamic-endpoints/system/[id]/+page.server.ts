@@ -45,7 +45,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 
   try {
     // Fetch the specific dynamic endpoint
-    const endpoint = `/obp/v6.0.0/management/dynamic-endpoints/${id}`;
+    const endpoint = `/obp/v5.1.0/management/dynamic-endpoints/${id}`;
     const dynamicEndpoint = await obp_requests.get(endpoint, accessToken);
 
     if (!dynamicEndpoint) {

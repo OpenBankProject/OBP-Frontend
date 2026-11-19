@@ -68,7 +68,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
   try {
     logger.info("=== FETCHING API COLLECTION FOR EDIT ===");
     logger.info(`Collection ID: ${collection_id}`);
-    const endpoint = `/obp/v6.0.0/my/api-collections/${collection_id}`;
+    const endpoint = `/obp/v5.1.0/my/api-collections/${collection_id}`;
     logger.info(`Request: ${endpoint}`);
 
     const response: ApiCollection = await obp_requests.get(

@@ -80,7 +80,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 
     // Fetch all collections to get names and details
     logger.info("=== FETCHING ALL API COLLECTIONS FOR NAMES ===");
-    const allCollectionsEndpoint = `/obp/v6.0.0/management/api-collections`;
+    const allCollectionsEndpoint = `/obp/v5.1.0/management/api-collections`;
     logger.info(`Request: ${allCollectionsEndpoint}`);
 
     let collectionsMap: Record<string, ApiCollection> = {};

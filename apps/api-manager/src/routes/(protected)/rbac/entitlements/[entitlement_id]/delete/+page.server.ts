@@ -56,7 +56,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
     logger.info(`Loading entitlement details for ID: ${entitlement_id}`);
 
     // Fetch all entitlements and find the specific one
-    const allEntitlementsEndpoint = `/obp/v6.0.0/entitlements`;
+    const allEntitlementsEndpoint = `/obp/v5.1.0/entitlements`;
     const entitlementsResponse = await obp_requests.get(
       allEntitlementsEndpoint,
       accessToken,
@@ -84,7 +84,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
     let user = null;
     if (entitlement.user_id) {
       try {
-        const userEndpoint = `/obp/v6.0.0/users/user_id/${entitlement.user_id}`;
+        const userEndpoint = `/obp/v5.1.0/users/user_id/${entitlement.user_id}`;
         user = await obp_requests.get(userEndpoint, accessToken);
       } catch (err) {
         logger.warn(`Failed to load user details: ${err}`);

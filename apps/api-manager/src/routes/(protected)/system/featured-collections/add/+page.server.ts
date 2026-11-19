@@ -68,7 +68,7 @@ export const load: PageServerLoad = async ({ locals }) => {
   try {
     // Fetch all collections
     logger.info("=== FETCHING ALL API COLLECTIONS ===");
-    const collectionsEndpoint = `/obp/v6.0.0/management/api-collections`;
+    const collectionsEndpoint = `/obp/v5.1.0/management/api-collections`;
     logger.info(`Request: ${collectionsEndpoint}`);
 
     const collectionsResponse: ApiCollectionsResponse = await obp_requests.get(

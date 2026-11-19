@@ -110,7 +110,7 @@ export async function load(event: RequestEvent) {
   try {
     // Fetch all rate limits for this consumer
     const rateLimitsResponse = await obp_requests.get(
-      `/obp/v6.0.0/management/consumers/${consumerId}/consumer/rate-limits`,
+      `/obp/v5.1.0/management/consumers/${consumerId}/consumer/rate-limits`,
       token,
     );
 

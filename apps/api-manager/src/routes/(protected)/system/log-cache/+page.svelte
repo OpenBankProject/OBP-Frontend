@@ -111,7 +111,7 @@
       error = null;
 
       const level = encodeURIComponent((logLevel || "ALL").toLowerCase());
-      const url = `/proxy/obp/v6.0.0/system/log-cache/${level}`;
+      const url = `/proxy/obp/v5.1.0/system/log-cache/${level}`;
       const response = await fetch(url);
 
       if (!response.ok) {

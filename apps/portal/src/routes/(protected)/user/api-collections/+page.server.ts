@@ -24,7 +24,6 @@ import { obp_requests } from '$lib/obp/requests';
 import { OBPRequestError } from '@obp/shared/obp';
 import { env } from '$env/dynamic/private';
 
-const API_VERSION = 'v6.0.0';
 
 export async function load(event: RequestEvent) {
 	const token = event.locals.session.data.oauth?.access_token;
@@ -37,7 +36,7 @@ export async function load(event: RequestEvent) {
 	let collectionsResponse: OBPApiCollectionsResponse | undefined = undefined;
 
 	try {
-		collectionsResponse = await obp_requests.get(`/obp/${API_VERSION}/my/api-collections`, token);
+		collectionsResponse = await obp_requests.get(`/obp/v5.1.0/my/api-collections`, token);
 	} catch (e) {
 		logger.error('Error fetching API collections:', e);
 		error(500, {
@@ -80,7 +79,7 @@ export const actions = {
 		};
 
 		try {
-			await obp_requests.post(`/obp/${API_VERSION}/my/api-collections`, requestBody, token);
+			await obp_requests.post(`/obp/v5.1.0/my/api-collections`, requestBody, token);
 			return { success: true, message: 'API Collection created successfully.' };
 		} catch (err) {
 			logger.error('Error creating API collection:', err);
@@ -108,7 +107,7 @@ export const actions = {
 		}
 
 		try {
-			await obp_requests.delete(`/obp/${API_VERSION}/my/api-collections/${collectionId}`, token);
+			await obp_requests.delete(`/obp/v5.1.0/my/api-collections/${collectionId}`, token);
 			return { success: true, message: 'API Collection deleted successfully.' };
 		} catch (err) {
 			logger.error('Error deleting API collection:', err);

@@ -24,7 +24,6 @@ import type { OBPProduct } from '$lib/obp/types';
 import { obp_requests } from '$lib/obp/requests';
 import { env } from '$env/dynamic/private';
 
-const API_VERSION = 'v6.0.0';
 
 export async function load(event: RequestEvent) {
 	const bankId = event.params.bank_id;
@@ -39,7 +38,7 @@ export async function load(event: RequestEvent) {
 	let product: OBPProduct | null = null;
 	try {
 		const response = await obp_requests.get(
-			`/obp/${API_VERSION}/banks/${encodeURIComponent(bankId)}/products/${encodeURIComponent(productCode)}`,
+			`/obp/v5.1.0/banks/${encodeURIComponent(bankId)}/products/${encodeURIComponent(productCode)}`,
 			token
 		);
 		product = response as OBPProduct;

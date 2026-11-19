@@ -53,7 +53,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 
   try {
     logger.info("=== FETCHING ROLES FOR CREATE ENTITLEMENT PAGE ===");
-    const endpoint = `/obp/v6.0.0/roles`;
+    const endpoint = `/obp/v5.1.0/roles`;
     logger.info(`Request: ${endpoint}`);
 
     const response: RolesResponse = await obp_requests.get(

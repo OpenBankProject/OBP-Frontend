@@ -44,7 +44,7 @@ export const load: PageServerLoad = async ({ locals }) => {
   logger.info("Access token present, fetching dynamic endpoints");
 
   try {
-    const endpoint = "/obp/v6.0.0/management/dynamic-endpoints";
+    const endpoint = "/obp/v5.1.0/management/dynamic-endpoints";
     logger.info(`Making API request to: ${endpoint}`);
 
     const endpointsResponse = await obp_requests.get(endpoint, accessToken);

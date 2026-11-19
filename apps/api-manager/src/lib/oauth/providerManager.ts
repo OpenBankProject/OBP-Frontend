@@ -25,5 +25,5 @@ export type { ProviderStatus } from "@obp/shared/server/oauth";
 export const oauth2ProviderManager = new OAuth2ProviderManager(
   oauth2ProviderFactory,
   obp_requests,
-  { wellKnownEndpoint: "/obp/v6.0.0/well-known" },
+  { wellKnownEndpoint: "/obp/v5.1.0/well-known" },
 );

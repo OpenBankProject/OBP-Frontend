@@ -52,7 +52,7 @@ export async function load(event: RequestEvent) {
 	let consentResponse: { consents: OBPConsent[] } | undefined = undefined;
 
 	try {
-		consentResponse = await obp_requests.get('/obp/v6.0.0/my/consents', token);
+		consentResponse = await obp_requests.get('/obp/v5.1.0/my/consents', token);
 	} catch (e) {
 		logger.error('Error fetching consents:', e);
 		error(500, {
@@ -123,7 +123,7 @@ export const actions = {
 
 		// Make request to OBP to delete the consent
 		try {
-			const response = await obp_requests.delete(`/obp/v6.0.0/my/consents/${consentId}`, token);
+			const response = await obp_requests.delete(`/obp/v5.1.0/my/consents/${consentId}`, token);
 		} catch (error) {
 			logger.error('Error deleting consent:', error);
 			return {

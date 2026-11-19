@@ -49,7 +49,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 
   try {
     logger.info("=== FETCHING MY ENTITLEMENT REQUESTS ===");
-    const endpoint = `/obp/v6.0.0/my/entitlement-requests`;
+    const endpoint = `/obp/v5.1.0/my/entitlement-requests`;
     logger.info(`Request: GET ${endpoint}`);
 
     const response = await obp_requests.get(endpoint, accessToken);

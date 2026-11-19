@@ -104,7 +104,7 @@
     try {
       const swagger = JSON.parse(swaggerJson);
 
-      const response = await fetch(`/proxy/obp/v6.0.0/management/dynamic-endpoints`, {
+      const response = await fetch(`/proxy/obp/v5.1.0/management/dynamic-endpoints`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

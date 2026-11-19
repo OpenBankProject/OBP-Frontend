@@ -51,7 +51,7 @@
     loadError = "";
 
     try {
-      const response = await trackedFetch(`/proxy/obp/v6.0.0/management/banks/${bankId}/dynamic-endpoints`);
+      const response = await trackedFetch(`/proxy/obp/v5.1.0/management/banks/${bankId}/dynamic-endpoints`);
 
       if (!response.ok) {
         const errorDetails = await extractErrorFromResponse(
@@ -154,7 +154,7 @@
     }
 
     try {
-      const response = await fetch(`/proxy/obp/v6.0.0/management/banks/${selectedBankId}/dynamic-endpoints/${endpointId}`, {
+      const response = await fetch(`/proxy/obp/v5.1.0/management/banks/${selectedBankId}/dynamic-endpoints/${endpointId}`, {
         method: "DELETE",
       });
 

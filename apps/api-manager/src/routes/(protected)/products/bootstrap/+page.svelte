@@ -99,7 +99,7 @@
 
       // Check if collection already exists by name (handles OBP soft-delete / uniqueness)
       const existingRes = await trackedFetch(
-        `/proxy/obp/v6.0.0/my/api-collections/name/${encodeURIComponent(collection.collection_name)}`,
+        `/proxy/obp/v5.1.0/my/api-collections/name/${encodeURIComponent(collection.collection_name)}`,
       );
 
       if (existingRes.ok) {

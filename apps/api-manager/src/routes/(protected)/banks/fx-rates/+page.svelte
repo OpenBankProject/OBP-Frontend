@@ -67,7 +67,7 @@
     toCurrency = "";
     try {
       const res = await trackedFetch(
-        `/proxy/obp/v6.0.0/banks/${encodeURIComponent(bankId)}/currencies`,
+        `/proxy/obp/v5.1.0/banks/${encodeURIComponent(bankId)}/currencies`,
       );
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -99,7 +99,7 @@
     fxRate = null;
     try {
       const res = await trackedFetch(
-        `/proxy/obp/v6.0.0/banks/${encodeURIComponent(currentBank.bankId)}/fx/${encodeURIComponent(fromCurrency)}/${encodeURIComponent(toCurrency)}`,
+        `/proxy/obp/v5.1.0/banks/${encodeURIComponent(currentBank.bankId)}/fx/${encodeURIComponent(fromCurrency)}/${encodeURIComponent(toCurrency)}`,
       );
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));

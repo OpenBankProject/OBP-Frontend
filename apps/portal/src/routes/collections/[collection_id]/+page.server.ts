@@ -23,7 +23,6 @@ import type { OBPApiCollection, OBPApiCollectionEndpointsResponse } from '$lib/o
 import { obp_requests } from '$lib/obp/requests';
 import { env } from '$env/dynamic/private';
 
-const API_VERSION = 'v6.0.0';
 
 export async function load(event: RequestEvent) {
 	const collectionId = event.params.collection_id;
@@ -33,7 +32,7 @@ export async function load(event: RequestEvent) {
 	let collection: OBPApiCollection | undefined;
 	try {
 		collection = await obp_requests.get(
-			`/obp/${API_VERSION}/api-collections/sharable/${collectionId}`,
+			`/obp/v5.1.0/api-collections/sharable/${collectionId}`,
 			token
 		);
 	} catch (e) {
@@ -47,7 +46,7 @@ export async function load(event: RequestEvent) {
 	let endpointsResponse: OBPApiCollectionEndpointsResponse | undefined;
 	try {
 		endpointsResponse = await obp_requests.get(
-			`/obp/${API_VERSION}/api-collections/${collectionId}/api-collection-endpoints`,
+			`/obp/v5.1.0/api-collections/${collectionId}/api-collection-endpoints`,
 			token
 		);
 	} catch (e) {
@@ -58,7 +57,7 @@ export async function load(event: RequestEvent) {
 	let resourceDocs: any[] = [];
 	try {
 		const docsResponse = await obp_requests.get(
-			`/obp/${API_VERSION}/resource-docs/${API_VERSION}/obp`,
+			`/obp/v6.0.0/resource-docs/v6.0.0/obp`,
 			token
 		);
 		resourceDocs = docsResponse?.resource_docs || [];

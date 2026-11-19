@@ -34,7 +34,7 @@ export async function load(event: RequestEvent) {
 	let consumersResponse: { consumers: OBPConsumer[] } | undefined = undefined;
 
 	try {
-		consumersResponse = await obp_requests.get('/obp/v6.0.0/management/users/current/consumers', token);
+		consumersResponse = await obp_requests.get('/obp/v5.1.0/management/users/current/consumers', token);
 		logger.debug('Raw API Response:', JSON.stringify(consumersResponse, null, 2));
 	} catch (e) {
 		logger.error('Error fetching consumers:', e);

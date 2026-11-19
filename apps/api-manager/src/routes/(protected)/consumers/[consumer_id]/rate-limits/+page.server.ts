@@ -123,7 +123,7 @@ export async function load(event: RequestEvent) {
   // Fetch rate limiting system info
   try {
     rateLimitingInfo = await obp_requests.get(
-      `/obp/v6.0.0/rate-limiting`,
+      `/obp/v5.1.0/rate-limiting`,
       token,
     );
     logger.debug(
@@ -157,7 +157,7 @@ export async function load(event: RequestEvent) {
   try {
     // Fetch rate limits for this consumer
     const rateLimitsResponse = await obp_requests.get(
-      `/obp/v6.0.0/management/consumers/${consumerId}/consumer/rate-limits`,
+      `/obp/v5.1.0/management/consumers/${consumerId}/consumer/rate-limits`,
       token,
     );
 

@@ -61,7 +61,7 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
     logger.info(`Updating host for dynamic endpoint ${id} in bank: ${bank_id}`);
     logger.info("Payload:", JSON.stringify(body, null, 2));
 
-    const endpoint = `/obp/v6.0.0/management/banks/${bank_id}/dynamic-endpoints/${id}/host`;
+    const endpoint = `/obp/v5.1.0/management/banks/${bank_id}/dynamic-endpoints/${id}/host`;
     const response = await obp_requests.put(endpoint, body, accessToken);
 
     logger.info("Bank dynamic endpoint host updated successfully");

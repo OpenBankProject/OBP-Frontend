@@ -25,7 +25,6 @@ import { obp_requests } from '$lib/obp/requests';
 import { OBPErrorBase, OBPRateLimitError, OBPTimeoutError } from '@obp/shared/obp';
 import { env } from '$env/dynamic/private';
 
-const API_VERSION = 'v6.0.0';
 
 interface EndpointInfo {
 	operation_id: string;
@@ -85,7 +84,7 @@ export async function load(event: RequestEvent) {
 	// First, get all banks
 	let banks: Array<{ id: string }> = [];
 	try {
-		const banksResponse = await obp_requests.get(`/obp/${API_VERSION}/banks`);
+		const banksResponse = await obp_requests.get(`/obp/v6.0.0/banks`);
 		const rawBanks = banksResponse?.banks || [];
 		banks = rawBanks.map((b: any) => ({ id: b.id || b.bank_id }));
 	} catch (e) {
@@ -97,7 +96,7 @@ export async function load(event: RequestEvent) {
 	for (const bank of banks) {
 		try {
 			const apiProductResponse = await obp_requests.get(
-				`/obp/${API_VERSION}/banks/${bank.id}/api-products/${productCode}`,
+				`/obp/v6.0.0/banks/${bank.id}/api-products/${productCode}`,
 				token
 			);
 
@@ -122,7 +121,7 @@ export async function load(event: RequestEvent) {
 	if (product.apiCollectionId) {
 		try {
 			const endpointsResponse: OBPApiCollectionEndpointsResponse = await obp_requests.get(
-				`/obp/${API_VERSION}/api-collections/${product.apiCollectionId}/api-collection-endpoints`
+				`/obp/v5.1.0/api-collections/${product.apiCollectionId}/api-collection-endpoints`
 			);
 
 			if (endpointsResponse?.api_collection_endpoints) {
@@ -131,7 +130,7 @@ export async function load(event: RequestEvent) {
 				// Enrich endpoints with resource docs
 				try {
 					const resourceDocs = await obp_requests.get(
-						`/obp/${API_VERSION}/resource-docs/${API_VERSION}/obp`,
+						`/obp/v6.0.0/resource-docs/v6.0.0/obp`,
 						token
 					);
 

@@ -109,7 +109,7 @@
 
     try {
       const response = await fetch(
-        `/proxy/obp/v6.0.0/management/dynamic-endpoints/${endpoint.dynamic_endpoint_id}`,
+        `/proxy/obp/v5.1.0/management/dynamic-endpoints/${endpoint.dynamic_endpoint_id}`,
         {
           method: "DELETE",
         },

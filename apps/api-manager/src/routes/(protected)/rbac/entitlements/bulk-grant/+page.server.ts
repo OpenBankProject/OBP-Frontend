@@ -46,7 +46,7 @@ export const load: PageServerLoad = async ({ locals }) => {
   }
 
   try {
-    const response: RolesResponse = await obp_requests.get("/obp/v6.0.0/roles", accessToken);
+    const response: RolesResponse = await obp_requests.get("/obp/v5.1.0/roles", accessToken);
     const allRoles = response.roles || [];
     const bankRoles = allRoles.filter((r) => r.requires_bank_id).sort((a, b) => a.role.localeCompare(b.role));
     const systemRoles = allRoles.filter((r) => !r.requires_bank_id).sort((a, b) => a.role.localeCompare(b.role));

@@ -81,7 +81,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     // 1. Fetch role metadata directly from OBP API to get requires_bank_id
     let requiresBankId = false;
     try {
-      const rolesEndpoint = `/obp/v6.0.0/roles`;
+      const rolesEndpoint = `/obp/v5.1.0/roles`;
       logger.info(`Fetching roles metadata: ${rolesEndpoint}`);
       const rolesResponse = await obp_requests.get(rolesEndpoint, accessToken);
       const roles = rolesResponse.roles || [];
@@ -93,7 +93,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     }
 
     // 2. Fetch entitlements for this role
-    const entitlementsEndpoint = `/obp/v6.0.0/entitlements?role=${encodeURIComponent(roleName)}`;
+    const entitlementsEndpoint = `/obp/v5.1.0/entitlements?role=${encodeURIComponent(roleName)}`;
     logger.info(`Fetching entitlements: ${entitlementsEndpoint}`);
 
     const entitlementsResponse: EntitlementsResponse = await obp_requests.get(
