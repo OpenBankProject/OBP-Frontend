@@ -17,6 +17,7 @@
 -->
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
+	import { SvelteSet } from 'svelte/reactivity';
 	import { ShieldUserIcon, ShieldCheck } from '@lucide/svelte';
 	import { Dialog, Portal } from '@skeletonlabs/skeleton-svelte';
 	import { createLogger } from '$shared/utils/logger';
@@ -30,7 +31,7 @@
 	import { SessionState, type SessionSnapshot } from '$shared/opey/state/SessionState';
 	import { OpeySessionService } from '$shared/opey/services/OpeySessionService';
 	import { SessionController } from '$shared/opey/controllers/SessionController';
-	import type { ToolMessage, ClientToolHandler } from '$shared/opey/types';
+	import type { BaseMessage, ToolMessage, ClientToolHandler } from '$shared/opey/types';
 	import type { OBPConsentInfo } from '$shared/obp/types';
 	import { healthCheckRegistry } from '$shared/health-check/HealthCheckRegistry';
 	import {
@@ -190,6 +191,98 @@
 	let chat: ChatStateSnapshot = $state({ threadId: '', messages: [], tokenUsage: null, conversationRecord: null });
 	let unsubscribeSession: (() => void) | undefined;
 	let unsubscribeChat: (() => void) | undefined;
+
+	// Finished tool calls fold into "…" so the answer is easier to read. A tool call
+	// stays a panel when the user had its panel open as it finished, or when the
+	// user clicked its "…" to see it again.
+	const toolCallIdsKeptAsPanels = new SvelteSet<string>();
+	// Tool calls the user brought back from "…": their panels open straight away.
+	const reopenedToolCallIds = new SvelteSet<string>();
+
+	function isFinishedToolCall(tool: ToolMessage): boolean {
+		return (
+			!!tool.toolOutput &&
+			!tool.isStreaming &&
+			!tool.waitingForApproval &&
+			!tool.waitingForConsent &&
+			tool.status !== 'error' &&
+			tool.approvalStatus !== 'denied' &&
+			tool.consentStatus !== 'denied'
+		);
+	}
+
+	// A finished tool call folds only once Opey's answer text is on screen below it, or once Opey
+	// has stopped, so the chat never shows an empty gap while the answer is on its way.
+	function isFolded(message: BaseMessage, answerShownAfter: boolean): boolean {
+		if (message.role !== 'tool') return false;
+		const tool = message as ToolMessage;
+		return (
+			isFinishedToolCall(tool) &&
+			!toolCallIdsKeptAsPanels.has(tool.toolCallId) &&
+			(answerShownAfter || !opeyIsWorking)
+		);
+	}
+
+	let opeyIsWorking = $derived(chat.messages.some((m) => m.isStreaming || m.isLoading));
+
+	// Opening a panel before its tool call finishes keeps it as a panel; closing it again lets it fold.
+	function handleToolExpandedChange(toolCallId: string, expanded: boolean) {
+		const tool = chatState.getToolMessageByCallId(toolCallId);
+		if (tool && isFinishedToolCall(tool)) return;
+		if (expanded) toolCallIdsKeptAsPanels.add(toolCallId);
+		else toolCallIdsKeptAsPanels.delete(toolCallId);
+	}
+
+	function handleUnfoldTool(toolCallId: string) {
+		reopenedToolCallIds.add(toolCallId);
+		toolCallIdsKeptAsPanels.add(toolCallId);
+	}
+
+	// Opey starts an assistant message each time it calls tools, often with no text. Until it has
+	// text we hide it: it would only show a divider line and an empty space, and would split the
+	// row of "…". The "Thinking..." message (isLoading) still shows.
+	function isEmptyAssistantMessage(message: BaseMessage): boolean {
+		return (
+			message.role === 'assistant' &&
+			!message.message.trim() &&
+			!message.isLoading &&
+			!message.error
+		);
+	}
+
+	// One row per message, except that folded tool calls next to each other share one row of "…".
+	type ChatRow = {
+		message: BaseMessage;
+		previousMessageRole?: string;
+		foldedTools?: ToolMessage[];
+	};
+	let chatRows = $derived.by(() => {
+		// answerShownAfter[i]: some message after message i is assistant text on screen.
+		const answerShownAfter: boolean[] = new Array(chat.messages.length).fill(false);
+		for (let i = chat.messages.length - 2; i >= 0; i--) {
+			const next = chat.messages[i + 1];
+			answerShownAfter[i] =
+				answerShownAfter[i + 1] || (next.role === 'assistant' && !!next.message.trim());
+		}
+		const rows: ChatRow[] = [];
+		let previousShownRow: ChatRow | undefined;
+		chat.messages.forEach((message, index) => {
+			if (!isShown(message) || isEmptyAssistantMessage(message)) return;
+			const folded = isFolded(message, answerShownAfter[index]);
+			if (folded && previousShownRow?.foldedTools) {
+				previousShownRow.foldedTools.push(message as ToolMessage);
+				return;
+			}
+			const row: ChatRow = {
+				message,
+				previousMessageRole: previousShownRow?.message.role,
+				foldedTools: folded ? [message as ToolMessage] : undefined
+			};
+			rows.push(row);
+			previousShownRow = row;
+		});
+		return rows;
+	});
 
 	// Track pending approvals for batch handling
 	let pendingApprovalTools = $derived.by(() => {
@@ -801,11 +894,15 @@
 		class="h-full w-full overflow-y-auto overflow-x-hidden py-4 {options.bodyClasses || ''}"
 	>
 		<div class="space-y-4 min-w-0">
-			{#each chat.messages as message, index (message.id)}
-				{#if isShown(message)}
+			{#each chatRows as row (row.message.id)}
+				{@const message = row.message}
 				<ChatMessage
 					{message}
-					previousMessageRole={index > 0 ? chat.messages[index - 1].role : undefined}
+					previousMessageRole={row.previousMessageRole}
+					foldedTools={row.foldedTools}
+					onUnfoldTool={handleUnfoldTool}
+					startExpanded={message.role === 'tool' && reopenedToolCallIds.has((message as ToolMessage).toolCallId)}
+					onToolExpandedChange={handleToolExpandedChange}
 					userName={options.currentlyActiveUserName}
 					onApprove={handleApprove}
 					onDeny={handleDeny}
@@ -816,7 +913,6 @@
 					onConsent={handleConsent}
 					onConsentDeny={handleConsentDeny}
 				/>
-				{/if}
 			{/each}
 		</div>
 	</article>
@@ -976,11 +1072,12 @@
 	{/if}
 {/snippet}
 
-{#snippet inputField()}
-	<!-- Avatar positioned absolutely to the left of input - clickable easter egg! -->
+{#snippet inputField(avatarInRow: boolean)}
+	<!-- Opey avatar to the left of the input - clickable easter egg! On the splash screen it hangs
+	     outside the narrow input; in the chat it sits in the row so a nav bar on the left cannot cover it. -->
 	<Dialog onOpenChange={(details) => { if (details.open) loadDiagram(); }}>
 		<Dialog.Trigger
-			class="absolute -left-16 top-1/2 -translate-y-1/2 size-12 cursor-pointer rounded-full drop-shadow-[-7px_7px_10px_var(--color-secondary-500)] transition-transform hover:scale-110"
+			class="{avatarInRow ? 'flex-shrink-0' : 'absolute -left-16 top-1/2 -translate-y-1/2'} size-12 cursor-pointer rounded-full drop-shadow-[-7px_7px_10px_var(--color-secondary-500)] transition-transform hover:scale-110"
 			title="Click me for a surprise!"
 			aria-label="View Opey system diagram"
 		>
@@ -1088,7 +1185,7 @@
 				{@render splash()}
 
 				<div class="relative w-2/3 {options.footerClasses || ''} mb-0">
-					{@render inputField()}
+					{@render inputField(false)}
 				</div>
 
 				{@render tokenIndicator()}
@@ -1113,8 +1210,8 @@
 						consentMetricsHref={options.consentMetricsHref}
 					/>
 				{/if}
-				<div class="relative flex items-center justify-center">
-					{@render inputField()}
+				<div class="relative flex items-center justify-center gap-4">
+					{@render inputField(true)}
 				</div>
 				{#if chat.conversationRecord}
 					<p class="mt-1 text-[11px] text-surface-500 dark:text-surface-400" data-testid="conversation-record-status">

@@ -16,6 +16,8 @@
   along with this program. If not, see <https://www.gnu.org/licenses/>.
 -->
 <script lang="ts">
+    import { untrack } from 'svelte';
+    import { fade } from 'svelte/transition';
     import type { ToolMessage } from '$shared/opey/types';
     import { ToolError, ObpApiResponse, DefaultToolResponse, FormFillCard } from '.';
     import {
@@ -37,9 +39,11 @@
         onBatchSubmit?: (decisions: Map<string, { approved: boolean; level: string }>) => Promise<void>;
         onConsent?: (toolCallId: string, consentJwt: string) => Promise<void>;
         onConsentDeny?: (toolCallId: string, reason?: string) => Promise<void>;
+        startExpanded?: boolean;  // Open the panel when it first appears, e.g. when the user reopens a folded tool call
+        onExpandedChange?: (toolCallId: string, expanded: boolean) => void;  // Told each time the user opens or closes the panel
     }
 
-    let { message, onApprove, onDeny, batchApprovalGroup, onBatchSubmit, onConsent, onConsentDeny }: Props = $props();
+    let { message, onApprove, onDeny, batchApprovalGroup, onBatchSubmit, onConsent, onConsentDeny, startExpanded = false, onExpandedChange }: Props = $props();
 
     // Check if this is part of a batch approval
     let isBatchApproval = $derived(!!batchApprovalGroup && batchApprovalGroup.length > 1);
@@ -81,7 +85,13 @@
     let isProcessing = $state(false);
 
     // Track expanded state - default collapsed unless waiting for approval/consent or error
-    let manualToggle = $state<boolean | null>(null);
+    // A reopened panel starts open; later changes to startExpanded do not reset what the user chose.
+    let manualToggle = $state<boolean | null>(untrack(() => startExpanded) ? true : null);
+
+    function toggleExpanded() {
+        manualToggle = !isExpanded;
+        onExpandedChange?.(message.toolCallId, manualToggle);
+    }
     let isExpanded = $derived(
         manualToggle ?? (
             message.waitingForApproval ||
@@ -336,12 +346,12 @@
     <!-- This is part of a batch but not the first - don't render, it's shown above -->
 {:else}
     <!-- Single Tool Card (Simplified) -->
-    <div class="card rounded-lg border-1 {borderColorClass} bg-primary-300-700 transition-all text-left">
+    <div class="card rounded-lg border-1 {borderColorClass} bg-primary-300-700 transition-all text-left" out:fade|global={{ duration: 300 }}>
         <!-- Card Header - Always Visible, Clickable to Expand -->
         <button
             type="button"
             class="w-full p-2 text-left flex items-center justify-between gap-3 hover:bg-primary-200-800 transition-colors rounded-lg"
-            onclick={() => manualToggle = !isExpanded}
+            onclick={toggleExpanded}
         >
             {#if statusIcon}
                 {@const StatusIcon = statusIcon}

@@ -23,6 +23,7 @@
 	import type { BaseMessage, ToolMessage as ToolMessageType } from '$shared/opey/types';
 	import { ToolMessage } from './tool-messages';
 	import { RotateCw, AlertTriangle } from '@lucide/svelte';
+	import { fade } from 'svelte/transition';
 
 	// Props
 	interface Props {
@@ -37,6 +38,10 @@
 		onRetry?: () => Promise<void>;
 		onConsent?: (toolCallId: string, consentJwt: string) => Promise<void>;
 		onConsentDeny?: (toolCallId: string, reason?: string) => Promise<void>;
+		foldedTools?: ToolMessageType[]; // Finished tool calls in a row, shown as "…" in place of their panels
+		onUnfoldTool?: (toolCallId: string) => void; // The user clicked a "…" to see that tool call again
+		startExpanded?: boolean; // Open the tool panel when it first appears
+		onToolExpandedChange?: (toolCallId: string, expanded: boolean) => void;
 	}
 
 	let {
@@ -50,7 +55,11 @@
 		onRegenerate,
 		onRetry,
 		onConsent,
-		onConsentDeny
+		onConsentDeny,
+		foldedTools,
+		onUnfoldTool,
+		startExpanded = false,
+		onToolExpandedChange
 	}: Props = $props();
 
 	// Check if message can be regenerated
@@ -84,6 +93,11 @@
 		message.role !== 'error' && (!previousDisplayRole || displayRole !== previousDisplayRole)
 	);
 
+	// Finished tool calls that start Opey's reply sit beside its avatar, so it is clear Opey made them.
+	let foldedToolsBesideAvatar = $derived(
+		showAvatar && message.role === 'tool' && !!foldedTools && foldedTools.length > 0
+	);
+
 	// Compute alignment class
 	let alignmentClass = $derived(message.role === 'user' ? 'items-end' : 'items-start');
 </script>
@@ -107,11 +121,15 @@
 					<Avatar.Fallback>OP</Avatar.Fallback>
 				</Avatar>
 				<p class="text-s font-bold">Opey</p>
+				{#if foldedToolsBesideAvatar}
+					{@render foldedToolDots()}
+				{/if}
 			{/if}
 		</div>
 	{/if}
 
-	<!-- Message content -->
+	<!-- Message content (empty when the "…" sit beside the avatar) -->
+	{#if !foldedToolsBesideAvatar}
 	<div
 		class="{message.role === 'user' ? 'max-w-3/5' : message.role === 'tool' ? 'w-2/3' : 'max-w-full'} group relative mt-3"
 		role="region"
@@ -178,8 +196,12 @@
 					{/if}
 				</div>
 			{/if}
+		{:else if message.role === 'tool' && foldedTools && foldedTools.length > 0}
+			{@render foldedToolDots()}
 		{:else if message.role === 'tool'}
 			<ToolMessage
+				{startExpanded}
+				onExpandedChange={onToolExpandedChange}
 				message={message as ToolMessageType}
 				{onApprove}
 				{onDeny}
@@ -213,4 +235,19 @@
 			</div>
 		{/if}
 	</div>
+	{/if}
 </div>
+
+{#snippet foldedToolDots()}
+	<div class="flex flex-wrap items-center gap-2" in:fade={{ delay: 300, duration: 300 }}>
+		{#each foldedTools ?? [] as foldedTool (foldedTool.toolCallId)}
+			<button
+				type="button"
+				class="rounded-md px-2 text-lg leading-none text-surface-600-400 hover:bg-surface-200-800 hover:text-surface-950-50"
+				title="Show {foldedTool.toolName.replace(/_/g, ' ')}"
+				aria-label="Show the {foldedTool.toolName.replace(/_/g, ' ')} tool call"
+				onclick={() => onUnfoldTool?.(foldedTool.toolCallId)}
+			>…</button>
+		{/each}
+	</div>
+{/snippet}
