@@ -13,6 +13,7 @@ apps/
   cohort/          # OBP-Cohort, startup programme management (SvelteKit) — port 5183, see apps/cohort/README.md
   conformator/ # OBP-Conformator, conformance testing of open banking participants (SvelteKit) — port 5185, see apps/conformator/README.md
   conformator-runner/ # OBP-Conformator-Runner, runs Conformator's tests (Node service, no pages), see apps/conformator-runner/README.md
+  sandbox-populator/ # OBP Sandbox Populator, fills a sandbox with test data (SvelteKit) — port 5178, see apps/sandbox-populator/README.md
 packages/
   shared/          # Shared components & utilities (@obp/shared)
 ```

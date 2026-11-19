@@ -1,0 +1,13 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/typography';
+
+@import '@skeletonlabs/skeleton';
+@import '@skeletonlabs/skeleton/themes/cerberus';
+
+@import '@skeletonlabs/skeleton-svelte';
+/* Register a Custom Themes */
+@import '../obp-theme.css';
+
+/* for dark mode toggling */
+@custom-variant dark (&:where([data-mode=dark], [data-mode=dark] *));
