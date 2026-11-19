@@ -59,7 +59,7 @@
 				{ href: '/staff/conversations', label: 'nav_conversations', icon: MessagesSquare },
 				{ href: '/staff/forms', label: 'nav_forms', icon: ClipboardList },
 				{ href: '/staff/participants', label: 'nav_participants', icon: UserRound },
-				{ href: '/staff/organisations', label: 'nav_organisations', icon: Building2 },
+				{ href: '/staff/customers', label: 'nav_customers', icon: Building2 },
 				{ href: '/staff/reviewers', label: 'nav_reviewers', icon: UserCheck },
 				{ href: '/staff/announcements', label: 'nav_announcements', icon: Newspaper },
 				{ href: '/staff/reminders', label: 'nav_reminders', icon: BellRing },

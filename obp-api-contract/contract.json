@@ -6660,7 +6660,7 @@
   {
    "verb": "POST",
    "path": "/obp/v5.1.0/banks/BANK_ID/user_customer_links",
-   "source": "apps/cohort/src/lib/server/customers.ts",
+   "source": "apps/cohort/src/lib/server/individualCustomers.ts",
    "needles": [
     "`/obp/v5.1.0/banks/${space()}/user_customer_links`"
    ],
@@ -6669,7 +6669,7 @@
   {
    "verb": "POST",
    "path": "/obp/v6.0.0/banks/BANK_ID/customers",
-   "source": "apps/cohort/src/lib/server/customers.ts",
+   "source": "apps/cohort/src/lib/server/individualCustomers.ts",
    "needles": [
     "`/obp/v6.0.0/banks/${space()}/customers`"
    ],
@@ -6681,7 +6681,7 @@
   {
    "verb": "GET",
    "path": "/obp/v7.0.0/banks/BANK_ID/my/customers",
-   "source": "apps/cohort/src/lib/server/customers.ts",
+   "source": "apps/cohort/src/lib/server/individualCustomers.ts",
    "needles": [
     "`/obp/v7.0.0/banks/${space()}/my/customers`"
    ],
@@ -6813,7 +6813,7 @@
   {
    "verb": "GET",
    "path": "/obp/v7.0.0/banks/BANK_ID/customers",
-   "source": "apps/cohort/src/lib/server/organisationCustomers.ts",
+   "source": "apps/cohort/src/lib/server/spaceCustomers.ts",
    "needles": [
     "`/obp/v7.0.0/banks/${space}/customers?${attributeQuery}&limit=${PAGE_SIZE}&offset=${page * PAGE_SIZE}`"
    ],
@@ -6823,7 +6823,7 @@
     "customers[].customer_attributes[].name",
     "customers[].customer_attributes[].value"
    ],
-   "note": "Filtered by the organisation_kind Customer Attribute and paged; organisationOfCustomer reads the name, id and attributes."
+   "note": "Filtered by the customer_kind Customer Attribute and paged; corporateCustomerOf reads the name, id and attributes."
   },
   {
    "verb": "POST",
@@ -7137,7 +7137,7 @@
   {
    "verb": "POST",
    "path": "/obp/v5.1.0/banks/BANK_ID/customers/CUSTOMER_ID/attribute",
-   "source": "apps/cohort/src/routes/(protected)/staff/organisations/+page.server.ts",
+   "source": "apps/cohort/src/routes/(protected)/staff/customers/+page.server.ts",
    "needles": [
     "`/obp/v5.1.0/banks/${space()}/customers/${customerId}/attribute`"
    ],
@@ -7146,7 +7146,7 @@
   {
    "verb": "POST",
    "path": "/obp/v5.1.0/banks/BANK_ID/user_customer_links",
-   "source": "apps/cohort/src/routes/(protected)/staff/organisations/+page.server.ts",
+   "source": "apps/cohort/src/routes/(protected)/staff/customers/+page.server.ts",
    "needles": [
     "`/obp/v5.1.0/banks/${space()}/user_customer_links`"
    ],
@@ -7155,7 +7155,7 @@
   {
    "verb": "DELETE",
    "path": "/obp/v5.1.0/banks/BANK_ID/user_customer_links/USER_CUSTOMER_LINK_ID",
-   "source": "apps/cohort/src/routes/(protected)/staff/organisations/+page.server.ts",
+   "source": "apps/cohort/src/routes/(protected)/staff/customers/+page.server.ts",
    "needles": [
     "`/obp/v5.1.0/banks/${space()}/user_customer_links/${encodeURIComponent(linkId)}`"
    ],
@@ -7164,7 +7164,7 @@
   {
    "verb": "GET",
    "path": "/obp/v5.1.0/banks/BANK_ID/user_customer_links/customers/CUSTOMER_ID",
-   "source": "apps/cohort/src/routes/(protected)/staff/organisations/+page.server.ts",
+   "source": "apps/cohort/src/routes/(protected)/staff/customers/+page.server.ts",
    "needles": [
     "`/obp/v5.1.0/banks/${space()}/user_customer_links/customers/${encodeURIComponent(customerId)}`"
    ],
@@ -7176,7 +7176,7 @@
   {
    "verb": "GET",
    "path": "/obp/v5.1.0/users/user_id/USER_ID",
-   "source": "apps/cohort/src/routes/(protected)/staff/organisations/+page.server.ts",
+   "source": "apps/cohort/src/routes/(protected)/staff/customers/+page.server.ts",
    "needles": [
     "`/obp/v5.1.0/users/user_id/${encodeURIComponent(userId)}`"
    ],
@@ -7187,7 +7187,7 @@
   {
    "verb": "POST",
    "path": "/obp/v6.0.0/banks/BANK_ID/customers",
-   "source": "apps/cohort/src/routes/(protected)/staff/organisations/+page.server.ts",
+   "source": "apps/cohort/src/routes/(protected)/staff/customers/+page.server.ts",
    "needles": [
     "`/obp/v6.0.0/banks/${space()}/customers`"
    ],

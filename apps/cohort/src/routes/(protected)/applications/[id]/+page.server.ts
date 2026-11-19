@@ -25,7 +25,7 @@ import { messageOf } from '$lib/server/errors';
 import { APPLICATION, CALL } from '$lib/server/entities/definitions';
 import { getRecord, updateRecord, userToken } from '$lib/server/records';
 import { submittedEmail } from '$lib/emails';
-import { myCustomer } from '$lib/server/customers';
+import { myCustomer } from '$lib/server/individualCustomers';
 import { emailCustomer, pageUrl } from '$lib/server/notify';
 import { applicationFormOf, listForms, myAnswers, writeMyAnswers } from '$lib/server/forms';
 import { emailSettings } from '$lib/server/emailSettings';

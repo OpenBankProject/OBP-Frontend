@@ -51,7 +51,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 	let countryCode = 'BW';
 	let currency = 'BWP';
 	if (accessToken) {
-		const client = new OBPClient(env.PUBLIC_OBP_BASE_URL, 'v6.0.0', accessToken);
+		const client = new OBPClient(env.PUBLIC_OBP_BASE_URL, accessToken);
 		try {
 			const fields = await client.getPersonalDataFields();
 			const attrs = fields.user_attributes || [];
@@ -82,7 +82,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 	};
 
 	if (accessToken) {
-		const client = new OBPClient(env.PUBLIC_OBP_BASE_URL, 'v6.0.0', accessToken);
+		const client = new OBPClient(env.PUBLIC_OBP_BASE_URL, accessToken);
 
 		try {
 			// Find banks matching user's prefix pattern
@@ -294,7 +294,6 @@ export const actions: Actions = {
 
 		const client = new OBPClient(
 			env.PUBLIC_OBP_BASE_URL,
-			'v6.0.0',
 			accessToken
 		);
 
@@ -1157,7 +1156,7 @@ export const actions: Actions = {
 			return fail(401, { error: 'Not authenticated' });
 		}
 
-		const client = new OBPClient(env.PUBLIC_OBP_BASE_URL, 'v6.0.0', accessToken);
+		const client = new OBPClient(env.PUBLIC_OBP_BASE_URL, accessToken);
 		const bankIdPrefix = getUsernamePrefix(user.username);
 
 		const results: TransactionRequestResults = {
@@ -1251,7 +1250,7 @@ export const actions: Actions = {
 			return fail(401, { error: 'Not authenticated' });
 		}
 
-		const client = new OBPClient(env.PUBLIC_OBP_BASE_URL, 'v6.0.0', accessToken);
+		const client = new OBPClient(env.PUBLIC_OBP_BASE_URL, accessToken);
 		const bankIdPrefix = getUsernamePrefix(user.username);
 
 		const results: TransactionRequestResults = {
@@ -1347,7 +1346,7 @@ export const actions: Actions = {
 			return fail(400, { error: 'Please provide at least 3 bank IDs (comma-separated).' });
 		}
 
-		const client = new OBPClient(env.PUBLIC_OBP_BASE_URL, 'v6.0.0', accessToken);
+		const client = new OBPClient(env.PUBLIC_OBP_BASE_URL, accessToken);
 
 		// Fetch current user fresh from OBP
 		let currentUser: typeof user;

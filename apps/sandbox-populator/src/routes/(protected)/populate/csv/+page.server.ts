@@ -38,7 +38,7 @@ export const actions: Actions = {
 		const customersCsv = (formData.get('customers_csv') as string) || '';
 		const transactionsCsv = (formData.get('transactions_csv') as string) || '';
 
-		const client = new OBPClient(env.PUBLIC_OBP_BASE_URL, 'v6.0.0', accessToken);
+		const client = new OBPClient(env.PUBLIC_OBP_BASE_URL, accessToken);
 
 		// Fetch current user fresh from OBP to get the authoritative user_id matching
 		// the current access token (session data may be stale after token refresh or OBP DB reset)

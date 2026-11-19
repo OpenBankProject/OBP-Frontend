@@ -17,7 +17,7 @@
  */
 import { error, fail, redirect } from '@sveltejs/kit';
 import { isCallOpen } from '$lib/applications';
-import { createCustomerForUser, myCustomer } from '$lib/server/customers';
+import { createCustomerForUser, myCustomer } from '$lib/server/individualCustomers';
 import { APPLICATION, CALL } from '$lib/server/entities/definitions';
 import { messageOf } from '$lib/server/errors';
 import { createRecord, getRecord, idOf, userToken } from '$lib/server/records';

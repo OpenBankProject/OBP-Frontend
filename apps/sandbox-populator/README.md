@@ -35,7 +35,7 @@ Every setting is described in `.env.example`.
 
 | Group | Settings |
 |---|---|
-| App | `ORIGIN`, `PUBLIC_OBP_BASE_URL`, `OBP_API_VERSION`, `SESSION_SECRET` |
+| App | `ORIGIN`, `PUBLIC_OBP_BASE_URL`, `SESSION_SECRET` |
 | Login | `OBP_OAUTH_CLIENT_ID`, `OBP_OAUTH_CLIENT_SECRET`, `APP_CALLBACK_URL` |
 | Redis | `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD` |
 | Defaults for the form | `DEFAULT_NUM_BANKS`, `DEFAULT_NUM_ACCOUNTS_PER_BANK`, `DEFAULT_COUNTRY`, `DEFAULT_CURRENCY` |

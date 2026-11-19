@@ -47,17 +47,17 @@ export function requireObpBaseUrl(baseUrl: string | undefined): string {
 
 export class OBPClient {
 	private baseUrl: string;
-	private apiVersion: string;
 	private accessToken: string;
 
-	constructor(baseUrl: string | undefined, apiVersion: string, accessToken: string) {
+	constructor(baseUrl: string | undefined, accessToken: string) {
 		this.baseUrl = requireObpBaseUrl(baseUrl);
-		this.apiVersion = apiVersion;
 		this.accessToken = accessToken;
 	}
 
+	// Each call writes its OBP-API version into its own path, so changing one call cannot move every other call to a
+	// version it was not written for.
 	private url(path: string): string {
-		return `${this.baseUrl}/obp/${this.apiVersion}${path}`;
+		return `${this.baseUrl}${path}`;
 	}
 
 	private async handleResponse<T>(response: Response): Promise<T> {
@@ -78,8 +78,8 @@ export class OBPClient {
 	}
 
 	// App Directory (no auth required)
-	static async getAppDirectory(baseUrl: string | undefined, apiVersion: string): Promise<AppDirectoryEntry[]> {
-		const response = await fetch(`${requireObpBaseUrl(baseUrl)}/obp/${apiVersion}/app-directory`);
+	static async getAppDirectory(baseUrl: string | undefined): Promise<AppDirectoryEntry[]> {
+		const response = await fetch(`${requireObpBaseUrl(baseUrl)}/obp/v6.0.0/app-directory`);
 		if (!response.ok) {
 			logger.error('Failed to fetch app directory');
 			return [];
@@ -90,7 +90,7 @@ export class OBPClient {
 
 	// User endpoints
 	async createUser(payload: CreateUserPayload): Promise<CreateUserResponse> {
-		const response = await fetch(this.url('/users'), {
+		const response = await fetch(this.url('/obp/v6.0.0/users'), {
 			method: 'POST',
 			headers: this.getHeaders(),
 			body: JSON.stringify(payload)
@@ -99,7 +99,7 @@ export class OBPClient {
 	}
 
 	async getCurrentUser(): Promise<User> {
-		const response = await fetch(this.url('/users/current'), {
+		const response = await fetch(this.url('/obp/v6.0.0/users/current'), {
 			headers: this.getHeaders()
 		});
 		return this.handleResponse<User>(response);
@@ -114,7 +114,7 @@ export class OBPClient {
 	}
 
 	async getBanks(): Promise<BanksResponse> {
-		const response = await fetch(this.url('/banks'), {
+		const response = await fetch(this.url('/obp/v6.0.0/banks'), {
 			headers: this.getHeaders()
 		});
 		const data = await this.handleResponse<{ banks: any[] }>(response);
@@ -124,7 +124,7 @@ export class OBPClient {
 	}
 
 	async getBank(bankId: string): Promise<Bank> {
-		const response = await fetch(this.url(`/banks/${bankId}`), {
+		const response = await fetch(this.url(`/obp/v6.0.0/banks/${bankId}`), {
 			headers: this.getHeaders()
 		});
 		const bank = await this.handleResponse<any>(response);
@@ -141,7 +141,7 @@ export class OBPClient {
 			bank_routings: payload.bank_routings || []
 		};
 
-		const response = await fetch(this.url('/banks'), {
+		const response = await fetch(this.url('/obp/v6.0.0/banks'), {
 			method: 'POST',
 			headers: this.getHeaders(),
 			body: JSON.stringify(body)
@@ -151,7 +151,7 @@ export class OBPClient {
 	}
 
 	async bankExists(bankId: string): Promise<boolean> {
-		const response = await fetch(this.url(`/banks/${bankId}`), {
+		const response = await fetch(this.url(`/obp/v6.0.0/banks/${bankId}`), {
 			headers: this.getHeaders()
 		});
 		return response.ok;
@@ -159,7 +159,7 @@ export class OBPClient {
 
 	// Entitlement endpoints
 	async createEntitlement(userId: string, bankId: string, roleName: string): Promise<{ entitlement_id: string; role_name: string; bank_id: string }> {
-		const response = await fetch(this.url(`/users/${userId}/entitlements`), {
+		const response = await fetch(this.url(`/obp/v6.0.0/users/${userId}/entitlements`), {
 			method: 'POST',
 			headers: this.getHeaders(),
 			body: JSON.stringify({
@@ -172,7 +172,7 @@ export class OBPClient {
 
 	// Account endpoints
 	async getMyAccounts(): Promise<Account[]> {
-		const response = await fetch(this.url('/my/accounts'), {
+		const response = await fetch(this.url('/obp/v6.0.0/my/accounts'), {
 			headers: this.getHeaders()
 		});
 		const data = await this.handleResponse<{ accounts: Account[] }>(response);
@@ -180,7 +180,7 @@ export class OBPClient {
 	}
 
 	async getAccountsAtBank(bankId: string): Promise<AccountsResponse> {
-		const response = await fetch(this.url(`/banks/${bankId}/accounts`), {
+		const response = await fetch(this.url(`/obp/v6.0.0/banks/${bankId}/accounts`), {
 			headers: this.getHeaders()
 		});
 		return this.handleResponse<AccountsResponse>(response);
@@ -197,7 +197,7 @@ export class OBPClient {
 			account_routings: payload.account_routings || []
 		};
 
-		const response = await fetch(this.url(`/banks/${bankId}/accounts`), {
+		const response = await fetch(this.url(`/obp/v6.0.0/banks/${bankId}/accounts`), {
 			method: 'POST',
 			headers: this.getHeaders(),
 			body: JSON.stringify(body)
@@ -212,7 +212,7 @@ export class OBPClient {
 		viewId: string = 'owner'
 	): Promise<CounterpartiesResponse> {
 		const response = await fetch(
-			this.url(`/banks/${bankId}/accounts/${accountId}/${viewId}/counterparties`),
+			this.url(`/obp/v6.0.0/banks/${bankId}/accounts/${accountId}/${viewId}/counterparties`),
 			{
 				headers: this.getHeaders()
 			}
@@ -245,7 +245,7 @@ export class OBPClient {
 		};
 
 		const response = await fetch(
-			this.url(`/banks/${bankId}/accounts/${accountId}/${viewId}/counterparties`),
+			this.url(`/obp/v6.0.0/banks/${bankId}/accounts/${accountId}/${viewId}/counterparties`),
 			{
 				method: 'POST',
 				headers: this.getHeaders(),
@@ -257,7 +257,7 @@ export class OBPClient {
 
 	// FX Rate endpoints
 	async getCurrenciesAtBank(bankId: string): Promise<string[]> {
-		const response = await fetch(this.url(`/banks/${bankId}/currencies`), {
+		const response = await fetch(this.url(`/obp/v6.0.0/banks/${bankId}/currencies`), {
 			headers: this.getHeaders()
 		});
 		const data = await this.handleResponse<{ currencies: Array<{ currency_code: string }> }>(response);
@@ -266,7 +266,7 @@ export class OBPClient {
 
 	async getFxRate(bankId: string, fromCurrency: string, toCurrency: string): Promise<FxRate | null> {
 		try {
-			const response = await fetch(this.url(`/banks/${bankId}/fx/${fromCurrency}/${toCurrency}`), {
+			const response = await fetch(this.url(`/obp/v6.0.0/banks/${bankId}/fx/${fromCurrency}/${toCurrency}`), {
 				headers: this.getHeaders()
 			});
 			return await this.handleResponse<FxRate>(response);
@@ -289,7 +289,7 @@ export class OBPClient {
 			body.effective_date = payload.effective_date;
 		}
 
-		const response = await fetch(this.url(`/banks/${bankId}/fx`), {
+		const response = await fetch(this.url(`/obp/v6.0.0/banks/${bankId}/fx`), {
 			method: 'PUT',
 			headers: this.getHeaders(),
 			body: JSON.stringify(body)
@@ -313,7 +313,7 @@ export class OBPClient {
 			charge_policy: payload.charge_policy || 'SHARED'
 		};
 
-		const response = await fetch(this.url(`/banks/${bankId}/management/historical/transactions`), {
+		const response = await fetch(this.url(`/obp/v6.0.0/banks/${bankId}/management/historical/transactions`), {
 			method: 'POST',
 			headers: this.getHeaders(),
 			body: JSON.stringify(body)
@@ -328,7 +328,7 @@ export class OBPClient {
 		viewId: string = 'owner'
 	): Promise<Transaction[]> {
 		const response = await fetch(
-			this.url(`/banks/${bankId}/accounts/${accountId}/${viewId}/transactions`),
+			this.url(`/obp/v6.0.0/banks/${bankId}/accounts/${accountId}/${viewId}/transactions`),
 			{
 				headers: this.getHeaders()
 			}
@@ -344,7 +344,7 @@ export class OBPClient {
 		viewId: string = 'owner'
 	): Promise<TransactionRequest[]> {
 		const response = await fetch(
-			this.url(`/banks/${bankId}/accounts/${accountId}/${viewId}/transaction-requests`),
+			this.url(`/obp/v6.0.0/banks/${bankId}/accounts/${accountId}/${viewId}/transaction-requests`),
 			{
 				headers: this.getHeaders()
 			}
@@ -361,7 +361,7 @@ export class OBPClient {
 	): Promise<TransactionRequest> {
 		const response = await fetch(
 			this.url(
-				`/banks/${fromBankId}/accounts/${fromAccountId}/${viewId}/transaction-request-types/ACCOUNT/transaction-requests`
+				`/obp/v6.0.0/banks/${fromBankId}/accounts/${fromAccountId}/${viewId}/transaction-request-types/ACCOUNT/transaction-requests`
 			),
 			{
 				method: 'POST',
@@ -380,7 +380,7 @@ export class OBPClient {
 	): Promise<TransactionRequest> {
 		const response = await fetch(
 			this.url(
-				`/banks/${fromBankId}/accounts/${fromAccountId}/${viewId}/transaction-request-types/COUNTERPARTY/transaction-requests`
+				`/obp/v6.0.0/banks/${fromBankId}/accounts/${fromAccountId}/${viewId}/transaction-request-types/COUNTERPARTY/transaction-requests`
 			),
 			{
 				method: 'POST',
@@ -393,21 +393,21 @@ export class OBPClient {
 
 	// Customer endpoints
 	async getCustomersAtBank(bankId: string): Promise<CustomersResponse> {
-		const response = await fetch(this.url(`/banks/${bankId}/customers`), {
+		const response = await fetch(this.url(`/obp/v6.0.0/banks/${bankId}/customers`), {
 			headers: this.getHeaders()
 		});
 		return this.handleResponse<CustomersResponse>(response);
 	}
 
 	async getCorporateCustomersAtBank(bankId: string): Promise<CustomersResponse> {
-		const response = await fetch(this.url(`/banks/${bankId}/corporate-customers`), {
+		const response = await fetch(this.url(`/obp/v6.0.0/banks/${bankId}/corporate-customers`), {
 			headers: this.getHeaders()
 		});
 		return this.handleResponse<CustomersResponse>(response);
 	}
 
 	async createCustomer(bankId: string, payload: CreateCustomerPayload): Promise<Customer> {
-		const response = await fetch(this.url(`/banks/${bankId}/customers`), {
+		const response = await fetch(this.url(`/obp/v6.0.0/banks/${bankId}/customers`), {
 			method: 'POST',
 			headers: this.getHeaders(),
 			body: JSON.stringify(payload)
@@ -416,7 +416,7 @@ export class OBPClient {
 	}
 
 	async createCorporateCustomer(bankId: string, payload: CreateCorporateCustomerPayload): Promise<Customer> {
-		const response = await fetch(this.url(`/banks/${bankId}/corporate-customers`), {
+		const response = await fetch(this.url(`/obp/v6.0.0/banks/${bankId}/corporate-customers`), {
 			method: 'POST',
 			headers: this.getHeaders(),
 			body: JSON.stringify(payload)
@@ -426,14 +426,14 @@ export class OBPClient {
 
 	// User Customer Link endpoints
 	async getUserCustomerLinksByUserId(bankId: string, userId: string): Promise<UserCustomerLinksResponse> {
-		const response = await fetch(this.url(`/banks/${bankId}/user_customer_links/users/${userId}`), {
+		const response = await fetch(this.url(`/obp/v6.0.0/banks/${bankId}/user_customer_links/users/${userId}`), {
 			headers: this.getHeaders()
 		});
 		return this.handleResponse<UserCustomerLinksResponse>(response);
 	}
 
 	async createUserCustomerLink(bankId: string, payload: CreateUserCustomerLinkPayload): Promise<UserCustomerLink> {
-		const response = await fetch(this.url(`/banks/${bankId}/user_customer_links`), {
+		const response = await fetch(this.url(`/obp/v6.0.0/banks/${bankId}/user_customer_links`), {
 			method: 'POST',
 			headers: this.getHeaders(),
 			body: JSON.stringify(payload)
@@ -443,7 +443,7 @@ export class OBPClient {
 
 	// Customer Link endpoints (customer-to-customer relationships)
 	async createCustomerLink(bankId: string, payload: CreateCustomerLinkPayload): Promise<CustomerLink> {
-		const response = await fetch(this.url(`/banks/${bankId}/customer-links`), {
+		const response = await fetch(this.url(`/obp/v6.0.0/banks/${bankId}/customer-links`), {
 			method: 'POST',
 			headers: this.getHeaders(),
 			body: JSON.stringify(payload)
@@ -453,7 +453,7 @@ export class OBPClient {
 
 	// Customer Account Link endpoints
 	async createCustomerAccountLink(bankId: string, payload: CreateCustomerAccountLinkPayload): Promise<CustomerAccountLink> {
-		const response = await fetch(this.url(`/banks/${bankId}/customer-account-links`), {
+		const response = await fetch(this.url(`/obp/v6.0.0/banks/${bankId}/customer-account-links`), {
 			method: 'POST',
 			headers: this.getHeaders(),
 			body: JSON.stringify(payload)
@@ -463,14 +463,14 @@ export class OBPClient {
 
 	// Personal Data Field endpoints
 	async getPersonalDataFields(): Promise<PersonalDataFieldsResponse> {
-		const response = await fetch(this.url('/my/personal-data-fields'), {
+		const response = await fetch(this.url('/obp/v6.0.0/my/personal-data-fields'), {
 			headers: this.getHeaders()
 		});
 		return this.handleResponse<PersonalDataFieldsResponse>(response);
 	}
 
 	async createPersonalDataField(payload: CreatePersonalDataFieldPayload): Promise<PersonalDataField> {
-		const response = await fetch(this.url('/my/personal-data-fields'), {
+		const response = await fetch(this.url('/obp/v6.0.0/my/personal-data-fields'), {
 			method: 'POST',
 			headers: this.getHeaders(),
 			body: JSON.stringify(payload)
@@ -479,7 +479,7 @@ export class OBPClient {
 	}
 
 	async updatePersonalDataField(attributeId: string, payload: CreatePersonalDataFieldPayload): Promise<PersonalDataField> {
-		const response = await fetch(this.url(`/my/personal-data-fields/${attributeId}`), {
+		const response = await fetch(this.url(`/obp/v6.0.0/my/personal-data-fields/${attributeId}`), {
 			method: 'PUT',
 			headers: this.getHeaders(),
 			body: JSON.stringify(payload)

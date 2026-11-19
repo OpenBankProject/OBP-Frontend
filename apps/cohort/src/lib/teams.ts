@@ -18,7 +18,7 @@
 
 /**
  * A startup's team is an OBP Organisation: a group of people, each an admin or a member. (This is not the hub's
- * network of organisations in `organisations.ts`, which are Customers of the space.) A participant record names its
+ * network of corporate customers in `corporateCustomers.ts`, which are Customers of the space.) A participant record names its
  * team in `organisation_id`, and the team's members see the participation.
  */
 

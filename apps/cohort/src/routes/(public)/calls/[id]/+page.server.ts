@@ -19,7 +19,7 @@ import { error, redirect } from '@sveltejs/kit';
 import { loginUrlReturningTo } from '@obp/shared/server/auth';
 import { eligibilityRulesOf, isCallOpen } from '$lib/applications';
 import { APPLICATION, CALL, PROGRAMME } from '$lib/server/entities/definitions';
-import { myCustomer } from '$lib/server/customers';
+import { myCustomer } from '$lib/server/individualCustomers';
 import { createRecord, getRecord, idOf, listRecords, userToken } from '$lib/server/records';
 import { myBookmarkOf } from '$lib/server/bookmarks';
 import type { Actions, PageServerLoad } from './$types';

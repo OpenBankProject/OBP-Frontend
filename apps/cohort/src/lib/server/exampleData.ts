@@ -18,7 +18,7 @@
 import { eligibilityOf } from '$lib/applications';
 import { nowUtc } from '$lib/screening';
 import { APPLICATION, CALL, PROGRAMME } from './entities/definitions';
-import { createCustomerForUser, myCustomer } from './customers';
+import { createCustomerForUser, myCustomer } from './individualCustomers';
 import { createRecord, idOf, listRecords, type CohortRecord } from './records';
 
 /**

@@ -26,7 +26,7 @@ export async function load(event: RequestEvent) {
 
 	// Fetch app directory (no auth required)
 	try {
-		data.appDirectory = await OBPClient.getAppDirectory(env.PUBLIC_OBP_BASE_URL, 'v6.0.0');
+		data.appDirectory = await OBPClient.getAppDirectory(env.PUBLIC_OBP_BASE_URL);
 	} catch (e) {
 		logger.error('Failed to fetch app directory:', e);
 		data.appDirectory = [];

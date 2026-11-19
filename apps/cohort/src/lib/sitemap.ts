@@ -64,7 +64,7 @@ export const PAGES: Record<string, { title: MessageKey; about: MessageKey }> = {
 	'/staff/forms/[id]': { title: 'map_form', about: 'map_form_about' },
 	'/staff/reviewers': { title: 'map_reviewers', about: 'map_reviewers_about' },
 	'/staff/announcements': { title: 'map_announcements', about: 'map_announcements_about' },
-	'/staff/organisations': { title: 'map_organisations', about: 'map_organisations_about' },
+	'/staff/customers': { title: 'map_customers', about: 'map_customers_about' },
 	'/staff/retention': { title: 'map_retention', about: 'map_retention_about' },
 	'/staff/programmes/[id]/sessions/[sessionId]/demo-day': { title: 'map_demo_manage', about: 'map_demo_manage_about' },
 	'/demo-day/[sessionId]': { title: 'map_demo_day', about: 'map_demo_day_about' },
