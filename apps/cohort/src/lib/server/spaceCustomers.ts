@@ -15,10 +15,10 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-import type { organisationOfCustomer } from '$lib/organisations';
+import type { corporateCustomerOf } from '$lib/corporateCustomers';
 import { obpRequests } from '$lib/server/obp';
 
-type CustomerWithAttributes = Parameters<typeof organisationOfCustomer>[0];
+type CustomerWithAttributes = Parameters<typeof corporateCustomerOf>[0];
 
 const PAGE_SIZE = 200;
 const MAX_PAGES = 50;
@@ -29,7 +29,7 @@ const MAX_PAGES = 50;
  * so pages are read until one is empty: a page can be short before the end, when a matching
  * attribute belongs to a Customer that no longer exists.
  */
-export async function organisationCustomers(
+export async function spaceCustomers(
 	space: string,
 	attributeQuery: string,
 	token: string

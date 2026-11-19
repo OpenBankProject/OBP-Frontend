@@ -20,7 +20,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('./obp', () => ({ obpRequests: { get: vi.fn() } }));
 
 const { obpRequests } = await import('./obp');
-const { organisationCustomers } = await import('./organisationCustomers');
+const { spaceCustomers } = await import('./spaceCustomers');
 const get = vi.mocked(obpRequests.get);
 
 /** A page of n Customers as OBP-API returns it, with ids starting at `from`. */
@@ -28,8 +28,8 @@ const page = (n: number, from = 0) => ({
 	customers: Array.from({ length: n }, (_, i) => ({ customer_id: `c-${from + i}` }))
 });
 
-// organisationCustomers reads the organisations' Customers from OBP-API v7.0.0, page by page.
-describe('organisationCustomers', () => {
+// spaceCustomers reads the corporate customers' Customers from OBP-API v7.0.0, page by page.
+describe('spaceCustomers', () => {
 	beforeEach(() => get.mockReset());
 
 	it('reads every page of the attribute-filtered Customers, not only the first 50', async () => {
@@ -38,9 +38,9 @@ describe('organisationCustomers', () => {
 			.mockResolvedValueOnce(page(200))
 			.mockResolvedValueOnce(page(3, 200))
 			.mockResolvedValueOnce(page(0));
-		const customers = await organisationCustomers(
+		const customers = await spaceCustomers(
 			'cohort',
-			'organisation_kind=bank_fi,university',
+			'customer_kind=bank_fi,university',
 			'token-1'
 		);
 		// All three pages are read: 200 + 3 Customers.
@@ -48,13 +48,13 @@ describe('organisationCustomers', () => {
 		// The first request: the attribute filter, limit=200 and offset=0, on v7.0.0.
 		expect(get).toHaveBeenNthCalledWith(
 			1,
-			'/obp/v7.0.0/banks/cohort/customers?organisation_kind=bank_fi,university&limit=200&offset=0',
+			'/obp/v7.0.0/banks/cohort/customers?customer_kind=bank_fi,university&limit=200&offset=0',
 			'token-1'
 		);
 		// The next request moves on by the page size: offset=200.
 		expect(get).toHaveBeenNthCalledWith(
 			2,
-			'/obp/v7.0.0/banks/cohort/customers?organisation_kind=bank_fi,university&limit=200&offset=200',
+			'/obp/v7.0.0/banks/cohort/customers?customer_kind=bank_fi,university&limit=200&offset=200',
 			'token-1'
 		);
 	});
@@ -67,16 +67,16 @@ describe('organisationCustomers', () => {
 			.mockResolvedValueOnce(page(50, 200))
 			.mockResolvedValueOnce(page(0));
 		expect(
-			await organisationCustomers('cohort', 'organisation_kind=partner', 'token-1')
+			await spaceCustomers('cohort', 'customer_kind=partner', 'token-1')
 		).toHaveLength(249);
 		// 199 is short, yet the next page is read; the empty third page ends the reading.
 		expect(get).toHaveBeenCalledTimes(3);
 	});
 
 	it('stops at an empty page', async () => {
-		// Tests a space without organisations: one request, an empty list, no further pages.
+		// Tests a space without corporate customers: one request, an empty list, no further pages.
 		get.mockResolvedValueOnce(page(0));
-		expect(await organisationCustomers('cohort', 'organisation_kind=partner', 'token-1')).toEqual(
+		expect(await spaceCustomers('cohort', 'customer_kind=partner', 'token-1')).toEqual(
 			[]
 		);
 		expect(get).toHaveBeenCalledTimes(1);

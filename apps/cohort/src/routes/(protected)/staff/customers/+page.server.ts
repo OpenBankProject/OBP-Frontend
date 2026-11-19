@@ -16,11 +16,11 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 import { fail } from '@sveltejs/kit';
-import { isOrganisationKind, ORGANISATION_ATTRIBUTES, organisationsFromCustomers, organisationsQuery, type OrganisationKind } from '$lib/organisations';
+import { isCustomerKind, CUSTOMER_ATTRIBUTES, corporateCustomersFrom, corporateCustomersQuery, type CustomerKind } from '$lib/corporateCustomers';
 import { PARTICIPANT } from '$lib/server/entities/definitions';
 import { messageOf } from '$lib/server/errors';
 import { obpRequests } from '$lib/server/obp';
-import { organisationCustomers } from '$lib/server/organisationCustomers';
+import { spaceCustomers } from '$lib/server/spaceCustomers';
 import { idOf, listRecords, userToken } from '$lib/server/records';
 import { cohortSpace } from '$lib/server/space';
 import { staffAccess } from '$lib/server/staffAccess';
@@ -29,7 +29,7 @@ import { memberLookupError, userIdByUsername } from '$lib/server/users';
 import type { Actions, PageServerLoad } from './$types';
 
 /**
- * Organisations: the network's banks, universities, regulators and partners, and the startups whose company is
+ * Customers: the network's banks, universities, regulators and partners, and the startups whose company is
  * registered (from the participants). Each is a CORPORATE Customer of Cohort's space with its people linked by User
  * Customer Links; staff-created ones carry their kind, Arabic name and website as Customer Attributes. Everything runs
  * with the staff member's own Roles.
@@ -75,12 +75,12 @@ export const load: PageServerLoad = async ({ locals }) => {
 	const [customers, participants] = await Promise.all([
 		lacking.read
 			? Promise.resolve([])
-			: organisationCustomers(space(), organisationsQuery(), token).catch(() => []),
+			: spaceCustomers(space(), corporateCustomersQuery(), token).catch(() => []),
 		listRecords(PARTICIPANT, '', token).catch(() => [])
 	]);
-	const organisations: { id: string; name: string; name_ar: string; kind: OrganisationKind; customer_id: string; website: string }[] = [
-		...organisationsFromCustomers(customers),
-		// A startup's registered company is an organisation too, once; listed from its participation.
+	const corporateCustomers: { id: string; name: string; name_ar: string; kind: CustomerKind; customer_id: string; website: string }[] = [
+		...corporateCustomersFrom(customers),
+		// A startup's registered company is a corporate customer too, once; listed from its participation.
 		...[...new Map(participants.filter((p) => p.customer_id).map((p) => [String(p.customer_id), p])).values()].map((p) => ({
 			id: `participant:${idOf(PARTICIPANT, p)}`,
 			name: String(p.startup_name ?? ''),
@@ -91,25 +91,25 @@ export const load: PageServerLoad = async ({ locals }) => {
 		}))
 	];
 	const withMembers = await Promise.all(
-		organisations.map(async (o) => ({
+		corporateCustomers.map(async (o) => ({
 			...o,
 			members: lacking.members ? null : await membersOf(o.customer_id, token).catch(() => null)
 		}))
 	);
-	return { ...base, organisations: withMembers.sort((a, b) => a.kind.localeCompare(b.kind) || a.name.localeCompare(b.name)) };
+	return { ...base, customers: withMembers.sort((a, b) => a.kind.localeCompare(b.kind) || a.name.localeCompare(b.name)) };
 };
 
 const str = (form: FormData, key: string) => String(form.get(key) ?? '').trim();
 
 export const actions: Actions = {
-	/** A new organisation: its CORPORATE Customer at the space, then its kind, Arabic name and website as attributes. */
+	/** A new corporate customer: its CORPORATE Customer at the space, then its kind, Arabic name and website as attributes. */
 	create: async ({ locals, request }) => {
 		const form = await request.formData();
 		const token = userToken(locals)!;
 		const kind = str(form, 'kind');
 		const details = { name: str(form, 'name'), email: str(form, 'email'), mobile_phone_number: str(form, 'mobile_phone_number') };
-		if (!details.name || !details.email || !details.mobile_phone_number || !isOrganisationKind(kind) || kind === 'startup') {
-			return fail(400, { form: 'create', error: 'organisation_missing' });
+		if (!details.name || !details.email || !details.mobile_phone_number || !isCustomerKind(kind) || kind === 'startup') {
+			return fail(400, { form: 'create', error: 'customer_missing' });
 		}
 		return write(
 			'create',
@@ -120,7 +120,7 @@ export const actions: Actions = {
 					token
 				);
 				const customerId = encodeURIComponent(String(customer?.customer_id ?? ''));
-				const attributes = { [ORGANISATION_ATTRIBUTES.kind]: kind, [ORGANISATION_ATTRIBUTES.name_ar]: str(form, 'name_ar'), [ORGANISATION_ATTRIBUTES.website]: str(form, 'website') };
+				const attributes = { [CUSTOMER_ATTRIBUTES.kind]: kind, [CUSTOMER_ATTRIBUTES.name_ar]: str(form, 'name_ar'), [CUSTOMER_ATTRIBUTES.website]: str(form, 'website') };
 				for (const [name, value] of Object.entries(attributes).filter(([, v]) => v !== '')) {
 					await obpRequests.post(`/obp/v5.1.0/banks/${space()}/customers/${customerId}/attribute`, { name, type: 'STRING', value }, token);
 				}
@@ -128,7 +128,7 @@ export const actions: Actions = {
 			{ created: true }
 		);
 	},
-	/** Link a User, found by username, to an organisation's Customer. */
+	/** Link a User, found by username, to a corporate customer's Customer. */
 	addMember: async ({ locals, request }) => {
 		const form = await request.formData();
 		const token = userToken(locals)!;

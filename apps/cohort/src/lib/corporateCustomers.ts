@@ -16,52 +16,56 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-/** The kinds of organisation in the hub's network. Startups are their participants' registered companies. */
-export const ORGANISATION_KINDS = ['startup', 'bank_fi', 'university', 'regulator', 'partner'] as const;
-export type OrganisationKind = (typeof ORGANISATION_KINDS)[number];
+/**
+ * The kinds of customer in the hub's network: the legal entities Cohort works with. Startups are their participants'
+ * registered companies. They are called customers, never organisations, so they are not confused with OBP-API's
+ * Organisations, which Cohort uses for startup teams (see teams.ts).
+ */
+export const CUSTOMER_KINDS = ['startup', 'bank_fi', 'university', 'regulator', 'partner'] as const;
+export type CustomerKind = (typeof CUSTOMER_KINDS)[number];
 
-export const isOrganisationKind = (v: unknown): v is OrganisationKind => (ORGANISATION_KINDS as readonly unknown[]).includes(v);
+export const isCustomerKind = (v: unknown): v is CustomerKind => (CUSTOMER_KINDS as readonly unknown[]).includes(v);
 
 /**
- * An organisation is a CORPORATE Customer of Cohort's space: its name is the Customer's legal_name, and these Customer
+ * A customer in the network is a CORPORATE Customer of Cohort's space: its name is the Customer's legal_name, and these Customer
  * Attributes hold the rest. Startups' Customers carry none: they are listed from their participation.
  */
-export const ORGANISATION_ATTRIBUTES = { kind: 'organisation_kind', name_ar: 'name_ar', website: 'website' } as const;
+export const CUSTOMER_ATTRIBUTES = { kind: 'customer_kind', name_ar: 'name_ar', website: 'website' } as const;
 
 /** The kinds staff create; a startup's Customer is registered by the startup itself. */
-export const CREATABLE_KINDS = ORGANISATION_KINDS.filter((k) => k !== 'startup');
+export const CREATABLE_KINDS = CUSTOMER_KINDS.filter((k) => k !== 'startup');
 
 export interface CustomerAttribute {
 	name?: unknown;
 	value?: unknown;
 }
 
-/** An organisation from a Customer with its attributes, as GET /banks/BANK_ID/customers?organisation_kind=… returns it. */
-export function organisationOfCustomer(c: { customer_id?: unknown; legal_name?: unknown; customer_attributes?: CustomerAttribute[] }) {
+/** A corporate customer from a Customer with its attributes, as GET /banks/BANK_ID/customers?customer_kind=… returns it. */
+export function corporateCustomerOf(c: { customer_id?: unknown; legal_name?: unknown; customer_attributes?: CustomerAttribute[] }) {
 	const attribute = (name: string) => String((c.customer_attributes ?? []).find((a) => a.name === name)?.value ?? '');
-	const kind = attribute(ORGANISATION_ATTRIBUTES.kind);
+	const kind = attribute(CUSTOMER_ATTRIBUTES.kind);
 	return {
 		id: String(c.customer_id ?? ''),
 		name: String(c.legal_name ?? ''),
-		name_ar: attribute(ORGANISATION_ATTRIBUTES.name_ar),
-		kind: isOrganisationKind(kind) ? kind : ('partner' as OrganisationKind),
+		name_ar: attribute(CUSTOMER_ATTRIBUTES.name_ar),
+		kind: isCustomerKind(kind) ? kind : ('partner' as CustomerKind),
 		customer_id: String(c.customer_id ?? ''),
-		website: attribute(ORGANISATION_ATTRIBUTES.website)
+		website: attribute(CUSTOMER_ATTRIBUTES.website)
 	};
 }
 
-type CustomerWithAttributes = Parameters<typeof organisationOfCustomer>[0];
+type CustomerWithAttributes = Parameters<typeof corporateCustomerOf>[0];
 
 /**
- * The organisations OBP-API returns for organisationsQuery(). OBP-API filters the Customers by their
- * organisation_kind attribute, so Cohort shows each of them as it is.
+ * The corporate customers OBP-API returns for corporateCustomersQuery(). OBP-API filters the Customers by their
+ * customer_kind attribute, so Cohort shows each of them as it is.
  */
-export function organisationsFromCustomers(customers: CustomerWithAttributes[]) {
-	return customers.map(organisationOfCustomer);
+export function corporateCustomersFrom(customers: CustomerWithAttributes[]) {
+	return customers.map(corporateCustomerOf);
 }
 
 /**
- * The query listing the organisations staff created: Customers whose organisation_kind is any creatable kind.
+ * The query listing the corporate customers staff created: Customers whose customer_kind is any creatable kind.
  * One parameter with comma-separated values, as GET /obp/v7.0.0/banks/BANK_ID/customers takes them.
  */
-export const organisationsQuery = () => `${ORGANISATION_ATTRIBUTES.kind}=${CREATABLE_KINDS.map(encodeURIComponent).join(',')}`;
+export const corporateCustomersQuery = () => `${CUSTOMER_ATTRIBUTES.kind}=${CREATABLE_KINDS.map(encodeURIComponent).join(',')}`;
