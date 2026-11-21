@@ -204,9 +204,10 @@
       // Transport: an explicit ?transport= param wins; otherwise default to
       // gRPC when the 'OBP API (gRPC)' health check reported healthy at load.
       // Decided before submitQuery so the URL it writes carries the right value.
+      // The URL is left to submitQuery: replaceState can't run before the router has started.
       const urlTransport = urlParams.get("transport");
       if (urlTransport === "grpc" || (urlTransport !== "rest" && data.grpcAvailable)) {
-        setTransport("grpc");
+        setTransport("grpc", { updateUrl: false });
       } else {
         // REST with polling; user can switch to gRPC.
         startAutoRefresh();
@@ -500,13 +501,15 @@
     };
   }
 
-  function setTransport(next: "rest" | "grpc") {
+  function setTransport(next: "rest" | "grpc", { updateUrl = true } = {}) {
     if (next === transport) return;
     transport = next;
-    // Keep the choice in the page URL so reloads and shared links preserve it.
-    const pageUrl = new URL(window.location.href);
-    pageUrl.searchParams.set("transport", next);
-    replaceState(pageUrl, {});
+    if (updateUrl) {
+      // Keep the choice in the page URL so reloads and shared links preserve it.
+      const pageUrl = new URL(window.location.href);
+      pageUrl.searchParams.set("transport", next);
+      replaceState(pageUrl, {});
+    }
     if (next === "grpc") {
       stopAutoRefresh();
       connectStream();
