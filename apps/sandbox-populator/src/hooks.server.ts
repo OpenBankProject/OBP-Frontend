@@ -10,6 +10,8 @@ import { env } from '$env/dynamic/private';
 import { building, dev } from '$app/environment';
 import { env as publicEnv } from '$env/dynamic/public';
 import { requestTelemetry, startTelemetry } from '@obp/shared/server/monitoring';
+import { healthCheckRegistry, OIDCHealthCheckService } from '@obp/shared/health-check';
+import { RedisHealthCheckService } from '@obp/shared/server/health-check';
 import RedisStore from 'svelte-kit-connect-redis';
 
 import { oauth2ProviderManager } from '$lib/oauth/providerManager';
@@ -57,6 +59,25 @@ startTelemetry('sandbox-populator', publicEnv.PUBLIC_OBP_BASE_URL);
 const redisClient = redisService.getClient();
 
 await oauth2ProviderManager.start();
+
+// What /status shows: whether OBP-API, Redis (where sessions are kept) and each OAuth2 provider answer.
+// Every known provider is registered, including one that failed to start, and its status is read live.
+healthCheckRegistry.register({
+	serviceName: 'OBP API (REST)',
+	url: `${publicEnv.PUBLIC_OBP_BASE_URL}/obp/v5.1.0/root`,
+	details: { PUBLIC_OBP_BASE_URL: publicEnv.PUBLIC_OBP_BASE_URL ?? '(unset)' }
+});
+healthCheckRegistry.register(new RedisHealthCheckService(redisService));
+for (const p of oauth2ProviderManager.getAllProviders()) {
+	healthCheckRegistry.register(
+		new OIDCHealthCheckService({
+			serviceName: `OAuth2: ${p.provider}`,
+			providerStatus: () =>
+				oauth2ProviderManager.getAllProviders().find((status) => status.provider === p.provider)
+		})
+	);
+}
+healthCheckRegistry.startAll();
 
 function needsAuthorization(routeId: string): boolean {
 	// protected routes are put in the /(protected)/ route group

@@ -18,7 +18,7 @@
 import { format } from 'util';
 
 // The app's recent log lines, kept in memory per level as OBP-API keeps its log cache, so a monitor
-// such as OBP-Sentinel can read them through GET /monitoring/log-cache/LEVEL in the same shape.
+// such as Senti can read them through GET /monitoring/log-cache/LEVEL in the same shape.
 export const LOG_LEVELS = ['trace', 'debug', 'info', 'warning', 'error'] as const;
 export type LogCacheLevel = (typeof LOG_LEVELS)[number];
 

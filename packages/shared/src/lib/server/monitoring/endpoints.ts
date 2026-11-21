@@ -19,7 +19,7 @@ import { LOG_LEVELS, logTail, type LogCacheLevel } from './logCache.js';
 import { telemetryReport } from './telemetry.js';
 import { refuseUnlessAnyObpRole } from './obpRoleCheck.js';
 
-// This app's log cache and Telemetry, for a monitor such as OBP-Sentinel, guarded by the same Roles
+// This app's log cache and Telemetry, for a monitor such as Senti, guarded by the same Roles
 // OBP-API's own log cache and Telemetry endpoints need. Served by each app's /monitoring routes.
 
 const capitalised = (level: string) => level.charAt(0).toUpperCase() + level.slice(1);

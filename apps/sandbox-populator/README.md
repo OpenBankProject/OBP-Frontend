@@ -8,7 +8,8 @@ It used to live in its own repository, OBP-Sandbox-Populator. It is now one of t
 
 - **Populate:** at `/populate`, choose how many banks and accounts to create, the country (which sets the business names, customer templates and currency), and which kinds of record to add. Then select **Populate**. The page shows what it created and links to API Explorer to check it.
 - **CSV import:** at `/populate/csv`, upload CSV files of banks, accounts, customers (individual and corporate) and transactions. [ONBOARDING.md](ONBOARDING.md#csv-format-reference) gives the columns of each file.
-- **Monitoring:** `/monitoring/log-cache/{level}` and `/monitoring/telemetry` serve the app's log cache and Telemetry in OBP-API's shape, for OBP-Sentinel. They need the same Roles as OBP-API's own endpoints.
+- **Monitoring:** `/monitoring/log-cache/{level}` and `/monitoring/telemetry` serve the app's log cache and Telemetry in OBP-API's shape, for Senti. They need the same Roles as OBP-API's own endpoints.
+- **Status:** `/status`, open to anyone like every OBP app's, shows whether OBP-API, Redis and the OAuth2 providers answer, lists the monitoring endpoints with the Roles each needs, and gives the build.
 
 ## Running it locally
 

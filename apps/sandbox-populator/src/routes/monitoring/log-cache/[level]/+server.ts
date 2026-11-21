@@ -20,7 +20,7 @@ import { logCacheResponse } from '@obp/shared/server/monitoring';
 import { SessionOAuthHelper } from '$lib/oauth/sessionHelper';
 import type { RequestHandler } from './$types';
 
-// This app's log cache for a monitor such as OBP-Sentinel, guarded by OBP-API's log cache Roles.
+// This app's log cache for a monitor such as Senti, guarded by OBP-API's log cache Roles.
 export const GET: RequestHandler = ({ params, request, url, locals }) =>
 	logCacheResponse(
 		params.level,

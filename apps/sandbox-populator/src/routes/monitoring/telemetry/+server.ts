@@ -20,7 +20,7 @@ import { telemetryResponse } from '@obp/shared/server/monitoring';
 import { SessionOAuthHelper } from '$lib/oauth/sessionHelper';
 import type { RequestHandler } from './$types';
 
-// This app's Telemetry for a monitor such as OBP-Sentinel, guarded by CanGetTelemetry.
+// This app's Telemetry for a monitor such as Senti, guarded by CanGetTelemetry.
 export const GET: RequestHandler = ({ request, url, locals }) =>
 	telemetryResponse(
 		request,

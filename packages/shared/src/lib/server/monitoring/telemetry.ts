@@ -18,7 +18,7 @@
 import type { Handle } from '@sveltejs/kit';
 
 // Aggregated numbers about how this app is running, in the shape of OBP-API's
-// GET /obp/v7.0.0/management/telemetry, so a monitor such as OBP-Sentinel reads both the same way.
+// GET /obp/v7.0.0/management/telemetry, so a monitor such as Senti reads both the same way.
 // Like OBP-API's Telemetry it never records who made a call.
 
 export interface Meter {

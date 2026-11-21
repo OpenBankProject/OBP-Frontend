@@ -1,4 +1,6 @@
 @import 'tailwindcss';
+/* The shared components (the /status page) use Tailwind classes too */
+@source '../../../packages/shared/src';
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
 

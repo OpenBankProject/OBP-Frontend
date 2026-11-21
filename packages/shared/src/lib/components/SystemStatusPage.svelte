@@ -317,7 +317,7 @@
 		stopAutoRefresh();
 	});
 
-	// This app's /monitoring endpoints (log cache and Telemetry, for OBP-Sentinel) and the OBP Roles each needs.
+	// This app's /monitoring endpoints (log cache and Telemetry, for Senti) and the OBP Roles each needs.
 	const MONITORING_ENDPOINTS = [
 		...['trace', 'debug', 'info', 'warning', 'error'].map((level) => ({
 			path: `/monitoring/log-cache/${level}`,

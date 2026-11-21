@@ -78,7 +78,7 @@ function jsonError(status: number, error: string): Response {
 
 /**
  * null if the request's OBP-API token may use any of the Roles, otherwise the response refusing it. The
- * token is a Bearer header (a monitor such as OBP-Sentinel) or, without one, the logged-in User's token
+ * token is a Bearer header (a monitor such as Senti) or, without one, the logged-in User's token
  * from this app's session (a browser).
  */
 export async function refuseUnlessAnyObpRole(
