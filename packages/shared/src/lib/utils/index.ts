@@ -21,7 +21,7 @@ export { extractUsernameFromJWT, isJWTExpired, getJWTPayload } from './jwt.js';
 export type { JWTPayload } from './jwt.js';
 export { toaster, toast } from './toastService.js';
 export { safeInternalPath, reloadPathAfterSessionEnds } from './redirect.js';
-export { redactUrlEncodedBody } from './redact.js';
+export { redactUrlEncodedBody, redactForLog } from './redact.js';
 export { timeAgo } from './timeAgo.js';
 export {
 	externalRedirectProblem,

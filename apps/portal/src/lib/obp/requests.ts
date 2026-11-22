@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-import { createLogger } from '@obp/shared/utils';
+import { createLogger, redactForLog } from '@obp/shared/utils';
 const logger = createLogger('OBPRequests');
 import { env } from '$env/dynamic/public';
 import { OBPErrorBase, OBPRequestError, OBPRateLimitError, OBPTimeoutError } from '@obp/shared/obp';
@@ -122,7 +122,7 @@ class OBPRequests {
 	}
 
 	async post(endpoint: string, body: any, accessToken?: string): Promise<any> {
-		logger.debug('POST', endpoint, body);
+		logger.debug('POST', endpoint, redactForLog(body));
 		const url = `${this.base_url}${endpoint}`;
 		const headers: Record<string, string> = {
 			'Content-Type': 'application/json'
@@ -211,7 +211,7 @@ class OBPRequests {
 	}
 
 	async put(endpoint: string, body: any, accessToken?: string): Promise<any> {
-		logger.debug('PUT', endpoint, body);
+		logger.debug('PUT', endpoint, redactForLog(body));
 		const url = `${this.base_url}${endpoint}`;
 		const headers: Record<string, string> = {
 			'Content-Type': 'application/json'
@@ -250,7 +250,7 @@ class OBPRequests {
 	}
 
 	async patch(endpoint: string, body: any, accessToken?: string): Promise<any> {
-		logger.debug('PATCH', endpoint, body);
+		logger.debug('PATCH', endpoint, redactForLog(body));
 		const url = `${this.base_url}${endpoint}`;
 		const headers: Record<string, string> = {
 			'Content-Type': 'application/json'

@@ -10,6 +10,7 @@ Also: [docs/page-layout.md](docs/page-layout.md) (page width), [docs/playwright-
 - **Quantise timestamps sent to OBP.** Never send a raw "now" as `from_date` / `to_date`; floor it (10-minute or hour marks) so OBP's query-keyed cache can hit.
 - **The browser never calls Opey directly.** All browser → Opey traffic goes through the app's `/backend/opey` proxy (`createOpeyProxyHandlers` in `packages/shared`).
 - **Identify consumers by `consumer_id`.** The client id is the consumer key, a credential: never display it or put it in links. Do not shorten `consumer_id` to `id`.
+- **Never log secrets.** Passwords, Consumer keys and secrets, tokens and one-time codes never go into a log, at any level. Before logging a request body, form data or an OBP response that may hold one, pass it through `redactForLog` (`@obp/shared/utils`), which replaces those fields with `[redacted]`. The shared and Portal OBP clients already do this for POST, PUT and PATCH bodies.
 - **No author JavaScript in the Portal origin.** User-written apps and reports run in the App Studio sandbox.
 
 ## Code structure

@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-import { createLogger } from '@obp/shared/utils';
+import { createLogger, redactForLog } from '@obp/shared/utils';
 const logger = createLogger('ConsumerRegisterSuccessServer');
 import type { RequestEvent } from '@sveltejs/kit';
 import { env as publicEnv } from '$env/dynamic/public';
@@ -26,7 +26,8 @@ export async function load(event: RequestEvent ) {
     const apiHost = (publicEnv.PUBLIC_OBP_BASE_URL ?? '').replace(/\/+$/, '');
 
     const consumerDataCookie = cookies.get('consumer_data');
-    logger.debug("Consumer Data Cookie:", consumerDataCookie);
+    // The cookie holds the new Consumer's key and secret, so it is not logged; only whether it is there.
+    logger.debug("Consumer Data Cookie present:", Boolean(consumerDataCookie));
 
     if (consumerDataCookie) {
 
@@ -35,7 +36,7 @@ export async function load(event: RequestEvent ) {
         try {
             const consumerData = JSON.parse(consumerDataCookie);
             
-            logger.debug("Parsed Consumer Data:", consumerData);
+            logger.debug("Parsed Consumer Data:", redactForLog(consumerData));
             
             return {
                 consumerData,

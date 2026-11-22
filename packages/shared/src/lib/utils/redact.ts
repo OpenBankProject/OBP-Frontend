@@ -28,3 +28,20 @@ export function redactUrlEncodedBody(body: URLSearchParams): string {
 	}
 	return redacted.toString();
 }
+
+// A field name that holds a secret: any password (password, new_password, ...), secret (client_secret, consumer_secret, ...), token (access_token, refresh_token, ...) or key (consumer_key, api_key, ...), the client_id (which is the Consumer key), and a few short names used for one-time codes.
+const SECRET_KEY_PATTERN = /password|secret|token|key$|^client_id$|^pin$|^otp$|^answer$/i;
+
+// A copy of a request body (or form data, turned into an object) that is safe to log: the value of every field whose name looks secret is replaced with '[redacted]', at any depth. The input is not changed.
+export function redactForLog(value: unknown): unknown {
+	// Arrays: redact each element.
+	if (Array.isArray(value)) return value.map((element) => redactForLog(element));
+	// Anything that is not a plain object is logged as it is.
+	if (value === null || typeof value !== 'object') return value;
+	return Object.fromEntries(
+		Object.entries(value as Record<string, unknown>).map(([fieldName, fieldValue]) => [
+			fieldName,
+			SECRET_KEY_PATTERN.test(fieldName) ? '[redacted]' : redactForLog(fieldValue)
+		])
+	);
+}

@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-import { createLogger } from '@obp/shared/utils';
+import { createLogger, redactForLog } from '@obp/shared/utils';
 const logger = createLogger('ConsumerRegisterServer');
 import { type Actions, fail, redirect } from "@sveltejs/kit";
 import { obp_requests } from "$lib/obp/requests";
@@ -32,7 +32,7 @@ export const actions = {
 
         const formData = await request.formData()
         
-        logger.debug("Form Data:", Object.fromEntries(formData.entries()));
+        logger.debug("Form Data:", redactForLog(Object.fromEntries(formData.entries())));
 
         // 
         const formEntries = Object.fromEntries(formData.entries());
@@ -61,7 +61,7 @@ export const actions = {
             const response = await obp_requests.post(`/obp/v5.1.0/my/consumers`, requestBody, token);
 
             
-            logger.info("Consumer created successfully:", response);
+            logger.info("Consumer created successfully:", redactForLog(response));
 
             // Store the response data in a secure cookie for the success page
             // Flash Message, will be deleted when the user visits the success page

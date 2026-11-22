@@ -16,6 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 import { createLogger } from '$shared/utils/logger';
+import { redactForLog } from '$shared/utils/redact';
 const logger = createLogger('OBPRequests');
 import { OBPErrorBase, OBPRequestError, OBPRateLimitError, OBPTimeoutError } from '$shared/obp/errors';
 
@@ -100,7 +101,7 @@ export class OBPRequests {
 	}
 
 	async post(endpoint: string, body: any, accessToken?: string): Promise<any> {
-		logger.debug('POST', endpoint, body);
+		logger.debug('POST', endpoint, redactForLog(body));
 		const url = `${this.base_url}${endpoint}`;
 		const headers: Record<string, string> = {
 			'Content-Type': 'application/json'
@@ -187,7 +188,7 @@ export class OBPRequests {
 	}
 
 	async put(endpoint: string, body: any, accessToken?: string): Promise<any> {
-		logger.debug('PUT', endpoint, body);
+		logger.debug('PUT', endpoint, redactForLog(body));
 		const url = `${this.base_url}${endpoint}`;
 		const headers: Record<string, string> = {
 			'Content-Type': 'application/json'
@@ -225,7 +226,7 @@ export class OBPRequests {
 	}
 
 	async patch(endpoint: string, body: any, accessToken?: string): Promise<any> {
-		logger.debug('PATCH', endpoint, body);
+		logger.debug('PATCH', endpoint, redactForLog(body));
 		const url = `${this.base_url}${endpoint}`;
 		const headers: Record<string, string> = {
 			'Content-Type': 'application/json'

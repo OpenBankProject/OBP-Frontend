@@ -16,7 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 import { type SessionData } from 'svelte-kit-sessions';
-import { createLogger } from '@obp/shared/utils';
+import { createLogger, redactForLog } from '@obp/shared/utils';
 import { obp_requests } from '$lib/obp/requests';
 import { OBPRequestError } from '@obp/shared/obp';
 import { fail } from '@sveltejs/kit';
@@ -82,7 +82,7 @@ import type { OBPAddEntitlementBody } from "$lib/obp/types";
 export const actions = {
     create: async ({ request, locals, cookies }) => {
         const formData = await request.formData()
-        logger.debug("Form Data:", Object.fromEntries(formData.entries()));
+        logger.debug("Form Data:", redactForLog(Object.fromEntries(formData.entries())));
 
         const formEntries = Object.fromEntries(formData.entries());
         const entitlement = formEntries.entitlement;

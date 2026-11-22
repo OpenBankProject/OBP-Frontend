@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-import { createLogger } from '@obp/shared/utils';
+import { createLogger, redactForLog } from '@obp/shared/utils';
 import { obp_requests } from '$lib/obp/requests';
 import { error } from '@sveltejs/kit';
 import type { OBPConsumer } from '$lib/obp/types';
@@ -54,7 +54,7 @@ export async function load(event: RequestEvent) {
 	// Log first consumer for debugging
 	if (consumers.length > 0) {
 		logger.debug('First consumer fields:', Object.keys(consumers[0]));
-		logger.debug('First consumer data:', JSON.stringify(consumers[0], null, 2));
+		logger.debug('First consumer data:', JSON.stringify(redactForLog(consumers[0]), null, 2));
 	}
 
 	// Sort consumers by created date, most recent first

@@ -16,7 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 import { describe, it, expect } from 'vitest';
-import { redactUrlEncodedBody } from './redact';
+import { redactUrlEncodedBody, redactForLog } from './redact';
 
 function parse(query: string): Record<string, string> {
 	return Object.fromEntries(new URLSearchParams(query));
@@ -70,5 +70,40 @@ describe('redactUrlEncodedBody', () => {
 		const body = new URLSearchParams({ grant_type: 'authorization_code' });
 		const result = parse(redactUrlEncodedBody(body));
 		expect(Object.keys(result)).toEqual(['grant_type']);
+	});
+});
+
+describe('redactForLog', () => {
+	it('redacts passwords, secrets and tokens, keeping other fields', () => {
+		const body = { username: 'someone', password: 'pw', new_password: 'pw2', consumer_secret: 's', access_token: 't', email: 'a@example.com' };
+		expect(redactForLog(body)).toEqual({
+			username: 'someone',
+			password: '[redacted]',
+			new_password: '[redacted]',
+			consumer_secret: '[redacted]',
+			access_token: '[redacted]',
+			email: 'a@example.com'
+		});
+	});
+
+	it('redacts at any depth, including inside arrays', () => {
+		const body = { user: { password: 'pw' }, items: [{ client_secret: 's', name: 'n' }] };
+		expect(redactForLog(body)).toEqual({ user: { password: '[redacted]' }, items: [{ client_secret: '[redacted]', name: 'n' }] });
+	});
+
+	it('redacts Consumer keys and client ids', () => {
+		expect(redactForLog({ consumer_key: 'k', client_id: 'c', consumer_id: 'id' })).toEqual({ consumer_key: '[redacted]', client_id: '[redacted]', consumer_id: 'id' });
+	});
+
+	it('redacts one-time codes and challenge answers', () => {
+		expect(redactForLog({ otp: '123456', pin: '0000', answer: '42' })).toEqual({ otp: '[redacted]', pin: '[redacted]', answer: '[redacted]' });
+	});
+
+	it('passes non-objects through and does not change the input', () => {
+		expect(redactForLog('text')).toBe('text');
+		expect(redactForLog(undefined)).toBeUndefined();
+		const body = { password: 'keep-me' };
+		redactForLog(body);
+		expect(body.password).toBe('keep-me');
 	});
 });

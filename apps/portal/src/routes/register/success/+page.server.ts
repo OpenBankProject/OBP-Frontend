@@ -23,7 +23,7 @@ export async function load(event: RequestEvent ) {
     const { cookies } = event;
 
     const userDataCookie = cookies.get('user');
-    logger.debug("User Data Cookie:", userDataCookie);
+    logger.debug("User Data Cookie present:", Boolean(userDataCookie));
 
     if (userDataCookie) {
 
