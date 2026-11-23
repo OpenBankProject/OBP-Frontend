@@ -7568,6 +7568,16 @@
   },
   {
    "verb": "GET",
+   "path": "/obp/v5.1.0/root",
+   "source": "apps/sandbox-populator/src/hooks.server.ts",
+   "needles": [
+    "`${publicEnv.PUBLIC_OBP_BASE_URL}/obp/v5.1.0/root`"
+   ],
+   "reads": [],
+   "note": "Health check registered with healthCheckRegistry; HealthCheckService GETs the URL and only looks at the HTTP status."
+  },
+  {
+   "verb": "GET",
    "path": "/obp/v6.0.0/app-directory",
    "source": "apps/portal/src/hooks.server.ts",
    "needles": [
