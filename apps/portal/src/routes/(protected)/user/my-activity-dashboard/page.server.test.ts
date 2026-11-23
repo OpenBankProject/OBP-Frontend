@@ -103,7 +103,7 @@ describe('Activity Dashboard load', () => {
 		expect(params.get('offset')).toBe('0');
 		expect(params.get('verb')).toBe('POST');
 		expect(params.get('consumer_id')).toBe('c9');
-		expect(endpoints[2]).toBe('/obp/v6.0.0/management/users/current/consumers');
+		expect(endpoints[2]).toBe('/obp/v5.1.0/management/users/current/consumers');
 
 		expect(result.summary?.total).toBe(2);
 		expect(result.summary?.topEndpoints[0]).toMatchObject({ label: 'OBPv7.0.0-getBank', count: 2 });
