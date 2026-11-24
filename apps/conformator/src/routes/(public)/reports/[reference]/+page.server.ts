@@ -20,6 +20,7 @@ import { findReport } from '$lib/server/reports';
 import { createRecord, idOf, userToken } from '$lib/server/records';
 import { REPORT, REPORT_EVENT } from '$lib/server/entities/definitions';
 import { messageOf } from '$lib/server/errors';
+import { m } from '@obp/shared/i18n';
 import { roleCheck } from '$lib/server/staffAccess';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -36,16 +37,16 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 export const actions: Actions = {
 	withdraw: async ({ params, locals, request }) => {
 		const token = userToken(locals);
-		if (!token) return fail(401, { problem: 'Log in to withdraw a report.' });
+		if (!token) return fail(401, { problem: m.conformator_report_withdraw_log_in() });
 		const reason = String((await request.formData()).get('reason') ?? '').trim().slice(0, 4000);
-		if (!reason) return fail(400, { problem: 'Give the reason for withdrawing it.' });
+		if (!reason) return fail(400, { problem: m.conformator_report_withdraw_reason() });
 		const found = await findReport(params.reference);
-		if (!found || found.standing !== 'valid') return fail(400, { problem: 'Only a valid report can be withdrawn.' });
+		if (!found || found.standing !== 'valid') return fail(400, { problem: m.conformator_report_withdraw_only_valid() });
 		try {
 			await createRecord(REPORT_EVENT, { report_id: idOf(REPORT, found.report), event: 'withdrawn', reason }, token);
 		} catch (err) {
 			return fail(400, { problem: messageOf(err) });
 		}
-		return { done: 'The report is withdrawn. Anyone checking it now sees that, with your reason.' };
+		return { done: m.conformator_report_withdrawn_done() };
 	}
 };

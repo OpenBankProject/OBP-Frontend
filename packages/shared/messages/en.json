@@ -1,0 +1,404 @@
+{
+	"$schema": "https://inlang.com/schema/inlang-message-format",
+	"language_switch_label": "Change language",
+	"login": "Login",
+	"logout": "Logout",
+	"nav_my_account": "My Account",
+	"nav_about": "About",
+	"conformator_nav_home": "Home",
+	"conformator_nav_prepare": "Prepare Conformator for Use",
+	"conformator_nav_catalogue": "Test catalogue",
+	"conformator_nav_reports": "Check a report",
+	"conformator_nav_spaces": "Your organisation",
+	"conformator_nav_reviews": "Reviews",
+	"conformator_nav_setup": "Setup",
+	"conformator_nav_staff": "Staff",
+	"conformator_nav_staff_dashboard": "Dashboard",
+	"conformator_nav_staff_participants": "Participants",
+	"conformator_nav_staff_suites": "Suites and tests",
+	"conformator_nav_staff_requirements": "Requirements",
+	"conformator_nav_staff_example_data": "Example data",
+	"conformator_nav_staff_access": "Your Roles",
+	"version": "version {version}",
+	"conformator_home_intro": "Conformator tests whether banks, payment service providers and third-party providers implement the open banking APIs, security profile and consent rules correctly. Tests run against participants' non-production systems. The regulator reviews the results and issues conformance reports.",
+	"conformator_home_not_a_licence": "A conformance report shows that a system passed the technical tests it lists. It is not a licence, and it does not give access to live data or payments.",
+	"conformator_home_see_catalogue": "See the test catalogue",
+	"conformator_build_catalogue": "Build the test catalogue",
+	"conformator_home_who_title": "Who uses it",
+	"conformator_home_who_participants": "{#strong}Participants{/strong}: banks, payment service providers, fintechs and third-party providers. They add their non-production systems, run tests, give evidence and submit their results.",
+	"conformator_home_who_staff": "{#strong}The regulator's staff{/strong}: they keep the test catalogue, admit participants, review submissions and issue reports. Reviewers assess the tests a person must decide; approvers make the final decision. Nobody does both for the same submission.",
+	"conformator_home_who_anyone": "{#strong}Anyone{/strong} can read the test catalogue and check a report.",
+	"conformator_home_catalogue_title": "The test catalogue",
+	"conformator_home_catalogue_rules": "The regulator's rules are recorded as {#strong}requirements{/strong}, one per clause. Tests are grouped into {#strong}suites{/strong}, each for one kind of system (an API provider such as a bank, an authorisation server, or an API consumer such as a third-party provider) and one family of APIs (account information, payment initiation, funds confirmation, consent or security). Each {#strong}test{/strong} has an ID that never changes, names the requirements it covers, says what a pass looks like, and is mandatory or not.",
+	"conformator_home_catalogue_versions": "A suite is a draft until it is approved. An approved suite never changes: a change is a new version, so every result keeps its meaning.",
+	"conformator_home_kinds": "There are three kinds of test:",
+	"conformator_home_kind_automated": "{#strong}Automated{/strong}: the runner calls the participant's system and checks the answers.",
+	"conformator_home_kind_evidence": "{#strong}Evidence review{/strong}: the participant gives evidence, such as a policy or an audit record, and a reviewer decides.",
+	"conformator_home_kind_control": "{#strong}Organisational control{/strong}: a reviewer decides whether the organisation has something in place, such as a named person responsible for security.",
+	"conformator_home_run_title": "How a run works",
+	"conformator_home_run_runner": "A participant starts a run of an approved suite against one of their systems. The {#strong}runner{/strong}, a separate service, carries out each automated test's steps in order, as a real caller of the system would: over mutual TLS with its own certificate, as its own client of the system or on behalf of a test customer. A step sends a request, checks the answer (its status, fields, headers, or its shape against the suite's OpenAPI document), and can keep a value, such as a consent's id, for later steps. Security checks of an authorisation server are handed to the OpenID Foundation's conformance suite.",
+	"conformator_home_outcomes": "Each test in a run gets one outcome:",
+	"conformator_home_outcome_pass": "{#strong}pass{/strong}: every step did what the test expects;",
+	"conformator_home_outcome_fail": "{#strong}fail{/strong}: the system answered, but not as expected, and the result says how;",
+	"conformator_home_outcome_blocked": "{#strong}blocked{/strong}: the test could not go on. The result says whose side stopped it: the participant's (their system could not be reached) or the test platform's (the runner lacked something). A test platform problem is never counted against the participant;",
+	"conformator_home_outcome_not_executed": "{#strong}not executed{/strong}: an evidence or control test, waiting for a reviewer;",
+	"conformator_home_outcome_not_applicable": "{#strong}not applicable{/strong}: decided by a reviewer.",
+	"conformator_home_run_kept": "Every result keeps the requests and responses, with tokens and secrets hidden, and their correlation ids.",
+	"conformator_home_report_title": "From a run to a report",
+	"conformator_home_report_submit": "The participant {#strong}submits{/strong} a finished run for review, and gives evidence for the evidence and control tests.",
+	"conformator_home_report_review": "A {#strong}reviewer{/strong} assesses those tests. An automated result cannot be overridden, unless the participant appeals it and the appeal is upheld.",
+	"conformator_home_report_waiver": "The participant can ask for a {#strong}waiver{/strong} of a test. An approved waiver has an end date, never changes the test's outcome, and is shown wherever the outcome is.",
+	"conformator_home_report_approve": "An {#strong}approver{/strong}, who did not assess the submission, makes the final decision. A submission can be approved only when every mandatory test passed, is not applicable, or has an approved waiver.",
+	"conformator_home_report_issue": "Approval issues a {#strong}conformance report{/strong}, digitally signed, with a reference such as CR-2026-7K3QX9MD. Anyone can check it on this site, or check its signature without this site using the published key. A report expires, and can be superseded by a newer one or withdrawn.",
+	"conformator_home_data_title": "Where the data is kept",
+	"conformator_home_data": "Everything is kept in OBP-API, as dynamic entities. The catalogue, the participant register and the reports are in one central space. Each participant's systems, runs, results, evidence and the regulator's decisions about them are in a space of their own, so OBP-API's Roles keep each participant's data apart from every other's. Secrets the runner needs, such as client certificates, are kept by the runner, never in OBP-API.",
+	"conformator_prepare_intro": "Conformator tests open banking systems against the regulator's rules, and turns the results into signed conformance reports. These are the steps, in order.",
+	"conformator_prepare_progress_shown": "Each step shows how far you have got.",
+	"conformator_prepare_log_in_for_progress": "Log in to see how far you have got.",
+	"conformator_prepare_tracks": "Whose steps to show",
+	"conformator_prepare_track_admin": "For the administrator",
+	"conformator_prepare_track_regulator": "For the regulator’s staff",
+	"conformator_prepare_track_participant": "For participants",
+	"conformator_prepare_intro_admin": "Done once, by an OBP-API administrator, before anyone else can use Conformator. The {#setup}setup page{/setup} shows every piece in detail.",
+	"conformator_prepare_intro_regulator": "For the regulator's staff, who keep the catalogue, admit participants, review their results and issue reports.",
+	"conformator_prepare_intro_participant": "For banks, payment service providers and third-party providers testing their systems.",
+	"conformator_prepare_progress": "Progress",
+	"conformator_prepare_done": "Done",
+	"conformator_prepare_next_step": "Next step",
+	"conformator_prepare_steps_done": "{done} of {total} steps done.",
+	"conformator_prepare_next": "Next: {#next}{title}{/next}.",
+	"conformator_prepare_all_done": "You have done every step.",
+	"conformator_prepare_who": "Who:",
+	"conformator_prepare_how_parts_fit": "How the parts fit together, from requirements to reports, is on the {#home}home page{/home}.",
+	"conformator_step_see_on_setup": "See it on the setup page",
+	"conformator_step_who_admin_manager": "An administrator, in the API Manager.",
+	"conformator_step_team": "Your organisation’s people.",
+	"conformator_step_space_title": "Create the central space",
+	"conformator_step_space_what": "The central space is a bank in OBP-API, with the bank_id {space}. It holds the test catalogue, the participant register and the issued reports. Staff Roles are granted there, so they reach nothing else in OBP-API.",
+	"conformator_step_space_action": "Create it in the API Manager",
+	"conformator_step_space_exists": "The bank {space} exists.",
+	"conformator_step_space_missing": "The bank {space} does not exist yet.",
+	"conformator_step_app_title": "Make Conformator a Platform App",
+	"conformator_step_app_what": "Mark Conformator’s Consumer as a Platform App in the API Manager and grant it the Scopes it asks for. With them, it creates the definitions of the records it keeps in the central space.",
+	"conformator_step_app_action": "See Scopes in Platform Apps",
+	"conformator_step_app_missing": "It is missing some Scopes; the setup page lists them.",
+	"conformator_step_app_ready": "It holds every Scope, and its records are ready.",
+	"conformator_step_app_not_ready": "It holds every Scope; its records are not all ready yet.",
+	"conformator_step_runner_title": "Set up the runner",
+	"conformator_step_runner_what": "The runner is the separate service that calls participants’ systems. Start it, put its consumer_id in Conformator’s settings (CONFORMATOR_RUNNER_CONSUMER_ID), then mark it as a Platform App and grant it its Scope in the central space.",
+	"conformator_step_runner_who": "An administrator: the settings on the server, the Scopes in the API Manager.",
+	"conformator_step_runner_action": "Open the runner in Platform Apps",
+	"conformator_step_runner_set": "Its consumer_id is set. Check its Scope in Platform Apps.",
+	"conformator_step_runner_unset": "Its consumer_id is not set yet.",
+	"conformator_step_signing_title": "Add the report signing key",
+	"conformator_step_signing_what": "Conformator signs every conformance report, so anyone can check it. Make an Ed25519 key, keep it out of the repository, and point REPORT_SIGNING_KEY_FILE at it.",
+	"conformator_step_signing_who": "An administrator, on the server.",
+	"conformator_step_signing_action": "See how on the setup page",
+	"conformator_step_signing_ready": "The key is in place.",
+	"conformator_step_signing_missing": "There is no key yet.",
+	"conformator_step_staff_title": "Give the regulator’s staff their Roles",
+	"conformator_step_staff_what": "Staff ask for the Roles they need on the setup page. Accept their requests in the API Manager, or grant Roles there directly. Give reviewing and approving to different people.",
+	"conformator_step_staff_action_requests": "Open Role requests",
+	"conformator_step_staff_action_setup": "See the Roles on the setup page",
+	"conformator_step_staff_waiting": [
+		{
+			"declarations": [
+				"input count",
+				"input shown",
+				"local countPlural = count: plural"
+			],
+			"selectors": [
+				"countPlural"
+			],
+			"match": {
+				"countPlural=one": "{shown} staff Role request is waiting.",
+				"countPlural=*": "{shown} staff Role requests are waiting."
+			}
+		}
+	],
+	"conformator_step_staff_none_waiting": "No staff Role request is waiting.",
+	"conformator_step_roles_title": "Get your staff Roles",
+	"conformator_step_roles_what": "Staff Roles let you keep the catalogue, register participants and issue reports. Ask for the ones you need on the setup page; an administrator accepts them in the API Manager.",
+	"conformator_step_roles_who": "You ask; an administrator accepts.",
+	"conformator_step_roles_action": "See your Roles",
+	"conformator_step_roles_held": "You hold {held} of {total} staff Roles.",
+	"conformator_step_catalogue_what": "Record your rules as requirements, then make a suite of tests for one kind of system and one family of APIs. Choose an OBP API version or an OpenAPI file, and Conformator suggests the tests’ IDs and titles.",
+	"conformator_step_catalogue_who": "Staff who keep the catalogue.",
+	"conformator_step_catalogue_action": "Open suites and tests",
+	"conformator_step_catalogue_example": "Or add the example suite",
+	"conformator_step_catalogue_suites": [
+		{
+			"declarations": [
+				"input count",
+				"input shown",
+				"local countPlural = count: plural"
+			],
+			"selectors": [
+				"countPlural"
+			],
+			"match": {
+				"countPlural=one": "There is {shown} suite.",
+				"countPlural=*": "There are {shown} suites."
+			}
+		}
+	],
+	"conformator_no_suites_yet": "There are no suites yet.",
+	"conformator_step_approve_title": "Approve a suite",
+	"conformator_step_approve_what": "A suite is a draft until it is approved. Participants can run only approved suites, and an approved suite never changes: a change is a new version.",
+	"conformator_step_approve_who": "Staff who approve suites.",
+	"conformator_step_approve_count": [
+		{
+			"declarations": [
+				"input count",
+				"input shown",
+				"local countPlural = count: plural"
+			],
+			"selectors": [
+				"countPlural"
+			],
+			"match": {
+				"countPlural=one": "{shown} suite is approved.",
+				"countPlural=*": "{shown} suites are approved."
+			}
+		}
+	],
+	"conformator_step_approve_none": "No suite is approved yet.",
+	"conformator_step_participant_title": "Register a participant",
+	"conformator_step_participant_what": "Register the bank, payment service provider or third-party provider, naming the first admin of its Organisation, then admit it and set up its own space. The Organisation’s members get access to the space, so they can log in and test.",
+	"conformator_step_participant_who": "Staff who manage participants.",
+	"conformator_step_participant_action": "Open participants",
+	"conformator_step_participant_count": [
+		{
+			"declarations": [
+				"input count",
+				"input shown",
+				"local countPlural = count: plural"
+			],
+			"selectors": [
+				"countPlural"
+			],
+			"match": {
+				"countPlural=one": "{shown} participant is registered.",
+				"countPlural=*": "{shown} participants are registered."
+			}
+		}
+	],
+	"conformator_step_participant_none": "No participant is registered yet.",
+	"conformator_step_review_title": "Review submissions and issue reports",
+	"conformator_step_review_what": "When a participant submits a run, a reviewer assesses the tests a person must decide, and an approver who did not assess it makes the final decision. Approval issues a signed conformance report.",
+	"conformator_step_review_who": "Reviewers and approvers. Nobody does both for the same submission.",
+	"conformator_step_review_action": "Open reviews",
+	"conformator_step_review_count": [
+		{
+			"declarations": [
+				"input count",
+				"input shown",
+				"local countPlural = count: plural"
+			],
+			"selectors": [
+				"countPlural"
+			],
+			"match": {
+				"countPlural=one": "{shown} report has been issued.",
+				"countPlural=*": "{shown} reports have been issued."
+			}
+		}
+	],
+	"conformator_step_review_none": "No report has been issued yet.",
+	"conformator_step_login_title": "Log in",
+	"conformator_step_login_what": "Log in with the account your organisation uses for the regulator’s sandbox.",
+	"conformator_step_login_who": "You.",
+	"conformator_step_login_done": "You are logged in.",
+	"conformator_step_join_title": "Join your organisation’s space",
+	"conformator_step_join_what": "The regulator registers your organisation and adds you to its space, where your systems, runs and results are kept apart from everyone else’s. If you cannot see it, ask the regulator to add you.",
+	"conformator_step_join_who": "The regulator’s staff add you.",
+	"conformator_step_join_action": "See your organisation",
+	"conformator_step_join_member": "You belong to {names}.",
+	"conformator_step_join_none": "You do not belong to a space yet.",
+	"conformator_step_system_title": "Add a system to test",
+	"conformator_step_system_what": "Add your non-production system: what it is (an API provider, an authorisation server or an API consumer), its address, and the client id your sandbox gave the runner. Secrets are never kept here.",
+	"conformator_step_system_action": "Add a system",
+	"conformator_step_system_count": [
+		{
+			"declarations": [
+				"input count",
+				"input shown",
+				"local countPlural = count: plural"
+			],
+			"selectors": [
+				"countPlural"
+			],
+			"match": {
+				"countPlural=one": "You have {shown} system.",
+				"countPlural=*": "You have {shown} systems."
+			}
+		}
+	],
+	"conformator_step_system_none": "No system yet.",
+	"conformator_step_run_title": "Run a suite",
+	"conformator_step_run_what": "Choose an approved suite and start a run against your system. The runner calls your system as a real partner would, and records each request, response and outcome: pass, fail or blocked.",
+	"conformator_step_run_action": "Start a run",
+	"conformator_step_run_see_suites": "See what the suites test",
+	"conformator_step_run_count": [
+		{
+			"declarations": [
+				"input count",
+				"input shown",
+				"local countPlural = count: plural"
+			],
+			"selectors": [
+				"countPlural"
+			],
+			"match": {
+				"countPlural=one": "You have started {shown} run.",
+				"countPlural=*": "You have started {shown} runs."
+			}
+		}
+	],
+	"conformator_step_run_none": "No run yet.",
+	"conformator_step_submit_title": "Give evidence and submit",
+	"conformator_step_submit_what": "Fix what failed and run again. When you are ready, submit a finished run for review, with evidence for the tests a person must decide. You can ask for a waiver of a test, or appeal a result.",
+	"conformator_step_submit_action": "Submit a run",
+	"conformator_step_submit_count": [
+		{
+			"declarations": [
+				"input count",
+				"input shown",
+				"local countPlural = count: plural"
+			],
+			"selectors": [
+				"countPlural"
+			],
+			"match": {
+				"countPlural=one": "You have made {shown} submission.",
+				"countPlural=*": "You have made {shown} submissions."
+			}
+		}
+	],
+	"conformator_step_submit_none": "No submission yet.",
+	"conformator_step_report_title": "Receive your conformance report",
+	"conformator_step_report_what": "When the regulator approves your submission, Conformator issues a signed conformance report. Anyone can check it by its reference, such as CR-2026-7K3QX9MD.",
+	"conformator_step_report_who": "The regulator approves; anyone can check the report.",
+	"conformator_step_report_count": [
+		{
+			"declarations": [
+				"input count",
+				"input shown",
+				"local countPlural = count: plural"
+			],
+			"selectors": [
+				"countPlural"
+			],
+			"match": {
+				"countPlural=one": "{shown} submission has been approved.",
+				"countPlural=*": "{shown} submissions have been approved."
+			}
+		}
+	],
+	"conformator_step_report_none": "None approved yet.",
+	"conformator_catalogue_unreadable": "The catalogue could not be read: {error}",
+	"conformator_col_suite": "Suite",
+	"conformator_col_version": "Version",
+	"conformator_col_tests_the": "Tests the",
+	"conformator_col_apis": "APIs",
+	"conformator_col_status": "Status",
+	"conformator_suite_openapi": "Responses are checked against {#openapi}this OpenAPI document{/openapi}.",
+	"conformator_tests_none": "This suite has no tests yet.",
+	"conformator_tests_how_title": "How a test runs",
+	"conformator_tests_how_runner": "A participant starts a run of this suite against one of their non-production systems. The runner then carries out each automated test's steps in order, calling the system's APIs the way a third-party provider would: over mutual TLS with its own certificate, as its own client of the system or on behalf of a test customer. A value kept from one answer (such as a consent's id) is used in later steps. The test passes when every answer is as expected; the result says exactly which expectation was not met.",
+	"conformator_tests_how_people": "Evidence and control tests are not run by the runner. The participant gives evidence, and one of the regulator's reviewers decides.",
+	"conformator_tests_kind_severity": "{kind}, {severity} severity",
+	"conformator_tests_passes_when": "Passes when:",
+	"conformator_tests_requirements": "Requirements:",
+	"conformator_tests_what_it_does": "What it does",
+	"conformator_tests_no_steps": "This test has no steps yet.",
+	"conformator_tests_steps_broken": "Its steps have problems, so it cannot run yet.",
+	"conformator_tests_person_decides": "A person decides this test. The participant gives: {evidence}. A reviewer then assesses it as passed, failed or not applicable.",
+	"conformator_tests_default_evidence": "the evidence the regulator asks for",
+	"conformator_tests_if_it_fails": "If it fails:",
+	"conformator_test_kind_automated": "Automated",
+	"conformator_test_kind_evidence": "Evidence review",
+	"conformator_test_kind_control": "Organisational control",
+	"conformator_reports_title": "Check a conformance report",
+	"conformator_reports_intro": "Give the reference printed on the report, such as CR-2026-7K3QX9MD. You will see whether it is genuine, unchanged and still valid.",
+	"conformator_reports_reference": "Report reference",
+	"conformator_reports_check": "Check",
+	"conformator_reports_public_key_link": "The public key reports are signed with",
+	"conformator_report_title": "Conformance report {reference}",
+	"conformator_report_untrusted": "This report cannot be trusted: {reason}.",
+	"conformator_report_bad_hash": "its content does not match its hash",
+	"conformator_report_unknown_key": "it was not signed with the published key",
+	"conformator_report_bad_signature": "its signature is not valid",
+	"conformator_report_valid_until": "Genuine and valid until {date}.",
+	"conformator_report_genuine_but": "Genuine, but {standing}.",
+	"conformator_report_withdrawn_on": "Withdrawn on {date}: {reason}",
+	"conformator_report_superseded_on": "Superseded on {date}: {reason}",
+	"conformator_report_see": "See {reference}",
+	"conformator_report_participant": "Participant",
+	"conformator_report_system": "System",
+	"conformator_report_suite": "Suite",
+	"conformator_report_issued": "Issued",
+	"conformator_report_expires": "Expires",
+	"conformator_report_decision": "Decision",
+	"conformator_report_test": "Test",
+	"conformator_report_outcome": "Outcome",
+	"conformator_report_waiver": "Waiver",
+	"conformator_report_by_assessment": ", by assessment",
+	"conformator_report_waiver_until": "until {date}: {reason}",
+	"conformator_report_hash_and_key": "Hash {#code}{hash}{/code}, signed with key {#code}{key}{/code}.",
+	"conformator_report_download": "Download the signed report (JSON)",
+	"conformator_report_public_key": "Public key",
+	"conformator_report_print": "Print this page to keep a PDF.",
+	"conformator_report_withdraw_because": "Withdraw this report, because",
+	"conformator_report_withdraw": "Withdraw",
+	"conformator_report_withdraw_log_in": "Log in to withdraw a report.",
+	"conformator_report_withdraw_reason": "Give the reason for withdrawing it.",
+	"conformator_report_withdraw_only_valid": "Only a valid report can be withdrawn.",
+	"conformator_report_withdrawn_done": "The report is withdrawn. Anyone checking it now sees that, with your reason.",
+	"conformator_value_automated": "automated",
+	"conformator_value_evidence": "evidence",
+	"conformator_value_control": "control",
+	"conformator_value_api_provider": "api provider",
+	"conformator_value_authorisation_server": "authorisation server",
+	"conformator_value_api_consumer": "api consumer",
+	"conformator_value_account_information": "account information",
+	"conformator_value_payment_initiation": "payment initiation",
+	"conformator_value_funds_confirmation": "funds confirmation",
+	"conformator_value_consent": "consent",
+	"conformator_value_security": "security",
+	"conformator_value_bank": "bank",
+	"conformator_value_payment_service_provider": "payment service provider",
+	"conformator_value_fintech": "fintech",
+	"conformator_value_finance_or_leasing": "finance or leasing",
+	"conformator_value_third_party_provider": "third party provider",
+	"conformator_value_admitted": "admitted",
+	"conformator_value_onboarding": "onboarding",
+	"conformator_value_testing": "testing",
+	"conformator_value_remediation": "remediation",
+	"conformator_value_graduated": "graduated",
+	"conformator_value_suspended": "suspended",
+	"conformator_value_exited": "exited",
+	"conformator_value_draft": "draft",
+	"conformator_value_approved": "approved",
+	"conformator_value_retired": "retired",
+	"conformator_value_critical": "critical",
+	"conformator_value_high": "high",
+	"conformator_value_medium": "medium",
+	"conformator_value_low": "low",
+	"conformator_value_pass": "pass",
+	"conformator_value_fail": "fail",
+	"conformator_value_blocked": "blocked",
+	"conformator_value_not_executed": "not executed",
+	"conformator_value_not_applicable": "not applicable",
+	"conformator_value_harness": "harness",
+	"conformator_value_participant": "participant",
+	"conformator_value_queued": "queued",
+	"conformator_value_running": "running",
+	"conformator_value_finished": "finished",
+	"conformator_value_harness_error": "harness error",
+	"conformator_value_valid": "valid",
+	"conformator_value_expired": "expired",
+	"conformator_value_superseded": "superseded",
+	"conformator_value_withdrawn": "withdrawn",
+	"conformator_value_mandatory": "mandatory"
+}

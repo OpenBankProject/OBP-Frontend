@@ -21,7 +21,7 @@ import { adminSteps, defaultTrack, participantSteps, regulatorSteps, type Step, 
 import type { PageServerLoad } from './$types';
 
 /**
- * Getting started: the steps for the administrator, the regulator's staff and participants, with each step's progress read from OBP-API.
+ * Prepare Conformator for Use: the steps for the administrator, the regulator's staff and participants, with each step's progress read from OBP-API.
  * Anyone can read it; a logged-in User also sees how far they have got.
  */
 export const load: PageServerLoad = async ({ locals, parent, url }) => {

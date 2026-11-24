@@ -36,6 +36,18 @@ npm run dev -- --open
 
 Everything inside `src/lib` is part of your library, everything inside `src/routes` can be used as a showcase or preview app.
 
+## Translations
+
+The apps are translated with [Paraglide](https://paraglidejs.com). English is the base language; Arabic is the first translation, written by a model and to be reviewed by a native speaker.
+
+- The Arabic word for each main term is in `messages/arabic-terms.md`. Use those words in every Arabic message, and review that list before the messages.
+- The messages are in `messages/en.json` and `messages/ar.json`. Add each new message to both files, with the same key. Keys for one app start with the app's name, for example `conformator_nav_home`.
+- `npm run i18n` compiles them into `src/lib/paraglide` (generated, not committed). `npm run prepare` runs it too, so `npm install` and the Dockerfiles compile them. After changing a message, run `npm run i18n` again.
+- In a component, `import { m } from '$shared/i18n'` (or `'@obp/shared/i18n'` in an app) and write `{m.conformator_nav_home()}`.
+- An app that offers a language switch adds `i18nHandle` from `@obp/shared/server/i18n` to its handle sequence, puts `lang="%paraglide.lang%" dir="%paraglide.dir%"` on `<html>` in `app.html`, and shows `<LanguageSwitch />`. The language is the visitor's choice (a cookie), else their browser's language, else English. Apps without the handle stay in English.
+- Numbers and dates: use `formatNumber` and `formatDate` from `$shared/i18n`, so they follow the page's language and the installation's `ARABIC_DIGITS` (`western`, the default, or `arabic-indic`). An app with a language switch also puts `data-arabic-digits="%arabic.digits%"` on `<html>`. Codes such as account numbers, versions and IDs are not numbers: show them as they are.
+- Arabic pages are right to left. Use start/end spacing (`ms-`, `me-`, `ps-`, `pe-`, `start-`, `end-`) rather than left/right (`ml-`, `pl-`, `left-`), so layouts mirror.
+
 ## Building
 
 To build your library:

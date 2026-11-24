@@ -1,0 +1,28 @@
+{
+  "name": "OBP-Sandbox-Populator-Fuchsia",
+  "author": "Portal/Opey Development Setup",
+  "themes": [
+    {
+      "name": "OBP-Sandbox-Populator-Fuchsia",
+      "appearance": "dark",
+      "style": {
+        "background": "#1e1e1e",
+        "foreground": "#d4d4d4",
+        "cursor": "#D946EF",
+        "selection": "#D946EF33",
+        "selected_line_background": "#D946EF11",
+        "line_number": "#858585",
+        "active_line_number": "#D946EF",
+        "find_highlight": "#D946EF",
+        "border": "#D946EF66",
+        "panel_background": "#252526",
+        "panel_focused_border": "#D946EF",
+        "tab_bar_background": "#2d2d30",
+        "tab_active_background": "#D946EF88",
+        "status_bar_background": "#D946EF66",
+        "title_bar_background": "#D946EF44",
+        "toolbar_background": "#37373d"
+      }
+    }
+  ]
+}

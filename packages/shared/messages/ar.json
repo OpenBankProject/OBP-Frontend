@@ -1,0 +1,431 @@
+{
+	"$schema": "https://inlang.com/schema/inlang-message-format",
+	"language_switch_label": "تغيير اللغة",
+	"login": "تسجيل الدخول",
+	"logout": "تسجيل الخروج",
+	"nav_my_account": "حسابي",
+	"nav_about": "حول",
+	"conformator_nav_home": "الرئيسية",
+	"conformator_nav_prepare": "تهيئة Conformator للاستخدام",
+	"conformator_nav_catalogue": "دليل الاختبارات",
+	"conformator_nav_reports": "التحقق من تقرير",
+	"conformator_nav_spaces": "مؤسستك",
+	"conformator_nav_reviews": "المراجعات",
+	"conformator_nav_setup": "الإعداد",
+	"conformator_nav_staff": "الموظفون",
+	"conformator_nav_staff_dashboard": "لوحة المعلومات",
+	"conformator_nav_staff_participants": "المشاركون",
+	"conformator_nav_staff_suites": "مجموعات الاختبار والاختبارات",
+	"conformator_nav_staff_requirements": "المتطلبات",
+	"conformator_nav_staff_example_data": "بيانات نموذجية",
+	"conformator_nav_staff_access": "أدوارك",
+	"version": "الإصدار {version}",
+	"conformator_home_intro": "يختبر Conformator مدى صحة تطبيق البنوك ومقدّمي خدمات الدفع ومقدّمي الخدمات من الأطراف الثالثة لواجهات برمجة التطبيقات الخاصة بالخدمات المصرفية المفتوحة، وملف الأمان، وقواعد الموافقة. تُجرى الاختبارات على الأنظمة غير الإنتاجية للمشاركين. وتراجع الجهة الرقابية النتائج وتُصدر تقارير المطابقة.",
+	"conformator_home_not_a_licence": "يُثبت تقرير المطابقة أن النظام اجتاز الاختبارات الفنية المدرجة فيه. وهو ليس ترخيصاً، ولا يمنح الوصول إلى البيانات الفعلية أو المدفوعات.",
+	"conformator_home_see_catalogue": "عرض دليل الاختبارات",
+	"conformator_build_catalogue": "إنشاء دليل الاختبارات",
+	"conformator_home_who_title": "من يستخدمه",
+	"conformator_home_who_participants": "{#strong}المشاركون{/strong}: البنوك ومقدّمو خدمات الدفع وشركات التقنية المالية ومقدّمو الخدمات من الأطراف الثالثة. يضيفون أنظمتهم غير الإنتاجية، ويُجرون الاختبارات، ويقدّمون الأدلة، ويقدّمون نتائجهم للمراجعة.",
+	"conformator_home_who_staff": "{#strong}موظفو الجهة الرقابية{/strong}: يتولّون دليل الاختبارات، ويقبلون المشاركين، ويراجعون الطلبات المقدَّمة، ويُصدرون التقارير. يُقيّم المراجعون الاختبارات التي يجب أن يبتّ فيها شخص، ويتخذ المعتمِدون القرار النهائي. ولا يتولّى أحد الدورين معاً للطلب نفسه.",
+	"conformator_home_who_anyone": "يمكن {#strong}لأي شخص{/strong} الاطلاع على دليل الاختبارات والتحقق من أي تقرير.",
+	"conformator_home_catalogue_title": "دليل الاختبارات",
+	"conformator_home_catalogue_rules": "تُسجَّل قواعد الجهة الرقابية على شكل {#strong}متطلبات{/strong}، متطلب واحد لكل بند. وتُجمَع الاختبارات في {#strong}مجموعات اختبار{/strong}، كل منها لنوع واحد من الأنظمة (مزوّد واجهة برمجة تطبيقات مثل البنك، أو خادم تفويض، أو مستهلك لواجهة برمجة التطبيقات مثل مقدّم خدمات من طرف ثالث) ولفئة واحدة من الواجهات (معلومات الحساب، أو بدء الدفع، أو تأكيد توفر الأموال، أو الموافقة، أو الأمان). ولكل {#strong}اختبار{/strong} معرّف لا يتغيّر أبداً، ويذكر المتطلبات التي يغطيها، ويوضّح ما يُعدّ نجاحاً، وهو إما إلزامي أو غير إلزامي.",
+	"conformator_home_catalogue_versions": "تبقى مجموعة الاختبار مسودةً حتى تُعتمَد. ولا تتغيّر المجموعة المعتمدة أبداً: فأي تغيير يكون إصداراً جديداً، كي تحتفظ كل نتيجة بمعناها.",
+	"conformator_home_kinds": "هناك ثلاثة أنواع من الاختبارات:",
+	"conformator_home_kind_automated": "{#strong}آلي{/strong}: يستدعي المشغّل نظام المشارك ويتحقق من الردود.",
+	"conformator_home_kind_evidence": "{#strong}مراجعة الأدلة{/strong}: يقدّم المشارك أدلة، مثل سياسة أو سجل تدقيق، ويبتّ المراجِع فيها.",
+	"conformator_home_kind_control": "{#strong}ضابط تنظيمي{/strong}: يقرّر المراجِع ما إذا كان لدى المؤسسة أمر قائم، مثل تسمية شخص مسؤول عن الأمان.",
+	"conformator_home_run_title": "كيف يجري التشغيل",
+	"conformator_home_run_runner": "يبدأ المشارك تشغيل مجموعة اختبار معتمدة على أحد أنظمته. ويُنفّذ {#strong}المشغّل{/strong}، وهو خدمة مستقلة، خطوات كل اختبار آلي بالترتيب، كما يفعل أي مستدعٍ حقيقي للنظام: عبر TLS المتبادل بشهادته الخاصة، بصفته عميلاً للنظام أو نيابةً عن عميل اختباري. ترسل كل خطوة طلباً، وتتحقق من الرد (حالته، أو حقوله، أو ترويساته، أو بنيته مقارنةً بمستند OpenAPI الخاص بالمجموعة)، ويمكنها الاحتفاظ بقيمة، مثل معرّف الموافقة، لاستخدامها في الخطوات اللاحقة. وتُحال فحوص الأمان الخاصة بخادم التفويض إلى مجموعة اختبار المطابقة التابعة لمؤسسة OpenID.",
+	"conformator_home_outcomes": "يحصل كل اختبار في التشغيل على نتيجة واحدة:",
+	"conformator_home_outcome_pass": "{#strong}ناجح{/strong}: أدّت كل خطوة ما يتوقعه الاختبار؛",
+	"conformator_home_outcome_fail": "{#strong}راسب{/strong}: ردّ النظام، ولكن ليس كما هو متوقع، وتوضّح النتيجة كيف؛",
+	"conformator_home_outcome_blocked": "{#strong}متوقف{/strong}: تعذّر استكمال الاختبار. وتوضّح النتيجة الطرف الذي أوقفه: المشارك (تعذّر الوصول إلى نظامه) أو منصة الاختبار (نقص شيء لدى المشغّل). ولا تُحتسب مشكلات منصة الاختبار على المشارك أبداً؛",
+	"conformator_home_outcome_not_executed": "{#strong}لم يُنفَّذ{/strong}: اختبار أدلة أو ضابط تنظيمي ينتظر المراجِع؛",
+	"conformator_home_outcome_not_applicable": "{#strong}غير منطبق{/strong}: بقرار من المراجِع.",
+	"conformator_home_run_kept": "تحتفظ كل نتيجة بالطلبات والردود، مع إخفاء الرموز المميزة (tokens) والأسرار، وبمعرّفات الربط الخاصة بها.",
+	"conformator_home_report_title": "من التشغيل إلى التقرير",
+	"conformator_home_report_submit": "{#strong}يقدّم{/strong} المشارك تشغيلاً مكتملاً للمراجعة، ويُرفق الأدلة لاختبارات الأدلة والضوابط التنظيمية.",
+	"conformator_home_report_review": "يُقيّم {#strong}المراجِع{/strong} تلك الاختبارات. ولا يجوز تجاوز نتيجة آلية، إلا إذا تظلّم منها المشارك وقُبل التظلّم.",
+	"conformator_home_report_waiver": "يمكن للمشارك طلب {#strong}إعفاء{/strong} من اختبار. وللإعفاء المعتمد تاريخ انتهاء، ولا يغيّر نتيجة الاختبار أبداً، ويُعرض أينما عُرضت النتيجة.",
+	"conformator_home_report_approve": "يتخذ {#strong}المعتمِد{/strong}، الذي لم يُقيّم الطلب المقدَّم، القرار النهائي. ولا يُعتمد الطلب إلا إذا نجح كل اختبار إلزامي، أو كان غير منطبق، أو حصل على إعفاء معتمد.",
+	"conformator_home_report_issue": "يُصدر الاعتماد {#strong}تقرير مطابقة{/strong} موقّعاً رقمياً، برقم مرجعي مثل CR-2026-7K3QX9MD. ويمكن لأي شخص التحقق منه على هذا الموقع، أو التحقق من توقيعه دون هذا الموقع باستخدام المفتاح المنشور. وللتقرير تاريخ انتهاء، ويمكن أن يحلّ محلّه تقرير أحدث أو أن يُسحب.",
+	"conformator_home_data_title": "أين تُحفظ البيانات",
+	"conformator_home_data": "يُحفظ كل شيء في OBP-API على شكل كيانات ديناميكية (dynamic entities). ويوجد الدليل وسجل المشاركين والتقارير في مساحة عمل مركزية واحدة. أما أنظمة كل مشارك وعمليات تشغيله ونتائجه وأدلته وقرارات الجهة الرقابية بشأنها فتوجد في مساحة عمل خاصة به، بحيث تفصل أدوار OBP-API بيانات كل مشارك عن بيانات غيره. ويحتفظ المشغّل بالأسرار التي يحتاجها، مثل شهادات العملاء، ولا تُحفظ أبداً في OBP-API.",
+	"conformator_prepare_intro": "يختبر Conformator أنظمة الخدمات المصرفية المفتوحة وفق قواعد الجهة الرقابية، ويحوّل النتائج إلى تقارير مطابقة موقّعة. وهذه هي الخطوات بالترتيب.",
+	"conformator_prepare_progress_shown": "تُظهر كل خطوة مدى تقدّمك.",
+	"conformator_prepare_log_in_for_progress": "سجّل الدخول لترى مدى تقدّمك.",
+	"conformator_prepare_tracks": "خطوات من تُعرض",
+	"conformator_prepare_track_admin": "للمسؤول",
+	"conformator_prepare_track_regulator": "لموظفي الجهة الرقابية",
+	"conformator_prepare_track_participant": "للمشاركين",
+	"conformator_prepare_intro_admin": "تُنفَّذ مرة واحدة، على يد مسؤول OBP-API، قبل أن يتمكن أي شخص آخر من استخدام Conformator. وتعرض {#setup}صفحة الإعداد{/setup} كل جزء بالتفصيل.",
+	"conformator_prepare_intro_regulator": "لموظفي الجهة الرقابية، الذين يتولّون الدليل، ويقبلون المشاركين، ويراجعون نتائجهم، ويُصدرون التقارير.",
+	"conformator_prepare_intro_participant": "للبنوك ومقدّمي خدمات الدفع ومقدّمي الخدمات من الأطراف الثالثة الذين يختبرون أنظمتهم.",
+	"conformator_prepare_progress": "التقدّم",
+	"conformator_prepare_done": "منجزة",
+	"conformator_prepare_next_step": "الخطوة التالية",
+	"conformator_prepare_steps_done": "الخطوات المنجزة: {done} من {total}.",
+	"conformator_prepare_next": "التالي: {#next}{title}{/next}.",
+	"conformator_prepare_all_done": "لقد أنجزت جميع الخطوات.",
+	"conformator_prepare_who": "من ينفّذها:",
+	"conformator_prepare_how_parts_fit": "تجد في {#home}الصفحة الرئيسية{/home} كيف تترابط الأجزاء، من المتطلبات إلى التقارير.",
+	"conformator_step_see_on_setup": "اطّلع على ذلك في صفحة الإعداد",
+	"conformator_step_who_admin_manager": "المسؤول، في API Manager.",
+	"conformator_step_team": "فريق مؤسستك.",
+	"conformator_step_space_title": "إنشاء مساحة العمل المركزية",
+	"conformator_step_space_what": "مساحة العمل المركزية هي بنك في OBP-API، قيمة bank_id له هي {space}. وتضم دليل الاختبارات وسجل المشاركين والتقارير الصادرة. وتُمنح أدوار الموظفين فيها، فلا تصل إلى أي شيء آخر في OBP-API.",
+	"conformator_step_space_action": "أنشئها في API Manager",
+	"conformator_step_space_exists": "البنك {space} موجود.",
+	"conformator_step_space_missing": "البنك {space} غير موجود بعد.",
+	"conformator_step_app_title": "جعل Conformator تطبيق منصة (Platform App)",
+	"conformator_step_app_what": "حدّد Consumer الخاص بـ Conformator على أنه Platform App في API Manager، وامنحه النطاقات (Scopes) التي يطلبها. وبها يُنشئ تعريفات السجلات التي يحفظها في مساحة العمل المركزية.",
+	"conformator_step_app_action": "عرض النطاقات (Scopes) في Platform Apps",
+	"conformator_step_app_missing": "تنقصه بعض النطاقات (Scopes)، وتسردها صفحة الإعداد.",
+	"conformator_step_app_ready": "يملك جميع النطاقات (Scopes)، وسجلاته جاهزة.",
+	"conformator_step_app_not_ready": "يملك جميع النطاقات (Scopes)، لكن سجلاته ليست كلها جاهزة بعد.",
+	"conformator_step_runner_title": "إعداد المشغّل",
+	"conformator_step_runner_what": "المشغّل هو الخدمة المستقلة التي تستدعي أنظمة المشاركين. شغّله، وضع قيمة consumer_id الخاصة به في إعدادات Conformator ‏(CONFORMATOR_RUNNER_CONSUMER_ID)، ثم حدّده على أنه Platform App وامنحه النطاق (Scope) الخاص به في مساحة العمل المركزية.",
+	"conformator_step_runner_who": "المسؤول: الإعدادات على الخادم، والنطاقات (Scopes) في API Manager.",
+	"conformator_step_runner_action": "فتح المشغّل في Platform Apps",
+	"conformator_step_runner_set": "تم ضبط consumer_id الخاص به. تحقّق من النطاق (Scope) الخاص به في Platform Apps.",
+	"conformator_step_runner_unset": "لم يُضبط consumer_id الخاص به بعد.",
+	"conformator_step_signing_title": "إضافة مفتاح توقيع التقارير",
+	"conformator_step_signing_what": "يوقّع Conformator كل تقرير مطابقة، ليتمكن أي شخص من التحقق منه. أنشئ مفتاح Ed25519، واحفظه خارج المستودع، واجعل REPORT_SIGNING_KEY_FILE يشير إليه.",
+	"conformator_step_signing_who": "المسؤول، على الخادم.",
+	"conformator_step_signing_action": "اطّلع على الطريقة في صفحة الإعداد",
+	"conformator_step_signing_ready": "المفتاح موجود.",
+	"conformator_step_signing_missing": "لا يوجد مفتاح بعد.",
+	"conformator_step_staff_title": "منح موظفي الجهة الرقابية أدوارهم",
+	"conformator_step_staff_what": "يطلب الموظفون الأدوار التي يحتاجونها في صفحة الإعداد. اقبل طلباتهم في API Manager، أو امنح الأدوار هناك مباشرة. واجعل المراجعة والاعتماد لأشخاص مختلفين.",
+	"conformator_step_staff_action_requests": "فتح طلبات الأدوار",
+	"conformator_step_staff_action_setup": "عرض الأدوار في صفحة الإعداد",
+	"conformator_step_staff_waiting": [
+		{
+			"declarations": [
+				"input count",
+				"input shown",
+				"local countPlural = count: plural"
+			],
+			"selectors": [
+				"countPlural"
+			],
+			"match": {
+				"countPlural=one": "طلب دور واحد للموظفين قيد الانتظار.",
+				"countPlural=two": "طلبا دور للموظفين قيد الانتظار.",
+				"countPlural=few": "{shown} طلبات أدوار للموظفين قيد الانتظار.",
+				"countPlural=many": "{shown} طلباً للأدوار من الموظفين قيد الانتظار.",
+				"countPlural=*": "{shown} طلب دور للموظفين قيد الانتظار."
+			}
+		}
+	],
+	"conformator_step_staff_none_waiting": "لا توجد طلبات أدوار للموظفين قيد الانتظار.",
+	"conformator_step_roles_title": "الحصول على أدوار الموظفين الخاصة بك",
+	"conformator_step_roles_what": "تتيح لك أدوار الموظفين تولّي الدليل، وتسجيل المشاركين، وإصدار التقارير. اطلب ما تحتاجه منها في صفحة الإعداد، ويقبلها المسؤول في API Manager.",
+	"conformator_step_roles_who": "أنت تطلب، والمسؤول يقبل.",
+	"conformator_step_roles_action": "عرض أدوارك",
+	"conformator_step_roles_held": "لديك {held} من أصل {total} من أدوار الموظفين.",
+	"conformator_step_catalogue_what": "سجّل قواعدك على شكل متطلبات، ثم أنشئ مجموعة اختبار لنوع واحد من الأنظمة ولفئة واحدة من الواجهات. اختر إصداراً من OBP API أو ملف OpenAPI، وسيقترح Conformator معرّفات الاختبارات وعناوينها.",
+	"conformator_step_catalogue_who": "الموظفون المسؤولون عن الدليل.",
+	"conformator_step_catalogue_action": "فتح مجموعات الاختبار والاختبارات",
+	"conformator_step_catalogue_example": "أو أضف مجموعة الاختبار النموذجية",
+	"conformator_step_catalogue_suites": [
+		{
+			"declarations": [
+				"input count",
+				"input shown",
+				"local countPlural = count: plural"
+			],
+			"selectors": [
+				"countPlural"
+			],
+			"match": {
+				"countPlural=one": "توجد مجموعة اختبار واحدة.",
+				"countPlural=two": "توجد مجموعتا اختبار.",
+				"countPlural=few": "توجد {shown} مجموعات اختبار.",
+				"countPlural=many": "توجد {shown} مجموعة اختبار.",
+				"countPlural=*": "توجد {shown} مجموعة اختبار."
+			}
+		}
+	],
+	"conformator_no_suites_yet": "لا توجد مجموعات اختبار بعد.",
+	"conformator_step_approve_title": "اعتماد مجموعة اختبار",
+	"conformator_step_approve_what": "تبقى مجموعة الاختبار مسودةً حتى تُعتمَد. ولا يستطيع المشاركون تشغيل سوى المجموعات المعتمدة، ولا تتغيّر المجموعة المعتمدة أبداً: فأي تغيير يكون إصداراً جديداً.",
+	"conformator_step_approve_who": "الموظفون المسؤولون عن اعتماد مجموعات الاختبار.",
+	"conformator_step_approve_count": [
+		{
+			"declarations": [
+				"input count",
+				"input shown",
+				"local countPlural = count: plural"
+			],
+			"selectors": [
+				"countPlural"
+			],
+			"match": {
+				"countPlural=one": "مجموعة اختبار واحدة معتمدة.",
+				"countPlural=two": "مجموعتا اختبار معتمدتان.",
+				"countPlural=few": "{shown} مجموعات اختبار معتمدة.",
+				"countPlural=many": "{shown} مجموعة اختبار معتمدة.",
+				"countPlural=*": "{shown} مجموعة اختبار معتمدة."
+			}
+		}
+	],
+	"conformator_step_approve_none": "لم تُعتمد أي مجموعة اختبار بعد.",
+	"conformator_step_participant_title": "تسجيل مشارك",
+	"conformator_step_participant_what": "سجّل البنك أو مقدّم خدمات الدفع أو مقدّم الخدمات من طرف ثالث، مع تسمية أول مسؤول لمؤسسته (Organisation)، ثم اقبله وأعدّ مساحة العمل الخاصة به. ويحصل أعضاء المؤسسة على حق الوصول إلى مساحة العمل، ليتمكنوا من تسجيل الدخول والاختبار.",
+	"conformator_step_participant_who": "الموظفون المسؤولون عن المشاركين.",
+	"conformator_step_participant_action": "فتح المشاركين",
+	"conformator_step_participant_count": [
+		{
+			"declarations": [
+				"input count",
+				"input shown",
+				"local countPlural = count: plural"
+			],
+			"selectors": [
+				"countPlural"
+			],
+			"match": {
+				"countPlural=one": "مشارك واحد مسجّل.",
+				"countPlural=two": "مشاركان مسجّلان.",
+				"countPlural=few": "{shown} مشاركين مسجّلين.",
+				"countPlural=many": "{shown} مشاركاً مسجّلاً.",
+				"countPlural=*": "{shown} مشارك مسجّل."
+			}
+		}
+	],
+	"conformator_step_participant_none": "لم يُسجَّل أي مشارك بعد.",
+	"conformator_step_review_title": "مراجعة الطلبات المقدَّمة وإصدار التقارير",
+	"conformator_step_review_what": "عندما يقدّم المشارك تشغيلاً، يُقيّم المراجِع الاختبارات التي يجب أن يبتّ فيها شخص، ثم يتخذ المعتمِد، الذي لم يُقيّمه، القرار النهائي. ويُصدر الاعتماد تقرير مطابقة موقّعاً.",
+	"conformator_step_review_who": "المراجعون والمعتمِدون. ولا يتولّى أحد الدورين معاً للطلب نفسه.",
+	"conformator_step_review_action": "فتح المراجعات",
+	"conformator_step_review_count": [
+		{
+			"declarations": [
+				"input count",
+				"input shown",
+				"local countPlural = count: plural"
+			],
+			"selectors": [
+				"countPlural"
+			],
+			"match": {
+				"countPlural=one": "صدر تقرير واحد.",
+				"countPlural=two": "صدر تقريران.",
+				"countPlural=few": "صدرت {shown} تقارير.",
+				"countPlural=many": "صدر {shown} تقريراً.",
+				"countPlural=*": "صدر {shown} تقرير."
+			}
+		}
+	],
+	"conformator_step_review_none": "لم يصدر أي تقرير بعد.",
+	"conformator_step_login_title": "تسجيل الدخول",
+	"conformator_step_login_what": "سجّل الدخول بالحساب الذي تستخدمه مؤسستك في البيئة التجريبية للجهة الرقابية.",
+	"conformator_step_login_who": "أنت.",
+	"conformator_step_login_done": "لقد سجّلت الدخول.",
+	"conformator_step_join_title": "الانضمام إلى مساحة عمل مؤسستك",
+	"conformator_step_join_what": "تسجّل الجهة الرقابية مؤسستك وتضيفك إلى مساحة العمل الخاصة بها، حيث تُحفظ أنظمتك وعمليات التشغيل ونتائجك بمعزل عن الآخرين. وإذا لم تتمكن من رؤيتها، فاطلب من الجهة الرقابية إضافتك.",
+	"conformator_step_join_who": "يضيفك موظفو الجهة الرقابية.",
+	"conformator_step_join_action": "عرض مؤسستك",
+	"conformator_step_join_member": "أنت عضو في {names}.",
+	"conformator_step_join_none": "لست عضواً في أي مساحة عمل بعد.",
+	"conformator_step_system_title": "إضافة نظام لاختباره",
+	"conformator_step_system_what": "أضف نظامك غير الإنتاجي: نوعه (مزوّد واجهة برمجة تطبيقات، أو خادم تفويض، أو مستهلك لواجهة برمجة التطبيقات)، وعنوانه، ومعرّف العميل (client id) الذي منحته بيئتك التجريبية للمشغّل. ولا تُحفظ الأسرار هنا أبداً.",
+	"conformator_step_system_action": "إضافة نظام",
+	"conformator_step_system_count": [
+		{
+			"declarations": [
+				"input count",
+				"input shown",
+				"local countPlural = count: plural"
+			],
+			"selectors": [
+				"countPlural"
+			],
+			"match": {
+				"countPlural=one": "لديك نظام واحد.",
+				"countPlural=two": "لديك نظامان.",
+				"countPlural=few": "لديك {shown} أنظمة.",
+				"countPlural=many": "لديك {shown} نظاماً.",
+				"countPlural=*": "لديك {shown} نظام."
+			}
+		}
+	],
+	"conformator_step_system_none": "لا يوجد نظام بعد.",
+	"conformator_step_run_title": "تشغيل مجموعة اختبار",
+	"conformator_step_run_what": "اختر مجموعة اختبار معتمدة وابدأ تشغيلها على نظامك. يستدعي المشغّل نظامك كما يفعل شريك حقيقي، ويسجّل كل طلب ورد ونتيجة: ناجح أو راسب أو متوقف.",
+	"conformator_step_run_action": "بدء تشغيل",
+	"conformator_step_run_see_suites": "اطّلع على ما تختبره مجموعات الاختبار",
+	"conformator_step_run_count": [
+		{
+			"declarations": [
+				"input count",
+				"input shown",
+				"local countPlural = count: plural"
+			],
+			"selectors": [
+				"countPlural"
+			],
+			"match": {
+				"countPlural=one": "بدأت تشغيلاً واحداً.",
+				"countPlural=two": "بدأت تشغيلين.",
+				"countPlural=few": "بدأت {shown} عمليات تشغيل.",
+				"countPlural=many": "بدأت {shown} عملية تشغيل.",
+				"countPlural=*": "بدأت {shown} عملية تشغيل."
+			}
+		}
+	],
+	"conformator_step_run_none": "لا يوجد تشغيل بعد.",
+	"conformator_step_submit_title": "تقديم الأدلة والطلب",
+	"conformator_step_submit_what": "أصلح ما رسب وأعد التشغيل. وعندما تكون جاهزاً، قدّم تشغيلاً مكتملاً للمراجعة، مع الأدلة للاختبارات التي يجب أن يبتّ فيها شخص. ويمكنك طلب إعفاء من اختبار، أو التظلّم من نتيجة.",
+	"conformator_step_submit_action": "تقديم تشغيل",
+	"conformator_step_submit_count": [
+		{
+			"declarations": [
+				"input count",
+				"input shown",
+				"local countPlural = count: plural"
+			],
+			"selectors": [
+				"countPlural"
+			],
+			"match": {
+				"countPlural=one": "قدّمت طلباً واحداً.",
+				"countPlural=two": "قدّمت طلبين.",
+				"countPlural=few": "قدّمت {shown} طلبات.",
+				"countPlural=many": "قدّمت {shown} طلباً.",
+				"countPlural=*": "قدّمت {shown} طلب."
+			}
+		}
+	],
+	"conformator_step_submit_none": "لا يوجد طلب مقدَّم بعد.",
+	"conformator_step_report_title": "استلام تقرير المطابقة الخاص بك",
+	"conformator_step_report_what": "عندما تعتمد الجهة الرقابية طلبك، يُصدر Conformator تقرير مطابقة موقّعاً. ويمكن لأي شخص التحقق منه برقمه المرجعي، مثل CR-2026-7K3QX9MD.",
+	"conformator_step_report_who": "تعتمد الجهة الرقابية، ويمكن لأي شخص التحقق من التقرير.",
+	"conformator_step_report_count": [
+		{
+			"declarations": [
+				"input count",
+				"input shown",
+				"local countPlural = count: plural"
+			],
+			"selectors": [
+				"countPlural"
+			],
+			"match": {
+				"countPlural=one": "اعتُمد طلب واحد.",
+				"countPlural=two": "اعتُمد طلبان.",
+				"countPlural=few": "اعتُمدت {shown} طلبات.",
+				"countPlural=many": "اعتُمد {shown} طلباً.",
+				"countPlural=*": "اعتُمد {shown} طلب."
+			}
+		}
+	],
+	"conformator_step_report_none": "لم يُعتمد أي طلب بعد.",
+	"conformator_catalogue_unreadable": "تعذّرت قراءة الدليل: {error}",
+	"conformator_col_suite": "مجموعة الاختبار",
+	"conformator_col_version": "الإصدار",
+	"conformator_col_tests_the": "يختبر",
+	"conformator_col_apis": "الواجهات",
+	"conformator_col_status": "الحالة",
+	"conformator_suite_openapi": "يُتحقَّق من الردود مقارنةً بـ{#openapi}مستند OpenAPI هذا{/openapi}.",
+	"conformator_tests_none": "لا تحتوي مجموعة الاختبار هذه على اختبارات بعد.",
+	"conformator_tests_how_title": "كيف يُجرى الاختبار",
+	"conformator_tests_how_runner": "يبدأ المشارك تشغيل مجموعة الاختبار هذه على أحد أنظمته غير الإنتاجية. ثم يُنفّذ المشغّل خطوات كل اختبار آلي بالترتيب، مستدعياً واجهات النظام كما يفعل مقدّم خدمات من طرف ثالث: عبر TLS المتبادل بشهادته الخاصة، بصفته عميلاً للنظام أو نيابةً عن عميل اختباري. وتُستخدم القيمة المحفوظة من أحد الردود (مثل معرّف الموافقة) في الخطوات اللاحقة. وينجح الاختبار عندما تأتي كل الردود كما هو متوقع، وتوضّح النتيجة بدقة أي توقّع لم يتحقق.",
+	"conformator_tests_how_people": "لا يُجري المشغّل اختبارات الأدلة والضوابط التنظيمية. بل يقدّم المشارك الأدلة، ويبتّ فيها أحد مراجعي الجهة الرقابية.",
+	"conformator_tests_kind_severity": "{kind}، درجة الخطورة: {severity}",
+	"conformator_tests_passes_when": "ينجح عندما:",
+	"conformator_tests_requirements": "المتطلبات:",
+	"conformator_tests_what_it_does": "ما يفعله",
+	"conformator_tests_no_steps": "لا يحتوي هذا الاختبار على خطوات بعد.",
+	"conformator_tests_steps_broken": "في خطواته مشكلات، لذا لا يمكن تشغيله بعد.",
+	"conformator_tests_person_decides": "يبتّ شخص في هذا الاختبار. يقدّم المشارك: {evidence}. ثم يُقيّمه المراجِع على أنه ناجح أو راسب أو غير منطبق.",
+	"conformator_tests_default_evidence": "الأدلة التي تطلبها الجهة الرقابية",
+	"conformator_tests_if_it_fails": "إذا رسب:",
+	"conformator_test_kind_automated": "آلي",
+	"conformator_test_kind_evidence": "مراجعة الأدلة",
+	"conformator_test_kind_control": "ضابط تنظيمي",
+	"conformator_reports_title": "التحقق من تقرير مطابقة",
+	"conformator_reports_intro": "أدخل الرقم المرجعي المطبوع على التقرير، مثل CR-2026-7K3QX9MD. وسترى ما إذا كان أصلياً، ولم يُعدَّل، ولا يزال سارياً.",
+	"conformator_reports_reference": "الرقم المرجعي للتقرير",
+	"conformator_reports_check": "تحقّق",
+	"conformator_reports_public_key_link": "المفتاح العام الذي تُوقَّع به التقارير",
+	"conformator_report_title": "تقرير المطابقة {reference}",
+	"conformator_report_untrusted": "لا يمكن الوثوق بهذا التقرير: {reason}.",
+	"conformator_report_bad_hash": "محتواه لا يطابق قيمة التجزئة (hash) الخاصة به",
+	"conformator_report_unknown_key": "لم يُوقَّع بالمفتاح المنشور",
+	"conformator_report_bad_signature": "توقيعه غير صالح",
+	"conformator_report_valid_until": "أصلي وساري المفعول حتى {date}.",
+	"conformator_report_genuine_but": "أصلي، لكنه {standing}.",
+	"conformator_report_withdrawn_on": "سُحب بتاريخ {date}: {reason}",
+	"conformator_report_superseded_on": "استُبدل بتاريخ {date}: {reason}",
+	"conformator_report_see": "عرض {reference}",
+	"conformator_report_participant": "المشارك",
+	"conformator_report_system": "النظام",
+	"conformator_report_suite": "مجموعة الاختبار",
+	"conformator_report_issued": "تاريخ الإصدار",
+	"conformator_report_expires": "تاريخ الانتهاء",
+	"conformator_report_decision": "القرار",
+	"conformator_report_test": "الاختبار",
+	"conformator_report_outcome": "النتيجة",
+	"conformator_report_waiver": "الإعفاء",
+	"conformator_report_by_assessment": "، بالتقييم",
+	"conformator_report_waiver_until": "حتى {date}: {reason}",
+	"conformator_report_hash_and_key": "قيمة التجزئة (hash) {#code}{hash}{/code}، موقّع بالمفتاح {#code}{key}{/code}.",
+	"conformator_report_download": "تنزيل التقرير الموقّع (JSON)",
+	"conformator_report_public_key": "المفتاح العام",
+	"conformator_report_print": "اطبع هذه الصفحة للاحتفاظ بنسخة PDF.",
+	"conformator_report_withdraw_because": "سحب هذا التقرير، للسبب التالي",
+	"conformator_report_withdraw": "سحب",
+	"conformator_report_withdraw_log_in": "سجّل الدخول لسحب تقرير.",
+	"conformator_report_withdraw_reason": "اذكر سبب سحبه.",
+	"conformator_report_withdraw_only_valid": "لا يمكن سحب سوى تقرير ساري المفعول.",
+	"conformator_report_withdrawn_done": "تم سحب التقرير. وسيرى كل من يتحقق منه الآن ذلك، مع السبب الذي ذكرته.",
+	"conformator_value_automated": "آلي",
+	"conformator_value_evidence": "أدلة",
+	"conformator_value_control": "ضابط تنظيمي",
+	"conformator_value_api_provider": "مزوّد واجهة برمجة التطبيقات",
+	"conformator_value_authorisation_server": "خادم التفويض",
+	"conformator_value_api_consumer": "مستهلك واجهة برمجة التطبيقات",
+	"conformator_value_account_information": "معلومات الحساب",
+	"conformator_value_payment_initiation": "بدء الدفع",
+	"conformator_value_funds_confirmation": "تأكيد توفر الأموال",
+	"conformator_value_consent": "الموافقة",
+	"conformator_value_security": "الأمان",
+	"conformator_value_bank": "بنك",
+	"conformator_value_payment_service_provider": "مقدّم خدمات الدفع",
+	"conformator_value_fintech": "شركة تقنية مالية",
+	"conformator_value_finance_or_leasing": "تمويل أو تأجير",
+	"conformator_value_third_party_provider": "مقدّم خدمات من طرف ثالث",
+	"conformator_value_admitted": "مقبول",
+	"conformator_value_onboarding": "قيد الانضمام",
+	"conformator_value_testing": "قيد الاختبار",
+	"conformator_value_remediation": "قيد المعالجة",
+	"conformator_value_graduated": "مكتمل",
+	"conformator_value_suspended": "موقوف",
+	"conformator_value_exited": "منسحب",
+	"conformator_value_draft": "مسودة",
+	"conformator_value_approved": "معتمد",
+	"conformator_value_retired": "متوقف عن الاستخدام",
+	"conformator_value_critical": "حرجة",
+	"conformator_value_high": "مرتفعة",
+	"conformator_value_medium": "متوسطة",
+	"conformator_value_low": "منخفضة",
+	"conformator_value_pass": "ناجح",
+	"conformator_value_fail": "راسب",
+	"conformator_value_blocked": "متوقف",
+	"conformator_value_not_executed": "لم يُنفَّذ",
+	"conformator_value_not_applicable": "غير منطبق",
+	"conformator_value_harness": "منصة الاختبار",
+	"conformator_value_participant": "المشارك",
+	"conformator_value_queued": "في قائمة الانتظار",
+	"conformator_value_running": "قيد التشغيل",
+	"conformator_value_finished": "مكتمل",
+	"conformator_value_harness_error": "خطأ في منصة الاختبار",
+	"conformator_value_valid": "ساري المفعول",
+	"conformator_value_expired": "منتهي الصلاحية",
+	"conformator_value_superseded": "مستبدَل",
+	"conformator_value_withdrawn": "مسحوب",
+	"conformator_value_mandatory": "إلزامي"
+}

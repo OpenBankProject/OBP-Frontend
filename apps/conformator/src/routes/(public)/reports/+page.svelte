@@ -7,10 +7,14 @@
   any later version. It is distributed WITHOUT ANY WARRANTY; see the GNU Affero General Public License for details:
   <https://www.gnu.org/licenses/>.
 -->
-<h1 class="h2">Check a conformance report</h1>
-<p class="mt-2 max-w-3xl">Give the reference printed on the report, such as CR-2026-7K3QX9MD. You will see whether it is genuine, unchanged and still valid.</p>
+<script lang="ts">
+	import { m } from '@obp/shared/i18n';
+</script>
+
+<h1 class="h2">{m.conformator_reports_title()}</h1>
+<p class="mt-2 max-w-3xl">{m.conformator_reports_intro()}</p>
 <form method="POST" action="?/find" class="mt-4 flex max-w-xl gap-2">
-	<input class="input" name="reference" required maxlength="32" placeholder="CR-2026-..." aria-label="Report reference" />
-	<button class="btn preset-filled">Check</button>
+	<input class="input" name="reference" required maxlength="32" placeholder="CR-2026-..." aria-label={m.conformator_reports_reference()} />
+	<button class="btn preset-filled">{m.conformator_reports_check()}</button>
 </form>
-<p class="mt-4 text-sm"><a class="anchor" href="/reports/signing-key">The public key reports are signed with</a></p>
+<p class="mt-4 text-sm"><a class="anchor" href="/reports/signing-key">{m.conformator_reports_public_key_link()}</a></p>

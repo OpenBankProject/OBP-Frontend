@@ -11,7 +11,8 @@
 	import '../app.css';
 	import { untrack } from 'svelte';
 	import { page } from '$app/state';
-	import { NavigationSidebar } from '@obp/shared/components';
+	import { LanguageSwitch, NavigationSidebar } from '@obp/shared/components';
+	import { m } from '@obp/shared/i18n';
 	import type { NavigationItem, NavigationSection } from '@obp/shared/config';
 	import { setRoleRequests } from '@obp/shared/roles';
 	import { setOpeyStatusLinks } from '@obp/shared/opey';
@@ -68,13 +69,13 @@
 
 	/** The flat list at the top: what anyone can use, then what a logged-in User can. */
 	const menuItems: NavigationItem[] = $derived([
-		{ href: '/', label: 'Home', iconComponent: House },
-		{ href: '/start', label: 'Getting started', iconComponent: Footprints },
-		...((data.content.suites ?? 0) > 0 ? [{ href: '/catalogue', label: 'Test catalogue', iconComponent: BookOpen }] : []),
-		...((data.content.reports ?? 0) > 0 ? [{ href: '/reports', label: 'Check a report', iconComponent: FileCheck2 }] : []),
-		...(data.user ? [{ href: '/spaces', label: 'Your organisation', iconComponent: Building2 }] : []),
-		...(data.isReviewer ? [{ href: '/reviews', label: 'Reviews', iconComponent: ClipboardCheck }] : []),
-		...(data.user ? [{ href: '/setup', label: 'Setup', iconComponent: Settings }] : [])
+		{ href: '/', label: m.conformator_nav_home(), iconComponent: House },
+		{ href: '/prepare', label: m.conformator_nav_prepare(), iconComponent: Footprints },
+		...((data.content.suites ?? 0) > 0 ? [{ href: '/catalogue', label: m.conformator_nav_catalogue(), iconComponent: BookOpen }] : []),
+		...((data.content.reports ?? 0) > 0 ? [{ href: '/reports', label: m.conformator_nav_reports(), iconComponent: FileCheck2 }] : []),
+		...(data.user ? [{ href: '/spaces', label: m.conformator_nav_spaces(), iconComponent: Building2 }] : []),
+		...(data.isReviewer ? [{ href: '/reviews', label: m.conformator_nav_reviews(), iconComponent: ClipboardCheck }] : []),
+		...(data.user ? [{ href: '/setup', label: m.conformator_nav_setup(), iconComponent: Settings }] : [])
 	]);
 
 	/** The regulator's staff pages, for Users who hold a staff Role; then the API Manager, as in the Portal. */
@@ -83,18 +84,18 @@
 			? [
 					{
 						id: 'staff',
-						label: 'Staff',
+						label: m.conformator_nav_staff(),
 						iconComponent: ShieldCheck,
 						requiresAuth: true,
 						defaultExpanded: true,
 						basePaths: ['/staff'],
 						items: [
-							{ href: '/staff/dashboard', label: 'Dashboard', iconComponent: Gauge },
-							{ href: '/staff/participants', label: 'Participants', iconComponent: Users },
-							{ href: '/staff/suites', label: 'Suites and tests', iconComponent: ListChecks },
-							{ href: '/staff/requirements', label: 'Requirements', iconComponent: ScrollText },
-							{ href: '/staff/example-data', label: 'Example data', iconComponent: FlaskConical },
-							{ href: '/staff/access', label: 'Your Roles', iconComponent: KeyRound }
+							{ href: '/staff/dashboard', label: m.conformator_nav_staff_dashboard(), iconComponent: Gauge },
+							{ href: '/staff/participants', label: m.conformator_nav_staff_participants(), iconComponent: Users },
+							{ href: '/staff/suites', label: m.conformator_nav_staff_suites(), iconComponent: ListChecks },
+							{ href: '/staff/requirements', label: m.conformator_nav_staff_requirements(), iconComponent: ScrollText },
+							{ href: '/staff/example-data', label: m.conformator_nav_staff_example_data(), iconComponent: FlaskConical },
+							{ href: '/staff/access', label: m.conformator_nav_staff_access(), iconComponent: KeyRound }
 						]
 					}
 				]
@@ -128,13 +129,14 @@
 	<div class="h-full min-w-0 bg-conic-250 from-30% via-40% to-50% dark:from-primary-950 dark:via-secondary-500/70 dark:to-primary-950">
 		<div class="flex h-full flex-col backdrop-blur-2xl">
 			<div class="z-10 flex shrink-0 items-center justify-end gap-4 px-4 py-2 shadow-md" style="height: 48px;">
+				<LanguageSwitch />
 				{#if data.user}
 					<span class="hover:text-tertiary-400" data-testid="header-username">{data.user.username}</span>
 					<form method="POST" action="/logout">
-						<button type="submit" class="btn preset-outlined-primary-500" data-testid="logout">Logout</button>
+						<button type="submit" class="btn preset-outlined-primary-500" data-testid="logout">{m.logout()}</button>
 					</form>
 				{:else}
-					<a href={loginHref} class="btn preset-filled-surface-950-50" data-testid="login">Login</a>
+					<a href={loginHref} class="btn preset-filled-surface-950-50" data-testid="login">{m.login()}</a>
 				{/if}
 			</div>
 			<main id="content" class="min-h-0 flex-1 overflow-auto px-4 py-8 md:px-8">

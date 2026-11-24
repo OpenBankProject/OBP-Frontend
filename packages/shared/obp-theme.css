@@ -15,11 +15,15 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
+/* Arabic letters in Noto Sans Arabic (SIL Open Font License), served by the app. These faces cover Arabic letters only, so the browser fetches them only for pages with Arabic text, and Latin text keeps the fonts below. */
+@import '@fontsource/noto-sans-arabic/arabic-400.css';
+@import '@fontsource/noto-sans-arabic/arabic-700.css';
+
 [data-theme='obptheme'] {
 	--text-scaling: 1.067;
 	--base-font-color: var(--color-surface-950);
 	--base-font-color-dark: var(--color-surface-50);
-	--base-font-family: "Plus Jakarta Sans", Avenir, Montserrat, Corbel, 'URW Gothic', source-sans-pro, sans-serif;
+	--base-font-family: "Noto Sans Arabic", "Plus Jakarta Sans", Avenir, Montserrat, Corbel, 'URW Gothic', source-sans-pro, sans-serif;
 	--base-font-size: inherit;
 	--base-line-height: inherit;
 	--base-font-weight: normal;

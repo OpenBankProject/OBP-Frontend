@@ -27,6 +27,7 @@ import { sveltekitSessionHandle } from 'svelte-kit-sessions';
 import RedisStore from 'svelte-kit-connect-redis';
 import { createLogger, reloadPathAfterSessionEnds } from '@obp/shared/utils';
 import { loginUrlReturningTo } from '@obp/shared/server/auth';
+import { i18nHandle } from '@obp/shared/server/i18n';
 import { healthCheckRegistry } from '@obp/shared/health-check';
 import { oauth2ProviderManager, sessionOAuth, SESSION_COOKIE } from '$lib/server/oauth';
 import { redisService } from '$lib/server/redis';
@@ -112,6 +113,8 @@ const checkAuthorization: Handle = async ({ event, resolve }) => {
 
 export const handle: Handle = sequence(
 	requestTelemetry,
+	// The page's language (and lang and dir in app.html), before anything draws a page
+	i18nHandle,
 	sveltekitSessionHandle({
 		name: SESSION_COOKIE,
 		// Checked at startup above; only unset while building.

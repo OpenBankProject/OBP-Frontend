@@ -9,27 +9,29 @@
 -->
 <script lang="ts">
 	import Badge from '$lib/components/Badge.svelte';
+	import { valueLabel } from '$lib/valueLabel';
+	import { m } from '@obp/shared/i18n';
 
 	let { data } = $props();
 </script>
 
-<h1 class="h2">Test catalogue</h1>
+<h1 class="h2">{m.conformator_nav_catalogue()}</h1>
 {#if data.error}
-	<p class="mt-4 preset-tonal-error rounded p-3" role="alert">The catalogue could not be read: {data.error}</p>
+	<p class="mt-4 preset-tonal-error rounded p-3" role="alert">{m.conformator_catalogue_unreadable({ error: data.error })}</p>
 {:else if data.suites.length === 0}
-	<p class="mt-4">There are no suites yet.</p>
+	<p class="mt-4">{m.conformator_no_suites_yet()}</p>
 {:else}
 	<table class="table mt-4" data-testid="catalogue-suites">
 		<thead>
-			<tr><th>Suite</th><th>Version</th><th>Tests the</th><th>APIs</th><th>Status</th></tr>
+			<tr><th>{m.conformator_col_suite()}</th><th>{m.conformator_col_version()}</th><th>{m.conformator_col_tests_the()}</th><th>{m.conformator_col_apis()}</th><th>{m.conformator_col_status()}</th></tr>
 		</thead>
 		<tbody>
 			{#each data.suites as suite (suite.conformator_suite_id)}
 				<tr>
 					<td><a class="anchor" href="/catalogue/{suite.conformator_suite_id}">{suite.name}</a> <code class="text-sm">{suite.code}</code></td>
 					<td>{suite.version}</td>
-					<td>{String(suite.system_role).replaceAll('_', ' ')}</td>
-					<td>{String(suite.api_family).replaceAll('_', ' ')}</td>
+					<td>{valueLabel(String(suite.system_role))}</td>
+					<td>{valueLabel(String(suite.api_family))}</td>
 					<td><Badge value={String(suite.status)} tone={suite.status === 'approved' ? 'success' : 'warning'} /></td>
 				</tr>
 			{/each}

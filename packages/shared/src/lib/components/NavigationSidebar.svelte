@@ -25,6 +25,7 @@
 		Lock
 	} from '@lucide/svelte';
 	import LightSwitch from '$shared/components/LightSwitch.svelte';
+	import { m } from '$shared/i18n';
 	import type { NavigationItem, NavigationSection } from '$shared/config/navigation';
 
 	interface FooterLink {
@@ -254,7 +255,7 @@
 						>
 							<div class="flex items-center gap-3 whitespace-nowrap overflow-hidden">
 								<User class="h-5 w-5 shrink-0" />
-								<span>My Account</span>
+								<span>{m.nav_my_account()}</span>
 							</div>
 							{#if isMyAccountExpanded}
 								<ChevronDown class="h-4 w-4 shrink-0" />
@@ -295,8 +296,8 @@
 							href="/user"
 							class="btn w-full justify-start gap-3 px-3 py-2 hover:preset-tonal"
 							class:preset-filled-primary-50-950={isMyAccountActive}
-							title="My Account"
-							aria-label="My Account"
+							title={m.nav_my_account()}
+							aria-label={m.nav_my_account()}
 						>
 							<User class="size-5" />
 						</a>
@@ -433,7 +434,7 @@
 							{link.label}
 						</a>
 					{/each}
-					<a href="/about" class="hover:text-tertiary-400">About</a>
+					<a href="/about" class="hover:text-tertiary-400">{m.nav_about()}</a>
 					{#if !hideFooterExtras && copyrightHolder && copyrightStartYear}
 						<span> © {copyrightHolder} {copyrightStartYear}-{Math.max(new Date().getFullYear(), 2026)} </span>
 					{/if}

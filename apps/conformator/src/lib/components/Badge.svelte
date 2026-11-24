@@ -8,7 +8,9 @@
   <https://www.gnu.org/licenses/>.
 -->
 <script lang="ts">
-	/** A short word in a coloured box: a status, an outcome or a stage. */
+	import { valueLabel } from '$lib/valueLabel';
+
+	/** A short word in a coloured box: a status, an outcome or a stage, in the page's language. */
 	let { value, tone = 'surface' }: { value: string; tone?: 'surface' | 'success' | 'warning' | 'error' | 'primary' } = $props();
 	const classes: Record<string, string> = {
 		surface: 'preset-tonal-surface',
@@ -19,4 +21,4 @@
 	};
 </script>
 
-<span class="badge {classes[tone]}">{value.replaceAll('_', ' ')}</span>
+<span class="badge {classes[tone]}">{valueLabel(value)}</span>

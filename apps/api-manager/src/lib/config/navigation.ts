@@ -894,7 +894,7 @@ function domain(
 }
 
 const buildSection = domain("build", "Build", Hammer,
-  ["/dynamic-entities", "/dynamic-entity-webhooks", "/dynamic-endpoints", "/dynamic-resource-docs", "/glossary-items", "/integration", "/json-schema-validations", "/domain-apis", "/files", "/app-studio", "/reports"],
+  ["/dynamic-entities", "/dynamic-entity-webhooks", "/dynamic-entity-audit-chains", "/dynamic-endpoints", "/dynamic-resource-docs", "/glossary-items", "/integration", "/json-schema-validations", "/domain-apis", "/files", "/app-studio", "/reports"],
   [
     { label: "Dynamic Entities", items: [
       { href: "/dynamic-entities/system?level=system", label: "System", iconComponent: Box },
@@ -903,6 +903,7 @@ const buildSection = domain("build", "Build", Hammer,
       { href: "/dynamic-entities/personal", label: "Personal", iconComponent: UserRound },
       { href: "/dynamic-entities/diagnostics", label: "Diagnostics", iconComponent: Stethoscope },
       { href: "/dynamic-entity-webhooks", label: "Webhooks", iconComponent: Webhook },
+      { href: "/dynamic-entity-audit-chains", label: "Audit Chains", iconComponent: ShieldCheck },
     ] },
     { label: "Endpoints", items: [
       { href: "/dynamic-endpoints/system", label: "System", iconComponent: Plug },

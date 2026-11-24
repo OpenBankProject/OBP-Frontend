@@ -10,35 +10,30 @@
 <script lang="ts">
 	import Badge from '$lib/components/Badge.svelte';
 	import { describeDefinition, parseTestDefinition } from '@obp/shared/conformator';
+	import { m } from '@obp/shared/i18n';
+	import { valueLabel } from '$lib/valueLabel';
 
 	/** A suite's tests, in suite order: what each checks, the requirements it covers, and what it actually does. */
 	let { tests }: { tests: Array<Record<string, any>> } = $props();
 
-	const kinds: Record<string, string> = { automated: 'Automated', evidence: 'Evidence review', control: 'Organisational control' };
+	const kinds: Record<string, string> = { automated: m.conformator_test_kind_automated(), evidence: m.conformator_test_kind_evidence(), control: m.conformator_test_kind_control() };
 
 	/** The steps of an automated test in plain words, or why they cannot be shown. */
 	function steps(test: Record<string, any>): { lines: string[]; problem: string | null } {
 		const text = typeof test.definition === 'string' ? test.definition.trim() : '';
-		if (!text) return { lines: [], problem: 'This test has no steps yet.' };
+		if (!text) return { lines: [], problem: m.conformator_tests_no_steps() };
 		const parsed = parseTestDefinition(text);
-		return parsed.ok ? { lines: describeDefinition(parsed.definition), problem: null } : { lines: [], problem: 'Its steps have problems, so it cannot run yet.' };
+		return parsed.ok ? { lines: describeDefinition(parsed.definition), problem: null } : { lines: [], problem: m.conformator_tests_steps_broken() };
 	}
 </script>
 
 {#if tests.length === 0}
-	<p class="mt-6">This suite has no tests yet.</p>
+	<p class="mt-6">{m.conformator_tests_none()}</p>
 {:else}
 	<details class="mt-6 max-w-3xl text-sm">
-		<summary class="cursor-pointer font-semibold">How a test runs</summary>
-		<p class="mt-2">
-			A participant starts a run of this suite against one of their non-production systems. The runner then carries out each automated test's steps in
-			order, calling the system's APIs the way a third-party provider would: over mutual TLS with its own certificate, as its own client of the system
-			or on behalf of a test customer. A value kept from one answer (such as a consent's id) is used in later steps. The test passes when every
-			answer is as expected; the result says exactly which expectation was not met.
-		</p>
-		<p class="mt-2">
-			Evidence and control tests are not run by the runner. The participant gives evidence, and one of the regulator's reviewers decides.
-		</p>
+		<summary class="cursor-pointer font-semibold">{m.conformator_tests_how_title()}</summary>
+		<p class="mt-2">{m.conformator_tests_how_runner()}</p>
+		<p class="mt-2">{m.conformator_tests_how_people()}</p>
 	</details>
 
 	<ol class="mt-4 flex flex-col gap-3" data-testid="test-list">
@@ -49,17 +44,17 @@
 					<code>{test.test_id}</code>
 					<span class="font-semibold">{test.title}</span>
 					{#if test.mandatory}<Badge value="mandatory" tone="primary" />{/if}
-					<span class="text-sm opacity-80">{kinds[test.kind] ?? test.kind}, {test.severity} severity</span>
+					<span class="text-sm opacity-80">{m.conformator_tests_kind_severity({ kind: kinds[test.kind] ?? test.kind, severity: valueLabel(String(test.severity)) })}</span>
 				</div>
-				{#if test.expected_result}<p class="mt-1 text-sm"><span class="font-semibold">Passes when:</span> {test.expected_result}</p>{/if}
+				{#if test.expected_result}<p class="mt-1 text-sm"><span class="font-semibold">{m.conformator_tests_passes_when()}</span> {test.expected_result}</p>{/if}
 				{#if test.requirements?.length}
 					<p class="mt-1 text-sm">
-						<span class="font-semibold">Requirements:</span>
+						<span class="font-semibold">{m.conformator_tests_requirements()}</span>
 						{#each test.requirements as req, i (req.id)}{i ? '; ' : ''}<code>{req.reference}</code> {req.title}{/each}
 					</p>
 				{/if}
 				<details class="mt-2 text-sm">
-					<summary class="cursor-pointer">What it does</summary>
+					<summary class="cursor-pointer">{m.conformator_tests_what_it_does()}</summary>
 					{#if s}
 						{#if s.problem}
 							<p class="mt-2">{s.problem}</p>
@@ -69,9 +64,9 @@
 							</ol>
 						{/if}
 					{:else}
-						<p class="mt-2">A person decides this test. The participant gives: {test.evidence_required || 'the evidence the regulator asks for'}. A reviewer then assesses it as passed, failed or not applicable.</p>
+						<p class="mt-2">{m.conformator_tests_person_decides({ evidence: test.evidence_required || m.conformator_tests_default_evidence() })}</p>
 					{/if}
-					{#if test.suggested_fix}<p class="mt-2"><span class="font-semibold">If it fails:</span> {test.suggested_fix}</p>{/if}
+					{#if test.suggested_fix}<p class="mt-2"><span class="font-semibold">{m.conformator_tests_if_it_fails()}</span> {test.suggested_fix}</p>{/if}
 				</details>
 			</li>
 		{/each}

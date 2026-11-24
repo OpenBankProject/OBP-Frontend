@@ -10,17 +10,19 @@
 <script lang="ts">
 	import TestList from '$lib/components/TestList.svelte';
 	import Badge from '$lib/components/Badge.svelte';
+	import { RichMessage } from '@obp/shared/components';
+	import { m } from '@obp/shared/i18n';
 
 	let { data } = $props();
 </script>
 
-<p><a class="anchor" href="/catalogue">Test catalogue</a></p>
+<p><a class="anchor" href="/catalogue">{m.conformator_nav_catalogue()}</a></p>
 <h1 class="h2 mt-2">{data.suite.name}</h1>
 <p class="mt-2">
-	<code>{data.suite.code}</code> version {data.suite.version}
+	<code>{data.suite.code}</code> {m.version({ version: String(data.suite.version) })}
 	<Badge value={String(data.suite.status)} tone={data.suite.status === 'approved' ? 'success' : 'warning'} />
 </p>
 {#if data.suite.description}<p class="mt-4 max-w-3xl">{data.suite.description}</p>{/if}
-{#if data.suite.openapi_url}<p class="mt-2 text-sm">Responses are checked against <a class="anchor" href={data.suite.openapi_url}>this OpenAPI document</a>.</p>{/if}
+{#if data.suite.openapi_url}<p class="mt-2 text-sm"><RichMessage parts={m.conformator_suite_openapi.parts()} links={{ openapi: data.suite.openapi_url }} /></p>{/if}
 
 <TestList tests={data.tests} />

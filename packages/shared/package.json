@@ -10,7 +10,8 @@
 		"dev": "vite dev",
 		"build": "vite build",
 		"preview": "vite preview",
-		"prepare": "svelte-kit sync || echo ''",
+		"prepare": "(npm run i18n || echo 'Translations not compiled yet') && (svelte-kit sync || echo '')",
+		"i18n": "paraglide-js compile --project ./project.inlang --outdir ./src/lib/paraglide",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"lint": "prettier --check .",
@@ -86,6 +87,14 @@
 			"types": "./src/lib/server/index.ts",
 			"default": "./src/lib/server/index.ts"
 		},
+		"./server/i18n": {
+			"types": "./src/lib/server/i18n.ts",
+			"default": "./src/lib/server/i18n.ts"
+		},
+		"./i18n": {
+			"types": "./src/lib/i18n/index.ts",
+			"svelte": "./src/lib/i18n/index.ts"
+		},
 		"./server/auth": {
 			"types": "./src/lib/server/auth/index.ts",
 			"default": "./src/lib/server/auth/index.ts"
@@ -101,6 +110,10 @@
 		"./server/health-check": {
 			"types": "./src/lib/server/health-check/index.ts",
 			"default": "./src/lib/server/health-check/index.ts"
+		},
+		"./server/probes": {
+			"types": "./src/lib/server/probes/index.ts",
+			"default": "./src/lib/server/probes/index.ts"
 		},
 		"./server/landing": {
 			"types": "./src/lib/server/landing/index.ts",
@@ -136,6 +149,7 @@
 		}
 	},
 	"dependencies": {
+		"@fontsource/noto-sans-arabic": "^5.3.0",
 		"@grpc/grpc-js": "^1.14.3",
 		"@internationalized/date": "^3.12.1",
 		"@lucide/svelte": "^0.513.0",
@@ -155,6 +169,8 @@
 		"yaml": "^2.9.0"
 	},
 	"devDependencies": {
+		"@inlang/paraglide-js": "^3.2.2",
+		"@inlang/plugin-message-format": "^4.5.0",
 		"@playwright/test": "^1.49.1",
 		"@sveltejs/adapter-auto": "^6.0.0",
 		"@sveltejs/adapter-node": "^5.2.12",
