@@ -14,3 +14,6 @@ security-fix.log
 
 # Local drafts, mockups and demo files that must never be committed, in any app
 DO_NOT_COMMIT/
+
+# Zed editor settings, which open_dev_env writes for each project
+.zed/
