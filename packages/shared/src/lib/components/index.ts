@@ -26,6 +26,7 @@ export { default as LegalDocumentModal } from './LegalDocumentModal.svelte';
 export { default as LightSwitch } from './LightSwitch.svelte';
 export { default as LanguageSwitch } from './LanguageSwitch.svelte';
 export { default as RichMessage } from './RichMessage.svelte';
+export { default as ErrorPage } from './ErrorPage.svelte';
 export { default as Toast } from './Toast.svelte';
 export { default as ToolApprovalCard } from './ToolApprovalCard.svelte';
 export { default as NavigationSidebar } from './NavigationSidebar.svelte';
