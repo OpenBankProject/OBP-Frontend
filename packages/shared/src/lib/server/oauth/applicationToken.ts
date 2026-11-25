@@ -17,12 +17,15 @@
  */
 import { createLogger } from '$shared/utils/logger';
 import type { OAuth2ClientWithConfig } from './client.js';
+import { PUBLISHED_KEYS_TTL_MS, signatureMatchesPublishedKeys } from './signingKeyCheck.js';
 
 const logger = createLogger('ApplicationToken');
 
 interface CachedToken {
 	accessToken: string;
 	expiresAt: number;
+	/** When its signature was last checked against the provider's published keys. */
+	keyCheckedAt: number;
 }
 const cache = new Map<string, CachedToken>();
 
@@ -32,6 +35,11 @@ export type ApplicationTokenResult = { token: string } | { token: null; reason: 
  * An application access token (client_credentials grant) for the app's own OAuth client,
  * so server code can call OBP without a logged-in user. Cached per client id until shortly
  * before expiry. On failure, `reason` says which step failed, for messages shown to operators.
+ *
+ * Before the saved token is handed out again, its signature is checked against the keys the provider publishes now,
+ * at most once a minute. If the provider has changed its signing key since the token was issued, OBP-API would reject
+ * the token with "Invalid signature" until it expired, so it is thrown away and a new one is fetched instead. If the
+ * published keys cannot be read, the saved token is kept.
  */
 export async function requestApplicationAccessToken(
 	client: OAuth2ClientWithConfig | undefined,
@@ -55,7 +63,13 @@ export async function requestApplicationAccessToken(
 		return fail(`${missing.join(' and ')} not set`);
 	}
 	const cached = cache.get(clientId!);
-	if (cached && cached.expiresAt - refreshMarginMs > Date.now()) return { token: cached.accessToken };
+	if (cached && cached.expiresAt - refreshMarginMs > Date.now()) {
+		if (!(await signedWithReplacedKey(cached, client.OIDCConfig?.jwks_uri))) return { token: cached.accessToken };
+		logger.warn(
+			`The saved application token for ${tokenEndpoint} is signed with a key the provider no longer publishes (it has changed its signing key); getting a new token`
+		);
+		cache.delete(clientId!);
+	}
 
 	const body = new URLSearchParams();
 	body.set('grant_type', 'client_credentials');
@@ -77,11 +91,28 @@ export async function requestApplicationAccessToken(
 		const tokens = (await response.json()) as { access_token?: string; expires_in?: number };
 		if (!tokens.access_token) return fail(`${tokenEndpoint} returned no access_token`);
 		const ttlMs = (typeof tokens.expires_in === 'number' ? tokens.expires_in : 300) * 1000;
-		cache.set(clientId!, { accessToken: tokens.access_token, expiresAt: Date.now() + ttlMs });
+		cache.set(clientId!, { accessToken: tokens.access_token, expiresAt: Date.now() + ttlMs, keyCheckedAt: Date.now() });
 		return { token: tokens.access_token };
 	} catch (err) {
 		return fail(`could not reach ${tokenEndpoint}: ${err instanceof Error ? err.message : String(err)}`);
 	}
+}
+
+/**
+ * Whether the saved token is signed with a key the provider no longer publishes. Checked at most once a minute per
+ * token; false when it was checked recently, when the provider has no jwks_uri, or when its keys cannot be read.
+ */
+async function signedWithReplacedKey(cached: CachedToken, jwksUri: string | undefined): Promise<boolean> {
+	if (!jwksUri || Date.now() - cached.keyCheckedAt < PUBLISHED_KEYS_TTL_MS) return false;
+	const matches = await signatureMatchesPublishedKeys(cached.accessToken, jwksUri);
+	if (matches === null) return false;
+	cached.keyCheckedAt = Date.now();
+	return !matches;
+}
+
+/** Forget every saved application token, for tests. */
+export function clearApplicationTokenCache(): void {
+	cache.clear();
 }
 
 /** As requestApplicationAccessToken, for callers that only need the token or null. */
