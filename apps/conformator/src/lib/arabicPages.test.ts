@@ -7,11 +7,16 @@ import { render } from 'svelte/server';
 import { paraglideMiddleware } from '$shared/paraglide/server.js';
 import HomePage from '../routes/(public)/+page.svelte';
 import ReportsPage from '../routes/(public)/reports/+page.svelte';
+import LoginPage from '../routes/(public)/login/+page.svelte';
 
 /** Draw a page as the server does for a visitor who chose this language with the language switch. */
-async function draw(locale: 'en' | 'ar', page: typeof HomePage | typeof ReportsPage, props: Record<string, unknown>): Promise<string> {
+async function draw(locale: 'en' | 'ar', page: unknown, props: Record<string, unknown>): Promise<string> {
 	const request = new Request('http://localhost/', { headers: { cookie: `PARAGLIDE_LOCALE=${locale}` } });
-	const html = await paraglideMiddleware(request, () => render(page as never, { props }).body);
+	let html = '';
+	await paraglideMiddleware(request, () => {
+		html = render(page as never, { props: props as never }).body;
+		return new Response(html);
+	});
 	// Without Svelte's hydration markers, which sit inside the tags
 	return html.replace(/<!--.*?-->/g, '');
 }
@@ -37,5 +42,14 @@ describe('the public pages in Arabic', () => {
 		const html = await draw('ar', ReportsPage, { data: {}, form: null });
 		expect(html).toContain('التحقق من تقرير مطابقة');
 		expect(html).toContain('تحقّق');
+	});
+
+	it('draws the login page and its error in Arabic', async () => {
+		const html = await draw('ar', LoginPage, { data: { providers: ['obp'], loginError: 'login_failed' } });
+		expect(html).toContain('تسجيل الدخول عبر obp');
+		expect(html).toContain('تعذّر تسجيل الدخول');
+		const english = await draw('en', LoginPage, { data: { providers: ['obp'], loginError: 'login_failed' } });
+		expect(english).toContain('Log in with obp');
+		expect(english).toContain('Logging in failed. Please try again.');
 	});
 });

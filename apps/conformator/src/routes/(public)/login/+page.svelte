@@ -8,30 +8,32 @@
   <https://www.gnu.org/licenses/>.
 -->
 <script lang="ts">
+	import { m } from '@obp/shared/i18n';
+
 	let { data } = $props();
 
-	const messages: Record<string, string> = {
-		access_denied: 'You chose not to log in.',
-		login_failed: 'Logging in failed. Please try again.',
-		session_expired: 'Logging in took too long. Please try again.',
-		invalid_state: 'Logging in could not be completed. Please try again.',
-		provider_unavailable: 'That way of logging in is not available at the moment.',
-		user_lookup_failed: 'You logged in, but OBP-API could not tell us who you are. Please try again.'
+	const messages: Record<string, () => string> = {
+		access_denied: m.login_error_access_denied,
+		login_failed: m.login_error_login_failed,
+		session_expired: m.login_error_session_expired,
+		invalid_state: m.login_error_invalid_state,
+		provider_unavailable: m.login_error_provider_unavailable,
+		user_lookup_failed: m.login_error_user_lookup_failed
 	};
 </script>
 
-<h1 class="h2">Log in</h1>
+<h1 class="h2">{m.login_heading()}</h1>
 
 {#if data.loginError}
-	<p class="mt-4 preset-tonal-error rounded p-3" role="alert" data-testid="login-error">{messages[data.loginError]}</p>
+	<p class="mt-4 preset-tonal-error rounded p-3" role="alert" data-testid="login-error">{messages[data.loginError]?.()}</p>
 {/if}
 
 {#if data.providers.length === 0}
-	<p class="mt-4" data-testid="no-providers">No way of logging in is set up. An administrator needs to set the OAuth client in the app's settings.</p>
+	<p class="mt-4" data-testid="no-providers">{m.login_no_providers()}</p>
 {:else}
 	<ul class="mt-4 flex flex-col gap-2">
 		{#each data.providers as provider (provider)}
-			<li><a class="btn preset-filled" href="/login/{provider}" data-testid="login-provider-{provider}">Log in with {provider}</a></li>
+			<li><a class="btn preset-filled" href="/login/{provider}" data-testid="login-provider-{provider}">{m.login_with({ provider })}</a></li>
 		{/each}
 	</ul>
 {/if}
