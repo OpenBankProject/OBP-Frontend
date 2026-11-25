@@ -10663,6 +10663,26 @@
     "email",
     "username"
    ]
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v5.1.0/root",
+   "source": "apps/sandbox-populator/src/hooks.server.ts",
+   "needles": [
+    "url: `${publicEnv.PUBLIC_OBP_BASE_URL}/obp/v5.1.0/root`"
+   ],
+   "reads": [],
+   "note": "Registered as the 'OBP API (REST)' health check on /status; HealthCheckService GETs the URL and only looks at the HTTP status."
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v5.1.0/root",
+   "source": "packages/shared/src/lib/server/probes/index.ts",
+   "needles": [
+    "`${obpBaseUrl.replace(/\\/+$/, '')}/obp/v5.1.0/root`"
+   ],
+   "reads": [],
+   "note": "The obp_api status check: it GETs the root endpoint, which needs no login, and only looks at the HTTP status."
   }
  ],
  "not_calls": [
@@ -10821,6 +10841,13 @@
    "reason": "builds the path for calls listed at its callers: apps/api-manager/src/routes/backend/files/[bank_id]/[file_id]/content/+server.ts"
   },
   {
+   "source": "apps/api-manager/src/lib/server/dynamicEntityAuditChains.ts",
+   "needles": [
+    "const base = \"/obp/v7.0.0/management/banks/BANK_ID/dynamic-entities/DYNAMIC_ENTITY_ID/audit-chain\";"
+   ],
+   "reason": "endpoint list that builds links to the API Explorer; nothing is requested"
+  },
+  {
    "source": "apps/api-manager/src/lib/server/landing/fetchers.ts",
    "needles": [
     "buildShared((path, t) => obp_requests.get(path, t), token, links)"
@@ -10882,6 +10909,20 @@
     "`/obp/v7.0.0/management/banks/${encodeURIComponent(retentionSpace(bankId))}/${rest}${qs ? `"
    ],
    "reason": "builds the path for calls listed at its callers: apps/api-manager/src/routes/(protected)/retention/+page.server.ts, apps/api-manager/src/routes/(protected)/retention/runs/+page.server.ts, apps/api-manager/src/routes/(protected)/retention/runs/[bank_id]/[run_id]/+page.server.ts, apps/api-manager/src/routes/(protected)/retention/archive/+page.server.ts, apps/api-manager/src/routes/(protected)/retention/archive/[bank_id]/[archive_id]/+page.server.ts, apps/api-manager/src/routes/(protected)/retention/archive/[bank_id]/[archive_id]/content/+server.ts, apps/api-manager/src/routes/(protected)/retention/holds/+page.server.ts, apps/api-manager/src/routes/(protected)/retention/[bank_id]/[policy_id]/+page.server.ts"
+  },
+  {
+   "source": "apps/api-manager/src/lib/services/dynamicEntityAuditChains.ts",
+   "needles": [
+    "export const ROOT_CHAIN_PATH = \"/obp/v7.0.0/management/dynamic-entity-audit-chains/root\";"
+   ],
+   "reason": "path helper; the root chain page (routes/(protected)/dynamic-entity-audit-chains/+page.server.ts) GETs it, and the browser calls its check and seal through the Proxy"
+  },
+  {
+   "source": "apps/api-manager/src/lib/services/dynamicEntityAuditChains.ts",
+   "needles": [
+    "/dynamic-entities/${encodeURIComponent(dynamicEntityId)}/audit-chain`"
+   ],
+   "reason": "path helper; one entity's chain page (routes/(protected)/dynamic-entity-audit-chains/[bank_id]/[dynamic_entity_id]/+page.server.ts) GETs the chain and its entries"
   },
   {
    "source": "apps/api-manager/src/routes/(protected)/abac/rules/[rule_id]/edit/+page.svelte",
