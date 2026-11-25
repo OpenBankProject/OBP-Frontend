@@ -894,7 +894,7 @@
                             {/each}
                         </div>
                     {/if}
-                    <div class="rounded-lg px-4 py-2 bg-surface-100-800 text-surface-900-50 border-l-2 {isOwn ? 'border-primary-500' : 'border-transparent'}">
+                    <div class="rounded-lg px-4 py-2 bg-surface-100-800 text-surface-900-50 border-s-2 {isOwn ? 'border-primary-500' : 'border-transparent'}">
                         <p class="mb-1 text-xs font-semibold opacity-70" data-testid="message-sender">
                             {#if isOwn || !startDmUrl}
                                 {senderName}
@@ -915,7 +915,7 @@
                             {@const parent = messages.find(m => m.chat_message_id === message.reply_to_message_id)}
                             <button
                                 type="button"
-                                class="mb-1 block w-full text-start border-s-2 border-surface-400 pl-2 text-xs opacity-60 truncate"
+                                class="mb-1 block w-full text-start border-s-2 border-surface-400 ps-2 text-xs opacity-60 truncate"
                                 onclick={() => parent && scrollToMessage(parent.chat_message_id)}
                                 data-testid="reply-ref-{message.chat_message_id}"
                             >

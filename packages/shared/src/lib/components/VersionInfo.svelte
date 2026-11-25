@@ -48,7 +48,7 @@
 
 	{#if showDetails}
 		<div
-			class="absolute bottom-full left-0 mb-2 min-w-[280px] rounded-lg border border-surface-300-700 bg-surface-50-900 p-3 shadow-lg z-50"
+			class="absolute bottom-full start-0 mb-2 min-w-[280px] rounded-lg border border-surface-300-700 bg-surface-50-900 p-3 shadow-lg z-50"
 		>
 			<div class="space-y-2 text-xs">
 				<div class="flex justify-between border-b border-surface-200-800 pb-2 mb-2">

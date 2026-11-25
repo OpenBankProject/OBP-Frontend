@@ -145,7 +145,7 @@
 {#if open}
 	<div
 		bind:this={wrapperEl}
-		class="inline-block rounded-md border border-surface-300-700 bg-surface-100-900 p-3 text-left min-w-[18rem] max-w-md"
+		class="inline-block rounded-md border border-surface-300-700 bg-surface-100-900 p-3 text-start min-w-[18rem] max-w-md"
 		data-testid="account-scope-picker-open"
 	>
 		<div class="mb-2 flex items-center justify-between gap-2">

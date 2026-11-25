@@ -138,7 +138,7 @@
 				id={listboxId}
 				role="listbox"
 				aria-label="Banks"
-				class="absolute top-full left-0 z-50 mt-1 max-h-72 w-[36rem] max-w-[90vw] overflow-y-auto rounded-md border border-surface-300-700 bg-surface-100-900 py-1 text-sm shadow-lg"
+				class="absolute top-full start-0 z-50 mt-1 max-h-72 w-[36rem] max-w-[90vw] overflow-y-auto rounded-md border border-surface-300-700 bg-surface-100-900 py-1 text-sm shadow-lg"
 				data-testid="current-bank-options"
 			>
 				{#if filteredBanks.length === 0}

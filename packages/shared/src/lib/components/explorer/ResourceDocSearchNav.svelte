@@ -165,7 +165,7 @@
 			<div class="mb-1">
 				<button
 					type="button"
-					class="flex w-full items-center justify-between gap-2 rounded px-2 py-1 text-left text-sm font-semibold text-surface-900-50 hover:bg-surface-100-800"
+					class="flex w-full items-center justify-between gap-2 rounded px-2 py-1 text-start text-sm font-semibold text-surface-900-50 hover:bg-surface-100-800"
 					aria-expanded={open}
 					onclick={() => (opened[group.name] = !open)}
 				>
@@ -177,11 +177,11 @@
 				</button>
 
 				{#if open}
-					<ul class="ml-2 border-l border-surface-300-600">
+					<ul class="ms-2 border-s border-surface-300-600">
 						{#each group.entries as entry (entry.operationId + entry.path)}
 							<li>
 								<a
-									class="flex gap-2 py-1 pl-2 pr-1 text-xs hover:bg-surface-100-800 {entry.operationId ===
+									class="flex gap-2 py-1 ps-2 pe-1 text-xs hover:bg-surface-100-800 {entry.operationId ===
 									activeOperationId
 										? 'bg-surface-200-700 font-semibold'
 										: ''}"

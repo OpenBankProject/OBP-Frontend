@@ -59,7 +59,7 @@
 
         <!-- Copy button for collection ID -->
         <button
-            class="btn-icon btn-sm preset-filled-tertiary ml-2"
+            class="btn-icon btn-sm preset-filled-tertiary ms-2"
             onclick={() => copyToClipboard(collection.api_collection_id, 'Collection ID')}
             title="Copy collection ID"
             aria-label="Copy collection ID"

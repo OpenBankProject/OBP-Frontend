@@ -64,7 +64,7 @@
     position: relative;
     margin: 0.75rem 0;
     padding: 0.75rem;
-    padding-right: 2.5rem;
+    padding-inline-end: 2.5rem;
     border-radius: 4px;
     border: 1px solid;
     font-size: 0.75rem;

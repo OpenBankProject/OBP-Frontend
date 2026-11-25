@@ -184,7 +184,7 @@
 		{/if}
 	</div>
 
-	<div class="absolute inset-y-0 right-0 flex">
+	<div class="absolute inset-y-0 end-0 flex">
 		<PaneSplitter
 			bind:value={width}
 			min={220}

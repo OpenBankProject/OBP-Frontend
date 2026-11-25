@@ -244,7 +244,7 @@
 
 {#if isBatchApproval && isFirstInBatch}
     <!-- Batch Approval View -->
-    <div class="card variant-ghost-warning rounded-lg border-2 border-warning-500 p-4 space-y-4 text-left">
+    <div class="card variant-ghost-warning rounded-lg border-2 border-warning-500 p-4 space-y-4 text-start">
         <!-- Header -->
         <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
@@ -346,11 +346,11 @@
     <!-- This is part of a batch but not the first - don't render, it's shown above -->
 {:else}
     <!-- Single Tool Card (Simplified) -->
-    <div class="card rounded-lg border-1 {borderColorClass} bg-primary-300-700 transition-all text-left" out:fade|global={{ duration: 300 }}>
+    <div class="card rounded-lg border-1 {borderColorClass} bg-primary-300-700 transition-all text-start" out:fade|global={{ duration: 300 }}>
         <!-- Card Header - Always Visible, Clickable to Expand -->
         <button
             type="button"
-            class="w-full p-2 text-left flex items-center justify-between gap-3 hover:bg-primary-200-800 transition-colors rounded-lg"
+            class="w-full p-2 text-start flex items-center justify-between gap-3 hover:bg-primary-200-800 transition-colors rounded-lg"
             onclick={toggleExpanded}
         >
             {#if statusIcon}
@@ -403,7 +403,7 @@
                 {#if message.toolInput}
                     <div class="space-y-2">
                         <h4 class="text-sm font-semibold text-surface-950-50">Tool Input</h4>
-                        <pre class="text-xs preset-filled-surface-200-800 p-3 rounded-lg border border-surface-300-700 overflow-x-auto max-h-60 text-left">{JSON.stringify(message.toolInput, null, 2)}</pre>
+                        <pre class="text-xs preset-filled-surface-200-800 p-3 rounded-lg border border-surface-300-700 overflow-x-auto max-h-60 text-start">{JSON.stringify(message.toolInput, null, 2)}</pre>
                     </div>
                 {/if}
 

@@ -351,7 +351,7 @@
 	<div class="mb-1.5 flex items-center gap-2">
 		<KeyRound class="text-tertiary-600 dark:text-tertiary-400 flex-shrink-0" size={16} />
 		<span class="text-sm font-semibold">Consent Required</span>
-		<code class="ml-auto rounded bg-primary-100 px-1.5 py-0.5 text-xs dark:bg-primary-800">{toolMessage.toolName}</code>
+		<code class="ms-auto rounded bg-primary-100 px-1.5 py-0.5 text-xs dark:bg-primary-800">{toolMessage.toolName}</code>
 	</div>
 
 	<!-- Brief explanation -->

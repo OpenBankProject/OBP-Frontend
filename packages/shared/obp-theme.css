@@ -236,3 +236,15 @@
 	background: #fde047;
 	color: #000000;
 }
+/* On a right-to-left page, code still reads left to right: Role names, paths, JSON and ids keep their order. */
+[dir='rtl'] code,
+[dir='rtl'] kbd,
+[dir='rtl'] samp {
+	direction: ltr;
+	unicode-bidi: isolate;
+}
+
+[dir='rtl'] pre {
+	direction: ltr;
+	text-align: left;
+}

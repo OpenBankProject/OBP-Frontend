@@ -55,7 +55,7 @@
 				<ChevronDown class="size-4" />
 			</button>
 			{#if userMenuOpen}
-				<div class="absolute right-0 z-50 mt-2 min-w-[140px] rounded-md border border-surface-300-700 bg-surface-100-900 py-1 shadow-lg">
+				<div class="absolute end-0 z-50 mt-2 min-w-[140px] rounded-md border border-surface-300-700 bg-surface-100-900 py-1 shadow-lg">
 					<a
 						href={profileUrl}
 						class="block px-4 py-2 text-sm hover:preset-tonal"

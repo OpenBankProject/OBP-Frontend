@@ -211,7 +211,7 @@
 
         <!-- Copy button for consent ID -->
         <button
-            class="btn-icon btn-sm preset-filled-tertiary ml-2"
+            class="btn-icon btn-sm preset-filled-tertiary ms-2"
             onclick={() => copyToClipboard(consent.consent_id, 'Consent ID')}
             title="Copy consent ID"
             aria-label="Copy consent ID"
@@ -304,7 +304,7 @@
         <!-- JWT Expiration -->
         <div class="flex items-start justify-between">
             <span class="font-medium text-gray-700 dark:text-gray-300">JWT Expires:</span>
-            <span class="flex flex-col items-end text-right">
+            <span class="flex flex-col items-end text-end">
                 <span class={isRevoked
                     ? 'text-gray-500 line-through dark:text-gray-400'
                     : jwtExpInfo.isExpired
@@ -357,7 +357,7 @@
                     {/each}
                 </div>
             {:else}
-                <span class="ml-2 text-sm text-gray-500">None</span>
+                <span class="ms-2 text-sm text-gray-500">None</span>
             {/if}
         </div>
 
@@ -399,7 +399,7 @@
                     {/each}
                 </div>
             {:else}
-                <span class="ml-2 text-sm text-gray-500">None</span>
+                <span class="ms-2 text-sm text-gray-500">None</span>
             {/if}
         </div>
     </div>

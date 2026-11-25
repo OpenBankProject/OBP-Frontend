@@ -33,7 +33,7 @@
 
 </script>
 
-<div class="card rounded-lg border-2 border-error-500 bg-error-50-950 p-4 text-left">
+<div class="card rounded-lg border-2 border-error-500 bg-error-50-950 p-4 text-start">
 	<!-- Header -->
 	<div class="mb-3 flex items-center justify-between">
 		<div class="flex items-center gap-2">
@@ -45,7 +45,7 @@
 	<!-- Tool Name -->
 	<div class="mb-3">
 		<span class="text-xs font-medium text-error-700-300">Tool:</span>
-		<code class="ml-2 rounded bg-error-100-900 px-2 py-1 text-xs text-error-900-100">
+		<code class="ms-2 rounded bg-error-100-900 px-2 py-1 text-xs text-error-900-100">
 			{message.toolName}
 		</code>
 	</div>
@@ -71,6 +71,6 @@
 
 	<!-- Error Details -->
 	{#if showDetails}
-		<pre class="text-xs text-left mt-3 preset-filled-surface-200-800 p-3 rounded-lg max-h-96 overflow-auto font-mono whitespace-pre border border-error-300 dark:border-error-700">{errorOutput}</pre>
+		<pre class="text-xs text-start mt-3 preset-filled-surface-200-800 p-3 rounded-lg max-h-96 overflow-auto font-mono whitespace-pre border border-error-300 dark:border-error-700">{errorOutput}</pre>
 	{/if}
 </div>

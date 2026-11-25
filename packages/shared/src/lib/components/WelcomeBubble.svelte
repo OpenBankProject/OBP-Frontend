@@ -94,7 +94,7 @@
 			<button
 				type="button"
 				onclick={handleClose}
-				class="absolute top-3 right-3 rounded-full p-1 text-surface-600 transition-colors hover:bg-surface-200 hover:text-surface-900 dark:text-surface-400 dark:hover:bg-surface-700 dark:hover:text-surface-100"
+				class="absolute top-3 end-3 rounded-full p-1 text-surface-600 transition-colors hover:bg-surface-200 hover:text-surface-900 dark:text-surface-400 dark:hover:bg-surface-700 dark:hover:text-surface-100"
 				aria-label="Close welcome message"
 			>
 				<X class="h-5 w-5" />
@@ -106,13 +106,13 @@
 			</div>
 
 			<!-- Welcome message -->
-			<div class="pr-6 text-sm leading-relaxed text-surface-900 dark:text-surface-100">
+			<div class="pe-6 text-sm leading-relaxed text-surface-900 dark:text-surface-100">
 				{@html welcomeMessageHtml}
 			</div>
 
 			<!-- Decorative accent -->
 			<div
-				class="absolute bottom-0 right-0 h-24 w-24 rounded-tl-full bg-gradient-to-br from-primary-400/20 to-primary-600/20"
+				class="absolute bottom-0 end-0 h-24 w-24 rounded-ss-full bg-gradient-to-br from-primary-400/20 to-primary-600/20"
 			></div>
 		</div>
 	</div>

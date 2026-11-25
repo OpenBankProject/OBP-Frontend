@@ -148,7 +148,7 @@
         <div class="mb-4 text-xs text-gray-400 dark:text-gray-500">
             <span>Collection: {product.apiCollectionId}</span>
             {#if product.endpointCount !== undefined}
-                <span class="ml-2">&middot; {product.endpointCount} endpoint{product.endpointCount === 1 ? '' : 's'}</span>
+                <span class="ms-2">&middot; {product.endpointCount} endpoint{product.endpointCount === 1 ? '' : 's'}</span>
             {/if}
         </div>
     {/if}
