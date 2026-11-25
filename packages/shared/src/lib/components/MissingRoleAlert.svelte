@@ -18,6 +18,8 @@
 <script lang="ts">
   import { ShieldCheck } from "@lucide/svelte";
   import MessageBox from "$shared/components/MessageBox.svelte";
+  import RichMessage from "$shared/components/RichMessage.svelte";
+  import { m, getLocale, textDirection } from "$shared/i18n";
   import { getRoleRequests } from "$shared/roles/context";
   import { onMount } from "svelte";
 
@@ -36,6 +38,8 @@
   let { roles, errorCode, message, bankId, jitCovered = false }: Props = $props();
 
   let isExpanded = $state(false);
+  // The arrow of a closed alert points the way the text reads.
+  const closedArrow = textDirection(getLocale()) === "rtl" ? "◀" : "▶";
   let isSubmitting = $state(false);
   let submitSuccess = $state(false);
   let submitError = $state<string | null>(null);
@@ -86,7 +90,7 @@
 
     // Validate bank selection if bank-scoped
     if (!bankId && scopeChoice === "bank" && !selectedBankId) {
-      submitError = "Please select a bank in My Account for this bank-scoped role.";
+      submitError = m.role_alert_choose_bank_first();
       return;
     }
 
@@ -121,7 +125,7 @@
       submitSuccess = true;
     } catch (error) {
       submitError =
-        error instanceof Error ? error.message : "Failed to submit request";
+        error instanceof Error ? error.message : m.role_alert_request_failed();
       isSubmitting = false;
     }
   }
@@ -136,16 +140,16 @@
     <span class="alert-icon">{jitCovered ? "⚡" : "🔒"}</span>
     <span class="alert-title">
       {#if jitCovered}
-        <strong>JIT Entitlement{roles.length > 1 ? "s" : ""}:</strong>
+        <strong>{roles.length > 1 ? m.role_alert_jit_many() : m.role_alert_jit_one()}</strong>
       {:else}
-        <strong>Missing Entitlement{roles.length > 1 ? "s" : ""}:</strong>
+        <strong>{roles.length > 1 ? m.role_alert_missing_many() : m.role_alert_missing_one()}</strong>
       {/if}
       <span class="role-preview">{roles.join(", ")}</span>
     </span>
     {#if errorCode}
       <span class="error-code">OBP-{errorCode}</span>
     {/if}
-    <span class="expand-icon">{isExpanded ? "▼" : "▶"}</span>
+    <span class="expand-icon">{isExpanded ? "▼" : closedArrow}</span>
   </button>
 
   {#if isExpanded}
@@ -159,20 +163,19 @@
       <!-- Role scope display (auto-determined from role metadata) -->
       {#if bankId}
         <div class="scope-display scope-bank">
-          <strong>Bank-level role</strong> — Bank: <code class="bank-code">{bankId}</code>
+          <RichMessage parts={m.role_alert_bank_role.parts({ bankId })} />
         </div>
       {:else if scopeChoice === "bank"}
         <div class="scope-display scope-bank">
-          <strong>Bank-level role</strong>
           {#if selectedBankId}
-            — Bank: <code class="bank-code">{selectedBankId}</code>
+            <RichMessage parts={m.role_alert_bank_role.parts({ bankId: selectedBankId })} />
           {:else}
-            — <a href={requests.selectBankUrl} class="bank-select-link">select a bank</a> first
+            <RichMessage parts={m.role_alert_bank_role_choose.parts()} links={{ choose: requests.selectBankUrl }} />
           {/if}
         </div>
       {:else}
         <div class="scope-display scope-system">
-          <strong>System-wide role</strong> — no bank required
+          <RichMessage parts={m.role_alert_system_role.parts()} />
         </div>
       {/if}
 
@@ -186,11 +189,11 @@
 
       {#if jitCovered}
         <div class="jit-info">
-          This entitlement will be <strong>automatically granted</strong> when you use this feature. No action needed.
+          <RichMessage parts={m.role_alert_jit_info.parts()} />
         </div>
       {:else if submitSuccess}
         <div class="submit-success">
-          Thanks, an Entitlement Request has been generated. Please ask your administrator to accept it using the <a href={requests.requestsPageUrl} class="entitlement-requests-link">Entitlement Requests page</a>.
+          <RichMessage parts={m.role_alert_requested.parts()} links={{ requests: requests.requestsPageUrl }} />
         </div>
       {:else}
         <div class="alert-actions">
@@ -201,10 +204,10 @@
           >
             {#if isSubmitting}
               <span class="spinner">⏳</span>
-              Submitting...
+              {m.role_alert_submitting()}
             {:else}
               <ShieldCheck size={18} />
-              Request Entitlement
+              {m.role_alert_request()}
             {/if}
           </button>
         </div>
@@ -212,8 +215,7 @@
 
       {#if !jitCovered}
         <div class="tip-box">
-          <strong>💡 Tip:</strong> If you have recently been granted this entitlement,
-          you should <strong>log out and log back in</strong> again.
+          <RichMessage parts={m.role_alert_tip.parts()} />
         </div>
       {/if}
     </div>
@@ -270,7 +272,7 @@
     border: none;
     padding: 0;
     cursor: pointer;
-    text-align: left;
+    text-align: start;
     color: inherit;
   }
 
@@ -308,7 +310,7 @@
   .expand-icon {
     font-size: 0.75rem;
     opacity: 0.7;
-    margin-left: auto;
+    margin-inline-start: auto;
     flex-shrink: 0;
   }
 
@@ -338,7 +340,7 @@
     background: rgba(0, 0, 0, 0.1);
     padding: 0.125rem 0.5rem;
     border-radius: 4px;
-    margin-left: auto;
+    margin-inline-start: auto;
   }
 
   :global([data-mode="dark"]) .error-code {
@@ -368,7 +370,7 @@
     color: #4ade80;
   }
 
-  .bank-code {
+  .scope-display :global(code) {
     background: rgba(0, 0, 0, 0.1);
     padding: 0.125rem 0.5rem;
     border-radius: 4px;
@@ -377,7 +379,7 @@
     font-weight: 600;
   }
 
-  :global([data-mode="dark"]) .bank-code {
+  :global([data-mode="dark"]) .scope-display :global(code) {
     background: rgba(255, 255, 255, 0.15);
   }
 
@@ -480,21 +482,21 @@
     color: rgb(var(--color-success-200));
   }
 
-  .submit-success :global(.entitlement-requests-link) {
+  .submit-success :global(a) {
     color: #1e40af;
     text-decoration: underline;
     font-weight: 600;
   }
 
-  .submit-success :global(.entitlement-requests-link:hover) {
+  .submit-success :global(a:hover) {
     color: #1d4ed8;
   }
 
-  :global([data-mode="dark"]) .submit-success :global(.entitlement-requests-link) {
+  :global([data-mode="dark"]) .submit-success :global(a) {
     color: #93c5fd;
   }
 
-  :global([data-mode="dark"]) .submit-success :global(.entitlement-requests-link:hover) {
+  :global([data-mode="dark"]) .submit-success :global(a:hover) {
     color: #bfdbfe;
   }
 
@@ -502,7 +504,7 @@
     margin: 1rem 0;
     padding: 0.75rem;
     background: rgba(59, 130, 246, 0.1);
-    border-left: 3px solid #3b82f6;
+    border-inline-start: 3px solid #3b82f6;
     border-radius: 4px;
     font-size: 0.875rem;
     line-height: 1.5;
@@ -510,7 +512,7 @@
 
   :global([data-mode="dark"]) .tip-box {
     background: rgba(59, 130, 246, 0.15);
-    border-left-color: rgb(var(--color-primary-500));
+    border-inline-start-color: rgb(var(--color-primary-500));
   }
 
 
@@ -545,21 +547,21 @@
     color: rgb(var(--color-primary-300));
   }
 
-  .bank-select-link {
+  .scope-display :global(a) {
     color: #1e40af;
     text-decoration: underline;
     font-weight: 600;
   }
 
-  .bank-select-link:hover {
+  .scope-display :global(a:hover) {
     color: #1d4ed8;
   }
 
-  :global([data-mode="dark"]) .bank-select-link {
+  :global([data-mode="dark"]) .scope-display :global(a) {
     color: rgb(var(--color-primary-300));
   }
 
-  :global([data-mode="dark"]) .bank-select-link:hover {
+  :global([data-mode="dark"]) .scope-display :global(a:hover) {
     color: rgb(var(--color-primary-200));
   }
 

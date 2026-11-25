@@ -23,6 +23,7 @@
 	import type { BaseMessage, ToolMessage as ToolMessageType } from '$shared/opey/types';
 	import { ToolMessage } from './tool-messages';
 	import { RotateCw, AlertTriangle } from '@lucide/svelte';
+	import { m } from '$shared/i18n';
 	import { fade } from 'svelte/transition';
 
 	// Props
@@ -147,8 +148,8 @@
 					<button
 						onclick={() => onRegenerate?.(message.id)}
 						class="rounded-full p-1.5 transition-transform hover:scale-120"
-						title="Regenerate response"
-						aria-label="Regenerate response"
+						title={m.chat_regenerate()}
+						aria-label={m.chat_regenerate()}
 					>
 						<RotateCw class="h-4 w-4 text-surface-700 dark:text-surface-200" />
 					</button>
@@ -181,11 +182,11 @@
 							stroke-linecap="round"
 						/>
 					</svg>
-					<span class="text-sm italic opacity-70">Thinking...</span>
+					<span class="text-sm italic opacity-70">{m.chat_thinking()}</span>
 				</div>
 			{:else}
 				<hr class="hr" />
-				<div class="prose max-w-full rounded-2xl p-2 text-left dark:prose-invert">
+				<div class="prose max-w-full rounded-2xl p-2 text-start dark:prose-invert">
 					{@html renderMarkdown(message.message)}
 					{#if message.error}
 						<div class="mt-2">
@@ -216,7 +217,7 @@
 					<AlertTriangle class="mt-0.5 h-5 w-5 flex-shrink-0 text-error-500" />
 					<div class="flex-1">
 						<p class="text-sm font-medium text-error-700 dark:text-error-300">
-							Something went wrong
+							{m.error_title()}
 						</p>
 						<p class="mt-1 text-sm text-error-600 dark:text-error-400 whitespace-pre-wrap break-words select-text">
 							{getErrorMessage(message.error || message.message)}
@@ -227,7 +228,7 @@
 								class="mt-3 inline-flex items-center gap-1.5 rounded-md bg-error-100 px-3 py-1.5 text-sm font-medium text-error-700 transition-colors hover:bg-error-200 dark:bg-error-900/50 dark:text-error-300 dark:hover:bg-error-900/80"
 							>
 								<RotateCw class="h-3.5 w-3.5" />
-								Retry
+								{m.chat_retry()}
 							</button>
 						{/if}
 					</div>
@@ -244,8 +245,8 @@
 			<button
 				type="button"
 				class="rounded-md px-2 text-lg leading-none text-surface-600-400 hover:bg-surface-200-800 hover:text-surface-950-50"
-				title="Show {foldedTool.toolName.replace(/_/g, ' ')}"
-				aria-label="Show the {foldedTool.toolName.replace(/_/g, ' ')} tool call"
+				title={m.chat_show_tool({ tool: foldedTool.toolName.replace(/_/g, ' ') })}
+				aria-label={m.chat_show_tool_call({ tool: foldedTool.toolName.replace(/_/g, ' ') })}
 				onclick={() => onUnfoldTool?.(foldedTool.toolCallId)}
 			>…</button>
 		{/each}

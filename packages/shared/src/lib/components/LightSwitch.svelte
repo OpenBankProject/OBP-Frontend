@@ -16,6 +16,7 @@
   along with this program. If not, see <https://www.gnu.org/licenses/>.
 -->
 <script lang="ts">
+	import { m } from '$shared/i18n';
 	import { Portal, Switch, Tooltip } from '@skeletonlabs/skeleton-svelte';
 	import { onMount } from 'svelte';
 
@@ -30,7 +31,7 @@
 	let { mode = $bindable('dark') }: LightSwitchProps = $props();
 
 	let checked = $derived(mode === 'dark');
-	let toolTipString = $derived(checked ? 'Toggle Light Mode' : 'Toggle Dark Mode');
+	let toolTipString = $derived(checked ? m.light_switch_to_light() : m.light_switch_to_dark());
 
 	onMount(() => {
 		const storedMode = localStorage.getItem('mode') || 'dark';

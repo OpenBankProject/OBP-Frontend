@@ -46,7 +46,10 @@ The apps are translated with [Paraglide](https://paraglidejs.com). English is th
 - In a component, `import { m } from '$shared/i18n'` (or `'@obp/shared/i18n'` in an app) and write `{m.conformator_nav_home()}`.
 - An app that offers a language switch adds `i18nHandle` from `@obp/shared/server/i18n` to its handle sequence, puts `lang="%paraglide.lang%" dir="%paraglide.dir%"` on `<html>` in `app.html`, and shows `<LanguageSwitch />`. The language is the visitor's choice (a cookie), else their browser's language, else English. Apps without the handle stay in English.
 - Numbers and dates: use `formatNumber` and `formatDate` from `$shared/i18n`, so they follow the page's language and the installation's `ARABIC_DIGITS` (`western`, the default, or `arabic-indic`). An app with a language switch also puts `data-arabic-digits="%arabic.digits%"` on `<html>`. Codes such as account numbers, versions and IDs are not numbers: show them as they are.
-- Arabic pages are right to left. Use start/end spacing (`ms-`, `me-`, `ps-`, `pe-`, `start-`, `end-`) rather than left/right (`ml-`, `pl-`, `left-`), so layouts mirror.
+- Arabic pages are right to left. Use start/end classes (`ms-`, `me-`, `ps-`, `pe-`, `start-`, `end-`, `text-start`, `border-s`) rather than left/right ones (`ml-`, `pl-`, `left-`, `text-left`, `border-l`), and the same in CSS (`margin-inline-start`, `text-align: start`), so layouts mirror. An arrow that points along the text gets `rtl:rotate-180`. Code (`code`, `pre`) stays left to right on an Arabic page.
+- Bold words and links inside a sentence: write them as markup in the message (`{#strong}…{/strong}`, `{#name}…{/name}`) and show it with `<RichMessage parts={m.key.parts()} links={{ name: url }} />`. Never put HTML in a message.
+- An app's error page: `src/routes/+error.svelte` shows `<ErrorPage />` from `@obp/shared/components`.
+- Opey answers in the page's language: the chat sends the page's language with each message as `page_language`.
 
 ## Building
 

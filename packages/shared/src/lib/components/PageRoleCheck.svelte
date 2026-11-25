@@ -17,6 +17,8 @@
 -->
 <script lang="ts">
   import MissingRoleAlert from "$shared/components/MissingRoleAlert.svelte";
+  import RichMessage from "$shared/components/RichMessage.svelte";
+  import { m } from "$shared/i18n";
   import type { RoleRequirement } from "$shared/roles/roleCheck";
   import { checkRoles } from "$shared/roles/roleCheck";
   import type { Snippet } from "svelte";
@@ -60,9 +62,9 @@
   // Scope label for the info message
   let scopeMessage = $derived.by(() => {
     if (!isOrWithMixedScopes || !showContent) return null;
-    if (userHasSystemRoles && userHasBankRoles) return "You have both system-level and bank-level access for this page.";
-    if (userHasSystemRoles) return "You have system-level access for this page. Bank-level features are not available.";
-    if (userHasBankRoles) return "You have bank-level access for this page. System-level features are not available.";
+    if (userHasSystemRoles && userHasBankRoles) return m.role_check_scope_both();
+    if (userHasSystemRoles) return m.role_check_scope_system();
+    if (userHasBankRoles) return m.role_check_scope_bank();
     return null;
   });
 
@@ -97,18 +99,18 @@
   <div class="role-alerts">
     {#if requirementType === "OR" && requiredCheck.missingRoles.length > 1}
       <div class="or-header">
-        You need <strong>one</strong> of the following roles to access this page:
+        <RichMessage parts={m.role_check_one_of.parts()} />
       </div>
     {/if}
     {#each requiredCheck.missingRoles as missingRole, i}
       {#if requirementType === "OR" && i > 0}
-        <div class="or-divider"><span>OR</span></div>
+        <div class="or-divider"><span>{m.role_check_or()}</span></div>
       {/if}
       <MissingRoleAlert
         roles={[missingRole.role]}
         bankId={missingRole.bankId || undefined}
         message={requirementType === "AND"
-          ? `You need the following role to access this page: ${missingRole.role}`
+          ? m.role_check_need_role({ role: missingRole.role })
           : undefined}
       />
     {/each}
@@ -120,7 +122,7 @@
     <div class="jit-note" data-testid="jit-entitlements-note">
       <span class="note-icon">&#x26A1;</span>
       <span>
-        Just In Time Entitlements active: {requiredCheck.jitRoles.map((r) => r.role).join(", ")} will be auto-granted on first use.
+        {m.role_check_jit_active({ roles: requiredCheck.jitRoles.map((r) => r.role).join(", ") })}
       </span>
     </div>
   {/if}
@@ -135,7 +137,7 @@
     <div class="optional-role-alerts" data-testid="optional-role-alerts">
       <div class="optional-role-note">
         <span class="note-icon">&#x2139;&#xFE0F;</span>
-        <span>Some actions on this page require additional roles:</span>
+        <span>{m.role_check_optional()}</span>
       </div>
       {#each optionalRoleGroups as group (group.bankId)}
         <MissingRoleAlert roles={group.roles} bankId={group.bankId === "" ? undefined : group.bankId} />

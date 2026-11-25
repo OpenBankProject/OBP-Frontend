@@ -17,6 +17,7 @@
 -->
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
+	import { m } from '$shared/i18n';
 	import { SvelteSet } from 'svelte/reactivity';
 	import { ShieldUserIcon, ShieldCheck } from '@lucide/svelte';
 	import { Dialog, Portal } from '@skeletonlabs/skeleton-svelte';
@@ -863,7 +864,7 @@
 				''}"
 		>
 			<img src="/images/opey-logo-inv.png" alt="Opey Logo" class="mx-2 my-auto h-10 w-auto" />
-			<h1 class="p-2 h4">Chat With Opey</h1>
+			<h1 class="p-2 h4">{m.opey_chat_title()}</h1>
 			<!-- TEMPORARY: Test buttons for approval system -->
 			<div class="mx-2 flex gap-2">
 				<button class="variant-filled-warning btn btn-sm" onclick={addTestApprovalMessage}>
@@ -964,7 +965,7 @@
 				data-testid="opey-consents-link"
 			>
 				<ShieldCheck class="h-3.5 w-3.5" aria-hidden="true" />
-				<span>Consents</span>
+				<span>{m.opey_consents()}</span>
 			</a>
 		</div>
 	{:else if currentConsent}
@@ -985,7 +986,7 @@
 			</button>
 			{#if consentIndicatorOpen}
 				<div
-					class="absolute right-0 bottom-full z-20 mb-1 w-80 max-w-[90vw] rounded-md border border-surface-300-700 bg-surface-50-950 p-3 text-left shadow-lg"
+					class="absolute end-0 bottom-full z-20 mb-1 w-80 max-w-[90vw] rounded-md border border-surface-300-700 bg-surface-50-950 p-3 text-start shadow-lg"
 					data-testid="opey-consent-indicator-popover"
 				>
 					<p class="mb-2 font-semibold text-surface-900-100">Consent Opey is using now</p>
@@ -1056,7 +1057,7 @@
 			{@render pip('services', "Opey's services", opeyServicesLight, statusLinks.status)}
 			{@render pip('auth', 'Opey session', opeySessionLight, userAuthenticated ? statusLinks.consents : statusLinks.status)}
 			{#if obpMcpAuthMode}
-				<span class="ml-1 rounded-full bg-primary-200-800 px-2 py-0.5 text-[10px] font-mono uppercase tracking-wide" data-testid="obp-mcp-auth-mode">{obpMcpAuthMode}</span>
+				<span class="ms-1 rounded-full bg-primary-200-800 px-2 py-0.5 text-[10px] font-mono uppercase tracking-wide" data-testid="obp-mcp-auth-mode">{obpMcpAuthMode}</span>
 			{/if}
 		</div>
 		{#if hoveredLight}
@@ -1077,9 +1078,9 @@
 	     outside the narrow input; in the chat it sits in the row so a nav bar on the left cannot cover it. -->
 	<Dialog onOpenChange={(details) => { if (details.open) loadDiagram(); }}>
 		<Dialog.Trigger
-			class="{avatarInRow ? 'flex-shrink-0' : 'absolute -left-16 top-1/2 -translate-y-1/2'} size-12 cursor-pointer rounded-full drop-shadow-[-7px_7px_10px_var(--color-secondary-500)] transition-transform hover:scale-110"
-			title="Click me for a surprise!"
-			aria-label="View Opey system diagram"
+			class="{avatarInRow ? 'flex-shrink-0' : 'absolute -start-16 top-1/2 -translate-y-1/2'} size-12 cursor-pointer rounded-full drop-shadow-[-7px_7px_10px_var(--color-secondary-500)] transition-transform hover:scale-110"
+			title={m.opey_avatar_title()}
+			aria-label={m.opey_avatar_label()}
 		>
 			<img
 				src="/images/opey_avatar.png"
@@ -1092,22 +1093,22 @@
 				<Dialog.Positioner class="fixed inset-0 z-50 flex items-center justify-center p-4">
 					<Dialog.Content class="card bg-surface-100-900 w-full max-w-4xl space-y-4 p-6 shadow-xl">
 						<header class="flex items-center justify-between">
-							<Dialog.Title class="text-2xl font-bold">🎉 Opey System Architecture</Dialog.Title>
+							<Dialog.Title class="text-2xl font-bold">{m.opey_diagram_title()}</Dialog.Title>
 							<Dialog.CloseTrigger class="btn-icon preset-tonal">✕</Dialog.CloseTrigger>
 						</header>
 						<Dialog.Description class="text-sm opacity-75">
-							Here's a behind-the-scenes look at how Opey works!
+							{m.opey_diagram_description()}
 						</Dialog.Description>
 
 						<div class="flex min-h-64 items-center justify-center">
 							{#if isLoadingDiagram}
 								<div class="flex flex-col items-center gap-4">
 									<div class="h-12 w-12 animate-spin rounded-full border-b-2 border-primary-500"></div>
-									<p class="text-sm opacity-75">Loading diagram...</p>
+									<p class="text-sm opacity-75">{m.opey_diagram_loading()}</p>
 								</div>
 							{:else if diagramError}
 								<div class="space-y-2 text-center">
-									<p class="text-error-500">😔 Failed to load diagram</p>
+									<p class="text-error-500">{m.opey_diagram_failed()}</p>
 									<p class="text-sm opacity-75">{diagramError}</p>
 								</div>
 							{:else if diagramUrl}
@@ -1129,12 +1130,12 @@
 		<textarea
 			bind:value={messageInput}
 			placeholder={!userAuthenticated
-				? 'Please log in to ask me anything...'
+				? m.opey_placeholder_login()
 				: options.inputPlaceholder
 					? options.inputPlaceholder
 					: chat.messages.length === 0
-					? 'Ask me about the Open Bank Project API'
-					: 'Ask me anything...'}
+					? m.opey_placeholder_first()
+					: m.opey_placeholder()}
 			class="w-full resize-none border-none bg-transparent p-0.5 outline-none shadow-none focus:outline-none focus:shadow-none focus:ring-0 focus-visible:outline-none max-h-40 overflow-y-auto"
 			style="min-height: 2.5rem;"
 			disabled={session?.status !== 'ready' || !userAuthenticated}
@@ -1151,7 +1152,7 @@
 
 			<div class="flex justify-end items-end">
 				{#if isCurrentlyStreaming}
-					<button class="btn btn-sm" onclick={handleStopStreaming} title="Stop generation">
+					<button class="btn btn-sm" onclick={handleStopStreaming} title={m.opey_stop()}>
 						<StopCircle class="h-6 w-6" />
 					</button>
 				{:else}
@@ -1216,11 +1217,11 @@
 				{#if chat.conversationRecord}
 					<p class="mt-1 text-[11px] text-surface-500 dark:text-surface-400" data-testid="conversation-record-status">
 						{#if chat.conversationRecord.status === 'saved'}
-							This conversation is saved to your data as it goes.
+							{m.opey_record_saved()}
 						{:else if chat.conversationRecord.status === 'unavailable'}
-							Conversation recording is not set up on this instance ({chat.conversationRecord.entityName} is not defined), so this chat is not saved.
+							{m.opey_record_unavailable({ entityName: chat.conversationRecord.entityName })}
 						{:else}
-							Saving this conversation failed: {chat.conversationRecord.detail}. It will be retried after the next message.
+							{m.opey_record_failed({ detail: chat.conversationRecord.detail ?? '' })}
 						{/if}
 					</p>
 				{/if}

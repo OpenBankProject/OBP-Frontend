@@ -21,6 +21,7 @@
 	import { Copy, Check } from '@lucide/svelte';
 	import type { HealthSummary, ServiceHealthView } from '$shared/health-check/summarize';
 	import { runSseProbe, SSE_PROBE_PATH } from '$shared/health-check/sseProbe';
+	import { m, counted, formatDate, formatNumber } from '$shared/i18n';
 
 	interface BuildInfo {
 		version: string;
@@ -245,8 +246,20 @@
 	}
 
 	function formatTimestamp(isoString: string): string {
-		const date = new Date(isoString);
-		return date.toLocaleString();
+		return formatDate(new Date(isoString), { dateStyle: 'medium', timeStyle: 'medium' });
+	}
+
+	// A service's state in the page's language; one the page does not know is shown as it is.
+	const STATUS_LABELS: Record<string, () => string> = {
+		healthy: m.status_value_healthy,
+		unhealthy: m.status_value_unhealthy,
+		partial: m.status_value_partial,
+		degraded: m.status_value_degraded,
+		unknown: m.status_value_unknown
+	};
+	function statusLabel(status: string, stale?: boolean): string {
+		const label = STATUS_LABELS[status]?.() ?? status;
+		return stale ? `${label} ${m.status_value_stale()}` : label;
 	}
 
 	function formatResponseTime(ms?: number): string {
@@ -266,7 +279,7 @@
 			countdown = refreshInterval;
 		} catch (error) {
 			const msg = error instanceof Error ? error.message : String(error);
-			refreshError = `Refresh failed at ${new Date().toLocaleTimeString()}: ${msg}`;
+			refreshError = m.status_refresh_failed({ time: formatDate(new Date(), { timeStyle: 'medium' }), error: msg });
 			console.error('Failed to refresh status:', error);
 		}
 		await Promise.all([runOpeyBrowserCheck(), runSseBrowserCheck()]);
@@ -334,7 +347,7 @@
 
 <div class="container mx-auto px-4 py-8 max-w-5xl">
 	<div class="mb-8">
-		<h1 class="text-4xl font-bold mb-2 h1">System Status</h1>
+		<h1 class="text-4xl font-bold mb-2 h1">{m.status_title()}</h1>
 		{#if buildInfo}
 			<p class="mt-2 text-sm text-gray-500 dark:text-gray-400 font-mono" data-testid="build-info">
 				<span data-testid="build-version">v{buildInfo.version}</span>{#if buildInfo.commit !== 'unknown'}
@@ -351,7 +364,7 @@
 			data-testid="status-refresh-error"
 		>
 			<p class="text-sm text-yellow-800 dark:text-yellow-200">
-				{refreshError} — the data below is from {formatTimestamp(data.timestamp)} and may be outdated.
+				{m.status_outdated({ error: refreshError, time: formatTimestamp(data.timestamp) })}
 			</p>
 		</div>
 	{/if}
@@ -361,19 +374,19 @@
 		<div class="flex items-center justify-between mb-4">
 			<div>
 				<p class="text-sm text-gray-600 dark:text-gray-400">
-					Last updated: {formatTimestamp(data.timestamp)}
+					{m.status_last_updated({ time: formatTimestamp(data.timestamp) })}
 				</p>
 			</div>
 			<div class="flex items-center gap-4">
 				<label class="flex items-center gap-2 text-sm">
 					<input type="checkbox" bind:checked={autoRefresh} class="rounded" />
-					Auto-refresh ({countdown}s)
+					{m.status_auto_refresh({ seconds: formatNumber(countdown) })}
 				</label>
 				<button
 					onclick={refreshData}
 					class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
 				>
-					Refresh Now
+					{m.status_refresh_now()}
 				</button>
 			</div>
 		</div>
@@ -385,14 +398,14 @@
 				</div>
 				<div>
 					<div class="text-3xl font-bold {getStatusTextColor(data.overallStatus)} capitalize" data-testid="overall-status">
-						{data.overallStatus}
+						{statusLabel(data.overallStatus)}
 					</div>
 					<div class="text-lg text-gray-600 dark:text-gray-400">
-						{data.summary.healthy} of {data.summary.total} services healthy
+						{m.status_healthy_of({ healthy: formatNumber(data.summary.healthy), total: formatNumber(data.summary.total) })}
 					</div>
 					{#if data.summary.stale > 0}
 						<div class="text-sm text-yellow-700 dark:text-yellow-400" data-testid="stale-count">
-							{data.summary.stale} check{data.summary.stale === 1 ? '' : 's'} stale — counted as unknown
+							{m.status_stale_count(counted(data.summary.stale))}
 						</div>
 					{/if}
 				</div>
@@ -400,20 +413,20 @@
 
 			<div class="grid grid-cols-2 gap-4">
 				<div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-					<div class="text-2xl font-bold text-gray-900 dark:text-white">{data.summary.total}</div>
-					<div class="text-sm text-gray-600 dark:text-gray-400">Total Services</div>
+					<div class="text-2xl font-bold text-gray-900 dark:text-white">{formatNumber(data.summary.total)}</div>
+					<div class="text-sm text-gray-600 dark:text-gray-400">{m.status_total()}</div>
 				</div>
 				<div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
-					<div class="text-2xl font-bold text-green-600 dark:text-green-400">{data.summary.healthy}</div>
-					<div class="text-sm text-gray-600 dark:text-gray-400">Healthy</div>
+					<div class="text-2xl font-bold text-green-600 dark:text-green-400">{formatNumber(data.summary.healthy)}</div>
+					<div class="text-sm text-gray-600 dark:text-gray-400">{m.status_healthy()}</div>
 				</div>
 				<div class="{data.summary.unhealthy > 0 ? 'bg-red-50 dark:bg-red-900/20' : 'bg-gray-50 dark:bg-gray-700'} rounded-lg p-4">
-					<div class="text-2xl font-bold {data.summary.unhealthy > 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'}">{data.summary.unhealthy}</div>
-					<div class="text-sm text-gray-600 dark:text-gray-400">Unhealthy</div>
+					<div class="text-2xl font-bold {data.summary.unhealthy > 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'}">{formatNumber(data.summary.unhealthy)}</div>
+					<div class="text-sm text-gray-600 dark:text-gray-400">{m.status_unhealthy()}</div>
 				</div>
 				<div class="bg-gray-100 dark:bg-gray-600 rounded-lg p-4">
-					<div class="text-2xl font-bold text-gray-600 dark:text-gray-400">{data.summary.unknown}</div>
-					<div class="text-sm text-gray-600 dark:text-gray-400">Unknown / Stale</div>
+					<div class="text-2xl font-bold text-gray-600 dark:text-gray-400">{formatNumber(data.summary.unknown)}</div>
+					<div class="text-sm text-gray-600 dark:text-gray-400">{m.status_unknown_stale()}</div>
 				</div>
 			</div>
 		</div>
@@ -421,7 +434,7 @@
 
 	<!-- Services List -->
 	<div class="space-y-4">
-		<h2 class="text-2xl font-bold mb-4">Service Details</h2>
+		<h2 class="text-2xl font-bold mb-4">{m.status_service_details()}</h2>
 
 		{#each Object.entries(data.services) as [serviceName, service]}
 			<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:shadow-lg transition-shadow" data-stale={service.stale ? 'true' : 'false'}>
@@ -437,8 +450,8 @@
 									type="button"
 									onclick={() => copyServiceDetails(serviceName, service)}
 									class="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
-									aria-label="Copy {service.service} details"
-									title="Copy details"
+									aria-label={m.status_copy_label({ service: service.service })}
+									title={m.status_copy()}
 									data-testid="copy-service-{serviceName}"
 								>
 									{#if copiedService === serviceName}
@@ -450,29 +463,29 @@
 							</div>
 							<div class="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
 								<span class="flex items-center gap-1">
-									<span class="font-medium">Status:</span>
+									<span class="font-medium">{m.status_label()}</span>
 									<span class="{getStatusTextColor(service.status, service.stale)} font-semibold capitalize">
-										{service.status}{service.stale ? ' (stale)' : ''}
+										{statusLabel(service.status, service.stale)}
 									</span>
 								</span>
 								{#if service.responseTimeMs !== undefined}
 									<span class="flex items-center gap-1">
-										<span class="font-medium">Response Time:</span>
+										<span class="font-medium">{m.status_response_time()}</span>
 										<span class={service.responseTimeMs > 5000 ? 'text-red-600 dark:text-red-400' : service.responseTimeMs > 1000 ? 'text-yellow-600 dark:text-yellow-400' : 'text-green-600 dark:text-green-400'}>
 											{formatResponseTime(service.responseTimeMs)}
 										</span>
 									</span>
 								{/if}
 								<span class="flex items-center gap-1">
-									<span class="font-medium">Last Checked:</span>
+									<span class="font-medium">{m.status_last_checked()}</span>
 									<span>{formatTimestamp(service.lastChecked)}</span>
 									{#if service.intervalMs}
-										<span>(checked every {Math.round(service.intervalMs / 1000)}s)</span>
+										<span>{m.status_checked_every({ seconds: formatNumber(Math.round(service.intervalMs / 1000)) })}</span>
 									{/if}
 								</span>
 								{#if service.conecutiveFailures > 0}
 									<span class="flex items-center gap-1 text-red-600 dark:text-red-400">
-										<span class="font-medium">Consecutive Failures:</span>
+										<span class="font-medium">{m.status_failures()}</span>
 										<span class="font-bold">{service.conecutiveFailures}</span>
 									</span>
 								{/if}
@@ -480,7 +493,7 @@
 							{#if service.stale}
 								<div class="mt-2 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded border border-yellow-300 dark:border-yellow-700">
 									<p class="text-sm text-yellow-800 dark:text-yellow-200">
-										This check has not reported since {formatTimestamp(service.lastChecked)} — the last result says nothing about the current state, so it is counted as unknown.
+										{m.status_stale_note({ time: formatTimestamp(service.lastChecked) })}
 									</p>
 								</div>
 							{/if}
@@ -503,7 +516,7 @@
 							{#if service.error}
 								<div class="mt-2 p-3 bg-red-50 dark:bg-red-900/20 rounded border border-red-200 dark:border-red-800">
 									<p class="text-sm text-red-700 dark:text-red-300 font-mono">
-										<span class="font-semibold">Error:</span> {service.error}
+										<span class="font-semibold">{m.status_error()}</span> {service.error}
 									</p>
 								</div>
 							{/if}
@@ -516,7 +529,7 @@
 		{#if Object.keys(data.services).length === 0}
 			<div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-8 text-center" data-testid="no-services-monitored">
 				<p class="text-gray-600 dark:text-gray-400">
-					No services are being monitored — nothing can be said about system health.
+					{m.status_no_services()}
 				</p>
 			</div>
 		{/if}
@@ -530,20 +543,20 @@
 							{getStatusIcon(opeyBrowserCheck.status)}
 						</div>
 						<div class="flex-1">
-							<h3 class="text-xl font-semibold mb-1">Opey (browser)</h3>
+							<h3 class="text-xl font-semibold mb-1">{m.status_opey_browser()}</h3>
 							<p class="text-xs text-gray-500 dark:text-gray-400 mb-2">
-								Fetched directly from your browser to PUBLIC_OPEY_BASE_URL — mirrors the path the Opey chat uses.
+								{m.status_opey_browser_note()}
 							</p>
 							<div class="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
 								<span class="flex items-center gap-1">
-									<span class="font-medium">Status:</span>
+									<span class="font-medium">{m.status_label()}</span>
 									<span class="{getStatusTextColor(opeyBrowserCheck.status)} font-semibold capitalize">
-										{opeyBrowserCheck.status}
+										{statusLabel(opeyBrowserCheck.status)}
 									</span>
 								</span>
 								{#if opeyBrowserCheck.responseTimeMs !== undefined}
 									<span class="flex items-center gap-1">
-										<span class="font-medium">Response Time:</span>
+										<span class="font-medium">{m.status_response_time()}</span>
 										<span class={opeyBrowserCheck.responseTimeMs > 5000 ? 'text-red-600 dark:text-red-400' : opeyBrowserCheck.responseTimeMs > 1000 ? 'text-yellow-600 dark:text-yellow-400' : 'text-green-600 dark:text-green-400'}>
 											{formatResponseTime(opeyBrowserCheck.responseTimeMs)}
 										</span>
@@ -551,7 +564,7 @@
 								{/if}
 								{#if opeyBrowserCheck.lastChecked}
 									<span class="flex items-center gap-1">
-										<span class="font-medium">Last Checked:</span>
+										<span class="font-medium">{m.status_last_checked()}</span>
 										<span>{formatTimestamp(opeyBrowserCheck.lastChecked)}</span>
 									</span>
 								{/if}
@@ -565,7 +578,7 @@
 							{#if opeyBrowserCheck.error}
 								<div class="mt-2 p-3 bg-red-50 dark:bg-red-900/20 rounded border border-red-200 dark:border-red-800">
 									<p class="text-sm text-red-700 dark:text-red-300 font-mono">
-										<span class="font-semibold">Error:</span> {opeyBrowserCheck.error}
+										<span class="font-semibold">{m.status_error()}</span> {opeyBrowserCheck.error}
 									</p>
 								</div>
 							{/if}
@@ -583,20 +596,20 @@
 						{getStatusIcon(sseBrowserCheck.status)}
 					</div>
 					<div class="flex-1">
-						<h3 class="text-xl font-semibold mb-1">SSE streaming (browser)</h3>
+						<h3 class="text-xl font-semibold mb-1">{m.status_sse_title()}</h3>
 						<p class="text-xs text-gray-500 dark:text-gray-400 mb-2">
-							Streamed from your browser via {SSE_PROBE_PATH} — the same transport the live streaming features use. Detects proxies that buffer server-sent events.
+							{m.status_sse_note({ path: SSE_PROBE_PATH })}
 						</p>
 						<div class="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
 							<span class="flex items-center gap-1">
-								<span class="font-medium">Status:</span>
+								<span class="font-medium">{m.status_label()}</span>
 								<span class="{getStatusTextColor(sseBrowserCheck.status)} font-semibold capitalize">
-									{sseBrowserCheck.status}
+									{statusLabel(sseBrowserCheck.status)}
 								</span>
 							</span>
 							{#if sseBrowserCheck.responseTimeMs !== undefined}
 								<span class="flex items-center gap-1">
-									<span class="font-medium">First Event:</span>
+									<span class="font-medium">{m.status_first_event()}</span>
 									<span class={sseBrowserCheck.responseTimeMs > 5000 ? 'text-red-600 dark:text-red-400' : sseBrowserCheck.responseTimeMs > 1000 ? 'text-yellow-600 dark:text-yellow-400' : 'text-green-600 dark:text-green-400'}>
 										{formatResponseTime(sseBrowserCheck.responseTimeMs)}
 									</span>
@@ -604,7 +617,7 @@
 							{/if}
 							{#if sseBrowserCheck.lastChecked}
 								<span class="flex items-center gap-1">
-									<span class="font-medium">Last Checked:</span>
+									<span class="font-medium">{m.status_last_checked()}</span>
 									<span>{formatTimestamp(sseBrowserCheck.lastChecked)}</span>
 								</span>
 							{/if}
@@ -618,7 +631,7 @@
 						{#if sseBrowserCheck.error}
 							<div class="mt-2 p-3 bg-red-50 dark:bg-red-900/20 rounded border border-red-200 dark:border-red-800">
 								<p class="text-sm text-red-700 dark:text-red-300 font-mono">
-									<span class="font-semibold">Error:</span> {sseBrowserCheck.error}
+									<span class="font-semibold">{m.status_error()}</span> {sseBrowserCheck.error}
 								</p>
 							</div>
 						{/if}
@@ -628,13 +641,13 @@
 		</div>
 	</div>
 	<div class="mt-8" data-testid="monitoring-endpoints">
-		<h2 class="mb-4 text-2xl font-bold">Monitoring</h2>
+		<h2 class="mb-4 text-2xl font-bold">{m.status_monitoring()}</h2>
 		<div class="overflow-x-auto rounded-lg bg-white shadow dark:bg-gray-800">
-			<table class="w-full text-left text-sm">
+			<table class="w-full text-start text-sm">
 				<thead class="text-xs uppercase text-gray-500 dark:text-gray-400">
 					<tr>
-						<th class="px-4 py-2">Endpoint (GET, Bearer token)</th>
-						<th class="px-4 py-2">Roles</th>
+						<th class="px-4 py-2">{m.status_endpoint_column()}</th>
+						<th class="px-4 py-2">{m.status_roles_column()}</th>
 					</tr>
 				</thead>
 				<tbody>

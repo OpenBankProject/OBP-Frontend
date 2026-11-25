@@ -54,6 +54,12 @@ To change a term, change it here and in every message that uses it.
 | separation of duties | الفصل بين المهام | The person who approves is not the person who reviewed |
 | Role | الدور (الأدوار) | An OBP-API Role (entitlement); the Role's own name stays in Latin letters |
 | administrator | المسؤول | An OBP-API administrator |
+| Entitlement | الصلاحية (الصلاحيات) | A Role granted to a user; "Missing Entitlement" is صلاحية غير ممنوحة |
+| Entitlement Request | طلب صلاحية (طلبات الصلاحيات) | |
+| Just In Time (JIT) | المنح الفوري (Just In Time) | A Role granted automatically on first use |
+| bank-level / system-wide role | دور على مستوى البنك / دور على مستوى النظام | |
+| consent | الموافقة (الموافقات) | An open banking consent |
+| healthy / unhealthy / unknown | سليمة / غير سليمة / غير معروفة | A service's state on the status page; degraded متراجعة, partial جزئية, stale متقادمة |
 | Consumer, Platform App, Scope | Consumer، Platform App، النطاق (Scope) | OBP-API terms: Consumer and Platform App stay in Latin letters; Scope is النطاق with (Scope) after it |
 | client id, token | معرّف العميل (client id)، الرمز المميز (token) | |
 | endpoint | نقطة النهاية (نقاط النهاية) | An API endpoint |

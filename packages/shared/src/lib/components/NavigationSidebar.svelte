@@ -174,11 +174,11 @@
 		<button
 			type="button"
 			onclick={toggleNav}
-			class="absolute -right-6 top-6 z-10 flex items-center justify-center opacity-50 hover:opacity-100 transition-opacity"
-			title="Collapse navigation"
-			aria-label="Collapse navigation"
+			class="absolute -end-6 top-6 z-10 flex items-center justify-center opacity-50 hover:opacity-100 transition-opacity"
+			title={m.nav_collapse()}
+			aria-label={m.nav_collapse()}
 		>
-			<ChevronLeft class="size-5" />
+			<ChevronLeft class="size-5 rtl:rotate-180" />
 		</button>
 	{/if}
 
@@ -200,13 +200,13 @@
 			<button
 				type="button"
 				onclick={toggleNav}
-				class="btn absolute top-1/2 left-0 right-0 -translate-y-1/2 w-full justify-start gap-3 px-3 hover:preset-tonal transition-opacity duration-200"
+				class="btn absolute top-1/2 start-0 end-0 -translate-y-1/2 w-full justify-start gap-3 px-3 hover:preset-tonal transition-opacity duration-200"
 				class:opacity-0={isNavExpanded}
 				class:pointer-events-none={isNavExpanded}
-				title="Expand navigation"
-				aria-label="Expand navigation"
+				title={m.nav_expand()}
+				aria-label={m.nav_expand()}
 			>
-				<ChevronRight class="size-5" />
+				<ChevronRight class="size-5 rtl:rotate-180" />
 			</button>
 		</header>
 
@@ -249,7 +249,7 @@
 					{#if isNavExpanded}
 						<button
 							type="button"
-							class="hover:bg-surface-100-800 flex w-full items-center justify-between rounded-md p-3 text-left transition-colors"
+							class="hover:bg-surface-100-800 flex w-full items-center justify-between rounded-md p-3 text-start transition-colors"
 							class:bg-primary-100-800={isMyAccountActive}
 							onclick={toggleMyAccount}
 						>
@@ -265,15 +265,15 @@
 						</button>
 
 						{#if isMyAccountExpanded}
-							<ul class="mt-1 ml-4 flex flex-col gap-1">
+							<ul class="mt-1 ms-4 flex flex-col gap-1">
 								{#each myAccountItems as subItem (subItem.href)}
 									{@const Icon = subItem.iconComponent}
 									<li>
 										<a
 											href={subItem.href}
-											class="btn w-full justify-start gap-3 px-2 pl-6 text-sm whitespace-nowrap overflow-hidden hover:preset-tonal"
+											class="btn w-full justify-start gap-3 px-2 ps-6 text-sm whitespace-nowrap overflow-hidden hover:preset-tonal"
 											class:preset-filled-secondary-50-950={currentPathname === subItem.href}
-											class:border-l-2={currentPathname === subItem.href}
+											class:border-s-2={currentPathname === subItem.href}
 											class:border-primary-500={currentPathname === subItem.href}
 											title={tooltip(subItem.href, subItem.label)}
 											aria-label={subItem.label}
@@ -333,7 +333,7 @@
 						{:else if isNavExpanded}
 							<button
 								type="button"
-								class="hover:bg-surface-100-800 flex w-full items-center justify-between rounded-md p-3 text-left transition-colors"
+								class="hover:bg-surface-100-800 flex w-full items-center justify-between rounded-md p-3 text-start transition-colors"
 								class:bg-primary-100-800={isSectionActive(section)}
 								onclick={() => toggleSection(section.id)}
 							>
@@ -355,11 +355,11 @@
 										items: g.items.filter((i) => isAuthenticated || !i.requiresAuth)
 									}))
 									.filter((g) => g.items.length > 0)}
-								<ul class="mt-1 ml-4 flex flex-col gap-1">
+								<ul class="mt-1 ms-4 flex flex-col gap-1">
 									{#each subsections as group (group.label)}
 										{#if group.label}
 											<li
-												class="text-surface-500 mt-2 px-2 pl-6 text-[11px] font-semibold tracking-wider uppercase"
+												class="text-surface-500 mt-2 px-2 ps-6 text-[11px] font-semibold tracking-wider uppercase"
 												data-testid="nav-subsection-{group.label}"
 											>
 												{group.label}
@@ -370,9 +370,9 @@
 										<li>
 											<a
 												href={subItem.href}
-												class="btn w-full justify-start gap-3 px-2 pl-6 text-sm whitespace-nowrap overflow-hidden hover:preset-tonal"
+												class="btn w-full justify-start gap-3 px-2 ps-6 text-sm whitespace-nowrap overflow-hidden hover:preset-tonal"
 												class:preset-filled-secondary-50-950={isSubItemActive(subItem.href)}
-												class:border-l-2={isSubItemActive(subItem.href)}
+												class:border-s-2={isSubItemActive(subItem.href)}
 												class:border-primary-500={isSubItemActive(subItem.href)}
 												title={tooltip(subItem.href, subItem.label)}
 												aria-label={subItem.loginRequired && !isAuthenticated ? `${subItem.label} (log in required)` : subItem.label}
@@ -415,7 +415,7 @@
 		<footer class="shrink-0 px-3 pt-2 pb-4">
 			{#if !isNavExpanded && collapsedLogoUrl}
 				<div class="flex justify-center">
-					<a href="/" title="Home">
+					<a href="/" title={m.nav_home()}>
 						<img src={collapsedLogoUrl} alt="Logo" class="max-w-10 max-h-10 object-contain" />
 					</a>
 				</div>

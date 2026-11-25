@@ -27,6 +27,7 @@
 <script lang="ts">
   import MissingRoleAlert from "$shared/components/MissingRoleAlert.svelte";
   import { checkRoles, type UserEntitlement } from "$shared/roles/roleCheck";
+  import { m } from "$shared/i18n";
 
   interface Props {
     /** The space the Roles are needed at: a bank id, or SYS. */
@@ -53,7 +54,7 @@
 {#if missing.length > 0}
   <div class="mb-4 space-y-2" data-testid="space-role-alerts">
     {#each missing as r (r.role)}
-      <MissingRoleAlert roles={[r.role]} {bankId} jitCovered={r.jitCovered} message="You need this Role at {bankId} {r.purpose}." />
+      <MissingRoleAlert roles={[r.role]} {bankId} jitCovered={r.jitCovered} message={m.role_alert_needed_at_space({ bankId, purpose: r.purpose })} />
     {/each}
   </div>
 {/if}
