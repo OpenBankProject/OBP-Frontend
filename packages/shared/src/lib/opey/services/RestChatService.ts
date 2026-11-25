@@ -20,6 +20,7 @@ const logger = createLogger('RestChatService');
 import type { ChatService, StreamEvent } from './ChatService';
 import { CookieAuthStrategy, type AuthStrategy } from './AuthStrategy';
 import type { UserMessage } from '../types';
+import { getLocale } from '$shared/i18n';
 
 export class RestChatService implements ChatService {
 	private errorCallback?: (err: Error) => void;
@@ -37,6 +38,11 @@ export class RestChatService implements ChatService {
 	) {
 
 		logger.info("Initialized Opey Chat with baseUrl:", baseUrl)
+	}
+
+	/** What every request carries: the page's language, so Opey answers in it, and the app's own context. */
+	private requestContext(): Record<string, unknown> {
+		return { page_language: getLocale(), ...(this.contextProvider?.() ?? {}) };
 	}
 
 	async sendClientToolResult(
@@ -59,7 +65,7 @@ export class RestChatService implements ChatService {
 			},
 			// Re-declare client capabilities: the graph is rebuilt per request and the
 			// resumed tool batch re-executes inside it, so client_tools must be present.
-			...(this.contextProvider?.() ?? {})
+			...this.requestContext()
 		};
 
 		const init = await this.buildInit({
@@ -91,7 +97,7 @@ export class RestChatService implements ChatService {
 		,
 			// Keep per-request context (client_tools, current_bank_id, ...) on resumes too:
 			// the graph is rebuilt per request, so declared client tools must be re-sent.
-			...(this.contextProvider?.() ?? {})
+			...this.requestContext()
 		};
 		
 		const init = await this.buildInit({
@@ -118,7 +124,7 @@ export class RestChatService implements ChatService {
 		,
 			// Keep per-request context (client_tools, current_bank_id, ...) on resumes too:
 			// the graph is rebuilt per request, so declared client tools must be re-sent.
-			...(this.contextProvider?.() ?? {})
+			...this.requestContext()
 		};
 		
 		const init = await this.buildInit({
@@ -147,7 +153,7 @@ export class RestChatService implements ChatService {
 		,
 			// Keep per-request context (client_tools, current_bank_id, ...) on resumes too:
 			// the graph is rebuilt per request, so declared client tools must be re-sent.
-			...(this.contextProvider?.() ?? {})
+			...this.requestContext()
 		};
 
 		logger.info(`Consent payload:`, JSON.stringify(payload, null, 2));
@@ -169,6 +175,9 @@ export class RestChatService implements ChatService {
 
 		const init = await this.buildInit({
 			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			// The regenerated answer is in the page's language too.
+			body: JSON.stringify({ page_language: getLocale() }),
 			signal: this.abortController.signal
 		});
 
@@ -186,7 +195,7 @@ export class RestChatService implements ChatService {
 
 	async send(msg: UserMessage, threadId?: string): Promise<void> {
 		// Extra context (e.g. current_bank_id) resolved fresh at send time.
-		const context = this.contextProvider?.() ?? {};
+		const context = this.requestContext();
 
 		// Create StreamInput with thread_id and correlation_id included
 		const streamInput = {

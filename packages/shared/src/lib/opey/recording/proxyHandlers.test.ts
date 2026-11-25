@@ -233,6 +233,21 @@ describe("the app's supplementary prompt", () => {
 		expect(JSON.parse(sent[1].body)).toEqual({ app_supplementary_prompt: 'Cohort runs startup programmes.' });
 	});
 
+	it("keeps the browser's page language on regenerate", async () => {
+		const sent: string[] = [];
+		const handlers = createOpeyProxyHandlers({
+			opeyBaseUrl: () => 'http://opey.test',
+			getAccessToken: () => undefined,
+			appSupplementaryPrompt: () => 'Cohort runs startup programmes.',
+			fetchImpl: (async (_url: string, init: RequestInit) => {
+				sent.push(String(init.body ?? ''));
+				return opeyStream([]);
+			}) as unknown as typeof fetch
+		});
+		await handlers.regenerate.POST(fakeEvent({ params: { threadId: 't1' }, search: '?message_id=m1', body: { page_language: 'ar' } }));
+		expect(JSON.parse(sent[0])).toEqual({ page_language: 'ar', app_supplementary_prompt: 'Cohort runs startup programmes.' });
+	});
+
 	it("drops the browser's value when the app has none, and leaves other bodies alone", () => {
 		expect(JSON.parse(withAppSupplementaryPrompt('{"message":"hi","app_supplementary_prompt":"x"}', undefined))).toEqual({ message: 'hi' });
 		expect(withAppSupplementaryPrompt('{"message":"hi"}', '  ')).toBe('{"message":"hi"}');

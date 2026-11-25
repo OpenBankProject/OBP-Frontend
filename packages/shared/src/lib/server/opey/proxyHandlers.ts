@@ -303,14 +303,16 @@ export function createOpeyProxyHandlers(config: OpeyProxyConfig): OpeyProxyHandl
 		const url = new URL(`${base}/stream/${encodeURIComponent(threadId)}/regenerate`);
 		if (messageId) url.searchParams.set('message_id', messageId);
 
-		// The regenerated answer needs the app's focus again; an Opey without the body field ignores it.
-		const appPrompt = config.appSupplementaryPrompt?.()?.trim();
+		// The regenerated answer needs the app's focus again, and the browser's page language; an Opey without the
+		// body fields ignores them.
+		const browserBody = (await event.request.text()).trim() || '{}';
+		const bodyText = withAppSupplementaryPrompt(browserBody, config.appSupplementaryPrompt?.());
 		let upstream: Response;
 		try {
 			upstream = await fetchImpl(url, {
 				method: 'POST',
 				headers: upstreamHeaders(event, { 'Content-Type': 'application/json', Accept: 'text/event-stream' }),
-				...(appPrompt ? { body: JSON.stringify({ app_supplementary_prompt: appPrompt }) } : {})
+				...(bodyText !== '{}' ? { body: bodyText } : {})
 			});
 		} catch (err) {
 			return upstreamFailure('regenerate', err);
