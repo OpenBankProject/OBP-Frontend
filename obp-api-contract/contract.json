@@ -10683,6 +10683,88 @@
    ],
    "reads": [],
    "note": "The obp_api status check: it GETs the root endpoint, which needs no login, and only looks at the HTTP status."
+  },
+  {
+   "verb": "POST",
+   "path": "/obp/v7.0.0/management/banks/BANK_ID/dynamic-entities/DYNAMIC_ENTITY_ID/audit-chain",
+   "source": "apps/conformator/src/lib/server/auditChains.ts",
+   "needles": [
+    "const MANAGEMENT = '/obp/v7.0.0/management';",
+    "/dynamic-entities/${encodeURIComponent(dynamicEntityId)}/audit-chain`"
+   ],
+   "reads": [],
+   "undocumented_endpoint": "In OBP-API since the Dynamic Entity audit chains were added (November 2026); the OBP-API whose resource docs the snapshot is taken from does not document them yet. Take the snapshot again once it does.",
+   "note": "Only success, or the error OBP-09042 (already started), is read."
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v7.0.0/management/dynamic-entity-audit-chains/root",
+   "source": "apps/conformator/src/lib/server/auditChains.ts",
+   "needles": [
+    "const MANAGEMENT = '/obp/v7.0.0/management';",
+    "return await obpRequests.get(ROOT, token);"
+   ],
+   "reads": [
+    "last_sequence",
+    "last_hash"
+   ],
+   "undocumented_endpoint": "In OBP-API since the Dynamic Entity audit chains were added (November 2026); the OBP-API whose resource docs the snapshot is taken from does not document them yet. Take the snapshot again once it does."
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v7.0.0/management/dynamic-entity-audit-chains/root/check",
+   "source": "apps/conformator/src/lib/server/auditChains.ts",
+   "needles": [
+    "const MANAGEMENT = '/obp/v7.0.0/management';",
+    "`${ROOT}/check?include_chains=true`"
+   ],
+   "reads": [
+    "is_intact",
+    "entries_checked",
+    "chains_checked",
+    "last_sequence",
+    "last_hash",
+    "problem_count",
+    "problems[].sequence",
+    "problems[].record_id",
+    "problems[].chain_id",
+    "problems[].problem",
+    "checked_at"
+   ],
+   "undocumented_endpoint": "In OBP-API since the Dynamic Entity audit chains were added (November 2026); the OBP-API whose resource docs the snapshot is taken from does not document them yet. Take the snapshot again once it does."
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v7.0.0/management/dynamic-entity-audit-chains/root/entries",
+   "source": "apps/conformator/src/lib/server/auditChains.ts",
+   "needles": [
+    "const MANAGEMENT = '/obp/v7.0.0/management';",
+    "`${ROOT}/entries?from_sequence=${from}&limit=${ENTRIES_PAGE}`"
+   ],
+   "reads": [
+    "entries[].sequence",
+    "entries[].operation",
+    "entries[].record_id",
+    "entries[].recorded_at",
+    "entries[].data"
+   ],
+   "undocumented_endpoint": "In OBP-API since the Dynamic Entity audit chains were added (November 2026); the OBP-API whose resource docs the snapshot is taken from does not document them yet. Take the snapshot again once it does.",
+   "note": "data is read for entity_name and bank_id, which a CHAIN_STARTED entry records."
+  },
+  {
+   "verb": "POST",
+   "path": "/obp/v7.0.0/management/dynamic-entity-audit-chains/root/seal",
+   "source": "apps/conformator/src/lib/server/auditChains.ts",
+   "needles": [
+    "const MANAGEMENT = '/obp/v7.0.0/management';",
+    "obpRequests.post(`${ROOT}/seal`, {}, token)"
+   ],
+   "reads": [
+    "chains_sealed",
+    "root_chain.last_sequence",
+    "root_chain.last_hash"
+   ],
+   "undocumented_endpoint": "In OBP-API since the Dynamic Entity audit chains were added (November 2026); the OBP-API whose resource docs the snapshot is taken from does not document them yet. Take the snapshot again once it does."
   }
  ],
  "not_calls": [

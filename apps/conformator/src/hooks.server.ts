@@ -54,8 +54,7 @@ if (!building) {
 }
 
 /**
- * Create the central entities, and keep trying every five minutes until they all exist, so granting the Scopes later
- * takes effect without a restart. A dev-server reload starts a new loop and stops the old one.
+ * Create the central entities and start their audit chains, and keep trying every five minutes until all are done, so granting the Scopes later takes effect without a restart. A dev-server reload starts a new loop and stops the old one.
  */
 function startEntityBootstrap() {
 	const key = Symbol.for('obp.conformator.entityBootstrap');

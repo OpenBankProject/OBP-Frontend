@@ -21,6 +21,7 @@ import { bankExists } from './setupStatus';
 import { currentUser, holds } from './staffAccess';
 import { ensureEntities } from './entities/bootstrap';
 import { PARTICIPANT_ENTITIES } from './entities/definitions';
+import { AUDITED_PARTICIPANT_ENTITIES, START_CHAIN_ROLE, startAuditChains } from './auditChains';
 import { dynamicEntityDefinitionsPath } from '@obp/shared/obp';
 import { runnerSpaceScopes } from '@obp/shared/conformator';
 import { runnerConsumerId } from './space';
@@ -41,6 +42,8 @@ export const SPACE_SETUP_ROLES = [
 	'CanCreateDynamicEntityDefinition',
 	'CanUpdateDynamicEntityDefinition',
 	'CanCreateScopeAtOneBank',
+	// To start the audit chains of the decision entities there.
+	START_CHAIN_ROLE,
 	// To see who holds which Role there, and to take Roles away from people who have left the participant's
 	// Organisation, when bringing access in line with it.
 	...ORGANISATION_ACCESS_SELF_ROLES
@@ -66,7 +69,8 @@ export interface SpaceStep {
  *    CanCreateEntitlementAtOneBank at the new bank.
  * 2. Grant the administrator the Roles to manage dynamic entities there, using that Role.
  * 3. Create the participant entities there. OBP-API gives the creator of each entity its record Roles.
- * 4. Grant the runner's Consumer its Scopes there (CONFORMATOR_RUNNER_CONSUMER_ID), so it can run tests in this space.
+ * 4. Start the audit chains of the entities that record submissions and decisions. This cannot be undone: those entities can no longer be deleted or renamed.
+ * 5. Grant the runner's Consumer its Scopes there (CONFORMATOR_RUNNER_CONSUMER_ID), so it can run tests in this space.
  */
 export async function setUpParticipantSpace(space: string, legalName: string, token: string): Promise<SpaceStep[]> {
 	const steps: SpaceStep[] = [];
@@ -108,6 +112,11 @@ export async function setUpParticipantSpace(space: string, legalName: string, to
 	for (const [name, ok] of Object.entries(entities))
 		steps.push({ step: `Dynamic entity ${name}`, ok, detail: ok ? undefined : 'Not created; the server log says why.' });
 	if (!Object.values(entities).every(Boolean)) return steps;
+
+	const chains = await startAuditChains(space, AUDITED_PARTICIPANT_ENTITIES, token);
+	for (const [name, ok] of Object.entries(chains))
+		steps.push({ step: `Audit chain of ${name}`, ok, detail: ok ? undefined : 'Not started; the server log says why.' });
+	if (!Object.values(chains).every(Boolean)) return steps;
 
 	const runner = runnerConsumerId();
 	if (!runner) {

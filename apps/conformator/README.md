@@ -20,8 +20,9 @@ Read [DESIGN_DECISIONS.md](DESIGN_DECISIONS.md) before changing anything.
 - Opey on the suite page, where it is set up: it reads the suite, its endpoints and requirements, drafts tests and fills in the "Add a test" form, which the User checks and submits.
 - Reference runs: a suite page runs the suite against the OBP sandbox (or the mock of its file) before participants use it.
 - The regulator's dashboard (`/staff/dashboard`): participants by stage and kind, reports by standing and by API family and kind of participant, each participant's position, and the tests failed most; with CSV and JSON exports.
+- Audit chains (`/staff/audit`): OBP-API keeps a hash chain of every change to the records of participants' lifecycle decisions, reports and report events in the central space, and of submissions, waiver requests, appeals, review assignments, assessments, waiver and appeal decisions and approvals in each participant's space. The app starts the central chains itself; each participant's space gets its chains when it is set up. Staff check every chain from one page and seal the root chain, which gives one hash to keep outside OBP-API. A chain cannot be stopped, and its entity can no longer be deleted or renamed.
 
-Not built yet: schedules, pairings and interoperability runs, tests of API consumers, and a tamper-evident log of decisions. The OpenID conformance suite is wired into the runner (`openid:plan` checks), but has not been run against a live suite here.
+Not built yet: schedules, pairings and interoperability runs, tests of API consumers, the runner logging in and approving consent on a bank's own pages, an evidence bundle to download, several runners sharing the work, and sealing the audit chains on a timetable. The OpenID conformance suite is wired into the runner (`openid:plan` checks), but has not been run against a live suite here.
 
 ## Development
 

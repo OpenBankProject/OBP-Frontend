@@ -19,6 +19,7 @@ import { obpRequests } from './obp';
 import { centralSpace } from './space';
 import { apiManagerUrl } from './appDirectory';
 import { CREATE_ORGANISATION_ROLE, GET_ORGANISATION_ROLE } from './organisations';
+import { GET_ROOT_CHAIN_ROLE, SEAL_ROOT_CHAIN_ROLE } from './auditChains';
 import { PARTICIPANT, PARTICIPANT_DECISION, REPORT, REPORT_EVENT, REQUIREMENT, SUITE, TEST } from './entities/definitions';
 
 /** A Role the regulator's staff need, what it is for, and where: the central space, or system-wide. */
@@ -47,7 +48,9 @@ export const STAFF_ROLES: StaffRole[] = [
 	{ role_name: `CanCreateDynamicEntityRecord_${REPORT}`, purpose: 'Issuing conformance reports.' },
 	{ role_name: `CanCreateDynamicEntityRecord_${REPORT_EVENT}`, purpose: 'Superseding and withdrawing reports.' },
 	{ role_name: 'CanCreateBank', purpose: "Creating a participant's own space.", system: true },
-	{ role_name: 'CanGetAnyUser', purpose: "Finding a person by username, to name the first admin of a participant's Organisation, or to add a reviewer or approver.", system: true }
+	{ role_name: 'CanGetAnyUser', purpose: "Finding a person by username, to name the first admin of a participant's Organisation, or to add a reviewer or approver.", system: true },
+	{ role_name: GET_ROOT_CHAIN_ROLE, purpose: 'Seeing and checking the audit chains of decisions and reports.', system: true },
+	{ role_name: SEAL_ROOT_CHAIN_ROLE, purpose: 'Sealing the audit chains, to get a hash to keep outside OBP-API.', system: true }
 ];
 
 /** The bank id a staff Role is held at: '' for a system Role, else the central space. */

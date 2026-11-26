@@ -240,6 +240,11 @@ export function conformatorRequiredConsumerScopes(space: string): RequiredConsum
 			role_name: 'CanGetBankLevelDynamicEndpoint',
 			bank_id: space,
 			needed_for: 'Serving the OpenAPI document of a suite whose file was loaded into OBP as dynamic endpoints, for the runner and the test editor.'
+		},
+		{
+			role_name: 'CanCreateDynamicEntityAuditChain',
+			bank_id: space,
+			needed_for: "Starting the audit chains of participants' lifecycle decisions and of reports, so a decision changed afterwards shows up when the chains are checked."
 		}
 	];
 }

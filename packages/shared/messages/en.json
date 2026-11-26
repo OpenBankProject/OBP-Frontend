@@ -19,6 +19,7 @@
 	"conformator_nav_staff_requirements": "Requirements",
 	"conformator_nav_staff_example_data": "Example data",
 	"conformator_nav_staff_access": "Your Roles",
+	"conformator_nav_staff_audit": "Audit chains",
 	"version": "version {version}",
 	"conformator_home_intro": "Conformator tests whether banks, payment service providers and third-party providers implement the open banking APIs, security profile and consent rules correctly. Tests run against participants' non-production systems. The regulator reviews the results and issues conformance reports.",
 	"conformator_home_not_a_licence": "A conformance report shows that a system passed the technical tests it lists. It is not a licence, and it does not give access to live data or payments.",

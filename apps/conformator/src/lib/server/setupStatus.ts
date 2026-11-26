@@ -23,6 +23,7 @@ import { centralSpace, runnerConsumerId } from './space';
 import { apiManagerUrl, createBankUrl, platformAppsUrl } from './appDirectory';
 import { entitiesStatus } from './entities/bootstrap';
 import { CENTRAL_ENTITIES } from './entities/definitions';
+import { AUDITED_CENTRAL_ENTITIES } from './auditChains';
 
 
 const logger = createLogger('ConformanceSetup');
@@ -66,6 +67,7 @@ export async function setupStatus() {
 		// null when the check could not read the Consumer's Scopes, so "none" is never claimed without knowing.
 		excessScopes: report && report.state !== 'unknown' ? (report.excess ?? []) : null,
 		entities: CENTRAL_ENTITIES.map((d) => ({ name: d.entity_name, ok: entitiesStatus()?.entities[d.entity_name] ?? null })),
+		auditChains: AUDITED_CENTRAL_ENTITIES.map((name) => ({ name, ok: entitiesStatus()?.chains[name] ?? null })),
 		entitiesCheckedAt: entitiesStatus()?.at ?? null,
 		runnerConsumerId: runnerConsumerId() || null,
 		apiManagerUrl: manager,

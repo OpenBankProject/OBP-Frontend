@@ -162,4 +162,12 @@
 		{/each}
 	</ul>
 	<p class="mt-2 text-sm">Each participant's own dynamic entities are set up from the participant's page.</p>
+	<h3 class="h5 mt-4">Audit chains</h3>
+	<p class="mt-2 text-sm">Once the entities exist, the app starts an audit chain on each entity that records a decision. Every change to those records then adds an entry to a hash chain in OBP-API, so a decision changed afterwards shows up when the chains are checked. This needs the Scope CanCreateDynamicEntityAuditChain above. A chain cannot be stopped, and its entity can no longer be deleted or renamed.</p>
+	<ul class="mt-2 list-inside list-disc">
+		{#each data.auditChains as chain (chain.name)}
+			<li data-testid="setup-audit-chain-{chain.name}"><code>{chain.name}</code>: {yesNo(chain.ok)}</li>
+		{/each}
+	</ul>
+	<p class="mt-2 text-sm">Each participant's space gets its own chains when it is set up from the participant's page. Staff check every chain on <a class="anchor" href="/staff/audit">Audit chains</a>.</p>
 </section>

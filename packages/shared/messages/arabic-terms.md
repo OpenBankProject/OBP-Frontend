@@ -46,6 +46,7 @@ To change a term, change it here and in every message that uses it.
 | reference (of a report) | الرقم المرجعي | Such as CR-2026-7K3QX9MD |
 | public key | المفتاح العام | |
 | hash | قيمة التجزئة (hash) | |
+| audit chain | سلسلة التدقيق (سلاسل التدقيق) | OBP-API's hash chain of every change to a Dynamic Entity's records |
 | withdrawn / superseded / expired | مسحوب / مستبدَل / منتهي الصلاحية | A report's standing; valid is ساري المفعول |
 | review | المراجعة | |
 | reviewer | المراجِع (المراجعون) | |

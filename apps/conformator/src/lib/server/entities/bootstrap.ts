@@ -21,11 +21,12 @@ import { obpRequests } from '../obp';
 import { requestApplicationAccessToken } from '../applicationToken';
 import { centralSpace } from '../space';
 import { CENTRAL_ENTITIES } from './definitions';
+import { AUDITED_CENTRAL_ENTITIES, startAuditChains } from '../auditChains';
 
 const logger = createLogger('ConformanceEntities');
 
-/** Whether each central entity was found or created at the last attempt, for /setup. */
-let lastResult: { at: string; entities: Record<string, boolean> } | null = null;
+/** Whether each central entity was found or created at the last attempt, and whether each audited one has its audit chain, for /setup. */
+let lastResult: { at: string; entities: Record<string, boolean>; chains: Record<string, boolean> } | null = null;
 
 export function entitiesStatus() {
 	return lastResult;
@@ -49,14 +50,18 @@ export async function ensureEntities(
 }
 
 /**
- * Create the central entities, or add the properties they lack, as the app's own Consumer. Needs the Scopes listed on
- * /setup; without them this logs why and the setup page reports the entities as missing.
+ * Create the central entities, or add the properties they lack, then start the audit chains of the decision entities, as the app's own Consumer. Needs the Scopes listed on /setup; without them this logs why, and the setup page reports the entities or chains as missing. True when every entity exists and every chain is started.
  */
 export async function ensureCentralEntities(): Promise<boolean> {
 	const space = centralSpace();
-	const entities = await ensureEntities(CENTRAL_ENTITIES, space, (await requestApplicationAccessToken()).token);
-	lastResult = { at: new Date().toISOString(), entities };
-	const ok = Object.values(entities).every(Boolean);
-	if (!ok) logger.warn(`Some central entities are missing in space ${space}: ${JSON.stringify(entities)}`);
-	return ok;
+	const token = (await requestApplicationAccessToken()).token;
+	const entities = await ensureEntities(CENTRAL_ENTITIES, space, token);
+	const entitiesOk = Object.values(entities).every(Boolean);
+	if (!entitiesOk) logger.warn(`Some central entities are missing in space ${space}: ${JSON.stringify(entities)}`);
+	// A chain can only be started on an entity that exists, so the chains wait for the entities.
+	const chains = entitiesOk
+		? await startAuditChains(space, AUDITED_CENTRAL_ENTITIES, token)
+		: Object.fromEntries(AUDITED_CENTRAL_ENTITIES.map((name) => [name, false]));
+	lastResult = { at: new Date().toISOString(), entities, chains };
+	return entitiesOk && Object.values(chains).every(Boolean);
 }

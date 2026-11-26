@@ -26,6 +26,7 @@
 		Gauge,
 		House,
 		KeyRound,
+		Link2,
 		ListChecks,
 		ScrollText,
 		Settings,
@@ -95,6 +96,7 @@
 							{ href: '/staff/suites', label: m.conformator_nav_staff_suites(), iconComponent: ListChecks },
 							{ href: '/staff/requirements', label: m.conformator_nav_staff_requirements(), iconComponent: ScrollText },
 							{ href: '/staff/example-data', label: m.conformator_nav_staff_example_data(), iconComponent: FlaskConical },
+							{ href: '/staff/audit', label: m.conformator_nav_staff_audit(), iconComponent: Link2 },
 							{ href: '/staff/access', label: m.conformator_nav_staff_access(), iconComponent: KeyRound }
 						]
 					}
