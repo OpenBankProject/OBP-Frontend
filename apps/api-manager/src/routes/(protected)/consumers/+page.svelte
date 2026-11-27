@@ -18,6 +18,8 @@
 <script lang="ts">
   import { isSafeLinkUrl, redirectUrlEntries, timeAgo } from "@obp/shared/utils";
   import ApiExplorerEndpoints from "$lib/components/ApiExplorerEndpoints.svelte";
+  import { toast } from "$lib/utils/toastService";
+  import MissingRoleAlert from "$lib/components/MissingRoleAlert.svelte";
 
   let { data } = $props();
   // $derived, not const: /consumers is re-loaded in place when the created-date window
@@ -28,6 +30,15 @@
   let searchQuery = $state("");
 
   const lastCalls = $derived(data.consumerLastCalls);
+  const platformApps = $derived(data.platformApps);
+
+  // What the list says about a Consumer being a Platform App, or null when it is not one.
+  function platformAppText(consumerId: string): string | null {
+    if (!data.canGetPlatformApps) return "Platform App status unknown (Entitlement required)";
+    if (!platformApps) return "Platform App status unknown";
+    const app = platformApps[consumerId];
+    return app ? `Platform App: ${app.label}` : null;
+  }
 
   function formatDate(dateString: string): string {
     try {
@@ -37,10 +48,46 @@
         month: "short",
         day: "numeric",
         hour: "2-digit",
+        hourCycle: "h23",
         minute: "2-digit",
       });
     } catch {
       return "Unknown date";
+    }
+  }
+
+  function lastCallText(consumerId: string): string | null {
+    if (!lastCalls) return null;
+    if (lastCalls.lastCalls[consumerId]) return `Last call: ${timeAgo(lastCalls.lastCalls[consumerId])}`;
+    if (lastCalls.trackedSince) return `No call since ${formatDate(lastCalls.trackedSince)}`;
+    return "Last call: —";
+  }
+
+  // The card's text, one item per line, without the buttons.
+  function consumerText(consumer: any): string {
+    const lines = [consumer.app_name];
+    if (consumer.description) lines.push(consumer.description);
+    lines.push(`Status: ${consumer.enabled ? "Enabled" : "Disabled"}`);
+    lines.push(`App type: ${consumer.app_type}`);
+    const platformApp = platformAppText(consumer.consumer_id);
+    if (platformApp) lines.push(platformApp);
+    const lastCall = lastCallText(consumer.consumer_id);
+    if (lastCall) lines.push(lastCall);
+    lines.push(`Created: ${formatDate(consumer.created)}`);
+    lines.push(`Consumer ID: ${consumer.consumer_id}`);
+    if (consumer.company) lines.push(`Company: ${consumer.company}`);
+    lines.push(`Developer Email: ${consumer.developer_email}`);
+    lines.push(`Redirect URL: ${consumer.redirect_url ? redirectUrlEntries(consumer.redirect_url).join(" ") : "Not specified"}`);
+    return lines.join("\n");
+  }
+
+  async function copyConsumer(consumer: any) {
+    try {
+      await navigator.clipboard.writeText(consumerText(consumer));
+      toast.info(`${consumer.app_name} copied to clipboard`);
+    } catch (err) {
+      console.error("Failed to copy:", err);
+      toast.error(`Failed to copy ${consumer.app_name}`);
     }
   }
 
@@ -188,6 +235,12 @@
     </div>
   {/if}
 
+  {#if !errorMessage && consumers && consumers.length > 0 && !data.canGetPlatformApps}
+    <div class="mb-3">
+      <MissingRoleAlert roles={[data.platformAppsRole]} message="You need this role to see which Consumers are Platform Apps" />
+    </div>
+  {/if}
+
   {#if !errorMessage && filteredConsumers && filteredConsumers.length > 0}
     <div class="space-y-2">
       {#each filteredConsumers as consumer (consumer.consumer_id)}
@@ -220,6 +273,18 @@
               </span>
             {/if}
             <div class="flex items-center gap-1.5 flex-shrink-0">
+              <button
+                type="button"
+                data-testid="consumer-copy-{consumer.consumer_id}"
+                aria-label="Copy the details of {consumer.app_name}"
+                title="Copy details"
+                onclick={() => copyConsumer(consumer)}
+                class="inline-flex items-center rounded p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200"
+              >
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+              </button>
               <a
                 data-testid="consumer-view-metrics-link-{consumer.consumer_id}"
                 href="/metrics?consumer_id={consumer.consumer_id}"
@@ -290,6 +355,24 @@
               >
                 {consumer.app_type}
               </span>
+              {#if !data.canGetPlatformApps || !platformApps}
+                <span
+                  data-testid="consumer-platform-app-unknown-{consumer.consumer_id}"
+                  title={data.canGetPlatformApps ? `Could not read the Platform Apps: ${data.platformAppsError}` : `Needs the Role ${data.platformAppsRole}`}
+                  class="rounded-full px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
+                >
+                  {platformAppText(consumer.consumer_id)}
+                </span>
+              {:else if platformApps[consumer.consumer_id]}
+                <a
+                  data-testid="consumer-platform-app-{consumer.consumer_id}"
+                  href="/consumers/platform-apps"
+                  title={platformApps[consumer.consumer_id].label}
+                  class="rounded-full px-2 py-0.5 text-xs font-medium bg-purple-100 text-purple-800 hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:hover:bg-purple-900/50"
+                >
+                  Platform App
+                </a>
+              {/if}
             </div>
           </div>
 

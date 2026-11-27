@@ -23,6 +23,7 @@ import type { RequestEvent } from "@sveltejs/kit";
 import { SessionOAuthHelper } from "$lib/oauth/sessionHelper";
 import { getPortalUrl } from "$lib/obp/appDirectory";
 import { explorerResourceDocUrl } from "$lib/server/glossaryCache";
+import { fetchPlatformApps } from "$lib/server/platformApps";
 
 const logger = createLogger("ConsumersServer");
 
@@ -34,7 +35,11 @@ const ENDPOINTS = [
     verb: "GET",
     path: "/obp/v7.0.0/management/metrics/consumer-last-calls",
   },
+  { operation_id: "OBPv7.0.0-getPlatformApps", verb: "GET", path: "/obp/v7.0.0/management/platform-apps" },
 ];
+
+/** Seeing which Consumers are Platform Apps needs this Role. */
+const PLATFORM_APPS_ROLE = "CanGetPlatformApps";
 const explorerEndpoints = () => ENDPOINTS.map((e) => ({ ...e, url: explorerResourceDocUrl(e.operation_id) }));
 
 export async function load(event: RequestEvent) {
@@ -54,6 +59,10 @@ export async function load(event: RequestEvent) {
       consumers: [],
       endpoints: explorerEndpoints(),
       hasApiAccess: false,
+      platformApps: null,
+      platformAppsError: null,
+      platformAppsRole: PLATFORM_APPS_ROLE,
+      canGetPlatformApps: false,
       error: "No API access token available",
     };
   }
@@ -122,9 +131,32 @@ export async function load(event: RequestEvent) {
     }
   }
 
+  // Which Consumers are Platform Apps, by consumer_id. Null when the user lacks the Role or OBP-API could not
+  // answer: the page then says the status is unknown rather than suggesting no Consumer is a Platform App.
+  const canGetPlatformApps = entitlements.some(
+    (entitlement: any) => entitlement.role_name === PLATFORM_APPS_ROLE,
+  );
+  let platformApps: Record<string, { label: string; state: string }> | null = null;
+  let platformAppsError: string | null = null;
+  if (canGetPlatformApps) {
+    const result = await fetchPlatformApps(accessToken);
+    if (result.error) {
+      logger.warn("Could not read the Platform Apps:", result.error);
+      platformAppsError = result.error;
+    } else {
+      platformApps = Object.fromEntries(
+        result.apps.map((app) => [app.consumer_id, { label: app.label, state: app.state }]),
+      );
+    }
+  }
+
   return {
     consumers,
     consumerLastCalls,
+    platformApps,
+    platformAppsError,
+    platformAppsRole: PLATFORM_APPS_ROLE,
+    canGetPlatformApps,
     endpoints: explorerEndpoints(),
     createdWindow,
     portalUrl: await getPortalUrl(),
