@@ -69,9 +69,9 @@
 
       lastUpdated = new Date().toLocaleString(undefined, {
         hour: "2-digit",
+        hourCycle: "h23",
         minute: "2-digit",
         second: "2-digit",
-        hour12: false,
       });
     } catch (err) {
       error = err instanceof Error ? err.message : "Failed to fetch migrations";
@@ -163,9 +163,9 @@
         month: "short",
         day: "numeric",
         hour: "2-digit",
+        hourCycle: "h23",
         minute: "2-digit",
         second: "2-digit",
-        hour12: false,
       });
     } catch {
       return String(timestamp);

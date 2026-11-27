@@ -583,8 +583,8 @@
 					{/each}
 				</svg>
 				<div class="mt-2 flex justify-between text-xs text-gray-500 dark:text-gray-400">
-					<span>{buckets[0].fromDate.toLocaleString()}</span>
-					<span>{buckets[buckets.length - 1].toDate.toLocaleString()}</span>
+					<span>{buckets[0].fromDate.toLocaleString(undefined, { hourCycle: "h23" })}</span>
+					<span>{buckets[buckets.length - 1].toDate.toLocaleString(undefined, { hourCycle: "h23" })}</span>
 				</div>
 			</div>
 		</section>

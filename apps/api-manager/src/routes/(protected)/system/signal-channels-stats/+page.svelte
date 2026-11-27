@@ -76,9 +76,9 @@
       stats = data;
       lastUpdated = new Date().toLocaleString(undefined, {
         hour: "2-digit",
+        hourCycle: "h23",
         minute: "2-digit",
         second: "2-digit",
-        hour12: false,
       });
     } catch (err) {
       error =

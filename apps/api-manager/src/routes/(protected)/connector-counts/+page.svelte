@@ -79,7 +79,7 @@
 
   async function refreshCounts() {
     isLoading = true;
-    lastRefreshTime = new Date().toLocaleString();
+    lastRefreshTime = new Date().toLocaleString(undefined, { hourCycle: "h23" });
     timestampColorIndex = (timestampColorIndex + 1) % 2;
 
     try {

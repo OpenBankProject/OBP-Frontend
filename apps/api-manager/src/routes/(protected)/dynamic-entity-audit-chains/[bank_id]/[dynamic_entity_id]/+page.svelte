@@ -133,7 +133,7 @@
       <dl class="grid grid-cols-1 gap-4 text-sm md:grid-cols-3">
         <div>
           <dt class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">Started</dt>
-          <dd class="mt-1 text-gray-900 dark:text-gray-100" data-testid="chain-started-at">{new Date(data.chain.started_at).toLocaleString()}</dd>
+          <dd class="mt-1 text-gray-900 dark:text-gray-100" data-testid="chain-started-at">{new Date(data.chain.started_at).toLocaleString(undefined, { hourCycle: "h23" })}</dd>
         </div>
         <div>
           <dt class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">Started by</dt>
@@ -164,7 +164,7 @@
             <span class="rounded-full bg-red-100 px-3 py-1 text-sm font-medium text-red-800 dark:bg-red-900/30 dark:text-red-300" data-testid="broken">{result.problem_count} problem{result.problem_count === 1 ? "" : "s"} found</span>
           {/if}
           <span class="text-sm text-gray-600 dark:text-gray-400">
-            Checked {result.entries_checked} entr{result.entries_checked === 1 ? "y" : "ies"} and {result.records_checked} record{result.records_checked === 1 ? "" : "s"} at {new Date(result.checked_at).toLocaleString()}.
+            Checked {result.entries_checked} entr{result.entries_checked === 1 ? "y" : "ies"} and {result.records_checked} record{result.records_checked === 1 ? "" : "s"} at {new Date(result.checked_at).toLocaleString(undefined, { hourCycle: "h23" })}.
           </span>
         </div>
         {#if result.problems.length > 0}
@@ -237,7 +237,7 @@
                     {/if}
                   </td>
                   <td class="px-4 py-3 break-all font-mono text-xs text-gray-700 dark:text-gray-300">{whoOf(entry)}</td>
-                  <td class="px-4 py-3 whitespace-nowrap text-xs text-gray-700 dark:text-gray-300">{new Date(entry.recorded_at).toLocaleString()}</td>
+                  <td class="px-4 py-3 whitespace-nowrap text-xs text-gray-700 dark:text-gray-300">{new Date(entry.recorded_at).toLocaleString(undefined, { hourCycle: "h23" })}</td>
                   <td class="px-4 py-3 font-mono text-xs text-gray-500 dark:text-gray-400" title={entry.hash}>{entry.hash.slice(0, 12)}…</td>
                 </tr>
                 {#if expanded === entry.sequence}

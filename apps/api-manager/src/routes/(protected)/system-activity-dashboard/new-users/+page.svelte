@@ -25,7 +25,7 @@
 
   function formatDateTime(iso: string): string {
     const parsed = new Date(iso);
-    return Number.isNaN(parsed.getTime()) ? iso : parsed.toLocaleString();
+    return Number.isNaN(parsed.getTime()) ? iso : parsed.toLocaleString(undefined, { hourCycle: "h23" });
   }
 
   $effect(() => {

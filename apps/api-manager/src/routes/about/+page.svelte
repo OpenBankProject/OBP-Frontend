@@ -20,7 +20,7 @@
 
   function formatBuildTime(isoString: string): string {
     try {
-      return new Date(isoString).toLocaleString();
+      return new Date(isoString).toLocaleString(undefined, { hourCycle: "h23" });
     } catch {
       return isoString;
     }

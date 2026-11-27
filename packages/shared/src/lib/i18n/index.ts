@@ -54,9 +54,9 @@ export function formatNumber(value: number, options?: Intl.NumberFormatOptions):
 	return new Intl.NumberFormat(formattingLocale(), options).format(value);
 }
 
-/** A date (and time, with the options) in the page's language and digits. */
+/** A date (and time, with the options) in the page's language and digits. Times always use the 24-hour clock. */
 export function formatDate(value: Date | number, options?: Intl.DateTimeFormatOptions): string {
-	return new Intl.DateTimeFormat(formattingLocale(), options).format(value);
+	return new Intl.DateTimeFormat(formattingLocale(), { hourCycle: 'h23', ...options }).format(value);
 }
 
 /** The inputs of a counting message: `count` picks the plural form, `shown` is the number as the page shows it. For example `m.conformator_step_run_count(counted(runs))`. */

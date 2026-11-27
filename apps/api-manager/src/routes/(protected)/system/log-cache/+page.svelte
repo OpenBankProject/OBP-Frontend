@@ -71,9 +71,9 @@
     logs = next.length > maxRows ? next.slice(next.length - maxRows) : next;
     lastUpdated = new Date().toLocaleString(undefined, {
       hour: "2-digit",
+      hourCycle: "h23",
       minute: "2-digit",
       second: "2-digit",
-      hour12: false,
     });
     if (wasAtBottom) scrollToBottom();
   }
@@ -142,9 +142,9 @@
       logs = trimmed.map((e) => ({ ...e, __id: nextLogId++ }));
       lastUpdated = new Date().toLocaleString(undefined, {
         hour: "2-digit",
+        hourCycle: "h23",
         minute: "2-digit",
         second: "2-digit",
-        hour12: false,
       });
       if (wasAtBottom) scrollToBottom();
     } catch (err) {
@@ -281,9 +281,9 @@
         month: "short",
         day: "numeric",
         hour: "2-digit",
+        hourCycle: "h23",
         minute: "2-digit",
         second: "2-digit",
-        hour12: false,
       });
     } catch {
       return timestamp;

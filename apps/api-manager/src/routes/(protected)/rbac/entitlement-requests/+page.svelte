@@ -107,7 +107,7 @@
   function formatDate(dateString: string): string {
     try {
       const date = new Date(dateString);
-      return date.toLocaleDateString() + " " + date.toLocaleTimeString();
+      return date.toLocaleDateString() + " " + date.toLocaleTimeString(undefined, { hourCycle: "h23" });
     } catch {
       return dateString;
     }

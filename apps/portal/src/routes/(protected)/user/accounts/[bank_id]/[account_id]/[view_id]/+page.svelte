@@ -25,7 +25,7 @@
 		if (!iso) return '';
 		const d = new Date(iso);
 		if (Number.isNaN(d.getTime())) return iso;
-		return d.toLocaleString();
+		return d.toLocaleString(undefined, { hourCycle: 'h23' });
 	}
 
 	function fmtAmount(amount: string | undefined, currency: string | undefined): string {

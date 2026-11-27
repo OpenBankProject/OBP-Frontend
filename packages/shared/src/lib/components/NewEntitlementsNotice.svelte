@@ -75,7 +75,7 @@
 
 	function formatTime(ms: number | null): string {
 		if (ms === null) return 'unknown';
-		return new Date(ms).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+		return new Date(ms).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
 	}
 
 	// (role_name, bank_id) pairs already seen this session. null until the

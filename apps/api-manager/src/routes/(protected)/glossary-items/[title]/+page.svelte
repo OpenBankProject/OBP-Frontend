@@ -59,7 +59,7 @@
   function formatDate(value: string | undefined): string {
     if (!value) return "unknown";
     const d = new Date(value);
-    return Number.isNaN(d.getTime()) ? value : d.toLocaleString();
+    return Number.isNaN(d.getTime()) ? value : d.toLocaleString(undefined, { hourCycle: "h23" });
   }
 
   const suggestedQuestions: SuggestedQuestion[] = [

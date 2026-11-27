@@ -337,7 +337,7 @@
 	function formatConsentExpiry(ms: number | null): string {
 		if (ms === null) return 'unknown';
 		const at = new Date(ms);
-		const time = at.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+		const time = at.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
 		return at.toDateString() === new Date().toDateString()
 			? time
 			: `${at.toLocaleDateString([], { day: 'numeric', month: 'short' })}, ${time}`;

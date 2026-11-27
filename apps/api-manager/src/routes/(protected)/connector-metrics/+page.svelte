@@ -120,7 +120,7 @@
 
   async function refreshMetrics() {
     isLoading = true;
-    lastRefreshTime = new Date().toLocaleString();
+    lastRefreshTime = new Date().toLocaleString(undefined, { hourCycle: "h23" });
     timestampColorIndex = (timestampColorIndex + 1) % 2;
 
     try {
@@ -217,9 +217,9 @@
         month: "2-digit",
         day: "2-digit",
         hour: "2-digit",
+        hourCycle: "h23",
         minute: "2-digit",
         second: "2-digit",
-        hour12: false,
       });
     } catch {
       return dateString;

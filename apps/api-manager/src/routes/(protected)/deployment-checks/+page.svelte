@@ -117,7 +117,7 @@
         {deployment.errors} error{deployment.errors === 1 ? "" : "s"}, {deployment.warnings} warning{deployment.warnings === 1 ? "" : "s"}
       </p>
       <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-        Instance <code class="font-mono">{deployment.api_instance_id}</code>, checked {new Date(deployment.checked_at).toLocaleString()},
+        Instance <code class="font-mono">{deployment.api_instance_id}</code>, checked {new Date(deployment.checked_at).toLocaleString(undefined, { hourCycle: "h23" })},
         traffic of the last {deployment.window_minutes} minutes.
       </p>
     </div>

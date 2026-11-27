@@ -62,11 +62,11 @@
 
 	function formatDateFromUnix(epochDateMilliseconds: number | string): string {
 		console.log('Formatting date:', epochDateMilliseconds);
-		return new Date(epochDateMilliseconds).toLocaleString();
+		return new Date(epochDateMilliseconds).toLocaleString(undefined, { hourCycle: 'h23' });
 	}
 
 	function fromatDateFromISO(isoDateString: string): string {
-		return new Date(isoDateString).toLocaleString();
+		return new Date(isoDateString).toLocaleString(undefined, { hourCycle: 'h23' });
 	}
 
 	function formatJwtExpiration(epochDateMilliseconds: number | string) {
@@ -74,7 +74,7 @@
 		const now = new Date();
 		const isExpired = date < now;
 		return {
-			formatted: date.toLocaleString(),
+			formatted: date.toLocaleString(undefined, { hourCycle: 'h23' }),
 			isExpired
 		};
 	}

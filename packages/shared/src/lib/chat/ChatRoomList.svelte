@@ -214,7 +214,7 @@
                                 {#if room.last_message_at}
                                     <span>
                                         {new Date(room.last_message_at).toLocaleDateString([], { month: 'short', day: 'numeric' })}
-                                        {new Date(room.last_message_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        {new Date(room.last_message_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })}
                                     </span>
                                 {:else}
                                     <span>

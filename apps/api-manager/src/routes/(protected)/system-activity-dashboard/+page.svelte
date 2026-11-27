@@ -65,6 +65,7 @@
   const asOfLabel = $derived(
     new Date(data.asOf).toLocaleTimeString("en-GB", {
       hour: "2-digit",
+      hourCycle: "h23",
       minute: "2-digit",
       timeZone: "UTC",
     }) + " UTC",

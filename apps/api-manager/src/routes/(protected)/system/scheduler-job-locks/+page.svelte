@@ -48,7 +48,7 @@
     if (!value) return "—";
     const d = new Date(value);
     if (isNaN(d.getTime())) return String(value);
-    return d.toLocaleString();
+    return d.toLocaleString(undefined, { hourCycle: "h23" });
   }
 
   function openDelete(job: OBPSchedulerJob) {

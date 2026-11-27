@@ -84,7 +84,7 @@
       console.log("metrics updated:", {
         count: metrics.count,
         metricsLength: metrics.metrics?.length,
-        timestamp: new Date().toLocaleTimeString(),
+        timestamp: new Date().toLocaleTimeString(undefined, { hourCycle: "h23" }),
         firstMetricDate: metrics.metrics?.[0]?.date,
         lastMetricDate: metrics.metrics?.[metrics.metrics.length - 1]?.date,
       });
@@ -101,8 +101,8 @@
   let refreshInterval: ReturnType<typeof setInterval> | undefined = undefined;
   let countdownInterval: ReturnType<typeof setInterval> | undefined = undefined;
   let timeUpdateInterval: ReturnType<typeof setInterval> | undefined = undefined;
-  let currentTime = $state(new Date().toLocaleString());
-  let lastRefreshTime = $state(new Date().toLocaleString());
+  let currentTime = $state(new Date().toLocaleString(undefined, { hourCycle: "h23" }));
+  let lastRefreshTime = $state(new Date().toLocaleString(undefined, { hourCycle: "h23" }));
   const REFRESH_OPTIONS = [
     { value: 5, label: "5s" },
     { value: 10, label: "10s" },
@@ -217,7 +217,7 @@
 
       // Update current time every second
       timeUpdateInterval = setInterval(() => {
-        currentTime = new Date().toLocaleString();
+        currentTime = new Date().toLocaleString(undefined, { hourCycle: "h23" });
       }, 1000);
     }
   });
@@ -320,7 +320,7 @@
 
   function submitQuery() {
     currentQueryString = buildQueryString();
-    lastRefreshTime = new Date().toLocaleString();
+    lastRefreshTime = new Date().toLocaleString(undefined, { hourCycle: "h23" });
     timestampColorIndex = (timestampColorIndex + 1) % 2;
 
     // transport rides on the page URL only — currentQueryString is also shown
@@ -347,7 +347,7 @@
     countdownInterval = setInterval(() => {
       countdown--;
       if (countdown <= 0) {
-        lastRefreshTime = new Date().toLocaleString();
+        lastRefreshTime = new Date().toLocaleString(undefined, { hourCycle: "h23" });
         timestampColorIndex = (timestampColorIndex + 1) % 2;
         invalidate("app:metrics");
         countdown = refreshSeconds;
@@ -375,7 +375,7 @@
     pendingMetrics = [];
     // Newest first, same as REST display.
     streamedMetrics = [...incoming.reverse(), ...streamedMetrics].slice(0, 500);
-    lastRefreshTime = new Date().toLocaleString();
+    lastRefreshTime = new Date().toLocaleString(undefined, { hourCycle: "h23" });
     timestampColorIndex = (timestampColorIndex + 1) % 2;
   }
 
@@ -568,9 +568,9 @@
       month: "2-digit",
       day: "2-digit",
       hour: "2-digit",
+      hourCycle: "h23",
       minute: "2-digit",
       second: "2-digit",
-      hour12: false,
     });
   }
 

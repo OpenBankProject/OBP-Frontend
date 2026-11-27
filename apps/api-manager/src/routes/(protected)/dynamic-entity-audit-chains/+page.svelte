@@ -113,7 +113,7 @@
         <dl class="grid grid-cols-1 gap-4 text-sm md:grid-cols-3">
           <div>
             <dt class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">Created</dt>
-            <dd class="mt-1 text-gray-900 dark:text-gray-100" data-testid="root-started-at">{new Date(data.rootChain.started_at).toLocaleString()}</dd>
+            <dd class="mt-1 text-gray-900 dark:text-gray-100" data-testid="root-started-at">{new Date(data.rootChain.started_at).toLocaleString(undefined, { hourCycle: "h23" })}</dd>
           </div>
           <div>
             <dt class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">Last entry</dt>
@@ -156,7 +156,7 @@
           {/if}
           <span class="text-sm text-gray-600 dark:text-gray-400">
             Checked {result.entries_checked} root chain entr{result.entries_checked === 1 ? "y" : "ies"} and {result.chains_checked} entity chain{result.chains_checked === 1 ? "" : "s"}
-            {checkedWithChains ? "in full" : "against the root chain only"}, at {new Date(result.checked_at).toLocaleString()}.
+            {checkedWithChains ? "in full" : "against the root chain only"}, at {new Date(result.checked_at).toLocaleString(undefined, { hourCycle: "h23" })}.
           </span>
         </div>
         {#if result.problems.length > 0}

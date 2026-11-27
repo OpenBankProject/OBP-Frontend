@@ -42,18 +42,18 @@
   $effect(() => {
     console.log("metricsHistory updated:", {
       historyLength: metricsHistory.length,
-      timestamp: new Date().toLocaleTimeString(),
+      timestamp: new Date().toLocaleTimeString(undefined, { hourCycle: "h23" }),
     });
   });
 
   let refreshInterval: ReturnType<typeof setInterval> | undefined = undefined;
   let countdownInterval: ReturnType<typeof setInterval> | undefined = undefined;
   let timeUpdateInterval: ReturnType<typeof setInterval> | undefined = undefined;
-  let currentTime = $state(new Date().toLocaleString());
+  let currentTime = $state(new Date().toLocaleString(undefined, { hourCycle: "h23" }));
   let currentTimeUTC = $state(
     new Date().toISOString().replace("T", " ").slice(0, 19),
   );
-  let lastRefreshTime = $state(new Date().toLocaleString());
+  let lastRefreshTime = $state(new Date().toLocaleString(undefined, { hourCycle: "h23" }));
   let countdown = $state(5);
   let isCountingDown = $state(false);
   let timestampColorIndex = $state(0);
@@ -162,7 +162,7 @@
 
       // Update current time every second
       timeUpdateInterval = setInterval(() => {
-        currentTime = new Date().toLocaleString();
+        currentTime = new Date().toLocaleString(undefined, { hourCycle: "h23" });
         currentTimeUTC = new Date()
           .toISOString()
           .replace("T", " ")
@@ -187,7 +187,7 @@
   });
 
   function refreshMetrics() {
-    console.log("refreshMetrics called at", new Date().toLocaleTimeString());
+    console.log("refreshMetrics called at", new Date().toLocaleTimeString(undefined, { hourCycle: "h23" }));
 
     // Update dates if Auto Refresh is active
     if (autoRefresh !== "none") {
@@ -195,7 +195,7 @@
     }
 
     // Update last refresh timestamp and alternate color
-    lastRefreshTime = new Date().toLocaleString();
+    lastRefreshTime = new Date().toLocaleString(undefined, { hourCycle: "h23" });
     timestampColorIndex = (timestampColorIndex + 1) % 2;
 
     // Use currentQueryString - this is the ON_PAGE_METRICS_REQUEST_URL query params
@@ -362,9 +362,9 @@
       month: "2-digit",
       day: "2-digit",
       hour: "2-digit",
+      hourCycle: "h23",
       minute: "2-digit",
       second: "2-digit",
-      hour12: false,
     });
   }
 

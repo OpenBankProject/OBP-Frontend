@@ -46,6 +46,7 @@
         month: "short",
         day: "numeric",
         hour: "2-digit",
+        hourCycle: "h23",
         minute: "2-digit",
       });
     } catch {

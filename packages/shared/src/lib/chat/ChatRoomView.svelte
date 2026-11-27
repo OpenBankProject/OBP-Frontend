@@ -965,7 +965,7 @@
                             <div class="chat-markdown break-words" dir="auto">{@html renderChatMessage(message)}</div>
                         {/if}
                         <p class="mt-1 text-xs opacity-50">
-                            {new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            {new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })}
                             {#if message.updated_at && message.updated_at !== message.created_at}
                                 <span data-testid="message-edited-indicator">{labels.edited}</span>
                             {/if}
