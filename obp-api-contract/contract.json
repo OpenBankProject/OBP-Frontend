@@ -1,5 +1,6 @@
 {
  "about": "Every OBP-API call that the Portal, API Manager, Cohort and the shared package make from their source code. Each entry gives the verb, the path (OBP placeholders in capitals), the source file, the text in that file that makes the call (needles) and the response fields the code reads. packages/shared/src/lib/server/obp/obpApiContract.test.ts checks this list against the source and against snapshot.json, which obp-api-contract/snapshot.py writes from an OBP-API's resource docs. not_calls lists source lines that name an OBP-API path without calling it, such as help text, example code and path helpers whose calls are listed at their callers. Only the source of the apps and of the shared package is read (apps/*/src and packages/*/src); scripts outside src, such as apps/cohort/scripts/seed-demo-data.mjs, apps/portal/debug-oauth.cjs and apps/api-manager/verify-obp-config.cjs, are out of scope. Not listed: calls through the generic proxy (/proxy/obp/...) whose path the browser or the route chooses at run time, records of the Dynamic Entities the apps define themselves (/obp/dynamic-entity/... and their v7.0.0 bank-level form), and dynamic endpoints. Not covered yet: the Berlin Group and UK Open Banking calls of the Portal, because snapshot.py reads only OBP resource docs.",
+ "version_policy": "Each call writes the OBP-API version it needs in its own path. One configured version cannot serve them all, because an endpoint exists only in the versions OBP-API documents it for. The contract test checks every call against the endpoint documented for the version it names and fails on any version below v5.1.0. To move a call to a newer version, change its path and run snapshot.py again.",
  "calls": [
   {
    "verb": "GET",
@@ -7559,6 +7560,16 @@
    "verb": "GET",
    "path": "/obp/v5.1.0/root",
    "source": "apps/portal/src/hooks.server.ts",
+   "needles": [
+    "`${publicEnv.PUBLIC_OBP_BASE_URL}/obp/v5.1.0/root`"
+   ],
+   "reads": [],
+   "note": "Health check registered with healthCheckRegistry; HealthCheckService GETs the URL and only looks at the HTTP status."
+  },
+  {
+   "verb": "GET",
+   "path": "/obp/v5.1.0/root",
+   "source": "apps/sandbox-populator/src/hooks.server.ts",
    "needles": [
     "`${publicEnv.PUBLIC_OBP_BASE_URL}/obp/v5.1.0/root`"
    ],
