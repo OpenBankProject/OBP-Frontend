@@ -30,6 +30,8 @@ import { RetryAfterRateLimiter } from 'sveltekit-rate-limiter/server';
 
 import { env } from '$env/dynamic/private';
 import { env as publicEnv } from '$env/dynamic/public';
+import { attr } from '@obp/shared/branding';
+import { portalBranding } from '$lib/server/branding';
 import { createOpeyConversationEntityIfNeeded } from '$lib/server/opeyConversations/opeyConversationEntity';
 import { oauth2ProviderManager } from '$lib/oauth/providerManager';
 import { SessionOAuthHelper } from '$lib/oauth/sessionHelper';
@@ -385,7 +387,10 @@ const transformHTML: Handle = async ({ event, resolve }) => {
 
 	const response = await resolve(event, {
 		transformPageChunk: ({ html }) => {
-			return html.replace('%ANALYTICS_SCRIPT%', analyticsScript);
+			return html
+				.replace('%ANALYTICS_SCRIPT%', analyticsScript)
+				.replace('%portal.theme%', attr(portalBranding.theme))
+				.replace('%portal.favicon%', attr(portalBranding.faviconUrl));
 		}
 	});
 

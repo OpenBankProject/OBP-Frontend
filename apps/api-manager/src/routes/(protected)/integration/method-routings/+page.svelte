@@ -125,10 +125,10 @@
 <div class="container mx-auto max-w-7xl px-4 py-8">
   <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
     <div>
-      <h1 class="flex items-center gap-2 text-3xl font-bold text-gray-900 dark:text-gray-100">
+      <h1 class="flex items-center gap-2 text-3xl font-bold ui-text">
         <Route size={28} /> Method Routings
       </h1>
-      <p class="mt-1 text-gray-600 dark:text-gray-400">
+      <p class="mt-1 ui-muted">
         Which connector serves each connector method, for which banks. Custom routings override the defaults.
       </p>
     </div>
@@ -138,7 +138,7 @@
           href={glossaryUrl}
           target="_blank"
           rel="noopener noreferrer"
-          class="inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+          class="inline-flex items-center gap-1 rounded-lg border px-3 py-2 text-sm font-medium ui-card ui-hover ui-muted ui-border"
           data-testid="method-routings-glossary-link"
         >
           Glossary <ExternalLink size={14} />
@@ -146,7 +146,7 @@
       {/if}
       <a
         href="/integration/method-routings/create"
-        class="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+        class="inline-flex items-center gap-1 rounded-lg px-4 py-2 text-sm font-medium preset-filled-primary-500"
         data-testid="create-method-routing"
       >
         <Plus size={16} /> Create Method Routing
@@ -155,26 +155,26 @@
   </div>
 
   {#if error}
-    <div class="mb-6 flex items-start justify-between gap-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300" role="alert" data-testid="method-routings-error">
+    <div class="mb-6 flex items-start justify-between gap-4 rounded-lg border p-4 text-sm ui-tone-error" role="alert" data-testid="method-routings-error">
       <span><strong>Error:</strong> {error}</span>
       <button type="button" onclick={clearMessages} class="text-lg leading-none" aria-label="Dismiss">×</button>
     </div>
   {/if}
   {#if successMessage}
-    <div class="mb-6 flex items-start justify-between gap-4 rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-700 dark:border-green-800 dark:bg-green-900/20 dark:text-green-300" role="status" data-testid="method-routings-success">
+    <div class="mb-6 flex items-start justify-between gap-4 rounded-lg border p-4 text-sm ui-tone-success" role="status" data-testid="method-routings-success">
       <span>{successMessage}</span>
       <button type="button" onclick={clearMessages} class="text-lg leading-none" aria-label="Dismiss">×</button>
     </div>
   {/if}
 
-  <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 px-4 py-3 dark:border-gray-700">
-      <div class="inline-flex rounded-lg border border-gray-300 p-0.5 dark:border-gray-600" role="group" aria-label="Which routings to show">
+  <div class="overflow-hidden rounded-lg border shadow-sm ui-card ui-border">
+    <div class="flex flex-wrap items-center justify-between gap-3 border-b px-4 py-3 ui-border">
+      <div class="inline-flex rounded-lg border p-0.5 ui-border" role="group" aria-label="Which routings to show">
         <button
           type="button"
           onclick={() => switchViewMode("active")}
           disabled={isLoading}
-          class="rounded-md px-3 py-1.5 text-sm font-medium transition {viewMode === 'active' ? 'bg-blue-600 text-white dark:bg-blue-500' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'}"
+          class="rounded-md px-3 py-1.5 text-sm font-medium transition {viewMode === 'active' ? 'preset-filled-primary-500' : 'ui-hover ui-muted'}"
           aria-pressed={viewMode === "active"}
           data-testid="view-active"
         >
@@ -184,7 +184,7 @@
           type="button"
           onclick={() => switchViewMode("configured")}
           disabled={isLoading}
-          class="rounded-md px-3 py-1.5 text-sm font-medium transition {viewMode === 'configured' ? 'bg-blue-600 text-white dark:bg-blue-500' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'}"
+          class="rounded-md px-3 py-1.5 text-sm font-medium transition {viewMode === 'configured' ? 'preset-filled-primary-500' : 'ui-hover ui-muted'}"
           aria-pressed={viewMode === "configured"}
           data-testid="view-configured"
         >
@@ -193,13 +193,13 @@
       </div>
       <div class="flex items-center gap-2">
         <label class="relative">
-          <Search size={14} class="pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-gray-400" />
+          <Search size={14} class="pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 ui-muted" />
           <input
             type="search"
             bind:value={filter}
             placeholder="Filter by method, connector or bank"
             spellcheck="false"
-            class="w-64 rounded-lg border border-gray-300 bg-white py-1.5 pr-3 pl-8 text-sm text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+            class="w-64 rounded-lg border py-1.5 pr-3 pl-8 text-sm focus:ring-2 ui-card ui-text ui-border"
             data-testid="method-routings-filter"
           />
         </label>
@@ -207,7 +207,7 @@
           type="button"
           onclick={fetchMethodRoutings}
           disabled={isLoading}
-          class="inline-flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+          class="inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm disabled:opacity-50 ui-hover ui-muted ui-border"
           data-testid="method-routings-refresh"
         >
           <RefreshCw size={14} class={isLoading ? "animate-spin" : ""} /> Refresh
@@ -217,54 +217,54 @@
 
     <svelte:boundary onerror={(e) => (debug.renderError = e instanceof Error ? e.message : String(e))}>
     {#if isLoading && methodRoutings.length === 0}
-      <div class="flex items-center justify-center gap-3 p-12 text-sm text-gray-600 dark:text-gray-300">
-        <div class="h-6 w-6 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
+      <div class="flex items-center justify-center gap-3 p-12 text-sm ui-muted">
+        <div class="h-6 w-6 animate-spin rounded-full border-4 border-t-transparent border-current ui-text-brand"></div>
         Loading method routings...
       </div>
     {:else if methodRoutings.length === 0}
-      <div class="p-12 text-center text-sm text-gray-500 dark:text-gray-400" data-testid="method-routings-empty">
+      <div class="p-12 text-center text-sm ui-muted" data-testid="method-routings-empty">
         No method routings found.
-        <a href="/integration/method-routings/create" class="text-blue-600 hover:underline dark:text-blue-400">Create your first method routing</a>.
+        <a href="/integration/method-routings/create" class="hover:underline ui-link">Create your first method routing</a>.
       </div>
     {:else}
       <div class="overflow-x-auto">
         <table class="w-full text-sm" data-testid="method-routings-table">
-          <thead class="bg-gray-50 dark:bg-gray-900/40">
+          <thead class="ui-card">
             <tr>
-              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Method</th>
-              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Connector</th>
-              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Bank ID pattern</th>
-              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Match</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Method</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Connector</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Bank ID pattern</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Match</th>
               {#if viewMode === "active"}
-                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Source</th>
+                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Source</th>
               {/if}
-              <th class="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Actions</th>
+              <th class="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider ui-muted">Actions</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+          <tbody class="divide-y ui-border">
             {#each visibleRoutings as routing (rowKey(routing))}
               {@const isDefault = isDefaultRouting(routing)}
-              <tr class={isDefault ? "text-gray-600 dark:text-gray-400" : ""} data-state={isDefault ? "default" : "custom"}>
-                <td class="px-4 py-3 font-mono text-xs {isDefault ? '' : 'font-semibold text-gray-900 dark:text-gray-100'}">{routing.method_name}</td>
+              <tr class={isDefault ? "ui-muted" : ""} data-state={isDefault ? "default" : "custom"}>
+                <td class="px-4 py-3 font-mono text-xs {isDefault ? '' : 'font-semibold ui-text'}">{routing.method_name}</td>
                 <td class="px-4 py-3">
-                  <span class="rounded-full px-2 py-0.5 text-xs font-medium {routing.connector_name === 'mapped' ? 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200' : 'bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-200'}">
+                  <span class="rounded-full px-2 py-0.5 text-xs font-medium {routing.connector_name === 'mapped' ? 'ui-panel ui-muted' : 'ui-tone-accent'}">
                     {routing.connector_name}
                   </span>
                 </td>
                 <td class="px-4 py-3 font-mono text-xs">{routing.bank_id_pattern || "—"}</td>
                 <td class="px-4 py-3 text-xs">
                   {#if routing.is_bank_id_exact_match}
-                    <span class="rounded-full bg-green-100 px-2 py-0.5 font-medium text-green-800 dark:bg-green-900/30 dark:text-green-300">exact</span>
+                    <span class="rounded-full px-2 py-0.5 font-medium ui-tone-success">exact</span>
                   {:else}
-                    <span class="rounded-full bg-gray-100 px-2 py-0.5 text-gray-700 dark:bg-gray-700 dark:text-gray-200">regex</span>
+                    <span class="rounded-full px-2 py-0.5 ui-panel ui-muted">regex</span>
                   {/if}
                 </td>
                 {#if viewMode === "active"}
                   <td class="px-4 py-3 text-xs">
                     {#if isDefault}
-                      <span class="rounded-full bg-gray-100 px-2 py-0.5 text-gray-700 dark:bg-gray-700 dark:text-gray-200">default</span>
+                      <span class="rounded-full px-2 py-0.5 ui-panel ui-muted">default</span>
                     {:else}
-                      <span class="rounded-full bg-blue-100 px-2 py-0.5 font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-200">custom</span>
+                      <span class="rounded-full px-2 py-0.5 font-medium ui-tone-info">custom</span>
                     {/if}
                   </td>
                 {/if}
@@ -273,7 +273,7 @@
                     {#if isDefault}
                       <a
                         href="/integration/method-routings/create?method={encodeURIComponent(routing.method_name)}"
-                        class="inline-flex items-center gap-1 rounded border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+                        class="inline-flex items-center gap-1 rounded border px-2 py-1 text-xs ui-hover ui-muted ui-border"
                         data-testid="override-{routing.method_name}"
                       >
                         <ArrowUpRight size={12} /> Override
@@ -281,14 +281,14 @@
                     {:else}
                       <a
                         href="/integration/method-routings/{routing.method_routing_id}"
-                        class="inline-flex items-center gap-1 rounded border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+                        class="inline-flex items-center gap-1 rounded border px-2 py-1 text-xs ui-hover ui-muted ui-border"
                         data-testid="edit-{routing.method_name}"
                       >
                         <Pencil size={12} /> Edit
                       </a>
                       <a
                         href="/integration/method-routings/create?from={routing.method_routing_id}"
-                        class="inline-flex items-center gap-1 rounded border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+                        class="inline-flex items-center gap-1 rounded border px-2 py-1 text-xs ui-hover ui-muted ui-border"
                         data-testid="duplicate-{routing.method_name}"
                       >
                         <Copy size={12} /> Duplicate
@@ -299,7 +299,7 @@
               </tr>
             {:else}
               <tr>
-                <td colspan={viewMode === "active" ? 6 : 5} class="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400" data-testid="method-routings-no-match">
+                <td colspan={viewMode === "active" ? 6 : 5} class="px-4 py-8 text-center text-sm ui-muted" data-testid="method-routings-no-match">
                   Nothing matches "{filter.trim()}".
                 </td>
               </tr>
@@ -307,7 +307,7 @@
           </tbody>
         </table>
       </div>
-      <div class="border-t border-gray-200 px-4 py-2 text-xs text-gray-500 dark:border-gray-700 dark:text-gray-400" data-testid="method-routings-footer">
+      <div class="border-t px-4 py-2 text-xs ui-muted ui-border" data-testid="method-routings-footer">
         {#if filter.trim()}
           {visibleRoutings.length} of {methodRoutings.length} shown.
         {/if}
@@ -319,22 +319,22 @@
       </div>
     {/if}
     {#snippet failed(renderError, reset)}
-      <div class="p-6 text-sm text-red-700 dark:text-red-300" role="alert" data-testid="method-routings-render-error">
+      <div class="p-6 text-sm ui-text-error" role="alert" data-testid="method-routings-render-error">
         <p><strong>The table failed to render:</strong> {renderError instanceof Error ? renderError.message : String(renderError)}</p>
-        <button type="button" onclick={reset} class="mt-2 rounded border border-red-300 px-2 py-1 text-xs hover:bg-red-50 dark:border-red-700 dark:hover:bg-red-900/20">Try again</button>
+        <button type="button" onclick={reset} class="mt-2 rounded border px-2 py-1 text-xs ui-tone-error">Try again</button>
       </div>
     {/snippet}
     </svelte:boundary>
   </div>
 
   <details
-    class="mt-6 rounded-lg border border-gray-200 bg-white text-xs dark:border-gray-700 dark:bg-gray-800"
+    class="mt-6 rounded-lg border text-xs ui-card ui-border"
     open={debug.phase === "failed" || !!debug.renderError || debug.duplicateKeys.length > 0}
     data-testid="method-routings-debug"
     data-state={debug.phase}
   >
-    <summary class="cursor-pointer px-4 py-2 font-medium text-gray-700 dark:text-gray-300">Debug</summary>
-    <dl class="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1 border-t border-gray-200 px-4 py-3 font-mono text-gray-700 dark:border-gray-700 dark:text-gray-300">
+    <summary class="cursor-pointer px-4 py-2 font-medium ui-muted">Debug</summary>
+    <dl class="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1 border-t px-4 py-3 font-mono ui-muted ui-border">
       <dt>phase</dt>
       <dd data-testid="debug-phase">
         {debug.phase}{#if debug.phase === "requesting" && debug.startedAt}&nbsp;(waiting {Math.max(0, Math.round((now - debug.startedAt) / 1000))}s){/if}

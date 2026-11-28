@@ -16,9 +16,9 @@
 <h1 class="h2">Your Roles</h1>
 <p class="mt-2">The Roles the staff pages use. Most are at the central space, <code>{data.space}</code>.</p>
 
-{#if page.url.searchParams.has('no_role')}<p class="mt-4 preset-tonal-warning rounded p-3" role="status" data-testid="access-no-role">The staff pages need at least one of these Roles. Ask for the ones your work needs.</p>{/if}
-{#if form?.error}<p class="mt-4 preset-tonal-error rounded p-3" role="alert">{form.error}</p>{/if}
-{#if form?.requested}<p class="mt-4 preset-tonal-success rounded p-3" role="status">Your request for {form.requested} is waiting for an administrator.</p>{/if}
+{#if page.url.searchParams.has('no_role')}<p class="mt-4 ui-tone-warning rounded p-3" role="status" data-testid="access-no-role">The staff pages need at least one of these Roles. Ask for the ones your work needs.</p>{/if}
+{#if form?.error}<p class="mt-4 ui-tone-error rounded p-3" role="alert">{form.error}</p>{/if}
+{#if form?.requested}<p class="mt-4 ui-tone-success rounded p-3" role="status">Your request for {form.requested} is waiting for an administrator.</p>{/if}
 
 <table class="table mt-4" data-testid="access-roles">
 	<thead>

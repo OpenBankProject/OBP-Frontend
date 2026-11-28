@@ -34,9 +34,9 @@ export type Light = 'green' | 'amber' | 'red';
 
 /** Plain colours, not theme colours, so the three states look different in every theme. */
 export const LIGHT_CLASS: Record<Light, string> = {
-	green: 'bg-green-500',
-	amber: 'bg-amber-400',
-	red: 'bg-red-700'
+	green: 'preset-filled-primary-500',
+	amber: 'preset-filled-primary-500',
+	red: 'preset-filled-error-500'
 };
 
 export type ConnectionStatus = 'healthy' | 'unhealthy' | 'degraded' | 'unknown';

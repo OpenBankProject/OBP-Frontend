@@ -28,24 +28,24 @@
 </svelte:head>
 
 <div class="container mx-auto max-w-7xl px-4 py-8">
-  <nav class="mb-6 text-sm text-gray-600 dark:text-gray-400" aria-label="Breadcrumb">
+  <nav class="mb-6 text-sm ui-muted" aria-label="Breadcrumb">
     <a href="/consumers/platform-apps" class="hover:underline">Platform Apps</a>
     <span class="mx-2" aria-hidden="true">&gt;</span>
-    <span class="text-gray-900 dark:text-gray-100">Help</span>
+    <span class="ui-text">Help</span>
   </nav>
 
-  <h1 class="mb-6 flex items-center gap-3 text-3xl font-bold text-gray-900 dark:text-gray-100">
-    <CircleHelp size={32} class="text-blue-600 dark:text-blue-400" /> Platform Apps Help
+  <h1 class="mb-6 flex items-center gap-3 text-3xl font-bold ui-text">
+    <CircleHelp size={32} class="ui-link" /> Platform Apps Help
   </h1>
 
   <section
-    class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+    class="rounded-lg border p-6 shadow-sm ui-card ui-border"
     data-testid="platform-apps-help-glossary"
   >
     {#if data.glossary.html}
       <GlossaryEntry html={data.glossary.html} testid="platform-apps-glossary-entry" />
     {:else}
-      <p class="text-sm text-amber-700 dark:text-amber-400" data-testid="platform-apps-help-warning">{data.glossary.warning}</p>
+      <p class="text-sm ui-text-warning" data-testid="platform-apps-help-warning">{data.glossary.warning}</p>
     {/if}
   </section>
 

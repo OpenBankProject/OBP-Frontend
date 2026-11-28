@@ -29,8 +29,8 @@
 
 <div class="mx-auto flex w-full max-w-3xl flex-col gap-5 p-6">
 	<header class="flex flex-col gap-2">
-		<h1 class="text-2xl font-semibold text-surface-900-50">Glossary</h1>
-		<p class="text-sm text-surface-600-400">
+		<h1 class="text-2xl font-semibold ui-text">Glossary</h1>
+		<p class="text-sm ui-muted">
 			{data.rows.length}
 			{data.rows.length === 1 ? 'entry' : 'entries'}{#if data.query}
 				matching “{data.query}” of {data.total}{/if}. Searching covers entry bodies, not just
@@ -47,49 +47,49 @@
 			placeholder="Search titles and bodies"
 			aria-label="Search the glossary"
 		/>
-		<button type="submit" class="btn preset-filled">Search</button>
+		<button type="submit" class="btn preset-filled-primary-500">Search</button>
 		{#if data.query}
 			<a class="btn preset-tonal" href="/api-explorer/glossary">Clear</a>
 		{/if}
 	</form>
 
 	{#if data.loadError}
-		<p class="text-sm text-red-700 dark:text-red-400" role="alert">{data.loadError}</p>
+		<p class="text-sm ui-text-error" role="alert">{data.loadError}</p>
 	{/if}
 
 	{#if data.duplicateTitles.length > 0}
 		<!-- Reported rather than hidden: two static items can legitimately share a title. -->
-		<p class="text-xs text-surface-600-400">
+		<p class="text-xs ui-muted">
 			{data.duplicateTitles.length} duplicate {data.duplicateTitles.length === 1
 				? 'title is'
 				: 'titles are'} served by this glossary; the first of each is shown.
 		</p>
 	{/if}
 
-	<ul class="flex flex-col divide-y divide-surface-300-600 border-y border-surface-300-600">
+	<ul class="flex flex-col divide-y border-y ui-border">
 		{#each data.rows as row (row.title)}
 			<li>
-				<a class="flex flex-col gap-1 px-2 py-3 hover:bg-surface-100-800" href={explorerGlossaryTitleUrl(row.title)}>
+				<a class="flex flex-col gap-1 px-2 py-3 ui-hover" href={explorerGlossaryTitleUrl(row.title)}>
 					<span class="flex flex-wrap items-baseline gap-2">
-						<span class="font-semibold text-surface-900-50">{row.title}</span>
+						<span class="font-semibold ui-text">{row.title}</span>
 						{#if row.is_dynamic}
-							<span class="rounded border border-surface-300-600 px-1.5 text-xs text-surface-600-400">
+							<span class="rounded border px-1.5 text-xs ui-muted ui-border">
 								dynamic
 							</span>
 						{/if}
 						{#if row.overrides_static_item}
-							<span class="rounded border border-surface-300-600 px-1.5 text-xs text-surface-600-400">
+							<span class="rounded border px-1.5 text-xs ui-muted ui-border">
 								overrides a static item
 							</span>
 						{/if}
 					</span>
 					{#if row.excerpt}
-						<span class="text-sm text-surface-600-400">{row.excerpt}</span>
+						<span class="text-sm ui-muted">{row.excerpt}</span>
 					{/if}
 				</a>
 			</li>
 		{:else}
-			<li class="px-2 py-6 text-sm text-surface-600-400">No entry matches.</li>
+			<li class="px-2 py-6 text-sm ui-muted">No entry matches.</li>
 		{/each}
 	</ul>
 </div>

@@ -48,30 +48,30 @@
 	function verbClass(verb: string): string {
 		switch (verb.toUpperCase()) {
 			case 'GET':
-				return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300';
+				return 'ui-tone-info';
 			case 'POST':
-				return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
+				return 'ui-tone-success';
 			case 'PUT':
 			case 'PATCH':
-				return 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300';
+				return 'ui-tone-warning';
 			case 'DELETE':
-				return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
+				return 'ui-tone-error';
 			default:
-				return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
+				return 'ui-panel ui-text';
 		}
 	}
 
 	function statusClass(status: number): string {
-		if (status >= 500) return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
-		if (status >= 400) return 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300';
-		if (status >= 300) return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
-		return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
+		if (status >= 500) return 'ui-tone-error';
+		if (status >= 400) return 'ui-tone-warning';
+		if (status >= 300) return 'ui-panel ui-text';
+		return 'ui-tone-success';
 	}
 
 	function durationClass(ms: number): string {
-		if (ms >= 500) return 'text-red-700 dark:text-red-300';
-		if (ms >= 100) return 'text-amber-700 dark:text-amber-300';
-		return 'text-green-700 dark:text-green-300';
+		if (ms >= 500) return 'ui-text-error';
+		if (ms >= 100) return 'ui-text-warning';
+		return 'ui-text-success';
 	}
 
 	function endpointLabel(metric: OBPMetric): string {
@@ -144,12 +144,12 @@
 <form
 	method="GET"
 	action="/user/my-activity-dashboard"
-	class="mb-6 rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+	class="mb-6 rounded-lg border p-4 shadow-sm ui-card ui-border"
 	data-testid="activity-filter-form"
 >
 	<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
 		<label class="block">
-			<span class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">Time range</span>
+			<span class="mb-1 block text-xs font-medium ui-muted">Time range</span>
 			<select name="range" class="select" data-testid="activity-filter-range">
 				{#each Object.keys(MY_METRICS_RANGES) as range (range)}
 					<option value={range} selected={data.filters.range === range}>
@@ -159,7 +159,7 @@
 			</select>
 		</label>
 		<label class="block">
-			<span class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">Method</span>
+			<span class="mb-1 block text-xs font-medium ui-muted">Method</span>
 			<select name="verb" class="select" data-testid="activity-filter-verb">
 				<option value="" selected={data.filters.verb === ''}>Any</option>
 				{#each MY_METRICS_VERBS as verb (verb)}
@@ -168,7 +168,7 @@
 			</select>
 		</label>
 		<label class="block">
-			<span class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">URL (exact match)</span>
+			<span class="mb-1 block text-xs font-medium ui-muted">URL (exact match)</span>
 			<!-- No placeholder: an example path here read as an active filter. Empty means no
 			     URL filter; the API matches the typed value against the full path exactly. -->
 			<input
@@ -180,7 +180,7 @@
 			/>
 		</label>
 		<label class="block">
-			<span class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">App</span>
+			<span class="mb-1 block text-xs font-medium ui-muted">App</span>
 			<select name="consumer_id" class="select" data-testid="activity-filter-consumer">
 				<option value="" selected={data.filters.consumer_id === ''}>Any app</option>
 				{#if myConsumerOptions.length > 0}
@@ -208,14 +208,14 @@
 		<button type="submit" class="btn preset-filled-primary-500" data-testid="activity-filter-apply">
 			Apply
 		</button>
-		<a href="/user/my-activity-dashboard" class="text-sm underline hover:text-gray-900 dark:hover:text-gray-100" data-testid="activity-filter-clear">
+		<a href="/user/my-activity-dashboard" class="text-sm underline" data-testid="activity-filter-clear">
 			Clear
 		</a>
 	</div>
 </form>
 
 {#if data.filters.consent_reference_id}
-	<p class="mb-4 text-sm text-gray-600 dark:text-gray-400" data-testid="activity-consent-filter">
+	<p class="mb-4 text-sm ui-muted" data-testid="activity-consent-filter">
 		Showing only calls made under consent <code>{data.filters.consent_reference_id}</code>
 		— <a href={clearConsentFilterHref()} class="underline">show all</a>
 		· <a href="/user/consents" class="underline">my consents</a>
@@ -235,52 +235,52 @@
 		data-testid="activity-summary"
 		data-truncated={data.summary.truncated}
 	>
-		<h2 id="activity-summary-heading" class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">
+		<h2 id="activity-summary-heading" class="mb-2 text-sm font-medium ui-muted">
 			{RANGE_LABELS[data.filters.range]}
 			{#if data.summary.truncated}
 				<span class="font-normal">· based on the most recent {formatCount(data.summary.total)} calls</span>
 			{/if}
 		</h2>
 		<div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
-			<div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-				<div class="text-xs text-gray-600 dark:text-gray-400">API calls</div>
+			<div class="rounded-lg border p-4 shadow-sm ui-card ui-border">
+				<div class="text-xs ui-muted">API calls</div>
 				<div class="mt-1 text-2xl font-semibold" data-testid="activity-summary-total">
 					{formatCount(data.summary.total)}{#if data.summary.truncated}+{/if}
 				</div>
 			</div>
-			<div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-				<div class="text-xs text-gray-600 dark:text-gray-400">Errors</div>
+			<div class="rounded-lg border p-4 shadow-sm ui-card ui-border">
+				<div class="text-xs ui-muted">Errors</div>
 				<div class="mt-1 text-2xl font-semibold" data-testid="activity-summary-errors">
 					{formatCount(summaryErrors)}
-					<span class="text-base font-normal text-gray-600 dark:text-gray-400">({formatPercent(data.summary.errorRate)})</span>
+					<span class="text-base font-normal ui-muted">({formatPercent(data.summary.errorRate)})</span>
 				</div>
-				<div class="mt-1 text-xs text-gray-600 dark:text-gray-400">
+				<div class="mt-1 text-xs ui-muted">
 					{formatCount(data.summary.clientErrors)} × 4xx · {formatCount(data.summary.serverErrors)} × 5xx
 				</div>
 			</div>
-			<div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-				<div class="text-xs text-gray-600 dark:text-gray-400">Median duration</div>
+			<div class="rounded-lg border p-4 shadow-sm ui-card ui-border">
+				<div class="text-xs ui-muted">Median duration</div>
 				<div class="mt-1 text-2xl font-semibold" data-testid="activity-summary-p50">
 					{formatCount(data.summary.p50Duration)}
-					<span class="text-base font-normal text-gray-600 dark:text-gray-400">ms</span>
+					<span class="text-base font-normal ui-muted">ms</span>
 				</div>
 			</div>
-			<div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-				<div class="text-xs text-gray-600 dark:text-gray-400">95th percentile duration</div>
+			<div class="rounded-lg border p-4 shadow-sm ui-card ui-border">
+				<div class="text-xs ui-muted">95th percentile duration</div>
 				<div class="mt-1 text-2xl font-semibold" data-testid="activity-summary-p95">
 					{formatCount(data.summary.p95Duration)}
-					<span class="text-base font-normal text-gray-600 dark:text-gray-400">ms</span>
+					<span class="text-base font-normal ui-muted">ms</span>
 				</div>
-				<div class="mt-1 text-xs text-gray-600 dark:text-gray-400">slowest {formatCount(data.summary.maxDuration)} ms</div>
+				<div class="mt-1 text-xs ui-muted">slowest {formatCount(data.summary.maxDuration)} ms</div>
 			</div>
 		</div>
 
 		{#if data.summary.topEndpoints.length > 0}
 			<div
-				class="mt-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+				class="mt-4 rounded-lg border p-4 shadow-sm ui-card ui-border"
 				data-testid="activity-summary-top-endpoints"
 			>
-				<h3 class="text-xs text-gray-600 dark:text-gray-400">Top endpoints</h3>
+				<h3 class="text-xs ui-muted">Top endpoints</h3>
 				<ol class="mt-2 space-y-1 text-sm">
 					{#each data.summary.topEndpoints as e (e.label)}
 						<li class="flex items-baseline gap-3" data-testid="activity-top-endpoint">
@@ -290,7 +290,7 @@
 									href={endpointExplorerLink(e.operation_id)}
 									target="_blank"
 									rel="noopener noreferrer"
-									class="text-primary-500 hover:underline dark:text-primary-200"
+									class="hover:underline ui-text-brand"
 								>
 									<code class="text-xs">{e.label}</code>
 								</a>
@@ -307,20 +307,20 @@
 
 {#if data.metrics.length === 0}
 	{#if !data.error}
-		<p class="text-gray-600 dark:text-gray-400" data-testid="activity-empty">
+		<p class="ui-muted" data-testid="activity-empty">
 			No API calls found for {RANGE_LABELS[data.filters.range].toLowerCase()}.
 			{#if data.filters.range !== '30d'}
-				<a href={widerRangeHref()} class="underline hover:text-gray-900 dark:hover:text-gray-100">Try the last 30 days.</a>
+				<a href={widerRangeHref()} class="underline">Try the last 30 days.</a>
 			{/if}
 		</p>
 	{/if}
 {:else}
-	<ol class="divide-y divide-gray-200 rounded-lg border border-gray-200 bg-white shadow-sm dark:divide-gray-700 dark:border-gray-700 dark:bg-gray-800" data-testid="activity-list">
+	<ol class="divide-y rounded-lg border shadow-sm ui-card ui-border" data-testid="activity-list">
 		{#each data.metrics as metric, i (metric.correlation_id || `idx-${i}`)}
 			<li class="px-4 py-3" data-testid="activity-row" data-correlation-id={metric.correlation_id}>
 				<!-- Line 1: when, what, how it went -->
 				<div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
-					<span class="whitespace-nowrap text-gray-600 dark:text-gray-400">{formatDate(metric.date)}</span>
+					<span class="whitespace-nowrap ui-muted">{formatDate(metric.date)}</span>
 					<span class="rounded-full px-2 py-0.5 text-xs font-semibold {verbClass(metric.verb)}">
 						{metric.verb.toUpperCase()}
 					</span>
@@ -334,7 +334,7 @@
 							href={apiExplorerLink(metric)}
 							target="_blank"
 							rel="noopener noreferrer"
-							class="text-primary-500 hover:underline dark:text-primary-200"
+							class="hover:underline ui-text-brand"
 							data-testid="activity-operation-link"
 						>
 							<code class="text-xs">{endpointLabel(metric)}</code>
@@ -349,9 +349,9 @@
 					<code class="whitespace-nowrap text-xs" data-testid="activity-url">{metric.url}</code>
 				</div>
 				<!-- Line 3: who called it, and the trace id -->
-				<div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
+				<div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs ui-muted">
 					<span>
-						App: <span class="text-gray-700 dark:text-gray-300">{metric.app_name || '—'}</span>
+						App: <span class="ui-muted">{metric.app_name || '—'}</span>
 						{#if metric.consumer_id}
 							<code>({metric.consumer_id})</code>
 						{/if}
@@ -364,7 +364,7 @@
 							Consent:
 							<a
 								href={consentFilterHref(metric.consent_reference_id)}
-								class="text-primary-500 hover:underline dark:text-primary-200"
+								class="hover:underline ui-text-brand"
 								><code>{metric.consent_reference_id}</code></a
 							>
 						</span>
@@ -380,7 +380,7 @@
 	</ol>
 
 	<nav class="mt-4 flex items-center justify-between gap-4" aria-label="Pagination">
-		<p class="text-sm text-gray-600 dark:text-gray-400" data-testid="activity-page-summary">
+		<p class="text-sm ui-muted" data-testid="activity-page-summary">
 			Showing calls {firstIndex}–{lastIndex} (page {data.filters.page + 1})
 		</p>
 		<div class="flex gap-2">

@@ -26,11 +26,11 @@
 
 <div class="flex flex-col flex-1 min-h-0">
     <!-- Title Bar -->
-    <header class="border-b border-surface-300-600 bg-surface-50-900 px-6 py-4 flex-shrink-0">
-        <h1 class="text-2xl font-semibold text-surface-900-50">
+    <header class="border-b px-6 py-4 flex-shrink-0 ui-card ui-border">
+        <h1 class="text-2xl font-semibold ui-text">
             {activeMenuItem.label}
         </h1>
-        <p class="text-surface-600-400 text-sm mt-1">
+        <p class="text-sm mt-1 ui-muted">
             Manage your {activeMenuItem.label.toLowerCase()} settings
         </p>
     </header>

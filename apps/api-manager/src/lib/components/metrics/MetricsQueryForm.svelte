@@ -209,14 +209,9 @@
     align-items: center;
     gap: 0.25rem 0.5rem;
     padding: 0.35rem 0.5rem;
-    background: var(--color-surface-100);
-    border: 1px solid var(--color-surface-300);
+    background: var(--ui-panel);
+    border: 1px solid var(--ui-border);
     border-radius: 0.25rem;
-  }
-
-  :global([data-mode="dark"]) .qf-bar {
-    background: rgb(var(--color-surface-800));
-    border-color: rgb(var(--color-surface-600));
   }
 
   .qf-filters {
@@ -224,12 +219,8 @@
   }
 
   .qf-divider {
-    color: var(--color-surface-300);
+    color: var(--ui-muted);
     user-select: none;
-  }
-
-  :global([data-mode="dark"]) .qf-divider {
-    color: rgb(var(--color-surface-600));
   }
 
   .qf-inline {
@@ -241,38 +232,27 @@
   }
 
   .qf-inline span {
-    color: var(--color-surface-500);
+    color: var(--ui-muted);
     font-size: 0.8rem;
     font-weight: 500;
     white-space: nowrap;
   }
 
-  :global([data-mode="dark"]) .qf-inline span {
-    color: var(--color-surface-400);
-  }
-
   .qf-inline input,
   .qf-inline select {
     padding: 0.2rem 0.3rem;
-    border: 1px solid var(--color-surface-300);
+    border: 1px solid var(--ui-border);
     border-radius: 0.2rem;
     font-size: 0.8rem;
-    background: white;
-    color: var(--color-surface-900);
+    background: var(--ui-card);
+    color: var(--ui-text);
     line-height: 1.2;
-  }
-
-  :global([data-mode="dark"]) .qf-inline input,
-  :global([data-mode="dark"]) .qf-inline select {
-    background: rgb(var(--color-surface-900));
-    border-color: rgb(var(--color-surface-600));
-    color: var(--color-surface-100);
   }
 
   .qf-inline input:focus,
   .qf-inline select:focus {
     outline: none;
-    border-color: var(--color-primary-500);
+    border-color: var(--ui-link);
   }
 
   .qf-inline input[type="datetime-local"] {
@@ -311,41 +291,25 @@
     padding: 0.2rem 0.4rem;
     font-size: 0.8rem;
     background: transparent;
-    border: 1px solid var(--color-surface-300);
+    border: 1px solid var(--ui-border);
     border-radius: 0.2rem;
     cursor: pointer;
-    color: var(--color-surface-600);
+    color: var(--ui-muted);
     white-space: nowrap;
   }
 
   .qf-btn:hover {
-    background: var(--color-surface-200);
-    color: var(--color-surface-800);
-  }
-
-  :global([data-mode="dark"]) .qf-btn {
-    border-color: rgb(var(--color-surface-600));
-    color: var(--color-surface-400);
-  }
-
-  :global([data-mode="dark"]) .qf-btn:hover {
-    background: rgb(var(--color-surface-700));
-    color: var(--color-surface-200);
+    background: var(--ui-hover);
+    color: var(--ui-text);
   }
 
   .qf-sel {
     padding: 0.2rem 0.3rem;
     font-size: 0.8rem;
-    border: 1px solid var(--color-surface-300);
+    border: 1px solid var(--ui-border);
     border-radius: 0.2rem;
-    background: white;
-    color: var(--color-surface-700);
-  }
-
-  :global([data-mode="dark"]) .qf-sel {
-    background: rgb(var(--color-surface-900));
-    border-color: rgb(var(--color-surface-600));
-    color: var(--color-surface-300);
+    background: var(--ui-card);
+    color: var(--ui-text);
   }
 
   @media (max-width: 768px) {

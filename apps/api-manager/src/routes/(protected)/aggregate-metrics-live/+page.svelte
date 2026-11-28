@@ -390,17 +390,17 @@
   function getVerbColor(verb: string): string {
     switch (verb.toUpperCase()) {
       case "GET":
-        return "text-green-600 bg-green-50";
+        return "ui-tone-success";
       case "POST":
-        return "text-blue-600 bg-blue-50";
+        return "ui-tone-info";
       case "PUT":
-        return "text-yellow-600 bg-yellow-50";
+        return "ui-tone-warning";
       case "DELETE":
-        return "text-red-600 bg-red-50";
+        return "ui-tone-error";
       case "PATCH":
-        return "text-purple-600 bg-purple-50";
+        return "ui-tone-accent";
       default:
-        return "text-gray-600 bg-gray-50";
+        return "ui-card ui-muted";
     }
   }
 </script>
@@ -515,26 +515,26 @@
                   (metric.minimum_response_time / maxInHistory) * 100}
                 {@const minColor =
                   metric.minimum_response_time < 50
-                    ? "#10b981"
+                    ? "var(--ui-success)"
                     : metric.minimum_response_time < 150
-                      ? "#f59e0b"
-                      : "#ef4444"}
+                      ? "var(--ui-warning)"
+                      : "var(--ui-error)"}
                 {@const maxPercent =
                   (metric.maximum_response_time / maxInHistory) * 100}
                 {@const maxColor =
                   metric.maximum_response_time < 50
-                    ? "#10b981"
+                    ? "var(--ui-success)"
                     : metric.maximum_response_time < 150
-                      ? "#f59e0b"
-                      : "#ef4444"}
+                      ? "var(--ui-warning)"
+                      : "var(--ui-error)"}
                 {@const avgPercent =
                   (metric.average_response_time / maxInHistory) * 100}
                 {@const avgColor =
                   metric.average_response_time < 50
-                    ? "#10b981"
+                    ? "var(--ui-success)"
                     : metric.average_response_time < 150
-                      ? "#f59e0b"
-                      : "#ef4444"}
+                      ? "var(--ui-warning)"
+                      : "var(--ui-error)"}
                 <tr>
                   <td class="date-cell">
                     {metric.from_date}
@@ -593,8 +593,8 @@
           >
             📡
           </div>
-          <h4
-            style="color: #4a5568; margin-bottom: 0.5rem; font-size: 1.125rem; text-align: center;"
+          <h4 class="ui-muted"
+            style="margin-bottom: 0.5rem; font-size: 1.125rem; text-align: center;"
           >
             No Aggregate Metrics Found
           </h4>
@@ -602,16 +602,16 @@
             No aggregate metrics found for <strong>{obpInfo.displayName}</strong
             >.
           </p>
-          <div
-            style="background: #f7fafc; padding: 1rem; border-radius: 6px; margin-bottom: 1rem; text-align: left;"
+          <div class="ui-panel"
+            style="padding: 1rem; border-radius: 6px; margin-bottom: 1rem; text-align: left;"
           >
-            <h5
-              style="color: #2d3748; margin-bottom: 0.5rem; font-size: 0.875rem;"
+            <h5 class="ui-text"
+              style="margin-bottom: 0.5rem; font-size: 0.875rem;"
             >
               Server Configuration:
             </h5>
-            <div
-              style="font-family: monospace; font-size: 0.75rem; color: #4a5568;"
+            <div class="ui-muted"
+              style="font-family: monospace; font-size: 0.75rem;"
             >
               <div>• Base URL: {obpInfo.baseUrl}</div>
               <div>• API URL: {obpInfo.apiUrl}</div>
@@ -633,8 +633,8 @@
           >
             🔒
           </div>
-          <h4
-            style="color: #e53e3e; margin-bottom: 0.5rem; font-size: 1.125rem; text-align: center;"
+          <h4 class="ui-text-error"
+            style="margin-bottom: 0.5rem; font-size: 1.125rem; text-align: center;"
           >
             API Access Unavailable
           </h4>
@@ -643,7 +643,7 @@
               >{obpInfo.displayName}</strong
             >
           </p>
-          <p style="text-align: center; font-size: 0.875rem; color: #718096;">
+          <p class="ui-muted" style="text-align: center; font-size: 0.875rem;">
             Please check your authentication or server configuration.
           </p>
         </div>
@@ -654,11 +654,7 @@
 
 <style>
   :global(body) {
-    color: var(--color-surface-900);
-  }
-
-  :global([data-mode="dark"] body) {
-    color: var(--color-surface-100);
+    color: var(--ui-text);
   }
 
   .container {
@@ -672,28 +668,17 @@
   }
 
   .alert-error {
-    background-color: var(--color-error-100);
-    border: 1px solid var(--color-error-300);
-    color: var(--color-error-800);
-  }
-
-  :global([data-mode="dark"]) .alert-error {
-    background-color: var(--color-error-900);
-    border-color: var(--color-error-700);
-    color: var(--color-error-200);
+    background-color: var(--ui-tone-error-bg);
+    border: 1px solid var(--ui-tone-error-border);
+    color: var(--ui-tone-error-text);
   }
 
   .panel {
-    background: var(--color-surface-50);
-    border: 1px solid var(--color-surface-300);
+    background: var(--ui-card);
+    border: 1px solid var(--ui-border);
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     overflow: hidden;
-  }
-
-  :global([data-mode="dark"]) .panel {
-    background: var(--color-surface-900);
-    border-color: var(--color-surface-700);
   }
 
   .full-width-panel {
@@ -702,8 +687,8 @@
   }
 
   .panel-header {
-    background: var(--color-surface-100);
-    border-bottom: 1px solid var(--color-surface-300);
+    background: var(--ui-panel);
+    border-bottom: 1px solid var(--ui-border);
     padding: 1.5rem;
     display: flex;
     align-items: center;
@@ -712,35 +697,22 @@
     gap: 1rem;
   }
 
-  :global([data-mode="dark"]) .panel-header {
-    background: var(--color-surface-800);
-    border-color: var(--color-surface-700);
-  }
-
   .panel-title {
     font-size: 1.25rem;
     font-weight: 600;
-    color: var(--color-surface-900);
+    color: var(--ui-text);
     margin: 0;
-  }
-
-  :global([data-mode="dark"]) .panel-title {
-    color: var(--color-surface-100);
   }
 
   .panel-subtitle {
     font-size: 0.875rem;
-    color: var(--color-surface-600);
+    color: var(--ui-muted);
     margin: 0;
   }
 
-  :global([data-mode="dark"]) .panel-subtitle {
-    color: var(--color-surface-400);
-  }
-
   .refresh-btn {
-    background: var(--color-surface-200);
-    border: 1px solid var(--color-surface-400);
+    background: var(--ui-panel);
+    border: 1px solid var(--ui-border);
     border-radius: 6px;
     padding: 0.5rem;
     cursor: pointer;
@@ -748,17 +720,8 @@
     transition: all 0.2s;
   }
 
-  :global([data-mode="dark"]) .refresh-btn {
-    background: var(--color-surface-800);
-    border-color: var(--color-surface-600);
-  }
-
   .refresh-btn:hover {
-    background: var(--color-surface-300);
-  }
-
-  :global([data-mode="dark"]) .refresh-btn:hover {
-    background: var(--color-surface-700);
+    background: var(--ui-hover);
   }
 
   .panel-content {
@@ -778,49 +741,31 @@
   }
 
   .metrics-table th {
-    background: var(--color-surface-100);
+    background: var(--ui-panel);
     padding: 0.75rem 0.5rem;
     text-align: left;
     font-weight: 600;
-    color: var(--color-surface-700);
-    border-bottom: 1px solid var(--color-surface-300);
+    color: var(--ui-text);
+    border-bottom: 1px solid var(--ui-border);
     white-space: nowrap;
-  }
-
-  :global([data-mode="dark"]) .metrics-table th {
-    background: var(--color-surface-800);
-    color: var(--color-surface-300);
-    border-color: var(--color-surface-700);
   }
 
   .metrics-table td {
     padding: 0.75rem;
-    border-bottom: 1px solid var(--color-surface-200);
+    border-bottom: 1px solid var(--ui-border);
     vertical-align: middle;
   }
 
-  :global([data-mode="dark"]) .metrics-table td {
-    border-color: var(--color-surface-800);
-  }
-
   .metrics-table tr:hover {
-    background: var(--color-surface-100);
-  }
-
-  :global([data-mode="dark"]) .metrics-table tr:hover {
-    background: var(--color-surface-800);
+    background: var(--ui-hover);
   }
 
   .date-cell {
     font-family: monospace;
     font-size: 0.8125rem;
-    color: var(--color-surface-600);
+    color: var(--ui-muted);
     white-space: nowrap;
     min-width: 120px;
-  }
-
-  :global([data-mode="dark"]) .date-cell {
-    color: var(--color-surface-400);
   }
 
   .endpoint-cell {
@@ -831,14 +776,10 @@
   }
 
   .endpoint-path {
-    background: var(--color-surface-200);
+    background: var(--ui-panel);
     padding: 0.125rem 0.375rem;
     border-radius: 3px;
     font-size: 0.75rem;
-  }
-
-  :global([data-mode="dark"]) .endpoint-path {
-    background: var(--color-surface-800);
   }
 
   .user-cell,
@@ -862,27 +803,32 @@
     display: inline-block;
     min-width: 4rem;
     text-align: center;
-    color: white;
+    color: var(--ui-fill-main-text);
   }
 
   .method-get {
-    background-color: var(--color-success-500);
+    background-color: var(--ui-tone-success-bg);
+    color: var(--ui-tone-success-text);
   }
 
   .method-post {
-    background-color: var(--color-tertiary-500);
+    background-color: var(--ui-tone-info-bg);
+    color: var(--ui-tone-info-text);
   }
 
   .method-put {
-    background-color: var(--color-warning-500);
+    background-color: var(--ui-tone-warning-bg);
+    color: var(--ui-tone-warning-text);
   }
 
   .method-delete {
-    background-color: var(--color-error-500);
+    background-color: var(--ui-tone-error-bg);
+    color: var(--ui-tone-error-text);
   }
 
   .method-patch {
-    background-color: var(--color-secondary-500);
+    background-color: var(--ui-tone-accent-bg);
+    color: var(--ui-tone-accent-text);
   }
 
   .duration-cell {
@@ -899,33 +845,18 @@
   }
 
   .duration-fast {
-    background-color: var(--color-success-200);
-    color: var(--color-success-800);
-  }
-
-  :global([data-mode="dark"]) .duration-fast {
-    background-color: var(--color-success-900);
-    color: var(--color-success-200);
+    background-color: var(--ui-tone-success-bg);
+    color: var(--ui-tone-success-text);
   }
 
   .duration-medium {
-    background-color: var(--color-warning-200);
-    color: var(--color-warning-800);
-  }
-
-  :global([data-mode="dark"]) .duration-medium {
-    background-color: var(--color-warning-900);
-    color: var(--color-warning-200);
+    background-color: var(--ui-tone-warning-bg);
+    color: var(--ui-tone-warning-text);
   }
 
   .duration-slow {
-    background-color: var(--color-error-200);
-    color: var(--color-error-800);
-  }
-
-  :global([data-mode="dark"]) .duration-slow {
-    background-color: var(--color-error-900);
-    color: var(--color-error-200);
+    background-color: var(--ui-tone-error-bg);
+    color: var(--ui-tone-error-text);
   }
 
   .correlation-cell {
@@ -938,17 +869,12 @@
   }
 
   .correlation-id {
-    background: var(--color-tertiary-100);
-    color: var(--color-tertiary-800);
+    background: var(--ui-tone-info-bg);
+    color: var(--ui-tone-info-text);
     padding: 0.125rem 0.375rem;
     border-radius: 3px;
     font-size: 0.75rem;
     font-weight: 500;
-  }
-
-  :global([data-mode="dark"]) .correlation-id {
-    background: var(--color-tertiary-900);
-    color: var(--color-tertiary-200);
   }
 
   .table-wrapper {
@@ -957,28 +883,24 @@
   }
 
   .countdown {
-    color: var(--color-warning-500);
+    color: var(--ui-warning);
     font-weight: 600;
     animation: pulse 1s ease-in-out infinite;
   }
 
   .countdown-idle {
-    color: var(--color-surface-600);
+    color: var(--ui-muted);
     font-weight: 500;
   }
 
-  :global([data-mode="dark"]) .countdown-idle {
-    color: var(--color-surface-400);
-  }
-
   .timestamp-color-0 {
-    color: var(--color-tertiary-500);
+    color: var(--ui-link);
     font-weight: 600;
     transition: color 0.3s ease-in-out;
   }
 
   .timestamp-color-1 {
-    color: var(--color-success-500);
+    color: var(--ui-success);
     font-weight: 600;
     transition: color 0.3s ease-in-out;
   }
@@ -995,37 +917,24 @@
 
   .metrics-summary {
     text-align: center;
-    color: var(--color-surface-600);
+    color: var(--ui-muted);
     font-size: 0.875rem;
     padding: 1rem;
-    background: var(--color-surface-100);
+    background: var(--ui-panel);
     border-radius: 6px;
-  }
-
-  :global([data-mode="dark"]) .metrics-summary {
-    color: var(--color-surface-400);
-    background: var(--color-surface-800);
   }
 
   .empty-state {
     text-align: center;
-    color: var(--color-surface-600);
+    color: var(--ui-muted);
     padding: 2rem;
-  }
-
-  :global([data-mode="dark"]) .empty-state {
-    color: var(--color-surface-400);
   }
 
   .form-actions {
     display: flex;
     gap: 1rem;
     padding-top: 1rem;
-    border-top: 1px solid var(--color-surface-300);
-  }
-
-  :global([data-mode="dark"]) .form-actions {
-    border-color: var(--color-surface-700);
+    border-top: 1px solid var(--ui-border);
   }
 
   .btn {
@@ -1042,42 +951,28 @@
   }
 
   .btn-primary {
-    background: var(--color-tertiary-500);
-    color: white;
+    background: var(--ui-fill-main-bg);
+    color: var(--ui-fill-main-text);
   }
 
   .btn-primary:hover {
-    background: var(--color-tertiary-600);
+    opacity: 0.85;
   }
 
   .btn-secondary {
-    background: var(--color-surface-200);
-    color: var(--color-surface-700);
-    border: 1px solid var(--color-surface-400);
-  }
-
-  :global([data-mode="dark"]) .btn-secondary {
-    background: var(--color-surface-800);
-    color: var(--color-surface-300);
-    border-color: var(--color-surface-600);
+    background: var(--ui-panel);
+    color: var(--ui-text);
+    border: 1px solid var(--ui-border);
   }
 
   .btn-secondary:hover {
-    background: var(--color-surface-300);
-  }
-
-  :global([data-mode="dark"]) .btn-secondary:hover {
-    background: var(--color-surface-700);
+    background: var(--ui-hover);
   }
 
   .query-results {
     margin-top: 2rem;
-    border-top: 1px solid var(--color-surface-300);
+    border-top: 1px solid var(--ui-border);
     padding-top: 2rem;
-  }
-
-  :global([data-mode="dark"]) .query-results {
-    border-color: var(--color-surface-700);
   }
 
   .results-header {
@@ -1090,25 +985,16 @@
   .results-header h3 {
     font-size: 1.125rem;
     font-weight: 600;
-    color: var(--color-surface-900);
+    color: var(--ui-text);
     margin: 0;
-  }
-
-  :global([data-mode="dark"]) .results-header h3 {
-    color: var(--color-surface-200);
   }
 
   .results-count {
     font-size: 0.875rem;
-    color: var(--color-surface-600);
-    background: var(--color-surface-200);
+    color: var(--ui-muted);
+    background: var(--ui-panel);
     padding: 0.25rem 0.75rem;
     border-radius: 4px;
-  }
-
-  :global([data-mode="dark"]) .results-count {
-    color: var(--color-surface-400);
-    background: var(--color-surface-800);
   }
 
   @media (max-width: 768px) {

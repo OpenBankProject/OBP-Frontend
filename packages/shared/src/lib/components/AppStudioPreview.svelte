@@ -140,7 +140,7 @@
 {#if listening}
 {#if layout === 'fill'}
 	<div
-		class="app-studio-fill w-full overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700"
+		class="app-studio-fill w-full overflow-hidden rounded-xl border shadow-sm ui-card ui-border"
 		style="height: {fillHeight}px;"
 		data-testid="app-studio-fill"
 		data-content-height={contentHeight}
@@ -159,11 +159,11 @@
 	</div>
 {:else}
 	<div
-		class="app-studio-phone mx-auto rounded-[2.5rem] border-[10px] border-gray-900 bg-gray-900 shadow-xl dark:border-gray-700"
+		class="app-studio-phone mx-auto rounded-[2.5rem] border-[10px] shadow-xl ui-panel ui-border"
 		style="width: {width + 20}px; max-width: 100%;"
 		data-testid="app-studio-phone"
 	>
-		<div class="mx-auto mb-1 mt-2 h-1.5 w-20 rounded-full bg-gray-700"></div>
+		<div class="mx-auto mb-1 mt-2 h-1.5 w-20 rounded-full ui-panel"></div>
 		<div class="overflow-hidden rounded-[2rem] bg-white" style="height: {height}px;">
 			{#key runId}
 				<iframe

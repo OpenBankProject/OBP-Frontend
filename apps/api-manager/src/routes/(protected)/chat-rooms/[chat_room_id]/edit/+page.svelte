@@ -92,7 +92,7 @@
 <div class="mb-4">
   <a
     href="/chat-rooms/{level}"
-    class="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+    class="text-sm ui-link"
     data-testid="back-link"
   >
     &larr; Back to {level === "bank" ? "Bank" : "System"} Chat Rooms
@@ -100,38 +100,38 @@
 </div>
 
 <div class="mb-4">
-  <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+  <h1 class="text-2xl font-bold ui-text">
     Edit Chat Room
   </h1>
-  <p class="text-sm text-gray-600 dark:text-gray-400 font-mono mt-1">{chatRoomId}</p>
-  <p class="text-xs text-gray-500 dark:text-gray-500 mt-0.5">
+  <p class="text-sm font-mono mt-1 ui-muted">{chatRoomId}</p>
+  <p class="text-xs mt-0.5 ui-muted">
     Level: {level}{bankId ? ` | Bank: ${bankId}` : ""}
   </p>
 </div>
 
 {#if successMessage}
-  <div class="mb-4 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-800 dark:border-green-800 dark:bg-green-900/20 dark:text-green-200" data-testid="success-message">
+  <div class="mb-4 rounded-lg border p-3 text-sm ui-tone-success" data-testid="success-message">
     {successMessage}
   </div>
 {/if}
 
 {#if error}
-  <div class="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800 dark:border-red-800 dark:bg-red-900/20 dark:text-red-200" data-testid="error-message">
+  <div class="mb-4 rounded-lg border p-3 text-sm ui-tone-error" data-testid="error-message">
     {error}
   </div>
 {/if}
 
 {#if loading}
   <div class="flex items-center justify-center py-8">
-    <div class="h-6 w-6 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
-    <span class="ml-2 text-gray-600 dark:text-gray-400">Loading...</span>
+    <div class="h-6 w-6 animate-spin rounded-full border-2 border-t-transparent border-current ui-text-brand"></div>
+    <span class="ml-2 ui-muted">Loading...</span>
   </div>
 {:else if room}
-  <div class="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+  <div class="rounded-lg border p-4 ui-card ui-border">
     <div class="mb-4">
-      <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{room.name}</h2>
+      <h2 class="text-lg font-semibold ui-text">{room.name}</h2>
       {#if room.description}
-        <p class="text-sm text-gray-600 dark:text-gray-400 mt-0.5">{room.description}</p>
+        <p class="text-sm mt-0.5 ui-muted">{room.description}</p>
       {/if}
     </div>
 
@@ -142,15 +142,15 @@
           id="is_open_room"
           name="is_open_room"
           bind:checked={allUsers}
-          class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
+          class="h-4 w-4 rounded ui-link ui-panel ui-border"
           data-testid="open-room-input"
         />
-        <label for="is_open_room" class="text-sm font-medium text-gray-700 dark:text-gray-300">Open room</label>
+        <label for="is_open_room" class="text-sm font-medium ui-muted">Open room</label>
       </div>
       <button
         onclick={save}
         disabled={saving}
-        class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
+        class="rounded-lg px-4 py-2 text-sm font-medium disabled:opacity-50 preset-filled-primary-500"
         data-testid="save-chat-room"
       >
         {saving ? "Saving..." : "Save"}

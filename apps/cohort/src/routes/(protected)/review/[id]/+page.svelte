@@ -14,10 +14,10 @@
 <h1 class="h2">{t(locale, 'review_one_heading')}</h1>
 <p class="mt-1">{t(locale, 'application_call')}: {data.callTitle}{#if data.assignment.due_on}{' '}· {t(locale, 'eval_due')} {data.assignment.due_on}{/if}</p>
 
-{#if form?.error && form?.form !== 'role'}<p class="mt-4 preset-tonal-error rounded p-3" role="alert">{t(locale, `review_error_${form.error}` as MessageKey)}</p>{/if}
+{#if form?.error && form?.form !== 'role'}<p class="mt-4 ui-tone-error rounded p-3" role="alert">{t(locale, `review_error_${form.error}` as MessageKey)}</p>{/if}
 
 {#if data.step === 'declare'}
-	<section class="card preset-outlined-surface-200-800 mt-6 max-w-2xl p-4" data-testid="review-declare">
+	<section class="card border ui-border mt-6 max-w-2xl p-4" data-testid="review-declare">
 		<h2 class="h4">{t(locale, 'review_coi_heading')}</h2>
 		<p class="mt-1">{t(locale, 'review_coi_intro')}</p>
 		<form method="POST" action="?/noConflict" class="mt-3">
@@ -38,10 +38,10 @@
 			{/each}
 			{#if data.extra && !data.extra.lacking}<FormAnswers {locale} questions={data.extra.questions} answers={data.extra.answers} />{/if}
 		</dl>
-		{#if form?.requested}<p class="mt-2 preset-tonal-success rounded p-3" role="status">{t(locale, 'access_requested_notice')}</p>{/if}
+		{#if form?.requested}<p class="mt-2 ui-tone-success rounded p-3" role="status">{t(locale, 'access_requested_notice')}</p>{/if}
 		{#if data.extra?.lacking}<div class="mt-2"><MissingRole {locale} space={data.space} role={data.extra.lacking} entitlementRequestsUrl={null} action="?declared=none&/requestRole" /></div>{/if}
 	</section>
-	<section class="card preset-outlined-surface-200-800 mt-6 max-w-2xl p-4" data-testid="review-score">
+	<section class="card border ui-border mt-6 max-w-2xl p-4" data-testid="review-score">
 		<h2 class="h4">{t(locale, 'review_score_heading')}</h2>
 		{#if data.rubric.length === 0}
 			<p class="mt-2">{t(locale, 'review_no_rubric')}</p>
@@ -63,7 +63,7 @@
 		{/if}
 	</section>
 {:else if data.existing}
-	<section class="card preset-outlined-surface-200-800 mt-6 max-w-2xl p-4" data-testid="review-done">
+	<section class="card border ui-border mt-6 max-w-2xl p-4" data-testid="review-done">
 		{#if data.existing.conflict_of_interest}
 			<p>{t(locale, 'review_done_conflict')}</p>
 			<p class="mt-2 text-sm whitespace-pre-line">{data.existing.conflict_note}</p>

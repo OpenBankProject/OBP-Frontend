@@ -75,13 +75,13 @@
 <div class="mx-auto max-w-7xl py-2">
 <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
 	<div class="flex flex-wrap items-center gap-4">
-		<a class="text-sm text-primary-500 hover:underline dark:text-primary-200" href="/user/accounts" data-testid="back-to-accounts">← All accounts</a>
-		<a class="text-sm text-primary-500 hover:underline dark:text-primary-200" href={mandatesHref} data-testid="account-mandates-link">Mandates →</a>
+		<a class="text-sm hover:underline ui-text-brand" href="/user/accounts" data-testid="back-to-accounts">← All accounts</a>
+		<a class="text-sm hover:underline ui-text-brand" href={mandatesHref} data-testid="account-mandates-link">Mandates →</a>
 	</div>
 
 	{#if data.availableViews.length > 0}
 		<label class="flex items-center gap-2 text-sm" data-testid="view-picker">
-			<span class="text-surface-600-400">View:</span>
+			<span class="ui-muted">View:</span>
 			<select
 				class="select"
 				name="view_id"
@@ -104,7 +104,7 @@
 </div>
 
 <section
-	class="section-accent section-accent--access mb-6 bg-surface-50-900 py-2"
+	class="section-accent section-accent--access mb-6 py-2 ui-card"
 	data-testid="your-access"
 	data-current-view-accessible={currentViewAccessible}
 >
@@ -115,16 +115,16 @@
 		{:else}
 			<span class="chip variant-soft-error text-xs" data-testid="current-view-access-badge">⛔ no access via "{data.view_id}"</span>
 		{/if}
-		<span class="text-xs text-surface-600-400" data-testid="accessible-views-count">
+		<span class="text-xs ui-muted" data-testid="accessible-views-count">
 			{accessibleViews.length} of {data.availableViews.length} view{data.availableViews.length === 1 ? '' : 's'} accessible
 		</span>
 	</div>
 
 	<div>
-		<div class="text-xs uppercase text-surface-600-400">Views you can use on this account</div>
+		<div class="text-xs uppercase ui-muted">Views you can use on this account</div>
 		<div class="mt-1 flex flex-wrap gap-1" data-testid="accessible-views-list">
 			{#if accessibleViews.length === 0}
-				<span class="text-xs text-surface-600-400">None — ask an admin to grant a view.</span>
+				<span class="text-xs ui-muted">None — ask an admin to grant a view.</span>
 			{:else}
 				{#each accessibleViews as v (v.id)}
 					<a
@@ -144,16 +144,16 @@
 
 {#if data.accountError}
 	<div
-		class="mb-6 rounded-lg border border-error-500 bg-error-500/10 p-4"
+		class="mb-6 rounded-lg border p-4 ui-tone-error"
 		role="alert"
 		data-testid="account-fetch-error"
 		data-error-category={data.accountError.category}
 		data-error-status={data.accountError.status}
 	>
-		<p class="text-base font-semibold text-error-700-300">
+		<p class="text-base font-semibold ui-text-error">
 			{errorHeadline(data.accountError, 'account')}
 		</p>
-		<p class="mt-1 text-sm text-surface-700-300" data-testid="account-fetch-error-detail">
+		<p class="mt-1 text-sm ui-muted" data-testid="account-fetch-error-detail">
 			<code class="text-xs">{data.accountError.status}</code>
 			{#if data.accountError.obpCode}
 				· <code class="text-xs">{data.accountError.obpCode}</code>
@@ -166,7 +166,7 @@
 				{#each otherAccessibleViews as v, i (v.id)}
 					{#if i > 0},{' '}{/if}
 					<a
-						class="text-primary-500 hover:underline dark:text-primary-200"
+						class="hover:underline ui-text-brand"
 						href={`/user/accounts/${encodeURIComponent(data.bank_id)}/${encodeURIComponent(data.account_id)}/${encodeURIComponent(v.id)}`}
 						data-testid="suggested-view-link"
 						data-view-id={v.id}
@@ -174,7 +174,7 @@
 				{/each}.
 			</p>
 		{:else if data.accountError.category === 'access' && accessibleViews.length === 0}
-			<p class="mt-3 text-sm text-surface-700-300">
+			<p class="mt-3 text-sm ui-muted">
 				You currently have no accessible views on this account. Ask an account holder or admin to grant you a view.
 			</p>
 		{/if}
@@ -186,28 +186,28 @@
 		<h2 class="section-accent-title text-2xl font-semibold">{data.account.label}</h2>
 		<dl class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
 			<div>
-				<dt class="text-xs uppercase text-surface-600-400">Bank</dt>
+				<dt class="text-xs uppercase ui-muted">Bank</dt>
 				<dd data-testid="account-bank-id"><code>{data.bank_id}</code></dd>
 			</div>
 			<div>
-				<dt class="text-xs uppercase text-surface-600-400">Account ID</dt>
+				<dt class="text-xs uppercase ui-muted">Account ID</dt>
 				<dd data-testid="account-id"><code>{data.account_id}</code></dd>
 			</div>
 			<div>
-				<dt class="text-xs uppercase text-surface-600-400">View</dt>
+				<dt class="text-xs uppercase ui-muted">View</dt>
 				<dd data-testid="account-view-id"><code>{data.view_id}</code></dd>
 			</div>
 			<div>
-				<dt class="text-xs uppercase text-surface-600-400">Type</dt>
+				<dt class="text-xs uppercase ui-muted">Type</dt>
 				<dd data-testid="account-type">{data.account.account_type}</dd>
 			</div>
 			<div>
-				<dt class="text-xs uppercase text-surface-600-400">Balance</dt>
+				<dt class="text-xs uppercase ui-muted">Balance</dt>
 				<dd data-testid="account-balance">
 					{#if data.account.balance}
 						<strong>{fmtAmount(data.account.balance.amount, data.account.balance.currency)}</strong>
 					{:else}
-						<span class="text-surface-500">Not available</span>
+						<span class="ui-muted">Not available</span>
 					{/if}
 				</dd>
 			</div>
@@ -215,7 +215,7 @@
 
 		{#if data.account.account_routings.length > 0}
 			<div class="mt-4">
-				<h3 class="text-sm font-semibold uppercase text-surface-600-400">Routings</h3>
+				<h3 class="text-sm font-semibold uppercase ui-muted">Routings</h3>
 				<ul class="mt-2 space-y-1" data-testid="account-routings">
 					{#each data.account.account_routings as r}
 						<li><code class="text-xs">{r.scheme}: {r.address}</code></li>
@@ -231,16 +231,16 @@
 
 	{#if data.transactionsError}
 		<div
-			class="mb-4 rounded-lg border border-warning-500 bg-warning-500/10 p-4"
+			class="mb-4 rounded-lg border p-4 ui-tone-warning"
 			role="alert"
 			data-testid="transactions-fetch-error"
 			data-error-category={data.transactionsError.category}
 			data-error-status={data.transactionsError.status}
 		>
-			<p class="text-base font-semibold text-warning-700-300">
+			<p class="text-base font-semibold ui-text-warning">
 				{errorHeadline(data.transactionsError, 'transactions')}
 			</p>
-			<p class="mt-1 text-sm text-surface-700-300" data-testid="transactions-fetch-error-detail">
+			<p class="mt-1 text-sm ui-muted" data-testid="transactions-fetch-error-detail">
 				<code class="text-xs">{data.transactionsError.status}</code>
 				{#if data.transactionsError.obpCode}
 					· <code class="text-xs">{data.transactionsError.obpCode}</code>
@@ -251,7 +251,7 @@
 	{/if}
 
 	{#if data.transactions.length === 0 && !data.transactionsError}
-		<p class="text-surface-600-400" data-testid="transactions-empty">No transactions to display.</p>
+		<p class="ui-muted" data-testid="transactions-empty">No transactions to display.</p>
 	{:else if data.transactions.length > 0}
 		<div class="table-container">
 			<table class="table-hover table">
@@ -272,7 +272,7 @@
 							<td>
 								{#if tx.counterparty_id}
 									<a
-										class="text-primary-500 hover:underline dark:text-primary-200"
+										class="hover:underline ui-text-brand"
 										href={`/user/accounts/${encodeURIComponent(data.bank_id)}/${encodeURIComponent(data.account_id)}/${encodeURIComponent(data.view_id)}/counterparties/${encodeURIComponent(tx.counterparty_id)}`}
 										data-testid="transaction-counterparty-link"
 										data-counterparty-id={tx.counterparty_id}

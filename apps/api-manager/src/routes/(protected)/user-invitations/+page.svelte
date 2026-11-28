@@ -199,10 +199,10 @@
 
 <div class="container mx-auto px-4 py-8">
   <div class="mb-6">
-    <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
+    <h1 class="text-3xl font-bold ui-text">
       User Invitations
     </h1>
-    <p class="mt-1 text-gray-600 dark:text-gray-400">
+    <p class="mt-1 ui-muted">
       Create and manage user invitations for your banks
     </p>
   </div>
@@ -453,7 +453,7 @@
       <div class="panel-content">
         <div class="empty-state">
           <Building2 size={48} />
-          <p>No bank selected. Please select a bank in <a href="/user" style="color: #3b82f6; text-decoration: underline;">My Account</a> to view invitations.</p>
+          <p>No bank selected. Please select a bank in <a class="ui-link" href="/user" style="text-decoration: underline;">My Account</a> to view invitations.</p>
         </div>
       </div>
     </div>
@@ -466,44 +466,28 @@
   }
 
   .panel {
-    background: white;
+    background: var(--ui-card);
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     overflow: hidden;
   }
 
-  :global([data-mode="dark"]) .panel {
-    background: rgb(var(--color-surface-800));
-  }
-
   .panel-header {
     padding: 1.5rem;
-    border-bottom: 1px solid #e5e7eb;
-  }
-
-  :global([data-mode="dark"]) .panel-header {
-    border-bottom-color: rgb(var(--color-surface-700));
+    border-bottom: 1px solid var(--ui-border);
   }
 
   .panel-title {
     font-size: 1.25rem;
     font-weight: 600;
-    color: #111827;
+    color: var(--ui-text);
     margin: 0;
-  }
-
-  :global([data-mode="dark"]) .panel-title {
-    color: var(--color-surface-100);
   }
 
   .panel-subtitle {
     font-size: 0.875rem;
-    color: #6b7280;
+    color: var(--ui-muted);
     margin-top: 0.25rem;
-  }
-
-  :global([data-mode="dark"]) .panel-subtitle {
-    color: var(--color-surface-400);
   }
 
   .panel-content {
@@ -544,53 +528,34 @@
     gap: 0.5rem;
     font-size: 0.875rem;
     font-weight: 500;
-    color: #374151;
-  }
-
-  :global([data-mode="dark"]) .form-label {
-    color: var(--color-surface-300);
+    color: var(--ui-text);
   }
 
   .required {
-    color: #ef4444;
+    color: var(--ui-error);
   }
 
   .form-input {
     width: 100%;
     padding: 0.75rem;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--ui-border);
     border-radius: 6px;
     font-size: 0.875rem;
-    background: white;
-    color: #111827;
+    background: var(--ui-card);
+    color: var(--ui-text);
     transition: all 0.2s;
   }
 
   .form-input:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: var(--ui-link);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-link) 10%, transparent);
   }
 
   .form-input:disabled {
-    background: #f9fafb;
+    background: var(--ui-card);
     cursor: not-allowed;
     opacity: 0.6;
-  }
-
-  :global([data-mode="dark"]) .form-input {
-    background: rgb(var(--color-surface-700));
-    border-color: rgb(var(--color-surface-600));
-    color: var(--color-surface-100);
-  }
-
-  :global([data-mode="dark"]) .form-input:focus {
-    border-color: rgb(var(--color-primary-500));
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
-  }
-
-  :global([data-mode="dark"]) .form-input:disabled {
-    background: rgb(var(--color-surface-800));
   }
 
   .form-actions {
@@ -614,12 +579,12 @@
   }
 
   .btn-primary {
-    background: #667eea;
-    color: white;
+    background: var(--ui-fill-main-bg);
+    color: var(--ui-fill-main-text);
   }
 
   .btn-primary:hover:not(:disabled) {
-    background: #5568d3;
+    opacity: 0.85;
   }
 
   .btn-primary:disabled {
@@ -636,27 +601,15 @@
   }
 
   .alert-success {
-    background: #d1fae5;
-    color: #065f46;
-    border: 1px solid #6ee7b7;
-  }
-
-  :global([data-mode="dark"]) .alert-success {
-    background: rgba(16, 185, 129, 0.2);
-    color: rgb(var(--color-success-200));
-    border-color: rgba(16, 185, 129, 0.4);
+    background: var(--ui-tone-success-bg);
+    color: var(--ui-tone-success-text);
+    border: 1px solid var(--ui-tone-success-border);
   }
 
   .alert-error {
-    background: #fee2e2;
-    color: #991b1b;
-    border: 1px solid #fecaca;
-  }
-
-  :global([data-mode="dark"]) .alert-error {
-    background: rgba(239, 68, 68, 0.2);
-    color: rgb(var(--color-error-200));
-    border-color: rgba(239, 68, 68, 0.4);
+    background: var(--ui-tone-error-bg);
+    color: var(--ui-tone-error-text);
+    border: 1px solid var(--ui-tone-error-border);
   }
 
   .table-wrapper {
@@ -673,33 +626,19 @@
     padding: 0.75rem;
     font-weight: 600;
     font-size: 0.875rem;
-    color: #374151;
-    border-bottom: 2px solid #e5e7eb;
-  }
-
-  :global([data-mode="dark"]) .invitations-table th {
-    color: var(--color-surface-300);
-    border-bottom-color: rgb(var(--color-surface-700));
+    color: var(--ui-text);
+    border-bottom: 2px solid var(--ui-border);
   }
 
   .invitations-table td {
     padding: 0.75rem;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--ui-border);
     font-size: 0.875rem;
-    color: #111827;
-  }
-
-  :global([data-mode="dark"]) .invitations-table td {
-    border-bottom-color: rgb(var(--color-surface-700));
-    color: var(--color-surface-100);
+    color: var(--ui-text);
   }
 
   .invitations-table tbody tr:hover {
-    background: #f9fafb;
-  }
-
-  :global([data-mode="dark"]) .invitations-table tbody tr:hover {
-    background: rgb(var(--color-surface-700));
+    background: var(--ui-hover);
   }
 
   .invitations-table tbody tr.expired {
@@ -716,23 +655,13 @@
   }
 
   .purpose-developer {
-    background: #dbeafe;
-    color: #1e40af;
-  }
-
-  :global([data-mode="dark"]) .purpose-developer {
-    background: rgba(59, 130, 246, 0.2);
-    color: rgb(var(--color-primary-200));
+    background: var(--ui-tone-info-bg);
+    color: var(--ui-tone-info-text);
   }
 
   .purpose-customer {
-    background: #e0e7ff;
-    color: #3730a3;
-  }
-
-  :global([data-mode="dark"]) .purpose-customer {
-    background: rgba(99, 102, 241, 0.2);
-    color: rgb(147, 197, 253);
+    background: var(--ui-tone-info-bg);
+    color: var(--ui-tone-info-text);
   }
 
   .status-badge {
@@ -746,43 +675,23 @@
   }
 
   .status-created {
-    background: #fef3c7;
-    color: #92400e;
-  }
-
-  :global([data-mode="dark"]) .status-created {
-    background: rgba(251, 191, 36, 0.2);
-    color: rgb(253, 224, 71);
+    background: var(--ui-tone-warning-bg);
+    color: var(--ui-tone-warning-text);
   }
 
   .status-finished {
-    background: #d1fae5;
-    color: #065f46;
-  }
-
-  :global([data-mode="dark"]) .status-finished {
-    background: rgba(16, 185, 129, 0.2);
-    color: rgb(var(--color-success-200));
+    background: var(--ui-tone-success-bg);
+    color: var(--ui-tone-success-text);
   }
 
   .status-expired {
-    background: #fee2e2;
-    color: #991b1b;
-  }
-
-  :global([data-mode="dark"]) .status-expired {
-    background: rgba(239, 68, 68, 0.2);
-    color: rgb(var(--color-error-200));
+    background: var(--ui-tone-error-bg);
+    color: var(--ui-tone-error-text);
   }
 
   .status-unknown {
-    background: #f3f4f6;
-    color: #6b7280;
-  }
-
-  :global([data-mode="dark"]) .status-unknown {
-    background: rgb(var(--color-surface-700));
-    color: var(--color-surface-400);
+    background: var(--ui-panel);
+    color: var(--ui-muted);
   }
 
   .empty-state {
@@ -792,12 +701,8 @@
     justify-content: center;
     padding: 3rem;
     text-align: center;
-    color: #6b7280;
+    color: var(--ui-muted);
     gap: 1rem;
-  }
-
-  :global([data-mode="dark"]) .empty-state {
-    color: var(--color-surface-400);
   }
 
   .empty-state :global(svg) {

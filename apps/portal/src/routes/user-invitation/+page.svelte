@@ -87,14 +87,14 @@
 </script>
 
 <div
-	class="card dark:bg-primary-500/50 backdrop-blur-3xl border-primary-200-800 divide-primary-200-800 mx-auto my-10 md:px-15 flex flex-col divide-y border-[1px] shadow-lg max-w-[90%] lg:max-w-3xl"
+	class="card ui-card ui-border backdrop-blur-3xl mx-auto my-10 md:px-15 flex flex-col divide-y border-[1px] shadow-lg max-w-[90%] lg:max-w-3xl"
 >
 	<header class="py-4 px-6">
 		<div class="flex items-center justify-center gap-3">
-			<UserPlus class="h-8 w-8 text-primary-500" />
+			<UserPlus class="h-8 w-8 ui-text-brand" />
 			<h1 class="h4 text-center">Welcome! Complete Your Account Setup</h1>
 		</div>
-		<p class="text-center text-sm text-gray-400 mt-2">
+		<p class="text-center text-sm mt-2 ui-muted">
 			You've been invited to join the platform. Please complete the information below to create
 			your account.
 		</p>
@@ -109,20 +109,20 @@
 		<!-- Loading State -->
 		{#if isValidating && !invitationValidated && !form?.message}
 			<div class="flex flex-col items-center justify-center py-12 space-y-4">
-				<div class="animate-spin rounded-full h-16 w-16 border-b-2 border-primary-500"></div>
-				<p class="text-gray-400">Validating your invitation...</p>
+				<div class="animate-spin rounded-full h-16 w-16 border-b-2 border-current ui-text-brand"></div>
+				<p class="ui-muted">Validating your invitation...</p>
 			</div>
 		{/if}
 
 		<!-- Error State -->
 		{#if form?.message && !invitationValidated && !isValidating}
-			<div class="bg-error-500/10 border-error-500 rounded-lg border p-6 space-y-4">
+			<div class="rounded-lg border p-6 space-y-4 ui-tone-error">
 				<div class="flex items-start gap-3">
-					<AlertCircle class="h-6 w-6 text-error-500 flex-shrink-0 mt-1" />
+					<AlertCircle class="h-6 w-6 flex-shrink-0 mt-1 ui-text-error" />
 					<div class="flex-1">
-						<h3 class="font-semibold text-error-500 text-lg mb-2">Invitation Invalid</h3>
-						<p class="text-error-500">{form.message}</p>
-						<p class="text-sm text-gray-400 mt-4">
+						<h3 class="font-semibold text-lg mb-2 ui-text-error">Invitation Invalid</h3>
+						<p class="ui-text-error">{form.message}</p>
+						<p class="text-sm mt-4 ui-muted">
 							If you believe this is an error, please contact your administrator or request a new
 							invitation.
 						</p>
@@ -135,12 +135,12 @@
 		{#if invitationValidated && invitationData}
 			<div class="space-y-6">
 				<!-- Success Message -->
-				<div class="bg-success-500/10 border-success-500 rounded-lg border p-4">
+				<div class="rounded-lg border p-4 ui-tone-success">
 					<div class="flex items-start gap-3">
-						<CheckCircle class="h-6 w-6 text-success-500 flex-shrink-0 mt-1" />
+						<CheckCircle class="h-6 w-6 flex-shrink-0 mt-1 ui-text-success" />
 						<div class="flex-1">
-							<h3 class="font-semibold text-success-500">Invitation Validated</h3>
-							<p class="text-sm text-gray-300 mt-1">
+							<h3 class="font-semibold ui-text-success">Invitation Validated</h3>
+							<p class="text-sm mt-1 ui-muted">
 								Your invitation has been verified. Please review the information below and complete
 								your account setup.
 							</p>
@@ -149,31 +149,31 @@
 				</div>
 
 				<!-- Invitation Details -->
-				<div class="bg-surface-700 rounded-lg p-6 space-y-4">
+				<div class="rounded-lg p-6 space-y-4 ui-panel">
 					<h3 class="text-lg font-semibold mb-4">Your Invitation Details</h3>
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 						<div>
-							<span class="text-sm text-gray-400 block">First Name</span>
+							<span class="text-sm block ui-muted">First Name</span>
 							<p class="font-medium">{invitationData.first_name}</p>
 						</div>
 						<div>
-							<span class="text-sm text-gray-400 block">Last Name</span>
+							<span class="text-sm block ui-muted">Last Name</span>
 							<p class="font-medium">{invitationData.last_name}</p>
 						</div>
 						<div>
-							<span class="text-sm text-gray-400 block">Email</span>
+							<span class="text-sm block ui-muted">Email</span>
 							<p class="font-medium">{invitationData.email}</p>
 						</div>
 						<div>
-							<span class="text-sm text-gray-400 block">Company</span>
+							<span class="text-sm block ui-muted">Company</span>
 							<p class="font-medium">{invitationData.company}</p>
 						</div>
 						<div>
-							<span class="text-sm text-gray-400 block">Country</span>
+							<span class="text-sm block ui-muted">Country</span>
 							<p class="font-medium">{invitationData.country}</p>
 						</div>
 						<div>
-							<span class="text-sm text-gray-400 block">Account Type</span>
+							<span class="text-sm block ui-muted">Account Type</span>
 							<p class="font-medium capitalize">{invitationData.purpose?.toLowerCase() || 'N/A'}</p>
 						</div>
 					</div>
@@ -191,7 +191,7 @@
 					<!-- Username Field -->
 					<label class="label">
 						<span class="label-text text-left font-semibold">
-							Choose Your Username <span class="text-error-500">*</span>
+							Choose Your Username <span class="ui-text-error">*</span>
 						</span>
 						<input
 							type="text"
@@ -201,7 +201,7 @@
 							placeholder="e.g., john.doe"
 							required
 						/>
-						<span class="text-xs text-gray-400 mt-1">
+						<span class="text-xs mt-1 ui-muted">
 							This will be your unique identifier for logging in
 						</span>
 					</label>
@@ -209,7 +209,7 @@
 					<!-- Password Field -->
 					<label class="label">
 						<span class="label-text text-left font-semibold">
-							Create Password <span class="text-error-500">*</span>
+							Create Password <span class="ui-text-error">*</span>
 						</span>
 						<div class="relative">
 							<input
@@ -223,7 +223,7 @@
 							/>
 							<button
 								type="button"
-								class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200"
+								class="absolute right-2 top-1/2 -translate-y-1/2 ui-muted"
 								onclick={() => (showPassword = !showPassword)}
 								aria-label={showPassword ? 'Hide password' : 'Show password'}
 							>
@@ -234,11 +234,11 @@
 								{/if}
 							</button>
 						</div>
-						<span class="text-xs text-gray-400 mt-1">
+						<span class="text-xs mt-1 ui-muted">
 							Password must be at least 8 characters long
 						</span>
 						{#if password.length > 0 && !passwordValid}
-							<span class="text-xs text-error-500 mt-1">
+							<span class="text-xs mt-1 ui-text-error">
 								Password is too short (minimum 8 characters)
 							</span>
 						{/if}
@@ -247,7 +247,7 @@
 					<!-- Confirm Password Field -->
 					<label class="label">
 						<span class="label-text text-left font-semibold">
-							Confirm Password <span class="text-error-500">*</span>
+							Confirm Password <span class="ui-text-error">*</span>
 						</span>
 						<div class="relative">
 							<input
@@ -261,7 +261,7 @@
 							/>
 							<button
 								type="button"
-								class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200"
+								class="absolute right-2 top-1/2 -translate-y-1/2 ui-muted"
 								onclick={() => (showConfirmPassword = !showConfirmPassword)}
 								aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
 							>
@@ -273,9 +273,9 @@
 							</button>
 						</div>
 						{#if confirmPassword.length > 0 && !passwordsMatch}
-							<span class="text-xs text-error-500 mt-1">Passwords do not match</span>
+							<span class="text-xs mt-1 ui-text-error">Passwords do not match</span>
 						{:else if confirmPassword.length > 0 && passwordsMatch}
-							<span class="text-xs text-success-500 mt-1">✓ Passwords match</span>
+							<span class="text-xs mt-1 ui-text-success">✓ Passwords match</span>
 						{/if}
 					</label>
 
@@ -284,7 +284,7 @@
 					<!-- Terms and Conditions -->
 					<div class="space-y-4">
 						<h3 class="text-lg font-semibold">Terms and Agreements</h3>
-						<p class="text-sm text-gray-400">
+						<p class="text-sm ui-muted">
 							Please review and accept the following to create your account:
 						</p>
 
@@ -299,11 +299,11 @@
 							/>
 							<div class="flex-1">
 								<span class="font-medium">
-									Privacy Policy <span class="text-error-500">*</span>
+									Privacy Policy <span class="ui-text-error">*</span>
 								</span>
-								<p class="text-sm text-gray-400">
+								<p class="text-sm ui-muted">
 									I have read and accept the
-									<a href="/privacy-policy" target="_blank" class="text-primary-500 hover:underline">
+									<a href="/privacy-policy" target="_blank" class="hover:underline ui-text-brand">
 										Privacy Policy
 									</a>
 								</p>
@@ -321,14 +321,14 @@
 							/>
 							<div class="flex-1">
 								<span class="font-medium">
-									Terms and Conditions <span class="text-error-500">*</span>
+									Terms and Conditions <span class="ui-text-error">*</span>
 								</span>
-								<p class="text-sm text-gray-400">
+								<p class="text-sm ui-muted">
 									I agree to the
 									<a
 										href="/terms-and-conditions"
 										target="_blank"
-										class="text-primary-500 hover:underline"
+										class="hover:underline ui-text-brand"
 									>
 										Terms and Conditions
 									</a>
@@ -347,9 +347,9 @@
 							/>
 							<div class="flex-1">
 								<span class="font-medium">
-									Personal Data Collection <span class="text-error-500">*</span>
+									Personal Data Collection <span class="ui-text-error">*</span>
 								</span>
-								<p class="text-sm text-gray-400">
+								<p class="text-sm ui-muted">
 									I consent to the collection and processing of my personal data as described in the
 									Privacy Policy
 								</p>
@@ -361,7 +361,7 @@
 							<input type="checkbox" class="checkbox mt-1" name="marketing" bind:checked={marketing} />
 							<div class="flex-1">
 								<span class="font-medium">Marketing Communications (Optional)</span>
-								<p class="text-sm text-gray-400">
+								<p class="text-sm ui-muted">
 									I would like to receive updates, newsletters, and promotional materials
 								</p>
 							</div>
@@ -369,8 +369,8 @@
 					</div>
 
 					{#if form?.message && invitationValidated}
-						<div class="bg-error-500/10 border-error-500 rounded-lg border p-4 text-center">
-							<p class="text-error-500 font-semibold">{form.message}</p>
+						<div class="rounded-lg border p-4 text-center ui-tone-error">
+							<p class="font-semibold ui-text-error">{form.message}</p>
 						</div>
 					{/if}
 
@@ -396,8 +396,8 @@
 						{/if}
 					</button>
 
-					<p class="text-xs text-center text-gray-400">
-						<span class="text-error-500">*</span> Required fields
+					<p class="text-xs text-center ui-muted">
+						<span class="ui-text-error">*</span> Required fields
 					</p>
 				</form>
 			</div>
@@ -406,7 +406,7 @@
 		<!-- Help Text -->
 		{#if !invitationValidated && !form?.message && !isValidating}
 			<div class="text-center py-8">
-				<p class="text-gray-400">
+				<p class="ui-muted">
 					If you're having trouble, please contact support or request a new invitation.
 				</p>
 			</div>
@@ -416,6 +416,6 @@
 
 <style>
 	:global(body) {
-		background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%);
+		background: linear-gradient(135deg, var(--ui-tone-info-bg) 0%, var(--ui-tone-accent-bg) 100%);
 	}
 </style>

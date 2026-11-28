@@ -39,18 +39,18 @@
     }
 </script>
 
-<div class="rounded-lg bg-white p-6 shadow-md dark:bg-gray-800">
+<div class="rounded-lg p-6 shadow-md ui-card">
     <!-- Header -->
     <div class="mb-4 flex items-start justify-between">
         <div class="flex-1">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            <h3 class="text-lg font-semibold ui-text">
                 {collection.api_collection_name}
             </h3>
             <div class="mt-1 flex items-center gap-2">
                 <span class={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
                     collection.is_sharable
-                        ? 'text-green-600 bg-green-100 dark:bg-green-900/20 dark:text-green-400'
-                        : 'text-gray-600 bg-gray-100 dark:bg-gray-900/20 dark:text-gray-400'
+                        ? 'ui-tone-success'
+                        : 'ui-panel ui-muted'
                 }`}>
                     {collection.is_sharable ? 'Sharable' : 'Private'}
                 </span>
@@ -59,7 +59,7 @@
 
         <!-- Copy button for collection ID -->
         <button
-            class="btn-icon btn-sm preset-filled-tertiary ml-2"
+            class="btn-icon btn-sm preset-filled-primary-500 ml-2"
             onclick={() => copyToClipboard(collection.api_collection_id, 'Collection ID')}
             title="Copy collection ID"
             aria-label="Copy collection ID"
@@ -73,7 +73,7 @@
 
     <!-- Description -->
     {#if collection.description}
-        <p class="mb-4 text-sm text-gray-700 dark:text-gray-300">
+        <p class="mb-4 text-sm ui-muted">
             {collection.description}
         </p>
     {/if}
@@ -81,19 +81,19 @@
     <!-- Details Grid -->
     <div class="grid gap-3 text-sm">
         <div class="flex items-center justify-between">
-            <span class="font-medium text-gray-700 dark:text-gray-300">Collection ID:</span>
-            <span class="text-gray-900 dark:text-gray-100 text-xs font-mono">
+            <span class="font-medium ui-muted">Collection ID:</span>
+            <span class="text-xs font-mono ui-text">
                 {collection.api_collection_id}
             </span>
         </div>
     </div>
 
     <!-- Actions -->
-    <div class="mt-4 border-t pt-4 dark:border-gray-700 flex flex-wrap items-center gap-2">
+    <div class="mt-4 border-t pt-4 flex flex-wrap items-center gap-2 ui-border">
         {#if showViewButton}
             <a
                 href="/user/api-collections/{collection.api_collection_id}"
-                class="btn preset-outlined-primary-500 text-sm"
+                class="btn preset-outlined-surface-500 text-sm"
             >
                 View Endpoints
             </a>
@@ -104,7 +104,7 @@
                 <input type="hidden" name="api_collection_id" value={collection.api_collection_id} />
                 <button
                     type="submit"
-                    class="btn preset-filled-error-500 text-sm hover:preset-filled-error-600"
+                    class="btn preset-filled-error-500 text-sm hover:preset-filled-error-500"
                 >
                     Delete
                 </button>
@@ -115,7 +115,7 @@
             href="/collections/{collection.api_collection_id}"
             target="_blank"
             rel="noopener noreferrer"
-            class="text-xs text-secondary-500 dark:text-secondary-300 hover:underline"
+            class="text-xs hover:underline ui-text-brand"
         >
             View in Portal
         </a>
@@ -124,7 +124,7 @@
                 href="{apiExplorerUrl}/resource-docs?api-collection-id={collection.api_collection_id}"
                 target="_blank"
                 rel="noopener noreferrer"
-                class="text-xs text-primary-500 dark:text-primary-200 hover:underline"
+                class="text-xs hover:underline ui-text-brand"
             >
                 View in API Explorer
             </a>

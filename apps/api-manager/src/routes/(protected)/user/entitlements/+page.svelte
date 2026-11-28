@@ -446,14 +446,10 @@
   }
 
   .section {
-    background: white;
+    background: var(--ui-card);
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     overflow: hidden;
-  }
-
-  :global([data-mode="dark"]) .section {
-    background: rgb(var(--color-surface-800));
   }
 
   .section-header {
@@ -461,22 +457,14 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.75rem 1rem;
-    border-bottom: 1px solid #e5e7eb;
-  }
-
-  :global([data-mode="dark"]) .section-header {
-    border-bottom-color: rgb(var(--color-surface-700));
+    border-bottom: 1px solid var(--ui-border);
   }
 
   .section-title {
     font-size: 0.875rem;
     font-weight: 600;
-    color: #111827;
+    color: var(--ui-text);
     margin: 0;
-  }
-
-  :global([data-mode="dark"]) .section-title {
-    color: var(--color-surface-100);
   }
 
   .section-count {
@@ -486,26 +474,17 @@
     min-width: 1.25rem;
     height: 1.25rem;
     padding: 0 0.25rem;
-    background: #f3f4f6;
-    color: #6b7280;
+    background: var(--ui-panel);
+    color: var(--ui-muted);
     border-radius: 9999px;
     font-size: 0.7rem;
     font-weight: 600;
   }
 
-  :global([data-mode="dark"]) .section-count {
-    background: rgb(var(--color-surface-700));
-    color: var(--color-surface-300);
-  }
-
   /* Widget toggle and content */
   .widget-wrapper {
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--ui-border);
     margin-bottom: 0.75rem;
-  }
-
-  :global([data-mode="dark"]) .widget-wrapper {
-    border-bottom-color: rgb(var(--color-surface-700));
   }
 
   .widget-toggle {
@@ -514,29 +493,19 @@
     gap: 0.5rem;
     width: 100%;
     padding: 0.5rem 1rem;
-    background: #f0fdf4;
+    background: var(--ui-tone-success-bg);
     border: none;
-    border-left: 3px solid #22c55e;
+    border-left: 3px solid var(--ui-tone-success-border);
     cursor: pointer;
     font-size: 0.8rem;
     font-weight: 600;
-    color: #15803d;
+    color: var(--ui-tone-success-text);
     text-align: left;
     transition: background 0.2s;
   }
 
   .widget-toggle:hover {
-    background: #dcfce7;
-  }
-
-  :global([data-mode="dark"]) .widget-toggle {
-    background: rgba(34, 197, 94, 0.1);
-    border-left-color: #22c55e;
-    color: #4ade80;
-  }
-
-  :global([data-mode="dark"]) .widget-toggle:hover {
-    background: rgba(34, 197, 94, 0.18);
+    background: var(--ui-tone-success-bg);
   }
 
   .widget-toggle-icon {
@@ -547,12 +516,8 @@
 
   .widget-content {
     padding: 1rem;
-    background: #fafff9;
+    background: var(--ui-tone-success-bg);
     animation: slideDown 0.2s ease-out;
-  }
-
-  :global([data-mode="dark"]) .widget-content {
-    background: rgba(34, 197, 94, 0.05);
   }
 
   @keyframes slideDown {
@@ -576,8 +541,8 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.5rem 1.25rem;
-    background: #22c55e;
-    color: white;
+    background: var(--ui-tone-success-bg);
+    color: var(--ui-tone-success-text);
     border: none;
     border-radius: 6px;
     font-size: 0.8rem;
@@ -588,76 +553,45 @@
   }
 
   .btn-add-entitlement:hover:not(:disabled) {
-    background: #16a34a;
+    background: var(--ui-tone-success-bg);
+    color: var(--ui-tone-success-text);
   }
 
   .btn-add-entitlement:disabled {
-    background: #d1d5db;
-    color: #9ca3af;
+    background: var(--ui-panel);
+    color: var(--ui-muted);
     cursor: not-allowed;
-  }
-
-  :global([data-mode="dark"]) .btn-add-entitlement {
-    background: #22c55e;
-  }
-
-  :global([data-mode="dark"]) .btn-add-entitlement:hover:not(:disabled) {
-    background: #16a34a;
-  }
-
-  :global([data-mode="dark"]) .btn-add-entitlement:disabled {
-    background: rgb(var(--color-surface-600));
-    color: var(--color-surface-400);
   }
 
   .widget-success {
     font-size: 0.8rem;
     font-weight: 500;
-    color: #166534;
-    background: #f0fdf4;
-    border: 1px solid #bbf7d0;
+    color: var(--ui-tone-success-text);
+    background: var(--ui-tone-success-bg);
+    border: 1px solid var(--ui-tone-success-border);
     border-radius: 0;
     padding: 0.5rem 1rem;
-  }
-
-  :global([data-mode="dark"]) .widget-success {
-    background: rgba(34, 197, 94, 0.1);
-    border-color: rgba(34, 197, 94, 0.3);
-    color: rgb(var(--color-success-300));
   }
 
   .widget-error {
     font-size: 0.8rem;
     font-weight: 500;
-    color: #991b1b;
-    background: #fef2f2;
-    border: 1px solid #fca5a5;
-    border-left: 3px solid #dc2626;
+    color: var(--ui-tone-error-text);
+    background: var(--ui-tone-error-bg);
+    border: 1px solid var(--ui-tone-error-border);
+    border-left: 3px solid var(--ui-tone-error-border);
     border-radius: 0;
     padding: 0.5rem 1rem;
-  }
-
-  :global([data-mode="dark"]) .widget-error {
-    background: rgba(220, 38, 38, 0.1);
-    border-color: rgba(220, 38, 38, 0.3);
-    border-left-color: #dc2626;
-    color: rgb(var(--color-error-200));
   }
 
   .already-has-role {
     font-size: 0.8rem;
     font-weight: 500;
-    color: #b45309;
-    background: #fef3c7;
-    border: 1px solid #fcd34d;
+    color: var(--ui-tone-warning-text);
+    background: var(--ui-tone-warning-bg);
+    border: 1px solid var(--ui-tone-warning-border);
     border-radius: 6px;
     padding: 0.5rem 0.75rem;
-  }
-
-  :global([data-mode="dark"]) .already-has-role {
-    background: rgba(245, 158, 11, 0.1);
-    border-color: rgba(245, 158, 11, 0.3);
-    color: rgb(var(--color-warning-300));
   }
 
   /* Missing roles info */
@@ -667,12 +601,8 @@
 
   .missing-roles-title {
     font-size: 0.8rem;
-    color: #6b7280;
+    color: var(--ui-muted);
     margin: 0 0 0.5rem 0;
-  }
-
-  :global([data-mode="dark"]) .missing-roles-title {
-    color: var(--color-surface-400);
   }
 
   .missing-roles-list {
@@ -694,48 +624,28 @@
   }
 
   .missing-role-item.has-role {
-    background: #f0fdf4;
-  }
-
-  :global([data-mode="dark"]) .missing-role-item.has-role {
-    background: rgba(34, 197, 94, 0.1);
+    background: var(--ui-tone-success-bg);
   }
 
   .missing-role-item :global(.role-check-icon) {
-    color: #16a34a;
+    color: var(--ui-success);
     flex-shrink: 0;
   }
 
   .missing-role-item :global(.role-missing-icon) {
-    color: #dc2626;
+    color: var(--ui-error);
     flex-shrink: 0;
   }
 
-  :global([data-mode="dark"]) .missing-role-item :global(.role-check-icon) {
-    color: rgb(var(--color-success-400));
-  }
-
-  :global([data-mode="dark"]) .missing-role-item :global(.role-missing-icon) {
-    color: rgb(var(--color-error-400));
-  }
-
   .role-has {
-    color: #166534;
+    color: var(--ui-success);
     text-decoration: line-through;
     opacity: 0.7;
   }
 
-  :global([data-mode="dark"]) .role-has {
-    color: rgb(var(--color-success-300));
-  }
-
   .role-missing {
-    color: #991b1b;
+    color: var(--ui-error);
     font-weight: 600;
-  }
-
-  :global([data-mode="dark"]) .role-missing {
-    color: rgb(var(--color-error-300));
   }
 
   /* Existing styles */
@@ -750,24 +660,16 @@
     align-items: center;
     justify-content: space-between;
     padding: 0.5rem 1rem;
-    border-bottom: 1px solid #f3f4f6;
+    border-bottom: 1px solid var(--ui-border);
   }
 
   .role-item:last-child {
     border-bottom: none;
   }
 
-  :global([data-mode="dark"]) .role-item {
-    border-bottom-color: rgb(var(--color-surface-700));
-  }
-
   .role-name {
     font-size: 0.8rem;
-    color: #111827;
-  }
-
-  :global([data-mode="dark"]) .role-name {
-    color: var(--color-surface-100);
+    color: var(--ui-text);
   }
 
   .copy-btn {
@@ -775,7 +677,7 @@
     align-items: center;
     justify-content: center;
     padding: 0.25rem;
-    color: #9ca3af;
+    color: var(--ui-muted);
     background: none;
     border: none;
     border-radius: 0.25rem;
@@ -784,38 +686,21 @@
   }
 
   .copy-btn:hover {
-    color: #374151;
-  }
-
-  :global([data-mode="dark"]) .copy-btn {
-    color: var(--color-surface-500);
-  }
-
-  :global([data-mode="dark"]) .copy-btn:hover {
-    color: var(--color-surface-200);
+    color: var(--ui-text);
   }
 
   .empty-text {
     padding: 1.5rem;
     text-align: center;
-    color: #6b7280;
+    color: var(--ui-muted);
     font-size: 0.8rem;
-  }
-
-  :global([data-mode="dark"]) .empty-text {
-    color: var(--color-surface-400);
   }
 
   .other-banks-note {
     padding: 0.5rem 1rem;
     font-size: 0.75rem;
-    color: #6b7280;
-    border-top: 1px solid #e5e7eb;
-  }
-
-  :global([data-mode="dark"]) .other-banks-note {
-    color: var(--color-surface-400);
-    border-top-color: rgb(var(--color-surface-700));
+    color: var(--ui-muted);
+    border-top: 1px solid var(--ui-border);
   }
 
   .scope-info {
@@ -823,42 +708,26 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.75rem 1rem;
-    background: #f0f9ff;
-    border: 1px solid #bae6fd;
+    background: var(--ui-tone-info-bg);
+    border: 1px solid var(--ui-tone-info-border);
     border-radius: 6px;
     font-size: 0.875rem;
-    color: #0369a1;
-  }
-
-  :global([data-mode="dark"]) .scope-info {
-    background: rgba(14, 165, 233, 0.1);
-    border-color: rgba(14, 165, 233, 0.3);
-    color: rgb(var(--color-primary-300));
+    color: var(--ui-tone-info-text);
   }
 
   .scope-bank-badge {
     display: inline-flex;
     align-items: center;
     padding: 0.125rem 0.5rem;
-    background: #dbeafe;
-    color: #1e40af;
+    background: var(--ui-tone-info-bg);
+    color: var(--ui-tone-info-text);
     border-radius: 9999px;
     font-size: 0.7rem;
     font-weight: 500;
   }
 
   .scope-bank-badge--system {
-    background: #f3e8ff;
-    color: #6b21a8;
-  }
-
-  :global([data-mode="dark"]) .scope-bank-badge {
-    background: rgba(59, 130, 246, 0.15);
-    color: rgb(var(--color-primary-300));
-  }
-
-  :global([data-mode="dark"]) .scope-bank-badge--system {
-    background: rgba(147, 51, 234, 0.15);
-    color: rgb(var(--color-tertiary-300, #c084fc));
+    background: var(--ui-tone-accent-bg);
+    color: var(--ui-tone-accent-text);
   }
 </style>

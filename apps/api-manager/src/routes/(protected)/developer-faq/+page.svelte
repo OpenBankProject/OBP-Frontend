@@ -158,59 +158,59 @@
 <div class="container mx-auto max-w-7xl px-4 py-8">
   <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
     <div>
-      <h1 class="flex items-center gap-2 text-3xl font-bold text-gray-900 dark:text-gray-100"><CircleHelp class="h-7 w-7" /> Developer FAQ</h1>
-      <p class="mt-1 text-gray-600 dark:text-gray-400">
+      <h1 class="flex items-center gap-2 text-3xl font-bold ui-text"><CircleHelp class="h-7 w-7" /> Developer FAQ</h1>
+      <p class="mt-1 ui-muted">
         The questions shown on the Portal's FAQ page{#if portalUrl}, <a href="{portalUrl}/faq" class="underline" target="_blank" rel="noopener noreferrer">{portalUrl}/faq</a>{/if}. Each question can have its own group chat.
       </p>
     </div>
-    <button type="button" class="inline-flex items-center gap-1 rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700" onclick={startNew} data-testid="faq-new"><Plus class="h-4 w-4" /> New question</button>
+    <button type="button" class="inline-flex items-center gap-1 rounded-md px-3 py-2 text-sm font-medium preset-filled-primary-500" onclick={startNew} data-testid="faq-new"><Plus class="h-4 w-4" /> New question</button>
   </div>
 
-  {#if error}<p class="mb-4 rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-800 dark:border-red-700 dark:bg-red-900/20 dark:text-red-200" data-testid="faq-error">{error}</p>{/if}
-  {#if notice}<p class="mb-4 rounded-lg border border-emerald-300 bg-emerald-50 p-3 text-sm text-emerald-800 dark:border-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-200" data-testid="faq-notice">{notice}</p>{/if}
+  {#if error}<p class="mb-4 rounded-lg border p-3 text-sm ui-tone-error" data-testid="faq-error">{error}</p>{/if}
+  {#if notice}<p class="mb-4 rounded-lg border p-3 text-sm ui-tone-success" data-testid="faq-notice">{notice}</p>{/if}
 
   <ResizableSplit breakpoint="lg">
     {#snippet main()}
     <div class="space-y-6">
       {#if formOpen}
-        <section class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800" data-testid="faq-form" data-state={editingId ? "edit" : "new"}>
-          <h2 class="mb-3 text-lg font-semibold text-gray-900 dark:text-gray-100">{editingId ? "Edit question" : "New question"}</h2>
+        <section class="rounded-lg border p-4 shadow-sm ui-card ui-border" data-testid="faq-form" data-state={editingId ? "edit" : "new"}>
+          <h2 class="mb-3 text-lg font-semibold ui-text">{editingId ? "Edit question" : "New question"}</h2>
           {#if Object.keys(opeyPrevious).length > 0}
-            <div class="mb-3 flex flex-wrap items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs text-blue-900 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-200">
+            <div class="mb-3 flex flex-wrap items-center gap-2 rounded-lg border px-3 py-2 text-xs ui-tone-info">
               <span>Opey filled:</span>
-              {#each Object.keys(opeyPrevious) as name (name)}<span class="rounded-full bg-white px-2 py-0.5 dark:bg-gray-800">{name} <button type="button" class="underline" onclick={() => revertField(name)}>revert</button></span>{/each}
+              {#each Object.keys(opeyPrevious) as name (name)}<span class="rounded-full px-2 py-0.5 ui-card">{name} <button type="button" class="underline" onclick={() => revertField(name)}>revert</button></span>{/each}
               <button type="button" class="ml-auto underline" onclick={() => (opeyPrevious = {})}>Keep all</button>
             </div>
           {/if}
           <div class="grid gap-3 md:grid-cols-[1fr_12rem_6rem]">
-            <label class="flex flex-col gap-1 text-sm md:col-span-3"><span class="font-medium text-gray-700 dark:text-gray-300">Question</span><input type="text" name="question" bind:value={question} class="rounded-md border border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-900" data-testid="faq-question" /></label>
-            <label class="flex flex-col gap-1 text-sm md:col-span-3"><span class="font-medium text-gray-700 dark:text-gray-300">Answer (Markdown)</span><textarea name="answer" bind:value={answer} rows="6" class="rounded-md border border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-900" data-testid="faq-answer"></textarea></label>
-            <label class="flex flex-col gap-1 text-sm md:col-span-3"><span class="font-medium text-gray-700 dark:text-gray-300">Opey prompt (optional)</span><input type="text" name="opey_prompt" bind:value={opeyPrompt} placeholder="What 'Ask Opey' sends; empty sends the question itself" class="rounded-md border border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-900" data-testid="faq-opey-prompt" /></label>
-            <label class="flex flex-col gap-1 text-sm md:col-span-2"><span class="font-medium text-gray-700 dark:text-gray-300">Category</span><input type="text" name="category" list="faq-categories" bind:value={category} placeholder="General" class="rounded-md border border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-900" data-testid="faq-category" /><datalist id="faq-categories">{#each categories as c (c)}<option value={c}></option>{/each}</datalist></label>
-            <label class="flex flex-col gap-1 text-sm"><span class="font-medium text-gray-700 dark:text-gray-300">Sort order</span><input type="number" name="sort_order" bind:value={sortOrder} class="rounded-md border border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-900" data-testid="faq-sort-order" /></label>
+            <label class="flex flex-col gap-1 text-sm md:col-span-3"><span class="font-medium ui-muted">Question</span><input type="text" name="question" bind:value={question} class="rounded-md border px-2 py-1.5 text-sm ui-card ui-border" data-testid="faq-question" /></label>
+            <label class="flex flex-col gap-1 text-sm md:col-span-3"><span class="font-medium ui-muted">Answer (Markdown)</span><textarea name="answer" bind:value={answer} rows="6" class="rounded-md border px-2 py-1.5 text-sm ui-card ui-border" data-testid="faq-answer"></textarea></label>
+            <label class="flex flex-col gap-1 text-sm md:col-span-3"><span class="font-medium ui-muted">Opey prompt (optional)</span><input type="text" name="opey_prompt" bind:value={opeyPrompt} placeholder="What 'Ask Opey' sends; empty sends the question itself" class="rounded-md border px-2 py-1.5 text-sm ui-card ui-border" data-testid="faq-opey-prompt" /></label>
+            <label class="flex flex-col gap-1 text-sm md:col-span-2"><span class="font-medium ui-muted">Category</span><input type="text" name="category" list="faq-categories" bind:value={category} placeholder="General" class="rounded-md border px-2 py-1.5 text-sm ui-card ui-border" data-testid="faq-category" /><datalist id="faq-categories">{#each categories as c (c)}<option value={c}></option>{/each}</datalist></label>
+            <label class="flex flex-col gap-1 text-sm"><span class="font-medium ui-muted">Sort order</span><input type="number" name="sort_order" bind:value={sortOrder} class="rounded-md border px-2 py-1.5 text-sm ui-card ui-border" data-testid="faq-sort-order" /></label>
           </div>
           <div class="mt-3 flex gap-2">
-            <button type="button" class="rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60" disabled={saving || !question.trim() || !answer.trim()} onclick={save} data-testid="faq-save">{saving ? "Saving…" : editingId ? "Save changes" : "Add question"}</button>
-            <button type="button" class="rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700" onclick={() => (formOpen = false)}>Cancel</button>
+            <button type="button" class="rounded-md px-3 py-1.5 text-sm font-medium disabled:opacity-60 preset-filled-primary-500" disabled={saving || !question.trim() || !answer.trim()} onclick={save} data-testid="faq-save">{saving ? "Saving…" : editingId ? "Save changes" : "Add question"}</button>
+            <button type="button" class="rounded-md border px-3 py-1.5 text-sm ui-hover ui-muted ui-border" onclick={() => (formOpen = false)}>Cancel</button>
           </div>
         </section>
       {/if}
 
-      <section class="rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+      <section class="rounded-lg border shadow-sm ui-card ui-border">
         {#if loading}
-          <p class="p-4 text-sm text-gray-500 dark:text-gray-400">Loading…</p>
+          <p class="p-4 text-sm ui-muted">Loading…</p>
         {:else if items.length === 0}
-          <p class="p-4 text-sm text-gray-500 dark:text-gray-400" data-testid="faq-empty">No questions yet.</p>
+          <p class="p-4 text-sm ui-muted" data-testid="faq-empty">No questions yet.</p>
         {:else}
-          <ul class="divide-y divide-gray-200 dark:divide-gray-700" data-testid="faq-list">
+          <ul class="divide-y ui-border" data-testid="faq-list">
             {#each items as item (item.id)}
               <li class="flex flex-wrap items-start gap-3 px-4 py-3" data-testid="faq-row" data-state={item.chat_room_id ? "chat-linked" : "no-chat"}>
                 <div class="min-w-0 flex-1">
-                  <div class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">{item.category || "General"} · {item.sort_order}</div>
-                  <div class="font-medium text-gray-900 dark:text-gray-100">{item.question}</div>
-                  <p class="mt-0.5 line-clamp-2 text-sm text-gray-600 dark:text-gray-400">{item.answer}</p>
+                  <div class="text-xs uppercase tracking-wide ui-muted">{item.category || "General"} · {item.sort_order}</div>
+                  <div class="font-medium ui-text">{item.question}</div>
+                  <p class="mt-0.5 line-clamp-2 text-sm ui-muted">{item.answer}</p>
                   {#if item.chat_room_id}
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    <p class="mt-1 text-xs ui-muted">
                       <MessagesSquare class="inline h-3.5 w-3.5" /> Chat room <code>{item.chat_room_id}</code>
                       {#if portalUrl}<a href="{portalUrl}/user/chat/join?joining_key={encodeURIComponent(item.chat_joining_key)}" target="_blank" rel="noopener noreferrer" class="ml-1 inline-flex items-center gap-0.5 underline">open <ExternalLink class="h-3 w-3" /></a>{/if}
                     </p>
@@ -218,10 +218,10 @@
                 </div>
                 <div class="flex flex-wrap gap-2">
                   {#if !item.chat_room_id}
-                    <button type="button" class="inline-flex items-center gap-1 rounded-md border border-gray-300 px-2 py-1 text-xs hover:bg-gray-50 disabled:opacity-60 dark:border-gray-600 dark:hover:bg-gray-700" disabled={busyId === item.id} onclick={() => createChatRoom(item)} data-testid="faq-create-chat"><MessagesSquare class="h-3.5 w-3.5" /> {busyId === item.id ? "Creating…" : "Create chat room"}</button>
+                    <button type="button" class="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs disabled:opacity-60 ui-hover ui-border" disabled={busyId === item.id} onclick={() => createChatRoom(item)} data-testid="faq-create-chat"><MessagesSquare class="h-3.5 w-3.5" /> {busyId === item.id ? "Creating…" : "Create chat room"}</button>
                   {/if}
-                  <button type="button" class="inline-flex items-center gap-1 rounded-md border border-gray-300 px-2 py-1 text-xs hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700" onclick={() => startEdit(item)} data-testid="faq-edit"><Pencil class="h-3.5 w-3.5" /> Edit</button>
-                  <button type="button" class="inline-flex items-center gap-1 rounded-md border border-red-300 px-2 py-1 text-xs text-red-700 hover:bg-red-50 disabled:opacity-60 dark:border-red-700 dark:text-red-300 dark:hover:bg-red-900/20" disabled={busyId === item.id} onclick={() => remove(item)} data-testid="faq-delete"><Trash2 class="h-3.5 w-3.5" /> Delete</button>
+                  <button type="button" class="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs ui-hover ui-border" onclick={() => startEdit(item)} data-testid="faq-edit"><Pencil class="h-3.5 w-3.5" /> Edit</button>
+                  <button type="button" class="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs disabled:opacity-60 ui-tone-error" disabled={busyId === item.id} onclick={() => remove(item)} data-testid="faq-delete"><Trash2 class="h-3.5 w-3.5" /> Delete</button>
                 </div>
               </li>
             {/each}
@@ -232,7 +232,7 @@
     {/snippet}
 
     {#snippet side()}
-      <div class="h-[36rem] w-full overflow-hidden rounded-lg border border-gray-200 shadow-sm lg:h-[calc(100vh-80px-3rem)] dark:border-gray-700">
+      <div class="h-[36rem] w-full overflow-hidden rounded-lg border shadow-sm lg:h-[calc(100vh-80px-3rem)] ui-border">
         <OpeyChat {opeyChatOptions} userAuthenticated={!!page.data.userId} {clientTools} {clientContext} />
       </div>
     {/snippet}

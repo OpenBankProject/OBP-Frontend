@@ -168,50 +168,50 @@
 <div class="mb-4">
   <a
     href={roomLink}
-    class="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+    class="text-sm ui-link"
     data-testid="back-link"
   >
     &larr; Back to Chat Room
   </a>
 </div>
 
-<p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+<p class="text-sm mb-4 ui-muted">
   <span class="font-mono">{chatRoomId}</span> &middot; Level: {level}{bankId ? ` · Bank: ${bankId}` : ""}
 </p>
 
 {#if successMessage}
-  <div class="mb-4 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-800 dark:border-green-800 dark:bg-green-900/20 dark:text-green-200" data-testid="success-message">
+  <div class="mb-4 rounded-lg border p-3 text-sm ui-tone-success" data-testid="success-message">
     {successMessage}
   </div>
 {/if}
 
 {#if error}
-  <div class="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800 dark:border-red-800 dark:bg-red-900/20 dark:text-red-200" data-testid="error-message">
+  <div class="mb-4 rounded-lg border p-3 text-sm ui-tone-error" data-testid="error-message">
     {error}
   </div>
 {/if}
 
 {#if room?.is_open_room}
-  <div class="rounded-lg bg-gray-100 p-4 text-sm text-gray-700 dark:bg-gray-800 dark:text-gray-300" data-testid="open-room-notice">
+  <div class="rounded-lg p-4 text-sm ui-panel ui-muted" data-testid="open-room-notice">
     This room is Open — every user is an implicit participant and no joining key is needed.
   </div>
 {:else if room}
   <section class="mb-6">
-    <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Share joining key</h2>
-    <div class="rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-800" data-testid="joining-key-panel">
+    <h2 class="text-lg font-semibold mb-2 ui-text">Share joining key</h2>
+    <div class="rounded-lg border p-3 ui-card ui-border" data-testid="joining-key-panel">
       <div class="flex flex-wrap items-center gap-3">
-        <span class="text-sm font-medium text-gray-700 dark:text-gray-300 w-32">Joining Key</span>
-        <code class="flex-1 min-w-0 truncate rounded bg-gray-100 px-2 py-1 font-mono text-sm text-gray-900 dark:bg-gray-900 dark:text-gray-100" data-testid="joining-key-value">{room.joining_key}</code>
+        <span class="text-sm font-medium w-32 ui-muted">Joining Key</span>
+        <code class="flex-1 min-w-0 truncate rounded px-2 py-1 font-mono text-sm ui-panel ui-text" data-testid="joining-key-value">{room.joining_key}</code>
         <button
           onclick={copyJoiningKey}
-          class="inline-flex items-center rounded border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+          class="inline-flex items-center rounded border px-2 py-1 text-xs font-medium ui-card ui-hover ui-muted ui-border"
           data-testid="copy-joining-key-btn"
         >
           Copy
         </button>
         <button
           onclick={refreshJoiningKey}
-          class="inline-flex items-center rounded border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+          class="inline-flex items-center rounded border px-2 py-1 text-xs font-medium ui-card ui-hover ui-muted ui-border"
           data-testid="refresh-joining-key-btn"
         >
           Refresh
@@ -220,35 +220,35 @@
 
       {#if portalJoinUrl}
         <div class="flex flex-wrap items-center gap-3 mt-2">
-          <span class="text-sm font-medium text-gray-700 dark:text-gray-300 w-32">Portal join URL</span>
+          <span class="text-sm font-medium w-32 ui-muted">Portal join URL</span>
           <a
             href={portalJoinUrl}
             target="_blank"
             rel="noopener"
-            class="flex-1 min-w-0 truncate rounded bg-gray-100 px-2 py-1 font-mono text-sm text-blue-700 hover:underline dark:bg-gray-900 dark:text-blue-400"
+            class="flex-1 min-w-0 truncate rounded px-2 py-1 font-mono text-sm hover:underline ui-link ui-panel"
             data-testid="portal-join-url"
           >{portalJoinUrl}</a>
           <button
             onclick={copyPortalJoinUrl}
-            class="inline-flex items-center rounded border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+            class="inline-flex items-center rounded border px-2 py-1 text-xs font-medium ui-card ui-hover ui-muted ui-border"
             data-testid="copy-portal-join-url-btn"
           >
             Copy
           </button>
         </div>
-        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 ml-32">
+        <p class="text-xs mt-1 ml-32 ui-muted">
           Send this link to a user — they'll sign in to the Portal and join the room using the embedded key.
         </p>
       {/if}
 
       {#if apiExplorerJoinUrl}
         <div class="flex flex-wrap items-center gap-3 mt-2">
-          <span class="text-sm font-medium text-gray-700 dark:text-gray-300 w-32">API Explorer</span>
+          <span class="text-sm font-medium w-32 ui-muted">API Explorer</span>
           <a
             href={apiExplorerJoinUrl}
             target="_blank"
             rel="noopener"
-            class="text-sm text-blue-700 hover:underline dark:text-blue-400"
+            class="text-sm hover:underline ui-link"
             data-testid="api-explorer-join-url"
           >
             {level === "bank" ? "Join Bank Chat Room" : "Join System Chat Room"} endpoint
@@ -259,34 +259,34 @@
   </section>
 
   <section>
-    <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Add directly by user ID</h2>
-    <div class="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800" data-testid="add-participant-form">
+    <h2 class="text-lg font-semibold mb-2 ui-text">Add directly by user ID</h2>
+    <div class="rounded-lg border p-4 ui-card ui-border" data-testid="add-participant-form">
       <div class="space-y-3">
         <div>
-          <label for="user_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300">User ID</label>
+          <label for="user_id" class="block text-sm font-medium ui-muted">User ID</label>
           <input
             type="text"
             id="user_id"
             bind:value={addUserId}
-            class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+            class="mt-1 block w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-1 ui-card ui-text ui-border"
             data-testid="participant-user-id-input"
           />
         </div>
         <div>
-          <label for="permissions" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Permissions (comma-separated)</label>
+          <label for="permissions" class="block text-sm font-medium ui-muted">Permissions (comma-separated)</label>
           <input
             type="text"
             id="permissions"
             bind:value={addPermissions}
             placeholder="can_send_message, can_delete_message, can_update_room"
-            class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+            class="mt-1 block w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-1 ui-card ui-text ui-border"
             data-testid="participant-permissions-input"
           />
         </div>
         <button
           onclick={addParticipant}
           disabled={!addUserId.trim()}
-          class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
+          class="rounded-lg px-4 py-2 text-sm font-medium disabled:opacity-50 preset-filled-primary-500"
           data-testid="submit-add-participant"
         >
           Add

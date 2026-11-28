@@ -27,19 +27,19 @@
 </svelte:head>
 
 <article class="mx-auto flex w-full max-w-3xl flex-col gap-5 p-6">
-	<nav class="text-xs text-surface-600-400">
+	<nav class="text-xs ui-muted">
 		<a class="anchor" href="/api-explorer/glossary">&larr; Glossary</a>
 	</nav>
 
 	<header class="flex flex-wrap items-baseline gap-3">
-		<h1 class="text-2xl font-semibold text-surface-900-50">{entry.title}</h1>
+		<h1 class="text-2xl font-semibold ui-text">{entry.title}</h1>
 		{#if entry.is_dynamic}
-			<span class="rounded border border-surface-300-600 px-1.5 py-0.5 text-xs text-surface-600-400">
+			<span class="rounded border px-1.5 py-0.5 text-xs ui-muted ui-border">
 				dynamic
 			</span>
 		{/if}
 		{#if entry.overrides_static_item}
-			<span class="rounded border border-surface-300-600 px-1.5 py-0.5 text-xs text-surface-600-400">
+			<span class="rounded border px-1.5 py-0.5 text-xs ui-muted ui-border">
 				overrides a static item
 			</span>
 		{/if}

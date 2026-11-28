@@ -68,10 +68,10 @@
 
 <div class="container mx-auto max-w-7xl px-4 py-8">
   <div class="mb-6">
-    <a href={listHref} class="mb-4 inline-flex items-center text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">← Back to Dynamic Entity Webhooks</a>
+    <a href={listHref} class="mb-4 inline-flex items-center text-sm ui-link">← Back to Dynamic Entity Webhooks</a>
     <div class="flex items-center gap-3">
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Create Dynamic Entity Webhook</h1>
-      <a href="/dynamic-entity-webhooks/help" aria-label="Dynamic Entity Webhooks help" data-testid="webhooks-help-link" class="inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
+      <h1 class="text-3xl font-bold ui-text">Create Dynamic Entity Webhook</h1>
+      <a href="/dynamic-entity-webhooks/help" aria-label="Dynamic Entity Webhooks help" data-testid="webhooks-help-link" class="inline-flex items-center gap-1 rounded-lg border px-3 py-2 text-sm font-medium ui-card ui-hover ui-muted ui-border">
           <CircleHelp size={16} />
         </a>
     </div>
@@ -81,15 +81,15 @@
   <SpaceRoleAlerts bankId={data.bankId} roles={[{ role: WEBHOOK_ROLES.create, purpose: "to create a webhook" }]} />
 
   {#if data.loadError}
-    <div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300" data-testid="load-error">{data.loadError}</div>
+    <div class="mb-6 rounded-lg border p-4 text-sm ui-tone-error" data-testid="load-error">{data.loadError}</div>
   {:else if data.entities.length === 0}
-    <div class="rounded-lg border border-gray-200 bg-white p-8 text-center text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400" data-testid="no-entities">
+    <div class="rounded-lg border p-8 text-center text-sm ui-card ui-muted ui-border" data-testid="no-entities">
       There are no Dynamic Entities in {data.bankId}. A webhook belongs to one Dynamic Entity, so create one first.
     </div>
   {:else}
     <div class="mb-6">
-      <label for="entity" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Dynamic Entity in {data.bankId} <span class="text-red-500">*</span></label>
-      <select id="entity" bind:value={chosenId} class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 font-mono text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" data-testid="entity-select">
+      <label for="entity" class="block text-sm font-medium ui-muted">Dynamic Entity in {data.bankId} <span class="ui-text-error">*</span></label>
+      <select id="entity" bind:value={chosenId} class="mt-1 block w-full rounded-lg border px-3 py-2 font-mono text-sm ui-card ui-text ui-border" data-testid="entity-select">
         {#each data.entities as e (e.dynamic_entity_id)}
           <option value={e.dynamic_entity_id}>{e.entity_name}</option>
         {/each}
@@ -99,7 +99,7 @@
     <ResizableSplit breakpoint="lg">
       {#snippet main()}
       {#if entity}
-        <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <div class="rounded-lg border p-6 shadow-sm ui-card ui-border">
           {#key entity.dynamic_entity_id}
             <DynamicEntityWebhookForm {entity} submitLabel="Create webhook" cancelHref={listHref} onSubmit={handleSubmit} />
           {/key}
@@ -108,7 +108,7 @@
       {/snippet}
 
     {#snippet side()}
-      <div class="h-[36rem] w-full overflow-hidden rounded-lg border border-gray-200 shadow-sm lg:h-[calc(100vh-80px-3rem)] dark:border-gray-700">
+      <div class="h-[36rem] w-full overflow-hidden rounded-lg border shadow-sm lg:h-[calc(100vh-80px-3rem)] ui-border">
         <OpeyChat {opeyChatOptions} userAuthenticated={!!page.data.userId} {clientTools} {clientContext} />
       </div>
     {/snippet}

@@ -32,23 +32,23 @@
 
 <div class="container mx-auto max-w-5xl px-4 py-8">
   <nav class="mb-6 text-sm" aria-label="Breadcrumb">
-    <a href="/glossary-items" class="text-blue-600 hover:underline dark:text-blue-400">Dynamic Glossary Items</a>
-    <span class="mx-2 text-gray-400">/</span>
-    <span class="text-gray-500 dark:text-gray-400">Help</span>
+    <a href="/glossary-items" class="hover:underline ui-link">Dynamic Glossary Items</a>
+    <span class="mx-2 ui-muted">/</span>
+    <span class="ui-muted">Help</span>
   </nav>
 
-  <div class="rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-    <div class="flex items-start gap-4 border-b border-gray-200 p-6 dark:border-gray-700">
-      <CircleHelp size={32} class="shrink-0 text-blue-600 dark:text-blue-400" />
+  <div class="rounded-lg border shadow-sm ui-card ui-border">
+    <div class="flex items-start gap-4 border-b p-6 ui-border">
+      <CircleHelp size={32} class="shrink-0 ui-link" />
       <div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Dynamic Glossary Item Help</h1>
-        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">From the OBP glossary, with this instance's endpoints.</p>
+        <h1 class="text-2xl font-bold ui-text">Dynamic Glossary Item Help</h1>
+        <p class="mt-1 text-sm ui-muted">From the OBP glossary, with this instance's endpoints.</p>
       </div>
     </div>
 
     <div class="space-y-8 p-6">
       {#if data.warnings.length > 0}
-        <div class="rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-900/20 dark:text-amber-100" data-testid="help-warnings">
+        <div class="rounded-lg border p-4 text-sm ui-tone-warning" data-testid="help-warnings">
           <ul class="list-disc pl-5">{#each data.warnings as w}<li>{w}</li>{/each}</ul>
           <div class="mt-2 flex flex-wrap items-center gap-4">
             {#each missingSections as s (s.title)}
@@ -62,34 +62,34 @@
 
       {#each data.sections as section (section.title)}
         <section>
-          <h2 class="mb-3 text-lg font-semibold text-gray-900 dark:text-gray-100">{section.title}</h2>
+          <h2 class="mb-3 text-lg font-semibold ui-text">{section.title}</h2>
           <GlossaryEntry html={section.html} testid="glossary-{section.title.toLowerCase().replace(/\s+/g, '-')}" />
         </section>
       {/each}
 
       <section id="endpoints">
-        <h2 class="mb-1 text-lg font-semibold text-gray-900 dark:text-gray-100">Endpoints</h2>
-        <p class="mb-3 text-xs text-gray-500 dark:text-gray-400">v7.0.0 resource docs for <code>/glossary-items</code> on this instance. Reading needs only an authenticated user; the roles below are what the write calls require.</p>
+        <h2 class="mb-1 text-lg font-semibold ui-text">Endpoints</h2>
+        <p class="mb-3 text-xs ui-muted">v7.0.0 resource docs for <code>/glossary-items</code> on this instance. Reading needs only an authenticated user; the roles below are what the write calls require.</p>
         {#if data.endpoints.length > 0}
-          <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+          <div class="overflow-x-auto rounded-lg border ui-border">
             <table class="w-full text-sm" data-testid="glossary-item-endpoints">
-              <thead class="bg-gray-50 text-left text-xs uppercase text-gray-500 dark:bg-gray-900/40 dark:text-gray-400">
+              <thead class="text-left text-xs uppercase ui-card ui-muted">
                 <tr><th class="px-4 py-2">Verb</th><th class="px-4 py-2">Path</th><th class="px-4 py-2">Summary</th><th class="px-4 py-2">Roles</th></tr>
               </thead>
-              <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+              <tbody class="divide-y ui-border">
                 {#each data.endpoints as e (e.operation_id)}
                   <tr>
                     <td class="px-4 py-2 font-mono text-xs">{e.request_verb}</td>
-                    <td class="px-4 py-2 font-mono text-xs"><a class="text-blue-600 hover:underline dark:text-blue-400" href={e.explorerUrl} target="_blank" rel="noopener noreferrer">{e.request_url}</a></td>
-                    <td class="px-4 py-2 text-gray-700 dark:text-gray-300">{e.summary}</td>
-                    <td class="px-4 py-2 font-mono text-xs text-gray-700 dark:text-gray-300">{e.roles.join(", ") || "none"}</td>
+                    <td class="px-4 py-2 font-mono text-xs"><a class="hover:underline ui-link" href={e.explorerUrl} target="_blank" rel="noopener noreferrer">{e.request_url}</a></td>
+                    <td class="px-4 py-2 ui-muted">{e.summary}</td>
+                    <td class="px-4 py-2 font-mono text-xs ui-muted">{e.roles.join(", ") || "none"}</td>
                   </tr>
                 {/each}
               </tbody>
             </table>
           </div>
         {:else}
-          <p class="text-sm text-gray-500 dark:text-gray-400">None found. This OBP instance may be older than v7.0.0.</p>
+          <p class="text-sm ui-muted">None found. This OBP instance may be older than v7.0.0.</p>
         {/if}
       </section>
 

@@ -252,19 +252,19 @@
 
   function getTypeBadgeColor(type: string): string {
     const colorMap: Record<string, string> = {
-      string: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
+      string: "ui-tone-info",
       integer:
-        "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+        "ui-tone-success",
       number:
-        "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200",
+        "ui-tone-accent",
       boolean:
-        "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
+        "ui-tone-warning",
       DATE_WITH_DAY:
-        "bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200",
+        "ui-tone-error",
     };
     return (
       colorMap[type] ||
-      "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
+      "ui-panel ui-text"
     );
   }
 
@@ -354,7 +354,7 @@
   <div class="mb-6">
     <a
       href="/dynamic-entities/system"
-      class="mb-4 inline-flex items-center text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+      class="mb-4 inline-flex items-center text-sm ui-link"
     >
       <svg
         class="mr-2 h-4 w-4"
@@ -375,10 +375,10 @@
     <!-- Header -->
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
+        <h1 class="text-3xl font-bold ui-text">
           {entityName}
         </h1>
-        <p class="mt-1 text-gray-600 dark:text-gray-400">
+        <p class="mt-1 ui-muted">
           System Dynamic Entity Details
         </p>
       </div>
@@ -387,7 +387,7 @@
           href={apiExplorerEntityUrl}
           target="_blank"
           rel="noopener noreferrer"
-          class="inline-flex items-center rounded-lg border border-purple-300 bg-purple-600 px-4 py-2 text-sm font-medium text-white hover:bg-purple-700 dark:border-purple-600 dark:bg-purple-500 dark:hover:bg-purple-600"
+          class="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-medium preset-filled-primary-500"
           title="Open in API Explorer"
         >
           <svg
@@ -407,7 +407,7 @@
         </a>
         <a
           href="/dynamic-entities/system/{entity.dynamic_entity_id}/crud?{spaceQuery}"
-          class="inline-flex items-center rounded-lg border border-blue-300 bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 dark:border-blue-600 dark:bg-blue-500 dark:hover:bg-blue-600"
+          class="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-medium preset-filled-primary-500"
         >
           <svg
             class="mr-2 h-4 w-4"
@@ -426,7 +426,7 @@
         </a>
         <a
           href="/dynamic-entity-webhooks?{spaceQuery}&dynamic_entity_id={encodeURIComponent(entity.dynamic_entity_id)}"
-          class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+          class="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-medium ui-card ui-hover ui-muted ui-border"
           data-testid="entity-webhooks-link"
         >
           <Webhook class="mr-2 h-4 w-4" />
@@ -434,7 +434,7 @@
         </a>
         <a
           href="/dynamic-entity-audit-chains/{encodeURIComponent(space)}/{encodeURIComponent(entity.dynamic_entity_id)}"
-          class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+          class="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-medium ui-card ui-hover ui-muted ui-border"
           data-testid="entity-audit-chain-link"
         >
           <ShieldCheck class="mr-2 h-4 w-4" />
@@ -446,7 +446,7 @@
           href="/dynamic-entities/system/openapi-json?tags=_{entityName}"
           target="_blank"
           rel="noopener noreferrer"
-          class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+          class="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-medium ui-card ui-hover ui-muted ui-border"
           title="View OpenAPI JSON"
         >
           <svg
@@ -468,7 +468,7 @@
           href="/dynamic-entities/system/openapi-yaml?tags=_{entityName}"
           target="_blank"
           rel="noopener noreferrer"
-          class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+          class="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-medium ui-card ui-hover ui-muted ui-border"
           title="View OpenAPI YAML"
         >
           <svg
@@ -493,50 +493,50 @@
 
   <!-- Entity Information Card -->
   <div
-    class="mb-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+    class="mb-6 rounded-lg border p-6 shadow-sm ui-card ui-border"
   >
-    <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
+    <h2 class="mb-4 text-lg font-semibold ui-text">
       Entity Information
     </h2>
     <dl class="grid grid-cols-1 gap-4 sm:grid-cols-2">
       <div>
-        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
+        <dt class="text-sm font-medium ui-muted">
           Entity Name
         </dt>
-        <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">
+        <dd class="mt-1 text-sm ui-text">
           {entityName}
         </dd>
       </div>
       <div>
-        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
+        <dt class="text-sm font-medium ui-muted">
           Entity ID
         </dt>
-        <dd class="mt-1 font-mono text-sm text-gray-900 dark:text-gray-100">
+        <dd class="mt-1 font-mono text-sm ui-text">
           {entity.dynamic_entity_id}
         </dd>
       </div>
       <div>
-        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
+        <dt class="text-sm font-medium ui-muted">
           User ID
         </dt>
-        <dd class="mt-1 font-mono text-sm text-gray-900 dark:text-gray-100">
+        <dd class="mt-1 font-mono text-sm ui-text">
           {entity.user_id}
         </dd>
       </div>
       <div>
-        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
+        <dt class="text-sm font-medium ui-muted">
           Has Personal Entity
         </dt>
         <dd class="mt-1 text-sm">
           {#if entity.has_personal_entity}
             <span
-              class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-200"
+              class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ui-tone-success"
             >
               Yes
             </span>
           {:else}
             <span
-              class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-200"
+              class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ui-panel ui-text"
             >
               No
             </span>
@@ -544,22 +544,22 @@
         </dd>
       </div>
       <div>
-        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
+        <dt class="text-sm font-medium ui-muted">
           Has Public Access
         </dt>
         <dd class="mt-1 text-sm">
           {#if entity.has_public_access}
             <span
-              class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-200"
+              class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ui-tone-success"
             >
               Yes
             </span>
-            <p class="mt-1 font-mono text-xs text-blue-600 dark:text-blue-400">
+            <p class="mt-1 font-mono text-xs ui-link">
               GET {dataPath}/public/{entityName}
             </p>
           {:else}
             <span
-              class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-200"
+              class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ui-panel ui-text"
             >
               No
             </span>
@@ -567,22 +567,22 @@
         </dd>
       </div>
       <div>
-        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
+        <dt class="text-sm font-medium ui-muted">
           Has Community Access
         </dt>
         <dd class="mt-1 text-sm">
           {#if entity.has_community_access}
             <span
-              class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-200"
+              class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ui-tone-success"
             >
               Yes
             </span>
-            <p class="mt-1 font-mono text-xs text-blue-600 dark:text-blue-400">
+            <p class="mt-1 font-mono text-xs ui-link">
               GET {dataPath}/community/{entityName}
             </p>
           {:else}
             <span
-              class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-200"
+              class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ui-panel ui-text"
             >
               No
             </span>
@@ -590,19 +590,19 @@
         </dd>
       </div>
       <div>
-        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
+        <dt class="text-sm font-medium ui-muted">
           Personal Requires Role
         </dt>
         <dd class="mt-1 text-sm">
           {#if entity.personal_requires_role}
             <span
-              class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-200"
+              class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ui-tone-success"
             >
               Yes
             </span>
           {:else}
             <span
-              class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-200"
+              class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ui-panel ui-text"
             >
               No
             </span>
@@ -610,40 +610,40 @@
         </dd>
       </div>
       <div>
-        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
+        <dt class="text-sm font-medium ui-muted">
           Use Row Level Access
         </dt>
         <dd class="mt-1 text-sm" data-testid="entity-use-row-level-access">
           {#if entity.use_row_level_access}
             <span
-              class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-200"
+              class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ui-tone-success"
             >
               Yes
             </span>
-            <p class="mt-1 font-mono text-xs text-blue-600 dark:text-blue-400">
+            <p class="mt-1 font-mono text-xs ui-link">
               GET/PUT {dataPath}/{entityName}/RECORD_ID/access
             </p>
-            <p class="mt-1 font-mono text-xs text-blue-600 dark:text-blue-400">
+            <p class="mt-1 font-mono text-xs ui-link">
               DELETE {dataPath}/{entityName}/RECORD_ID/access/USER_ID
             </p>
-            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            <p class="mt-1 text-xs ui-muted">
               A per-record access list decides read, update, delete and grant, in place of this
               entity's Get, Update and Delete roles. The POST body names the grantee with
               <code>user_id</code> (the id shown on the
-              <a href="/users" class="text-blue-600 hover:underline dark:text-blue-400">Users</a> page) plus
+              <a href="/users" class="hover:underline ui-link">Users</a> page) plus
               <code>can_read</code>, <code>can_update</code>, <code>can_delete</code> and
               <code>can_grant</code>.
               <a
                 href="{apiExplorerUrl}/glossary#Dynamic-Entity-Access-Model"
                 target="_blank"
                 rel="noopener noreferrer"
-                class="text-blue-600 hover:underline dark:text-blue-400"
+                class="hover:underline ui-link"
                 data-testid="row-level-access-glossary-link"
               >Dynamic Entity Access Model</a>.
             </p>
           {:else}
             <span
-              class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-200"
+              class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ui-panel ui-text"
             >
               No
             </span>
@@ -651,10 +651,10 @@
         </dd>
       </div>
       <div class="sm:col-span-2">
-        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
+        <dt class="text-sm font-medium ui-muted">
           Description
         </dt>
-        <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">
+        <dd class="mt-1 text-sm ui-text">
           {description}
         </dd>
       </div>
@@ -663,13 +663,13 @@
 
   <!-- Schema Properties -->
   <div
-    class="rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
+    class="rounded-lg border shadow-sm ui-card ui-border"
   >
-    <div class="border-b border-gray-200 p-6 dark:border-gray-700">
-      <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+    <div class="border-b p-6 ui-border">
+      <h2 class="text-lg font-semibold ui-text">
         Schema Properties
       </h2>
-      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+      <p class="mt-1 text-sm ui-muted">
         {Object.keys(properties).length} properties defined
         {#if requiredFields.length > 0}
           ({requiredFields.length} required)
@@ -680,7 +680,7 @@
     {#if Object.keys(properties).length === 0}
       <div class="flex flex-col items-center justify-center py-12 text-center">
         <svg
-          class="mb-4 h-16 w-16 text-gray-400"
+          class="mb-4 h-16 w-16 ui-muted"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -692,15 +692,15 @@
             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
           />
         </svg>
-        <h3 class="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-100">
+        <h3 class="mb-2 text-lg font-semibold ui-text">
           No Properties Defined
         </h3>
-        <p class="text-gray-600 dark:text-gray-400">
+        <p class="ui-muted">
           This entity has no schema properties defined.
         </p>
       </div>
     {:else}
-      <div class="divide-y divide-gray-200 dark:divide-gray-700">
+      <div class="divide-y ui-border">
         {#each Object.entries(properties) as [fieldName, fieldDef]}
           {@const fieldDefTyped = fieldDef as any}
           {@const isRequired = requiredFields.includes(fieldName)}
@@ -709,13 +709,13 @@
               <div class="flex-1">
                 <div class="flex items-center gap-2">
                   <h3
-                    class="font-mono text-base font-semibold text-gray-900 dark:text-gray-100"
+                    class="font-mono text-base font-semibold ui-text"
                   >
                     {fieldName}
                   </h3>
                   {#if isRequired}
                     <span
-                      class="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900 dark:text-red-200"
+                      class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ui-tone-error"
                     >
                       Required
                     </span>
@@ -729,7 +729,7 @@
                   </span>
                   {#if fieldDefTyped.write_role_required || fieldDefTyped.write_role}
                     <span
-                      class="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900 dark:text-amber-200"
+                      class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ui-tone-warning"
                       title={fieldDefTyped.write_role
                         ? `Write-restricted — requires role: ${fieldDefTyped.write_role}`
                         : "Write-restricted — set only via PATCH by a holder of the auto-generated field write role"}
@@ -739,7 +739,7 @@
                   {/if}
                   {#if fieldDefTyped.read_role_required || fieldDefTyped.read_role}
                     <span
-                      class="inline-flex items-center rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900 dark:text-purple-200"
+                      class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ui-tone-accent"
                       title={fieldDefTyped.read_role
                         ? `Read-restricted — requires role: ${fieldDefTyped.read_role}`
                         : "Read-restricted — omitted from GET unless the caller holds the auto-generated field read role"}
@@ -749,7 +749,7 @@
                   {/if}
                   {#if fieldDefTyped.hide_field_from_public_access}
                     <span
-                      class="inline-flex items-center rounded-full bg-slate-200 px-2 py-0.5 text-xs font-medium text-slate-800 dark:bg-slate-700 dark:text-slate-200"
+                      class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ui-panel ui-text"
                       data-testid="field-badge-hidden-from-public-{fieldName}"
                     >
                       Hidden from public access
@@ -757,7 +757,7 @@
                   {/if}
                 </div>
                 {#if fieldDefTyped.description}
-                  <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                  <p class="mt-2 text-sm ui-muted">
                     {fieldDefTyped.description}
                   </p>
                 {/if}
@@ -765,12 +765,12 @@
                   {#if fieldDefTyped.example !== undefined}
                     <div class="flex gap-2">
                       <dt
-                        class="text-sm font-medium text-gray-500 dark:text-gray-400"
+                        class="text-sm font-medium ui-muted"
                       >
                         Example:
                       </dt>
                       <dd
-                        class="font-mono text-sm text-gray-900 dark:text-gray-100"
+                        class="font-mono text-sm ui-text"
                       >
                         {typeof fieldDefTyped.example === "boolean"
                           ? fieldDefTyped.example.toString()
@@ -781,11 +781,11 @@
                   {#if fieldDefTyped.minLength !== undefined}
                     <div class="flex gap-2">
                       <dt
-                        class="text-sm font-medium text-gray-500 dark:text-gray-400"
+                        class="text-sm font-medium ui-muted"
                       >
                         Min Length:
                       </dt>
-                      <dd class="text-sm text-gray-900 dark:text-gray-100">
+                      <dd class="text-sm ui-text">
                         {fieldDefTyped.minLength}
                       </dd>
                     </div>
@@ -793,11 +793,11 @@
                   {#if fieldDefTyped.maxLength !== undefined}
                     <div class="flex gap-2">
                       <dt
-                        class="text-sm font-medium text-gray-500 dark:text-gray-400"
+                        class="text-sm font-medium ui-muted"
                       >
                         Max Length:
                       </dt>
-                      <dd class="text-sm text-gray-900 dark:text-gray-100">
+                      <dd class="text-sm ui-text">
                         {fieldDefTyped.maxLength}
                       </dd>
                     </div>
@@ -814,35 +814,35 @@
   {#if entity.has_public_access}
     <!-- Public Access Section: anonymous reads, no role or login needed -->
     <div
-      class="mt-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+      class="mt-6 rounded-lg border p-6 shadow-sm ui-card ui-border"
       data-testid="dynamic-entity-public-endpoints"
     >
-      <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
+      <h2 class="mb-4 text-lg font-semibold ui-text">
         Public Access
       </h2>
       <div class="space-y-3">
         {#each publicEndpoints as pub, i}
           <div
             data-testid="dynamic-entity-public-endpoint-{i}"
-            class="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900"
+            class="rounded-lg border p-4 ui-card ui-border"
           >
             <div class="flex items-center gap-2">
-              <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">
+              <span class="text-sm font-semibold ui-text">
                 {pub.operation}
               </span>
               <span
-                class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-300"
+                class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ui-tone-success"
               >
                 No login required
               </span>
             </div>
-            <p class="mt-1 flex items-center gap-2 font-mono text-xs text-blue-600 dark:text-blue-400">
+            <p class="mt-1 flex items-center gap-2 font-mono text-xs ui-link">
               <span>{pub.endpoint}</span>
               <a
                 href={pub.explorerUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                class="inline-flex items-center gap-1 rounded bg-purple-100 px-1.5 py-0.5 text-xs font-medium text-purple-700 no-underline hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:hover:bg-purple-900/50"
+                class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-medium no-underline ui-tone-accent"
               >
                 <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -854,7 +854,7 @@
         {/each}
       </div>
       {#if publicHiddenFields.length > 0}
-        <p class="mt-3 text-xs text-gray-600 dark:text-gray-400" data-testid="dynamic-entity-public-hidden-fields">
+        <p class="mt-3 text-xs ui-muted" data-testid="dynamic-entity-public-hidden-fields">
           Omitted from public responses:
           <span class="font-mono">{publicHiddenFields.join(", ")}</span>
         </p>
@@ -865,12 +865,12 @@
   {#if entity.has_personal_entity}
     <!-- Allowed Operations Section (for Personal Entities) -->
     <div
-      class="mt-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+      class="mt-6 rounded-lg border p-6 shadow-sm ui-card ui-border"
     >
-      <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
+      <h2 class="mb-4 text-lg font-semibold ui-text">
         Allowed Operations
       </h2>
-      <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">
+      <p class="mb-4 text-sm ui-muted">
         This is a personal entity. Any authenticated user can perform CRUD
         operations on their own {entityName} records without requiring specific
         roles.
@@ -878,17 +878,17 @@
       <div class="space-y-3">
         {#each ["Create", "Read", "Update", "Delete"] as operation}
           <div
-            class="flex items-center justify-between rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-900/20"
+            class="flex items-center justify-between rounded-lg border p-4 ui-tone-success"
           >
             <div class="flex-1">
               <div class="flex items-center gap-2">
                 <span
-                  class="text-sm font-semibold text-gray-900 dark:text-gray-100"
+                  class="text-sm font-semibold ui-text"
                 >
                   {operation}
                 </span>
                 <span
-                  class="inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-300"
+                  class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ui-tone-success"
                 >
                   <svg
                     class="h-3 w-3"
@@ -906,7 +906,7 @@
                   No role required
                 </span>
               </div>
-              <p class="mt-1 text-xs text-gray-600 dark:text-gray-400">
+              <p class="mt-1 text-xs ui-muted">
                 {operation} your own personal {entityName} records
               </p>
             </div>
@@ -917,29 +917,29 @@
   {:else}
     <!-- Required Roles Section (for System-only Entities) -->
     <div
-      class="mt-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+      class="mt-6 rounded-lg border p-6 shadow-sm ui-card ui-border"
     >
-      <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
+      <h2 class="mb-4 text-lg font-semibold ui-text">
         Required Roles for CRUD Operations
       </h2>
-      <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">
+      <p class="mb-4 text-sm ui-muted">
         These roles are required to perform operations on {entityName} records:
       </p>
       <div class="space-y-3">
         {#each requiredRoles as roleReq}
           <div
-            class="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900"
+            class="flex items-center justify-between rounded-lg border p-4 ui-card ui-border"
           >
             <div class="flex-1">
               <div class="flex items-center gap-2">
                 <span
-                  class="text-sm font-semibold text-gray-900 dark:text-gray-100"
+                  class="text-sm font-semibold ui-text"
                 >
                   {roleReq.operation}
                 </span>
                 {#if userHasRole(roleReq.role)}
                   <span
-                    class="inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-300"
+                    class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ui-tone-success"
                   >
                     <svg
                       class="h-3 w-3"
@@ -958,19 +958,19 @@
                   </span>
                 {/if}
               </div>
-              <p class="mt-1 text-xs text-gray-600 dark:text-gray-400">
+              <p class="mt-1 text-xs ui-muted">
                 {roleReq.description}
               </p>
-              <p class="mt-1 font-mono text-xs text-gray-500 dark:text-gray-500">
+              <p class="mt-1 font-mono text-xs ui-muted">
                 {roleReq.role}
               </p>
-              <p class="mt-1 flex items-center gap-2 font-mono text-xs text-blue-600 dark:text-blue-400">
+              <p class="mt-1 flex items-center gap-2 font-mono text-xs ui-link">
                 <span>{roleReq.endpoint}</span>
                 <a
                   href={roleReq.explorerUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="inline-flex items-center gap-1 rounded bg-purple-100 px-1.5 py-0.5 text-xs font-medium text-purple-700 no-underline hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:hover:bg-purple-900/50"
+                  class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-medium no-underline ui-tone-accent"
                   title="Open in API Explorer"
                 >
                   <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -984,15 +984,15 @@
               <div class="ml-4 flex flex-col items-end gap-1">
                 {#if requestSuccess[roleReq.role]}
                   <div
-                    class="rounded-lg bg-green-100 px-3 py-2 text-xs text-green-800 dark:bg-green-900/30 dark:text-green-300"
+                    class="rounded-lg px-3 py-2 text-xs ui-tone-success"
                   >
-                    Thanks, request generated. Ask your admin to accept it on the <a href="/rbac/entitlement-requests" class="font-semibold underline hover:text-green-900 dark:hover:text-green-200">Entitlement Requests page</a>.
+                    Thanks, request generated. Ask your admin to accept it on the <a href="/rbac/entitlement-requests" class="font-semibold underline ui-text-success">Entitlement Requests page</a>.
                   </div>
                 {:else}
                   <button
                     onclick={() => handleRequestEntitlement(roleReq.role)}
                     disabled={requestingRoles[roleReq.role]}
-                    class="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-2 text-xs font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
+                    class="inline-flex items-center gap-1 rounded-lg px-3 py-2 text-xs font-medium disabled:cursor-not-allowed disabled:opacity-50 preset-filled-primary-500"
                   >
                     {#if requestingRoles[roleReq.role]}
                       <svg
@@ -1034,7 +1034,7 @@
                   </button>
                 {/if}
                 {#if requestErrors[roleReq.role]}
-                  <div class="max-w-xs text-xs text-red-600 dark:text-red-400">
+                  <div class="max-w-xs text-xs ui-text-error">
                     {requestErrors[roleReq.role]}
                   </div>
                 {/if}
@@ -1048,20 +1048,20 @@
 
   <!-- Raw JSON View -->
   <div
-    class="mt-6 rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
+    class="mt-6 rounded-lg border shadow-sm ui-card ui-border"
   >
-    <div class="border-b border-gray-200 p-6 dark:border-gray-700">
-      <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+    <div class="border-b p-6 ui-border">
+      <h2 class="text-lg font-semibold ui-text">
         Raw Schema Definition
       </h2>
-      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+      <p class="mt-1 text-sm ui-muted">
         Complete schema definition in JSON format
       </p>
     </div>
     <div class="p-6">
       <pre
-        class="overflow-x-auto rounded-lg bg-gray-50 p-4 text-sm dark:bg-gray-900"><code
-          class="text-gray-900 dark:text-gray-100"
+        class="overflow-x-auto rounded-lg p-4 text-sm ui-card"><code
+          class="ui-text"
           >{JSON.stringify(schema, null, 2)}</code
         ></pre>
     </div>
@@ -1072,7 +1072,7 @@
     <button
       type="button"
       onclick={exportDefinition}
-      class="inline-flex items-center rounded-lg border border-green-300 bg-white px-4 py-2 text-sm font-medium text-green-700 hover:bg-green-50 dark:border-green-600 dark:bg-gray-800 dark:text-green-400 dark:hover:bg-green-900/20"
+      class="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-medium ui-card ui-tone-success"
       title="Copy definition to clipboard"
     >
       {#if exportCopied}
@@ -1110,7 +1110,7 @@
     <button
       type="button"
       onclick={downloadDefinition}
-      class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+      class="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-medium ui-card ui-hover ui-muted ui-border"
       title="Download definition as JSON file"
     >
       <svg
@@ -1132,7 +1132,7 @@
       type="button"
       onclick={handleBackup}
       disabled={isBackingUp}
-      class="inline-flex items-center rounded-lg border border-blue-300 bg-white px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-50 disabled:opacity-50 dark:border-blue-600 dark:bg-gray-800 dark:text-blue-400 dark:hover:bg-blue-900/20"
+      class="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-medium disabled:opacity-50 ui-card ui-tone-info"
       title="Backup entity definition and all data"
     >
       {#if isBackingUp}
@@ -1177,7 +1177,7 @@
       type="button"
       onclick={handleDelete}
       data-testid="delete-entity"
-      class="inline-flex items-center rounded-lg border border-red-300 bg-white px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-50 dark:border-red-600 dark:bg-gray-800 dark:text-red-400 dark:hover:bg-red-900/20"
+      class="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-medium ui-card ui-tone-error"
     >
       <svg
         class="mr-2 h-4 w-4"

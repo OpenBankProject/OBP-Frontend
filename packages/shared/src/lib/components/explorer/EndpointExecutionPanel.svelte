@@ -148,29 +148,29 @@
 		!response
 			? ''
 			: response.status < 300
-				? 'text-emerald-700 dark:text-emerald-400'
+				? 'ui-text-success'
 				: response.status < 500
-					? 'text-amber-700 dark:text-amber-400'
-					: 'text-red-700 dark:text-red-400'
+					? 'ui-text-warning'
+					: 'ui-text-error'
 	);
 </script>
 
 <div class="flex h-full min-h-0 w-full min-w-0 flex-col gap-4 overflow-x-hidden overflow-y-auto p-4">
-	<h2 class="text-sm font-semibold uppercase tracking-wide text-surface-600-400">Call this endpoint</h2>
+	<h2 class="text-sm font-semibold uppercase tracking-wide ui-muted">Call this endpoint</h2>
 
 	<div class="flex flex-col gap-1">
 		<span class="font-mono text-xs font-semibold">{endpoint.verb}</span>
-		<code class="break-all rounded bg-surface-100-800 p-2 text-xs">{fullUrl}</code>
+		<code class="break-all rounded p-2 text-xs ui-panel">{fullUrl}</code>
 	</div>
 
 	{#if placeholders.length > 0}
 		<fieldset class="flex shrink-0 flex-col gap-2">
-			<legend class="text-xs font-semibold uppercase tracking-wide text-surface-600-400">
+			<legend class="text-xs font-semibold uppercase tracking-wide ui-muted">
 				URL parameters
 			</legend>
 			{#each placeholders as placeholder (placeholder)}
 				<label class="flex flex-col gap-1 text-xs">
-					<span class="font-mono text-surface-700-300">{placeholder}</span>
+					<span class="font-mono ui-muted">{placeholder}</span>
 					<input class="input text-xs" bind:value={values[placeholder]} placeholder={placeholder} />
 				</label>
 			{/each}
@@ -178,28 +178,28 @@
 	{/if}
 
 	<label class="flex flex-col gap-1 text-xs">
-		<span class="font-semibold uppercase tracking-wide text-surface-600-400">Query string</span>
+		<span class="font-semibold uppercase tracking-wide ui-muted">Query string</span>
 		<input class="input text-xs" bind:value={query} placeholder="limit=10&amp;offset=0" />
 	</label>
 
 	{#if sendsBody}
 		<label class="flex shrink-0 flex-col gap-1 text-xs">
-			<span class="font-semibold uppercase tracking-wide text-surface-600-400">Request body</span>
+			<span class="font-semibold uppercase tracking-wide ui-muted">Request body</span>
 			<textarea class="textarea min-h-48 font-mono text-xs" rows="10" bind:value={body}></textarea>
 		</label>
 	{/if}
 
 	<div class="flex shrink-0 flex-col gap-2">
-		<button type="button" class="btn preset-filled" onclick={send} disabled={sending}>
+		<button type="button" class="btn preset-filled-primary-500" onclick={send} disabled={sending}>
 			{sending ? 'Sending…' : `Send ${endpoint.verb}`}
 		</button>
 		{#if unfilled.length > 0}
-			<p class="text-xs text-surface-600-400">
+			<p class="text-xs ui-muted">
 				Still a placeholder: <span class="font-mono">{unfilled.join(', ')}</span>
 			</p>
 		{/if}
 		{#if !userAuthenticated}
-			<p class="text-xs text-surface-600-400">
+			<p class="text-xs ui-muted">
 				Not signed in — the request is sent without credentials, so OBP will answer only if
 				this endpoint is public. <a class="anchor" href="/login">Log in</a> to call it as you.
 			</p>
@@ -207,16 +207,16 @@
 	</div>
 
 	{#if sendError}
-		<p class="text-xs text-red-700 dark:text-red-400" role="alert">{sendError}</p>
+		<p class="text-xs ui-text-error" role="alert">{sendError}</p>
 	{/if}
 
 	{#if response}
 		<section class="flex flex-col gap-1" aria-live="polite">
 			<div class="flex items-baseline justify-between">
-				<span class="text-xs font-semibold uppercase tracking-wide text-surface-600-400">Response</span>
+				<span class="text-xs font-semibold uppercase tracking-wide ui-muted">Response</span>
 				<span class="font-mono text-xs {statusClass}">{response.status} · {response.ms} ms</span>
 			</div>
-			<pre class="max-h-96 max-w-full overflow-auto rounded bg-surface-100-800 p-2 text-xs"><code
+			<pre class="max-h-96 max-w-full overflow-auto rounded p-2 text-xs ui-panel"><code
 					>{response.text}</code
 				></pre>
 		</section>
@@ -224,16 +224,16 @@
 
 	<div class="flex flex-col gap-1">
 		<div class="flex items-center justify-between">
-			<span class="text-xs font-semibold uppercase tracking-wide text-surface-600-400">curl</span>
+			<span class="text-xs font-semibold uppercase tracking-wide ui-muted">curl</span>
 			<button type="button" class="btn btn-sm preset-tonal" onclick={copyCurl}>
 				{copied ? 'Copied' : 'Copy'}
 			</button>
 		</div>
-		<pre class="max-w-full whitespace-pre-wrap break-all rounded bg-surface-100-800 p-2 text-xs"><code>{curl}</code></pre>
+		<pre class="max-w-full whitespace-pre-wrap break-all rounded p-2 text-xs ui-panel"><code>{curl}</code></pre>
 	</div>
 
 	{#if tryItOutUrl}
-		<div class="mt-auto border-t border-surface-300-600 pt-3">
+		<div class="mt-auto border-t pt-3 ui-border">
 			<a class="anchor text-xs" href={tryItOutUrl} target="_blank" rel="noopener noreferrer">
 				Open this endpoint in API Explorer II
 			</a>

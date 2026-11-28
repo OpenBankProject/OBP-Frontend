@@ -30,7 +30,7 @@
 <div class="mx-auto max-w-3xl px-6 py-10">
   <h1 class="h2 mb-6" data-testid="about-title">About</h1>
 
-  <div class="space-y-4 text-sm text-surface-700-300">
+  <div class="space-y-4 text-sm ui-muted">
     <p>
       The <strong>Open Bank Project API Manager</strong> helps you manage your OBP API instance,
       configure settings, manage roles and entitlements, and explore the full power of the
@@ -41,7 +41,7 @@
       For more information visit
       <a
         href="https://www.openbankproject.com"
-        class="text-primary-600 dark:text-primary-400 underline hover:text-primary-800 dark:hover:text-primary-300"
+        class="underline ui-text-brand"
         target="_blank"
         rel="noopener noreferrer"
       >openbankproject.com</a>.
@@ -51,13 +51,13 @@
 
     <ul class="list-disc space-y-2 pl-5">
       <li>
-        <a href="/site-map" class="text-primary-600 dark:text-primary-400 underline hover:text-primary-800 dark:hover:text-primary-300" data-testid="link-site-map">
+        <a href="/site-map" class="underline ui-text-brand" data-testid="link-site-map">
           Site Map
         </a>
         — view all pages and the roles required to access them
       </li>
       <li>
-        <a href="/status" class="text-primary-600 dark:text-primary-400 underline hover:text-primary-800 dark:hover:text-primary-300" data-testid="link-status">
+        <a href="/status" class="underline ui-text-brand" data-testid="link-status">
           Status
         </a>
         — check the health of the API
@@ -65,7 +65,7 @@
       <li>
         <a
           href="https://github.com/OpenBankProject"
-          class="text-primary-600 dark:text-primary-400 underline hover:text-primary-800 dark:hover:text-primary-300"
+          class="underline ui-text-brand"
           target="_blank"
           rel="noopener noreferrer"
           data-testid="link-github"
@@ -77,23 +77,23 @@
     </ul>
 
     <!-- Version Information Footer -->
-    <div class="mt-12 border-t border-surface-200-800 pt-8" data-testid="build-info">
-      <div class="text-sm text-surface-600-400">
+    <div class="mt-12 border-t pt-8 ui-border" data-testid="build-info">
+      <div class="text-sm ui-muted">
         <span class="font-medium">Version:</span>
-        <span class="font-mono text-surface-900-100" data-testid="build-version">{__APP_VERSION__}</span>
+        <span class="font-mono ui-text" data-testid="build-version">{__APP_VERSION__}</span>
         {#if __GIT_COMMIT__ !== 'unknown'}
           <span class="mx-2">•</span>
           <span class="font-medium">Commit:</span>
-          <span class="font-mono text-surface-900-100" data-testid="build-commit">{__GIT_COMMIT__}</span>
+          <span class="font-mono ui-text" data-testid="build-commit">{__GIT_COMMIT__}</span>
         {/if}
         {#if __GIT_BRANCH__ !== 'unknown'}
           <span class="mx-2">•</span>
           <span class="font-medium">Branch:</span>
-          <span class="font-mono text-surface-900-100" data-testid="build-branch">{__GIT_BRANCH__}</span>
+          <span class="font-mono ui-text" data-testid="build-branch">{__GIT_BRANCH__}</span>
         {/if}
         <span class="mx-2">•</span>
         <span class="font-medium">Built:</span>
-        <span class="font-mono text-surface-900-100" data-testid="build-time">{formatBuildTime(__BUILD_TIME__)}</span>
+        <span class="font-mono ui-text" data-testid="build-time">{formatBuildTime(__BUILD_TIME__)}</span>
       </div>
     </div>
   </div>

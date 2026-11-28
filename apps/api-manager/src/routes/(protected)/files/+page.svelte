@@ -93,14 +93,14 @@
 
 <div class="container mx-auto max-w-7xl px-4 py-8">
   <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
-    <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Files</h1>
-    <a href="/files/create" data-testid="create-link" class="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600">
+    <h1 class="text-3xl font-bold ui-text">Files</h1>
+    <a href="/files/create" data-testid="create-link" class="inline-flex items-center gap-1 rounded-lg px-4 py-2 text-sm font-medium preset-filled-primary-500">
       <Plus size={16} /> Create File
     </a>
   </div>
 
   {#if !bankId}
-    <div class="mb-6 rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300" data-testid="no-bank">
+    <div class="mb-6 rounded-lg border p-4 text-sm ui-card ui-muted ui-border" data-testid="no-bank">
       Select a bank using the bank selector to see its files.
     </div>
   {:else}
@@ -108,70 +108,70 @@
   {/if}
 
   {#if loading}
-    <div class="p-4 text-sm text-gray-500 dark:text-gray-400" data-testid="loading">Loading files…</div>
+    <div class="p-4 text-sm ui-muted" data-testid="loading">Loading files…</div>
   {/if}
 
   {#if loadError}
-    <div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300" data-testid="load-error">{loadError}</div>
+    <div class="mb-6 rounded-lg border p-4 text-sm ui-tone-error" data-testid="load-error">{loadError}</div>
   {/if}
 
   {#if filesPage}
-    <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+    <div class="overflow-hidden rounded-lg border shadow-sm ui-card ui-border">
       {#if files.length === 0}
-        <div class="p-8 text-center text-sm text-gray-500 dark:text-gray-400" data-testid="empty">
+        <div class="p-8 text-center text-sm ui-muted" data-testid="empty">
           No files in {bankId}.
         </div>
       {:else}
         <div class="overflow-x-auto">
           <table class="w-full text-sm" data-testid="files-table">
-            <thead class="bg-gray-50 dark:bg-gray-900">
+            <thead class="ui-card">
               <tr>
-                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">File</th>
-                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Media type</th>
-                <th class="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Size (bytes)</th>
-                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Public</th>
-                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Owner</th>
-                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Stored</th>
-                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Content</th>
+                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">File</th>
+                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Media type</th>
+                <th class="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider ui-muted">Size (bytes)</th>
+                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Public</th>
+                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Owner</th>
+                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Stored</th>
+                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Content</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody class="divide-y ui-border">
               {#each files as f (f.file_id)}
                 <tr data-testid="row-{f.file_id}">
-                  <td class="px-4 py-3 text-gray-900 dark:text-gray-100">
-                    <a href={contentHref(f.file_id, true)} target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline dark:text-blue-400" data-testid="name-{f.file_id}">{f.file_name}</a>
-                    <div class="font-mono text-xs text-gray-500 dark:text-gray-400">{f.file_id}</div>
+                  <td class="px-4 py-3 ui-text">
+                    <a href={contentHref(f.file_id, true)} target="_blank" rel="noopener noreferrer" class="hover:underline ui-link" data-testid="name-{f.file_id}">{f.file_name}</a>
+                    <div class="font-mono text-xs ui-muted">{f.file_id}</div>
                   </td>
-                  <td class="px-4 py-3 font-mono text-xs text-gray-700 dark:text-gray-300">{f.media_type}</td>
-                  <td class="px-4 py-3 text-right font-mono text-xs text-gray-700 dark:text-gray-300">{f.size_in_bytes}</td>
+                  <td class="px-4 py-3 font-mono text-xs ui-muted">{f.media_type}</td>
+                  <td class="px-4 py-3 text-right font-mono text-xs ui-muted">{f.size_in_bytes}</td>
                   <td class="px-4 py-3 text-xs" data-testid="public-{f.file_id}" data-state={f.is_public ? "public" : "private"}>
                     {#if f.is_public}
-                      <span class="rounded bg-green-100 px-2 py-0.5 text-green-800 dark:bg-green-900/30 dark:text-green-300">Public</span>
+                      <span class="rounded px-2 py-0.5 ui-tone-success">Public</span>
                     {:else}
-                      <span class="text-gray-500 dark:text-gray-400">Private</span>
+                      <span class="ui-muted">Private</span>
                     {/if}
                   </td>
-                  <td class="px-4 py-3 font-mono text-xs text-gray-700 dark:text-gray-300">
-                    <a href="/users/{encodeURIComponent(f.owner_user_id)}" class="text-blue-600 hover:underline dark:text-blue-400">{f.owner_user_id}</a>
+                  <td class="px-4 py-3 font-mono text-xs ui-muted">
+                    <a href="/users/{encodeURIComponent(f.owner_user_id)}" class="hover:underline ui-link">{f.owner_user_id}</a>
                   </td>
-                  <td class="px-4 py-3 text-xs text-gray-700 dark:text-gray-300">{formatDate(f.created_at)}</td>
+                  <td class="px-4 py-3 text-xs ui-muted">{formatDate(f.created_at)}</td>
                   <td class="px-4 py-3 text-xs">
-                    <a href={contentHref(f.file_id, true)} target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline dark:text-blue-400" data-testid="open-{f.file_id}">Open</a>
-                    <a href={contentHref(f.file_id, false)} class="ml-2 text-blue-600 hover:underline dark:text-blue-400" data-testid="download-{f.file_id}">Download</a>
+                    <a href={contentHref(f.file_id, true)} target="_blank" rel="noopener noreferrer" class="hover:underline ui-link" data-testid="open-{f.file_id}">Open</a>
+                    <a href={contentHref(f.file_id, false)} class="ml-2 hover:underline ui-link" data-testid="download-{f.file_id}">Download</a>
                   </td>
                 </tr>
               {/each}
             </tbody>
           </table>
         </div>
-        <div class="flex items-center justify-between border-t border-gray-200 px-4 py-2 text-xs text-gray-500 dark:border-gray-700 dark:text-gray-400">
+        <div class="flex items-center justify-between border-t px-4 py-2 text-xs ui-muted ui-border">
           <span data-testid="files-count">{offset + 1}–{offset + files.length} of {total} file{total === 1 ? "" : "s"} in {bankId}</span>
           <span class="flex gap-3">
             {#if offset > 0}
-              <button type="button" onclick={() => (offset = Math.max(0, offset - data.pageSize))} class="text-blue-600 hover:underline dark:text-blue-400" data-testid="previous-page">Previous</button>
+              <button type="button" onclick={() => (offset = Math.max(0, offset - data.pageSize))} class="hover:underline ui-link" data-testid="previous-page">Previous</button>
             {/if}
             {#if offset + files.length < total}
-              <button type="button" onclick={() => (offset = offset + data.pageSize)} class="text-blue-600 hover:underline dark:text-blue-400" data-testid="next-page">Next</button>
+              <button type="button" onclick={() => (offset = offset + data.pageSize)} class="hover:underline ui-link" data-testid="next-page">Next</button>
             {/if}
           </span>
         </div>

@@ -143,18 +143,14 @@
     left: 0.75rem;
     top: 50%;
     transform: translateY(-50%);
-    color: #9ca3af;
+    color: var(--ui-muted);
     pointer-events: none;
-  }
-
-  :global([data-mode="dark"]) .search-wrapper :global(.search-icon) {
-    color: var(--color-surface-400);
   }
 
   .search-input {
     width: 100%;
     padding: 0.625rem 0.75rem 0.625rem 2.5rem;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--ui-border);
     border-radius: 6px;
     font-size: 0.875rem;
     transition: all 0.2s;
@@ -162,41 +158,22 @@
 
   .search-input:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: var(--ui-link);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-link) 10%, transparent);
   }
 
   .search-input:disabled {
-    background: #f9fafb;
+    background: var(--ui-card);
     cursor: not-allowed;
     opacity: 0.6;
-  }
-
-  :global([data-mode="dark"]) .search-input {
-    background: rgb(var(--color-surface-700));
-    border-color: rgb(var(--color-surface-600));
-    color: var(--color-surface-100);
-  }
-
-  :global([data-mode="dark"]) .search-input:focus {
-    border-color: rgb(var(--color-primary-500));
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
-  }
-
-  :global([data-mode="dark"]) .search-input:disabled {
-    background: rgb(var(--color-surface-800));
   }
 
   .role-selector {
     max-height: 400px;
     overflow-y: auto;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--ui-border);
     border-radius: 6px;
     padding: 0.5rem;
-  }
-
-  :global([data-mode="dark"]) .role-selector {
-    border-color: rgb(var(--color-surface-700));
   }
 
   .roles-grid {
@@ -209,32 +186,19 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.5rem 0.75rem;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--ui-border);
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.2s;
   }
 
   .role-option:has(input:checked) {
-    background: #ede9fe;
-    border-color: #667eea;
+    background: var(--ui-tone-accent-bg);
+    border-color: var(--ui-link);
   }
 
   .role-option:hover {
-    background: #f9fafb;
-  }
-
-  :global([data-mode="dark"]) .role-option {
-    border-color: rgb(var(--color-surface-700));
-  }
-
-  :global([data-mode="dark"]) .role-option:has(input:checked) {
-    background: rgba(102, 126, 234, 0.15);
-    border-color: rgb(var(--color-primary-500));
-  }
-
-  :global([data-mode="dark"]) .role-option:hover {
-    background: rgb(var(--color-surface-700));
+    background: var(--ui-hover);
   }
 
   .role-option input[type="radio"] {
@@ -253,11 +217,7 @@
   .role-option-name {
     font-size: 0.875rem;
     font-weight: 500;
-    color: #111827;
-  }
-
-  :global([data-mode="dark"]) .role-option-name {
-    color: var(--color-surface-100);
+    color: var(--ui-text);
   }
 
   .role-option-badge {
@@ -271,34 +231,20 @@
   }
 
   .role-option-badge.badge-system {
-    background: #eff6ff;
-    color: #1e40af;
+    background: var(--ui-tone-info-bg);
+    color: var(--ui-tone-info-text);
   }
 
   .role-option-badge.badge-bank {
-    background: #fef3c7;
-    color: #92400e;
-  }
-
-  :global([data-mode="dark"]) .role-option-badge.badge-system {
-    background: rgba(59, 130, 246, 0.15);
-    color: rgb(var(--color-primary-300));
-  }
-
-  :global([data-mode="dark"]) .role-option-badge.badge-bank {
-    background: rgba(245, 158, 11, 0.15);
-    color: #fbbf24;
+    background: var(--ui-tone-warning-bg);
+    color: var(--ui-tone-warning-text);
   }
 
   .empty-roles {
     padding: 2rem;
     text-align: center;
-    color: #6b7280;
+    color: var(--ui-muted);
     font-size: 0.875rem;
-  }
-
-  :global([data-mode="dark"]) .empty-roles {
-    color: var(--color-surface-400);
   }
 
   .bank-code {

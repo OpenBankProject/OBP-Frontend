@@ -193,8 +193,8 @@
     }
   }
 
-  const inputClass = "mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100";
-  const smallInputClass = "block w-full rounded-lg border border-gray-300 bg-white px-2 py-1.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100";
+  const inputClass = "mt-1 block w-full rounded-lg border px-3 py-2 text-sm focus:ring-2 ui-card ui-text ui-border";
+  const smallInputClass = "block w-full rounded-lg border px-2 py-1.5 text-sm ui-card ui-text ui-border";
 </script>
 
 {#snippet valueInput(row: ConditionRow, which: "from" | "to")}
@@ -213,45 +213,45 @@
 {/snippet}
 
 {#if opeyFilledFields.length > 0}
-  <div class="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-200" data-testid="opey-filled-banner">
+  <div class="mb-4 flex flex-wrap items-center gap-2 rounded-lg border px-4 py-3 text-sm ui-tone-info" data-testid="opey-filled-banner">
     <span>Opey filled {opeyFilledFields.length} field{opeyFilledFields.length === 1 ? "" : "s"}:</span>
     {#each opeyFilledFields as name (name)}
-      <span class="inline-flex items-center gap-1 rounded-full bg-white px-2 py-0.5 text-xs dark:bg-gray-800">
+      <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs ui-card">
         {fieldLabels[name] ?? name}
         <button type="button" class="underline" onclick={() => revertField(name)} data-testid="opey-revert-{name}">revert</button>
       </span>
     {/each}
-    <button type="button" class="ml-auto rounded-md bg-blue-600 px-3 py-1 text-xs font-medium text-white hover:bg-blue-700" onclick={acceptAll} data-testid="opey-accept-all">Keep all</button>
+    <button type="button" class="ml-auto rounded-md px-3 py-1 text-xs font-medium preset-filled-primary-500" onclick={acceptAll} data-testid="opey-accept-all">Keep all</button>
   </div>
 {/if}
 
 <form onsubmit={handleSubmit} class="space-y-6" data-testid="webhook-form">
   <div class="grid gap-4 sm:grid-cols-2">
     <div>
-      <span class="block text-sm font-medium text-gray-700 dark:text-gray-300">Space</span>
-      <p class="mt-1 font-mono text-sm text-gray-900 dark:text-gray-100" data-testid="field-bank-id">{entity.bank_id}</p>
+      <span class="block text-sm font-medium ui-muted">Space</span>
+      <p class="mt-1 font-mono text-sm ui-text" data-testid="field-bank-id">{entity.bank_id}</p>
     </div>
     <div>
-      <span class="block text-sm font-medium text-gray-700 dark:text-gray-300">Dynamic Entity</span>
-      <p class="mt-1 font-mono text-sm text-gray-900 dark:text-gray-100" data-testid="field-entity">{entity.entity_name}</p>
+      <span class="block text-sm font-medium ui-muted">Dynamic Entity</span>
+      <p class="mt-1 font-mono text-sm ui-text" data-testid="field-entity">{entity.entity_name}</p>
     </div>
   </div>
 
   <div>
-    <label for="url" class="block text-sm font-medium text-gray-700 dark:text-gray-300">URL <span class="text-red-500">*</span></label>
+    <label for="url" class="block text-sm font-medium ui-muted">URL <span class="ui-text-error">*</span></label>
     <input id="url" name="url" type="url" autocomplete="off" spellcheck="false" placeholder="https://receiver.example.com/hooks/obp" bind:value={url} class="{inputClass} font-mono" data-testid="field-url" />
     {#if urlError}
-      <p class="mt-1 text-xs text-red-600 dark:text-red-400" data-testid="url-error">{urlError}</p>
+      <p class="mt-1 text-xs ui-text-error" data-testid="url-error">{urlError}</p>
     {:else}
-      <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">OBP refuses a URL that points at itself or at a loopback, private or cloud metadata address. An entity has one webhook per URL.</p>
+      <p class="mt-1 text-xs ui-muted">OBP refuses a URL that points at itself or at a loopback, private or cloud metadata address. An entity has one webhook per URL.</p>
     {/if}
   </div>
 
   <fieldset>
-    <legend class="block text-sm font-medium text-gray-700 dark:text-gray-300">Events <span class="text-red-500">*</span></legend>
+    <legend class="block text-sm font-medium ui-muted">Events <span class="ui-text-error">*</span></legend>
     <div class="mt-2 flex flex-wrap gap-4">
       {#each WEBHOOK_EVENTS as e (e)}
-        <label class="inline-flex items-center gap-2 text-sm text-gray-900 dark:text-gray-100">
+        <label class="inline-flex items-center gap-2 text-sm ui-text">
           <input type="checkbox" checked={events.includes(e)} onchange={(ev) => toggleEvent(e, (ev.currentTarget as HTMLInputElement).checked)} data-testid="event-{e}" />
           {e}
         </label>
@@ -260,14 +260,14 @@
   </fieldset>
 
   <fieldset>
-    <legend class="block text-sm font-medium text-gray-700 dark:text-gray-300">Field conditions</legend>
-    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+    <legend class="block text-sm font-medium ui-muted">Field conditions</legend>
+    <p class="mt-1 text-xs ui-muted">
       Leave empty to send every update. With conditions, an update is sent only when at least one matches: the field changed,
       from the "from" value and to the "to" value where they are given. Creates and deletes are not affected.
     </p>
     {#if conditions.length > 0}
       <div class="mt-3 space-y-2" data-testid="conditions">
-        <div class="grid grid-cols-[2fr_1fr_1fr_auto] gap-2 text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+        <div class="grid grid-cols-[2fr_1fr_1fr_auto] gap-2 text-xs font-medium uppercase tracking-wider ui-muted">
           <span>Field</span><span>From</span><span>To</span><span></span>
         </div>
         {#each conditions as row, index (index)}
@@ -282,36 +282,36 @@
             </select>
             {@render valueInput(row, "from")}
             {@render valueInput(row, "to")}
-            <button type="button" onclick={() => removeCondition(index)} aria-label="Remove condition" class="rounded border border-gray-300 p-1.5 text-gray-600 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700" data-testid="condition-remove">
+            <button type="button" onclick={() => removeCondition(index)} aria-label="Remove condition" class="rounded border p-1.5 ui-hover ui-muted ui-border" data-testid="condition-remove">
               <Trash2 size={14} />
             </button>
           </div>
         {/each}
       </div>
     {/if}
-    <button type="button" onclick={addCondition} disabled={fieldNames.length === 0} class="mt-3 inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700" data-testid="condition-add">
+    <button type="button" onclick={addCondition} disabled={fieldNames.length === 0} class="mt-3 inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm disabled:opacity-50 ui-card ui-hover ui-muted ui-border" data-testid="condition-add">
       <Plus size={14} /> Add condition
     </button>
   </fieldset>
 
   <div class="flex items-center gap-2">
     <input id="is_active" type="checkbox" bind:checked={isActive} data-testid="field-is-active" />
-    <label for="is_active" class="text-sm text-gray-900 dark:text-gray-100">Active</label>
+    <label for="is_active" class="text-sm ui-text">Active</label>
   </div>
 
   <div>
-    <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
+    <label for="description" class="block text-sm font-medium ui-muted">Description</label>
     <textarea id="description" name="description" rows="3" maxlength="2000" bind:value={description} class={inputClass} data-testid="field-description"></textarea>
   </div>
 
   {#if submitError}
-    <div class="rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-700 dark:bg-red-900/20 dark:text-red-200" data-testid="webhook-error">{submitError}</div>
+    <div class="rounded-lg border px-4 py-3 text-sm ui-tone-error" data-testid="webhook-error">{submitError}</div>
   {/if}
 
   <div class="flex flex-wrap gap-3">
-    <button type="submit" disabled={isSubmitting} class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60" data-testid="webhook-submit">
+    <button type="submit" disabled={isSubmitting} class="rounded-lg px-4 py-2 text-sm font-medium disabled:opacity-60 preset-filled-primary-500" data-testid="webhook-submit">
       {isSubmitting ? "Saving…" : submitLabel}
     </button>
-    <a href={cancelHref} class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">Cancel</a>
+    <a href={cancelHref} class="rounded-lg border px-4 py-2 text-sm font-medium ui-card ui-hover ui-muted ui-border">Cancel</a>
   </div>
 </form>

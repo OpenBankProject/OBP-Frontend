@@ -39,7 +39,7 @@
 	<ol class="mt-4 flex flex-col gap-3" data-testid="test-list">
 		{#each tests as test (test.conformator_test_id)}
 			{@const s = test.kind === 'automated' ? steps(test) : null}
-			<li class="rounded border border-surface-500/30 p-4" data-testid="test-{test.test_id}">
+			<li class="rounded border ui-border/30 p-4" data-testid="test-{test.test_id}">
 				<div class="flex flex-wrap items-center gap-2">
 					<code>{test.test_id}</code>
 					<span class="font-semibold">{test.title}</span>

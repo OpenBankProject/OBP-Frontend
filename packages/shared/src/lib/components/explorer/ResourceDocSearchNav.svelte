@@ -98,11 +98,11 @@
 	}
 
 	const verbClass: Record<string, string> = {
-		GET: 'text-emerald-700 dark:text-emerald-400',
-		POST: 'text-blue-700 dark:text-blue-400',
-		PUT: 'text-amber-700 dark:text-amber-400',
-		PATCH: 'text-amber-700 dark:text-amber-400',
-		DELETE: 'text-red-700 dark:text-red-400'
+		GET: 'ui-text-success',
+		POST: 'ui-link',
+		PUT: 'ui-text-warning',
+		PATCH: 'ui-text-warning',
+		DELETE: 'ui-text-error'
 	};
 </script>
 
@@ -113,8 +113,8 @@
 				<a
 					href={contentHref(choice.value)}
 					class="flex-1 rounded px-2 py-1 text-center text-xs {content === choice.value
-						? 'bg-surface-200-700 font-semibold text-surface-900-50'
-						: 'text-surface-700-300 hover:bg-surface-100-800'}"
+						? 'font-semibold ui-panel ui-text'
+						: 'ui-hover ui-muted'}"
 					aria-current={content === choice.value ? 'true' : undefined}
 				>
 					{choice.label}
@@ -153,7 +153,7 @@
 		</select>
 	{/if}
 
-	<p class="text-xs text-surface-600-400" aria-live="polite">
+	<p class="text-xs ui-muted" aria-live="polite">
 		{matches.length}
 		{matches.length === 1 ? 'endpoint' : 'endpoints'}
 	</p>
@@ -165,31 +165,31 @@
 			<div class="mb-1">
 				<button
 					type="button"
-					class="flex w-full items-center justify-between gap-2 rounded px-2 py-1 text-start text-sm font-semibold text-surface-900-50 hover:bg-surface-100-800"
+					class="flex w-full items-center justify-between gap-2 rounded px-2 py-1 text-start text-sm font-semibold ui-hover ui-text"
 					aria-expanded={open}
 					onclick={() => (opened[group.name] = !open)}
 				>
 					<span class="truncate">{group.name}</span>
-					<span class="shrink-0 text-xs font-normal text-surface-600-400">
+					<span class="shrink-0 text-xs font-normal ui-muted">
 						{group.entries.length}
 						<span aria-hidden="true">{open ? '▾' : '▸'}</span>
 					</span>
 				</button>
 
 				{#if open}
-					<ul class="ms-2 border-s border-surface-300-600">
+					<ul class="ms-2 border-s ui-border">
 						{#each group.entries as entry (entry.operationId + entry.path)}
 							<li>
 								<a
-									class="flex gap-2 py-1 ps-2 pe-1 text-xs hover:bg-surface-100-800 {entry.operationId ===
+									class="flex gap-2 py-1 ps-2 pe-1 text-xs ui-hover {entry.operationId ===
 									activeOperationId
-										? 'bg-surface-200-700 font-semibold'
+										? 'font-semibold ui-panel'
 										: ''}"
 									href={explorerEndpointUrl(entry.verb, entry.path, { base })}
 									aria-current={entry.operationId === activeOperationId ? 'page' : undefined}
 								>
 									<span class="w-11 shrink-0 font-mono {verbClass[entry.verb] ?? ''}">{entry.verb}</span>
-									<span class="truncate text-surface-800-200">{entry.summary || entry.path}</span>
+									<span class="truncate ui-text">{entry.summary || entry.path}</span>
 								</a>
 							</li>
 						{/each}
@@ -198,7 +198,7 @@
 			</div>
 		{:else}
 			<div class="flex flex-col items-start gap-2 px-2 py-4">
-				<p class="text-sm text-surface-600-400">
+				<p class="text-sm ui-muted">
 					No endpoints match{tag ? ` the ${tag} tag` : ''}{content !== 'all'
 						? ` in the ${content} catalogue`
 						: ''}.
@@ -208,7 +208,7 @@
 				{#if tag && onTagChange}
 					<button
 						type="button"
-						class="rounded border border-surface-300-600 px-2 py-1 text-xs text-surface-700-300 hover:bg-surface-100-800"
+						class="rounded border px-2 py-1 text-xs ui-hover ui-muted ui-border"
 						onclick={() => onTagChange('')}
 					>
 						Clear tag

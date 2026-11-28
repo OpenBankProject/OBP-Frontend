@@ -62,11 +62,11 @@ export function markdownToHtml(markdown: string): string {
 			// Then apply markdown formatting
 			.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>') // Bold
 			.replace(/\*([^*]+)\*/g, '<em>$1</em>') // Italic
-			.replace(/`([^`]+)`/g, '<code class="bg-gray-100 dark:bg-gray-700 px-1 rounded break-all">$1</code>') // Inline code
+			.replace(/`([^`]+)`/g, '<code class="px-1 rounded break-all ui-panel">$1</code>') // Inline code
 			.replace(
 				/\[([^\]]+)\]\(([^)]+)\)/g,
 				(_match, text, href) =>
-					`<a href="${sanitizeLinkHref(href)}" class="text-primary-500 dark:text-primary-200 hover:underline">${text}</a>`
+					`<a href="${sanitizeLinkHref(href)}" class="hover:underline ui-text-brand">${text}</a>`
 			) // Links
 			.replace(/^#{1,6}\s+(.+)$/gm, '<strong>$1</strong>') // Headings to bold
 			.replace(/\n\n+/g, '</p><p>') // Paragraph breaks

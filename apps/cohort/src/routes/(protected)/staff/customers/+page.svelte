@@ -15,12 +15,12 @@
 <h1 class="h2">{t(locale, 'customers_heading')}</h1>
 <p class="mt-2">{t(locale, 'customers_intro')}</p>
 
-{#if form?.form === 'role' && form?.requested}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'access_requested_notice')}</p>{/if}
-{#if form?.error}<p class="mt-4 preset-tonal-error rounded p-3" role="alert">{errorText(String(form.error))}</p>{/if}
-{#if form?.form === 'create' && form?.created}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'customer_created')}</p>{/if}
-{#if form?.form === 'member' && (form?.added || form?.removed)}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'customer_members_saved')}</p>{/if}
+{#if form?.form === 'role' && form?.requested}<p class="mt-4 ui-tone-success rounded p-3" role="status">{t(locale, 'access_requested_notice')}</p>{/if}
+{#if form?.error}<p class="mt-4 ui-tone-error rounded p-3" role="alert">{errorText(String(form.error))}</p>{/if}
+{#if form?.form === 'create' && form?.created}<p class="mt-4 ui-tone-success rounded p-3" role="status">{t(locale, 'customer_created')}</p>{/if}
+{#if form?.form === 'member' && (form?.added || form?.removed)}<p class="mt-4 ui-tone-success rounded p-3" role="status">{t(locale, 'customer_members_saved')}</p>{/if}
 
-<section class="card preset-outlined-surface-200-800 mt-6 p-4" data-testid="customer-new">
+<section class="card border ui-border mt-6 p-4" data-testid="customer-new">
 	<h2 class="h4">{t(locale, 'customer_new')}</h2>
 	{#if missing('customer') || missing('attribute')}
 		{#each ['customer', 'attribute'] as const as key (key)}
@@ -40,7 +40,7 @@
 	{/if}
 </section>
 
-<section class="card preset-outlined-surface-200-800 mt-6 p-4" data-testid="customers">
+<section class="card border ui-border mt-6 p-4" data-testid="customers">
 	{#each ['read', 'members', 'link', 'unlink', 'users'] as const as key (key)}
 		{#if missing(key)}<div class="mb-2"><MissingRole {locale} space={data.space} role={missing(key)!} entitlementRequestsUrl={data.entitlementRequestsUrl} /></div>{/if}
 	{/each}
@@ -49,7 +49,7 @@
 	{:else}
 		<ul class="flex flex-col gap-4">
 			{#each data.customers as o (o.id)}
-				<li class="border-surface-200-800 border-b pb-4" data-testid="customer-{o.id}">
+				<li class="ui-border border-b pb-4" data-testid="customer-{o.id}">
 					<p class="flex flex-wrap items-center gap-2">
 						<span class="badge preset-tonal">{t(locale, `customer_kind_${o.kind}` as MessageKey)}</span>
 						<strong>{inLocale(locale, o.name, o.name_ar)}</strong>
@@ -66,7 +66,7 @@
 									{#if !missing('unlink')}
 										<form method="POST" action="?/removeMember">
 											<input type="hidden" name="link_id" value={m.link_id} />
-											<button class="btn btn-sm preset-tonal-error" data-testid="member-remove-{m.link_id}">{t(locale, 'customer_member_remove')}</button>
+											<button class="btn btn-sm preset-filled-error-500" data-testid="member-remove-{m.link_id}">{t(locale, 'customer_member_remove')}</button>
 										</form>
 									{/if}
 								</li>

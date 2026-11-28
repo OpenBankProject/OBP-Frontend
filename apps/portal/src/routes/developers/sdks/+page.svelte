@@ -65,11 +65,11 @@
                     href="https://github.com/OpenBankProject/OBP-SDKs/tree/main/{sdk.folder}"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="block rounded-lg border border-surface-300-600 p-4 hover:border-primary-500 hover:bg-surface-100-800 transition-colors no-underline"
+                    class="block rounded-lg border p-4 transition-colors no-underline ui-hover ui-border"
                     data-testid="sdk-card-{sdk.folder}"
                 >
-                    <div class="font-semibold text-lg text-surface-900-50">{sdk.name}</div>
-                    <div class="text-sm text-surface-600-400 mt-1">{sdk.registry}</div>
+                    <div class="font-semibold text-lg ui-text">{sdk.name}</div>
+                    <div class="text-sm mt-1 ui-muted">{sdk.registry}</div>
                 </a>
             {/each}
         </div>

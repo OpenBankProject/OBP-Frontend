@@ -21,16 +21,16 @@
 <p>{t(locale, 'application_status')}: {t(locale, `status_${String(application.status)}` as MessageKey)}</p>
 
 {#if data.outcome}
-	<div class="mt-4 preset-tonal-primary rounded p-3" role="status" data-testid="application-outcome">
+	<div class="mt-4 ui-tone-info rounded p-3" role="status" data-testid="application-outcome">
 		<strong>{t(locale, 'screening_outcome')}: {t(locale, `decision_${data.outcome.decision}` as MessageKey)}</strong>
 		{#if data.outcome.message}<p class="mt-1 whitespace-pre-line">{data.outcome.message}</p>{/if}
 		{#if data.editable}<p class="mt-1">{t(locale, 'screening_reopened')}</p>{/if}
 	</div>
 {/if}
 
-{#if form?.saved}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'application_saved')}</p>{/if}
+{#if form?.saved}<p class="mt-4 ui-tone-success rounded p-3" role="status">{t(locale, 'application_saved')}</p>{/if}
 {#if form?.missing}
-	<div class="mt-4 preset-tonal-warning rounded p-3" role="alert" data-testid="application-missing">
+	<div class="mt-4 ui-tone-warning rounded p-3" role="alert" data-testid="application-missing">
 		{t(locale, 'application_missing')}
 		<ul class="list-inside list-disc">
 			{#each form.missing as key (key)}<li>{label(key)}</li>{/each}
@@ -38,10 +38,10 @@
 		</ul>
 	</div>
 {/if}
-{#if form?.answersError}<p class="mt-4 preset-tonal-error rounded p-3" role="alert">{t(locale, 'staff_error')} {form.answersError}</p>{/if}
+{#if form?.answersError}<p class="mt-4 ui-tone-error rounded p-3" role="alert">{t(locale, 'staff_error')} {form.answersError}</p>{/if}
 
 {#if submitted}
-	{#if !data.outcome}<p class="mt-4 preset-tonal-success rounded p-3" data-testid="application-submitted">{t(locale, 'application_submitted_notice')}</p>{/if}
+	{#if !data.outcome}<p class="mt-4 ui-tone-success rounded p-3" data-testid="application-submitted">{t(locale, 'application_submitted_notice')}</p>{/if}
 	<dl class="mt-4 grid grid-cols-[max-content_1fr] gap-x-4 gap-y-2">
 		{#each APPLICATION_FIELDS as field (field.key)}
 			<dt>{label(field.key)}</dt>
@@ -86,7 +86,7 @@
 		{#if data.extra}<FormQuestions {locale} questions={data.extra.questions} answers={data.extra.answers} />{/if}
 		<div class="flex gap-3">
 			<button type="submit" formaction="?/save" class="btn preset-tonal" data-testid="application-save">{t(locale, 'application_save')}</button>
-			<button type="submit" formaction="?/submit" class="btn preset-filled" data-testid="application-submit">{t(locale, 'application_submit')}</button>
+			<button type="submit" formaction="?/submit" class="btn preset-filled-primary-500" data-testid="application-submit">{t(locale, 'application_submit')}</button>
 		</div>
 	</form>
 {/if}
@@ -98,9 +98,9 @@
 	{:else}
 		<p>{t(locale, 'files_none')}</p>
 	{/if}
-	{#if form?.uploaded}<p class="mt-2 preset-tonal-success rounded p-3" role="status">{t(locale, 'files_uploaded')}</p>{/if}
+	{#if form?.uploaded}<p class="mt-2 ui-tone-success rounded p-3" role="status">{t(locale, 'files_uploaded')}</p>{/if}
 	{#if form?.uploadError}
-		<p class="mt-2 preset-tonal-error rounded p-3" role="alert">
+		<p class="mt-2 ui-tone-error rounded p-3" role="alert">
 			{form.uploadError === 'type' ? t(locale, 'files_error_type') : form.uploadError === 'size' ? t(locale, 'files_error_size') : form.uploadError === 'empty' ? t(locale, 'files_error_empty') : `${t(locale, 'staff_error')} ${form.uploadError}`}
 		</p>
 	{/if}

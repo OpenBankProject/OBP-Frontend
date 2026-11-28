@@ -13,12 +13,12 @@
 <h1 class="h2">{t(locale, 'forms_heading')}</h1>
 <p class="mt-1 max-w-3xl">{t(locale, 'forms_intro')}</p>
 
-{#if form?.requested}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'access_requested_notice')}</p>{/if}
+{#if form?.requested}<p class="mt-4 ui-tone-success rounded p-3" role="status">{t(locale, 'access_requested_notice')}</p>{/if}
 {#if form?.error}
-	<p class="mt-4 preset-tonal-error rounded p-3" role="alert">{form.error === 'invalid' ? t(locale, 'forms_error_invalid') : `${t(locale, 'staff_error')} ${form.error}`}</p>
+	<p class="mt-4 ui-tone-error rounded p-3" role="alert">{form.error === 'invalid' ? t(locale, 'forms_error_invalid') : `${t(locale, 'staff_error')} ${form.error}`}</p>
 {/if}
 
-<section class="card preset-outlined-surface-200-800 mt-6 p-4">
+<section class="card border ui-border mt-6 p-4">
 	{#if data.lackingCreate}
 		<MissingRole {locale} space={data.space} role={data.lackingCreate} entitlementRequestsUrl={data.entitlementRequestsUrl} />
 	{:else}
@@ -41,13 +41,13 @@
 				{/if}
 				<label class="label"><span class="label-text">{t(locale, 'forms_title_en')} *</span><input class="input" name="title" required maxlength="255" /></label>
 				<label class="label"><span class="label-text">{t(locale, 'forms_title_ar')}</span><input class="input" name="title_ar" maxlength="255" dir="rtl" lang="ar" /></label>
-				<button class="btn preset-filled self-start">{t(locale, 'staff_create')}</button>
+				<button class="btn preset-filled-primary-500 self-start">{t(locale, 'staff_create')}</button>
 			</form>
 		</details>
 	{/if}
 </section>
 
-{#if data.error}<p class="mt-4 preset-tonal-error rounded p-3">{data.error}</p>{/if}
+{#if data.error}<p class="mt-4 ui-tone-error rounded p-3">{data.error}</p>{/if}
 {#if data.forms.length === 0}
 	<p class="mt-6">{t(locale, 'forms_none')}</p>
 {:else}

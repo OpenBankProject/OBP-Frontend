@@ -231,8 +231,13 @@
 	});
 </script>
 
+<svelte:head>
+	<!-- The installation's own stylesheet (PORTAL_STYLESHEET_URL), after the Portal's, so its theme and rules win. -->
+	{#if data.stylesheetUrl}<link rel="stylesheet" href={data.stylesheetUrl} />{/if}
+</svelte:head>
+
 <div
-	class="grid h-screen w-full grid-cols-[auto_1fr] grid-rows-[minmax(0,1fr)] divide-x divide-solid divide-surface-100-900 overflow-hidden"
+	class="grid h-screen w-full grid-cols-[auto_1fr] grid-rows-[minmax(0,1fr)] divide-x divide-solid overflow-hidden ui-border"
 >
 	{#if isExplorer}
 		<ExplorerSidebar
@@ -322,7 +327,7 @@
 	<!-- min-w-0: a 1fr grid column still has min-width:auto, so a wide child (the
 	     Explorer's panes) would otherwise push this column past the viewport. -->
 	<div
-		class="h-full min-w-0 bg-conic-250 from-30% via-40% to-50% dark:from-primary-950 dark:via-secondary-500/70 dark:to-primary-950"
+		class="h-full min-w-0 ui-glow"
 	>
 		<div class="flex flex-col backdrop-blur-2xl" style="height: calc(100vh - 48px);">
 			<div
@@ -331,23 +336,23 @@
 			>
 				{#if isAuthenticated}
 					<a href="/user/chat" class="relative mr-2" title="Chat" data-testid="chat-nav-icon">
-						<MessageSquare class="size-5 text-surface-300 hover:text-tertiary-400 transition-colors" />
+						<MessageSquare class="size-5 transition-colors ui-link ui-muted" />
 						{#if unreadCount.total > 0}
 							<span
-								class="absolute -top-1.5 -right-1.5 flex items-center justify-center rounded-full bg-primary-500 text-white text-[10px] font-bold min-w-[1rem] h-4 px-1"
+								class="absolute -top-1.5 -right-1.5 flex items-center justify-center rounded-full text-[10px] font-bold min-w-[1rem] h-4 px-1 preset-filled-primary-500"
 								data-testid="chat-unread-badge"
 							>
 								{unreadCount.total > 99 ? '99+' : unreadCount.total}
 							</span>
 						{/if}
 					</a>
-					<span class="mx-4 hover:text-tertiary-400"><a href="/user">{data.username}</a></span>
-					<button type="button" class="btn preset-outlined-primary-500"
+					<span class="mx-4 ui-link"><a href="/user">{data.username}</a></span>
+					<button type="button" class="btn preset-outlined-surface-500"
 						><a href="/logout">Logout</a></button
 					>
 				{:else}
-					<span class="mx-4 hover:text-tertiary-400"><a href="/register">Register</a> </span>
-					<button type="button" class="btn preset-filled-surface-950-50"
+					<span class="mx-4 ui-link"><a href="/register">Register</a> </span>
+					<button type="button" class="btn preset-filled-primary-500"
 						><a href={loginHref}>Login</a></button
 					>
 				{/if}

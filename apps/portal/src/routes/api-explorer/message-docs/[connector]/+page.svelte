@@ -41,8 +41,8 @@
 
 <div class="mx-auto flex w-full max-w-3xl flex-col gap-5 p-6">
 	<header class="flex flex-col gap-2">
-		<h1 class="text-2xl font-semibold text-surface-900-50">{data.connectorLabel}</h1>
-		<p class="text-sm text-surface-600-400">
+		<h1 class="text-2xl font-semibold ui-text">{data.connectorLabel}</h1>
+		<p class="text-sm ui-muted">
 			{data.rows.length}
 			{data.rows.length === 1 ? 'message' : 'messages'} OBP sends outwards to a
 			<span class="font-mono">{data.connector}</span> adapter — the other half of the API.
@@ -50,15 +50,15 @@
 	</header>
 
 	{#if data.loadError}
-		<p class="text-sm text-red-700 dark:text-red-400" role="alert">{data.loadError}</p>
+		<p class="text-sm ui-text-error" role="alert">{data.loadError}</p>
 	{:else if data.rows.length === 0}
-		<p class="text-sm text-surface-600-400">
+		<p class="text-sm ui-muted">
 			This OBP instance publishes no message docs for this connector.
 		</p>
 	{/if}
 
 	{#if data.duplicateProcesses.length > 0}
-		<p class="text-xs text-surface-600-400">
+		<p class="text-xs ui-muted">
 			{data.duplicateProcesses.length} duplicate {data.duplicateProcesses.length === 1
 				? 'process is'
 				: 'processes are'} served; the first of each is shown.
@@ -67,22 +67,22 @@
 
 	{#each groups as group (group.name)}
 		<section class="flex flex-col gap-2">
-			<h2 class="text-sm font-semibold uppercase tracking-wide text-surface-600-400">{group.name}</h2>
-			<ul class="flex flex-col divide-y divide-surface-300-600 border-y border-surface-300-600">
+			<h2 class="text-sm font-semibold uppercase tracking-wide ui-muted">{group.name}</h2>
+			<ul class="flex flex-col divide-y border-y ui-border">
 				{#each group.rows as row (row.process)}
 					<li>
 						<a
-							class="flex flex-col gap-1 px-2 py-2 hover:bg-surface-100-800"
+							class="flex flex-col gap-1 px-2 py-2 ui-hover"
 							href={explorerMessageDocsUrl(data.connector, row.process)}
 						>
 							<span class="flex flex-wrap items-baseline gap-2">
 								{#if row.suggested_order !== null}
-									<span class="w-8 shrink-0 text-xs text-surface-600-400">{row.suggested_order}</span>
+									<span class="w-8 shrink-0 text-xs ui-muted">{row.suggested_order}</span>
 								{/if}
-								<span class="font-mono text-sm text-surface-900-50">{row.process}</span>
+								<span class="font-mono text-sm ui-text">{row.process}</span>
 							</span>
 							{#if row.description}
-								<span class="text-sm text-surface-600-400">{row.description}</span>
+								<span class="text-sm ui-muted">{row.description}</span>
 							{/if}
 						</a>
 					</li>

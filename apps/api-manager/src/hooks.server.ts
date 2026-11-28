@@ -36,6 +36,8 @@ import { healthCheckRegistry, OIDCHealthCheckService } from '@obp/shared/health-
 import { resolveGrpcTarget } from '@obp/shared/obp';
 import { RedisHealthCheckService, GrpcHealthCheckService } from '@obp/shared/server/health-check';
 import { setWebUiPropsGenerationStore } from '@obp/shared/server/obp';
+import { withBranding } from '@obp/shared/branding';
+import { apiManagerBranding } from '$lib/server/branding';
 import {
   parseRateLimit,
   formatRate,
@@ -427,9 +429,14 @@ const rateLimit: Handle = async ({ event, resolve }) => {
   return resolve(event);
 };
 
+// The theme, extra stylesheet and favicon from the API_MANAGER_* settings, in app.html.
+const branding: Handle = ({ event, resolve }) =>
+  resolve(event, { transformPageChunk: ({ html }) => withBranding(html, apiManagerBranding) });
+
 // Init SvelteKitSessions
 export const handle: Handle = sequence(
   requestTelemetry,
+  branding,
   rateLimit,
   sveltekitSessionHandle({
     secret: env.SESSION_SECRET,

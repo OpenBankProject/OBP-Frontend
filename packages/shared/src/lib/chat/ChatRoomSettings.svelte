@@ -60,29 +60,29 @@
             <ArrowLeft class="size-4 rtl:rotate-180" />
             {labels.back_to_chat}
         </a>
-        <h2 class="text-lg font-semibold text-surface-900-50" data-testid="settings-title">
+        <h2 class="text-lg font-semibold ui-text" data-testid="settings-title">
             {labels.settings_title}
         </h2>
     </div>
 
     {#if form?.message}
-        <div class="bg-error-500/10 border-error-500 mb-6 rounded-lg border p-4 text-center">
-            <p class="text-error-500 font-semibold">{chatMessage(labels, form)}</p>
+        <div class="mb-6 rounded-lg border p-4 text-center ui-tone-error">
+            <p class="font-semibold ui-text-error">{chatMessage(labels, form)}</p>
         </div>
     {/if}
 
     {#if form?.success}
-        <div class="mb-6 rounded-lg border border-green-200 bg-green-50 p-4 text-center dark:border-green-800 dark:bg-green-900/20">
-            <p class="font-semibold text-green-600 dark:text-green-400">{chatMessage(labels, form)}</p>
+        <div class="mb-6 rounded-lg border p-4 text-center ui-tone-success">
+            <p class="font-semibold ui-text-success">{chatMessage(labels, form)}</p>
         </div>
     {/if}
 
     <!-- Join Link Section -->
-    <div class="mb-8 rounded-lg border border-surface-300-600 bg-surface-50-900 p-5" data-testid="join-link-section">
-        <h3 class="mb-3 text-sm font-semibold text-surface-900-50">{labels.join_link}</h3>
-        <p class="mb-3 text-sm text-surface-600-400">{labels.share_link}</p>
+    <div class="mb-8 rounded-lg border p-5 ui-card ui-border" data-testid="join-link-section">
+        <h3 class="mb-3 text-sm font-semibold ui-text">{labels.join_link}</h3>
+        <p class="mb-3 text-sm ui-muted">{labels.share_link}</p>
         <div class="flex items-center gap-2 mb-3">
-            <code class="flex-1 break-all rounded bg-surface-200-700 px-3 py-2 text-xs" data-testid="join-link-text">
+            <code class="flex-1 break-all rounded px-3 py-2 text-xs ui-panel" data-testid="join-link-text">
                 {joinLink(joiningKey)}
             </code>
             <button
@@ -92,7 +92,7 @@
                 data-testid="copy-join-link"
             >
                 {#if copiedJoinLink}
-                    <Check class="size-4 text-green-500" />
+                    <Check class="size-4 ui-text-success" />
                     {labels.copied}
                 {:else}
                     <Copy class="size-4" />
@@ -110,12 +110,12 @@
                 {labels.refresh_key}
             </button>
         </form>
-        <p class="mt-2 text-xs text-surface-500">{labels.refresh_note}</p>
+        <p class="mt-2 text-xs ui-muted">{labels.refresh_note}</p>
     </div>
 
     <!-- Edit Room Section -->
-    <div class="rounded-lg border border-surface-300-600 bg-surface-50-900 p-5" data-testid="edit-room-section">
-        <h3 class="mb-3 text-sm font-semibold text-surface-900-50">{labels.edit_room}</h3>
+    <div class="rounded-lg border p-5 ui-card ui-border" data-testid="edit-room-section">
+        <h3 class="mb-3 text-sm font-semibold ui-text">{labels.edit_room}</h3>
         <form method="POST" action="?/update" data-testid="edit-room-form">
             <div class="mb-4">
                 <label for="room-name" class="mb-1 block text-sm font-medium">{labels.name}</label>
@@ -125,7 +125,7 @@
                     type="text"
                     required
                     value={data.chatRoom.name}
-                    class="input w-full rounded-md border border-surface-300-600 px-3 py-2"
+                    class="input w-full rounded-md border px-3 py-2 ui-border"
                     data-testid="edit-room-name"
                 />
             </div>
@@ -134,7 +134,7 @@
                 <textarea
                     id="room-description"
                     name="description"
-                    class="textarea w-full rounded-md border border-surface-300-600 px-3 py-2"
+                    class="textarea w-full rounded-md border px-3 py-2 ui-border"
                     rows="3"
                     data-testid="edit-room-description"
                 >{data.chatRoom.description}</textarea>

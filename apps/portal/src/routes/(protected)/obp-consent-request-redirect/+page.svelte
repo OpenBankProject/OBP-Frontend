@@ -40,32 +40,32 @@
 
 <div class="mx-auto max-w-lg p-8 text-center">
 		{#if data.loadError}
-			<div class="bg-error-500/10 border-error-500 mb-4 rounded-lg border p-4">
-				<p class="text-error-500 font-semibold">{data.loadError}</p>
+			<div class="mb-4 rounded-lg border p-4 ui-tone-error">
+				<p class="font-semibold ui-text-error">{data.loadError}</p>
 			</div>
 		{/if}
 
 			<div
-				class="mb-6 rounded-lg border border-green-200 bg-green-50 p-6 dark:border-green-800 dark:bg-green-900/20"
+				class="mb-6 rounded-lg border p-6 ui-tone-success"
 			>
-				<h1 class="mb-2 text-2xl font-bold text-green-600 dark:text-green-400">
+				<h1 class="mb-2 text-2xl font-bold ui-text-success">
 					Consent Confirmed
 				</h1>
-				<p class="text-green-700 dark:text-green-300">
+				<p class="ui-text-success">
 					Your consent has been successfully confirmed. You will be redirected back to the application.
 				</p>
 			</div>
 
 			{#if data.oidcReturnUrl}
-				<p class="mb-4 text-gray-700 dark:text-gray-300">
+				<p class="mb-4 ui-muted">
 					Redirecting you back to the application...
 				</p>
 				<button onclick={redirectToOidc} class="btn preset-filled-primary-500">
 					Continue
 				</button>
 			{:else}
-				<p class="text-gray-700 dark:text-gray-300">
-					You may now close this window or <a href="/" class="text-primary-500 hover:underline"
+				<p class="ui-muted">
+					You may now close this window or <a href="/" class="hover:underline ui-text-brand"
 						>return to the home page</a
 					>.
 				</p>

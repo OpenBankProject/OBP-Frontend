@@ -291,79 +291,79 @@
 </script>
 
 {#if opeyFilled.length > 0}
-  <div class="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-200" data-testid="opey-filled-banner">
+  <div class="mb-4 flex flex-wrap items-center gap-2 rounded-lg border px-4 py-3 text-sm ui-tone-info" data-testid="opey-filled-banner">
     <span>Opey filled {opeyFilled.length} field{opeyFilled.length === 1 ? "" : "s"}:</span>
     {#each opeyFilled as name (name)}
-      <span class="inline-flex items-center gap-1 rounded-full bg-white px-2 py-0.5 text-xs dark:bg-gray-800">{name} <button type="button" class="underline" onclick={() => revertField(name)} data-testid="opey-revert-{name}">revert</button></span>
+      <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs ui-card">{name} <button type="button" class="underline" onclick={() => revertField(name)} data-testid="opey-revert-{name}">revert</button></span>
     {/each}
-    <button type="button" class="ml-auto rounded-md bg-blue-600 px-3 py-1 text-xs font-medium text-white hover:bg-blue-700" onclick={() => (opeyPrevious = {})} data-testid="opey-accept-all">Keep all</button>
+    <button type="button" class="ml-auto rounded-md px-3 py-1 text-xs font-medium preset-filled-primary-500" onclick={() => (opeyPrevious = {})} data-testid="opey-accept-all">Keep all</button>
   </div>
 {/if}
 
 <div class="space-y-6" data-testid="report-editor">
   <!-- Definition -->
-  <section class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+  <section class="rounded-lg border p-4 shadow-sm ui-card ui-border">
     <div class="grid gap-4 md:grid-cols-2">
       <label class="flex flex-col gap-1 text-sm">
-        <span class="font-medium text-gray-700 dark:text-gray-300">Title</span>
-        <input type="text" name="title" bind:value={title} class="rounded-md border border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-900" data-testid="report-title" />
+        <span class="font-medium ui-muted">Title</span>
+        <input type="text" name="title" bind:value={title} class="rounded-md border px-2 py-1.5 text-sm ui-card ui-border" data-testid="report-title" />
       </label>
       <label class="flex flex-col gap-1 text-sm">
-        <span class="font-medium text-gray-700 dark:text-gray-300">Slug</span>
-        <input type="text" name="slug" bind:value={slug} oninput={() => (slugTouched = true)} placeholder="follows the title" class="rounded-md border border-gray-300 px-2 py-1.5 font-mono text-sm dark:border-gray-600 dark:bg-gray-900" data-testid="report-slug" />
+        <span class="font-medium ui-muted">Slug</span>
+        <input type="text" name="slug" bind:value={slug} oninput={() => (slugTouched = true)} placeholder="follows the title" class="rounded-md border px-2 py-1.5 font-mono text-sm ui-card ui-border" data-testid="report-slug" />
       </label>
       <label class="flex flex-col gap-1 text-sm md:col-span-2">
-        <span class="font-medium text-gray-700 dark:text-gray-300">Description</span>
-        <input type="text" name="description" bind:value={description} class="rounded-md border border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-900" data-testid="report-description" />
+        <span class="font-medium ui-muted">Description</span>
+        <input type="text" name="description" bind:value={description} class="rounded-md border px-2 py-1.5 text-sm ui-card ui-border" data-testid="report-description" />
       </label>
       <label class="flex flex-col gap-1 text-sm md:col-span-2">
-        <span class="font-medium text-gray-700 dark:text-gray-300">Parameters (JSON array)</span>
-        <textarea name="parameters" bind:value={parameters} rows="4" spellcheck="false" class="rounded-md border border-gray-300 px-2 py-1.5 font-mono text-xs dark:border-gray-600 dark:bg-gray-900" data-testid="report-parameters"></textarea>
-        {#if parsedParams.error}<span class="text-xs text-red-600 dark:text-red-400">{parsedParams.error}</span>{:else}<span class="text-xs text-gray-500 dark:text-gray-400">Each item: name, label, type (string, number, date, bank_id, boolean), default, required.</span>{/if}
+        <span class="font-medium ui-muted">Parameters (JSON array)</span>
+        <textarea name="parameters" bind:value={parameters} rows="4" spellcheck="false" class="rounded-md border px-2 py-1.5 font-mono text-xs ui-card ui-border" data-testid="report-parameters"></textarea>
+        {#if parsedParams.error}<span class="text-xs ui-text-error">{parsedParams.error}</span>{:else}<span class="text-xs ui-muted">Each item: name, label, type (string, number, date, bank_id, boolean), default, required.</span>{/if}
       </label>
       <label class="flex flex-col gap-1 text-sm md:col-span-2">
-        <span class="font-medium text-gray-700 dark:text-gray-300">Definition (JavaScript: <code>async function run(params, obp)</code>)</span>
-        <textarea name="definition" bind:value={definition} rows="16" spellcheck="false" class="rounded-md border border-gray-300 bg-gray-50 px-3 py-2 font-mono text-xs leading-5 dark:border-gray-600 dark:bg-gray-900" data-testid="report-definition"></textarea>
+        <span class="font-medium ui-muted">Definition (JavaScript: <code>async function run(params, obp)</code>)</span>
+        <textarea name="definition" bind:value={definition} rows="16" spellcheck="false" class="rounded-md border px-3 py-2 font-mono text-xs leading-5 ui-card ui-border" data-testid="report-definition"></textarea>
       </label>
     </div>
     <div class="mt-4 flex flex-wrap items-center gap-2">
-      <button type="button" class="inline-flex items-center gap-1 rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60" disabled={saving} onclick={handleSave} data-testid="report-save"><Save class="h-4 w-4" /> {saving ? "Saving…" : "Save report"}</button>
+      <button type="button" class="inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-sm font-medium disabled:opacity-60 preset-filled-primary-500" disabled={saving} onclick={handleSave} data-testid="report-save"><Save class="h-4 w-4" /> {saving ? "Saving…" : "Save report"}</button>
       {#if onDuplicate}
-        <button type="button" class="inline-flex items-center gap-1 rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-60 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700" disabled={saving || duplicating} onclick={handleDuplicate} data-testid="report-duplicate"><Copy class="h-4 w-4" /> {duplicating ? "Duplicating…" : "Duplicate"}</button>
+        <button type="button" class="inline-flex items-center gap-1 rounded-md border px-3 py-1.5 text-sm disabled:opacity-60 ui-hover ui-muted ui-border" disabled={saving || duplicating} onclick={handleDuplicate} data-testid="report-duplicate"><Copy class="h-4 w-4" /> {duplicating ? "Duplicating…" : "Duplicate"}</button>
       {/if}
       {#if canDelete && onDelete}
-        <button type="button" class="inline-flex items-center gap-1 rounded-md border border-red-300 px-3 py-1.5 text-sm text-red-700 hover:bg-red-50 dark:border-red-700 dark:text-red-300 dark:hover:bg-red-900/20" onclick={onDelete} data-testid="report-delete"><Trash2 class="h-4 w-4" /> Delete</button>
+        <button type="button" class="inline-flex items-center gap-1 rounded-md border px-3 py-1.5 text-sm ui-tone-error" onclick={onDelete} data-testid="report-delete"><Trash2 class="h-4 w-4" /> Delete</button>
       {/if}
-      {#if saveError}<span class="text-sm text-red-700 dark:text-red-300" data-testid="report-save-error">{saveError}</span>{/if}
+      {#if saveError}<span class="text-sm ui-text-error" data-testid="report-save-error">{saveError}</span>{/if}
     </div>
   </section>
 
   <!-- Run -->
-  <section class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800" data-testid="report-run" data-state={running ? "running" : runError ? "error" : result ? "done" : "idle"}>
+  <section class="rounded-lg border p-4 shadow-sm ui-card ui-border" data-testid="report-run" data-state={running ? "running" : runError ? "error" : result ? "done" : "idle"}>
     <div class="flex flex-wrap items-end gap-3">
       {#each parsedParams.params as p (p.name)}
         <label class="flex flex-col gap-1 text-sm">
-          <span class="font-medium text-gray-700 dark:text-gray-300">{p.label || p.name}{p.required ? " *" : ""}</span>
+          <span class="font-medium ui-muted">{p.label || p.name}{p.required ? " *" : ""}</span>
           {#if p.type === "boolean"}
-            <select name="param_{p.name}" bind:value={paramValues[p.name]} class="rounded-md border border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-900" data-testid="report-param-{p.name}"><option value="false">false</option><option value="true">true</option></select>
+            <select name="param_{p.name}" bind:value={paramValues[p.name]} class="rounded-md border px-2 py-1.5 text-sm ui-card ui-border" data-testid="report-param-{p.name}"><option value="false">false</option><option value="true">true</option></select>
           {:else if p.type === "bank_id"}
-            <input type="text" name="param_{p.name}" list="report-bank-ids" bind:value={paramValues[p.name]} class="rounded-md border border-gray-300 px-2 py-1.5 font-mono text-sm dark:border-gray-600 dark:bg-gray-900" data-testid="report-param-{p.name}" />
+            <input type="text" name="param_{p.name}" list="report-bank-ids" bind:value={paramValues[p.name]} class="rounded-md border px-2 py-1.5 font-mono text-sm ui-card ui-border" data-testid="report-param-{p.name}" />
           {:else}
-            <input type={inputType(p)} name="param_{p.name}" bind:value={paramValues[p.name]} class="rounded-md border border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-900" data-testid="report-param-{p.name}" />
+            <input type={inputType(p)} name="param_{p.name}" bind:value={paramValues[p.name]} class="rounded-md border px-2 py-1.5 text-sm ui-card ui-border" data-testid="report-param-{p.name}" />
           {/if}
-          {#if p.description}<span class="text-xs text-gray-500 dark:text-gray-400">{p.description}</span>{/if}
+          {#if p.description}<span class="text-xs ui-muted">{p.description}</span>{/if}
         </label>
       {/each}
       <datalist id="report-bank-ids">{#each bankIds as id (id)}<option value={id}></option>{/each}</datalist>
-      <button type="button" class="inline-flex items-center gap-1 rounded-md bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-60" disabled={running || !definition.trim()} onclick={runReport} data-testid="report-run-button"><Play class="h-4 w-4" /> {running ? "Running…" : "Run"}</button>
+      <button type="button" class="inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-sm font-medium disabled:opacity-60 preset-filled-primary-500" disabled={running || !definition.trim()} onclick={runReport} data-testid="report-run-button"><Play class="h-4 w-4" /> {running ? "Running…" : "Run"}</button>
       {#if result}
-        <button type="button" class="inline-flex items-center gap-1 rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700" onclick={downloadCsv} data-testid="report-csv"><Download class="h-4 w-4" /> CSV</button>
-        <span class="text-xs text-gray-500 dark:text-gray-400">{table.rows.length} row{table.rows.length === 1 ? "" : "s"} · {lastRunMs}ms · {network.length} OBP call{network.length === 1 ? "" : "s"}</span>
+        <button type="button" class="inline-flex items-center gap-1 rounded-md border px-3 py-1.5 text-sm ui-hover ui-muted ui-border" onclick={downloadCsv} data-testid="report-csv"><Download class="h-4 w-4" /> CSV</button>
+        <span class="text-xs ui-muted">{table.rows.length} row{table.rows.length === 1 ? "" : "s"} · {lastRunMs}ms · {network.length} OBP call{network.length === 1 ? "" : "s"}</span>
       {/if}
     </div>
 
     {#if runError}
-      <div class="mt-3 rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800 dark:border-red-700 dark:bg-red-900/20 dark:text-red-200" role="alert" data-testid="report-run-error">
+      <div class="mt-3 rounded-md border px-3 py-2 text-sm ui-tone-error" role="alert" data-testid="report-run-error">
         <div class="flex flex-wrap items-start justify-between gap-2">
           <span class="min-w-0 break-words">{runError}</span>
           {#if onAskOpey}
@@ -371,24 +371,24 @@
               type="button"
               onclick={askOpeyToFix}
               disabled={askingOpey || running}
-              class="inline-flex shrink-0 items-center gap-1 rounded-md border border-violet-300 bg-violet-50 px-2.5 py-1 text-xs font-medium text-violet-800 hover:bg-violet-100 disabled:opacity-50 dark:border-violet-700 dark:bg-violet-900/30 dark:text-violet-200"
+              class="inline-flex shrink-0 items-center gap-1 rounded-md border px-2.5 py-1 text-xs font-medium disabled:opacity-50 ui-tone-accent"
               data-testid="ask-opey-fix-btn"
             >
               <Sparkles size={12} /> {askingOpey ? "Asking Opey…" : "Ask Opey to explain and fix"}
             </button>
           {/if}
         </div>
-        {#if askOpeyNote}<p class="mt-1 text-xs text-red-700/80 dark:text-red-200/80" data-testid="ask-opey-note">{askOpeyNote}</p>{/if}
+        {#if askOpeyNote}<p class="mt-1 text-xs ui-text-error" data-testid="ask-opey-note">{askOpeyNote}</p>{/if}
       </div>
     {/if}
 
     {#if result}
-      {#if result.title}<h3 class="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">{result.title}</h3>{/if}
-      {#if result.note}<p class="mt-1 text-sm text-gray-600 dark:text-gray-400">{result.note}</p>{/if}
+      {#if result.title}<h3 class="mt-4 text-lg font-semibold ui-text">{result.title}</h3>{/if}
+      {#if result.note}<p class="mt-1 text-sm ui-muted">{result.note}</p>{/if}
       {#if Array.isArray(result.charts) && result.charts.length > 0}
         <div class="mt-3 grid gap-4 {result.charts.length > 1 ? 'xl:grid-cols-2' : ''}" data-testid="report-charts">
           {#each result.charts.slice(0, 6) as spec, i (i)}
-            <div class="rounded-md border border-gray-200 p-3 dark:border-gray-700">
+            <div class="rounded-md border p-3 ui-border">
               <ReportChart {spec} {result} index={i} />
             </div>
           {/each}
@@ -396,25 +396,25 @@
       {/if}
       <div class="mt-3 overflow-x-auto">
         <table class="w-full text-left text-sm" data-testid="report-table">
-          <thead class="border-b border-gray-200 text-xs uppercase text-gray-500 dark:border-gray-700 dark:text-gray-400">
+          <thead class="border-b text-xs uppercase ui-muted ui-border">
             <tr>{#each table.columns as c (c)}<th class="py-2 pr-4">{c}</th>{/each}</tr>
           </thead>
           <tbody>
             {#each table.rows as row, i (i)}
-              <tr class="border-b border-gray-100 dark:border-gray-700/60">{#each row as v, j (j)}<td class="py-1.5 pr-4 align-top font-mono text-xs text-gray-800 dark:text-gray-200">{v}</td>{/each}</tr>
+              <tr class="border-b ui-border">{#each row as v, j (j)}<td class="py-1.5 pr-4 align-top font-mono text-xs ui-text">{v}</td>{/each}</tr>
             {/each}
           </tbody>
         </table>
-        {#if table.rows.length === 0}<p class="py-3 text-sm text-gray-500 dark:text-gray-400">No rows.</p>{/if}
+        {#if table.rows.length === 0}<p class="py-3 text-sm ui-muted">No rows.</p>{/if}
       </div>
     {/if}
 
     {#if logs.length > 0 || network.length > 0}
       <details class="mt-3 text-xs">
-        <summary class="cursor-pointer text-gray-600 dark:text-gray-400">Console and OBP calls</summary>
-        <ul class="mt-2 max-h-48 overflow-auto rounded-md border border-gray-200 p-2 font-mono dark:border-gray-700" data-testid="report-console">
-          {#each network as n, i (i)}<li class={n.error ? "text-red-600 dark:text-red-400" : "text-gray-700 dark:text-gray-300"}>{n.method} {n.path} → {n.status || "—"} {n.ms}ms{n.error ? ` · ${n.error}` : ""}</li>{/each}
-          {#each logs as l, i (i)}<li class={l.level === "error" ? "text-red-600 dark:text-red-400" : "text-gray-700 dark:text-gray-300"}>[{l.level}] {l.message}</li>{/each}
+        <summary class="cursor-pointer ui-muted">Console and OBP calls</summary>
+        <ul class="mt-2 max-h-48 overflow-auto rounded-md border p-2 font-mono ui-border" data-testid="report-console">
+          {#each network as n, i (i)}<li class={n.error ? "ui-text-error" : "ui-muted"}>{n.method} {n.path} → {n.status || "—"} {n.ms}ms{n.error ? ` · ${n.error}` : ""}</li>{/each}
+          {#each logs as l, i (i)}<li class={l.level === "error" ? "ui-text-error" : "ui-muted"}>[{l.level}] {l.message}</li>{/each}
         </ul>
       </details>
     {/if}

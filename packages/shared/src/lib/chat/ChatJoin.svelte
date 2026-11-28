@@ -41,31 +41,31 @@
         </a>
     </div>
 
-    <div class="rounded-lg border border-surface-300-600 bg-surface-50-900 p-6" data-testid="join-room-section">
+    <div class="rounded-lg border p-6 ui-card ui-border" data-testid="join-room-section">
         <div class="mb-4 flex items-center gap-3">
-            <MessageSquare class="size-6 text-primary-500" />
-            <h2 class="text-lg font-semibold text-surface-900-50">{labels.join_heading}</h2>
+            <MessageSquare class="size-6 ui-text-brand" />
+            <h2 class="text-lg font-semibold ui-text">{labels.join_heading}</h2>
         </div>
 
-        <p class="mb-4 text-sm text-surface-600-400">
+        <p class="mb-4 text-sm ui-muted">
             {labels.join_intro}
         </p>
 
         {#if form?.message}
-            <div class="bg-error-500/10 border-error-500 mb-4 rounded-lg border p-3 text-center">
-                <p class="text-error-500 text-sm font-semibold">{chatMessage(labels, form)}</p>
+            <div class="mb-4 rounded-lg border p-3 text-center ui-tone-error">
+                <p class="text-sm font-semibold ui-text-error">{chatMessage(labels, form)}</p>
             </div>
         {/if}
 
         {#if data.errorMessage}
-            <div class="bg-error-500/10 border-error-500 mb-4 rounded-lg border p-3 text-center">
-                <p class="text-error-500 text-sm font-semibold">{chatMessage(labels, { code: data.errorCode, message: data.errorMessage })}</p>
+            <div class="mb-4 rounded-lg border p-3 text-center ui-tone-error">
+                <p class="text-sm font-semibold ui-text-error">{chatMessage(labels, { code: data.errorCode, message: data.errorMessage })}</p>
             </div>
         {/if}
 
         {#if data.alreadyJoined}
-            <div class="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-3 text-center dark:border-blue-800 dark:bg-blue-900/20">
-                <p class="text-sm text-blue-600 dark:text-blue-400">{labels.already_member}</p>
+            <div class="mb-4 rounded-lg border p-3 text-center ui-tone-info">
+                <p class="text-sm ui-link">{labels.already_member}</p>
                 <a href={basePath} class="btn btn-sm preset-filled-primary-500 mt-2" data-testid="go-to-chat-rooms">
                     {labels.go_to_rooms}
                 </a>
@@ -80,7 +80,7 @@
                     name="joining_key"
                     type="text"
                     required
-                    class="input w-full rounded-md border border-surface-300-600 px-3 py-2 font-mono"
+                    class="input w-full rounded-md border px-3 py-2 font-mono ui-border"
                     placeholder={labels.join_placeholder}
                     data-testid="joining-key-input"
                 />

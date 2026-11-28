@@ -51,10 +51,10 @@
   <!-- Header -->
   <div class="mb-6">
     <div>
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
+      <h1 class="text-3xl font-bold ui-text">
         Banks
       </h1>
-      <p class="mt-1 text-gray-600 dark:text-gray-400">
+      <p class="mt-1 ui-muted">
         Browse all banks registered in the Open Bank Project API.
       </p>
     </div>
@@ -63,10 +63,10 @@
   <!-- Stats -->
   <div class="mb-6 flex items-center gap-4">
     <div
-      class="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800"
+      class="rounded-lg border p-4 ui-card ui-border"
     >
-      <div class="text-sm text-gray-600 dark:text-gray-400">Total Banks</div>
-      <div class="mt-1 text-2xl font-bold text-gray-900 dark:text-gray-100">
+      <div class="text-sm ui-muted">Total Banks</div>
+      <div class="mt-1 text-2xl font-bold ui-text">
         {data.banks?.length || 0}
       </div>
     </div>
@@ -75,11 +75,11 @@
   <!-- Error Message -->
   {#if data.error}
     <div
-      class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20"
+      class="mb-6 rounded-lg border p-4 ui-tone-error"
     >
       <div class="flex items-start">
         <svg
-          class="mr-3 h-5 w-5 text-red-600 dark:text-red-400"
+          class="mr-3 h-5 w-5 ui-text-error"
           fill="currentColor"
           viewBox="0 0 20 20"
         >
@@ -90,10 +90,10 @@
           />
         </svg>
         <div>
-          <h3 class="font-semibold text-red-800 dark:text-red-300">
+          <h3 class="font-semibold ui-text-error">
             Error Loading Banks
           </h3>
-          <p class="mt-1 text-sm text-red-700 dark:text-red-400">
+          <p class="mt-1 text-sm ui-text-error">
             {data.error}
           </p>
         </div>
@@ -109,10 +109,10 @@
           type="text"
           bind:value={searchQuery}
           placeholder="Search by bank ID, name, code, or website..."
-          class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 pl-10 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400"
+          class="w-full rounded-lg border px-4 py-2 pl-10 focus:outline-none focus:ring-2 ui-card ui-text ui-border"
         />
         <svg
-          class="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400"
+          class="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 ui-muted"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -134,7 +134,7 @@
       <div class="flex flex-col items-center justify-center py-12 text-center">
         {#if !data.banks || data.banks.length === 0}
           <svg
-            class="mb-4 h-16 w-16 text-gray-400"
+            class="mb-4 h-16 w-16 ui-muted"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -147,16 +147,16 @@
             />
           </svg>
           <h3
-            class="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-100"
+            class="mb-2 text-lg font-semibold ui-text"
           >
             No Banks Found
           </h3>
-          <p class="text-gray-600 dark:text-gray-400">
+          <p class="ui-muted">
             There are currently no banks available.
           </p>
         {:else}
           <svg
-            class="mb-4 h-16 w-16 text-gray-400"
+            class="mb-4 h-16 w-16 ui-muted"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -169,61 +169,61 @@
             />
           </svg>
           <h3
-            class="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-100"
+            class="mb-2 text-lg font-semibold ui-text"
           >
             No Matching Banks
           </h3>
-          <p class="text-gray-600 dark:text-gray-400">
+          <p class="ui-muted">
             No banks match your search criteria. Try adjusting your filters.
           </p>
         {/if}
       </div>
     {:else}
       <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead class="bg-gray-50 dark:bg-gray-900">
+        <table class="min-w-full divide-y ui-border">
+          <thead class="ui-card">
             <tr>
               <th
-                class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
+                class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted"
               >
                 Logo
               </th>
               <th
-                class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
+                class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted"
               >
                 Bank ID
               </th>
               <th
-                class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
+                class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted"
               >
                 Full Name
               </th>
               <th
-                class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
+                class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted"
               >
                 Bank Code
               </th>
               <th
-                class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
+                class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted"
               >
                 Website
               </th>
               <th
-                class="px-3 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
+                class="px-3 py-3 text-center text-xs font-medium uppercase tracking-wider ui-muted"
               >
                 Routings
               </th>
             </tr>
           </thead>
           <tbody
-            class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800"
+            class="divide-y ui-card ui-border"
           >
             {#each filteredBanks as bank}
-              <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+              <tr class="ui-hover">
                 <td class="whitespace-nowrap px-3 py-3 text-sm">
                   <button
                     type="button"
-                    class="cursor-pointer rounded p-0.5 hover:ring-2 hover:ring-blue-400"
+                    class="cursor-pointer rounded p-0.5 hover:ring-2"
                     title="Set {bank.full_name || bank.bank_id} as current bank"
                     onclick={() => currentBank.select(bank)}
                   >
@@ -239,7 +239,7 @@
                         }}
                       />
                       <svg
-                        class="hidden h-8 w-8 text-gray-300 dark:text-gray-600"
+                        class="hidden h-8 w-8 ui-muted"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -253,7 +253,7 @@
                       </svg>
                     {:else}
                       <svg
-                        class="h-8 w-8 text-gray-300 dark:text-gray-600"
+                        class="h-8 w-8 ui-muted"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -271,20 +271,20 @@
                 <td class="whitespace-nowrap px-3 py-3 text-sm font-medium">
                   <a
                     href="/banks/{bank.bank_id}"
-                    class="text-blue-600 hover:text-blue-800 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
+                    class="hover:underline ui-link"
                     onclick={() => currentBank.select(bank)}
                   >
                     {bank.bank_id || "Unknown"}
                   </a>
                 </td>
                 <td
-                  class="max-w-xs truncate px-3 py-3 text-sm text-gray-700 dark:text-gray-300"
+                  class="max-w-xs truncate px-3 py-3 text-sm ui-muted"
                   title={bank.full_name || ""}
                 >
                   {bank.full_name || "-"}
                 </td>
                 <td
-                  class="whitespace-nowrap px-3 py-3 text-sm text-gray-700 dark:text-gray-300"
+                  class="whitespace-nowrap px-3 py-3 text-sm ui-muted"
                 >
                   {bank.bank_code || "-"}
                 </td>
@@ -296,16 +296,16 @@
                       href={bank.website}
                       target="_blank"
                       rel="noopener noreferrer"
-                      class="text-blue-600 hover:text-blue-800 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
+                      class="hover:underline ui-link"
                     >
                       {bank.website}
                     </a>
                   {:else}
-                    <span class="text-gray-400">-</span>
+                    <span class="ui-muted">-</span>
                   {/if}
                 </td>
                 <td
-                  class="whitespace-nowrap px-3 py-3 text-center text-sm text-gray-700 dark:text-gray-300"
+                  class="whitespace-nowrap px-3 py-3 text-center text-sm ui-muted"
                 >
                   {bank.bank_routings?.length || 0}
                 </td>
@@ -317,9 +317,9 @@
 
       <!-- Results Summary -->
       <div
-        class="mt-4 flex items-center justify-between border-t border-gray-200 px-4 py-3 dark:border-gray-700"
+        class="mt-4 flex items-center justify-between border-t px-4 py-3 ui-border"
       >
-        <div class="text-sm text-gray-700 dark:text-gray-300">
+        <div class="text-sm ui-muted">
           Showing <span class="font-medium">{filteredBanks.length}</span>
           of
           <span class="font-medium">{data.banks?.length || 0}</span>

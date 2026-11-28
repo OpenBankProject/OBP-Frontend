@@ -24,6 +24,7 @@ export { default as ConsentCard } from './ConsentCard.svelte';
 export { default as EndpointCard } from './EndpointCard.svelte';
 export { default as LegalDocumentModal } from './LegalDocumentModal.svelte';
 export { default as LightSwitch } from './LightSwitch.svelte';
+export { default as StyleGuide } from './StyleGuide.svelte';
 export { default as LanguageSwitch } from './LanguageSwitch.svelte';
 export { default as RichMessage } from './RichMessage.svelte';
 export { default as ErrorPage } from './ErrorPage.svelte';

@@ -29,21 +29,21 @@
 {#if data.dynamicEntities && data.dynamicEntities.length > 0}
     <div class="space-y-6">
         {#each data.dynamicEntities as entity (entity.dynamicEntityId)}
-            <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
+            <div class="rounded-lg border p-6 shadow-sm ui-card ui-border">
+                <h2 class="text-xl font-semibold mb-4 ui-text">
                     {formatEntityName(entity.entityName)}
                 </h2>
 
                 <div class="space-y-3">
                     {#each entity.data ?? [] as item, index}
-                        <div class="rounded-lg bg-gray-50 p-4 dark:bg-gray-900">
-                            <div class="mb-2 text-xs font-medium text-gray-500 dark:text-gray-400">
+                        <div class="rounded-lg p-4 ui-card">
+                            <div class="mb-2 text-xs font-medium ui-muted">
                                 Record {index + 1}
                             </div>
                             <dl class="grid grid-cols-2 gap-2 text-sm">
                                 {#each Object.entries(item as Record<string, unknown>) as [key, value]}
-                                    <dt class="text-gray-500 dark:text-gray-400">{key}:</dt>
-                                    <dd class="text-gray-900 dark:text-gray-100">{value}</dd>
+                                    <dt class="ui-muted">{key}:</dt>
+                                    <dd class="ui-text">{value}</dd>
                                 {/each}
                             </dl>
                         </div>
@@ -53,7 +53,7 @@
         {/each}
     </div>
 {:else}
-    <div class="rounded-lg bg-gray-100 p-8 text-center dark:bg-gray-800">
-        <p class="text-gray-700 dark:text-gray-300">No personal data entities are available.</p>
+    <div class="rounded-lg p-8 text-center ui-panel">
+        <p class="ui-muted">No personal data entities are available.</p>
     </div>
 {/if}

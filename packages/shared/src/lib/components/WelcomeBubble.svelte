@@ -31,7 +31,7 @@
 
 	const welcomeMessageHtml = $derived(renderWebUiProp('webui_welcome_message', welcomeMessage, {
 		// primary-* is near-black in the OBP theme, so use tertiary for a visible hover
-		linkClass: 'underline hover:text-tertiary-600 dark:hover:text-tertiary-400'
+		linkClass: 'underline ui-link'
 	}));
 
 	onMount(() => {
@@ -88,13 +88,13 @@
 		class:slide-out-to-top-4={isClosing}
 	>
 		<div
-			class="relative rounded-lg border-2 border-primary-500 bg-gradient-to-br from-primary-50 to-primary-100 p-6 shadow-2xl dark:border-primary-400 dark:from-primary-900 dark:to-primary-800"
+			class="relative rounded-lg border-2 p-6 shadow-2xl ui-tone-info"
 		>
 			<!-- Close button -->
 			<button
 				type="button"
 				onclick={handleClose}
-				class="absolute top-3 end-3 rounded-full p-1 text-surface-600 transition-colors hover:bg-surface-200 hover:text-surface-900 dark:text-surface-400 dark:hover:bg-surface-700 dark:hover:text-surface-100"
+				class="absolute top-3 end-3 rounded-full p-1 transition-colors ui-hover ui-muted"
 				aria-label="Close welcome message"
 			>
 				<X class="h-5 w-5" />
@@ -106,13 +106,13 @@
 			</div>
 
 			<!-- Welcome message -->
-			<div class="pe-6 text-sm leading-relaxed text-surface-900 dark:text-surface-100">
+			<div class="pe-6 text-sm leading-relaxed ui-text">
 				{@html welcomeMessageHtml}
 			</div>
 
 			<!-- Decorative accent -->
 			<div
-				class="absolute bottom-0 end-0 h-24 w-24 rounded-ss-full bg-gradient-to-br from-primary-400/20 to-primary-600/20"
+				class="absolute bottom-0 end-0 h-24 w-24 rounded-ss-full bg-current opacity-10"
 			></div>
 		</div>
 	</div>

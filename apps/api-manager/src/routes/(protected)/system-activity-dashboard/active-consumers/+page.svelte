@@ -52,10 +52,10 @@
 
 <div class="container mx-auto max-w-7xl px-4 py-8">
   <div class="mb-6">
-    <a href="/system-activity-dashboard" class="text-sm text-blue-600 hover:underline dark:text-blue-400">← Activity Summary Dashboard</a>
-    <h1 class="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-100">Active Consumers</h1>
+    <a href="/system-activity-dashboard" class="text-sm hover:underline ui-link">← Activity Summary Dashboard</a>
+    <h1 class="mt-2 text-2xl font-bold ui-text">Active Consumers</h1>
     {#if data.window}
-      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400" data-testid="active-consumers-window">
+      <p class="mt-1 text-sm ui-muted" data-testid="active-consumers-window">
         Consumers (apps) that made API calls between {formatDateTime(data.window.from)} and {formatDateTime(
           data.window.to,
         )} —
@@ -63,11 +63,11 @@
       </p>
       {#if matchesTile !== null}
         {#if matchesTile}
-          <p class="mt-1 text-sm text-green-700 dark:text-green-400" data-testid="active-consumers-consistency" data-state="match">
+          <p class="mt-1 text-sm ui-text-success" data-testid="active-consumers-consistency" data-state="match">
             ✓ Matches the dashboard tile's distinct consumer count ({formatCount(data.expectedDistinct!)}) for this window.
           </p>
         {:else}
-          <p class="mt-1 text-sm text-red-700 dark:text-red-400" data-testid="active-consumers-consistency" data-state="mismatch">
+          <p class="mt-1 text-sm ui-text-error" data-testid="active-consumers-consistency" data-state="mismatch">
             ✗ Does NOT match the dashboard tile: aggregate-metrics reports {formatCount(
               data.expectedDistinct!,
             )} distinct consumers but this list has {formatCount(data.consumers.length)}.
@@ -91,23 +91,23 @@
   {:else}
     {#if data.possiblyTruncated}
       <div
-        class="mb-4 rounded-lg border border-yellow-200 bg-yellow-50 p-3 text-sm text-yellow-900 dark:border-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-200"
+        class="mb-4 rounded-lg border p-3 text-sm ui-tone-warning"
         data-testid="active-consumers-truncated"
       >
         The list hit the request limit, so it may be incomplete.
       </div>
     {/if}
     {#if data.consumers.length === 0}
-      <p class="text-sm text-gray-600 dark:text-gray-400" data-testid="active-consumers-empty">
+      <p class="text-sm ui-muted" data-testid="active-consumers-empty">
         No consumers made API calls in this window.
       </p>
     {:else}
       <div
-        class="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
+        class="overflow-x-auto rounded-lg border shadow-sm ui-card ui-border"
       >
-        <table class="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-700">
+        <table class="min-w-full divide-y text-sm ui-border">
           <thead>
-            <tr class="text-left text-xs text-gray-600 dark:text-gray-400">
+            <tr class="text-left text-xs ui-muted">
               <th class="px-4 py-3 font-medium">#</th>
               <th class="px-4 py-3 font-medium">App name</th>
               <th class="px-4 py-3 font-medium">Consumer ID</th>
@@ -115,18 +115,18 @@
               <th class="px-4 py-3 text-right font-medium">API calls</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+          <tbody class="divide-y ui-border">
             {#each data.consumers as consumer, index (consumer.consumer_id)}
               <tr data-testid="active-consumers-row-{consumer.consumer_id}">
-                <td class="px-4 py-2 text-gray-600 dark:text-gray-400">{index + 1}</td>
+                <td class="px-4 py-2 ui-muted">{index + 1}</td>
                 <td class="px-4 py-2">
                   {#if consumer.app_name}
                     <a
                       href="/consumers/{consumer.consumer_id}/edit"
-                      class="text-blue-600 hover:underline dark:text-blue-400">{consumer.app_name}</a
+                      class="hover:underline ui-link">{consumer.app_name}</a
                     >
                   {:else}
-                    <span class="italic text-gray-600 dark:text-gray-400">consumer no longer exists</span>
+                    <span class="italic ui-muted">consumer no longer exists</span>
                   {/if}
                 </td>
                 <td class="px-4 py-2 font-mono text-xs">{consumer.consumer_id}</td>

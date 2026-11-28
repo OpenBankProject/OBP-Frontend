@@ -336,12 +336,12 @@
 </script>
 
 <div
-  class="grid min-h-screen w-full grid-cols-[auto_minmax(0,1fr)] divide-x divide-solid divide-surface-100-900"
+  class="grid min-h-screen w-full grid-cols-[auto_minmax(0,1fr)] divide-x divide-solid ui-border"
 >
   <div class="sticky top-0 h-screen">
     <Navigation
       layout="sidebar"
-      class="grid h-full grid-rows-[auto_1fr_auto] gap-4 preset-filled-primary-50-950"
+      class="grid h-full grid-rows-[auto_1fr_auto] gap-4 ui-page"
     >
       <Navigation.Header class="p-4">
         <a href="/" class="flex w-full items-center">
@@ -358,7 +358,7 @@
               <a
                 href={item.href}
                 class="btn w-full justify-start gap-3 px-2 hover:preset-tonal"
-                class:preset-filled-primary-50-950={page.url.pathname ===
+                class:ui-panel={page.url.pathname ===
                   item.href}
                 class:border={page.url.pathname === item.href}
                 class:border-solid-secondary-500={page.url.pathname ===
@@ -383,7 +383,7 @@
             <button
               type="button"
               class="btn w-full justify-start gap-3 px-2 hover:preset-tonal"
-              class:preset-filled-primary-50-950={active}
+              class:ui-panel={active}
               class:border={active}
               class:border-solid-secondary-500={active}
               onclick={() => toggleSection(myAccountSection.id)}
@@ -404,10 +404,10 @@
                   <a
                     href={subItem.href}
                     class="btn w-full justify-start gap-3 px-2 pl-6 text-sm hover:preset-tonal"
-                    class:preset-filled-secondary-50-950={page.url.pathname ===
+                    class:ui-panel={page.url.pathname ===
                       subItem.href}
                     class:border-l-2={page.url.pathname === subItem.href}
-                    class:border-primary-500={page.url.pathname ===
+                    class:ui-border-brand={page.url.pathname ===
                       subItem.href}
                     title={getMenuTooltip(subItem.href, subItem.label)}
                     aria-label={subItem.label}
@@ -431,7 +431,7 @@
               <a
                 href={item.href}
                 class="btn w-full justify-start gap-3 px-2 hover:preset-tonal"
-                class:preset-filled-primary-50-950={page.url.pathname ===
+                class:ui-panel={page.url.pathname ===
                   item.href}
                 class:border={page.url.pathname === item.href}
                 class:border-solid-secondary-500={page.url.pathname ===
@@ -456,7 +456,7 @@
               <button
                 type="button"
                 class="btn w-full justify-start gap-3 px-2 hover:preset-tonal"
-                class:preset-filled-primary-50-950={active}
+                class:ui-panel={active}
                 class:border={active}
                 class:border-solid-secondary-500={active}
                 onclick={() => toggleSection(section.id)}
@@ -476,7 +476,7 @@
                 <Navigation.Menu class="mt-1 ml-4 flex flex-col gap-1 px-2">
                   {#each subsections as group (group.label)}
                     {#if group.label}
-                      <div class="mt-2 px-2 pl-6 text-[11px] font-semibold uppercase tracking-wider text-surface-500" data-testid="nav-subsection-{group.label}">
+                      <div class="mt-2 px-2 pl-6 text-[11px] font-semibold uppercase tracking-wider ui-muted" data-testid="nav-subsection-{group.label}">
                         {group.label}
                       </div>
                     {/if}
@@ -485,10 +485,10 @@
                       <a
                         href={subItem.href}
                         class="btn w-full justify-start gap-3 px-2 pl-6 text-sm hover:preset-tonal"
-                        class:preset-filled-secondary-50-950={currentUrl ===
+                        class:ui-panel={currentUrl ===
                           subItem.href}
                         class:border-l-2={currentUrl === subItem.href}
-                        class:border-primary-500={currentUrl ===
+                        class:ui-border-brand={currentUrl ===
                           subItem.href}
                         title={getMenuTooltip(subItem.href, subItem.label)}
                         aria-label={subItem.label}
@@ -509,13 +509,13 @@
 
       <Navigation.Footer class="p-4">
         <div
-          class="flex flex-wrap items-center gap-3 text-xs text-surface-800-200"
+          class="flex flex-wrap items-center gap-3 text-xs ui-text"
         >
           <LightSwitch bind:mode={displayMode} />
           {#each footerLinks as link, index}
             <a
               href={link.href}
-              class="flex items-center gap-2 hover:text-tertiary-400"
+              class="flex items-center gap-2 ui-link"
             >
               {#if link.label === "GitHub"}
                 <img
@@ -531,7 +531,7 @@
           {/each}
           <button
             onclick={clearCache}
-            class="flex items-center gap-1 hover:text-tertiary-400 cursor-pointer"
+            class="flex items-center gap-1 cursor-pointer ui-link"
             title="Clear browser cache and reload"
           >
             ⚡
@@ -542,7 +542,7 @@
     </Navigation>
   </div>
   <div
-    class="h-full bg-conic-250 from-30% via-40% to-50% dark:from-primary-950 dark:via-tertiary-500/70 dark:to-primary-950"
+    class="h-full ui-glow"
   >
     <div
       class="flex flex-col backdrop-blur-2xl"
@@ -563,7 +563,7 @@
             <button
               type="button"
               data-testid="opey-insight-toggle"
-              class="hover:text-tertiary-400"
+              class="ui-link"
               onclick={() => userPreferences.setOpeyInsightsOpen(true)}
               aria-label="Show Opey Insights"
               title="Opey Insights"
@@ -575,7 +575,7 @@
           <div class="relative mx-4">
             <button
               type="button"
-              class="flex items-center gap-1 hover:text-tertiary-400"
+              class="flex items-center gap-1 ui-link"
               onclick={() => (userMenuOpen = !userMenuOpen)}
               onblur={() => setTimeout(() => (userMenuOpen = false), 150)}
             >
@@ -583,7 +583,7 @@
               <ChevronDown class="size-4" />
             </button>
             {#if userMenuOpen}
-              <div class="absolute right-0 z-50 mt-2 min-w-[140px] rounded-md border border-surface-300-700 bg-surface-100-900 py-1 shadow-lg">
+              <div class="absolute right-0 z-50 mt-2 min-w-[140px] rounded-md border py-1 shadow-lg ui-panel ui-border">
                 <a
                   href="/user"
                   class="block px-4 py-2 text-sm hover:preset-tonal"
@@ -601,10 +601,10 @@
           </div>
         {:else}
           <div class="flex items-center">
-            <span class="mx-4 hover:text-tertiary-400"
+            <span class="mx-4 ui-link"
               ><a href="{data.externalLinks.PORTAL_URL}/register">Register</a>
             </span>
-            <button type="button" class="btn preset-filled-surface-950-50"
+            <button type="button" class="btn preset-filled-primary-500"
               ><a href="/login">Login</a></button
             >
           </div>

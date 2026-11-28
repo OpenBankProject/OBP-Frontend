@@ -41,9 +41,9 @@
 
 <div class="flex h-full min-h-0 w-full flex-col">
 	<header
-		class="flex flex-wrap items-center gap-3 border-b border-surface-300-600 px-3 py-2 text-sm"
+		class="flex flex-wrap items-center gap-3 border-b px-3 py-2 text-sm ui-border"
 	>
-		<span class="font-semibold text-surface-900-50">API Explorer</span>
+		<span class="font-semibold ui-text">API Explorer</span>
 
 		<!-- The version and endpoint count describe the catalogue, so they belong to that section. -->
 		{#if data.section === 'endpoints'}
@@ -67,7 +67,7 @@
 			</select>
 		</label>
 
-		<span class="text-surface-600-400">{data.index.length} endpoints</span>
+		<span class="ui-muted">{data.index.length} endpoints</span>
 		{/if}
 
 		<div class="ml-auto flex items-center gap-2">
@@ -117,15 +117,15 @@
 			</div>
 
 			<aside
-				class="hidden min-h-0 min-w-0 shrink-0 flex-col border-l border-surface-300-600 lg:flex lg:w-[var(--right-w)]"
+				class="hidden min-h-0 min-w-0 shrink-0 flex-col border-l lg:flex lg:w-[var(--right-w)] ui-border"
 				style="--right-w: {rightWidth}%"
 				aria-label={rightTab === 'call' ? 'Call this endpoint' : 'Opey'}
 			>
-				<div class="flex items-center gap-1 border-b border-surface-300-600 px-2 py-1">
+				<div class="flex items-center gap-1 border-b px-2 py-1 ui-border">
 					{#if endpoint}
 						<button
 							type="button"
-							class="btn btn-sm {rightTab === 'call' ? 'preset-filled' : 'preset-tonal'}"
+							class="btn btn-sm {rightTab === 'call' ? 'preset-filled-primary-500' : 'preset-tonal'}"
 							aria-pressed={rightTab === 'call'}
 							onclick={() => (rightTab = 'call')}
 						>
@@ -135,7 +135,7 @@
 					{#if opeyEnabled}
 						<button
 							type="button"
-							class="btn btn-sm {rightTab === 'opey' ? 'preset-filled' : 'preset-tonal'}"
+							class="btn btn-sm {rightTab === 'opey' ? 'preset-filled-primary-500' : 'preset-tonal'}"
 							aria-pressed={rightTab === 'opey'}
 							onclick={() => (rightTab = 'opey')}
 						>

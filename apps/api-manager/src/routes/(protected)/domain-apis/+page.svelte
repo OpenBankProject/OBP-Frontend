@@ -60,18 +60,18 @@
 
 <div class="container mx-auto max-w-7xl px-4 py-8">
   <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
-    <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Domain APIs</h1>
+    <h1 class="text-3xl font-bold ui-text">Domain APIs</h1>
     <div class="flex items-center gap-2">
-      <label for="space" class="text-sm text-gray-700 dark:text-gray-300">Space</label>
-      <select id="space" name="bank_id" value={data.bankId} onchange={chooseSpace} class="rounded-lg border border-gray-300 bg-white px-3 py-2 font-mono text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" data-testid="space-select">
+      <label for="space" class="text-sm ui-muted">Space</label>
+      <select id="space" name="bank_id" value={data.bankId} onchange={chooseSpace} class="rounded-lg border px-3 py-2 font-mono text-sm ui-card ui-text ui-border" data-testid="space-select">
         {#each spaces as s (s)}
           <option value={s}>{s}</option>
         {/each}
       </select>
-      <a href="/domain-apis/help" aria-label="Domain APIs help" data-testid="domain-apis-help-link" class="inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
+      <a href="/domain-apis/help" aria-label="Domain APIs help" data-testid="domain-apis-help-link" class="inline-flex items-center gap-1 rounded-lg border px-3 py-2 text-sm font-medium ui-card ui-hover ui-muted ui-border">
         <CircleHelp size={16} />
       </a>
-      <a href="/domain-apis/create?bank_id={encodeURIComponent(data.bankId)}" data-testid="create-link" class="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600">
+      <a href="/domain-apis/create?bank_id={encodeURIComponent(data.bankId)}" data-testid="create-link" class="inline-flex items-center gap-1 rounded-lg px-4 py-2 text-sm font-medium preset-filled-primary-500">
         <Plus size={16} /> Create Domain API
       </a>
     </div>
@@ -80,49 +80,49 @@
   <div class="mb-4"><ApiExplorerEndpoints endpoints={data.endpoints} /></div>
 
   {#if data.loadError}
-    <div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300" data-testid="load-error">{data.loadError}</div>
+    <div class="mb-6 rounded-lg border p-4 text-sm ui-tone-error" data-testid="load-error">{data.loadError}</div>
   {/if}
   {#if actionError}
-    <div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300" data-testid="action-error">{actionError}</div>
+    <div class="mb-6 rounded-lg border p-4 text-sm ui-tone-error" data-testid="action-error">{actionError}</div>
   {/if}
   {#if message}
-    <div class="mb-6 rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-700 dark:border-green-800 dark:bg-green-900/20 dark:text-green-300" role="status" data-testid="message">{message}</div>
+    <div class="mb-6 rounded-lg border p-4 text-sm ui-tone-success" role="status" data-testid="message">{message}</div>
   {/if}
 
-  <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+  <div class="overflow-hidden rounded-lg border shadow-sm ui-card ui-border">
     {#if data.domainApis.length === 0}
-      <div class="p-8 text-center text-sm text-gray-500 dark:text-gray-400" data-testid="empty">
+      <div class="p-8 text-center text-sm ui-muted" data-testid="empty">
         No Domain APIs in {data.bankId}.
       </div>
     {:else}
       <div class="overflow-x-auto">
         <table class="w-full text-sm" data-testid="domain-apis-table">
-          <thead class="bg-gray-50 dark:bg-gray-900">
+          <thead class="ui-card">
             <tr>
-              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Title</th>
-              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">URL</th>
-              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Version</th>
-              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">OpenAPI</th>
-              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Actions</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Title</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">URL</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Version</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">OpenAPI</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Actions</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+          <tbody class="divide-y ui-border">
             {#each data.domainApis as d (d.domain_api_id)}
               <tr data-testid="row-{d.domain_api_id}">
-                <td class="px-4 py-3 text-gray-900 dark:text-gray-100">
-                  <a href="/domain-apis/{encodeURIComponent(d.bank_id)}/{encodeURIComponent(d.domain_api_id)}" class="text-blue-600 hover:underline dark:text-blue-400">{d.title}</a>
-                  {#if d.description}<div class="text-xs text-gray-500 dark:text-gray-400">{d.description}</div>{/if}
+                <td class="px-4 py-3 ui-text">
+                  <a href="/domain-apis/{encodeURIComponent(d.bank_id)}/{encodeURIComponent(d.domain_api_id)}" class="hover:underline ui-link">{d.title}</a>
+                  {#if d.description}<div class="text-xs ui-muted">{d.description}</div>{/if}
                 </td>
-                <td class="px-4 py-3 font-mono text-xs"><a href={safeLinkHref(d.url)} target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline dark:text-blue-400">{d.url}</a></td>
-                <td class="px-4 py-3 font-mono text-xs text-gray-700 dark:text-gray-300">{d.version}</td>
+                <td class="px-4 py-3 font-mono text-xs"><a href={safeLinkHref(d.url)} target="_blank" rel="noopener noreferrer" class="hover:underline ui-link">{d.url}</a></td>
+                <td class="px-4 py-3 font-mono text-xs ui-muted">{d.version}</td>
                 <td class="px-4 py-3 font-mono text-xs">
-                  <a href={safeLinkHref(d.openapi_url)} target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline dark:text-blue-400">yaml</a>
-                  <a href={safeLinkHref(d.openapi_url?.replace(/\.yaml$/, ".json"))} target="_blank" rel="noopener noreferrer" class="ml-2 text-blue-600 hover:underline dark:text-blue-400">json</a>
+                  <a href={safeLinkHref(d.openapi_url)} target="_blank" rel="noopener noreferrer" class="hover:underline ui-link">yaml</a>
+                  <a href={safeLinkHref(d.openapi_url?.replace(/\.yaml$/, ".json"))} target="_blank" rel="noopener noreferrer" class="ml-2 hover:underline ui-link">json</a>
                 </td>
                 <td class="px-4 py-3">
                   <div class="flex items-center gap-2">
-                    <a href="/domain-apis/{encodeURIComponent(d.bank_id)}/{encodeURIComponent(d.domain_api_id)}" class="inline-flex items-center gap-1 rounded border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700" data-testid="edit-{d.domain_api_id}"><Pencil size={12} /> Edit</a>
-                    <button type="button" onclick={() => remove(d.domain_api_id, d.base_path)} disabled={deleting === d.domain_api_id} class="inline-flex items-center gap-1 rounded border border-red-300 px-2 py-1 text-xs text-red-700 hover:bg-red-50 disabled:opacity-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-900/20" data-testid="delete-{d.domain_api_id}">
+                    <a href="/domain-apis/{encodeURIComponent(d.bank_id)}/{encodeURIComponent(d.domain_api_id)}" class="inline-flex items-center gap-1 rounded border px-2 py-1 text-xs ui-hover ui-muted ui-border" data-testid="edit-{d.domain_api_id}"><Pencil size={12} /> Edit</a>
+                    <button type="button" onclick={() => remove(d.domain_api_id, d.base_path)} disabled={deleting === d.domain_api_id} class="inline-flex items-center gap-1 rounded border px-2 py-1 text-xs disabled:opacity-50 ui-tone-error" data-testid="delete-{d.domain_api_id}">
                       <Trash2 size={12} /> {deleting === d.domain_api_id ? "Deleting…" : "Delete"}
                     </button>
                   </div>
@@ -132,7 +132,7 @@
           </tbody>
         </table>
       </div>
-      <div class="border-t border-gray-200 px-4 py-2 text-xs text-gray-500 dark:border-gray-700 dark:text-gray-400">{data.domainApis.length} Domain API{data.domainApis.length === 1 ? "" : "s"} in {data.bankId}</div>
+      <div class="border-t px-4 py-2 text-xs ui-muted ui-border">{data.domainApis.length} Domain API{data.domainApis.length === 1 ? "" : "s"} in {data.bankId}</div>
     {/if}
   </div>
 </div>

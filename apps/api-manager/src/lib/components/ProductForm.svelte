@@ -628,22 +628,18 @@
     gap: 0.5rem;
     font-size: 0.875rem;
     font-weight: 600;
-    color: #374151;
-  }
-
-  :global([data-mode="dark"]) .form-label {
-    color: var(--color-surface-200);
+    color: var(--ui-text);
   }
 
   .required {
-    color: #dc2626;
+    color: var(--ui-error);
   }
 
   .form-input,
   .form-textarea {
     width: 100%;
     padding: 0.75rem;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--ui-border);
     border-radius: 6px;
     font-size: 0.875rem;
     transition: all 0.2s;
@@ -652,33 +648,15 @@
   .form-input:focus,
   .form-textarea:focus {
     outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    border-color: var(--ui-link);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-link) 10%, transparent);
   }
 
   .form-input:disabled,
   .form-textarea:disabled {
-    background: #f9fafb;
+    background: var(--ui-card);
     cursor: not-allowed;
     opacity: 0.6;
-  }
-
-  :global([data-mode="dark"]) .form-input,
-  :global([data-mode="dark"]) .form-textarea {
-    background: rgb(var(--color-surface-700));
-    border-color: rgb(var(--color-surface-600));
-    color: var(--color-surface-100);
-  }
-
-  :global([data-mode="dark"]) .form-input:focus,
-  :global([data-mode="dark"]) .form-textarea:focus {
-    border-color: rgb(var(--color-primary-500));
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-  }
-
-  :global([data-mode="dark"]) .form-input:disabled,
-  :global([data-mode="dark"]) .form-textarea:disabled {
-    background: rgb(var(--color-surface-800));
   }
 
   .form-textarea {
@@ -688,27 +666,17 @@
 
   .form-help {
     font-size: 0.75rem;
-    color: #6b7280;
-  }
-
-  :global([data-mode="dark"]) .form-help {
-    color: var(--color-surface-400);
+    color: var(--ui-muted);
   }
 
   .readonly-value {
     padding: 0.75rem;
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
+    background: var(--ui-card);
+    border: 1px solid var(--ui-border);
     border-radius: 6px;
     font-size: 0.875rem;
-    color: #6b7280;
+    color: var(--ui-muted);
     font-family: ui-monospace, monospace;
-  }
-
-  :global([data-mode="dark"]) .readonly-value {
-    background: rgb(var(--color-surface-800));
-    border-color: rgb(var(--color-surface-600));
-    color: var(--color-surface-400);
   }
 
   .form-actions {
@@ -716,11 +684,7 @@
     gap: 1rem;
     justify-content: flex-end;
     padding-top: 1rem;
-    border-top: 1px solid #e5e7eb;
-  }
-
-  :global([data-mode="dark"]) .form-actions {
-    border-top-color: rgb(var(--color-surface-700));
+    border-top: 1px solid var(--ui-border);
   }
 
   .btn-primary,
@@ -738,12 +702,12 @@
   }
 
   .btn-primary {
-    background: #3b82f6;
-    color: white;
+    background: var(--ui-fill-main-bg);
+    color: var(--ui-fill-main-text);
   }
 
   .btn-primary:hover:not(:disabled) {
-    background: #2563eb;
+    opacity: 0.85;
   }
 
   .btn-primary:disabled {
@@ -751,21 +715,13 @@
     cursor: not-allowed;
   }
 
-  :global([data-mode="dark"]) .btn-primary {
-    background: rgb(var(--color-primary-600));
-  }
-
-  :global([data-mode="dark"]) .btn-primary:hover:not(:disabled) {
-    background: rgb(var(--color-primary-700));
-  }
-
   .btn-secondary {
-    background: #f3f4f6;
-    color: #374151;
+    background: var(--ui-panel);
+    color: var(--ui-text);
   }
 
   .btn-secondary:hover:not(:disabled) {
-    background: #e5e7eb;
+    background: var(--ui-hover);
   }
 
   .btn-secondary:disabled {
@@ -773,23 +729,10 @@
     cursor: not-allowed;
   }
 
-  :global([data-mode="dark"]) .btn-secondary {
-    background: rgb(var(--color-surface-700));
-    color: var(--color-surface-200);
-  }
-
-  :global([data-mode="dark"]) .btn-secondary:hover:not(:disabled) {
-    background: rgb(var(--color-surface-600));
-  }
-
   .section-title {
     font-size: 0.9375rem;
     font-weight: 600;
-    color: #374151;
-  }
-
-  :global([data-mode="dark"]) .section-title {
-    color: var(--color-surface-200);
+    color: var(--ui-text);
   }
 
   .input-with-prefix {
@@ -801,14 +744,10 @@
   .input-prefix {
     position: absolute;
     left: 0.75rem;
-    color: #6b7280;
+    color: var(--ui-muted);
     font-size: 0.875rem;
     font-weight: 500;
     z-index: 1;
-  }
-
-  :global([data-mode="dark"]) .input-prefix {
-    color: var(--color-surface-400);
   }
 
   .form-input.with-prefix {
@@ -831,11 +770,7 @@
 
   .rate-limits-section {
     padding-top: 1rem;
-    border-top: 1px solid #e5e7eb;
-  }
-
-  :global([data-mode="dark"]) .rate-limits-section {
-    border-top-color: rgb(var(--color-surface-700));
+    border-top: 1px solid var(--ui-border);
   }
 
   .section-header {
@@ -870,23 +805,14 @@
   }
 
   .rate-limits-grid .form-input.primary-input {
-    border-color: #3b82f6;
-    background: #eff6ff;
-  }
-
-  :global([data-mode="dark"]) .rate-limits-grid .form-input.primary-input {
-    border-color: rgb(var(--color-primary-500));
-    background: rgba(59, 130, 246, 0.15);
+    border-color: var(--ui-tone-info-border);
+    background: var(--ui-tone-info-bg);
   }
 
   /* Attributes section (edit mode) */
   .attributes-section {
     padding-top: 1rem;
-    border-top: 1px solid #e5e7eb;
-  }
-
-  :global([data-mode="dark"]) .attributes-section {
-    border-top-color: rgb(var(--color-surface-700));
+    border-top: 1px solid var(--ui-border);
   }
 
   .btn-add-attribute {
@@ -894,9 +820,9 @@
     align-items: center;
     gap: 0.25rem;
     padding: 0.375rem 0.75rem;
-    background: #eff6ff;
-    color: #3b82f6;
-    border: 1px solid #bfdbfe;
+    background: var(--ui-tone-info-bg);
+    color: var(--ui-tone-info-text);
+    border: 1px solid var(--ui-tone-info-border);
     border-radius: 6px;
     font-size: 0.75rem;
     font-weight: 600;
@@ -905,22 +831,12 @@
   }
 
   .btn-add-attribute:hover:not(:disabled) {
-    background: #dbeafe;
+    background: var(--ui-tone-info-bg);
   }
 
   .btn-add-attribute:disabled {
     opacity: 0.6;
     cursor: not-allowed;
-  }
-
-  :global([data-mode="dark"]) .btn-add-attribute {
-    background: rgba(59, 130, 246, 0.15);
-    color: rgb(var(--color-primary-400));
-    border-color: rgba(59, 130, 246, 0.3);
-  }
-
-  :global([data-mode="dark"]) .btn-add-attribute:hover:not(:disabled) {
-    background: rgba(59, 130, 246, 0.25);
   }
 
   .attributes-list {
@@ -951,9 +867,9 @@
     justify-content: center;
     width: 36px;
     height: 36px;
-    background: #fef2f2;
-    color: #dc2626;
-    border: 1px solid #fecaca;
+    background: var(--ui-tone-error-bg);
+    color: var(--ui-tone-error-text);
+    border: 1px solid var(--ui-tone-error-border);
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.2s;
@@ -961,7 +877,7 @@
   }
 
   .btn-remove-attribute:hover:not(:disabled) {
-    background: #fee2e2;
+    background: var(--ui-tone-error-bg);
   }
 
   .btn-remove-attribute:disabled {
@@ -969,25 +885,11 @@
     cursor: not-allowed;
   }
 
-  :global([data-mode="dark"]) .btn-remove-attribute {
-    background: rgba(239, 68, 68, 0.1);
-    color: rgb(var(--color-error-400));
-    border-color: rgba(239, 68, 68, 0.3);
-  }
-
-  :global([data-mode="dark"]) .btn-remove-attribute:hover:not(:disabled) {
-    background: rgba(239, 68, 68, 0.2);
-  }
-
   .no-attributes {
     font-size: 0.8125rem;
-    color: #9ca3af;
+    color: var(--ui-muted);
     font-style: italic;
     padding: 0.5rem 0;
-  }
-
-  :global([data-mode="dark"]) .no-attributes {
-    color: var(--color-surface-500);
   }
 
   @media (max-width: 768px) {

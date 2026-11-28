@@ -10,7 +10,7 @@
 <h1 class="h2">{t(locale, 'my_applications_heading')}</h1>
 
 {#if data.error}
-	<p class="mt-4 preset-tonal-error rounded p-3" role="alert">{data.error}</p>
+	<p class="mt-4 ui-tone-error rounded p-3" role="alert">{data.error}</p>
 {:else if data.applications.length === 0}
 	<p class="mt-4" data-testid="my-applications-none">{t(locale, 'my_applications_none')}</p>
 {:else}

@@ -22,10 +22,10 @@
 <p class="mt-2 max-w-3xl">What Conformator needs before it can be used. An administrator does most of it in the API Manager; each missing piece links to the page that fixes it.</p>
 
 {#if !data.apiManagerUrl}
-	<section class="mt-6 max-w-3xl rounded-lg border-2 border-error-500 preset-tonal-error p-5" role="alert" data-testid="setup-no-api-manager">
+	<section class="mt-6 max-w-3xl rounded-lg border-2 ui-tone-error p-5" role="alert" data-testid="setup-no-api-manager">
 		<h2 class="h4">The API Manager's address is not known</h2>
 		<p class="mt-2">OBP-API's app directory has no entry for the API Manager, so this page cannot link to it. An administrator sets it as a webui_prop:</p>
-		<pre class="mt-3 rounded bg-surface-50-950 p-3 text-sm"><code>public_obp_api_manager_url=https://apimanager.example.com</code></pre>
+		<pre class="mt-3 rounded ui-card p-3 text-sm"><code>public_obp_api_manager_url=https://apimanager.example.com</code></pre>
 	</section>
 {/if}
 
@@ -39,7 +39,7 @@
 	</dl>
 	{#if data.createBankUrl}
 		<p class="mt-2">The bank for the central space does not exist yet.</p>
-		<a class="btn preset-filled mt-2" href={data.createBankUrl} data-testid="setup-create-bank-link">Create it in the API Manager</a>
+		<a class="btn preset-filled-primary-500 mt-2" href={data.createBankUrl} data-testid="setup-create-bank-link">Create it in the API Manager</a>
 	{/if}
 </section>
 
@@ -53,7 +53,7 @@
 		<dt>Last checked</dt>
 		<dd>{data.checkedAt ?? 'Not checked yet'}</dd>
 	</dl>
-	{#if data.problem}<p class="mt-2 preset-tonal-warning rounded p-3" role="alert" data-testid="setup-problem">{data.problem}</p>{/if}
+	{#if data.problem}<p class="mt-2 ui-tone-warning rounded p-3" role="alert" data-testid="setup-problem">{data.problem}</p>{/if}
 	{#if data.state === 'ok'}
 		<p class="mt-2">Its Consumer holds every Scope it needs.</p>
 	{:else if missingScopes.length > 0}
@@ -97,7 +97,7 @@
 		</table>
 		{#if data.runner.platformAppsUrl}<a class="btn preset-tonal mt-3" href={data.runner.platformAppsUrl} data-testid="setup-runner-platform-apps-link">Open the runner in Platform Apps</a>{/if}
 	{:else}
-		<p class="mt-2 preset-tonal-warning rounded p-3" role="alert">CONFORMATOR_RUNNER_CONSUMER_ID is not set in this app's settings. The runner writes its consumer_id to its log when it starts; set it here, then restart this app.</p>
+		<p class="mt-2 ui-tone-warning rounded p-3" role="alert">CONFORMATOR_RUNNER_CONSUMER_ID is not set in this app's settings. The runner writes its consumer_id to its log when it starts; set it here, then restart this app.</p>
 	{/if}
 </section>
 
@@ -106,14 +106,14 @@
 	{#if data.signing.ready}
 		<p class="mt-2">Reports are signed with key <code>{data.signing.keyId}</code>. Its public key is at <a class="anchor" href="/reports/signing-key">/reports/signing-key</a>.</p>
 	{:else}
-		<p class="mt-2 preset-tonal-warning rounded p-3" role="alert">{data.signing.problem} Make one with <code>openssl genpkey -algorithm ed25519 -out report-signing.pem</code>, keep it out of the repository, set REPORT_SIGNING_KEY_FILE to it and restart this app.</p>
+		<p class="mt-2 ui-tone-warning rounded p-3" role="alert">{data.signing.problem} Make one with <code>openssl genpkey -algorithm ed25519 -out report-signing.pem</code>, keep it out of the repository, set REPORT_SIGNING_KEY_FILE to it and restart this app.</p>
 	{/if}
 </section>
 
 <section id="roles" class="mt-8 scroll-mt-4" data-testid="setup-roles">
 	<h2 class="h4">5. Your staff Roles</h2>
-	{#if form?.error}<p class="mt-2 preset-tonal-error rounded p-3" role="alert">{form.error}</p>{/if}
-	{#if form?.requested}<p class="mt-2 preset-tonal-success rounded p-3" role="status">Your request for {form.requested} is waiting for an administrator.</p>{/if}
+	{#if form?.error}<p class="mt-2 ui-tone-error rounded p-3" role="alert">{form.error}</p>{/if}
+	{#if form?.requested}<p class="mt-2 ui-tone-success rounded p-3" role="status">Your request for {form.requested} is waiting for an administrator.</p>{/if}
 	{#if missingRoles.length === 0}
 		<p class="mt-2">You hold every staff Role.</p>
 	{:else}

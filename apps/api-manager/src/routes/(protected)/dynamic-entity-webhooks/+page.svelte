@@ -65,23 +65,23 @@
 <div class="container mx-auto max-w-7xl px-4 py-8">
   <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
     <div>
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Dynamic Entity Webhooks</h1>
-      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+      <h1 class="text-3xl font-bold ui-text">Dynamic Entity Webhooks</h1>
+      <p class="mt-1 text-sm ui-muted">
         OBP sends a POST request to a webhook's URL when records of its Dynamic Entity are created, updated or deleted.
         The request names the record but carries none of its values.
       </p>
     </div>
     <div class="flex items-center gap-2">
-      <label for="space" class="text-sm text-gray-700 dark:text-gray-300">Space</label>
-      <select id="space" name="bank_id" value={data.bankId} onchange={chooseSpace} class="rounded-lg border border-gray-300 bg-white px-3 py-2 font-mono text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" data-testid="space-select">
+      <label for="space" class="text-sm ui-muted">Space</label>
+      <select id="space" name="bank_id" value={data.bankId} onchange={chooseSpace} class="rounded-lg border px-3 py-2 font-mono text-sm ui-card ui-text ui-border" data-testid="space-select">
         {#each spaces as s (s)}
           <option value={s}>{s}</option>
         {/each}
       </select>
-<a href="/dynamic-entity-webhooks/help" aria-label="Dynamic Entity Webhooks help" data-testid="webhooks-help-link" class="inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
+<a href="/dynamic-entity-webhooks/help" aria-label="Dynamic Entity Webhooks help" data-testid="webhooks-help-link" class="inline-flex items-center gap-1 rounded-lg border px-3 py-2 text-sm font-medium ui-card ui-hover ui-muted ui-border">
         <CircleHelp size={16} />
       </a>
-      <a href={createHref} data-testid="create-link" class="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600">
+      <a href={createHref} data-testid="create-link" class="inline-flex items-center gap-1 rounded-lg px-4 py-2 text-sm font-medium preset-filled-primary-500">
         <Plus size={16} /> Create webhook
       </a>
     </div>
@@ -96,62 +96,62 @@
   ]} />
 
   {#if data.dynamicEntityId}
-    <div class="mb-4 text-sm text-gray-700 dark:text-gray-300" data-testid="entity-filter">
-      Showing the webhooks of one entity. <a href="/dynamic-entity-webhooks?bank_id={encodeURIComponent(data.bankId)}" class="text-blue-600 hover:underline dark:text-blue-400">Show every webhook in {data.bankId}</a>
+    <div class="mb-4 text-sm ui-muted" data-testid="entity-filter">
+      Showing the webhooks of one entity. <a href="/dynamic-entity-webhooks?bank_id={encodeURIComponent(data.bankId)}" class="hover:underline ui-link">Show every webhook in {data.bankId}</a>
     </div>
   {/if}
   {#if data.loadError}
-    <div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300" data-testid="load-error">{data.loadError}</div>
+    <div class="mb-6 rounded-lg border p-4 text-sm ui-tone-error" data-testid="load-error">{data.loadError}</div>
   {/if}
   {#if actionError}
-    <div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300" data-testid="action-error">{actionError}</div>
+    <div class="mb-6 rounded-lg border p-4 text-sm ui-tone-error" data-testid="action-error">{actionError}</div>
   {/if}
   {#if message}
-    <div class="mb-6 rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-700 dark:border-green-800 dark:bg-green-900/20 dark:text-green-300" role="status" data-testid="message">{message}</div>
+    <div class="mb-6 rounded-lg border p-4 text-sm ui-tone-success" role="status" data-testid="message">{message}</div>
   {/if}
 
-  <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+  <div class="overflow-hidden rounded-lg border shadow-sm ui-card ui-border">
     {#if data.webhooks.length === 0}
-      <div class="p-8 text-center text-sm text-gray-500 dark:text-gray-400" data-testid="empty">
+      <div class="p-8 text-center text-sm ui-muted" data-testid="empty">
         No Dynamic Entity webhooks in {data.bankId}.
       </div>
     {:else}
       <div class="overflow-x-auto">
         <table class="w-full text-sm" data-testid="webhooks-table">
-          <thead class="bg-gray-50 dark:bg-gray-900">
+          <thead class="ui-card">
             <tr>
-              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Entity</th>
-              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">URL</th>
-              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Events</th>
-              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Status</th>
-              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Actions</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Entity</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">URL</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Events</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Status</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Actions</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+          <tbody class="divide-y ui-border">
             {#each data.webhooks as w (w.webhook_id)}
               <tr data-testid="row-{w.webhook_id}">
-                <td class="px-4 py-3 font-mono text-xs text-gray-900 dark:text-gray-100">{w.entity_name}</td>
+                <td class="px-4 py-3 font-mono text-xs ui-text">{w.entity_name}</td>
                 <td class="px-4 py-3 font-mono text-xs">
-                  <a href={webhookPageHref(w)} class="text-blue-600 hover:underline dark:text-blue-400">{w.url}</a>
-                  {#if w.description}<div class="font-sans text-xs text-gray-500 dark:text-gray-400">{w.description}</div>{/if}
+                  <a href={webhookPageHref(w)} class="hover:underline ui-link">{w.url}</a>
+                  {#if w.description}<div class="font-sans text-xs ui-muted">{w.description}</div>{/if}
                 </td>
-                <td class="px-4 py-3 text-xs text-gray-700 dark:text-gray-300">
+                <td class="px-4 py-3 text-xs ui-muted">
                   {w.events.join(", ")}
                   {#if w.field_conditions.length > 0}
-                    <div class="text-gray-500 dark:text-gray-400">Updates when: {w.field_conditions.map(describeCondition).join("; ")}</div>
+                    <div class="ui-muted">Updates when: {w.field_conditions.map(describeCondition).join("; ")}</div>
                   {/if}
                 </td>
                 <td class="px-4 py-3 text-xs">
                   {#if w.is_active}
-                    <span class="rounded-full bg-green-100 px-2 py-0.5 text-green-800 dark:bg-green-900/30 dark:text-green-300">Active</span>
+                    <span class="rounded-full px-2 py-0.5 ui-tone-success">Active</span>
                   {:else}
-                    <span class="rounded-full bg-gray-200 px-2 py-0.5 text-gray-800 dark:bg-gray-700 dark:text-gray-200" title={DEACTIVATED_REASONS[w.deactivated_reason ?? ""] ?? ""}>Off: {w.deactivated_reason ?? "TURNED_OFF"}</span>
+                    <span class="rounded-full px-2 py-0.5 ui-panel ui-text" title={DEACTIVATED_REASONS[w.deactivated_reason ?? ""] ?? ""}>Off: {w.deactivated_reason ?? "TURNED_OFF"}</span>
                   {/if}
                 </td>
                 <td class="px-4 py-3">
                   <div class="flex items-center gap-2">
-                    <a href={webhookPageHref(w)} class="inline-flex items-center gap-1 rounded border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700" data-testid="edit-{w.webhook_id}"><Pencil size={12} /> Open</a>
-                    <button type="button" onclick={() => remove(w)} disabled={deleting === w.webhook_id} class="inline-flex items-center gap-1 rounded border border-red-300 px-2 py-1 text-xs text-red-700 hover:bg-red-50 disabled:opacity-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-900/20" data-testid="delete-{w.webhook_id}">
+                    <a href={webhookPageHref(w)} class="inline-flex items-center gap-1 rounded border px-2 py-1 text-xs ui-hover ui-muted ui-border" data-testid="edit-{w.webhook_id}"><Pencil size={12} /> Open</a>
+                    <button type="button" onclick={() => remove(w)} disabled={deleting === w.webhook_id} class="inline-flex items-center gap-1 rounded border px-2 py-1 text-xs disabled:opacity-50 ui-tone-error" data-testid="delete-{w.webhook_id}">
                       <Trash2 size={12} /> {deleting === w.webhook_id ? "Deleting…" : "Delete"}
                     </button>
                   </div>
@@ -161,7 +161,7 @@
           </tbody>
         </table>
       </div>
-      <div class="border-t border-gray-200 px-4 py-2 text-xs text-gray-500 dark:border-gray-700 dark:text-gray-400">{data.webhooks.length} webhook{data.webhooks.length === 1 ? "" : "s"} in {data.bankId}</div>
+      <div class="border-t px-4 py-2 text-xs ui-muted ui-border">{data.webhooks.length} webhook{data.webhooks.length === 1 ? "" : "s"} in {data.bankId}</div>
     {/if}
   </div>
 </div>

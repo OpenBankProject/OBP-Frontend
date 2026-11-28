@@ -21,7 +21,7 @@
 {#if !data.can.read}
 	<div class="mt-4"><MissingRoleAlert roles={[data.roles.read]} bankId={data.space || undefined} /></div>
 {:else if data.problem}
-	<p class="mt-4 preset-tonal-error rounded p-3" role="alert">The participants could not be read: {data.problem}</p>
+	<p class="mt-4 ui-tone-error rounded p-3" role="alert">The participants could not be read: {data.problem}</p>
 {:else if data.participants.length === 0}
 	<p class="mt-4">No participants are registered yet.</p>
 {:else}
@@ -57,7 +57,7 @@
 		</div>
 		<label class="label"><span>Username of the first admin of its Organisation</span><input class="input" name="admin_username" required maxlength="100" value={values.admin_username ?? ''} /></label>
 		<label class="flex items-start gap-2 text-sm"><input class="checkbox mt-0.5" type="checkbox" name="is_reference" checked={values.is_reference === 'on'} /> <span>This is the OBP sandbox itself: the reference that suites are run against before participants use them.</span></label>
-		<div><button class="btn preset-filled" data-testid="participant-register">Register</button></div>
+		<div><button class="btn preset-filled-primary-500" data-testid="participant-register">Register</button></div>
 	</form>
 {:else}
 	<div class="mt-2"><MissingRoleAlert roles={data.roles.create} bankId={data.space || undefined} /></div>

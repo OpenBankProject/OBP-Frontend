@@ -63,11 +63,11 @@
   };
 
   function statusBadge(status: string): string {
-    if (status === "OK") return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400";
-    if (status === "WARNING") return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400";
-    if (status === "ERROR") return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400";
-    if (status === "MANUAL") return "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400";
-    return "bg-gray-100 text-gray-700 dark:bg-gray-900/40 dark:text-gray-300";
+    if (status === "OK") return "ui-tone-success";
+    if (status === "WARNING") return "ui-tone-warning";
+    if (status === "ERROR") return "ui-tone-error";
+    if (status === "MANUAL") return "ui-tone-accent";
+    return "ui-panel ui-muted";
   }
 </script>
 
@@ -78,8 +78,8 @@
 <div class="container mx-auto max-w-7xl px-4 py-8" data-testid="deployment-checks-page">
   <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
     <div>
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Deployment Checks</h1>
-      <p class="mt-1 max-w-3xl text-gray-600 dark:text-gray-400">
+      <h1 class="text-3xl font-bold ui-text">Deployment Checks</h1>
+      <p class="mt-1 max-w-3xl ui-muted">
         Whether this OBP-API instance, and the proxy and applications in front of it, are set up so that per-IP
         limits, IP penalties and the busiest-callers view see real client addresses. Worked out from its props
         and its traffic of the last few minutes.
@@ -88,7 +88,7 @@
     {#if data.hasRole}
       <button
         type="button"
-        class="inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+        class="inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium disabled:opacity-50 ui-card ui-hover ui-muted ui-border"
         onclick={refresh}
         disabled={refreshing}
         data-testid="deployment-checks-refresh"
@@ -106,65 +106,65 @@
     <!-- Summary -->
     <div
       class="mb-6 rounded-lg border p-4 {deployment.errors > 0
-        ? 'border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20'
+        ? 'ui-tone-error'
         : deployment.warnings > 0
-          ? 'border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-900/20'
-          : 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20'}"
+          ? 'ui-tone-warning'
+          : 'ui-tone-success'}"
       data-testid="deployment-checks-summary"
       data-state={deployment.errors > 0 ? "errors" : deployment.warnings > 0 ? "warnings" : "ok"}
     >
-      <p class="font-semibold text-gray-900 dark:text-gray-100">
+      <p class="font-semibold ui-text">
         {deployment.errors} error{deployment.errors === 1 ? "" : "s"}, {deployment.warnings} warning{deployment.warnings === 1 ? "" : "s"}
       </p>
-      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+      <p class="mt-1 text-sm ui-muted">
         Instance <code class="font-mono">{deployment.api_instance_id}</code>, checked {new Date(deployment.checked_at).toLocaleString(undefined, { hourCycle: "h23" })},
         traffic of the last {deployment.window_minutes} minutes.
       </p>
     </div>
 
     {#each areas as area (area)}
-      <section class="mb-6 rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800" data-testid="deployment-area" data-area={area}>
-        <h2 class="border-b border-gray-200 p-4 text-lg font-semibold text-gray-900 dark:border-gray-700 dark:text-gray-100">{area}</h2>
-        <ul class="divide-y divide-gray-200 dark:divide-gray-700">
+      <section class="mb-6 rounded-lg border shadow-sm ui-card ui-border" data-testid="deployment-area" data-area={area}>
+        <h2 class="border-b p-4 text-lg font-semibold ui-text ui-border">{area}</h2>
+        <ul class="divide-y ui-border">
           {#each deployment.checks.filter((c) => c.area === area) as check (check.id)}
             <li class="flex items-start gap-3 p-4" data-testid="deployment-check" data-check={check.id} data-status={check.status}>
               <div class="mt-0.5">
                 {#if check.status === "OK"}
-                  <CheckCircle2 class="h-5 w-5 text-green-600 dark:text-green-400" />
+                  <CheckCircle2 class="h-5 w-5 ui-text-success" />
                 {:else if check.status === "WARNING"}
-                  <AlertTriangle class="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+                  <AlertTriangle class="h-5 w-5 ui-text-warning" />
                 {:else if check.status === "ERROR"}
-                  <XCircle class="h-5 w-5 text-red-600 dark:text-red-400" />
+                  <XCircle class="h-5 w-5 ui-text-error" />
                 {:else if check.status === "MANUAL"}
-                  <CircleHelp class="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                  <CircleHelp class="h-5 w-5 ui-text-brand" />
                 {:else}
-                  <Info class="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                  <Info class="h-5 w-5 ui-muted" />
                 {/if}
               </div>
               <div class="min-w-0 flex-1">
                 <div class="flex flex-wrap items-center gap-2">
-                  <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">{check.title}</span>
+                  <span class="text-sm font-semibold ui-text">{check.title}</span>
                   <span class="rounded-full px-2.5 py-0.5 text-xs font-medium {statusBadge(check.status)}">{check.status}</span>
-                  <span class="rounded-full border border-gray-300 px-2 py-0.5 text-xs text-gray-600 dark:border-gray-600 dark:text-gray-400">
+                  <span class="rounded-full border px-2 py-0.5 text-xs ui-muted ui-border">
                     {basisLabels[check.basis] ?? check.basis}
                   </span>
                 </div>
-                <p class="mt-1 text-sm text-gray-700 dark:text-gray-300">{check.message}</p>
+                <p class="mt-1 text-sm ui-muted">{check.message}</p>
                 {#if check.evidence.length > 0}
                   <dl class="mt-2 grid grid-cols-1 gap-x-6 gap-y-1 text-xs sm:grid-cols-2" data-testid="deployment-check-evidence">
                     {#each check.evidence as item (item.name)}
                       <div class="flex gap-2">
-                        <dt class="text-gray-500 dark:text-gray-400">{item.name}:</dt>
-                        <dd class="break-all font-mono text-gray-800 dark:text-gray-200">{item.value}</dd>
+                        <dt class="ui-muted">{item.name}:</dt>
+                        <dd class="break-all font-mono ui-text">{item.value}</dd>
                       </div>
                     {/each}
                   </dl>
                 {/if}
                 {#if check.props.length > 0}
                   <div class="mt-2 flex flex-wrap items-center gap-1.5" data-testid="deployment-check-props">
-                    <span class="text-xs text-gray-500 dark:text-gray-400">props:</span>
+                    <span class="text-xs ui-muted">props:</span>
                     {#each check.props as prop (prop)}
-                      <code class="rounded bg-gray-100 px-1.5 py-0.5 text-xs font-mono text-gray-700 dark:bg-gray-900 dark:text-gray-300">{prop}</code>
+                      <code class="rounded px-1.5 py-0.5 text-xs font-mono ui-panel ui-muted">{prop}</code>
                     {/each}
                   </div>
                 {/if}

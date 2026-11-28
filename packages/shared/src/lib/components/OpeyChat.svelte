@@ -860,7 +860,7 @@
 {#snippet header()}
 	{#if options.displayHeader}
 		<header
-			class="align-center flex flex-shrink-0 justify-between preset-filled-secondary-300-700 {options.bodyClasses ||
+			class="align-center flex flex-shrink-0 justify-between ui-panel {options.bodyClasses ||
 				''}"
 		>
 			<img src="/images/opey-logo-inv.png" alt="Opey Logo" class="mx-2 my-auto h-10 w-auto" />
@@ -924,7 +924,7 @@
 		<div class="flex flex-wrap justify-center gap-2 p-4">
 			{#each options.suggestedQuestions as question}
 				<button
-					class="text-s btn flex items-center rounded-lg border border-solid border-primary-500 bg-primary-50-950 px-3"
+					class="text-s btn flex items-center rounded-lg border border-solid px-3 ui-tone-info"
 					onclick={() => handleSendMessage(question.questionString)}
 					disabled={session?.status !== 'ready' || !userAuthenticated}
 				>
@@ -943,20 +943,20 @@
 		{@const inp = chat.tokenUsage.inputTokens}
 		{@const colorClass =
 			inp > 190000
-				? 'text-error-500'
+				? 'ui-text-error'
 				: inp > 160000
-					? 'text-warning-600-400'
-					: 'text-surface-600-400'}
+					? 'ui-text-warning'
+					: 'ui-muted'}
 		<div class="mt-1 text-center text-xs {colorClass}" data-testid="opey-token-usage">
 			Context: {Math.round(inp / 1000)}K / 200K tokens
-			<span class="text-surface-500">· {chat.tokenUsage.outputTokens} out</span>
+			<span class="ui-muted">· {chat.tokenUsage.outputTokens} out</span>
 		</div>
 	{/if}
 {/snippet}
 
 {#snippet consentIndicator()}
 	{#if currentConsent && options.consentsPageHref}
-		<div class="mt-1 flex justify-end text-xs text-surface-600-400">
+		<div class="mt-1 flex justify-end text-xs ui-muted">
 			<a
 				href={options.consentsPageHref}
 				target={options.consentsPageHref.startsWith('http') ? '_blank' : undefined}
@@ -969,10 +969,10 @@
 			</a>
 		</div>
 	{:else if currentConsent}
-		<div class="relative mt-1 flex justify-end text-xs text-surface-600-400">
+		<div class="relative mt-1 flex justify-end text-xs ui-muted">
 			<button
 				type="button"
-				class="flex items-center gap-1 rounded px-1 hover:text-surface-900-100"
+				class="flex items-center gap-1 rounded px-1"
 				onclick={() => (consentIndicatorOpen = !consentIndicatorOpen)}
 				aria-expanded={consentIndicatorOpen}
 				aria-label="Consent Opey is currently using — click for details"
@@ -986,17 +986,17 @@
 			</button>
 			{#if consentIndicatorOpen}
 				<div
-					class="absolute end-0 bottom-full z-20 mb-1 w-80 max-w-[90vw] rounded-md border border-surface-300-700 bg-surface-50-950 p-3 text-start shadow-lg"
+					class="absolute end-0 bottom-full z-20 mb-1 w-80 max-w-[90vw] rounded-md border p-3 text-start shadow-lg ui-card ui-border"
 					data-testid="opey-consent-indicator-popover"
 				>
-					<p class="mb-2 font-semibold text-surface-900-100">Consent Opey is using now</p>
+					<p class="mb-2 font-semibold ui-text">Consent Opey is using now</p>
 					<div class="space-y-0.5" data-testid="opey-consent-row">
 						<div>
 							<span class="opacity-70">consent_reference_id</span>
 							{#if currentConsent.referenceId && options.consentMetricsHref}
 								<a
 									href={`${options.consentMetricsHref}?consent_reference_id=${encodeURIComponent(currentConsent.referenceId)}`}
-									class="text-tertiary-600-400 hover:underline"
+									class="hover:underline ui-link"
 									><code class="font-mono">{currentConsent.referenceId}</code></a
 								>
 							{:else}
@@ -1057,13 +1057,13 @@
 			{@render pip('services', "Opey's services", opeyServicesLight, statusLinks.status)}
 			{@render pip('auth', 'Opey session', opeySessionLight, userAuthenticated ? statusLinks.consents : statusLinks.status)}
 			{#if obpMcpAuthMode}
-				<span class="ms-1 rounded-full bg-primary-200-800 px-2 py-0.5 text-[10px] font-mono uppercase tracking-wide" data-testid="obp-mcp-auth-mode">{obpMcpAuthMode}</span>
+				<span class="ms-1 rounded-full px-2 py-0.5 text-[10px] font-mono uppercase tracking-wide ui-tone-info" data-testid="obp-mcp-auth-mode">{obpMcpAuthMode}</span>
 			{/if}
 		</div>
 		{#if hoveredLight}
 			<Portal>
 				<span
-					class="pointer-events-none fixed z-[1000] w-72 max-w-[calc(100vw-1rem)] rounded-md bg-surface-800 px-2.5 py-1.5 text-xs text-surface-50 shadow-lg"
+					class="pointer-events-none fixed z-[1000] w-72 max-w-[calc(100vw-1rem)] rounded-md px-2.5 py-1.5 text-xs shadow-lg ui-panel ui-muted"
 					style="top: {hoveredLight.top}px; right: {hoveredLight.right}px"
 					data-testid="opey-light-hint"
 					aria-hidden="true">{lightHints[hoveredLight.id]}</span
@@ -1089,9 +1089,9 @@
 			/>
 		</Dialog.Trigger>
 			<Portal>
-				<Dialog.Backdrop class="fixed inset-0 z-50 bg-surface-50-950/50" />
+				<Dialog.Backdrop class="fixed inset-0 z-50 ui-card" />
 				<Dialog.Positioner class="fixed inset-0 z-50 flex items-center justify-center p-4">
-					<Dialog.Content class="card bg-surface-100-900 w-full max-w-4xl space-y-4 p-6 shadow-xl">
+					<Dialog.Content class="card w-full max-w-4xl space-y-4 p-6 shadow-xl ui-panel">
 						<header class="flex items-center justify-between">
 							<Dialog.Title class="text-2xl font-bold">{m.opey_diagram_title()}</Dialog.Title>
 							<Dialog.CloseTrigger class="btn-icon preset-tonal">✕</Dialog.CloseTrigger>
@@ -1103,12 +1103,12 @@
 						<div class="flex min-h-64 items-center justify-center">
 							{#if isLoadingDiagram}
 								<div class="flex flex-col items-center gap-4">
-									<div class="h-12 w-12 animate-spin rounded-full border-b-2 border-primary-500"></div>
+									<div class="h-12 w-12 animate-spin rounded-full border-b-2 border-current ui-text-brand"></div>
 									<p class="text-sm opacity-75">{m.opey_diagram_loading()}</p>
 								</div>
 							{:else if diagramError}
 								<div class="space-y-2 text-center">
-									<p class="text-error-500">{m.opey_diagram_failed()}</p>
+									<p class="ui-text-error">{m.opey_diagram_failed()}</p>
 									<p class="text-sm opacity-75">{diagramError}</p>
 								</div>
 							{:else if diagramUrl}
@@ -1125,7 +1125,7 @@
 		</Dialog>
 
 		<!-- Unified input container with textarea and controls -->
-		<div class="relative w-full rounded-lg bg-primary-50 p-4 dark:bg-primary-600">
+		<div class="relative w-full rounded-lg p-4 ui-tone-info">
 		<!-- Text area with auto-resize -->
 		<textarea
 			bind:value={messageInput}
@@ -1215,7 +1215,7 @@
 					{@render inputField(true)}
 				</div>
 				{#if chat.conversationRecord}
-					<p class="mt-1 text-[11px] text-surface-500 dark:text-surface-400" data-testid="conversation-record-status">
+					<p class="mt-1 text-[11px] ui-muted" data-testid="conversation-record-status">
 						{#if chat.conversationRecord.status === 'saved'}
 							{m.opey_record_saved()}
 						{:else if chat.conversationRecord.status === 'unavailable'}

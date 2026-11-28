@@ -30,15 +30,15 @@
 <div class="container mx-auto max-w-7xl px-4 py-8">
   <RetentionHeader title="Archived {data.entry.resource_type.replaceAll('_', ' ')}" intro="A read-only copy, as the resource was when archived. It cannot be restored, and is deleted when its time is up." bankId={data.bankId} bankIds={data.bankIds} />
 
-  <dl class="mb-6 grid grid-cols-[max-content_1fr] gap-x-6 gap-y-1 rounded-lg border border-gray-200 bg-white p-6 text-sm text-gray-700 shadow-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300" data-testid="archive-entry">
+  <dl class="mb-6 grid grid-cols-[max-content_1fr] gap-x-6 gap-y-1 rounded-lg border p-6 text-sm shadow-sm ui-card ui-muted ui-border" data-testid="archive-entry">
     <dt>Resource</dt><dd class="font-mono text-xs">{e.resource_type}{e.entity_name ? ` ${e.entity_name}` : ""} {e.resource_id}</dd>
     <dt>Owner</dt><dd class="font-mono text-xs">{e.owner_user_id ?? "—"}</dd>
     {#if e.parent_resource_type}<dt>Part of</dt><dd class="font-mono text-xs">{e.parent_resource_type} {e.parent_resource_id}</dd>{/if}
-    <dt>Archived</dt><dd>{when(e.archived_at)} by run <a class="text-blue-600 underline dark:text-blue-400" href="/retention/runs/{encodeURIComponent(data.bankId)}/{encodeURIComponent(e.retention_run_id)}">{e.retention_run_id}</a></dd>
+    <dt>Archived</dt><dd>{when(e.archived_at)} by run <a class="underline ui-link" href="/retention/runs/{encodeURIComponent(data.bankId)}/{encodeURIComponent(e.retention_run_id)}">{e.retention_run_id}</a></dd>
     <dt>Deleted after</dt><dd>{when(e.delete_after)}</dd>
-    {#if e.has_content}<dt>Content</dt><dd><a class="text-blue-600 underline dark:text-blue-400" href="/retention/archive/{encodeURIComponent(data.bankId)}/{encodeURIComponent(e.retention_archive_id)}/content" data-testid="download">Download ({e.content_size_in_bytes ?? "?"} bytes)</a></dd>{/if}
+    {#if e.has_content}<dt>Content</dt><dd><a class="underline ui-link" href="/retention/archive/{encodeURIComponent(data.bankId)}/{encodeURIComponent(e.retention_archive_id)}/content" data-testid="download">Download ({e.content_size_in_bytes ?? "?"} bytes)</a></dd>{/if}
   </dl>
 
-  <h2 class="mb-2 text-xl font-semibold text-gray-900 dark:text-gray-100">As archived</h2>
-  <pre class="overflow-x-auto rounded-lg border border-gray-200 bg-gray-50 p-4 font-mono text-xs text-gray-800 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200" data-testid="archive-data">{JSON.stringify(e.data ?? {}, null, 2)}</pre>
+  <h2 class="mb-2 text-xl font-semibold ui-text">As archived</h2>
+  <pre class="overflow-x-auto rounded-lg border p-4 font-mono text-xs ui-card ui-text ui-border" data-testid="archive-data">{JSON.stringify(e.data ?? {}, null, 2)}</pre>
 </div>

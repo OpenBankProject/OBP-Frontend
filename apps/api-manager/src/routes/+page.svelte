@@ -37,7 +37,7 @@
 	const helpQuestionHtml = $derived(renderWebUiProp('webui_help_question_manager', data.webUiText.helpQuestion.value, { inline: true }));
 	const welcomeDescriptionHtml = $derived(renderWebUiProp('webui_welcome_description_manager', data.webUiText.welcomeDescription.value, {
 		// primary-* is near-black in the OBP theme, so use tertiary for a visible hover
-		linkClass: 'underline hover:text-tertiary-600 dark:hover:text-tertiary-400'
+		linkClass: 'underline ui-link'
 	}));
 
 	// Icon mapping for configurable questions
@@ -94,9 +94,9 @@
 		<OpeyChat {opeyChatOptions} userAuthenticated={isAuthenticated}>
 			{#snippet splash()}
 				<div class="flex w-2/3 flex-col items-center justify-center text-center">
-					<h1 class="h3 text-surface-700-300 mb-2">{@html welcomeTitleHtml}</h1>
+					<h1 class="h3 mb-2 ui-muted">{@html welcomeTitleHtml}</h1>
 					<h1 class="h3 mb-4">{@html helpQuestionHtml}</h1>
-					<div class="text-surface-700-300 mb-7 text-sm" data-testid="welcome-description">
+					<div class="mb-7 text-sm ui-muted" data-testid="welcome-description">
 						{@html welcomeDescriptionHtml}
 					</div>
 				</div>

@@ -27,7 +27,7 @@
 </script>
 
 <div
-	class="card dark:bg-primary-500/50 backdrop-blur-3xl border-primary-200-800 divide-primary-200-800 mx-auto my-10 md:px-15 flex flex-col divide-y border-[1px] shadow-lg max-w-[90%] lg:max-w-2xl"
+	class="card ui-card ui-border backdrop-blur-3xl mx-auto my-10 md:px-15 flex flex-col divide-y border-[1px] shadow-lg max-w-[90%] lg:max-w-2xl"
 >
 	<header class="py-4">
 		<h1 class="h4 text-center">Forgot Your Password?</h1>
@@ -39,9 +39,9 @@
 		{#if form?.success}
 			<!-- Success Message -->
 			<div class="mx-auto w-full max-w-md space-y-4">
-				<div class="rounded-lg border border-success-500 bg-success-500/10 p-6 text-center" data-testid="forgot-password-success">
+				<div class="rounded-lg border p-6 text-center ui-tone-success" data-testid="forgot-password-success">
 					<div class="flex justify-center mb-4">
-						<svg class="h-16 w-16 text-success-500" fill="currentColor" viewBox="0 0 20 20">
+						<svg class="h-16 w-16 ui-text-success" fill="currentColor" viewBox="0 0 20 20">
 							<path
 								fill-rule="evenodd"
 								d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
@@ -49,7 +49,7 @@
 							></path>
 						</svg>
 					</div>
-					<p class="text-success-500 font-semibold text-lg mb-2">Check Your Email</p>
+					<p class="font-semibold text-lg mb-2 ui-text-success">Check Your Email</p>
 					<p class="text-sm opacity-90">
 						If an account exists with <strong>{form?.email}</strong>, you will receive a password
 						reset link shortly.
@@ -59,12 +59,12 @@
 					</p>
 				</div>
 				{#if form?.apiStatus === 'ok'}
-					<div class="rounded-lg border border-success-500 bg-success-500/10 p-3 text-center">
-						<p class="text-success-500 text-sm">{form.apiMessage}</p>
+					<div class="rounded-lg border p-3 text-center ui-tone-success">
+						<p class="text-sm ui-text-success">{form.apiMessage}</p>
 					</div>
 				{:else if form?.apiStatus === 'error'}
-					<div class="rounded-lg border border-error-500 bg-error-500/10 p-3 text-center">
-						<p class="text-error-500 text-sm">{form.apiMessage}</p>
+					<div class="rounded-lg border p-3 text-center ui-tone-error">
+						<p class="text-sm ui-text-error">{form.apiMessage}</p>
 					</div>
 				{/if}
 				<div class="text-center">
@@ -77,8 +77,8 @@
 			<!-- Request Form -->
 			<form class="mx-auto w-full max-w-md space-y-6" method="POST">
 				{#if form?.message}
-					<div class="bg-error-500/10 border-error-500 rounded-lg border p-4 text-center">
-						<p class="text-error-500 font-semibold">{form.message}</p>
+					<div class="rounded-lg border p-4 text-center ui-tone-error">
+						<p class="font-semibold ui-text-error">{form.message}</p>
 					</div>
 				{/if}
 
@@ -125,12 +125,12 @@
 				<hr class="hr" />
 
 				<div class="text-center space-y-2">
-					<a href="/login" class="block text-sm text-primary-500 hover:text-primary-400">
+					<a href="/login" class="block text-sm ui-text-brand">
 						Back to Login
 					</a>
 					<p class="text-xs opacity-75">
 						Don't have an account?
-						<a href="/register" class="text-primary-500 hover:text-primary-400">Register here</a>
+						<a href="/register" class="ui-text-brand">Register here</a>
 					</p>
 				</div>
 			</form>

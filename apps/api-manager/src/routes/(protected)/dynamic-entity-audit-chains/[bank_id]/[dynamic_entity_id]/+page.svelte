@@ -93,13 +93,13 @@
 
 <div class="container mx-auto max-w-7xl px-4 py-8">
   <div class="mb-6">
-    <a href={entityHref} class="text-sm text-blue-600 hover:underline dark:text-blue-400" data-testid="entity-link">← {data.entityName}</a>
-    <h1 class="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100">Audit Chain of <span class="font-mono">{data.entityName}</span></h1>
-    <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+    <a href={entityHref} class="text-sm hover:underline ui-link" data-testid="entity-link">← {data.entityName}</a>
+    <h1 class="mt-2 text-3xl font-bold ui-text">Audit Chain of <span class="font-mono">{data.entityName}</span></h1>
+    <p class="mt-1 text-sm ui-muted">
       Once started, every change to this entity's records adds an entry, linked to the one before by its hash.
       The check finds records or entries changed without going through OBP-API.
       A chain cannot be stopped, and an entity with a chain cannot be deleted or renamed.
-      See also the <a href="/dynamic-entity-audit-chains" class="text-blue-600 hover:underline dark:text-blue-400">root chain</a>, which ties every chain together.
+      See also the <a href="/dynamic-entity-audit-chains" class="hover:underline ui-link">root chain</a>, which ties every chain together.
     </p>
   </div>
 
@@ -111,83 +111,83 @@
   ]} />
 
   {#if data.loadError}
-    <div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300" data-testid="load-error">{data.loadError}</div>
+    <div class="mb-6 rounded-lg border p-4 text-sm ui-tone-error" data-testid="load-error">{data.loadError}</div>
   {/if}
   {#if actionError}
-    <div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300" data-testid="action-error">{actionError}</div>
+    <div class="mb-6 rounded-lg border p-4 text-sm ui-tone-error" data-testid="action-error">{actionError}</div>
   {/if}
 
   {#if !data.chain}
     {#if !data.loadError}
-      <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800" data-testid="no-chain">
-        <p class="text-sm text-gray-700 dark:text-gray-300">
+      <div class="rounded-lg border p-6 shadow-sm ui-card ui-border" data-testid="no-chain">
+        <p class="text-sm ui-muted">
           This entity has no audit chain. Starting one records each record it already holds, then every change from now on.
         </p>
-        <button type="button" onclick={start} disabled={starting} data-testid="start-button" class="mt-4 inline-flex items-center gap-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600">
+        <button type="button" onclick={start} disabled={starting} data-testid="start-button" class="mt-4 inline-flex items-center gap-1 rounded-lg px-4 py-2 text-sm font-medium disabled:opacity-50 preset-filled-primary-500">
           <Play size={16} /> {starting ? "Starting…" : "Start audit chain"}
         </button>
       </div>
     {/if}
   {:else}
-    <div class="mb-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800" data-testid="chain">
+    <div class="mb-6 rounded-lg border p-6 shadow-sm ui-card ui-border" data-testid="chain">
       <dl class="grid grid-cols-1 gap-4 text-sm md:grid-cols-3">
         <div>
-          <dt class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">Started</dt>
-          <dd class="mt-1 text-gray-900 dark:text-gray-100" data-testid="chain-started-at">{new Date(data.chain.started_at).toLocaleString(undefined, { hourCycle: "h23" })}</dd>
+          <dt class="text-xs uppercase tracking-wider ui-muted">Started</dt>
+          <dd class="mt-1 ui-text" data-testid="chain-started-at">{new Date(data.chain.started_at).toLocaleString(undefined, { hourCycle: "h23" })}</dd>
         </div>
         <div>
-          <dt class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">Started by</dt>
-          <dd class="mt-1 break-all font-mono text-xs text-gray-900 dark:text-gray-100" data-testid="chain-started-by">{whoOf({ user_id: data.chain.started_by_user_id, on_behalf_of_user_id: data.chain.started_by_on_behalf_of_user_id })}</dd>
+          <dt class="text-xs uppercase tracking-wider ui-muted">Started by</dt>
+          <dd class="mt-1 break-all font-mono text-xs ui-text" data-testid="chain-started-by">{whoOf({ user_id: data.chain.started_by_user_id, on_behalf_of_user_id: data.chain.started_by_on_behalf_of_user_id })}</dd>
         </div>
         <div>
-          <dt class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">Last entry</dt>
-          <dd class="mt-1 text-gray-900 dark:text-gray-100" data-testid="chain-last-sequence">{data.chain.last_sequence}</dd>
+          <dt class="text-xs uppercase tracking-wider ui-muted">Last entry</dt>
+          <dd class="mt-1 ui-text" data-testid="chain-last-sequence">{data.chain.last_sequence}</dd>
         </div>
         <div class="md:col-span-3">
-          <dt class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">Last hash</dt>
-          <dd class="mt-1 break-all font-mono text-xs text-gray-900 dark:text-gray-100" data-testid="chain-last-hash">{data.chain.last_hash}</dd>
+          <dt class="text-xs uppercase tracking-wider ui-muted">Last hash</dt>
+          <dd class="mt-1 break-all font-mono text-xs ui-text" data-testid="chain-last-hash">{data.chain.last_hash}</dd>
         </div>
       </dl>
-      <div class="mt-6 border-t border-gray-200 pt-4 dark:border-gray-700">
-        <button type="button" onclick={check} disabled={checking} data-testid="check-button" class="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600">
+      <div class="mt-6 border-t pt-4 ui-border">
+        <button type="button" onclick={check} disabled={checking} data-testid="check-button" class="inline-flex items-center gap-1 rounded-lg px-4 py-2 text-sm font-medium disabled:opacity-50 preset-filled-primary-500">
           <ShieldCheck size={16} /> {checking ? "Checking…" : "Check"}
         </button>
       </div>
     </div>
 
     {#if result}
-      <div class="mb-6 rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800" data-testid="check-result" data-state={result.is_intact ? "intact" : "broken"}>
-        <div class="flex flex-wrap items-center gap-3 border-b border-gray-200 p-4 dark:border-gray-700">
+      <div class="mb-6 rounded-lg border shadow-sm ui-card ui-border" data-testid="check-result" data-state={result.is_intact ? "intact" : "broken"}>
+        <div class="flex flex-wrap items-center gap-3 border-b p-4 ui-border">
           {#if result.is_intact}
-            <span class="rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800 dark:bg-green-900/30 dark:text-green-300" data-testid="intact">Intact</span>
+            <span class="rounded-full px-3 py-1 text-sm font-medium ui-tone-success" data-testid="intact">Intact</span>
           {:else}
-            <span class="rounded-full bg-red-100 px-3 py-1 text-sm font-medium text-red-800 dark:bg-red-900/30 dark:text-red-300" data-testid="broken">{result.problem_count} problem{result.problem_count === 1 ? "" : "s"} found</span>
+            <span class="rounded-full px-3 py-1 text-sm font-medium ui-tone-error" data-testid="broken">{result.problem_count} problem{result.problem_count === 1 ? "" : "s"} found</span>
           {/if}
-          <span class="text-sm text-gray-600 dark:text-gray-400">
+          <span class="text-sm ui-muted">
             Checked {result.entries_checked} entr{result.entries_checked === 1 ? "y" : "ies"} and {result.records_checked} record{result.records_checked === 1 ? "" : "s"} at {new Date(result.checked_at).toLocaleString(undefined, { hourCycle: "h23" })}.
           </span>
         </div>
         {#if result.problems.length > 0}
           <div class="overflow-x-auto">
             <table class="w-full text-sm" data-testid="problems-table">
-              <thead class="bg-gray-50 dark:bg-gray-900">
+              <thead class="ui-card">
                 <tr>
-                  <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Where</th>
-                  <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Problem</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Where</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Problem</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+              <tbody class="divide-y ui-border">
                 {#each result.problems as problem, index (index)}
                   <tr data-testid="problem-{index}">
-                    <td class="px-4 py-3 font-mono text-xs text-gray-900 dark:text-gray-100">{whereOf(problem)}</td>
-                    <td class="px-4 py-3 text-gray-700 dark:text-gray-300">{problem.problem}</td>
+                    <td class="px-4 py-3 font-mono text-xs ui-text">{whereOf(problem)}</td>
+                    <td class="px-4 py-3 ui-muted">{problem.problem}</td>
                   </tr>
                 {/each}
               </tbody>
             </table>
           </div>
           {#if result.problem_count > result.problems.length}
-            <div class="border-t border-gray-200 px-4 py-2 text-xs text-gray-500 dark:border-gray-700 dark:text-gray-400" data-testid="problems-truncated">
+            <div class="border-t px-4 py-2 text-xs ui-muted ui-border" data-testid="problems-truncated">
               Showing the first {result.problems.length} of {result.problem_count} problems.
             </div>
           {/if}
@@ -195,63 +195,63 @@
       </div>
     {/if}
 
-    <div class="rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800" data-testid="entries">
-      <div class="flex flex-wrap items-center justify-between gap-4 border-b border-gray-200 p-4 dark:border-gray-700">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+    <div class="rounded-lg border shadow-sm ui-card ui-border" data-testid="entries">
+      <div class="flex flex-wrap items-center justify-between gap-4 border-b p-4 ui-border">
+        <h2 class="text-lg font-semibold ui-text">
           {data.recordId ? "History of one record" : "Entries"}
         </h2>
         <form onsubmit={showRecord} class="flex items-center gap-2">
-          <label for="record-id" class="text-sm text-gray-700 dark:text-gray-300">Record id</label>
-          <input id="record-id" name="record_id" bind:value={recordFilter} data-testid="record-id-input" class="rounded-lg border border-gray-300 bg-white px-3 py-1.5 font-mono text-xs text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" />
-          <button type="submit" data-testid="record-id-submit" class="rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">Show history</button>
+          <label for="record-id" class="text-sm ui-muted">Record id</label>
+          <input id="record-id" name="record_id" bind:value={recordFilter} data-testid="record-id-input" class="rounded-lg border px-3 py-1.5 font-mono text-xs ui-card ui-text ui-border" />
+          <button type="submit" data-testid="record-id-submit" class="rounded-lg border px-3 py-1.5 text-sm ui-hover ui-muted ui-border">Show history</button>
           {#if data.recordId}
-            <a href={pageHref} class="text-sm text-blue-600 hover:underline dark:text-blue-400" data-testid="all-entries-link">All entries</a>
+            <a href={pageHref} class="text-sm hover:underline ui-link" data-testid="all-entries-link">All entries</a>
           {/if}
         </form>
       </div>
       {#if data.entries.length === 0}
-        <div class="p-8 text-center text-sm text-gray-500 dark:text-gray-400" data-testid="no-entries">No entries.</div>
+        <div class="p-8 text-center text-sm ui-muted" data-testid="no-entries">No entries.</div>
       {:else}
         <div class="overflow-x-auto">
           <table class="w-full text-sm" data-testid="entries-table">
-            <thead class="bg-gray-50 dark:bg-gray-900">
+            <thead class="ui-card">
               <tr>
-                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">#</th>
-                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Operation</th>
-                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Record</th>
-                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">By</th>
-                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">At</th>
-                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Hash</th>
+                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">#</th>
+                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Operation</th>
+                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Record</th>
+                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">By</th>
+                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">At</th>
+                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Hash</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody class="divide-y ui-border">
               {#each data.entries as entry (entry.sequence)}
                 <tr data-testid="entry-{entry.sequence}" data-state={expanded === entry.sequence ? "expanded" : "collapsed"}>
-                  <td class="px-4 py-3 font-mono text-xs text-gray-900 dark:text-gray-100">{entry.sequence}</td>
+                  <td class="px-4 py-3 font-mono text-xs ui-text">{entry.sequence}</td>
                   <td class="px-4 py-3 text-xs">
-                    <button type="button" onclick={() => (expanded = expanded === entry.sequence ? null : entry.sequence)} class="font-mono text-blue-600 hover:underline dark:text-blue-400" data-testid="expand-{entry.sequence}" aria-expanded={expanded === entry.sequence}>{entry.operation}</button>
+                    <button type="button" onclick={() => (expanded = expanded === entry.sequence ? null : entry.sequence)} class="font-mono hover:underline ui-link" data-testid="expand-{entry.sequence}" aria-expanded={expanded === entry.sequence}>{entry.operation}</button>
                   </td>
                   <td class="px-4 py-3 font-mono text-xs">
                     {#if entry.record_id}
-                      <a href="{pageHref}?record_id={encodeURIComponent(entry.record_id)}" class="text-blue-600 hover:underline dark:text-blue-400">{entry.record_id}</a>
+                      <a href="{pageHref}?record_id={encodeURIComponent(entry.record_id)}" class="hover:underline ui-link">{entry.record_id}</a>
                     {/if}
                   </td>
-                  <td class="px-4 py-3 break-all font-mono text-xs text-gray-700 dark:text-gray-300">{whoOf(entry)}</td>
-                  <td class="px-4 py-3 whitespace-nowrap text-xs text-gray-700 dark:text-gray-300">{new Date(entry.recorded_at).toLocaleString(undefined, { hourCycle: "h23" })}</td>
-                  <td class="px-4 py-3 font-mono text-xs text-gray-500 dark:text-gray-400" title={entry.hash}>{entry.hash.slice(0, 12)}…</td>
+                  <td class="px-4 py-3 break-all font-mono text-xs ui-muted">{whoOf(entry)}</td>
+                  <td class="px-4 py-3 whitespace-nowrap text-xs ui-muted">{new Date(entry.recorded_at).toLocaleString(undefined, { hourCycle: "h23" })}</td>
+                  <td class="px-4 py-3 font-mono text-xs ui-muted" title={entry.hash}>{entry.hash.slice(0, 12)}…</td>
                 </tr>
                 {#if expanded === entry.sequence}
                   <tr data-testid="entry-detail-{entry.sequence}">
-                    <td colspan="6" class="bg-gray-50 px-4 py-3 dark:bg-gray-900">
+                    <td colspan="6" class="px-4 py-3 ui-card">
                       <dl class="grid grid-cols-1 gap-2 text-xs md:grid-cols-[10rem_1fr]">
-                        <dt class="text-gray-500 dark:text-gray-400">hash</dt><dd class="break-all font-mono text-gray-900 dark:text-gray-100">{entry.hash}</dd>
-                        <dt class="text-gray-500 dark:text-gray-400">previous_hash</dt><dd class="break-all font-mono text-gray-900 dark:text-gray-100">{entry.previous_hash}</dd>
-                        <dt class="text-gray-500 dark:text-gray-400">data_hash</dt><dd class="break-all font-mono text-gray-900 dark:text-gray-100">{entry.data_hash}</dd>
+                        <dt class="ui-muted">hash</dt><dd class="break-all font-mono ui-text">{entry.hash}</dd>
+                        <dt class="ui-muted">previous_hash</dt><dd class="break-all font-mono ui-text">{entry.previous_hash}</dd>
+                        <dt class="ui-muted">data_hash</dt><dd class="break-all font-mono ui-text">{entry.data_hash}</dd>
                         {#if entry.owner_user_id}
-                          <dt class="text-gray-500 dark:text-gray-400">owner_user_id</dt><dd class="break-all font-mono text-gray-900 dark:text-gray-100">{entry.owner_user_id}</dd>
+                          <dt class="ui-muted">owner_user_id</dt><dd class="break-all font-mono ui-text">{entry.owner_user_id}</dd>
                         {/if}
                         {#if entry.data_json}
-                          <dt class="text-gray-500 dark:text-gray-400">data</dt><dd><pre class="overflow-x-auto whitespace-pre-wrap break-all font-mono text-gray-900 dark:text-gray-100">{JSON.stringify(entry.data, null, 2)}</pre></dd>
+                          <dt class="ui-muted">data</dt><dd><pre class="overflow-x-auto whitespace-pre-wrap break-all font-mono ui-text">{JSON.stringify(entry.data, null, 2)}</pre></dd>
                         {/if}
                       </dl>
                     </td>
@@ -261,14 +261,14 @@
             </tbody>
           </table>
         </div>
-        <div class="flex items-center justify-between border-t border-gray-200 px-4 py-2 text-xs text-gray-500 dark:border-gray-700 dark:text-gray-400">
+        <div class="flex items-center justify-between border-t px-4 py-2 text-xs ui-muted ui-border">
           <span>{data.recordId ? `${data.entries.length} entries for this record` : `Entries ${data.entries[0].sequence} to ${lastShown} of ${data.chain.last_sequence + 1}`}</span>
           <span class="flex gap-3">
             {#if !data.recordId && data.fromSequence > 0}
-              <a href="{pageHref}?from_sequence={Math.max(0, data.fromSequence - data.pageSize)}" class="text-blue-600 hover:underline dark:text-blue-400" data-testid="previous-page">Previous</a>
+              <a href="{pageHref}?from_sequence={Math.max(0, data.fromSequence - data.pageSize)}" class="hover:underline ui-link" data-testid="previous-page">Previous</a>
             {/if}
             {#if hasMore}
-              <a href="{pageHref}?from_sequence={lastShown + 1}" class="text-blue-600 hover:underline dark:text-blue-400" data-testid="next-page">Next</a>
+              <a href="{pageHref}?from_sequence={lastShown + 1}" class="hover:underline ui-link" data-testid="next-page">Next</a>
             {/if}
           </span>
         </div>

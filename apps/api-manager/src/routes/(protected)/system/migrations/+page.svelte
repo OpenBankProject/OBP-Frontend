@@ -338,23 +338,15 @@
   }
 
   .panel {
-    background: white;
+    background: var(--ui-card);
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     overflow: hidden;
   }
 
-  :global([data-mode="dark"]) .panel {
-    background: rgb(var(--color-surface-800));
-  }
-
   .panel-header {
     padding: 1.5rem;
-    border-bottom: 1px solid #e5e7eb;
-  }
-
-  :global([data-mode="dark"]) .panel-header {
-    border-bottom-color: rgb(var(--color-surface-700));
+    border-bottom: 1px solid var(--ui-border);
   }
 
   .header-content {
@@ -367,22 +359,14 @@
   .panel-title {
     font-size: 1.5rem;
     font-weight: 600;
-    color: #111827;
+    color: var(--ui-text);
     margin: 0;
-  }
-
-  :global([data-mode="dark"]) .panel-title {
-    color: var(--color-surface-100);
   }
 
   .panel-subtitle {
     font-size: 0.875rem;
-    color: #6b7280;
+    color: var(--ui-muted);
     margin-top: 0.5rem;
-  }
-
-  :global([data-mode="dark"]) .panel-subtitle {
-    color: var(--color-surface-400);
   }
 
   .header-controls {
@@ -397,8 +381,8 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.5rem 1rem;
-    background: #3b82f6;
-    color: white;
+    background: var(--ui-fill-main-bg);
+    color: var(--ui-fill-main-text);
     border: none;
     border-radius: 0.375rem;
     font-size: 0.875rem;
@@ -408,20 +392,12 @@
   }
 
   .refresh-button:hover:not(:disabled) {
-    background: #2563eb;
+    opacity: 0.85;
   }
 
   .refresh-button:disabled {
     opacity: 0.6;
     cursor: not-allowed;
-  }
-
-  :global([data-mode="dark"]) .refresh-button {
-    background: rgb(var(--color-primary-600));
-  }
-
-  :global([data-mode="dark"]) .refresh-button:hover:not(:disabled) {
-    background: rgb(var(--color-primary-500));
   }
 
   .refresh-icon {
@@ -443,33 +419,19 @@
   .last-updated,
   .next-refresh {
     font-size: 0.75rem;
-    color: #6b7280;
-  }
-
-  :global([data-mode="dark"]) .last-updated,
-  :global([data-mode="dark"]) .next-refresh {
-    color: var(--color-surface-400);
+    color: var(--ui-muted);
   }
 
   .timestamp,
   .countdown {
     font-family: monospace;
     font-weight: 500;
-    color: #374151;
-  }
-
-  :global([data-mode="dark"]) .timestamp,
-  :global([data-mode="dark"]) .countdown {
-    color: var(--color-surface-300);
+    color: var(--ui-text);
   }
 
   .countdown {
-    color: #3b82f6;
+    color: var(--ui-link);
     font-weight: 600;
-  }
-
-  :global([data-mode="dark"]) .countdown {
-    color: rgb(var(--color-primary-400));
   }
 
   .panel-content {
@@ -485,12 +447,8 @@
   .table-wrapper {
     overflow-x: auto;
     max-width: 100%;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--ui-border);
     border-radius: 0.5rem;
-  }
-
-  :global([data-mode="dark"]) .table-wrapper {
-    border-color: rgb(var(--color-surface-700));
   }
 
   .migrations-table {
@@ -503,26 +461,15 @@
     padding: 0.75rem;
     font-weight: 600;
     font-size: 0.875rem;
-    color: #374151;
-    background: #f9fafb;
-    border-bottom: 2px solid #e5e7eb;
-  }
-
-
-  :global([data-mode="dark"]) .migrations-table th {
-    color: var(--color-surface-300);
-    background: rgb(var(--color-surface-700));
-    border-bottom-color: rgb(var(--color-surface-600));
+    color: var(--ui-text);
+    background: var(--ui-card);
+    border-bottom: 2px solid var(--ui-border);
   }
 
   .migrations-table td {
     padding: 0.75rem;
     font-size: 0.875rem;
-    color: #111827;
-  }
-
-  :global([data-mode="dark"]) .migrations-table td {
-    color: var(--color-surface-100);
+    color: var(--ui-text);
   }
 
   .migration-main-row td {
@@ -553,23 +500,13 @@
   .migration-desc-row td {
     padding-top: 0;
     padding-bottom: 0.75rem;
-    border-bottom: 1px solid #e5e7eb;
-  }
-
-  :global([data-mode="dark"]) .migration-desc-row td {
-    border-bottom-color: rgb(var(--color-surface-700));
+    border-bottom: 1px solid var(--ui-border);
   }
 
   .migrations-table tbody tr.migration-main-row:hover,
   .migrations-table tbody tr.migration-main-row:hover + tr.migration-meta-row,
   .migrations-table tbody tr.migration-main-row:hover + tr.migration-meta-row + tr.migration-desc-row {
-    background: #f9fafb;
-  }
-
-  :global([data-mode="dark"]) .migrations-table tbody tr.migration-main-row:hover,
-  :global([data-mode="dark"]) .migrations-table tbody tr.migration-main-row:hover + tr.migration-meta-row,
-  :global([data-mode="dark"]) .migrations-table tbody tr.migration-main-row:hover + tr.migration-meta-row + tr.migration-desc-row {
-    background: rgb(var(--color-surface-700));
+    background: var(--ui-hover);
   }
 
   .migrations-table tbody tr:last-child td {
@@ -578,23 +515,15 @@
 
   .description-label {
     font-weight: 600;
-    color: #6b7280;
+    color: var(--ui-muted);
     margin-right: 0.5rem;
-  }
-
-  :global([data-mode="dark"]) .description-label {
-    color: var(--color-surface-400);
   }
 
   .id-cell {
     font-family: monospace;
     font-size: 0.625rem;
-    color: #6b7280;
+    color: var(--ui-muted);
     white-space: nowrap;
-  }
-
-  :global([data-mode="dark"]) .id-cell {
-    color: var(--color-surface-400);
   }
 
   .name-cell {
@@ -605,24 +534,16 @@
   .timestamp-cell {
     font-family: monospace;
     font-size: 0.75rem;
-    color: #6b7280;
+    color: var(--ui-muted);
     white-space: nowrap;
     margin-left: auto;
     text-align: right;
   }
 
-  :global([data-mode="dark"]) .timestamp-cell {
-    color: var(--color-surface-400);
-  }
-
   .description-cell {
     font-size: 0.8125rem;
-    color: #6b7280;
+    color: var(--ui-muted);
     word-break: break-word;
-  }
-
-  :global([data-mode="dark"]) .description-cell {
-    color: var(--color-surface-400);
   }
 
   .status-badge {
@@ -636,53 +557,29 @@
   }
 
   :global(.status-success) {
-    background: #d1fae5;
-    color: #065f46;
-  }
-
-  :global([data-mode="dark"] .status-success) {
-    background: rgba(16, 185, 129, 0.2);
-    color: rgb(110, 231, 183);
+    background: var(--ui-tone-success-bg);
+    color: var(--ui-tone-success-text);
   }
 
   :global(.status-pending) {
-    background: #dbeafe;
-    color: #1e40af;
-  }
-
-  :global([data-mode="dark"] .status-pending) {
-    background: rgba(59, 130, 246, 0.2);
-    color: rgb(147, 197, 253);
+    background: var(--ui-tone-info-bg);
+    color: var(--ui-tone-info-text);
   }
 
   :global(.status-error) {
-    background: #fee2e2;
-    color: #991b1b;
-  }
-
-  :global([data-mode="dark"] .status-error) {
-    background: rgba(239, 68, 68, 0.2);
-    color: rgb(252, 165, 165);
+    background: var(--ui-tone-error-bg);
+    color: var(--ui-tone-error-text);
   }
 
   :global(.status-default) {
-    background: #e5e7eb;
-    color: #374151;
-  }
-
-  :global([data-mode="dark"] .status-default) {
-    background: rgb(var(--color-surface-700));
-    color: var(--color-surface-300);
+    background: var(--ui-panel);
+    color: var(--ui-text);
   }
 
   .migrations-count {
     font-size: 0.875rem;
-    color: #6b7280;
+    color: var(--ui-muted);
     text-align: right;
-  }
-
-  :global([data-mode="dark"]) .migrations-count {
-    color: var(--color-surface-400);
   }
 
   .loading-state {
@@ -697,15 +594,10 @@
   .spinner {
     width: 40px;
     height: 40px;
-    border: 4px solid #e5e7eb;
-    border-top-color: #3b82f6;
+    border: 4px solid var(--ui-border);
+    border-top-color: var(--ui-link);
     border-radius: 50%;
     animation: spin 1s linear infinite;
-  }
-
-  :global([data-mode="dark"]) .spinner {
-    border-color: rgb(var(--color-surface-700));
-    border-top-color: rgb(var(--color-primary-400));
   }
 
   @keyframes spin {
@@ -717,11 +609,7 @@
   .empty-state {
     text-align: center;
     padding: 3rem;
-    color: #6b7280;
-  }
-
-  :global([data-mode="dark"]) .empty-state {
-    color: var(--color-surface-400);
+    color: var(--ui-muted);
   }
 
   .alert {
@@ -731,15 +619,9 @@
   }
 
   .alert-error {
-    background: #fee2e2;
-    color: #991b1b;
-    border: 1px solid #fecaca;
-  }
-
-  :global([data-mode="dark"]) .alert-error {
-    background: rgb(var(--color-error-900));
-    color: rgb(var(--color-error-200));
-    border-color: rgb(var(--color-error-800));
+    background: var(--ui-tone-error-bg);
+    color: var(--ui-tone-error-text);
+    border: 1px solid var(--ui-tone-error-border);
   }
 
   @media (max-width: 768px) {

@@ -42,29 +42,29 @@
   ]} />
 
   {#if data.loadError}
-    <div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300" data-testid="load-error">{data.loadError}</div>
+    <div class="mb-6 rounded-lg border p-4 text-sm ui-tone-error" data-testid="load-error">{data.loadError}</div>
   {/if}
 
-  <div class="mb-8 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+  <div class="mb-8 overflow-hidden rounded-lg border shadow-sm ui-card ui-border">
     {#if data.policies.length === 0}
-      <div class="p-8 text-center text-sm text-gray-500 dark:text-gray-400" data-testid="empty">No retention policies in {data.bankId}: everything is kept.</div>
+      <div class="p-8 text-center text-sm ui-muted" data-testid="empty">No retention policies in {data.bankId}: everything is kept.</div>
     {:else}
       <table class="w-full text-sm" data-testid="policies-table">
-        <thead class="bg-gray-50 dark:bg-gray-900">
+        <thead class="ui-card">
           <tr>
-            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Policy</th>
-            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">What it does</th>
-            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Approval</th>
-            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Scheduler</th>
+            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Policy</th>
+            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">What it does</th>
+            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Approval</th>
+            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Scheduler</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+        <tbody class="divide-y ui-border">
           {#each data.policies as p (p.retention_policy_id)}
             <tr data-testid="row-{p.retention_policy_id}">
-              <td class="px-4 py-3"><a class="text-blue-600 underline dark:text-blue-400" href="/retention/{encodeURIComponent(data.bankId)}/{encodeURIComponent(p.retention_policy_id)}">{p.name || p.entity_name || p.resource_type}</a></td>
-              <td class="px-4 py-3 text-gray-700 dark:text-gray-300">{describePolicy(p)}</td>
-              <td class="px-4 py-3 text-gray-700 dark:text-gray-300">{p.requires_approval ? "Needed" : "No"}</td>
-              <td class="px-4 py-3 text-gray-700 dark:text-gray-300">{p.enabled ? "On" : "Off"}</td>
+              <td class="px-4 py-3"><a class="underline ui-link" href="/retention/{encodeURIComponent(data.bankId)}/{encodeURIComponent(p.retention_policy_id)}">{p.name || p.entity_name || p.resource_type}</a></td>
+              <td class="px-4 py-3 ui-muted">{describePolicy(p)}</td>
+              <td class="px-4 py-3 ui-muted">{p.requires_approval ? "Needed" : "No"}</td>
+              <td class="px-4 py-3 ui-muted">{p.enabled ? "On" : "Off"}</td>
             </tr>
           {/each}
         </tbody>
@@ -72,10 +72,10 @@
     {/if}
   </div>
 
-  <section class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800" data-testid="create-policy">
-    <h2 class="mb-4 text-xl font-semibold text-gray-900 dark:text-gray-100">New policy in {data.bankId}</h2>
+  <section class="rounded-lg border p-6 shadow-sm ui-card ui-border" data-testid="create-policy">
+    <h2 class="mb-4 text-xl font-semibold ui-text">New policy in {data.bankId}</h2>
     {#if form?.error}
-      <div class="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300" data-testid="form-error">{form.error}</div>
+      <div class="mb-4 rounded-lg border p-3 text-sm ui-tone-error" data-testid="form-error">{form.error}</div>
     {/if}
     <form method="POST" action="?/create&bank_id={encodeURIComponent(data.bankId)}">
       <RetentionPolicyForm entityNames={data.entityNames} submitLabel="Create policy" />

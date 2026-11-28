@@ -37,18 +37,5 @@ export const DEFAULT_BRANDING: Branding = {
 	stylesheetUrl: ''
 };
 
-/** A URL Cohort will put in the page: http(s) or a path on this site, never javascript: or data:. */
-export function safeUrl(value: string, fallback: string): string {
-	const v = value.trim();
-	return /^(https?:\/\/|\/(?!\/))/i.test(v) ? v : fallback;
-}
-
-/** A theme name as it may appear in an attribute. */
-export function safeTheme(value: string): string {
-	return /^[a-z0-9_-]{1,64}$/i.test(value.trim()) ? value.trim() : DEFAULT_BRANDING.theme;
-}
-
-/** Escapes a value for an HTML attribute, for the placeholders in app.html. */
-export function attr(value: string): string {
-	return value.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-}
+// The URL, theme-name and attribute checks are shared by every OBP-Frontend app.
+export { attr, safeTheme, safeUrl } from '@obp/shared/branding';

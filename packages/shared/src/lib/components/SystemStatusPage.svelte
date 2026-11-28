@@ -196,36 +196,36 @@
 	}
 
 	function getStatusColor(status: string, stale?: boolean): string {
-		if (stale) return 'bg-gray-500';
+		if (stale) return 'ui-panel';
 		switch (status) {
 			case 'healthy':
-				return 'bg-green-500';
+				return 'preset-filled-primary-500';
 			case 'unhealthy':
-				return 'bg-red-500';
+				return 'preset-filled-error-500';
 			case 'partial':
-				return 'bg-orange-500';
+				return 'preset-filled-primary-500';
 			case 'degraded':
-				return 'bg-yellow-500';
+				return 'preset-filled-primary-500';
 			case 'unknown':
 			default:
-				return 'bg-gray-500';
+				return 'ui-panel';
 		}
 	}
 
 	function getStatusTextColor(status: string, stale?: boolean): string {
-		if (stale) return 'text-gray-600 dark:text-gray-400';
+		if (stale) return 'ui-muted';
 		switch (status) {
 			case 'healthy':
-				return 'text-green-600 dark:text-green-400';
+				return 'ui-text-success';
 			case 'unhealthy':
-				return 'text-red-600 dark:text-red-400';
+				return 'ui-text-error';
 			case 'partial':
-				return 'text-orange-600 dark:text-orange-400';
+				return 'ui-text-warning';
 			case 'degraded':
-				return 'text-yellow-600 dark:text-yellow-400';
+				return 'ui-text-warning';
 			case 'unknown':
 			default:
-				return 'text-gray-600 dark:text-gray-400';
+				return 'ui-muted';
 		}
 	}
 
@@ -349,7 +349,7 @@
 	<div class="mb-8">
 		<h1 class="text-4xl font-bold mb-2 h1">{m.status_title()}</h1>
 		{#if buildInfo}
-			<p class="mt-2 text-sm text-gray-500 dark:text-gray-400 font-mono" data-testid="build-info">
+			<p class="mt-2 text-sm font-mono ui-muted" data-testid="build-info">
 				<span data-testid="build-version">v{buildInfo.version}</span>{#if buildInfo.commit !== 'unknown'}
 					· commit <span data-testid="build-commit">{buildInfo.commit}</span>{/if}{#if buildInfo.branch !== 'unknown'}
 					· branch <span data-testid="build-branch">{buildInfo.branch}</span>{/if}
@@ -360,20 +360,20 @@
 
 	{#if refreshError}
 		<div
-			class="mb-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-300 dark:border-yellow-700 rounded-lg"
+			class="mb-4 p-4 border rounded-lg ui-tone-warning"
 			data-testid="status-refresh-error"
 		>
-			<p class="text-sm text-yellow-800 dark:text-yellow-200">
+			<p class="text-sm ui-text-warning">
 				{m.status_outdated({ error: refreshError, time: formatTimestamp(data.timestamp) })}
 			</p>
 		</div>
 	{/if}
 
 	<!-- Overall Status Card -->
-	<div class="bg-primary-500/50 backdrop-blur-2xl mx-auto rounded-lg shadow-lg p-6 mb-8">
+	<div class="backdrop-blur-2xl mx-auto rounded-lg shadow-lg p-6 mb-8 preset-filled-primary-500">
 		<div class="flex items-center justify-between mb-4">
 			<div>
-				<p class="text-sm text-gray-600 dark:text-gray-400">
+				<p class="text-sm ui-muted">
 					{m.status_last_updated({ time: formatTimestamp(data.timestamp) })}
 				</p>
 			</div>
@@ -384,7 +384,7 @@
 				</label>
 				<button
 					onclick={refreshData}
-					class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+					class="px-4 py-2 rounded-lg transition-colors preset-filled-primary-500"
 				>
 					{m.status_refresh_now()}
 				</button>
@@ -400,11 +400,11 @@
 					<div class="text-3xl font-bold {getStatusTextColor(data.overallStatus)} capitalize" data-testid="overall-status">
 						{statusLabel(data.overallStatus)}
 					</div>
-					<div class="text-lg text-gray-600 dark:text-gray-400">
+					<div class="text-lg ui-muted">
 						{m.status_healthy_of({ healthy: formatNumber(data.summary.healthy), total: formatNumber(data.summary.total) })}
 					</div>
 					{#if data.summary.stale > 0}
-						<div class="text-sm text-yellow-700 dark:text-yellow-400" data-testid="stale-count">
+						<div class="text-sm ui-text-warning" data-testid="stale-count">
 							{m.status_stale_count(counted(data.summary.stale))}
 						</div>
 					{/if}
@@ -412,21 +412,21 @@
 			</div>
 
 			<div class="grid grid-cols-2 gap-4">
-				<div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-					<div class="text-2xl font-bold text-gray-900 dark:text-white">{formatNumber(data.summary.total)}</div>
-					<div class="text-sm text-gray-600 dark:text-gray-400">{m.status_total()}</div>
+				<div class="rounded-lg p-4 ui-card">
+					<div class="text-2xl font-bold dark:text-white ui-text">{formatNumber(data.summary.total)}</div>
+					<div class="text-sm ui-muted">{m.status_total()}</div>
 				</div>
-				<div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
-					<div class="text-2xl font-bold text-green-600 dark:text-green-400">{formatNumber(data.summary.healthy)}</div>
-					<div class="text-sm text-gray-600 dark:text-gray-400">{m.status_healthy()}</div>
+				<div class="rounded-lg p-4 ui-tone-success">
+					<div class="text-2xl font-bold ui-text-success">{formatNumber(data.summary.healthy)}</div>
+					<div class="text-sm ui-muted">{m.status_healthy()}</div>
 				</div>
-				<div class="{data.summary.unhealthy > 0 ? 'bg-red-50 dark:bg-red-900/20' : 'bg-gray-50 dark:bg-gray-700'} rounded-lg p-4">
-					<div class="text-2xl font-bold {data.summary.unhealthy > 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'}">{formatNumber(data.summary.unhealthy)}</div>
-					<div class="text-sm text-gray-600 dark:text-gray-400">{m.status_unhealthy()}</div>
+				<div class="{data.summary.unhealthy > 0 ? 'ui-tone-error' : 'ui-card'} rounded-lg p-4">
+					<div class="text-2xl font-bold {data.summary.unhealthy > 0 ? 'ui-text-error' : 'dark:text-white ui-text'}">{formatNumber(data.summary.unhealthy)}</div>
+					<div class="text-sm ui-muted">{m.status_unhealthy()}</div>
 				</div>
-				<div class="bg-gray-100 dark:bg-gray-600 rounded-lg p-4">
-					<div class="text-2xl font-bold text-gray-600 dark:text-gray-400">{formatNumber(data.summary.unknown)}</div>
-					<div class="text-sm text-gray-600 dark:text-gray-400">{m.status_unknown_stale()}</div>
+				<div class="rounded-lg p-4 ui-panel">
+					<div class="text-2xl font-bold ui-muted">{formatNumber(data.summary.unknown)}</div>
+					<div class="text-sm ui-muted">{m.status_unknown_stale()}</div>
 				</div>
 			</div>
 		</div>
@@ -437,7 +437,7 @@
 		<h2 class="text-2xl font-bold mb-4">{m.status_service_details()}</h2>
 
 		{#each Object.entries(data.services) as [serviceName, service]}
-			<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:shadow-lg transition-shadow" data-stale={service.stale ? 'true' : 'false'}>
+			<div class="rounded-lg shadow p-6 hover:shadow-lg transition-shadow ui-card" data-stale={service.stale ? 'true' : 'false'}>
 				<div class="flex items-start justify-between">
 					<div class="flex items-center gap-4 flex-1">
 						<div class="w-12 h-12 rounded-full {getStatusColor(service.status, service.stale)} flex items-center justify-center text-white text-xl font-bold">
@@ -449,19 +449,19 @@
 								<button
 									type="button"
 									onclick={() => copyServiceDetails(serviceName, service)}
-									class="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+									class="p-1.5 rounded transition-colors ui-hover ui-muted"
 									aria-label={m.status_copy_label({ service: service.service })}
 									title={m.status_copy()}
 									data-testid="copy-service-{serviceName}"
 								>
 									{#if copiedService === serviceName}
-										<Check class="h-4 w-4 text-green-600 dark:text-green-400" />
+										<Check class="h-4 w-4 ui-text-success" />
 									{:else}
 										<Copy class="h-4 w-4" />
 									{/if}
 								</button>
 							</div>
-							<div class="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+							<div class="flex flex-wrap items-center gap-4 text-sm ui-muted">
 								<span class="flex items-center gap-1">
 									<span class="font-medium">{m.status_label()}</span>
 									<span class="{getStatusTextColor(service.status, service.stale)} font-semibold capitalize">
@@ -471,7 +471,7 @@
 								{#if service.responseTimeMs !== undefined}
 									<span class="flex items-center gap-1">
 										<span class="font-medium">{m.status_response_time()}</span>
-										<span class={service.responseTimeMs > 5000 ? 'text-red-600 dark:text-red-400' : service.responseTimeMs > 1000 ? 'text-yellow-600 dark:text-yellow-400' : 'text-green-600 dark:text-green-400'}>
+										<span class={service.responseTimeMs > 5000 ? 'ui-text-error' : service.responseTimeMs > 1000 ? 'ui-text-warning' : 'ui-text-success'}>
 											{formatResponseTime(service.responseTimeMs)}
 										</span>
 									</span>
@@ -484,27 +484,27 @@
 									{/if}
 								</span>
 								{#if service.conecutiveFailures > 0}
-									<span class="flex items-center gap-1 text-red-600 dark:text-red-400">
+									<span class="flex items-center gap-1 ui-text-error">
 										<span class="font-medium">{m.status_failures()}</span>
 										<span class="font-bold">{service.conecutiveFailures}</span>
 									</span>
 								{/if}
 							</div>
 							{#if service.stale}
-								<div class="mt-2 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded border border-yellow-300 dark:border-yellow-700">
-									<p class="text-sm text-yellow-800 dark:text-yellow-200">
+								<div class="mt-2 p-3 rounded border ui-tone-warning">
+									<p class="text-sm ui-text-warning">
 										{m.status_stale_note({ time: formatTimestamp(service.lastChecked) })}
 									</p>
 								</div>
 							{/if}
 							{#if service.details && Object.keys(service.details).length > 0}
-								<dl class="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs text-gray-600 dark:text-gray-400" data-testid="service-details-{serviceName}">
+								<dl class="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs ui-muted" data-testid="service-details-{serviceName}">
 									{#each Object.entries(service.details) as [key, value]}
 										{#if !(key.endsWith('_url') && key.slice(0, -4) in service.details)}
 											<dt class="font-medium">{key}:</dt>
 											<dd class="font-mono break-all">
 												{#if service.details[`${key}_url`]}
-													<a href={String(service.details[`${key}_url`])} class="underline hover:text-gray-900 dark:hover:text-gray-100" data-testid="service-detail-link-{key}">{value}</a>
+													<a href={String(service.details[`${key}_url`])} class="underline" data-testid="service-detail-link-{key}">{value}</a>
 												{:else}
 													{value}
 												{/if}
@@ -514,8 +514,8 @@
 								</dl>
 							{/if}
 							{#if service.error}
-								<div class="mt-2 p-3 bg-red-50 dark:bg-red-900/20 rounded border border-red-200 dark:border-red-800">
-									<p class="text-sm text-red-700 dark:text-red-300 font-mono">
+								<div class="mt-2 p-3 rounded border ui-tone-error">
+									<p class="text-sm font-mono ui-text-error">
 										<span class="font-semibold">{m.status_error()}</span> {service.error}
 									</p>
 								</div>
@@ -527,8 +527,8 @@
 		{/each}
 
 		{#if Object.keys(data.services).length === 0}
-			<div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-8 text-center" data-testid="no-services-monitored">
-				<p class="text-gray-600 dark:text-gray-400">
+			<div class="rounded-lg p-8 text-center ui-card" data-testid="no-services-monitored">
+				<p class="ui-muted">
 					{m.status_no_services()}
 				</p>
 			</div>
@@ -536,7 +536,7 @@
 
 		{#if showOpeyBrowserCard}
 			<!-- Browser-side Opey check: runs in the user's browser, not the app server -->
-			<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:shadow-lg transition-shadow" data-testid="service-opey-browser">
+			<div class="rounded-lg shadow p-6 hover:shadow-lg transition-shadow ui-card" data-testid="service-opey-browser">
 				<div class="flex items-start justify-between">
 					<div class="flex items-center gap-4 flex-1">
 						<div class="w-12 h-12 rounded-full {getStatusColor(opeyBrowserCheck.status)} flex items-center justify-center text-white text-xl font-bold">
@@ -544,10 +544,10 @@
 						</div>
 						<div class="flex-1">
 							<h3 class="text-xl font-semibold mb-1">{m.status_opey_browser()}</h3>
-							<p class="text-xs text-gray-500 dark:text-gray-400 mb-2">
+							<p class="text-xs mb-2 ui-muted">
 								{m.status_opey_browser_note()}
 							</p>
-							<div class="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+							<div class="flex flex-wrap items-center gap-4 text-sm ui-muted">
 								<span class="flex items-center gap-1">
 									<span class="font-medium">{m.status_label()}</span>
 									<span class="{getStatusTextColor(opeyBrowserCheck.status)} font-semibold capitalize">
@@ -557,7 +557,7 @@
 								{#if opeyBrowserCheck.responseTimeMs !== undefined}
 									<span class="flex items-center gap-1">
 										<span class="font-medium">{m.status_response_time()}</span>
-										<span class={opeyBrowserCheck.responseTimeMs > 5000 ? 'text-red-600 dark:text-red-400' : opeyBrowserCheck.responseTimeMs > 1000 ? 'text-yellow-600 dark:text-yellow-400' : 'text-green-600 dark:text-green-400'}>
+										<span class={opeyBrowserCheck.responseTimeMs > 5000 ? 'ui-text-error' : opeyBrowserCheck.responseTimeMs > 1000 ? 'ui-text-warning' : 'ui-text-success'}>
 											{formatResponseTime(opeyBrowserCheck.responseTimeMs)}
 										</span>
 									</span>
@@ -569,15 +569,15 @@
 									</span>
 								{/if}
 							</div>
-							<dl class="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs text-gray-600 dark:text-gray-400" data-testid="service-details-opey-browser">
+							<dl class="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs ui-muted" data-testid="service-details-opey-browser">
 								{#each Object.entries(opeyBrowserCheck.details) as [key, value]}
 									<dt class="font-medium">{key}:</dt>
 									<dd class="font-mono break-all">{value}</dd>
 								{/each}
 							</dl>
 							{#if opeyBrowserCheck.error}
-								<div class="mt-2 p-3 bg-red-50 dark:bg-red-900/20 rounded border border-red-200 dark:border-red-800">
-									<p class="text-sm text-red-700 dark:text-red-300 font-mono">
+								<div class="mt-2 p-3 rounded border ui-tone-error">
+									<p class="text-sm font-mono ui-text-error">
 										<span class="font-semibold">{m.status_error()}</span> {opeyBrowserCheck.error}
 									</p>
 								</div>
@@ -589,7 +589,7 @@
 		{/if}
 
 		<!-- Browser-side SSE transport check: runs in the user's browser against this app's own probe stream -->
-		<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:shadow-lg transition-shadow" data-testid="service-sse-browser">
+		<div class="rounded-lg shadow p-6 hover:shadow-lg transition-shadow ui-card" data-testid="service-sse-browser">
 			<div class="flex items-start justify-between">
 				<div class="flex items-center gap-4 flex-1">
 					<div class="w-12 h-12 rounded-full {getStatusColor(sseBrowserCheck.status)} flex items-center justify-center text-white text-xl font-bold">
@@ -597,10 +597,10 @@
 					</div>
 					<div class="flex-1">
 						<h3 class="text-xl font-semibold mb-1">{m.status_sse_title()}</h3>
-						<p class="text-xs text-gray-500 dark:text-gray-400 mb-2">
+						<p class="text-xs mb-2 ui-muted">
 							{m.status_sse_note({ path: SSE_PROBE_PATH })}
 						</p>
-						<div class="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+						<div class="flex flex-wrap items-center gap-4 text-sm ui-muted">
 							<span class="flex items-center gap-1">
 								<span class="font-medium">{m.status_label()}</span>
 								<span class="{getStatusTextColor(sseBrowserCheck.status)} font-semibold capitalize">
@@ -610,7 +610,7 @@
 							{#if sseBrowserCheck.responseTimeMs !== undefined}
 								<span class="flex items-center gap-1">
 									<span class="font-medium">{m.status_first_event()}</span>
-									<span class={sseBrowserCheck.responseTimeMs > 5000 ? 'text-red-600 dark:text-red-400' : sseBrowserCheck.responseTimeMs > 1000 ? 'text-yellow-600 dark:text-yellow-400' : 'text-green-600 dark:text-green-400'}>
+									<span class={sseBrowserCheck.responseTimeMs > 5000 ? 'ui-text-error' : sseBrowserCheck.responseTimeMs > 1000 ? 'ui-text-warning' : 'ui-text-success'}>
 										{formatResponseTime(sseBrowserCheck.responseTimeMs)}
 									</span>
 								</span>
@@ -622,15 +622,15 @@
 								</span>
 							{/if}
 						</div>
-						<dl class="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs text-gray-600 dark:text-gray-400" data-testid="service-details-sse-browser">
+						<dl class="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs ui-muted" data-testid="service-details-sse-browser">
 							{#each Object.entries(sseBrowserCheck.details) as [key, value]}
 								<dt class="font-medium">{key}:</dt>
 								<dd class="font-mono break-all">{value}</dd>
 							{/each}
 						</dl>
 						{#if sseBrowserCheck.error}
-							<div class="mt-2 p-3 bg-red-50 dark:bg-red-900/20 rounded border border-red-200 dark:border-red-800">
-								<p class="text-sm text-red-700 dark:text-red-300 font-mono">
+							<div class="mt-2 p-3 rounded border ui-tone-error">
+								<p class="text-sm font-mono ui-text-error">
 									<span class="font-semibold">{m.status_error()}</span> {sseBrowserCheck.error}
 								</p>
 							</div>
@@ -642,9 +642,9 @@
 	</div>
 	<div class="mt-8" data-testid="monitoring-endpoints">
 		<h2 class="mb-4 text-2xl font-bold">{m.status_monitoring()}</h2>
-		<div class="overflow-x-auto rounded-lg bg-white shadow dark:bg-gray-800">
+		<div class="overflow-x-auto rounded-lg shadow ui-card">
 			<table class="w-full text-start text-sm">
-				<thead class="text-xs uppercase text-gray-500 dark:text-gray-400">
+				<thead class="text-xs uppercase ui-muted">
 					<tr>
 						<th class="px-4 py-2">{m.status_endpoint_column()}</th>
 						<th class="px-4 py-2">{m.status_roles_column()}</th>
@@ -652,7 +652,7 @@
 				</thead>
 				<tbody>
 					{#each MONITORING_ENDPOINTS as endpoint (endpoint.path)}
-						<tr class="border-t border-gray-100 dark:border-gray-700">
+						<tr class="border-t ui-border">
 							<td class="px-4 py-2 font-mono"><a class="underline" href={endpoint.path} data-sveltekit-reload>{endpoint.path}</a></td>
 							<td class="px-4 py-2 font-mono">{endpoint.roles}</td>
 						</tr>

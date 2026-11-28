@@ -99,7 +99,7 @@
 </script>
 
 <nav
-	class="relative flex h-full min-h-0 flex-col overflow-hidden bg-primary-50 dark:bg-primary-950"
+	class="relative flex h-full min-h-0 flex-col overflow-hidden ui-tone-info"
 	style="width: {width}px"
 	aria-label="API Explorer"
 >
@@ -125,7 +125,7 @@
 				{#each awayLinks as link (link.href)}
 					<li>
 						<a
-							class="flex items-center gap-1 rounded px-2 py-1 text-xs text-surface-700-300 hover:bg-surface-100-800"
+							class="flex items-center gap-1 rounded px-2 py-1 text-xs ui-hover ui-muted"
 							href={link.href}
 							target={link.external ? '_blank' : undefined}
 							rel={link.external ? 'noopener noreferrer' : undefined}
@@ -146,8 +146,8 @@
 					<li>
 						<a
 							class="block rounded px-2 py-1 text-xs {link.active
-								? 'bg-surface-200-700 font-semibold text-surface-900-50'
-								: 'text-surface-700-300 hover:bg-surface-100-800'}"
+								? 'font-semibold ui-panel ui-text'
+								: 'ui-hover ui-muted'}"
 							href={link.href}
 							aria-current={link.active ? 'page' : undefined}
 						>

@@ -93,9 +93,9 @@
 	<a
 		href={item.href}
 		class="btn h-auto w-full min-w-0 justify-start gap-3 text-start whitespace-normal {size}"
-		class:preset-filled-primary-50-950={current === item.href}
-		class:border={current === item.href}
-		class:border-secondary-500={current === item.href}
+		class:ui-panel={current === item.href}
+		class:border-s-2={current === item.href}
+		class:ui-border-brand={current === item.href}
 		aria-current={current === item.href ? 'page' : undefined}
 		data-testid="nav-{item.href === '/' ? 'calls' : item.href.slice(1).replace('/', '-')}"
 	>
@@ -104,7 +104,7 @@
 	</a>
 {/snippet}
 
-<aside class="flex flex-col gap-4 border-e border-surface-100-900 bg-primary-50 p-3 md:overflow-x-hidden md:overflow-y-auto dark:bg-primary-950">
+<aside class="flex flex-col gap-4 border-e ui-border ui-page p-3 md:overflow-x-hidden md:overflow-y-auto">
 	<a href="/" class="px-3 pt-2" data-testid="brand">
 		<img src={mode === 'dark' ? darkLogoUrl : logoUrl} alt={t(locale, 'nav_home')} class="w-40" />
 	</a>
@@ -128,7 +128,7 @@
 						{/if}
 					</div>
 					{#if item.children && isOpen(item)}
-						<ul class="ms-6 mt-1 flex flex-col gap-1 border-s border-surface-300-700 ps-2">
+						<ul class="ms-6 mt-1 flex flex-col gap-1 border-s ui-border ps-2">
 							{#each item.children as child (child.href)}<li>{@render link(child, 'px-3 py-1.5 text-sm')}</li>{/each}
 						</ul>
 					{/if}
@@ -136,7 +136,7 @@
 			{/each}
 		</ul>
 	</nav>
-	<footer class="mt-auto flex flex-wrap gap-x-3 gap-y-1 px-3 pt-2 pb-1 text-xs text-surface-700-300" data-testid="sidebar-footer">
+	<footer class="mt-auto flex flex-wrap gap-x-3 gap-y-1 px-3 pt-2 pb-1 text-xs ui-muted" data-testid="sidebar-footer">
 		<a class="hover:underline" href="/sitemap" aria-current={pathname === '/sitemap' ? 'page' : undefined} data-testid="nav-sitemap">{t(locale, 'nav_sitemap')}</a>
 		{#if username}<a class="hover:underline" href="/setup" aria-current={pathname === '/setup' ? 'page' : undefined} data-testid="nav-setup">{t(locale, 'nav_platform_setup')}</a>{/if}
 	</footer>

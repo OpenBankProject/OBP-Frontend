@@ -38,7 +38,7 @@
 	<button
 		type="button"
 		onclick={toggleDetails}
-		class="flex items-center gap-1 text-xs text-surface-600-400 hover:text-surface-800-200 transition-colors"
+		class="flex items-center gap-1 text-xs transition-colors ui-muted"
 		aria-label="Version information"
 		title="Click for version details"
 	>
@@ -48,15 +48,15 @@
 
 	{#if showDetails}
 		<div
-			class="absolute bottom-full start-0 mb-2 min-w-[280px] rounded-lg border border-surface-300-700 bg-surface-50-900 p-3 shadow-lg z-50"
+			class="absolute bottom-full start-0 mb-2 min-w-[280px] rounded-lg border p-3 shadow-lg z-50 ui-card ui-border"
 		>
 			<div class="space-y-2 text-xs">
-				<div class="flex justify-between border-b border-surface-200-800 pb-2 mb-2">
-					<span class="font-semibold text-surface-900-100">Version Info</span>
+				<div class="flex justify-between border-b pb-2 mb-2 ui-border">
+					<span class="font-semibold ui-text">Version Info</span>
 					<button
 						type="button"
 						onclick={toggleDetails}
-						class="text-surface-500 hover:text-surface-700 dark:hover:text-surface-300"
+						class="ui-muted"
 						aria-label="Close"
 					>
 						✕
@@ -64,23 +64,23 @@
 				</div>
 
 				<div class="flex justify-between">
-					<span class="text-surface-600-400">Version:</span>
-					<span class="font-mono text-surface-900-100">{__APP_VERSION__}</span>
+					<span class="ui-muted">Version:</span>
+					<span class="font-mono ui-text">{__APP_VERSION__}</span>
 				</div>
 
 				<div class="flex justify-between">
-					<span class="text-surface-600-400">Commit:</span>
-					<span class="font-mono text-surface-900-100">{__GIT_COMMIT__}</span>
+					<span class="ui-muted">Commit:</span>
+					<span class="font-mono ui-text">{__GIT_COMMIT__}</span>
 				</div>
 
 				<div class="flex justify-between">
-					<span class="text-surface-600-400">Branch:</span>
-					<span class="font-mono text-surface-900-100">{__GIT_BRANCH__}</span>
+					<span class="ui-muted">Branch:</span>
+					<span class="font-mono ui-text">{__GIT_BRANCH__}</span>
 				</div>
 
 				<div class="flex justify-between">
-					<span class="text-surface-600-400">Built:</span>
-					<span class="font-mono text-xs text-surface-900-100">
+					<span class="ui-muted">Built:</span>
+					<span class="font-mono text-xs ui-text">
 						{formatBuildTime(__BUILD_TIME__)}
 					</span>
 				</div>

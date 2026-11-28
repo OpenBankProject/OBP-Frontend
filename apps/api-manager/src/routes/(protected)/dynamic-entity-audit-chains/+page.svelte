@@ -80,8 +80,8 @@
 
 <div class="container mx-auto max-w-7xl px-4 py-8">
   <div class="mb-6">
-    <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Dynamic Entity Audit Chains</h1>
-    <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+    <h1 class="text-3xl font-bold ui-text">Dynamic Entity Audit Chains</h1>
+    <p class="mt-1 text-sm ui-muted">
       An audit chain records every change to the records of one Dynamic Entity, so that changes made behind OBP-API's back can be found.
       The root chain ties every entity's chain together. Sealing it records where each chain ends now, and its last hash then covers them all.
     </p>
@@ -97,49 +97,49 @@
   {/if}
 
   {#if data.loadError}
-    <div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300" data-testid="load-error">{data.loadError}</div>
+    <div class="mb-6 rounded-lg border p-4 text-sm ui-tone-error" data-testid="load-error">{data.loadError}</div>
   {/if}
   {#if actionError}
-    <div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300" data-testid="action-error">{actionError}</div>
+    <div class="mb-6 rounded-lg border p-4 text-sm ui-tone-error" data-testid="action-error">{actionError}</div>
   {/if}
   {#if message}
-    <div class="mb-6 break-all rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-700 dark:border-green-800 dark:bg-green-900/20 dark:text-green-300" role="status" data-testid="message">{message}</div>
+    <div class="mb-6 break-all rounded-lg border p-4 text-sm ui-tone-success" role="status" data-testid="message">{message}</div>
   {/if}
 
   {#if data.canGet}
-    <div class="mb-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800" data-testid="root-chain">
-      <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">Root chain</h2>
+    <div class="mb-6 rounded-lg border p-6 shadow-sm ui-card ui-border" data-testid="root-chain">
+      <h2 class="mb-4 text-lg font-semibold ui-text">Root chain</h2>
       {#if data.rootChain}
         <dl class="grid grid-cols-1 gap-4 text-sm md:grid-cols-3">
           <div>
-            <dt class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">Created</dt>
-            <dd class="mt-1 text-gray-900 dark:text-gray-100" data-testid="root-started-at">{new Date(data.rootChain.started_at).toLocaleString(undefined, { hourCycle: "h23" })}</dd>
+            <dt class="text-xs uppercase tracking-wider ui-muted">Created</dt>
+            <dd class="mt-1 ui-text" data-testid="root-started-at">{new Date(data.rootChain.started_at).toLocaleString(undefined, { hourCycle: "h23" })}</dd>
           </div>
           <div>
-            <dt class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">Last entry</dt>
-            <dd class="mt-1 text-gray-900 dark:text-gray-100" data-testid="root-last-sequence">{data.rootChain.last_sequence}</dd>
+            <dt class="text-xs uppercase tracking-wider ui-muted">Last entry</dt>
+            <dd class="mt-1 ui-text" data-testid="root-last-sequence">{data.rootChain.last_sequence}</dd>
           </div>
           <div class="md:col-span-3">
-            <dt class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">Last hash, to keep outside OBP</dt>
-            <dd class="mt-1 break-all font-mono text-xs text-gray-900 dark:text-gray-100" data-testid="root-last-hash">{data.rootChain.last_hash}</dd>
+            <dt class="text-xs uppercase tracking-wider ui-muted">Last hash, to keep outside OBP</dt>
+            <dd class="mt-1 break-all font-mono text-xs ui-text" data-testid="root-last-hash">{data.rootChain.last_hash}</dd>
           </div>
         </dl>
       {:else}
-        <p class="text-sm text-gray-600 dark:text-gray-400" data-testid="no-root-chain">
+        <p class="text-sm ui-muted" data-testid="no-root-chain">
           There is no root chain yet. It is created when the first Dynamic Entity's audit chain is started, or by sealing.
         </p>
       {/if}
 
-      <div class="mt-6 flex flex-wrap items-center gap-4 border-t border-gray-200 pt-4 dark:border-gray-700">
-        <label class="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-          <input type="checkbox" name="include_chains" bind:checked={includeChains} data-testid="include-chains" class="rounded border-gray-300 dark:border-gray-600" />
+      <div class="mt-6 flex flex-wrap items-center gap-4 border-t pt-4 ui-border">
+        <label class="inline-flex items-center gap-2 text-sm ui-muted">
+          <input type="checkbox" name="include_chains" bind:checked={includeChains} data-testid="include-chains" class="rounded ui-border" />
           Include every entity's chain, records included (<code class="font-mono text-xs">include_chains</code>)
         </label>
-        <button type="button" onclick={check} disabled={checking || !data.rootChain} data-testid="check-button" class="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600">
+        <button type="button" onclick={check} disabled={checking || !data.rootChain} data-testid="check-button" class="inline-flex items-center gap-1 rounded-lg px-4 py-2 text-sm font-medium disabled:opacity-50 preset-filled-primary-500">
           <ShieldCheck size={16} /> {checking ? "Checking…" : "Check"}
         </button>
         {#if data.canSeal}
-          <button type="button" onclick={seal} disabled={sealing} data-testid="seal-button" class="inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
+          <button type="button" onclick={seal} disabled={sealing} data-testid="seal-button" class="inline-flex items-center gap-1 rounded-lg border px-4 py-2 text-sm font-medium disabled:opacity-50 ui-card ui-hover ui-muted ui-border">
             <Stamp size={16} /> {sealing ? "Sealing…" : "Seal"}
           </button>
         {/if}
@@ -147,14 +147,14 @@
     </div>
 
     {#if result}
-      <div class="rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800" data-testid="check-result" data-state={result.is_intact ? "intact" : "broken"}>
-        <div class="flex flex-wrap items-center gap-3 border-b border-gray-200 p-4 dark:border-gray-700">
+      <div class="rounded-lg border shadow-sm ui-card ui-border" data-testid="check-result" data-state={result.is_intact ? "intact" : "broken"}>
+        <div class="flex flex-wrap items-center gap-3 border-b p-4 ui-border">
           {#if result.is_intact}
-            <span class="rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800 dark:bg-green-900/30 dark:text-green-300" data-testid="intact">Intact</span>
+            <span class="rounded-full px-3 py-1 text-sm font-medium ui-tone-success" data-testid="intact">Intact</span>
           {:else}
-            <span class="rounded-full bg-red-100 px-3 py-1 text-sm font-medium text-red-800 dark:bg-red-900/30 dark:text-red-300" data-testid="broken">{result.problem_count} problem{result.problem_count === 1 ? "" : "s"} found</span>
+            <span class="rounded-full px-3 py-1 text-sm font-medium ui-tone-error" data-testid="broken">{result.problem_count} problem{result.problem_count === 1 ? "" : "s"} found</span>
           {/if}
-          <span class="text-sm text-gray-600 dark:text-gray-400">
+          <span class="text-sm ui-muted">
             Checked {result.entries_checked} root chain entr{result.entries_checked === 1 ? "y" : "ies"} and {result.chains_checked} entity chain{result.chains_checked === 1 ? "" : "s"}
             {checkedWithChains ? "in full" : "against the root chain only"}, at {new Date(result.checked_at).toLocaleString(undefined, { hourCycle: "h23" })}.
           </span>
@@ -162,29 +162,29 @@
         {#if result.problems.length > 0}
           <div class="overflow-x-auto">
             <table class="w-full text-sm" data-testid="problems-table">
-              <thead class="bg-gray-50 dark:bg-gray-900">
+              <thead class="ui-card">
                 <tr>
-                  <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Where</th>
-                  <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Problem</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Where</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Problem</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+              <tbody class="divide-y ui-border">
                 {#each result.problems as problem, index (index)}
                   <tr data-testid="problem-{index}">
-                    <td class="px-4 py-3 font-mono text-xs text-gray-900 dark:text-gray-100">{whereOf(problem)}</td>
-                    <td class="px-4 py-3 text-gray-700 dark:text-gray-300">{problem.problem}</td>
+                    <td class="px-4 py-3 font-mono text-xs ui-text">{whereOf(problem)}</td>
+                    <td class="px-4 py-3 ui-muted">{problem.problem}</td>
                   </tr>
                 {/each}
               </tbody>
             </table>
           </div>
           {#if result.problem_count > result.problems.length}
-            <div class="border-t border-gray-200 px-4 py-2 text-xs text-gray-500 dark:border-gray-700 dark:text-gray-400" data-testid="problems-truncated">
+            <div class="border-t px-4 py-2 text-xs ui-muted ui-border" data-testid="problems-truncated">
               Showing the first {result.problems.length} of {result.problem_count} problems.
             </div>
           {/if}
         {/if}
-        <div class="border-t border-gray-200 px-4 py-2 text-xs text-gray-500 dark:border-gray-700 dark:text-gray-400">
+        <div class="border-t px-4 py-2 text-xs ui-muted ui-border">
           Last hash checked: <span class="break-all font-mono" data-testid="checked-last-hash">{result.last_hash}</span>
         </div>
       </div>

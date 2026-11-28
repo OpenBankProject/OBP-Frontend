@@ -68,7 +68,7 @@
 	</Tooltip.Trigger>
 	<Portal>
 		<Tooltip.Positioner>
-			<Tooltip.Content class="card preset-filled-surface-50-950 p-2 text-xs">
+			<Tooltip.Content class="card p-2 border ui-card ui-text ui-border text-xs">
 				{toolTipString}
 			</Tooltip.Content>
 		</Tooltip.Positioner>

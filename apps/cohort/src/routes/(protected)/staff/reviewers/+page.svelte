@@ -17,11 +17,11 @@
 <h1 class="h2">{t(locale, 'reviewers_heading')}</h1>
 <p class="mt-1">{t(locale, 'reviewers_intro')}</p>
 
-{#if form?.form === 'role' && form?.requested}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'access_requested_notice')}</p>{/if}
-{#if form?.error}<p class="mt-4 preset-tonal-error rounded p-3" role="alert">{t(locale, 'staff_error')} {String(form.error)}</p>{/if}
+{#if form?.form === 'role' && form?.requested}<p class="mt-4 ui-tone-success rounded p-3" role="status">{t(locale, 'access_requested_notice')}</p>{/if}
+{#if form?.error}<p class="mt-4 ui-tone-error rounded p-3" role="alert">{t(locale, 'staff_error')} {String(form.error)}</p>{/if}
 {#if form?.form === 'decide' && form?.decided}<p class="mt-4" role="status">{t(locale, `reviewers_done_${form.decided}` as MessageKey)}</p>{/if}
 
-<section class="card preset-outlined-surface-200-800 mt-6 p-4" data-testid="reviewers-pool">
+<section class="card border ui-border mt-6 p-4" data-testid="reviewers-pool">
 	{@render roleNeeded('pool')}
 	{@render roleNeeded('decisions')}
 	{@render roleNeeded('decide')}

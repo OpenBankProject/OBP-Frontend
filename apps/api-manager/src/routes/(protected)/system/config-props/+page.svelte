@@ -107,10 +107,10 @@
   <!-- Header -->
   <div class="mb-6 flex items-center justify-between">
     <div>
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
+      <h1 class="text-3xl font-bold ui-text">
         Config Props
       </h1>
-      <p class="mt-1 text-gray-600 dark:text-gray-400">
+      <p class="mt-1 ui-muted">
         Configuration properties and their runtime values (non-WebUI). Sensitive values are masked.
       </p>
     </div>
@@ -118,7 +118,7 @@
       <button
         onclick={loadConfigProps}
         disabled={isLoading}
-        class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
+        class="inline-flex items-center rounded-lg px-4 py-2 text-sm font-medium disabled:opacity-50 preset-filled-primary-500"
       >
         {#if isLoading}
           <svg class="mr-2 h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -132,7 +132,7 @@
         href={apiExplorerConfigPropsUrl}
         target="_blank"
         rel="noopener noreferrer"
-        class="inline-flex items-center rounded-lg border border-purple-300 bg-purple-600 px-4 py-2 text-sm font-medium text-white hover:bg-purple-700 dark:border-purple-600 dark:bg-purple-500 dark:hover:bg-purple-600"
+        class="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-medium preset-filled-primary-500"
         title="Open in API Explorer"
       >
         <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -145,19 +145,19 @@
 
   <!-- Error Message -->
   {#if loadError}
-    <div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20">
+    <div class="mb-6 rounded-lg border p-4 ui-tone-error">
       <div class="flex items-start">
-        <svg class="mr-3 h-5 w-5 text-red-600 dark:text-red-400" fill="currentColor" viewBox="0 0 20 20">
+        <svg class="mr-3 h-5 w-5 ui-text-error" fill="currentColor" viewBox="0 0 20 20">
           <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
         </svg>
         <div class="flex-1">
-          <h3 class="font-semibold text-red-800 dark:text-red-300">
+          <h3 class="font-semibold ui-text-error">
             Error Loading Config Props
             {#if loadErrorCode}
-              <span class="ml-2 rounded bg-red-200 px-2 py-0.5 font-mono text-xs dark:bg-red-800/40">{loadErrorCode}</span>
+              <span class="ml-2 rounded px-2 py-0.5 font-mono text-xs ui-tone-error">{loadErrorCode}</span>
             {/if}
           </h3>
-          <p class="mt-1 text-sm text-red-700 dark:text-red-400">{loadError}</p>
+          <p class="mt-1 text-sm ui-text-error">{loadError}</p>
         </div>
       </div>
     </div>
@@ -165,50 +165,50 @@
 
   <!-- Raw JSON Response Toggle -->
   {#if rawResponse !== null}
-    <div class="mb-6 rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+    <div class="mb-6 rounded-lg border shadow-sm ui-card ui-border">
       <button
         type="button"
         onclick={() => showRawJson = !showRawJson}
-        class="flex w-full items-center justify-between p-4 text-left hover:bg-gray-50 dark:hover:bg-gray-700/50"
+        class="flex w-full items-center justify-between p-4 text-left ui-hover"
       >
         <div class="flex items-center gap-2">
-          <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="h-5 w-5 ui-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
           </svg>
-          <span class="font-medium text-gray-900 dark:text-gray-100">Raw OBP API Response</span>
+          <span class="font-medium ui-text">Raw OBP API Response</span>
           {#if loadError}
-            <span class="rounded bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900/30 dark:text-red-400">Error</span>
+            <span class="rounded px-2 py-0.5 text-xs font-medium ui-tone-error">Error</span>
           {:else}
-            <span class="rounded bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-400">Success</span>
+            <span class="rounded px-2 py-0.5 text-xs font-medium ui-tone-success">Success</span>
           {/if}
         </div>
         <svg
-          class="h-5 w-5 text-gray-500 transition-transform {showRawJson ? 'rotate-180' : ''}"
+          class="h-5 w-5 transition-transform ui-muted {showRawJson ? 'rotate-180' : ''}"
           fill="none" stroke="currentColor" viewBox="0 0 24 24"
         >
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
         </svg>
       </button>
       {#if showRawJson}
-        <div class="border-t border-gray-200 p-4 dark:border-gray-700">
-          <pre class="max-h-96 overflow-auto rounded-lg bg-gray-900 p-4 text-xs text-green-400 dark:bg-gray-950">{JSON.stringify(rawResponse, null, 2)}</pre>
+        <div class="border-t p-4 ui-border">
+          <pre class="max-h-96 overflow-auto rounded-lg p-4 text-xs ui-text-success ui-panel">{JSON.stringify(rawResponse, null, 2)}</pre>
         </div>
       {/if}
     </div>
   {/if}
 
   <!-- Results Panel -->
-  <div class="rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-    <div class="border-b border-gray-200 p-4 dark:border-gray-700">
+  <div class="rounded-lg border shadow-sm ui-card ui-border">
+    <div class="border-b p-4 ui-border">
       <div class="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <h2 class="text-lg font-semibold ui-text">
             Configuration Properties
             {#if configProps.length > 0}
-              <span class="ml-2 text-sm font-normal text-gray-500">({filteredProps.length} of {configProps.length})</span>
+              <span class="ml-2 text-sm font-normal ui-muted">({filteredProps.length} of {configProps.length})</span>
             {/if}
           </h2>
-          <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+          <div class="mt-1 text-xs ui-muted">
             <strong>URL:</strong> {obpInfo.baseUrl}/obp/v6.0.0/management/config-props
           </div>
         </div>
@@ -219,9 +219,9 @@
             type="text"
             bind:value={searchQuery}
             placeholder="Filter properties..."
-            class="w-64 rounded-lg border border-gray-300 px-4 py-2 pl-10 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+            class="w-64 rounded-lg border px-4 py-2 pl-10 text-sm ui-panel ui-text ui-border"
           />
-          <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 ui-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
         </div>
@@ -231,20 +231,20 @@
     <div class="p-4">
       {#if isLoading && configProps.length === 0}
         <div class="flex flex-col items-center justify-center py-12 text-center">
-          <svg class="mb-4 h-8 w-8 animate-spin text-blue-600" fill="none" viewBox="0 0 24 24">
+          <svg class="mb-4 h-8 w-8 animate-spin ui-link" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
           </svg>
-          <p class="text-gray-600 dark:text-gray-400">Loading configuration properties...</p>
+          <p class="ui-muted">Loading configuration properties...</p>
         </div>
       {:else if filteredProps.length === 0}
         <div class="flex flex-col items-center justify-center py-12 text-center">
-          <svg class="mb-4 h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="mb-4 h-16 w-16 ui-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
-          <h3 class="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-100">No Config Props Found</h3>
-          <p class="text-gray-600 dark:text-gray-400">
+          <h3 class="mb-2 text-lg font-semibold ui-text">No Config Props Found</h3>
+          <p class="ui-muted">
             {#if searchQuery}
               No properties match your filter. Try adjusting your search.
             {:else}
@@ -254,24 +254,24 @@
         </div>
       {:else}
         <div class="overflow-x-auto">
-          <table class="min-w-full table-fixed divide-y divide-gray-200 dark:divide-gray-700">
-            <thead class="bg-gray-50 dark:bg-gray-900">
+          <table class="min-w-full table-fixed divide-y ui-border">
+            <thead class="ui-card">
               <tr>
-                <th class="w-1/3 px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Name</th>
-                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Value</th>
+                <th class="w-1/3 px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Name</th>
+                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Value</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800">
+            <tbody class="divide-y ui-card ui-border">
               {#each filteredProps as prop}
-                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                  <td class="w-1/3 px-4 py-3 text-sm font-mono font-medium text-gray-900 dark:text-gray-100 break-all">
+                <tr class="ui-hover">
+                  <td class="w-1/3 px-4 py-3 text-sm font-mono font-medium break-all ui-text">
                     {prop.name}
                   </td>
-                  <td class="px-4 py-3 text-sm font-mono text-gray-600 dark:text-gray-400">
+                  <td class="px-4 py-3 text-sm font-mono ui-muted">
                     {#if prop.value === "****"}
-                      <span class="rounded bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">masked</span>
+                      <span class="rounded px-2 py-0.5 text-xs font-medium ui-tone-warning">masked</span>
                     {:else if prop.value === ""}
-                      <span class="text-gray-400 italic">empty</span>
+                      <span class="italic ui-muted">empty</span>
                     {:else}
                       <span class="break-all">{prop.value}</span>
                     {/if}
@@ -283,8 +283,8 @@
         </div>
 
         <!-- Results Summary -->
-        <div class="mt-4 flex items-center justify-between border-t border-gray-200 pt-4 dark:border-gray-700">
-          <div class="text-sm text-gray-700 dark:text-gray-300">
+        <div class="mt-4 flex items-center justify-between border-t pt-4 ui-border">
+          <div class="text-sm ui-muted">
             Showing <span class="font-medium">{filteredProps.length}</span>
             of
             <span class="font-medium">{configProps.length}</span>

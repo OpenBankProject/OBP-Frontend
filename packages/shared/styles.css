@@ -1,0 +1,145 @@
+/*
+ * Copyright (C) 2025-2026 TESOBE GmbH
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+/*
+ * The named colour styles of every OBP-Frontend app. Pages use these names, never a colour shade directly, so a theme decides every colour and there are only these few styles to check. Each style sets colours only (not size, padding or shape) and covers light and dark mode. The style guide (/style-guide) shows them all; docs/branding.md lists what each is for.
+ *
+ * Each style is also a variable (--ui-text, --ui-tone-error-bg, ...) for a page's own CSS, where a class cannot reach: a table cell, a hover or focus state, a placeholder. The variables switch with dark mode, so page CSS needs no dark-mode rules.
+ *
+ * Buttons use four Skeleton presets: preset-filled-primary-500 (main), preset-filled-error-500 (danger), preset-tonal (secondary) and preset-outlined-surface-500 (outline). In page CSS, --ui-fill-main-* and --ui-fill-danger-* are the colours of the two filled ones.
+ */
+
+@layer components {
+	/* Light tones are a see-through tint of the 500 shade, so they are pale in any theme, however its lighter shades are made. Colours are mixed with transparent, never with a theme colour: Chrome mixes wrongly when one colour has a "none" hue, as a theme's white and greys often do. */
+	:root {
+		--ui-text: var(--color-surface-900);
+		--ui-muted: var(--color-surface-600);
+		--ui-brand: var(--color-primary-600);
+		--ui-link: var(--color-tertiary-700);
+		--ui-link-hover: var(--color-tertiary-800);
+		--ui-success: var(--color-success-700);
+		--ui-warning: var(--color-warning-700);
+		--ui-error: var(--color-error-600);
+		--ui-page: var(--body-background-color);
+		--ui-card: var(--color-surface-50);
+		--ui-panel: var(--color-surface-100);
+		--ui-hover: var(--color-surface-100);
+		--ui-border: var(--color-surface-200);
+		--ui-border-brand: var(--color-primary-500);
+		--ui-tone-success-bg: color-mix(in srgb, var(--color-success-500) 12%, transparent);
+		--ui-tone-success-text: var(--color-success-800);
+		--ui-tone-success-border: color-mix(in srgb, var(--color-success-500) 45%, transparent);
+		--ui-tone-warning-bg: color-mix(in srgb, var(--color-warning-500) 12%, transparent);
+		--ui-tone-warning-text: var(--color-warning-800);
+		--ui-tone-warning-border: color-mix(in srgb, var(--color-warning-500) 45%, transparent);
+		--ui-tone-error-bg: color-mix(in srgb, var(--color-error-500) 12%, transparent);
+		--ui-tone-error-text: var(--color-error-800);
+		--ui-tone-error-border: color-mix(in srgb, var(--color-error-500) 45%, transparent);
+		--ui-tone-info-bg: color-mix(in srgb, var(--color-tertiary-500) 12%, transparent);
+		--ui-tone-info-text: var(--color-tertiary-800);
+		--ui-tone-info-border: color-mix(in srgb, var(--color-tertiary-500) 45%, transparent);
+		--ui-tone-accent-bg: color-mix(in srgb, var(--color-secondary-500) 12%, transparent);
+		--ui-tone-accent-text: var(--color-secondary-800);
+		--ui-tone-accent-border: color-mix(in srgb, var(--color-secondary-500) 45%, transparent);
+		--ui-tone-neutral-bg: var(--color-surface-100);
+		--ui-tone-neutral-text: var(--color-surface-800);
+		--ui-tone-neutral-border: var(--color-surface-300);
+		--ui-fill-main-bg: var(--color-primary-500);
+		--ui-fill-main-text: var(--color-primary-contrast-500);
+		--ui-fill-danger-bg: var(--color-error-500);
+		--ui-fill-danger-text: var(--color-error-contrast-500);
+		/* Chart series: a categorical palette checked for contrast on light and dark cards, and the label drawn on a series. A theme may set its own. */
+		--ui-chart-1: #2a78d6;
+		--ui-chart-2: #eb6834;
+		--ui-chart-3: #1baf7a;
+		--ui-chart-4: #eda100;
+		--ui-chart-5: #e87ba4;
+		--ui-chart-6: #008300;
+		--ui-chart-7: #4a3aa7;
+		--ui-chart-8: #e34948;
+		--ui-chart-label: #ffffff;
+		--ui-chart-label-halo: rgb(0 0 0 / 35%);
+	}
+
+	[data-mode='dark'] {
+		--ui-text: var(--color-surface-100);
+		--ui-muted: var(--color-surface-400);
+		--ui-brand: var(--color-primary-300);
+		--ui-link: var(--color-tertiary-400);
+		--ui-link-hover: var(--color-tertiary-300);
+		--ui-success: var(--color-success-400);
+		--ui-warning: var(--color-warning-400);
+		--ui-error: var(--color-error-400);
+		--ui-page: var(--body-background-color-dark);
+		--ui-card: var(--color-surface-900);
+		--ui-panel: var(--color-surface-800);
+		--ui-hover: var(--color-surface-800);
+		--ui-border: var(--color-surface-700);
+		--ui-border-brand: var(--color-primary-300);
+		--ui-tone-success-bg: color-mix(in srgb, var(--color-success-900) 40%, transparent);
+		--ui-tone-success-text: var(--color-success-300);
+		--ui-tone-success-border: var(--color-success-800);
+		--ui-tone-warning-bg: color-mix(in srgb, var(--color-warning-900) 40%, transparent);
+		--ui-tone-warning-text: var(--color-warning-300);
+		--ui-tone-warning-border: var(--color-warning-800);
+		--ui-tone-error-bg: color-mix(in srgb, var(--color-error-900) 40%, transparent);
+		--ui-tone-error-text: var(--color-error-300);
+		--ui-tone-error-border: var(--color-error-800);
+		--ui-tone-info-bg: color-mix(in srgb, var(--color-tertiary-900) 40%, transparent);
+		--ui-tone-info-text: var(--color-tertiary-300);
+		--ui-tone-info-border: var(--color-tertiary-800);
+		--ui-tone-accent-bg: color-mix(in srgb, var(--color-secondary-900) 40%, transparent);
+		--ui-tone-accent-text: var(--color-secondary-300);
+		--ui-tone-accent-border: var(--color-secondary-800);
+		--ui-tone-neutral-bg: var(--color-surface-800);
+		--ui-tone-neutral-text: var(--color-surface-200);
+		--ui-tone-neutral-border: var(--color-surface-700);
+	}
+
+	/* Text */
+	.ui-text { color: var(--ui-text); }
+	.ui-muted { color: var(--ui-muted); }
+	.ui-text-brand { color: var(--ui-brand); }
+	.ui-link { color: var(--ui-link); }
+	.ui-link:hover { color: var(--ui-link-hover); }
+	.ui-text-success { color: var(--ui-success); }
+	.ui-text-warning { color: var(--ui-warning); }
+	.ui-text-error { color: var(--ui-error); }
+
+	/* Backgrounds: the page itself (also the side menu, so it matches the page), a card on the page, a panel inside it, and the hover of a row or item */
+	.ui-page { background-color: var(--ui-page); }
+	.ui-card { background-color: var(--ui-card); }
+	.ui-panel { background-color: var(--ui-panel); }
+	.ui-hover:hover { background-color: var(--ui-hover); }
+
+	/* Borders and dividers, and the marker on a selected item or on your own message */
+	.ui-border,
+	.ui-border > * { border-color: var(--ui-border); }
+	.ui-border-brand { border-color: var(--ui-border-brand); }
+
+	/* Tones: badges, messages and highlighted boxes. Background, text and border together. */
+	.ui-tone-success { background-color: var(--ui-tone-success-bg); color: var(--ui-tone-success-text); border-color: var(--ui-tone-success-border); }
+	.ui-tone-warning { background-color: var(--ui-tone-warning-bg); color: var(--ui-tone-warning-text); border-color: var(--ui-tone-warning-border); }
+	.ui-tone-error { background-color: var(--ui-tone-error-bg); color: var(--ui-tone-error-text); border-color: var(--ui-tone-error-border); }
+	.ui-tone-info { background-color: var(--ui-tone-info-bg); color: var(--ui-tone-info-text); border-color: var(--ui-tone-info-border); }
+	.ui-tone-accent { background-color: var(--ui-tone-accent-bg); color: var(--ui-tone-accent-text); border-color: var(--ui-tone-accent-border); }
+	.ui-tone-neutral { background-color: var(--ui-tone-neutral-bg); color: var(--ui-tone-neutral-text); border-color: var(--ui-tone-neutral-border); }
+
+	/* Decoration: the glow behind the Portal in dark mode, and the fade at the foot of a cut-off card */
+	[data-mode='dark'] .ui-glow { background-image: conic-gradient(from 250deg in srgb, var(--ui-page) 30%, color-mix(in srgb, var(--color-secondary-500) 70%, transparent) 40%, var(--ui-page) 50%); }
+	.ui-fade { background-image: linear-gradient(to top, var(--ui-card), transparent); }
+}

@@ -61,14 +61,14 @@
 
 <div class="container mx-auto max-w-7xl px-4 py-8">
   <div class="mb-6">
-    <a href={listHref} class="mb-4 inline-flex items-center text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">← Back to Domain APIs</a>
-    <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Create Domain API</h1>
+    <a href={listHref} class="mb-4 inline-flex items-center text-sm ui-link">← Back to Domain APIs</a>
+    <h1 class="text-3xl font-bold ui-text">Create Domain API</h1>
     <div class="mt-2"><ApiExplorerEndpoints endpoints={data.endpoints} /></div>
   </div>
 
   <ResizableSplit breakpoint="lg">
     {#snippet main()}
-    <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+    <div class="rounded-lg border p-6 shadow-sm ui-card ui-border">
       <DomainApiForm
         bankId={data.bankId}
         entityNames={data.entityNames}
@@ -80,7 +80,7 @@
     {/snippet}
 
     {#snippet side()}
-      <div class="h-[36rem] w-full overflow-hidden rounded-lg border border-gray-200 shadow-sm lg:h-[calc(100vh-80px-3rem)] dark:border-gray-700">
+      <div class="h-[36rem] w-full overflow-hidden rounded-lg border shadow-sm lg:h-[calc(100vh-80px-3rem)] ui-border">
         <OpeyChat {opeyChatOptions} userAuthenticated={!!page.data.userId} {clientTools} {clientContext} />
       </div>
     {/snippet}

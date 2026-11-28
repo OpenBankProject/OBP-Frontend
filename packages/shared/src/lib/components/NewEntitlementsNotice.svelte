@@ -152,8 +152,8 @@
 	>
 		<div class="grid min-w-0 flex-1 gap-2 sm:grid-cols-2">
 			<!-- Left: what the human gained -->
-			<div class="flex items-start gap-3 rounded-md border border-success-500 bg-success-50-950 p-3">
-				<KeyRound class="mt-0.5 h-4 w-4 flex-shrink-0 text-success-700-300" aria-hidden="true" />
+			<div class="flex items-start gap-3 rounded-md border p-3 ui-tone-success">
+				<KeyRound class="mt-0.5 h-4 w-4 flex-shrink-0 ui-text-success" aria-hidden="true" />
 				<div class="min-w-0 flex-1">
 					<p class="font-semibold">
 						You gained {newEntitlements.length === 1 ? 'a new entitlement' : `${newEntitlements.length} new entitlements`} during this chat
@@ -176,7 +176,7 @@
 							This is the system-wide role-granting role. OBP never lets a consent carry it,
 							so Opey can't use it — grant yourself the bank-scoped
 							<code class="font-mono text-xs">CanCreateEntitlementAtOneBank</code> on the
-							<a href="/user/entitlements" class="text-tertiary-600-400 hover:underline"
+							<a href="/user/entitlements" class="hover:underline ui-link"
 								>Entitlements page</a
 							>
 							and Opey can grant roles at that bank for you.
@@ -185,7 +185,7 @@
 						<p class="mt-1 text-xs opacity-70">
 							Existing consents don't include these — if an action just failed for missing
 							permissions, retry it and grant the new consent when prompted.
-							<a href="/user/entitlements" class="text-tertiary-600-400 hover:underline"
+							<a href="/user/entitlements" class="hover:underline ui-link"
 								>View all entitlements →</a
 							>
 						</p>
@@ -195,10 +195,10 @@
 
 			<!-- Right: what Opey's current consent can actually do -->
 			<div
-				class="flex items-start gap-3 rounded-md border border-tertiary-500 bg-tertiary-50-950 p-3"
+				class="flex items-start gap-3 rounded-md border p-3 ui-tone-info"
 				data-testid="opey-consent-power"
 			>
-				<ShieldCheck class="mt-0.5 h-4 w-4 flex-shrink-0 text-tertiary-700-300" aria-hidden="true" />
+				<ShieldCheck class="mt-0.5 h-4 w-4 flex-shrink-0 ui-link" aria-hidden="true" />
 				<div class="min-w-0 flex-1">
 					<p class="font-semibold">
 						{#if currentConsent}
@@ -219,7 +219,7 @@
 								{#if currentConsent.referenceId && consentMetricsHref}
 									<a
 										href={`${consentMetricsHref}?consent_reference_id=${encodeURIComponent(currentConsent.referenceId)}`}
-										class="text-tertiary-600-400 hover:underline"
+										class="hover:underline ui-link"
 										><code class="font-mono text-xs">{currentConsent.referenceId}</code></a
 									>
 								{:else}

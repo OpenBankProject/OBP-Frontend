@@ -104,8 +104,8 @@
 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <div
 	bind:this={element}
-	class="w-1 shrink-0 cursor-col-resize bg-surface-300-600 hover:bg-primary-500 {dragging
-		? 'bg-primary-500'
+	class="w-1 shrink-0 cursor-col-resize bg-current ui-muted hover:opacity-70 {dragging
+		? 'preset-filled-primary-500'
 		: ''}"
 	role="separator"
 	aria-orientation="vertical"

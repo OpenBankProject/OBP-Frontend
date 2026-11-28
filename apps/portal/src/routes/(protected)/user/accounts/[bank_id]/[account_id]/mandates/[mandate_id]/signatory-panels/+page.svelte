@@ -29,7 +29,7 @@
 
 <div class="mb-4">
 	<a
-		class="text-sm text-primary-500 hover:underline dark:text-primary-200"
+		class="text-sm hover:underline ui-text-brand"
 		href={mandatesHref}
 		data-testid="back-to-mandates"
 	>← Mandates</a>
@@ -38,14 +38,14 @@
 <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
 	<div>
 		<h2 class="text-2xl font-semibold">Signatory panels</h2>
-		<p class="mt-1 text-sm text-surface-700-300">
+		<p class="mt-1 text-sm ui-muted">
 			Named groups of authorised signers. Mandate provisions reference these panels to define signing rules.
 		</p>
 	</div>
 	<a class="btn variant-filled-primary" href={createHref} data-testid="create-panel-link">+ New panel</a>
 </div>
 
-<p class="mb-4 text-xs text-surface-600-400">
+<p class="mb-4 text-xs ui-muted">
 	Mandate <code data-testid="panels-mandate-id">{data.mandate_id}</code>
 </p>
 
@@ -56,7 +56,7 @@
 {/if}
 
 {#if data.panels.length === 0 && !data.fetchError}
-	<p class="text-surface-600-400" data-testid="panels-empty">No signatory panels on this mandate yet.</p>
+	<p class="ui-muted" data-testid="panels-empty">No signatory panels on this mandate yet.</p>
 {:else if data.panels.length > 0}
 	<div class="table-container" data-testid="panels-table">
 		<table class="table-hover table">
@@ -72,7 +72,7 @@
 					<tr data-testid="panel-row" data-panel-id={p.panel_id}>
 						<td>
 							<a
-								class="font-medium text-primary-500 hover:underline dark:text-primary-200"
+								class="font-medium hover:underline ui-text-brand"
 								href={panelHref(p.panel_id)}
 								data-testid="panel-link"
 							>{p.panel_name}</a>

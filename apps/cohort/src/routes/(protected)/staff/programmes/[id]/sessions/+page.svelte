@@ -18,16 +18,16 @@
 <p><a class="anchor" href="/staff/programmes/{data.programme.id}">{data.programme.name}</a></p>
 <h1 class="h2">{t(locale, 'sessions_heading')}</h1>
 
-{#if form?.form === 'role' && form?.requested}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'access_requested_notice')}</p>{/if}
+{#if form?.form === 'role' && form?.requested}<p class="mt-4 ui-tone-success rounded p-3" role="status">{t(locale, 'access_requested_notice')}</p>{/if}
 {#if form?.error}
-	<p class="mt-4 preset-tonal-error rounded p-3" role="alert">
+	<p class="mt-4 ui-tone-error rounded p-3" role="alert">
 		{#if form.error === 'invalid'}{t(locale, 'sessions_error_invalid')}{:else}{t(locale, 'staff_error')} {String(form.error)}{/if}
 	</p>
 {/if}
 {#if form?.form === 'session' && form?.created}<p class="mt-4" role="status">{t(locale, 'sessions_created')}</p>{/if}
-{#if form?.form === 'attendance' && form?.recorded}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'sessions_attendance_recorded')}</p>{/if}
+{#if form?.form === 'attendance' && form?.recorded}<p class="mt-4 ui-tone-success rounded p-3" role="status">{t(locale, 'sessions_attendance_recorded')}</p>{/if}
 
-<section class="card preset-outlined-surface-200-800 mt-6 p-4">
+<section class="card border ui-border mt-6 p-4">
 	{@render roleNeeded('create')}
 	{#if !missing('create')}
 		<details>
@@ -44,7 +44,7 @@
 				</div>
 				<label class="label"><span class="label-text">{t(locale, 'sessions_mentor')}</span><input class="input" name="mentor_name" maxlength="255" /></label>
 				<label class="label"><span class="label-text">{t(locale, 'sessions_location')}</span><input class="input" name="location" maxlength="1000" /></label>
-				<button class="btn preset-filled self-start">{t(locale, 'staff_create')}</button>
+				<button class="btn preset-filled-primary-500 self-start">{t(locale, 'staff_create')}</button>
 			</form>
 		</details>
 	{/if}
@@ -56,10 +56,10 @@
 	{@render roleNeeded('participants')}
 	{@render roleNeeded('attendance')}
 	{@render roleNeeded('readAttendance')}
-	{#if data.error}<p class="mt-2 preset-tonal-error rounded p-3">{data.error}</p>{/if}
+	{#if data.error}<p class="mt-2 ui-tone-error rounded p-3">{data.error}</p>{/if}
 	{#if data.sessions.length === 0}<p class="mt-2">{t(locale, 'sessions_none')}</p>{/if}
 	{#each data.sessions as s (s.id)}
-		<article class="card preset-outlined-surface-200-800 mt-3 p-4" data-testid="session-{s.id}">
+		<article class="card border ui-border mt-3 p-4" data-testid="session-{s.id}">
 			<h2 class="h4">{s.title}</h2>
 			<p class="text-sm">
 				{t(locale, `session_kind_${s.kind}` as MessageKey)} · {s.starts_at.replace('T', ' ')} · {s.duration_minutes} {t(locale, 'sessions_minutes')}

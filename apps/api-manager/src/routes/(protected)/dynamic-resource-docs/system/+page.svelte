@@ -56,11 +56,11 @@
 
   function methodBadgeClass(verb: string): string {
     switch (verb?.toUpperCase()) {
-      case "GET": return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
-      case "POST": return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200";
-      case "PUT": return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
-      case "DELETE": return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
-      default: return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200";
+      case "GET": return "ui-tone-success";
+      case "POST": return "ui-tone-info";
+      case "PUT": return "ui-tone-warning";
+      case "DELETE": return "ui-tone-error";
+      default: return "ui-panel ui-text";
     }
   }
 
@@ -97,26 +97,26 @@
 <div class="container mx-auto px-4 py-8">
   <div class="mb-6 flex items-center justify-between">
     <div>
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
+      <h1 class="text-3xl font-bold ui-text">
         System Dynamic Resource Docs
       </h1>
-      <p class="mt-1 text-gray-600 dark:text-gray-400">
+      <p class="mt-1 ui-muted">
         Endpoints implemented by Scala method bodies compiled at runtime. Served under
-        <code class="rounded bg-gray-100 px-1 dark:bg-gray-900">/obp/dynamic-resource-doc/...</code>
+        <code class="rounded px-1 ui-panel">/obp/dynamic-resource-doc/...</code>
       </p>
     </div>
     <div class="flex items-center gap-2">
       <a
         href="/dynamic-resource-docs/help"
         data-testid="dynamic-resource-docs-help-link"
-        class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+        class="inline-flex items-center rounded-lg border px-3 py-2 text-sm font-medium ui-card ui-hover ui-muted ui-border"
       >
         Help
       </a>
       <a
         href="/dynamic-resource-docs/system/create"
         data-testid="create-link"
-        class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+        class="inline-flex items-center rounded-lg px-4 py-2 text-sm font-medium preset-filled-primary-500"
       >
         Create Resource Doc
       </a>
@@ -124,17 +124,17 @@
   </div>
 
   {#if data.error}
-    <div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
+    <div class="mb-6 rounded-lg border p-4 text-sm ui-tone-error">
       {data.error}
     </div>
   {/if}
   {#if deleteError}
-    <div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300" data-testid="delete-error">
+    <div class="mb-6 rounded-lg border p-4 text-sm ui-tone-error" data-testid="delete-error">
       {deleteError}
     </div>
   {/if}
   {#if successMessage}
-    <div class="mb-6 rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-700 dark:border-green-800 dark:bg-green-900/20 dark:text-green-300" data-testid="success-message">
+    <div class="mb-6 rounded-lg border p-4 text-sm ui-tone-success" data-testid="success-message">
       {successMessage}
     </div>
   {/if}
@@ -146,32 +146,32 @@
       bind:value={searchQuery}
       placeholder="Filter by name, URL, verb, tag, role..."
       data-testid="search-input"
-      class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+      class="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 ui-card ui-text ui-border"
     />
   </div>
 
   {#if filteredDocs.length === 0}
-    <div class="rounded-lg border border-gray-200 bg-white p-8 text-center text-sm text-gray-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400">
+    <div class="rounded-lg border p-8 text-center text-sm ui-card ui-muted ui-border">
       {#if (data.docs || []).length === 0}
-        No dynamic resource docs yet. <a href="/dynamic-resource-docs/system/create" class="text-blue-600 hover:underline dark:text-blue-400">Create one</a> to get started.
+        No dynamic resource docs yet. <a href="/dynamic-resource-docs/system/create" class="hover:underline ui-link">Create one</a> to get started.
       {:else}
         No docs match "{searchQuery}".
       {/if}
     </div>
   {:else}
-    <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-        <thead class="bg-gray-50 dark:bg-gray-900">
+    <div class="overflow-x-auto rounded-lg border shadow-sm ui-card ui-border">
+      <table class="min-w-full divide-y ui-border">
+        <thead class="ui-card">
           <tr>
-            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Method</th>
-            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">URL</th>
-            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Function Name</th>
-            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Summary</th>
-            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Roles</th>
-            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Actions</th>
+            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Method</th>
+            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">URL</th>
+            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Function Name</th>
+            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Summary</th>
+            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Roles</th>
+            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Actions</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800">
+        <tbody class="divide-y ui-card ui-border">
           {#each filteredDocs as doc (doc.dynamic_resource_doc_id)}
             <tr data-testid="doc-row" data-doc-id={doc.dynamic_resource_doc_id}>
               <td class="whitespace-nowrap px-4 py-3 align-top">
@@ -179,29 +179,29 @@
                   {doc.request_verb}
                 </span>
               </td>
-              <td class="whitespace-nowrap px-4 py-3 align-top font-mono text-sm text-gray-900 dark:text-gray-100">
+              <td class="whitespace-nowrap px-4 py-3 align-top font-mono text-sm ui-text">
                 {doc.request_url || "—"}
               </td>
-              <td class="whitespace-nowrap px-4 py-3 align-top text-sm text-gray-900 dark:text-gray-100">
+              <td class="whitespace-nowrap px-4 py-3 align-top text-sm ui-text">
                 {doc.partial_function_name || "—"}
               </td>
-              <td class="px-4 py-3 align-top text-sm text-gray-700 dark:text-gray-300">
+              <td class="px-4 py-3 align-top text-sm ui-muted">
                 {doc.summary || "—"}
               </td>
-              <td class="whitespace-nowrap px-4 py-3 align-top text-xs text-gray-600 dark:text-gray-400">
+              <td class="whitespace-nowrap px-4 py-3 align-top text-xs ui-muted">
                 {doc.roles || "—"}
               </td>
               <td class="whitespace-nowrap px-4 py-3 align-top text-xs">
                 <a
                   href={`/dynamic-resource-docs/system/${doc.dynamic_resource_doc_id}`}
                   data-testid="view-link"
-                  class="mr-3 text-blue-600 hover:underline dark:text-blue-400"
+                  class="mr-3 hover:underline ui-link"
                 >View / Edit</a>
                 <button
                   type="button"
                   onclick={() => deleteDoc(doc.dynamic_resource_doc_id)}
                   data-testid="delete-btn"
-                  class="text-red-600 hover:underline dark:text-red-400"
+                  class="hover:underline ui-text-error"
                 >Delete</button>
               </td>
             </tr>

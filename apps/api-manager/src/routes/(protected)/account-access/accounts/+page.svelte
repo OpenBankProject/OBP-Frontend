@@ -140,44 +140,28 @@
   }
 
   .panel {
-    background: white;
+    background: var(--ui-card);
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     overflow: hidden;
   }
 
-  :global([data-mode="dark"]) .panel {
-    background: rgb(var(--color-surface-800));
-  }
-
   .panel-header {
     padding: 1.5rem;
-    border-bottom: 1px solid #e5e7eb;
-  }
-
-  :global([data-mode="dark"]) .panel-header {
-    border-bottom-color: rgb(var(--color-surface-700));
+    border-bottom: 1px solid var(--ui-border);
   }
 
   .panel-title {
     font-size: 1.5rem;
     font-weight: 600;
-    color: #111827;
+    color: var(--ui-text);
     margin: 0;
-  }
-
-  :global([data-mode="dark"]) .panel-title {
-    color: var(--color-surface-100);
   }
 
   .panel-subtitle {
     font-size: 0.875rem;
-    color: #6b7280;
+    color: var(--ui-muted);
     margin-top: 0.5rem;
-  }
-
-  :global([data-mode="dark"]) .panel-subtitle {
-    color: var(--color-surface-400);
   }
 
   .panel-content {
@@ -187,42 +171,26 @@
   .empty-state {
     text-align: center;
     padding: 3rem;
-    color: #6b7280;
-  }
-
-  :global([data-mode="dark"]) .empty-state {
-    color: var(--color-surface-400);
+    color: var(--ui-muted);
   }
 
   .empty-icon {
     display: flex;
     justify-content: center;
     margin-bottom: 1rem;
-    color: #d1d5db;
-  }
-
-  :global([data-mode="dark"]) .empty-icon {
-    color: var(--color-surface-600);
+    color: var(--ui-muted);
   }
 
   .empty-title {
     font-size: 1.125rem;
     font-weight: 600;
-    color: #4a5568;
+    color: var(--ui-muted);
     margin: 0 0 0.5rem 0;
-  }
-
-  :global([data-mode="dark"]) .empty-title {
-    color: var(--color-surface-300);
   }
 
   .empty-description {
     margin: 0;
-    color: #6b7280;
-  }
-
-  :global([data-mode="dark"]) .empty-description {
-    color: var(--color-surface-400);
+    color: var(--ui-muted);
   }
 
   /* Count banner */
@@ -231,17 +199,11 @@
     align-items: center;
     gap: 0.5rem;
     padding: 1rem 1.5rem;
-    background: #f0fdf4;
-    border: 1px solid #bbf7d0;
+    background: var(--ui-tone-success-bg);
+    border: 1px solid var(--ui-tone-success-border);
     border-radius: 8px;
     margin-bottom: 1.5rem;
-    color: #166534;
-  }
-
-  :global([data-mode="dark"]) .count-banner {
-    background: rgba(34, 197, 94, 0.1);
-    border-color: rgba(34, 197, 94, 0.3);
-    color: rgb(var(--color-success-300));
+    color: var(--ui-tone-success-text);
   }
 
   .count-number {
@@ -265,15 +227,11 @@
     align-items: center;
     gap: 0.75rem;
     padding: 0.625rem 1rem;
-    border-bottom: 1px solid #f3f4f6;
+    border-bottom: 1px solid var(--ui-border);
   }
 
   .account-item:last-child {
     border-bottom: none;
-  }
-
-  :global([data-mode="dark"]) .account-item {
-    border-bottom-color: rgb(var(--color-surface-700));
   }
 
   .account-link {
@@ -285,61 +243,40 @@
   }
 
   .account-link:hover .account-id {
-    color: #3b82f6;
-  }
-
-  :global([data-mode="dark"]) .account-link:hover .account-id {
-    color: rgb(var(--color-primary-400));
+    color: var(--ui-link-hover);
   }
 
   .account-id {
     font-size: 0.8rem;
     font-family: monospace;
-    color: #111827;
+    color: var(--ui-text);
     font-weight: 500;
     transition: color 0.2s;
   }
 
-  :global([data-mode="dark"]) .account-id {
-    color: var(--color-surface-100);
-  }
-
   .account-label {
     font-size: 0.8rem;
-    color: #6b7280;
-  }
-
-  :global([data-mode="dark"]) .account-label {
-    color: var(--color-surface-400);
+    color: var(--ui-muted);
   }
 
   .account-views {
     margin-left: auto;
     font-size: 0.7rem;
     padding: 0.125rem 0.5rem;
-    background: #f3f4f6;
-    color: #6b7280;
+    background: var(--ui-panel);
+    color: var(--ui-muted);
     border-radius: 9999px;
-  }
-
-  :global([data-mode="dark"]) .account-views {
-    background: rgb(var(--color-surface-700));
-    color: var(--color-surface-300);
   }
 
   /* Loading */
   .loading-state {
     text-align: center;
     padding: 3rem;
-    color: #6b7280;
+    color: var(--ui-muted);
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 0.75rem;
-  }
-
-  :global([data-mode="dark"]) .loading-state {
-    color: var(--color-surface-400);
   }
 
   .loading-state :global(.spinner-icon) {
@@ -354,24 +291,15 @@
   /* Error */
   .error-state {
     padding: 1rem 1.5rem;
-    background: #fef2f2;
-    border: 1px solid #fca5a5;
+    background: var(--ui-tone-error-bg);
+    border: 1px solid var(--ui-tone-error-border);
     border-radius: 8px;
     margin: 1rem 0;
   }
 
-  :global([data-mode="dark"]) .error-state {
-    background: rgba(220, 38, 38, 0.1);
-    border-color: rgba(220, 38, 38, 0.3);
-  }
-
   .error-message {
-    color: #991b1b;
+    color: var(--ui-error);
     font-size: 0.875rem;
     margin: 0;
-  }
-
-  :global([data-mode="dark"]) .error-message {
-    color: rgb(var(--color-error-300));
   }
 </style>

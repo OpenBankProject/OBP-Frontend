@@ -71,10 +71,10 @@
   <div class="mb-6">
     <div class="flex items-start justify-between gap-4">
       <div>
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
+        <h1 class="text-3xl font-bold ui-text">
           Scheduler Job Locks
         </h1>
-        <p class="mt-1 max-w-3xl text-gray-600 dark:text-gray-400">
+        <p class="mt-1 max-w-3xl ui-muted">
           Lock rows from the
           <code class="font-mono">jobscheduler</code> table (most recent first, up
           to 100). This is a <strong>lock table, not a job-history log</strong> — a
@@ -92,7 +92,7 @@
           onclick={refresh}
           disabled={refreshing}
           data-testid="refresh"
-          class="inline-flex shrink-0 items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+          class="inline-flex shrink-0 items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium disabled:opacity-50 ui-card ui-hover ui-muted ui-border"
         >
           <RefreshCw class="h-4 w-4 {refreshing ? 'animate-spin' : ''}" />
           Refresh
@@ -109,62 +109,62 @@
   {:else if data.jobs.length === 0}
     <!-- Healthy empty state -->
     <div
-      class="rounded-lg border border-green-200 bg-green-50 p-8 text-center dark:border-green-800 dark:bg-green-900/20"
+      class="rounded-lg border p-8 text-center ui-tone-success"
       data-testid="no-jobs"
     >
-      <CheckCircle2 class="mx-auto mb-3 h-12 w-12 text-green-600 dark:text-green-400" />
-      <p class="text-lg font-medium text-gray-800 dark:text-gray-200">
+      <CheckCircle2 class="mx-auto mb-3 h-12 w-12 ui-text-success" />
+      <p class="text-lg font-medium ui-text">
         No scheduler locks
       </p>
-      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+      <p class="mt-1 text-sm ui-muted">
         No job is currently holding a lock. This is the normal, healthy state.
       </p>
     </div>
   {:else}
     <!-- Jobs table -->
     <div
-      class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
+      class="overflow-hidden rounded-lg border shadow-sm ui-card ui-border"
     >
       <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead class="bg-gray-50 dark:bg-gray-900/50">
+        <table class="min-w-full divide-y ui-border">
+          <thead class="ui-card">
             <tr>
-              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Name</th>
-              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Job ID</th>
-              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">API Instance</th>
-              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Started At</th>
-              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Age</th>
-              <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Action</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider ui-muted">Name</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider ui-muted">Job ID</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider ui-muted">API Instance</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider ui-muted">Started At</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider ui-muted">Age</th>
+              <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider ui-muted">Action</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+          <tbody class="divide-y ui-border">
             {#each data.jobs as job (job.job_id)}
               <tr
-                class="hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                class="ui-hover"
                 data-testid="job-row"
                 data-job-id={job.job_id}
                 data-stale={isStale(job)}
               >
-                <td class="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">
+                <td class="px-4 py-3 text-sm font-medium ui-text">
                   {job.name}
                 </td>
-                <td class="px-4 py-3 font-mono text-sm text-gray-600 dark:text-gray-400">
+                <td class="px-4 py-3 font-mono text-sm ui-muted">
                   {job.job_id}
                 </td>
-                <td class="px-4 py-3 font-mono text-sm text-gray-600 dark:text-gray-400">
+                <td class="px-4 py-3 font-mono text-sm ui-muted">
                   {job.api_instance_id}
                 </td>
-                <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                <td class="px-4 py-3 text-sm ui-muted">
                   {formatDate(job.started_at)}
                 </td>
                 <td class="px-4 py-3 text-sm">
                   {#if isStale(job)}
-                    <span class="inline-flex items-center gap-1 rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300">
+                    <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ui-tone-warning">
                       <AlertTriangle class="h-3 w-3" />
                       {formatAge(job.age_seconds)} · stale?
                     </span>
                   {:else}
-                    <span class="text-gray-900 dark:text-gray-100">{formatAge(job.age_seconds)}</span>
+                    <span class="ui-text">{formatAge(job.age_seconds)}</span>
                   {/if}
                 </td>
                 <td class="px-4 py-3 text-right">
@@ -172,7 +172,7 @@
                     type="button"
                     onclick={() => openDelete(job)}
                     data-testid="delete-job"
-                    class="inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600"
+                    class="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium preset-filled-error-500"
                   >
                     <Trash2 class="h-3.5 w-3.5" />
                     Delete

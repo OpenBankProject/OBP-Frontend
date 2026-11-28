@@ -20,11 +20,11 @@
 <p class="mt-1 text-sm">system id <code>{data.system.conformator_system_id}</code>: the runner's administrators file this system's secrets under it.</p>
 
 {#if data.canEdit}
-	{#if form?.saved}<p class="mt-4 preset-tonal-success rounded p-3" role="status">Saved.</p>{/if}
+	{#if form?.saved}<p class="mt-4 ui-tone-success rounded p-3" role="status">Saved.</p>{/if}
 	<FormProblems problems={form?.problems} />
 	<form method="POST" action="?/save" class="mt-4 grid max-w-3xl gap-3">
 		<SystemFields {values} systemRoles={data.systemRoles} roleFixed />
-		<div><button class="btn preset-filled" data-testid="system-save">Save</button></div>
+		<div><button class="btn preset-filled-primary-500" data-testid="system-save">Save</button></div>
 	</form>
 {:else}
 	<dl class="mt-4 grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1">

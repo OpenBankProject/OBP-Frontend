@@ -23,13 +23,13 @@
 
 <div class="mt-4">
 	<PageRoleCheck userEntitlements={data.userEntitlements} {required} requirementType="AND">
-		<form method="POST" action="?/add"><button class="btn preset-filled" data-testid="example-add">Add the example suite</button></form>
+		<form method="POST" action="?/add"><button class="btn preset-filled-primary-500" data-testid="example-add">Add the example suite</button></form>
 	</PageRoleCheck>
 </div>
 
 {#if form?.steps}
 	<ol class="mt-4 list-inside list-decimal" data-testid="example-steps">
-		{#each form.steps as s, i (i)}<li class={s.ok ? '' : 'text-error-500'}>{s.step}: {s.ok ? 'done' : 'failed'}{s.detail ? `. ${s.detail}` : ''}</li>{/each}
+		{#each form.steps as s, i (i)}<li class={s.ok ? '' : 'ui-text-error'}>{s.step}: {s.ok ? 'done' : 'failed'}{s.detail ? `. ${s.detail}` : ''}</li>{/each}
 	</ol>
 	{#if form.steps.every((s) => s.ok)}<p class="mt-2"><a class="anchor" href="/staff/suites">See it in Suites and tests</a></p>{/if}
 {/if}

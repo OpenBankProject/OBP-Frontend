@@ -682,7 +682,7 @@
 <form onsubmit={handleSubmit} class="space-y-6" data-testid="dynamic-resource-doc-form">
   {#if submitError}
     <div
-      class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300"
+      class="rounded-lg border p-4 text-sm ui-tone-error"
       data-testid="form-error"
     >
       {submitError}
@@ -691,11 +691,11 @@
 
   {#if opeyFilledFields.length > 0}
     <div
-      class="rounded-lg border border-teal-300 bg-teal-50 p-3 text-sm dark:border-teal-700 dark:bg-teal-900/20"
+      class="rounded-lg border p-3 text-sm ui-tone-success"
       data-testid="opey-filled-banner"
     >
       <div class="flex flex-wrap items-center gap-2">
-        <span class="font-medium text-teal-800 dark:text-teal-200">
+        <span class="font-medium ui-text-success">
           Opey filled {opeyFilledFields.length}
           {opeyFilledFields.length === 1 ? "field" : "fields"} — review before submitting.
         </span>
@@ -703,7 +703,7 @@
           <button
             type="button"
             onclick={() => revertField(name)}
-            class="rounded-full border border-teal-400 px-2 py-0.5 text-xs text-teal-800 hover:bg-teal-100 dark:border-teal-600 dark:text-teal-200 dark:hover:bg-teal-800/40"
+            class="rounded-full border px-2 py-0.5 text-xs ui-tone-success"
             data-testid="opey-revert-{name}"
             aria-label="Revert {name} to your previous value"
           >{name} ×</button>
@@ -711,13 +711,13 @@
         <button
           type="button"
           onclick={acceptAll}
-          class="ml-auto text-xs text-teal-700 underline hover:text-teal-900 dark:text-teal-300"
+          class="ml-auto text-xs underline ui-text-success"
           data-testid="opey-accept-all"
         >
           Accept all
         </button>
       </div>
-      <p class="mt-1 text-xs text-teal-700 dark:text-teal-300">
+      <p class="mt-1 text-xs ui-text-success">
         Click a field name to restore your previous value.
       </p>
     </div>
@@ -726,8 +726,8 @@
   <!-- Basic info: name and language on one line, verb and URL on the next -->
   <div class="grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-4" data-testid="row-name-language">
     <label class="block">
-      <span class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-        Partial Function Name <span class="text-red-600">*</span>
+      <span class="block text-sm font-medium ui-muted">
+        Partial Function Name <span class="ui-text-error">*</span>
       </span>
       <input
         type="text"
@@ -735,32 +735,32 @@
         bind:value={partial_function_name}
         placeholder="createUser"
         data-testid="field-partial-function-name"
-        class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+        class="mt-1 block w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 ui-card ui-text ui-border"
       />
-      <span class="mt-1 block text-xs text-gray-500 dark:text-gray-400">
+      <span class="mt-1 block text-xs ui-muted">
         A camelCase Scala-safe identifier. OBP uses it (plus a hash of verb+url) to name the compiled function internally.
       </span>
       {#if fieldErrors.partial_function_name}
-        <p class="mt-1 text-xs text-red-600 dark:text-red-400">{fieldErrors.partial_function_name}</p>
+        <p class="mt-1 text-xs ui-text-error">{fieldErrors.partial_function_name}</p>
       {/if}
     </label>
 
     <label class="block">
-      <span class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-        Language <span class="text-red-600">*</span>
+      <span class="block text-sm font-medium ui-muted">
+        Language <span class="ui-text-error">*</span>
       </span>
       <select
         name="programming_lang"
         bind:value={programming_lang}
         data-testid="field-programming-lang"
         data-state={programming_lang.toLowerCase()}
-        class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+        class="mt-1 block w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 ui-card ui-text ui-border"
       >
         {#each LANGUAGES as language}
           <option value={language}>{language}</option>
         {/each}
       </select>
-      <span class="mt-1 block text-xs text-gray-500 dark:text-gray-400">
+      <span class="mt-1 block text-xs ui-muted">
         Scala or Java code, or a Query: a declaration that reads Dynamic Entity records.
       </span>
     </label>
@@ -768,21 +768,21 @@
 
   <div class="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,3fr)]">
     <label class="block">
-      <span class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-        Request Verb <span class="text-red-600">*</span>
+      <span class="block text-sm font-medium ui-muted">
+        Request Verb <span class="ui-text-error">*</span>
       </span>
       <select
         name="request_verb"
         bind:value={request_verb}
         disabled={isQuery}
         data-testid="field-request-verb"
-        class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 disabled:bg-gray-100 disabled:text-gray-500 dark:disabled:bg-gray-800"
+        class="mt-1 block w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 ui-card ui-text ui-border"
       >
         {#each VERBS as verb}
           <option value={verb}>{verb}</option>
         {/each}
       </select>
-      <span class="mt-1 block text-xs text-gray-500 dark:text-gray-400">
+      <span class="mt-1 block text-xs ui-muted">
         {#if isQuery}
           A Dynamic Query only reads, so it is always GET.
         {:else}
@@ -792,8 +792,8 @@
     </label>
 
     <label class="block">
-      <span class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-        Request URL <span class="text-red-600">*</span>
+      <span class="block text-sm font-medium ui-muted">
+        Request URL <span class="ui-text-error">*</span>
       </span>
       <input
         type="text"
@@ -801,14 +801,14 @@
         bind:value={request_url}
         placeholder="/my_user/MY_USER_ID"
         data-testid="field-request-url"
-        class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 font-mono text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+        class="mt-1 block w-full rounded-lg border px-3 py-2 font-mono text-sm focus:outline-none focus:ring-2 ui-card ui-text ui-border"
       />
-      <span class="mt-1 block min-w-0 break-words text-xs text-gray-500 dark:text-gray-400">
+      <span class="mt-1 block min-w-0 break-words text-xs ui-muted">
         Served at <code class="break-all">/obp/dynamic-resource-doc{request_url || "/..."}</code>.
         {#if isScala}UPPER_CASE segments are path parameters — read them in Scala via <code>pathParams("MY_USER_ID")</code>.{/if}
       </span>
       {#if fieldErrors.request_url}
-        <p class="mt-1 text-xs text-red-600 dark:text-red-400">{fieldErrors.request_url}</p>
+        <p class="mt-1 text-xs ui-text-error">{fieldErrors.request_url}</p>
       {/if}
     </label>
   </div>
@@ -816,8 +816,8 @@
   <!-- Method body (Scala) -->
   <div>
     <div class="flex items-baseline justify-between">
-      <label for="method-body" class="text-sm font-medium text-gray-700 dark:text-gray-300">
-        Method Body ({isQuery ? "Query declaration, JSON" : programming_lang}) <span class="text-red-600">*</span>
+      <label for="method-body" class="text-sm font-medium ui-muted">
+        Method Body ({isQuery ? "Query declaration, JSON" : programming_lang}) <span class="ui-text-error">*</span>
       </label>
       <div class="flex items-center gap-3">
         {#if isScala}
@@ -826,7 +826,7 @@
             onclick={generateTemplate}
             disabled={isGeneratingTemplate}
             data-testid="generate-template-btn"
-            class="text-xs text-blue-600 hover:underline disabled:opacity-50 dark:text-blue-400"
+            class="text-xs hover:underline disabled:opacity-50 ui-link"
           >
             {isGeneratingTemplate ? "Generating..." : "Generate template"}
           </button>
@@ -836,7 +836,7 @@
               type="button"
               onclick={insertQueryExample}
               data-testid="insert-query-example-btn"
-              class="text-xs text-blue-600 hover:underline dark:text-blue-400"
+              class="text-xs hover:underline ui-link"
             >
               Show example template
             </button>
@@ -846,7 +846,7 @@
             onclick={formatQuery}
             disabled={!method_body_text.trim()}
             data-testid="format-query-btn"
-            class="text-xs text-blue-600 hover:underline disabled:opacity-50 dark:text-blue-400"
+            class="text-xs hover:underline disabled:opacity-50 ui-link"
           >
             Format
           </button>
@@ -856,7 +856,7 @@
           onclick={() => { fixActive = false; fixOutcome = null; void compileNow(); }}
           disabled={compileStatus === "compiling" || fixActive}
           data-testid="compile-btn"
-          class="rounded border border-gray-300 px-2 py-0.5 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+          class="rounded border px-2 py-0.5 text-xs font-medium disabled:opacity-50 ui-hover ui-muted ui-border"
         >
           {compileStatus === "compiling" ? (isQuery ? "Checking..." : "Compiling...") : (isQuery ? "Check" : "Compile")}
         </button>
@@ -866,14 +866,14 @@
             onclick={startFixLoop}
             disabled={fixActive || compileStatus === "compiling"}
             data-testid="fix-with-opey-btn"
-            class="rounded border border-violet-300 bg-violet-50 px-2 py-0.5 text-xs font-medium text-violet-800 hover:bg-violet-100 disabled:opacity-50 dark:border-violet-700 dark:bg-violet-900/30 dark:text-violet-200"
+            class="rounded border px-2 py-0.5 text-xs font-medium disabled:opacity-50 ui-tone-accent"
           >
             {fixActive ? `Opey fixing, round ${fixRound} of ${FIX_MAX_ROUNDS}...` : "Fix with Opey"}
           </button>
         {/if}
       </div>
     </div>
-    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400" data-testid="method-body-language-note">
+    <p class="mt-1 text-xs ui-muted" data-testid="method-body-language-note">
       {#if isQuery}
         A declaration, not code: nothing is compiled. OBP checks it against the Dynamic Entity definitions, then runs it for each caller, who must be able to read every entity it reads. Stored URL-encoded server-side — you edit and read plain JSON here.
       {:else if programming_lang === "Java"}
@@ -889,18 +889,18 @@
       rows="16"
       spellcheck="false"
       data-testid="field-method-body"
-      class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 font-mono text-xs text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+      class="mt-1 block w-full rounded-lg border px-3 py-2 font-mono text-xs focus:outline-none focus:ring-2 ui-card ui-text ui-border"
     ></textarea>
     {#if fieldErrors.method_body}
-      <p class="mt-1 text-xs text-red-600 dark:text-red-400">{fieldErrors.method_body}</p>
+      <p class="mt-1 text-xs ui-text-error">{fieldErrors.method_body}</p>
     {/if}
 
     {#if compileStatus === "ok"}
-      <p class="mt-2 rounded border border-green-200 bg-green-50 px-3 py-2 text-xs text-green-800 dark:border-green-800 dark:bg-green-900/20 dark:text-green-300" role="status" data-testid="compile-ok">
+      <p class="mt-2 rounded border px-3 py-2 text-xs ui-tone-success" role="status" data-testid="compile-ok">
         {isQuery ? "Valid" : "Compiles"}{#if compileDurationMs !== null} ({compileDurationMs} ms){/if}. Nothing was stored.
       </p>
     {:else if compileStatus === "errors"}
-      <div class="mt-2 rounded border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-700 dark:bg-amber-900/20 dark:text-amber-100" role="status" data-testid="compile-errors">
+      <div class="mt-2 rounded border px-3 py-2 text-xs ui-tone-warning" role="status" data-testid="compile-errors">
         <p class="font-semibold">{isQuery ? "Not valid" : "Does not compile"} ({compileErrors.length + (compileDependencyError ? 1 : 0)}):</p>
         <ul class="mt-1 ml-4 list-disc space-y-0.5 font-mono">
           {#each compileErrors as err, i (i)}
@@ -912,37 +912,37 @@
         </ul>
       </div>
     {:else if compileStatus === "failed" && compileMessage}
-      <p class="mt-2 rounded border border-gray-300 bg-gray-50 px-3 py-2 text-xs text-gray-800 dark:border-gray-600 dark:bg-gray-800/60 dark:text-gray-200" role="status" data-testid="compile-failed">
+      <p class="mt-2 rounded border px-3 py-2 text-xs ui-card ui-text ui-border" role="status" data-testid="compile-failed">
         {compileMessage}
       </p>
     {/if}
     {#if fixOutcome}
-      <p class="mt-1 text-xs text-gray-600 dark:text-gray-400" data-testid="fix-outcome">{fixOutcome}</p>
+      <p class="mt-1 text-xs ui-muted" data-testid="fix-outcome">{fixOutcome}</p>
     {/if}
 
     {#if isQuery}
       <div class="mt-3 flex flex-wrap items-end gap-4 text-xs" data-testid="explain-options">
         <label class="block">
-          <span class="block font-medium text-gray-700 dark:text-gray-300">Explain with caller parameters</span>
+          <span class="block font-medium ui-muted">Explain with caller parameters</span>
           <input
             type="text"
             name="explain_caller_parameters"
             bind:value={explainCallerParameters}
             placeholder="obp_sort_by=name&obp_limit=10"
             data-testid="field-explain-caller-parameters"
-            class="mt-1 block w-72 rounded border border-gray-300 bg-white px-2 py-1 font-mono text-xs text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+            class="mt-1 block w-72 rounded border px-2 py-1 font-mono text-xs ui-card ui-text ui-border"
           />
         </label>
         <label class="flex items-center gap-2">
           <input type="checkbox" name="explain_as_anonymous" bind:checked={explainAsAnonymous} data-testid="field-explain-as-anonymous" />
-          <span class="text-gray-700 dark:text-gray-300">as a caller who is not logged in</span>
+          <span class="ui-muted">as a caller who is not logged in</span>
         </label>
         <button
           type="button"
           onclick={() => void explainNow()}
           disabled={explainStatus === "explaining" || !method_body_text.trim()}
           data-testid="explain-btn"
-          class="rounded border border-gray-300 px-2 py-1 font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+          class="rounded border px-2 py-1 font-medium disabled:opacity-50 ui-hover ui-muted ui-border"
         >
           {explainStatus === "explaining" ? "Explaining..." : "Explain"}
         </button>
@@ -952,7 +952,7 @@
             onclick={() => void callNow()}
             disabled={callStatus === "calling"}
             data-testid="call-btn"
-            class="rounded border border-gray-300 px-2 py-1 font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+            class="rounded border px-2 py-1 font-medium disabled:opacity-50 ui-hover ui-muted ui-border"
           >
             {callStatus === "calling" ? "Calling..." : "Call"}
           </button>
@@ -961,39 +961,39 @@
     {/if}
 
     {#if isQuery && lastAction === "call" && callStatus === "failed" && callMessage}
-      <p class="mt-2 rounded border border-gray-300 bg-gray-50 px-3 py-2 text-xs text-gray-800 dark:border-gray-600 dark:bg-gray-800/60 dark:text-gray-200" role="status" data-testid="call-failed">
+      <p class="mt-2 rounded border px-3 py-2 text-xs ui-card ui-text ui-border" role="status" data-testid="call-failed">
         <span class="font-semibold">Call:</span> {callMessage}
       </p>
     {:else if isQuery && lastAction === "call" && callStatus === "done" && callResult}
       <div class="mt-2 text-xs" data-testid="call-result" data-state={callResult.status < 400 ? "ok" : "error"}>
-        <p class="font-mono text-gray-700 dark:text-gray-300">
-          <span class="mr-1 font-sans font-semibold text-gray-800 dark:text-gray-100">Call:</span>GET {callResult.url}{#if callResult.anonymous} (not logged in){/if} →
-          <span class={callResult.status < 400 ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400"}>{callResult.status}</span>
+        <p class="font-mono ui-muted">
+          <span class="mr-1 font-sans font-semibold ui-text">Call:</span>GET {callResult.url}{#if callResult.anonymous} (not logged in){/if} →
+          <span class={callResult.status < 400 ? "ui-text-success" : "ui-text-error"}>{callResult.status}</span>
         </p>
-        <pre class="mt-1 max-h-80 overflow-auto rounded border border-gray-200 bg-gray-50 p-2 font-mono text-gray-800 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200">{callResult.body}</pre>
+        <pre class="mt-1 max-h-80 overflow-auto rounded border p-2 font-mono ui-card ui-text ui-border">{callResult.body}</pre>
       </div>
     {/if}
 
     {#if isQuery && lastAction === "explain" && explainStatus === "failed" && explainMessage}
-      <p class="mt-2 rounded border border-gray-300 bg-gray-50 px-3 py-2 text-xs text-gray-800 dark:border-gray-600 dark:bg-gray-800/60 dark:text-gray-200" role="status" data-testid="explain-failed">
+      <p class="mt-2 rounded border px-3 py-2 text-xs ui-card ui-text ui-border" role="status" data-testid="explain-failed">
         {explainMessage}
       </p>
     {:else if isQuery && lastAction === "explain" && explainStatus === "done" && explanation}
       <section
-        class="mt-3 space-y-4 rounded-lg border border-gray-200 p-4 text-xs dark:border-gray-700"
+        class="mt-3 space-y-4 rounded-lg border p-4 text-xs ui-border"
         data-testid="explanation"
         data-state={explanation.caller_may_run ? "may-run" : "refused"}
       >
         <div>
-          <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">Access, explained for {explanation.explained_for} in space {explanation.space}</h3>
+          <h3 class="text-sm font-semibold ui-text">Access, explained for {explanation.explained_for} in space {explanation.space}</h3>
           {#if explanation.caller_may_run}
-            <p class="mt-1 text-green-700 dark:text-green-400" data-testid="explanation-may-run">This caller may run the query.</p>
+            <p class="mt-1 ui-text-success" data-testid="explanation-may-run">This caller may run the query.</p>
           {:else}
-            <p class="mt-1 text-amber-800 dark:text-amber-300" data-testid="explanation-refusal">This caller would be refused: {explanation.refusal}</p>
+            <p class="mt-1 ui-text-warning" data-testid="explanation-refusal">This caller would be refused: {explanation.refusal}</p>
           {/if}
           <div class="mt-2 overflow-x-auto">
             <table class="min-w-full text-left" data-testid="explanation-entities">
-              <thead class="text-gray-500 dark:text-gray-400">
+              <thead class="ui-muted">
                 <tr><th class="pr-4">Dynamic Entity</th><th class="pr-4">Read Role (bank)</th><th class="pr-4">Public access</th><th class="pr-4">Row-level access</th><th>This caller may read</th></tr>
               </thead>
               <tbody>
@@ -1003,14 +1003,14 @@
                     <td class="pr-4 font-mono">{entity.read_role} ({entity.bank_id})</td>
                     <td class="pr-4">{entity.public_access ? "yes" : "no"}</td>
                     <td class="pr-4">{entity.row_level_access ? "yes" : "no"}</td>
-                    <td class={entity.caller_may_read ? "text-green-700 dark:text-green-400" : "text-amber-800 dark:text-amber-300"}>{entity.caller_may_read ? "yes" : "no"}</td>
+                    <td class={entity.caller_may_read ? "ui-text-success" : "ui-text-warning"}>{entity.caller_may_read ? "yes" : "no"}</td>
                   </tr>
                 {/each}
               </tbody>
             </table>
           </div>
           {#if explanation.restricted_fields.length > 0}
-            <p class="mt-3 font-medium text-gray-700 dark:text-gray-300">Restricted fields this query touches</p>
+            <p class="mt-3 font-medium ui-muted">Restricted fields this query touches</p>
             <ul class="mt-1 ml-4 list-disc" data-testid="explanation-restricted-fields">
               {#each explanation.restricted_fields as field (field.entity + "." + field.field + "." + field.restriction)}
                 <li data-testid="explanation-restricted-field-{field.entity}-{field.field}-{field.restriction}" data-state={field.caller_may_read ? "readable" : "not-readable"}>
@@ -1022,23 +1022,23 @@
               {/each}
             </ul>
           {/if}
-          <p class="mt-3 font-medium text-gray-700 dark:text-gray-300">Rules every Dynamic Query applies</p>
-          <ul class="mt-1 ml-4 list-disc text-gray-600 dark:text-gray-400" data-testid="explanation-rules">
+          <p class="mt-3 font-medium ui-muted">Rules every Dynamic Query applies</p>
+          <ul class="mt-1 ml-4 list-disc ui-muted" data-testid="explanation-rules">
             {#each explanation.rules as rule, i (i)}<li>{rule}</li>{/each}
           </ul>
         </div>
 
         <div>
-          <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">Reads, in order</h3>
+          <h3 class="text-sm font-semibold ui-text">Reads, in order</h3>
           <ol class="mt-2 space-y-3" data-testid="explanation-steps">
             {#each explanation.steps as step (step.step)}
               <li data-testid="explanation-step-{step.step}" data-state={step.backend}>
-                <p><span class="font-semibold">{step.step}. {step.purpose}</span> <span class="rounded bg-gray-100 px-1.5 py-0.5 text-gray-700 dark:bg-gray-800 dark:text-gray-300">{step.backend}</span></p>
+                <p><span class="font-semibold">{step.step}. {step.purpose}</span> <span class="rounded px-1.5 py-0.5 ui-panel ui-muted">{step.backend}</span></p>
                 {#if step.sql}
-                  <pre class="mt-1 overflow-x-auto rounded bg-gray-900 p-2 font-mono text-[11px] text-gray-100" data-testid="explanation-step-{step.step}-sql">{step.sql}</pre>
-                  {#if step.parameter_count !== null}<p class="text-gray-500 dark:text-gray-400">{step.parameter_count} bound {step.parameter_count === 1 ? "value" : "values"}, shown as ?.</p>{/if}
+                  <pre class="mt-1 overflow-x-auto rounded p-2 font-mono text-[11px] ui-panel ui-muted" data-testid="explanation-step-{step.step}-sql">{step.sql}</pre>
+                  {#if step.parameter_count !== null}<p class="ui-muted">{step.parameter_count} bound {step.parameter_count === 1 ? "value" : "values"}, shown as ?.</p>{/if}
                 {/if}
-                {#each step.notes as note, i (i)}<p class="text-gray-600 dark:text-gray-400">{note}</p>{/each}
+                {#each step.notes as note, i (i)}<p class="ui-muted">{note}</p>{/each}
               </li>
             {/each}
           </ol>
@@ -1046,46 +1046,46 @@
       </section>
     {/if}
 
-    <p class="mt-2 text-xs text-gray-600 dark:text-gray-400" data-testid="method-body-help">
+    <p class="mt-2 text-xs ui-muted" data-testid="method-body-help">
       {#if isQuery}
         The keys of a declaration (<code>from</code>, <code>select</code>, <code>where</code>, <code>join</code>,
         <code>envelope</code>) and what a caller can add are in the
-        <a class="text-blue-600 underline hover:no-underline dark:text-blue-400" href="/dynamic-resource-docs/help#dynamic-query">Dynamic Query</a>
+        <a class="underline hover:no-underline ui-link" href="/dynamic-resource-docs/help#dynamic-query">Dynamic Query</a>
         glossary entry on the Help page.
       {:else}
         {#if isScala}<em>Generate template</em> fetches a working skeleton for the current verb and URL.{/if} What is in scope
         and what the body must return is in the
-        <a class="text-blue-600 underline hover:no-underline dark:text-blue-400" href="/dynamic-resource-docs/help#dynamic-resource-doc">Dynamic Resource Doc</a>
+        <a class="underline hover:no-underline ui-link" href="/dynamic-resource-docs/help#dynamic-resource-doc">Dynamic Resource Doc</a>
         glossary entry on the Help page.
       {/if}
     </p>
   </div>
 
   <label class="block">
-    <span class="block text-sm font-medium text-gray-700 dark:text-gray-300">Summary</span>
+    <span class="block text-sm font-medium ui-muted">Summary</span>
     <input
       type="text"
       name="summary"
       bind:value={summary}
       placeholder="Create My User"
       data-testid="field-summary"
-      class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+      class="mt-1 block w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 ui-card ui-text ui-border"
     />
-    <span class="mt-1 block text-xs text-gray-500 dark:text-gray-400">
+    <span class="mt-1 block text-xs ui-muted">
       One-line title shown in API Explorer and resource-doc listings.
     </span>
   </label>
 
   <label class="block">
-    <span class="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</span>
+    <span class="block text-sm font-medium ui-muted">Description</span>
     <textarea
       name="description"
       bind:value={description}
       rows="2"
       data-testid="field-description"
-      class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+      class="mt-1 block w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 ui-card ui-text ui-border"
     ></textarea>
-    <span class="mt-1 block text-xs text-gray-500 dark:text-gray-400">
+    <span class="mt-1 block text-xs ui-muted">
       Longer prose shown in API Explorer. OBP truncates to 2000 characters.
     </span>
   </label>
@@ -1093,13 +1093,13 @@
   <!-- Example request + success response -->
   <div class="grid gap-4 md:grid-cols-2">
     <div>
-      <label for="example-request-body" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+      <label for="example-request-body" class="block text-sm font-medium ui-muted">
         Example Request Body (JSON)
         {#if methodHasBody}
-          <span class="text-red-600">*</span>
+          <span class="ui-text-error">*</span>
         {/if}
       </label>
-      <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+      <p class="mt-1 text-xs ui-muted">
         {#if methodHasBody}
           OBP generates a <code>RequestRootJsonClass</code> case class from this shape; parse the incoming body in Scala with <code>request.json.extract[RequestRootJsonClass]</code>.
         {:else}
@@ -1114,17 +1114,17 @@
         disabled={!methodHasBody}
         spellcheck="false"
         data-testid="field-example-request-body"
-        class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 font-mono text-xs text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:disabled:bg-gray-800"
+        class="mt-1 block w-full rounded-lg border px-3 py-2 font-mono text-xs focus:outline-none focus:ring-2 ui-card ui-text ui-border"
       ></textarea>
       {#if fieldErrors.example_request_body}
-        <p class="mt-1 text-xs text-red-600 dark:text-red-400">{fieldErrors.example_request_body}</p>
+        <p class="mt-1 text-xs ui-text-error">{fieldErrors.example_request_body}</p>
       {/if}
     </div>
     <div>
-      <label for="success-response-body" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-        Success Response Body (JSON) <span class="text-red-600">*</span>
+      <label for="success-response-body" class="block text-sm font-medium ui-muted">
+        Success Response Body (JSON) <span class="ui-text-error">*</span>
       </label>
-      <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+      <p class="mt-1 text-xs ui-muted">
         {#if isQuery}
           An example of what the query returns, shown in API Explorer: the envelope's list, and its count if the declaration names one.
         {:else if isScala}
@@ -1140,10 +1140,10 @@
         rows="8"
         spellcheck="false"
         data-testid="field-success-response-body"
-        class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 font-mono text-xs text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+        class="mt-1 block w-full rounded-lg border px-3 py-2 font-mono text-xs focus:outline-none focus:ring-2 ui-card ui-text ui-border"
       ></textarea>
       {#if fieldErrors.success_response_body}
-        <p class="mt-1 text-xs text-red-600 dark:text-red-400">{fieldErrors.success_response_body}</p>
+        <p class="mt-1 text-xs ui-text-error">{fieldErrors.success_response_body}</p>
       {/if}
     </div>
   </div>
@@ -1151,58 +1151,58 @@
   <!-- CSV fields -->
   <div class="grid gap-4 md:grid-cols-3">
     <label class="block">
-      <span class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tags</span>
+      <span class="block text-sm font-medium ui-muted">Tags</span>
       <input
         type="text"
         name="tags"
         bind:value={tags}
         placeholder="Create-My-User, Admin"
         data-testid="field-tags"
-        class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+        class="mt-1 block w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 ui-card ui-text ui-border"
       />
-      <span class="mt-1 block text-xs text-gray-500 dark:text-gray-400">
+      <span class="mt-1 block text-xs ui-muted">
         Comma-separated. Used to group the endpoint under a category in API Explorer.
       </span>
     </label>
 
     <label class="block">
-      <span class="block text-sm font-medium text-gray-700 dark:text-gray-300">Roles</span>
+      <span class="block text-sm font-medium ui-muted">Roles</span>
       <input
         type="text"
         name="roles"
         bind:value={roles}
         placeholder="CanCreateMyUser"
         data-testid="field-roles"
-        class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+        class="mt-1 block w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 ui-card ui-text ui-border"
       />
-      <span class="mt-1 block text-xs text-gray-500 dark:text-gray-400">
-        Comma-separated role names required to call this endpoint. OBP auto-creates roles that don't exist yet; grant them via <a class="text-blue-600 hover:underline dark:text-blue-400" href="/rbac/entitlements" target="_blank" rel="noopener noreferrer">Entitlements</a>.
+      <span class="mt-1 block text-xs ui-muted">
+        Comma-separated role names required to call this endpoint. OBP auto-creates roles that don't exist yet; grant them via <a class="hover:underline ui-link" href="/rbac/entitlements" target="_blank" rel="noopener noreferrer">Entitlements</a>.
       </span>
     </label>
 
     <label class="block">
-      <span class="block text-sm font-medium text-gray-700 dark:text-gray-300">Error Response Bodies</span>
+      <span class="block text-sm font-medium ui-muted">Error Response Bodies</span>
       <input
         type="text"
         name="error_response_bodies"
         bind:value={error_response_bodies}
         placeholder="OBP-50000: Unknown Error."
         data-testid="field-error-response-bodies"
-        class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 font-mono text-xs text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+        class="mt-1 block w-full rounded-lg border px-3 py-2 font-mono text-xs focus:outline-none focus:ring-2 ui-card ui-text ui-border"
       />
-      <span class="mt-1 block text-xs text-gray-500 dark:text-gray-400">
+      <span class="mt-1 block text-xs ui-muted">
         Comma-separated <code>OBP-xxxxx: ...</code> strings documented for this endpoint (shown in API Explorer). This is documentation only — it doesn't control what your Scala actually returns.
       </span>
     </label>
   </div>
 
-  <div class="flex justify-end gap-3 border-t pt-4 dark:border-gray-700">
+  <div class="flex justify-end gap-3 border-t pt-4 ui-border">
     {#if cancel}{@render cancel()}{/if}
     <button
       type="submit"
       disabled={isSubmitting}
       data-testid="submit-btn"
-      class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
+      class="inline-flex items-center rounded-lg px-4 py-2 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50 preset-filled-primary-500"
     >
       {isSubmitting ? "Saving..." : submitLabel}
     </button>

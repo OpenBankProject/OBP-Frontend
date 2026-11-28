@@ -219,48 +219,48 @@
     });
 
     let statusColorClass = $derived.by(() => {
-        if (message.status === 'error') return 'text-error-600-400';
-        if (message.approvalStatus === 'denied') return 'text-error-600-400';
-        if (message.consentStatus === 'denied') return 'text-error-600-400';
-        if (message.waitingForConsent) return 'text-tertiary-600-400';
-        if (message.waitingForApproval) return 'text-warning-600-400';
-        if (message.isStreaming) return 'text-warning-600-400';
-        if (message.toolOutput) return 'text-success-600-400';
-        return 'text-surface-600-400';
+        if (message.status === 'error') return 'ui-text-error';
+        if (message.approvalStatus === 'denied') return 'ui-text-error';
+        if (message.consentStatus === 'denied') return 'ui-text-error';
+        if (message.waitingForConsent) return 'ui-link';
+        if (message.waitingForApproval) return 'ui-text-warning';
+        if (message.isStreaming) return 'ui-text-warning';
+        if (message.toolOutput) return 'ui-text-success';
+        return 'ui-muted';
     });
 
     let shouldSpin = $derived(message.isStreaming && !message.waitingForApproval && !message.waitingForConsent);
 
     let borderColorClass = $derived.by(() => {
-        if (message.status === 'error') return 'border-error-500';
-        if (message.approvalStatus === 'denied') return 'border-error-500';
-        if (message.consentStatus === 'denied') return 'border-error-500';
-        if (message.waitingForConsent) return 'border-tertiary-500';
-        if (message.waitingForApproval) return 'border-warning-500';
-        return 'border-surface-300-700';
+        if (message.status === 'error') return 'ui-tone-error';
+        if (message.approvalStatus === 'denied') return 'ui-tone-error';
+        if (message.consentStatus === 'denied') return 'ui-tone-error';
+        if (message.waitingForConsent) return 'ui-tone-info';
+        if (message.waitingForApproval) return 'ui-tone-warning';
+        return 'ui-border';
     });
 
 </script>
 
 {#if isBatchApproval && isFirstInBatch}
     <!-- Batch Approval View -->
-    <div class="card variant-ghost-warning rounded-lg border-2 border-warning-500 p-4 space-y-4 text-start">
+    <div class="card rounded-lg border-2 ui-tone-warning p-4 space-y-4 text-start">
         <!-- Header -->
         <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <AlertTriangle class="text-warning-600" size={24} />
+                <AlertTriangle class="ui-text-warning" size={24} />
                 <div>
                     <h3 class="text-lg font-semibold">Multiple Approvals Required</h3>
-                    <p class="text-sm text-surface-600-400">
+                    <p class="text-sm ui-muted">
                         {batchApprovalGroup?.length || 0} operations pending approval
                     </p>
                 </div>
             </div>
             <div class="flex gap-2 text-sm">
-                <span class="rounded-full bg-success-100 px-3 py-1 dark:bg-success-900">
+                <span class="rounded-full px-3 py-1 ui-tone-success">
                     ✓ {approvedCount}
                 </span>
-                <span class="rounded-full bg-error-100 px-3 py-1 dark:bg-error-900">
+                <span class="rounded-full px-3 py-1 ui-tone-error">
                     ✗ {deniedCount}
                 </span>
             </div>
@@ -297,12 +297,12 @@
                     />
                 {:else if decision.approved}
                     <!-- Approved -->
-                    <div class="card variant-ghost-success rounded-lg border-2 border-success-500 p-3">
+                    <div class="card rounded-lg border-2 ui-tone-success p-3">
                         <div class="flex items-center gap-3">
-                            <CheckCircle class="text-success-600" size={20} />
+                            <CheckCircle class="ui-text-success" size={20} />
                             <div class="flex-1">
                                 <div class="font-semibold text-sm">{toolMsg.toolName}</div>
-                                <div class="text-xs text-surface-600-400">
+                                <div class="text-xs ui-muted">
                                     Approved ({decision.level})
                                 </div>
                             </div>
@@ -310,12 +310,12 @@
                     </div>
                 {:else}
                     <!-- Denied -->
-                    <div class="card variant-ghost-error rounded-lg border-2 border-error-500 p-3">
+                    <div class="card rounded-lg border-2 ui-tone-error p-3">
                         <div class="flex items-center gap-3">
-                            <XCircle class="text-error-600" size={20} />
+                            <XCircle class="ui-text-error" size={20} />
                             <div class="flex-1">
                                 <div class="font-semibold text-sm">{toolMsg.toolName}</div>
-                                <div class="text-xs text-surface-600-400">
+                                <div class="text-xs ui-muted">
                                     Denied
                                 </div>
                             </div>
@@ -346,11 +346,11 @@
     <!-- This is part of a batch but not the first - don't render, it's shown above -->
 {:else}
     <!-- Single Tool Card (Simplified) -->
-    <div class="card rounded-lg border-1 {borderColorClass} bg-primary-300-700 transition-all text-start" out:fade|global={{ duration: 300 }}>
+    <div class="card rounded-lg border-1 {borderColorClass} transition-all text-start preset-filled-primary-500" out:fade|global={{ duration: 300 }}>
         <!-- Card Header - Always Visible, Clickable to Expand -->
         <button
             type="button"
-            class="w-full p-2 text-start flex items-center justify-between gap-3 hover:bg-primary-200-800 transition-colors rounded-lg"
+            class="w-full p-2 text-start flex items-center justify-between gap-3 ui-hover transition-colors rounded-lg"
             onclick={toggleExpanded}
         >
             {#if statusIcon}
@@ -364,15 +364,15 @@
                         {getToolDisplayName(message.toolName)}
                     </span>
                 </div>
-                <div class="flex-1 border-b border-surface-300-700 mx-2 self-center"></div>
+                <div class="flex-1 border-b mx-2 self-center ui-border"></div>
                 <div class="flex items-center gap-2 flex-shrink-0">
                     <span class="text-xs {statusColorClass}">
                         {statusDisplay}
                     </span>
                     {#if isExpanded}
-                        <ChevronUp class="text-surface-600-400" size={18} />
+                        <ChevronUp class="ui-muted" size={18} />
                     {:else}
-                        <ChevronDown class="text-surface-600-400" size={18} />
+                        <ChevronDown class="ui-muted" size={18} />
                     {/if}
                 </div>
             {/if}
@@ -380,7 +380,7 @@
 
         <!-- Expandable Content -->
         {#if isExpanded}
-            <div class="border-t border-surface-300-700 p-4 space-y-4">
+            <div class="border-t p-4 space-y-4 ui-border">
                 <!-- Approval Interface -->
                 {#if showApprovalInterface}
                     <ToolApprovalCard
@@ -402,15 +402,15 @@
                 <!-- Tool Input -->
                 {#if message.toolInput}
                     <div class="space-y-2">
-                        <h4 class="text-sm font-semibold text-surface-950-50">Tool Input</h4>
-                        <pre class="text-xs preset-filled-surface-200-800 p-3 rounded-lg border border-surface-300-700 overflow-x-auto max-h-60 text-start">{JSON.stringify(message.toolInput, null, 2)}</pre>
+                        <h4 class="text-sm font-semibold ui-text">Tool Input</h4>
+                        <pre class="text-xs ui-panel p-3 rounded-lg border overflow-x-auto max-h-60 text-start ui-border">{JSON.stringify(message.toolInput, null, 2)}</pre>
                     </div>
                 {/if}
 
                 <!-- Tool Output -->
                 {#if message.toolOutput || message.status === 'error'}
                     <div class="space-y-2">
-                        <h4 class="text-sm font-semibold text-surface-950-50">Tool Output</h4>
+                        <h4 class="text-sm font-semibold ui-text">Tool Output</h4>
                         {#if message.status === 'error'}
                             <ToolError {message} />
                         {:else if message.clientExecuted || message.toolName === 'set_form_fields'}
@@ -422,7 +422,7 @@
                         {/if}
                     </div>
                 {:else if message.isStreaming}
-                    <div class="flex items-center gap-2 text-sm italic text-surface-600-400">
+                    <div class="flex items-center gap-2 text-sm italic ui-muted">
                         <LoaderCircle class="animate-spin" size={16} />
                         {message.waitingForConsent || message.waitingForApproval ? 'Waiting for user approval...' : 'Executing...'}
                     </div>

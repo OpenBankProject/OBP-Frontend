@@ -176,22 +176,22 @@
 </script>
 
 {#if opeyFilledFields.length > 0}
-  <div class="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-200" data-testid="opey-filled-banner">
+  <div class="mb-4 flex flex-wrap items-center gap-2 rounded-lg border px-4 py-3 text-sm ui-tone-info" data-testid="opey-filled-banner">
     <span>Opey filled {opeyFilledFields.length} field{opeyFilledFields.length === 1 ? "" : "s"}:</span>
     {#each opeyFilledFields as name (name)}
-      <span class="inline-flex items-center gap-1 rounded-full bg-white px-2 py-0.5 text-xs dark:bg-gray-800">
+      <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs ui-card">
         {fieldLabels[name] ?? name}
         <button type="button" class="underline" onclick={() => revertField(name)} data-testid="opey-revert-{name}">revert</button>
       </span>
     {/each}
-    <button type="button" class="ml-auto rounded-md bg-blue-600 px-3 py-1 text-xs font-medium text-white hover:bg-blue-700" onclick={acceptAll} data-testid="opey-accept-all">Keep all</button>
+    <button type="button" class="ml-auto rounded-md px-3 py-1 text-xs font-medium preset-filled-primary-500" onclick={acceptAll} data-testid="opey-accept-all">Keep all</button>
   </div>
 {/if}
 
 <form onsubmit={handleSubmit} class="space-y-5" data-testid="method-routing-form">
   <div class="grid gap-5 md:grid-cols-2">
     <div class="md:col-span-2">
-      <label for="method_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Method name <span class="text-red-500">*</span></label>
+      <label for="method_name" class="block text-sm font-medium ui-muted">Method name <span class="ui-text-error">*</span></label>
       <input type="hidden" name="method_name" value={method_name} />
       <input
         id="method_name"
@@ -201,10 +201,10 @@
         placeholder={listsLoading ? "Loading connector method names…" : "Type part of the name, e.g. get bank, or transactions"}
         bind:value={methodSearch}
         oninput={onMethodSearchInput}
-        class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 font-mono text-sm text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+        class="mt-1 block w-full rounded-lg border px-3 py-2 font-mono text-sm focus:ring-2 ui-card ui-text ui-border"
         data-testid="field-method-name"
       />
-      <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+      <p class="mt-1 text-xs ui-muted">
         {#if method_name && methodNames.includes(method_name)}
           <code>{method_name}</code> is a known connector method.
         {:else if method_name}
@@ -214,53 +214,53 @@
         {/if}
       </p>
       {#if methodMatches.length > 0}
-        <ul class="mt-2 max-h-56 divide-y divide-gray-100 overflow-auto rounded-lg border border-gray-300 bg-white dark:divide-gray-700 dark:border-gray-600 dark:bg-gray-700" data-testid="method-name-results">
+        <ul class="mt-2 max-h-56 divide-y overflow-auto rounded-lg border ui-card ui-border" data-testid="method-name-results">
           {#each methodMatches as name (name)}
-            <li><button type="button" class="block w-full px-3 py-1.5 text-left font-mono text-sm hover:bg-blue-50 dark:hover:bg-gray-600" onclick={() => chooseMethod(name)}>{name}</button></li>
+            <li><button type="button" class="block w-full px-3 py-1.5 text-left font-mono text-sm ui-hover" onclick={() => chooseMethod(name)}>{name}</button></li>
           {/each}
         </ul>
       {/if}
     </div>
 
     <div>
-      <label for="connector_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Connector <span class="text-red-500">*</span></label>
+      <label for="connector_name" class="block text-sm font-medium ui-muted">Connector <span class="ui-text-error">*</span></label>
       {#if connectorNames.length > 0}
-        <select id="connector_name" name="connector_name" bind:value={connector_name} required class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" data-testid="field-connector-name">
+        <select id="connector_name" name="connector_name" bind:value={connector_name} required class="mt-1 block w-full rounded-lg border px-3 py-2 text-sm ui-card ui-text ui-border" data-testid="field-connector-name">
           <option value="">Select a connector</option>
           {#each connectorNames as c (c)}<option value={c}>{c}</option>{/each}
           {#if connector_name && !connectorNames.includes(connector_name)}<option value={connector_name}>{connector_name}</option>{/if}
         </select>
       {:else}
-        <input id="connector_name" name="connector_name" type="text" bind:value={connector_name} required placeholder="e.g. rest_vMar2019" class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 font-mono text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" data-testid="field-connector-name" />
+        <input id="connector_name" name="connector_name" type="text" bind:value={connector_name} required placeholder="e.g. rest_vMar2019" class="mt-1 block w-full rounded-lg border px-3 py-2 font-mono text-sm ui-card ui-text ui-border" data-testid="field-connector-name" />
       {/if}
-      <p class="mt-1 text-xs text-gray-500 dark:text-gray-400"><code>mapped</code> is OBP's own database; the others call an adapter.</p>
+      <p class="mt-1 text-xs ui-muted"><code>mapped</code> is OBP's own database; the others call an adapter.</p>
     </div>
 
     <div>
-      <label for="bank_id_pattern" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Bank ID pattern</label>
-      <input id="bank_id_pattern" name="bank_id_pattern" type="text" bind:value={bank_id_pattern} list="bank-ids-list" placeholder="e.g. gh.29.uk, or .* for all banks" class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 font-mono text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" data-testid="field-bank-id-pattern" />
+      <label for="bank_id_pattern" class="block text-sm font-medium ui-muted">Bank ID pattern</label>
+      <input id="bank_id_pattern" name="bank_id_pattern" type="text" bind:value={bank_id_pattern} list="bank-ids-list" placeholder="e.g. gh.29.uk, or .* for all banks" class="mt-1 block w-full rounded-lg border px-3 py-2 font-mono text-sm ui-card ui-text ui-border" data-testid="field-bank-id-pattern" />
       <datalist id="bank-ids-list">{#each bankIds as id (id)}<option value={id}></option>{/each}</datalist>
-      <label class="mt-2 flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-        <input type="checkbox" name="is_bank_id_exact_match" bind:checked={is_bank_id_exact_match} class="h-4 w-4 rounded border-gray-300" data-testid="field-exact-match" />
+      <label class="mt-2 flex items-center gap-2 text-sm ui-muted">
+        <input type="checkbox" name="is_bank_id_exact_match" bind:checked={is_bank_id_exact_match} class="h-4 w-4 rounded ui-border" data-testid="field-exact-match" />
         Exact match (compare the pattern literally, not as a regular expression)
       </label>
     </div>
 
     <div class="md:col-span-2">
-      <label for="parameters" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Parameters (JSON object)</label>
-      <textarea id="parameters" name="parameters" bind:value={parameters} rows="5" placeholder={'{"url": "https://adapter.example/obp"}'} spellcheck="false" class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 font-mono text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" data-testid="field-parameters"></textarea>
-      {#if parametersError}<p class="mt-1 text-xs text-red-600 dark:text-red-400">{parametersError}</p>{:else}<p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Optional key-value settings the connector reads, stored as a list of key/value pairs.</p>{/if}
+      <label for="parameters" class="block text-sm font-medium ui-muted">Parameters (JSON object)</label>
+      <textarea id="parameters" name="parameters" bind:value={parameters} rows="5" placeholder={'{"url": "https://adapter.example/obp"}'} spellcheck="false" class="mt-1 block w-full rounded-lg border px-3 py-2 font-mono text-sm ui-card ui-text ui-border" data-testid="field-parameters"></textarea>
+      {#if parametersError}<p class="mt-1 text-xs ui-text-error">{parametersError}</p>{:else}<p class="mt-1 text-xs ui-muted">Optional key-value settings the connector reads, stored as a list of key/value pairs.</p>{/if}
     </div>
   </div>
 
   {#if submitError}
-    <div class="rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-700 dark:bg-red-900/20 dark:text-red-200" data-testid="method-routing-error">{submitError}</div>
+    <div class="rounded-lg border px-4 py-3 text-sm ui-tone-error" data-testid="method-routing-error">{submitError}</div>
   {/if}
 
   <div class="flex flex-wrap gap-3">
-    <button type="submit" disabled={isSubmitting} class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60" data-testid="method-routing-submit">
+    <button type="submit" disabled={isSubmitting} class="rounded-lg px-4 py-2 text-sm font-medium disabled:opacity-60 preset-filled-primary-500" data-testid="method-routing-submit">
       {isSubmitting ? "Saving…" : submitLabel}
     </button>
-    <a href={cancelHref} class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">Cancel</a>
+    <a href={cancelHref} class="rounded-lg border px-4 py-2 text-sm font-medium ui-card ui-hover ui-muted ui-border">Cancel</a>
   </div>
 </form>

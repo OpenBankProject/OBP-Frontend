@@ -26,9 +26,9 @@
 
 <div class="flex flex-col flex-1 min-h-0">
     <!-- Title Bar -->
-    <header class="border-b border-surface-300-600 bg-surface-50-900 px-6 py-4 flex-shrink-0">
+    <header class="border-b px-6 py-4 flex-shrink-0 ui-card ui-border">
         <div class="flex items-center justify-between flex-wrap gap-2">
-            <h1 class="text-2xl font-semibold text-surface-900-50">
+            <h1 class="text-2xl font-semibold ui-text">
                 {activeMenuItem.label}
             </h1>
             {#if page.url.pathname === '/user/consents'}
@@ -37,13 +37,13 @@
                 <div class="flex flex-wrap gap-2" data-testid="consent-status-filter">
                     <a
                         href="/user/consents"
-                        class="rounded-full px-3 py-1 text-sm font-medium transition-colors {!activeStatus ? 'bg-surface-900-50 text-surface-50-900' : 'bg-surface-200-700 text-surface-700-300 hover:bg-surface-300-600'}"
+                        class="rounded-full px-3 py-1 text-sm font-medium transition-colors {!activeStatus ? 'ui-panel ui-muted' : 'ui-panel ui-hover ui-muted'}"
                         data-testid="consent-status-filter-all"
                     >All</a>
                     {#each statuses as status}
                         <a
                             href="/user/consents?status={status}"
-                            class="rounded-full px-3 py-1 text-sm font-medium transition-colors {activeStatus === status ? 'bg-surface-900-50 text-surface-50-900' : 'bg-surface-200-700 text-surface-700-300 hover:bg-surface-300-600'}"
+                            class="rounded-full px-3 py-1 text-sm font-medium transition-colors {activeStatus === status ? 'ui-panel ui-muted' : 'ui-panel ui-hover ui-muted'}"
                             data-testid="consent-status-filter-{status.toLowerCase()}"
                         >{status}</a>
                     {/each}
@@ -51,7 +51,7 @@
             {/if}
         </div>
         {#if activeMenuItem.description}
-            <p class="text-surface-600-400 text-sm mt-1">
+            <p class="text-sm mt-1 ui-muted">
                 {activeMenuItem.description}
             </p>
         {/if}

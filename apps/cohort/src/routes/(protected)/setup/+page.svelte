@@ -15,10 +15,10 @@
 <p class="mt-2 max-w-3xl">{t(locale, 'platform_setup_intro')}</p>
 
 {#if !data.apiManagerUrl}
-	<section class="mt-6 max-w-3xl rounded-lg border-2 border-error-500 preset-tonal-error p-5" role="alert" data-testid="setup-no-api-manager">
+	<section class="mt-6 max-w-3xl rounded-lg border-2 ui-tone-error p-5" role="alert" data-testid="setup-no-api-manager">
 		<h2 class="h3">{t(locale, 'platform_setup_no_manager_heading')}</h2>
 		<p class="mt-2">{t(locale, 'platform_setup_no_manager_text')}</p>
-		<pre class="mt-3 rounded bg-surface-50-950 p-3 text-sm"><code>public_obp_api_manager_url=https://apimanager.example.com</code></pre>
+		<pre class="mt-3 rounded ui-card p-3 text-sm"><code>public_obp_api_manager_url=https://apimanager.example.com</code></pre>
 		<p class="mt-3">{t(locale, 'platform_setup_no_manager_after')}</p>
 	</section>
 {/if}
@@ -34,15 +34,15 @@
 		<dd>{data.checkedAt ?? t(locale, 'setup_not_checked')}</dd>
 		<dt>API Manager</dt>
 		<dd data-testid="setup-api-manager-url">
-			{#if data.apiManagerUrl}<code>{data.apiManagerUrl}</code>{:else}<strong class="text-error-600-400">{t(locale, 'platform_setup_not_set')}</strong>{/if}
+			{#if data.apiManagerUrl}<code>{data.apiManagerUrl}</code>{:else}<strong class="ui-text-error">{t(locale, 'platform_setup_not_set')}</strong>{/if}
 		</dd>
 	</dl>
 	{#if data.problem}
-		<p class="mt-2 preset-tonal-warning rounded p-3" role="alert" data-testid="setup-problem">{data.problem}</p>
+		<p class="mt-2 ui-tone-warning rounded p-3" role="alert" data-testid="setup-problem">{data.problem}</p>
 	{/if}
 	{#if data.platformAppsUrl}
 		<p class="mt-4">{t(locale, 'platform_setup_mark_text')}</p>
-		<a class="btn preset-filled mt-2" href={data.platformAppsUrl} data-testid="setup-platform-apps-link">{t(locale, 'setup_open_platform_apps')}</a>
+		<a class="btn preset-filled-primary-500 mt-2" href={data.platformAppsUrl} data-testid="setup-platform-apps-link">{t(locale, 'setup_open_platform_apps')}</a>
 	{/if}
 </section>
 

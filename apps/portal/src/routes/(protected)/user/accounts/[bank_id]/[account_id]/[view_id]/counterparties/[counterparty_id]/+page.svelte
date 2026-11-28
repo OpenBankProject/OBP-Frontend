@@ -26,18 +26,18 @@
 </svelte:head>
 
 <nav class="mb-4 flex flex-wrap items-center gap-2 text-sm" aria-label="Breadcrumb">
-	<a class="text-primary-500 hover:underline dark:text-primary-200" href="/user/accounts" data-testid="breadcrumb-accounts">Accounts</a>
-	<span class="text-surface-500">›</span>
-	<a class="text-primary-500 hover:underline dark:text-primary-200" href={accountHref} data-testid="breadcrumb-account"><code class="text-xs">{data.account_id}</code></a>
-	<span class="text-surface-500">›</span>
-	<span class="text-surface-600-400" data-testid="breadcrumb-current">Counterparty</span>
+	<a class="hover:underline ui-text-brand" href="/user/accounts" data-testid="breadcrumb-accounts">Accounts</a>
+	<span class="ui-muted">›</span>
+	<a class="hover:underline ui-text-brand" href={accountHref} data-testid="breadcrumb-account"><code class="text-xs">{data.account_id}</code></a>
+	<span class="ui-muted">›</span>
+	<span class="ui-muted" data-testid="breadcrumb-current">Counterparty</span>
 </nav>
 
 <header class="mb-6" data-testid="counterparty-header">
 	<h2 class="text-2xl font-semibold" data-testid="counterparty-name">
 		{data.counterparty?.name || data.counterparty_id}
 	</h2>
-	<p class="mt-1 text-xs text-surface-600-400">
+	<p class="mt-1 text-xs ui-muted">
 		<code>{data.bank_id}</code> / <code>{data.account_id}</code> / <code>{data.view_id}</code> / <code>{data.counterparty_id}</code>
 	</p>
 </header>
@@ -52,23 +52,23 @@
 		<h3 class="section-accent-title mb-2 text-sm font-semibold uppercase">Counterparty information</h3>
 		<dl class="grid grid-cols-1 gap-3 sm:grid-cols-2">
 			<div>
-				<dt class="text-xs uppercase text-surface-600-400">Counterparty ID</dt>
+				<dt class="text-xs uppercase ui-muted">Counterparty ID</dt>
 				<dd data-testid="counterparty-id"><code class="text-xs">{cp.counterparty_id}</code></dd>
 			</div>
 			<div>
-				<dt class="text-xs uppercase text-surface-600-400">Name</dt>
+				<dt class="text-xs uppercase ui-muted">Name</dt>
 				<dd>{cp.name || '—'}</dd>
 			</div>
 			<div>
-				<dt class="text-xs uppercase text-surface-600-400">Description</dt>
+				<dt class="text-xs uppercase ui-muted">Description</dt>
 				<dd>{cp.description || '—'}</dd>
 			</div>
 			<div>
-				<dt class="text-xs uppercase text-surface-600-400">Currency</dt>
+				<dt class="text-xs uppercase ui-muted">Currency</dt>
 				<dd>{cp.currency || '—'}</dd>
 			</div>
 			<div>
-				<dt class="text-xs uppercase text-surface-600-400">Beneficiary</dt>
+				<dt class="text-xs uppercase ui-muted">Beneficiary</dt>
 				<dd data-testid="counterparty-is-beneficiary">
 					{#if cp.is_beneficiary === true}
 						<span class="chip variant-soft-success text-xs">Yes</span>
@@ -80,7 +80,7 @@
 				</dd>
 			</div>
 			<div>
-				<dt class="text-xs uppercase text-surface-600-400">Created by user</dt>
+				<dt class="text-xs uppercase ui-muted">Created by user</dt>
 				<dd><code class="text-xs">{cp.created_by_user_id || '—'}</code></dd>
 			</div>
 		</dl>
@@ -90,7 +90,7 @@
 		<h3 class="section-accent-title mb-2 text-sm font-semibold uppercase">Routing</h3>
 		<dl class="grid grid-cols-1 gap-3 sm:grid-cols-2">
 			<div>
-				<dt class="text-xs uppercase text-surface-600-400">Bank routing</dt>
+				<dt class="text-xs uppercase ui-muted">Bank routing</dt>
 				<dd>
 					{#if cp.other_bank_routing_scheme || cp.other_bank_routing_address}
 						<code class="text-xs">{cp.other_bank_routing_scheme}: {cp.other_bank_routing_address}</code>
@@ -100,7 +100,7 @@
 				</dd>
 			</div>
 			<div>
-				<dt class="text-xs uppercase text-surface-600-400">Branch routing</dt>
+				<dt class="text-xs uppercase ui-muted">Branch routing</dt>
 				<dd>
 					{#if cp.other_branch_routing_scheme || cp.other_branch_routing_address}
 						<code class="text-xs">{cp.other_branch_routing_scheme}: {cp.other_branch_routing_address}</code>
@@ -110,7 +110,7 @@
 				</dd>
 			</div>
 			<div>
-				<dt class="text-xs uppercase text-surface-600-400">Account routing</dt>
+				<dt class="text-xs uppercase ui-muted">Account routing</dt>
 				<dd>
 					{#if cp.other_account_routing_scheme || cp.other_account_routing_address}
 						<code class="text-xs">{cp.other_account_routing_scheme}: {cp.other_account_routing_address}</code>
@@ -121,7 +121,7 @@
 			</div>
 			{#if cp.other_account_secondary_routing_scheme || cp.other_account_secondary_routing_address}
 				<div>
-					<dt class="text-xs uppercase text-surface-600-400">Secondary account routing</dt>
+					<dt class="text-xs uppercase ui-muted">Secondary account routing</dt>
 					<dd>
 						<code class="text-xs">{cp.other_account_secondary_routing_scheme}: {cp.other_account_secondary_routing_address}</code>
 					</dd>
@@ -135,42 +135,42 @@
 			<h3 class="section-accent-title mb-2 text-sm font-semibold uppercase">Metadata</h3>
 			<dl class="grid grid-cols-1 gap-3 sm:grid-cols-2">
 				<div>
-					<dt class="text-xs uppercase text-surface-600-400">Public alias</dt>
+					<dt class="text-xs uppercase ui-muted">Public alias</dt>
 					<dd>{cp.metadata.public_alias || '—'}</dd>
 				</div>
 				<div>
-					<dt class="text-xs uppercase text-surface-600-400">Private alias</dt>
+					<dt class="text-xs uppercase ui-muted">Private alias</dt>
 					<dd>{cp.metadata.private_alias || '—'}</dd>
 				</div>
 				<div>
-					<dt class="text-xs uppercase text-surface-600-400">More info</dt>
+					<dt class="text-xs uppercase ui-muted">More info</dt>
 					<dd>{cp.metadata.more_info || '—'}</dd>
 				</div>
 				<div>
-					<dt class="text-xs uppercase text-surface-600-400">URL</dt>
+					<dt class="text-xs uppercase ui-muted">URL</dt>
 					<dd>
 						{#if cp.metadata.url}
-							<a class="text-primary-500 hover:underline dark:text-primary-200" href={cp.metadata.url} target="_blank" rel="noopener noreferrer">{cp.metadata.url}</a>
+							<a class="hover:underline ui-text-brand" href={cp.metadata.url} target="_blank" rel="noopener noreferrer">{cp.metadata.url}</a>
 						{:else}
 							—
 						{/if}
 					</dd>
 				</div>
 				<div>
-					<dt class="text-xs uppercase text-surface-600-400">Image URL</dt>
+					<dt class="text-xs uppercase ui-muted">Image URL</dt>
 					<dd>
 						{#if cp.metadata.image_url}
-							<a class="text-primary-500 hover:underline dark:text-primary-200" href={cp.metadata.image_url} target="_blank" rel="noopener noreferrer">{cp.metadata.image_url}</a>
+							<a class="hover:underline ui-text-brand" href={cp.metadata.image_url} target="_blank" rel="noopener noreferrer">{cp.metadata.image_url}</a>
 						{:else}
 							—
 						{/if}
 					</dd>
 				</div>
 				<div>
-					<dt class="text-xs uppercase text-surface-600-400">Open Corporates</dt>
+					<dt class="text-xs uppercase ui-muted">Open Corporates</dt>
 					<dd>
 						{#if cp.metadata.open_corporates_url}
-							<a class="text-primary-500 hover:underline dark:text-primary-200" href={cp.metadata.open_corporates_url} target="_blank" rel="noopener noreferrer">{cp.metadata.open_corporates_url}</a>
+							<a class="hover:underline ui-text-brand" href={cp.metadata.open_corporates_url} target="_blank" rel="noopener noreferrer">{cp.metadata.open_corporates_url}</a>
 						{:else}
 							—
 						{/if}

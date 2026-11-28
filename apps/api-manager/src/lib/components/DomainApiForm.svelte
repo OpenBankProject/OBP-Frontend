@@ -133,76 +133,76 @@
   }
 
   const fieldLabels: Record<string, string> = { base_path: "Base path", version: "Version", title: "Title", description: "Description", is_publicly_discoverable: "Publicly discoverable" };
-  const inputClass = "mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100";
+  const inputClass = "mt-1 block w-full rounded-lg border px-3 py-2 text-sm focus:ring-2 ui-card ui-text ui-border";
 </script>
 
 {#if opeyFilledFields.length > 0}
-  <div class="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-200" data-testid="opey-filled-banner">
+  <div class="mb-4 flex flex-wrap items-center gap-2 rounded-lg border px-4 py-3 text-sm ui-tone-info" data-testid="opey-filled-banner">
     <span>Opey filled {opeyFilledFields.length} field{opeyFilledFields.length === 1 ? "" : "s"}:</span>
     {#each opeyFilledFields as name (name)}
-      <span class="inline-flex items-center gap-1 rounded-full bg-white px-2 py-0.5 text-xs dark:bg-gray-800">
+      <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs ui-card">
         {fieldLabels[name] ?? name}
         <button type="button" class="underline" onclick={() => revertField(name)} data-testid="opey-revert-{name}">revert</button>
       </span>
     {/each}
-    <button type="button" class="ml-auto rounded-md bg-blue-600 px-3 py-1 text-xs font-medium text-white hover:bg-blue-700" onclick={acceptAll} data-testid="opey-accept-all">Keep all</button>
+    <button type="button" class="ml-auto rounded-md px-3 py-1 text-xs font-medium preset-filled-primary-500" onclick={acceptAll} data-testid="opey-accept-all">Keep all</button>
   </div>
 {/if}
 
 <form onsubmit={handleSubmit} class="space-y-5" data-testid="domain-api-form">
   <div>
-    <span class="block text-sm font-medium text-gray-700 dark:text-gray-300">Space</span>
-    <p class="mt-1 font-mono text-sm text-gray-900 dark:text-gray-100" data-testid="field-bank-id">{bankId}</p>
+    <span class="block text-sm font-medium ui-muted">Space</span>
+    <p class="mt-1 font-mono text-sm ui-text" data-testid="field-bank-id">{bankId}</p>
   </div>
 
   <div class="grid gap-5 sm:grid-cols-3">
     <div class="sm:col-span-2">
-      <label for="base_path" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Base path <span class="text-red-500">*</span></label>
+      <label for="base_path" class="block text-sm font-medium ui-muted">Base path <span class="ui-text-error">*</span></label>
       <div class="mt-1 flex items-center">
-        <span class="rounded-l-lg border border-r-0 border-gray-300 bg-gray-50 px-3 py-2 font-mono text-sm text-gray-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400">/</span>
+        <span class="rounded-l-lg border border-r-0 px-3 py-2 font-mono text-sm ui-card ui-muted ui-border">/</span>
         <input id="base_path" name="base_path" type="text" autocomplete="off" spellcheck="false" placeholder="carbon-registry/v1" bind:value={base_path} oninput={onBasePathInput} class="{inputClass} mt-0 rounded-l-none font-mono" data-testid="field-base-path" />
       </div>
       {#if basePathError}
-        <p class="mt-1 text-xs text-red-600 dark:text-red-400" data-testid="base-path-error">{basePathError}</p>
+        <p class="mt-1 text-xs ui-text-error" data-testid="base-path-error">{basePathError}</p>
       {/if}
     </div>
     <div>
-      <label for="version" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Version <span class="text-red-500">*</span></label>
+      <label for="version" class="block text-sm font-medium ui-muted">Version <span class="ui-text-error">*</span></label>
       <input id="version" name="version" type="text" autocomplete="off" spellcheck="false" placeholder="1.0.0" bind:value={version} class="{inputClass} font-mono" data-testid="field-version" />
       {#if versionError}
-        <p class="mt-1 text-xs text-red-600 dark:text-red-400" data-testid="version-error">{versionError}</p>
+        <p class="mt-1 text-xs ui-text-error" data-testid="version-error">{versionError}</p>
       {/if}
     </div>
   </div>
 
   <div>
-    <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Title <span class="text-red-500">*</span></label>
+    <label for="title" class="block text-sm font-medium ui-muted">Title <span class="ui-text-error">*</span></label>
     <input id="title" name="title" type="text" maxlength="255" bind:value={title} class={inputClass} data-testid="field-title" />
   </div>
 
   <div>
-    <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
+    <label for="description" class="block text-sm font-medium ui-muted">Description</label>
     <textarea id="description" name="description" rows="4" maxlength="2000" bind:value={description} class={inputClass} data-testid="field-description"></textarea>
   </div>
 
   <div class="flex items-start gap-3">
-    <input id="is_publicly_discoverable" name="is_publicly_discoverable" type="checkbox" bind:checked={is_publicly_discoverable} class="mt-0.5 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600" data-testid="field-publicly-discoverable" />
+    <input id="is_publicly_discoverable" name="is_publicly_discoverable" type="checkbox" bind:checked={is_publicly_discoverable} class="mt-0.5 h-4 w-4 rounded ui-link ui-border" data-testid="field-publicly-discoverable" />
     <div>
-      <label for="is_publicly_discoverable" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Publicly discoverable</label>
-      <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+      <label for="is_publicly_discoverable" class="block text-sm font-medium ui-muted">Publicly discoverable</label>
+      <p class="mt-0.5 text-xs ui-muted">
         Anyone, without logging in, can find it in <code class="font-mono">GET /obp/v7.0.0/banks/{bankId}/domain-apis</code>. This only controls that listing: the base path and its OpenAPI document are served either way.
       </p>
     </div>
   </div>
 
   {#if submitError}
-    <div class="rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-700 dark:bg-red-900/20 dark:text-red-200" data-testid="domain-api-error">{submitError}</div>
+    <div class="rounded-lg border px-4 py-3 text-sm ui-tone-error" data-testid="domain-api-error">{submitError}</div>
   {/if}
 
   <div class="flex flex-wrap gap-3">
-    <button type="submit" disabled={isSubmitting} class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60" data-testid="domain-api-submit">
+    <button type="submit" disabled={isSubmitting} class="rounded-lg px-4 py-2 text-sm font-medium disabled:opacity-60 preset-filled-primary-500" data-testid="domain-api-submit">
       {isSubmitting ? "Saving…" : submitLabel}
     </button>
-    <a href={cancelHref} class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">Cancel</a>
+    <a href={cancelHref} class="rounded-lg border px-4 py-2 text-sm font-medium ui-card ui-hover ui-muted ui-border">Cancel</a>
   </div>
 </form>

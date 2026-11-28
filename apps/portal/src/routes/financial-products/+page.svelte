@@ -39,24 +39,24 @@
 <div class="container mx-auto max-w-6xl px-4 py-8">
 	<!-- Header -->
 	<div class="mb-8 text-center">
-		<h1 class="mb-2 text-3xl font-bold text-gray-900 dark:text-gray-100">Financial Products</h1>
-		<p class="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+		<h1 class="mb-2 text-3xl font-bold ui-text">Financial Products</h1>
+		<p class="max-w-2xl mx-auto ui-muted">
 			Browse banking products such as savings accounts, loans, and other financial services
 			available across participating banks.
 		</p>
 	</div>
 
 	{#if data.warnings && data.warnings.length > 0}
-		<div class="mb-6 rounded-lg border border-yellow-200 bg-yellow-50 p-4 dark:border-yellow-700 dark:bg-yellow-900/20">
+		<div class="mb-6 rounded-lg border p-4 ui-tone-warning">
 			{#each data.warnings as warning}
-				<p class="text-sm text-yellow-700 dark:text-yellow-300">{warning}</p>
+				<p class="text-sm ui-text-warning">{warning}</p>
 			{/each}
 		</div>
 	{/if}
 
 	{#if data.message}
-		<div class="rounded-lg border border-red-200 bg-red-50 p-4 text-center dark:border-red-800 dark:bg-red-900/20">
-			<p class="text-red-600 dark:text-red-400">{data.message}</p>
+		<div class="rounded-lg border p-4 text-center ui-tone-error">
+			<p class="ui-text-error">{data.message}</p>
 		</div>
 	{:else if sortedProducts.length > 0}
 		<!-- Products Grid -->
@@ -64,30 +64,30 @@
 			{#each sortedProducts as product (product.bank_id + '/' + product.product_code)}
 				<a
 					href="/financial-products/{encodeURIComponent(product.bank_id)}/{encodeURIComponent(product.product_code)}"
-					class="block rounded-lg bg-white p-6 shadow transition-shadow hover:shadow-lg dark:bg-gray-800"
+					class="block rounded-lg p-6 shadow transition-shadow hover:shadow-lg ui-card"
 				>
-					<h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+					<h2 class="text-lg font-semibold ui-text">
 						{product.name}
 					</h2>
 					{#if product.description}
-						<p class="mt-2 text-sm text-gray-600 dark:text-gray-400 line-clamp-3">
+						<p class="mt-2 text-sm line-clamp-3 ui-muted">
 							{product.description}
 						</p>
 					{/if}
-					<div class="mt-4 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-						<span class="rounded bg-gray-100 px-2 py-0.5 dark:bg-gray-700">{product.bank_id}</span>
-						<span class="rounded bg-gray-100 px-2 py-0.5 dark:bg-gray-700">{product.product_code}</span>
+					<div class="mt-4 flex items-center gap-2 text-xs ui-muted">
+						<span class="rounded px-2 py-0.5 ui-panel">{product.bank_id}</span>
+						<span class="rounded px-2 py-0.5 ui-panel">{product.product_code}</span>
 					</div>
 				</a>
 			{/each}
 		</div>
 
-		<p class="mt-8 text-center text-sm text-gray-500 dark:text-gray-400">
+		<p class="mt-8 text-center text-sm ui-muted">
 			{sortedProducts.length} product{sortedProducts.length === 1 ? '' : 's'} available
 		</p>
 	{:else}
-		<div class="rounded-lg bg-gray-100 p-8 text-center dark:bg-gray-800">
-			<p class="text-gray-600 dark:text-gray-400">
+		<div class="rounded-lg p-8 text-center ui-panel">
+			<p class="ui-muted">
 				No Products Defined.
 			</p>
 		</div>

@@ -29,33 +29,33 @@
 
 <div class="container mx-auto max-w-4xl px-4 py-8">
   <nav class="mb-6 text-sm" aria-label="Breadcrumb">
-    <a href="/glossary" class="text-blue-600 hover:underline dark:text-blue-400">Glossary</a>
-    <span class="mx-2 text-gray-400">/</span>
-    <span class="text-gray-500 dark:text-gray-400">{data.entry.title}</span>
+    <a href="/glossary" class="hover:underline ui-link">Glossary</a>
+    <span class="mx-2 ui-muted">/</span>
+    <span class="ui-muted">{data.entry.title}</span>
   </nav>
 
-  <div class="rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-    <div class="flex flex-wrap items-start justify-between gap-4 border-b border-gray-200 p-6 dark:border-gray-700">
+  <div class="rounded-lg border shadow-sm ui-card ui-border">
+    <div class="flex flex-wrap items-start justify-between gap-4 border-b p-6 ui-border">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">{data.entry.title}</h1>
+        <h1 class="text-2xl font-bold ui-text">{data.entry.title}</h1>
         <div class="mt-2 flex flex-wrap items-center gap-2">
           {#if data.entry.is_dynamic}
-            <span class="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/40 dark:text-blue-200" data-testid="badge-dynamic">Dynamic Glossary Item</span>
+            <span class="rounded-full px-2 py-0.5 text-xs font-medium ui-tone-info" data-testid="badge-dynamic">Dynamic Glossary Item</span>
             {#if data.entry.overrides_static_item}
-              <span class="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900/40 dark:text-amber-200" data-testid="badge-overriding">Overrides the static item of this title</span>
+              <span class="rounded-full px-2 py-0.5 text-xs font-medium ui-tone-warning" data-testid="badge-overriding">Overrides the static item of this title</span>
             {/if}
           {:else}
-            <span class="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-300" data-testid="badge-static">Static — compiled into the API</span>
+            <span class="rounded-full px-2 py-0.5 text-xs font-medium ui-panel ui-muted" data-testid="badge-static">Static — compiled into the API</span>
           {/if}
         </div>
       </div>
       <div class="flex flex-wrap items-center gap-2">
         {#if data.entry.is_dynamic}
-          <a href="/glossary-items/{encodeURIComponent(data.entry.title)}" class="inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700" data-testid="edit-link"><Pencil size={14} /> Edit</a>
+          <a href="/glossary-items/{encodeURIComponent(data.entry.title)}" class="inline-flex items-center gap-1 rounded-lg border px-3 py-2 text-sm font-medium ui-card ui-hover ui-muted ui-border" data-testid="edit-link"><Pencil size={14} /> Edit</a>
         {:else}
-          <a href="/glossary-items/create?title={encodeURIComponent(data.entry.title)}" class="inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700" data-testid="override-link"><Plus size={14} /> Override</a>
+          <a href="/glossary-items/create?title={encodeURIComponent(data.entry.title)}" class="inline-flex items-center gap-1 rounded-lg border px-3 py-2 text-sm font-medium ui-card ui-hover ui-muted ui-border" data-testid="override-link"><Plus size={14} /> Override</a>
         {/if}
-        <a href={data.explorerUrl} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
+        <a href={data.explorerUrl} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 rounded-lg border px-3 py-2 text-sm font-medium ui-card ui-hover ui-muted ui-border">
           API Explorer <ExternalLink size={12} />
         </a>
       </div>
@@ -65,13 +65,13 @@
       <!-- Rendered from the markdown with markdown-it (html:false), so raw HTML is escaped. -->
       <div class="glossary-body" data-testid="glossary-body">{@html data.entry.html}</div>
 
-      <div class="mt-6 border-t border-gray-200 pt-4 dark:border-gray-700">
+      <div class="mt-6 border-t pt-4 ui-border">
         <div class="mb-4"><ApiExplorerEndpoints endpoints={data.endpoints} /></div>
-        <button type="button" onclick={() => (showMarkdown = !showMarkdown)} class="inline-flex items-center gap-1 text-sm text-blue-600 hover:underline dark:text-blue-400" aria-expanded={showMarkdown} data-testid="toggle-markdown">
+        <button type="button" onclick={() => (showMarkdown = !showMarkdown)} class="inline-flex items-center gap-1 text-sm hover:underline ui-link" aria-expanded={showMarkdown} data-testid="toggle-markdown">
           <Code size={14} /> {showMarkdown ? "Hide" : "Show"} markdown source
         </button>
         {#if showMarkdown}
-          <pre class="mt-3 overflow-x-auto rounded-lg border border-gray-200 bg-gray-50 p-4 text-xs text-gray-800 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200" data-testid="markdown-source">{data.entry.markdown}</pre>
+          <pre class="mt-3 overflow-x-auto rounded-lg border p-4 text-xs ui-card ui-text ui-border" data-testid="markdown-source">{data.entry.markdown}</pre>
         {/if}
       </div>
     </div>
@@ -82,7 +82,7 @@
   .glossary-body {
     font-size: 0.9375rem;
     line-height: 1.6;
-    color: #374151;
+    color: var(--ui-text);
   }
 
   .glossary-body :global(h1) {
@@ -93,14 +93,14 @@
     font-size: 1.0625rem;
     font-weight: 600;
     margin: 1.25rem 0 0.5rem;
-    color: #111827;
+    color: var(--ui-text);
   }
 
   .glossary-body :global(h3) {
     font-size: 0.9375rem;
     font-weight: 600;
     margin: 1rem 0 0.375rem;
-    color: #111827;
+    color: var(--ui-text);
   }
 
   .glossary-body :global(p) {
@@ -120,15 +120,15 @@
 
   .glossary-body :global(code) {
     font-size: 0.85em;
-    background: #f3f4f6;
+    background: var(--ui-panel);
     padding: 0.05rem 0.3rem;
     border-radius: 4px;
   }
 
   .glossary-body :global(pre) {
     overflow-x: auto;
-    background: #111827;
-    color: #e5e7eb;
+    background: var(--ui-panel);
+    color: var(--ui-text);
     padding: 0.75rem 1rem;
     border-radius: 6px;
     font-size: 0.8125rem;
@@ -142,7 +142,7 @@
   }
 
   .glossary-body :global(a) {
-    color: #2563eb;
+    color: var(--ui-link);
     text-decoration: underline;
   }
 
@@ -155,7 +155,7 @@
 
   .glossary-body :global(th),
   .glossary-body :global(td) {
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--ui-border);
     padding: 0.25rem 0.5rem;
     text-align: left;
   }
@@ -163,27 +163,5 @@
   .glossary-body :global(img) {
     max-width: 100%;
     height: auto;
-  }
-
-  :global([data-mode="dark"]) .glossary-body {
-    color: var(--color-surface-200);
-  }
-
-  :global([data-mode="dark"]) .glossary-body :global(h2),
-  :global([data-mode="dark"]) .glossary-body :global(h3) {
-    color: var(--color-surface-50);
-  }
-
-  :global([data-mode="dark"]) .glossary-body :global(code) {
-    background: rgb(var(--color-surface-700));
-  }
-
-  :global([data-mode="dark"]) .glossary-body :global(a) {
-    color: #60a5fa;
-  }
-
-  :global([data-mode="dark"]) .glossary-body :global(th),
-  :global([data-mode="dark"]) .glossary-body :global(td) {
-    border-color: #374151;
   }
 </style>

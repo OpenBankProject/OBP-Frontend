@@ -6,7 +6,7 @@
 	let { locale, rules }: { locale: Locale; rules: EligibilityRules } = $props();
 </script>
 
-<section class="card preset-outlined-surface-200-800 mt-6 p-4" data-testid="call-eligibility-summary">
+<section class="card border ui-border mt-6 p-4" data-testid="call-eligibility-summary">
 	<h2 class="h5">{t(locale, 'eligibility_who')}</h2>
 	<ul class="mt-2 list-inside list-disc">
 		<li>{t(locale, `eligibility_says_${rules.residency}` as MessageKey)}</li>

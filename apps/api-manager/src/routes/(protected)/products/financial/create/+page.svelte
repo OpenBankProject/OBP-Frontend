@@ -207,31 +207,31 @@
     <div class="flex items-center gap-2 text-sm">
       <a
         href="/products/financial"
-        class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+        class="ui-link"
       >
         Financial Products
       </a>
-      <span class="text-gray-400">/</span>
-      <span class="text-gray-600 dark:text-gray-400">Create</span>
+      <span class="ui-muted">/</span>
+      <span class="ui-muted">Create</span>
     </div>
   </div>
 
   <div class="mb-8">
-    <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
+    <h1 class="text-3xl font-bold ui-text">
       Create Financial Product
     </h1>
-    <p class="mt-1 text-gray-600 dark:text-gray-400">
+    <p class="mt-1 ui-muted">
       Create a financial product for bank
-      <code class="rounded bg-gray-100 px-1 dark:bg-gray-700">{selectedBankId || "(none selected)"}</code>
+      <code class="rounded px-1 ui-panel">{selectedBankId || "(none selected)"}</code>
     </p>
   </div>
 
-  <div class="rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+  <div class="rounded-lg border ui-card ui-border">
     <form onsubmit={handleSubmit} class="p-6" data-testid="financial-product-create-form">
       <div class="space-y-6">
         <div>
-          <label for="product-code" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Product Code <span class="text-red-600">*</span>
+          <label for="product-code" class="block text-sm font-medium ui-muted">
+            Product Code <span class="ui-text-error">*</span>
           </label>
           <input
             id="product-code"
@@ -242,16 +242,16 @@
             disabled={isSubmitting}
             required
             data-testid="input-product-code"
-            class="mt-2 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 disabled:opacity-50"
+            class="mt-2 block w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 disabled:opacity-50 ui-card ui-text ui-border"
           />
-          <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+          <p class="mt-1 text-xs ui-muted">
             Unique code identifying this product within the bank
           </p>
         </div>
 
         <div>
-          <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Name <span class="text-red-600">*</span>
+          <label for="name" class="block text-sm font-medium ui-muted">
+            Name <span class="ui-text-error">*</span>
           </label>
           <input
             id="name"
@@ -262,12 +262,12 @@
             disabled={isSubmitting}
             required
             data-testid="input-name"
-            class="mt-2 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 disabled:opacity-50"
+            class="mt-2 block w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 disabled:opacity-50 ui-card ui-text ui-border"
           />
         </div>
 
         <div>
-          <label for="parent-product-code" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          <label for="parent-product-code" class="block text-sm font-medium ui-muted">
             Parent Product Code
           </label>
           <input
@@ -278,12 +278,12 @@
             placeholder="e.g., 787LOW"
             disabled={isSubmitting}
             data-testid="input-parent-product-code"
-            class="mt-2 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 disabled:opacity-50"
+            class="mt-2 block w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 disabled:opacity-50 ui-card ui-text ui-border"
           />
         </div>
 
         <div>
-          <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          <label for="description" class="block text-sm font-medium ui-muted">
             Description
           </label>
           <textarea
@@ -293,12 +293,12 @@
             rows="3"
             disabled={isSubmitting}
             data-testid="input-description"
-            class="mt-2 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 disabled:opacity-50"
+            class="mt-2 block w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 disabled:opacity-50 ui-card ui-text ui-border"
           ></textarea>
         </div>
 
         <div>
-          <label for="more-info-url" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          <label for="more-info-url" class="block text-sm font-medium ui-muted">
             More Info URL
           </label>
           <input
@@ -309,12 +309,12 @@
             placeholder="https://www.example.com/abc"
             disabled={isSubmitting}
             data-testid="input-more-info-url"
-            class="mt-2 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 disabled:opacity-50"
+            class="mt-2 block w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 disabled:opacity-50 ui-card ui-text ui-border"
           />
         </div>
 
         <div>
-          <label for="terms-url" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          <label for="terms-url" class="block text-sm font-medium ui-muted">
             Terms and Conditions URL
           </label>
           <input
@@ -325,13 +325,13 @@
             placeholder="https://www.example.com/xyz"
             disabled={isSubmitting}
             data-testid="input-terms-url"
-            class="mt-2 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 disabled:opacity-50"
+            class="mt-2 block w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 disabled:opacity-50 ui-card ui-text ui-border"
           />
         </div>
 
         <div>
           <div class="flex items-center justify-between">
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label class="block text-sm font-medium ui-muted">
               Attributes
             </label>
             <button
@@ -339,7 +339,7 @@
               onclick={addAttribute}
               disabled={isSubmitting}
               data-testid="add-attribute"
-              class="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 disabled:opacity-50"
+              class="inline-flex items-center text-sm disabled:opacity-50 ui-link"
             >
               <svg class="mr-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -359,7 +359,7 @@
                       placeholder="Name (e.g., ISIN)"
                       disabled={isSubmitting}
                       data-testid={`attribute-name-${index}`}
-                      class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 disabled:opacity-50"
+                      class="block w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 disabled:opacity-50 ui-card ui-text ui-border"
                     />
                   </div>
                   <div class="w-40">
@@ -367,7 +367,7 @@
                       bind:value={attr.type}
                       disabled={isSubmitting}
                       data-testid={`attribute-type-${index}`}
-                      class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 disabled:opacity-50"
+                      class="block w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 disabled:opacity-50 ui-card ui-text ui-border"
                     >
                       {#each ATTRIBUTE_TYPES as type}
                         <option value={type}>{type}</option>
@@ -381,7 +381,7 @@
                       placeholder="Value"
                       disabled={isSubmitting}
                       data-testid={`attribute-value-${index}`}
-                      class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 disabled:opacity-50"
+                      class="block w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 disabled:opacity-50 ui-card ui-text ui-border"
                     />
                   </div>
                   <button
@@ -389,7 +389,7 @@
                     onclick={() => removeAttribute(index)}
                     disabled={isSubmitting}
                     data-testid={`remove-attribute-${index}`}
-                    class="mt-1 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 disabled:opacity-50"
+                    class="mt-1 disabled:opacity-50 ui-text-error"
                   >
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -399,18 +399,18 @@
               {/each}
             </div>
           {:else}
-            <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+            <p class="mt-2 text-xs ui-muted">
               No attributes added. Click "Add Attribute" to attach typed key-value pairs (e.g., ISIN, MATURITY_DATE).
             </p>
           {/if}
         </div>
       </div>
 
-      <div class="mt-8 flex justify-end gap-3 border-t border-gray-200 pt-6 dark:border-gray-700">
+      <div class="mt-8 flex justify-end gap-3 border-t pt-6 ui-border">
         <a
           href="/products/financial"
           data-testid="cancel"
-          class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+          class="rounded-lg border px-4 py-2 text-sm font-medium ui-card ui-hover ui-muted ui-border"
         >
           Cancel
         </a>
@@ -418,7 +418,7 @@
           type="submit"
           disabled={isSubmitting}
           data-testid="submit"
-          class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
+          class="rounded-lg px-4 py-2 text-sm font-medium disabled:opacity-50 preset-filled-primary-500"
         >
           {isSubmitting ? "Creating..." : "Create Financial Product"}
         </button>

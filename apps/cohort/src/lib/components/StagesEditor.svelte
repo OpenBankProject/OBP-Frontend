@@ -29,7 +29,7 @@
 	}
 </script>
 
-<fieldset class="card preset-outlined-surface-200-800 flex flex-col gap-3 p-3" data-testid="programme-stages">
+<fieldset class="card border ui-border flex flex-col gap-3 p-3" data-testid="programme-stages">
 	<legend class="px-1 font-bold">{t(locale, 'stages_heading')}</legend>
 	<p class="text-sm">{t(locale, 'stages_intro')}</p>
 	<input type="hidden" name="stages" value={json} />
@@ -37,7 +37,7 @@
 		<li class="text-sm">1. {stageName(locale, 'onboarded')}</li>
 		{#each stages as s, i (i)}
 			{@const last = s.key === LAST_STAGE}
-			<li class="border-surface-200-800 flex flex-col gap-2 rounded border p-2" data-testid="stage-row-{i}">
+			<li class="ui-border flex flex-col gap-2 rounded border p-2" data-testid="stage-row-{i}">
 				<div class="flex flex-wrap items-end gap-2">
 					<span class="font-bold">{i + 2}.</span>
 					{#if last}
@@ -48,7 +48,7 @@
 						<span class="flex gap-1">
 							<button type="button" class="btn-icon btn-icon-sm preset-tonal" disabled={i === 0} onclick={() => move(i, -1)} aria-label={t(locale, 'stages_up')}><ArrowUp class="size-4" aria-hidden="true" /></button>
 							<button type="button" class="btn-icon btn-icon-sm preset-tonal" disabled={i >= stages.length - 2} onclick={() => move(i, 1)} aria-label={t(locale, 'stages_down')}><ArrowDown class="size-4" aria-hidden="true" /></button>
-							<button type="button" class="btn-icon btn-icon-sm preset-tonal-error" onclick={() => stages.splice(i, 1)} aria-label={t(locale, 'stages_remove')}><Trash2 class="size-4" aria-hidden="true" /></button>
+							<button type="button" class="btn-icon btn-icon-sm preset-filled-error-500" onclick={() => stages.splice(i, 1)} aria-label={t(locale, 'stages_remove')}><Trash2 class="size-4" aria-hidden="true" /></button>
 						</span>
 					{/if}
 				</div>

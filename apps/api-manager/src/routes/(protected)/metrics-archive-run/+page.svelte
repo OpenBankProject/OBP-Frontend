@@ -96,10 +96,10 @@
 <div class="container mx-auto px-4 py-8" data-testid="metrics-archive-run-page">
   <!-- Header -->
   <div class="mb-6">
-    <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
+    <h1 class="text-3xl font-bold ui-text">
       Trigger Metrics Archive Run
     </h1>
-    <p class="mt-1 text-gray-600 dark:text-gray-400">
+    <p class="mt-1 ui-muted">
       Run the metrics-archiving job once, on demand. This invokes the same code
       path as the scheduled <code class="font-mono">MetricsArchiveScheduler</code>:
       it moves <code class="font-mono">metric</code> rows older than the effective
@@ -127,7 +127,7 @@
         onclick={triggerRun}
         disabled={running}
         data-testid="trigger-run"
-        class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+        class="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium disabled:opacity-50 preset-filled-primary-500"
       >
         {#if running}
           <Loader2 class="h-4 w-4 animate-spin" />
@@ -142,12 +142,12 @@
     <!-- Error -->
     {#if errorMessage}
       <div
-        class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20"
+        class="mb-6 rounded-lg border p-4 ui-tone-error"
         data-testid="run-error"
       >
         <div class="flex items-center gap-2">
-          <XCircle class="h-5 w-5 text-red-600 dark:text-red-400" />
-          <p class="text-sm font-medium text-red-800 dark:text-red-200">{errorMessage}</p>
+          <XCircle class="h-5 w-5 ui-text-error" />
+          <p class="text-sm font-medium ui-text-error">{errorMessage}</p>
         </div>
       </div>
     {/if}
@@ -157,24 +157,24 @@
       <!-- Status banner -->
       <div
         class="mb-6 rounded-lg border p-4 {isSkipped
-          ? 'border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-900/20'
+          ? 'ui-tone-warning'
           : runSucceeded
-            ? 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20'
-            : 'border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20'}"
+            ? 'ui-tone-success'
+            : 'ui-tone-error'}"
         data-testid="run-status"
         data-status={result.status}
       >
         <div class="flex items-start gap-3">
           {#if isSkipped}
-            <AlertTriangle class="mt-0.5 h-6 w-6 text-yellow-600 dark:text-yellow-400" />
+            <AlertTriangle class="mt-0.5 h-6 w-6 ui-text-warning" />
           {:else if runSucceeded}
-            <CheckCircle2 class="mt-0.5 h-6 w-6 text-green-600 dark:text-green-400" />
+            <CheckCircle2 class="mt-0.5 h-6 w-6 ui-text-success" />
           {:else}
-            <XCircle class="mt-0.5 h-6 w-6 text-red-600 dark:text-red-400" />
+            <XCircle class="mt-0.5 h-6 w-6 ui-text-error" />
           {/if}
           <div>
             <div class="flex items-center gap-2">
-              <span class="text-base font-semibold text-gray-900 dark:text-gray-100">
+              <span class="text-base font-semibold ui-text">
                 {#if isSkipped}
                   Skipped — already in progress
                 {:else if runSucceeded}
@@ -183,27 +183,27 @@
                   Run completed with errors
                 {/if}
               </span>
-              <code class="rounded bg-gray-100 px-1.5 py-0.5 text-xs font-mono text-gray-700 dark:bg-gray-900 dark:text-gray-300">status</code>
+              <code class="rounded px-1.5 py-0.5 text-xs font-mono ui-panel ui-muted">status</code>
             </div>
-            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">{result.message}</p>
-            <code class="text-xs font-mono text-gray-500 dark:text-gray-400">message</code>
+            <p class="mt-1 text-sm ui-muted">{result.message}</p>
+            <code class="text-xs font-mono ui-muted">message</code>
           </div>
         </div>
       </div>
 
       <!-- Run detail -->
       {#if isCompleted && runFields.length > 0}
-        <div class="mb-6 rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-          <div class="border-b border-gray-200 p-6 dark:border-gray-700">
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+        <div class="mb-6 rounded-lg border shadow-sm ui-card ui-border">
+          <div class="border-b p-6 ui-border">
+            <h2 class="text-lg font-semibold ui-text">
               Recorded Run
             </h2>
           </div>
-          <div class="grid grid-cols-1 gap-px overflow-hidden rounded-b-lg bg-gray-200 dark:bg-gray-700 sm:grid-cols-2 lg:grid-cols-3">
+          <div class="grid grid-cols-1 gap-px overflow-hidden rounded-b-lg sm:grid-cols-2 lg:grid-cols-3 ui-panel">
             {#each runFields as field (field.prop)}
-              <div class="bg-white p-4 dark:bg-gray-800" data-testid="run-field" data-prop={field.prop}>
-                <code class="text-sm font-mono text-gray-600 dark:text-gray-400">{field.prop}</code>
-                <p class="mt-1 text-lg font-semibold break-words text-gray-900 dark:text-gray-100">
+              <div class="p-4 ui-card" data-testid="run-field" data-prop={field.prop}>
+                <code class="text-sm font-mono ui-muted">{field.prop}</code>
+                <p class="mt-1 text-lg font-semibold break-words ui-text">
                   {field.value}
                 </p>
               </div>
@@ -213,16 +213,16 @@
       {/if}
 
       <!-- Raw response -->
-      <div class="rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-        <div class="border-b border-gray-200 p-6 dark:border-gray-700">
-          <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+      <div class="rounded-lg border shadow-sm ui-card ui-border">
+        <div class="border-b p-6 ui-border">
+          <h2 class="text-lg font-semibold ui-text">
             Raw Response
           </h2>
         </div>
         <div class="p-6">
           <div class="overflow-auto max-h-[600px]">
-            <pre class="whitespace-pre-wrap break-words rounded-lg bg-gray-50 p-4 text-xs dark:bg-gray-900"><code
-                class="text-gray-900 dark:text-gray-100">{JSON.stringify(result, null, 2)}</code></pre>
+            <pre class="whitespace-pre-wrap break-words rounded-lg p-4 text-xs ui-card"><code
+                class="ui-text">{JSON.stringify(result, null, 2)}</code></pre>
           </div>
         </div>
       </div>

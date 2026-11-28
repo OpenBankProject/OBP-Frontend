@@ -45,7 +45,7 @@
 		{:else}
 			<ul class="mt-2 flex flex-col gap-3">
 				{#each data.hits as h (`${h.kind}:${h.id}`)}
-					<li class="card preset-outlined-surface-200-800 p-3">
+					<li class="card border ui-border p-3">
 						<p class="flex flex-wrap items-center gap-2">
 							<span class="badge preset-tonal">{t(locale, `search_kind_${h.kind}` as MessageKey)}</span>
 							<a class="anchor font-bold" href={h.href}>{h.title}</a>

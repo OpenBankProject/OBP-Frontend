@@ -98,27 +98,27 @@
   }
 
   .notification-success {
-    background-color: #f0fdf4;
-    border: 1px solid #bbf7d0;
-    color: #166534;
+    background-color: var(--ui-tone-success-bg);
+    border: 1px solid var(--ui-tone-success-border);
+    color: var(--ui-tone-success-text);
   }
 
   .notification-warning {
-    background-color: #fffbeb;
-    border: 1px solid #fed7aa;
-    color: #92400e;
+    background-color: var(--ui-tone-warning-bg);
+    border: 1px solid var(--ui-tone-warning-border);
+    color: var(--ui-tone-warning-text);
   }
 
   .notification-error {
-    background-color: #fef2f2;
-    border: 1px solid #fecaca;
-    color: #dc2626;
+    background-color: var(--ui-tone-error-bg);
+    border: 1px solid var(--ui-tone-error-border);
+    color: var(--ui-tone-error-text);
   }
 
   .notification-info {
-    background-color: #eff6ff;
-    border: 1px solid #bfdbfe;
-    color: #1d4ed8;
+    background-color: var(--ui-tone-info-bg);
+    border: 1px solid var(--ui-tone-info-border);
+    color: var(--ui-tone-info-text);
   }
 
   .notification-content {
@@ -185,7 +185,7 @@
     left: 0;
     right: 0;
     height: 0.25rem;
-    background-color: rgba(0, 0, 0, 0.1);
+    background-color: var(--ui-panel);
   }
 
   .notification-progress-bar {

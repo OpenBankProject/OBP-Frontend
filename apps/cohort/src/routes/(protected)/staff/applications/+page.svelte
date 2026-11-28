@@ -11,8 +11,8 @@
 
 <h1 class="h2">{t(locale, 'staff_submitted_heading')}</h1>
 
-{#if form?.form === 'role' && form?.requested}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'access_requested_notice')}</p>{/if}
-{#if form?.error}<p class="mt-4 preset-tonal-error rounded p-3" role="alert">{t(locale, 'staff_error')} {String(form.error)}</p>{/if}
+{#if form?.form === 'role' && form?.requested}<p class="mt-4 ui-tone-success rounded p-3" role="status">{t(locale, 'access_requested_notice')}</p>{/if}
+{#if form?.error}<p class="mt-4 ui-tone-error rounded p-3" role="alert">{t(locale, 'staff_error')} {String(form.error)}</p>{/if}
 
 {#if data.lacking}
 	<div class="mt-6"><MissingRole {locale} space={data.space} role={data.lacking} entitlementRequestsUrl={data.entitlementRequestsUrl} /></div>
@@ -36,9 +36,9 @@
 		<button class="btn preset-tonal">{t(locale, 'filter_apply')}</button>
 	</form>
 
-	<section class="card preset-outlined-surface-200-800 mt-4 p-4">
+	<section class="card border ui-border mt-4 p-4">
 		{#if data.error}
-			<p class="preset-tonal-error rounded p-3" role="alert">{data.error}</p>
+			<p class="ui-tone-error rounded p-3" role="alert">{data.error}</p>
 		{:else if data.applications.length === 0}
 			<p>{t(locale, 'staff_submitted_none')}</p>
 		{:else}

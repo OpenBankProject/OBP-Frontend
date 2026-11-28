@@ -38,16 +38,16 @@
 	{#if data.extra && !data.extra.lacking}<FormAnswers {locale} questions={data.extra.questions} answers={data.extra.answers} />{/if}
 </dl>
 {#if data.extra?.lacking}<div class="mt-2"><MissingRole {locale} space={data.space} role={data.extra.lacking} entitlementRequestsUrl={data.entitlementRequestsUrl} /></div>{/if}
-{#if data.extra?.error}<p class="mt-2 preset-tonal-error rounded p-3">{data.extra.error}</p>{/if}
+{#if data.extra?.error}<p class="mt-2 ui-tone-error rounded p-3">{data.extra.error}</p>{/if}
 
 <section class="mt-8" data-testid="staff-files">
 	<h2 class="h4">{t(locale, 'files_heading')}</h2>
-	{#if form?.fileStatus}<p class="mb-2 preset-tonal-success rounded p-3" role="status">{t(locale, 'files_status_saved')}</p>{/if}
-	{#if form?.fileError}<p class="mb-2 preset-tonal-error rounded p-3" role="alert">{t(locale, 'staff_error')} {form.fileError}</p>{/if}
+	{#if form?.fileStatus}<p class="mb-2 ui-tone-success rounded p-3" role="status">{t(locale, 'files_status_saved')}</p>{/if}
+	{#if form?.fileError}<p class="mb-2 ui-tone-error rounded p-3" role="alert">{t(locale, 'staff_error')} {form.fileError}</p>{/if}
 	{#if data.lackingReadFiles}
 		<MissingRole {locale} space={data.space} role={data.lackingReadFiles} entitlementRequestsUrl={data.entitlementRequestsUrl} />
 	{:else if data.filesError}
-		<p class="preset-tonal-error rounded p-3">{data.filesError}</p>
+		<p class="ui-tone-error rounded p-3">{data.filesError}</p>
 	{:else if data.files.length === 0}
 		<p>{t(locale, 'files_none')}</p>
 	{:else}
@@ -58,17 +58,17 @@
 
 <section class="mt-8" data-testid="staff-decisions">
 	<h2 class="h4">{t(locale, 'screening_heading')}</h2>
-	{#if form?.requested}<p class="mb-2 preset-tonal-success rounded p-3" role="status">{t(locale, 'access_requested_notice')}</p>{/if}
+	{#if form?.requested}<p class="mb-2 ui-tone-success rounded p-3" role="status">{t(locale, 'access_requested_notice')}</p>{/if}
 	{#if data.lackingReadDecisions}
 		<MissingRole {locale} space={data.space} role={data.lackingReadDecisions} entitlementRequestsUrl={data.entitlementRequestsUrl} />
 	{:else if data.decisionsError}
-		<p class="preset-tonal-error rounded p-3">{data.decisionsError}</p>
+		<p class="ui-tone-error rounded p-3">{data.decisionsError}</p>
 	{:else if data.decisions.length === 0}
 		<p>{t(locale, 'screening_none')}</p>
 	{:else}
 		<ol class="flex flex-col gap-2">
 			{#each data.decisions as d (String(d.cohort_screening_decision_id))}
-				<li class="card preset-outlined-surface-200-800 p-3">
+				<li class="card border ui-border p-3">
 					<strong>{decisionLabel(d.decision)}</strong> · {String(d.decided_at ?? '')} · {String(d.decided_by_username ?? '')}
 					{#if d.reason}<p class="mt-1 whitespace-pre-line">{t(locale, 'screening_reason')}: {String(d.reason)}</p>{/if}
 					{#if d.message_to_applicant}<p class="mt-1 whitespace-pre-line">{t(locale, 'screening_message')}: {String(d.message_to_applicant)}</p>{/if}
@@ -77,9 +77,9 @@
 		</ol>
 	{/if}
 
-	{#if form?.decided}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'screening_saved')}</p>{/if}
+	{#if form?.decided}<p class="mt-4 ui-tone-success rounded p-3" role="status">{t(locale, 'screening_saved')}</p>{/if}
 	{#if form?.error}
-		<p class="mt-4 preset-tonal-error rounded p-3" role="alert">
+		<p class="mt-4 ui-tone-error rounded p-3" role="alert">
 			{form.error === 'not_submitted' ? t(locale, 'screening_not_submitted') : `${t(locale, 'staff_error')} ${form.error}`}
 		</p>
 	{/if}
@@ -96,7 +96,7 @@
 			</fieldset>
 			<label class="label"><span class="label-text">{t(locale, 'screening_reason')}</span><textarea class="textarea" name="reason" rows="3" maxlength="4000"></textarea></label>
 			<label class="label"><span class="label-text">{t(locale, 'screening_message')}</span><textarea class="textarea" name="message_to_applicant" rows="3" maxlength="4000"></textarea></label>
-			<button class="btn preset-filled self-start" data-testid="staff-decide-submit">{t(locale, 'screening_record')}</button>
+			<button class="btn preset-filled-primary-500 self-start" data-testid="staff-decide-submit">{t(locale, 'screening_record')}</button>
 		</form>
 	{:else}
 		<p class="mt-4">{t(locale, 'screening_not_submitted')}</p>

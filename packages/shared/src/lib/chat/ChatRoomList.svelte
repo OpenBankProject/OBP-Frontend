@@ -65,18 +65,18 @@
 </script>
 
 {#if form?.message && !form?.success}
-    <div class="bg-error-500/10 border-error-500 mb-6 rounded-lg border p-4 text-center" data-testid="chat-room-error">
-        <p class="text-error-500 font-semibold">{chatMessage(labels, form)}</p>
+    <div class="mb-6 rounded-lg border p-4 text-center ui-tone-error" data-testid="chat-room-error">
+        <p class="font-semibold ui-text-error">{chatMessage(labels, form)}</p>
     </div>
 {/if}
 
 {#if form?.success && form?.createdRoom}
-    <div class="mb-6 rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-900/20" data-testid="created-room-info">
-        <p class="mb-3 font-semibold text-green-600 dark:text-green-400">{chatMessage(labels, form)}</p>
+    <div class="mb-6 rounded-lg border p-4 ui-tone-success" data-testid="created-room-info">
+        <p class="mb-3 font-semibold ui-text-success">{chatMessage(labels, form)}</p>
         <div class="rounded-md bg-white/50 p-3 dark:bg-black/20">
-            <p class="mb-1 text-sm font-medium text-surface-700-300">{labels.join_link_for} "{form.createdRoom.name}":</p>
+            <p class="mb-1 text-sm font-medium ui-muted">{labels.join_link_for} "{form.createdRoom.name}":</p>
             <div class="flex items-center gap-2">
-                <code class="flex-1 break-all rounded bg-surface-200-700 px-2 py-1 text-xs" data-testid="join-link-text">
+                <code class="flex-1 break-all rounded px-2 py-1 text-xs ui-panel" data-testid="join-link-text">
                     {joinLink(form.createdRoom.joining_key)}
                 </code>
                 <button
@@ -86,7 +86,7 @@
                     data-testid="copy-join-link"
                 >
                     {#if copiedJoinLink}
-                        <Check class="size-4 text-green-500" />
+                        <Check class="size-4 ui-text-success" />
                         {labels.copied}
                     {:else}
                         <Copy class="size-4" />
@@ -94,15 +94,15 @@
                     {/if}
                 </button>
             </div>
-            <p class="mt-2 text-xs text-surface-500">{labels.share_link}</p>
+            <p class="mt-2 text-xs ui-muted">{labels.share_link}</p>
         </div>
         <a href="{basePath}/{form.createdRoom.chat_room_id}" class="btn btn-sm preset-filled-primary-500 mt-3 gap-1" data-testid="go-to-created-room">
             {labels.open_room}
         </a>
     </div>
 {:else if form?.success}
-    <div class="mb-6 rounded-lg border border-green-200 bg-green-50 p-4 text-center dark:border-green-800 dark:bg-green-900/20">
-        <p class="font-semibold text-green-600 dark:text-green-400">{chatMessage(labels, form)}</p>
+    <div class="mb-6 rounded-lg border p-4 text-center ui-tone-success">
+        <p class="font-semibold ui-text-success">{chatMessage(labels, form)}</p>
     </div>
 {/if}
 
@@ -119,7 +119,7 @@
     </button>
     <a
         href="{basePath}/join"
-        class="btn preset-outlined-primary-500 gap-2"
+        class="btn preset-outlined-surface-500 gap-2"
         data-testid="join-chat-room-link"
     >
         <LogIn class="size-4 rtl:rotate-180" />
@@ -130,7 +130,7 @@
 <div class="mb-6">
 
     {#if showCreateForm}
-        <form method="POST" action="?/create" class="mt-4 max-w-lg rounded-lg border border-surface-300-600 bg-surface-50-900 p-4" data-testid="create-chat-room-form">
+        <form method="POST" action="?/create" class="mt-4 max-w-lg rounded-lg border p-4 ui-card ui-border" data-testid="create-chat-room-form">
             <div class="mb-4">
                 <label for="chat-room-name" class="mb-1 block text-sm font-medium">{labels.name}</label>
                 <input
@@ -138,7 +138,7 @@
                     name="name"
                     type="text"
                     required
-                    class="input w-full rounded-md border border-surface-300-600 px-3 py-2"
+                    class="input w-full rounded-md border px-3 py-2 ui-border"
                     placeholder={labels.name_placeholder}
                     data-testid="chat-room-name-input"
                 />
@@ -148,7 +148,7 @@
                 <textarea
                     id="chat-room-description"
                     name="description"
-                    class="textarea w-full rounded-md border border-surface-300-600 px-3 py-2"
+                    class="textarea w-full rounded-md border px-3 py-2 ui-border"
                     rows="2"
                     placeholder={labels.description_placeholder}
                     data-testid="chat-room-description-input"
@@ -173,7 +173,7 @@
             {@const unread = data.unreadCounts?.[room.chat_room_id] || 0}
             {@const isDm = isDirectMessage(room)}
             <div
-                class="rounded-lg border border-surface-300-600 bg-surface-50-900 p-4"
+                class="rounded-lg border p-4 ui-card ui-border"
                 data-testid="chat-room-{room.chat_room_id}"
             >
                 <div class="flex items-start justify-between gap-3">
@@ -185,25 +185,25 @@
                             title={chatRoomDisplayName(room)}
                         />
                         <div class="min-w-0">
-                            <h3 class="font-semibold text-surface-900-50 truncate flex items-center gap-2">
+                            <h3 class="font-semibold truncate flex items-center gap-2 ui-text">
                                 <span class="truncate" dir="auto">{chatRoomDisplayName(room)}</span>
                                 {#if isDm}
-                                    <span class="inline-flex items-center gap-1 rounded-full bg-tertiary-500/10 px-2 py-0.5 text-xs font-normal text-tertiary-600 dark:text-tertiary-400 shrink-0" data-testid="dm-badge-{room.chat_room_id}">
+                                    <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-normal shrink-0 ui-tone-info" data-testid="dm-badge-{room.chat_room_id}">
                                         <User class="size-3" />
                                         {labels.dm}
                                     </span>
                                 {/if}
                             </h3>
                             {#if room.last_message_preview}
-                                <p class="mt-1 text-sm text-surface-600-400 truncate">
+                                <p class="mt-1 text-sm truncate ui-muted">
                                     <span class="font-medium">{room.last_message_sender_username || room.last_message_sender || labels.someone}:</span> <bdi>{room.last_message_preview}</bdi>
                                 </p>
                             {:else if room.description}
-                                <p class="mt-1 text-sm text-surface-600-400 line-clamp-2" dir="auto">
+                                <p class="mt-1 text-sm line-clamp-2 ui-muted" dir="auto">
                                     {room.description}
                                 </p>
                             {/if}
-                            <p class="mt-2 flex items-center gap-2 text-xs text-surface-500">
+                            <p class="mt-2 flex items-center gap-2 text-xs ui-muted">
                                 {#if !isDm}
                                     <span class="inline-flex items-center gap-1" data-testid="participant-count-{room.chat_room_id}">
                                         <Users class="size-3" />
@@ -227,20 +227,20 @@
                     <div class="flex items-center gap-2 shrink-0">
                         {#if unread > 0}
                             <span
-                                class="flex items-center justify-center rounded-full bg-primary-500 text-white text-xs font-bold min-w-[1.25rem] h-5 px-1.5"
+                                class="flex items-center justify-center rounded-full text-xs font-bold min-w-[1.25rem] h-5 px-1.5 preset-filled-primary-500"
                                 data-testid="unread-badge-{room.chat_room_id}"
                             >
                                 {unread > 99 ? '99+' : unread}
                             </span>
                         {/if}
                         {#if room.is_open_room}
-                            <span class="flex items-center gap-1 rounded-full bg-primary-500/10 px-2 py-0.5 text-xs text-primary-600 dark:text-primary-400" data-testid="open-room-badge-{room.chat_room_id}">
+                            <span class="flex items-center gap-1 rounded-full px-2 py-0.5 text-xs ui-tone-info" data-testid="open-room-badge-{room.chat_room_id}">
                                 <Globe class="size-3" />
                                 {labels.open}
                             </span>
                         {/if}
                         {#if room.is_archived}
-                            <span class="flex items-center gap-1 rounded-full bg-surface-200-700 px-2 py-0.5 text-xs text-surface-600-400">
+                            <span class="flex items-center gap-1 rounded-full px-2 py-0.5 text-xs ui-panel ui-muted">
                                 <Archive class="size-3" />
                                 {labels.archived}
                             </span>
@@ -259,9 +259,9 @@
         {/each}
     </div>
 {:else}
-    <div class="rounded-lg bg-gray-100 p-8 text-center dark:bg-gray-800">
-        <MessageSquare class="mx-auto mb-3 size-10 text-gray-400" />
-        <p class="text-gray-700 dark:text-gray-300">{labels.no_rooms}</p>
-        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{labels.no_rooms_hint}</p>
+    <div class="rounded-lg p-8 text-center ui-panel">
+        <MessageSquare class="mx-auto mb-3 size-10 ui-muted" />
+        <p class="ui-muted">{labels.no_rooms}</p>
+        <p class="mt-1 text-sm ui-muted">{labels.no_rooms_hint}</p>
     </div>
 {/if}

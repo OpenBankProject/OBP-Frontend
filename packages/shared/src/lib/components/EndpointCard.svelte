@@ -53,17 +53,17 @@
 	function getMethodColor(method: string): string {
 		switch (method.toUpperCase()) {
 			case 'GET':
-				return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
+				return 'ui-tone-success';
 			case 'POST':
-				return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400';
+				return 'ui-tone-info';
 			case 'PUT':
-				return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400';
+				return 'ui-tone-warning';
 			case 'DELETE':
-				return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400';
+				return 'ui-tone-error';
 			case 'PATCH':
-				return 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400';
+				return 'ui-tone-accent';
 			default:
-				return 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400';
+				return 'ui-panel ui-muted';
 		}
 	}
 
@@ -87,8 +87,8 @@
 			.replace(/>/g, '&gt;')
 			.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
 			.replace(/\*([^*]+)\*/g, '<em>$1</em>')
-			.replace(/`([^`]+)`/g, '<code class="bg-gray-100 dark:bg-gray-700 px-1 rounded break-all">$1</code>')
-			.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-primary-500 dark:text-primary-200 hover:underline">$1</a>')
+			.replace(/`([^`]+)`/g, '<code class="px-1 rounded break-all ui-panel">$1</code>')
+			.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="hover:underline ui-text-brand">$1</a>')
 			.replace(/^#{1,6}\s+(.+)$/gm, '<strong>$1</strong>')
 			.replace(/\n\n+/g, '</p><p>')
 			.replace(/\n/g, ' ')
@@ -230,15 +230,15 @@
 	let hasEnrichedData = $derived(!!endpoint.summary);
 </script>
 
-<div class="flex flex-col rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
+<div class="flex flex-col rounded-lg border p-4 shadow-sm transition-shadow hover:shadow-md ui-card ui-border">
 	<!-- Title -->
-	<h3 class="text-base font-semibold text-gray-900 dark:text-gray-100">
+	<h3 class="text-base font-semibold ui-text">
 		{endpoint.summary || endpoint.operation_id}
 	</h3>
 
 	<!-- Description -->
 	{#if endpoint.description_markdown}
-		<div class="mt-2 flex-grow text-sm text-gray-600 dark:text-gray-400 prose prose-sm dark:prose-invert max-w-none overflow-hidden break-words">
+		<div class="mt-2 flex-grow text-sm prose prose-sm dark:prose-invert max-w-none overflow-hidden break-words ui-muted">
 			{@html getDescriptionPreview(endpoint.description_markdown, DESCRIPTION_CUTOFF_LENGTH, endpoint.summary)}
 		</div>
 	{/if}
@@ -249,23 +249,23 @@
 			<span class={`inline-flex rounded px-2 py-1 text-xs font-bold uppercase ${getMethodColor(endpoint.request_verb)}`}>
 				{endpoint.request_verb}
 			</span>
-			<code class="text-xs font-medium text-gray-600 dark:text-gray-400 break-all">
+			<code class="text-xs font-medium break-all ui-muted">
 				{endpoint.request_url}
 			</code>
 		</div>
 	{/if}
 
 	<!-- Tags and Links -->
-	<div class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700 space-y-2">
+	<div class="mt-3 pt-3 border-t space-y-2 ui-border">
 		{#if endpoint.tags && endpoint.tags.length > 0}
 			<div class="flex flex-wrap gap-1">
 				{#each endpoint.tags.slice(0, 3) as tag}
-					<span class="inline-flex rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600 dark:bg-gray-700 dark:text-gray-400">
+					<span class="inline-flex rounded-full px-2 py-0.5 text-xs ui-panel ui-muted">
 						{tag}
 					</span>
 				{/each}
 				{#if endpoint.tags.length > 3}
-					<span class="text-xs text-gray-400">+{endpoint.tags.length - 3}</span>
+					<span class="text-xs ui-muted">+{endpoint.tags.length - 3}</span>
 				{/if}
 			</div>
 		{/if}
@@ -273,7 +273,7 @@
 		<div class="flex flex-col items-end gap-1">
 			<a
 				href={buildTellMeMoreUrl(endpoint.operation_id)}
-				class="text-xs text-secondary-500 dark:text-secondary-300 hover:underline"
+				class="text-xs hover:underline ui-text-brand"
 				title="Ask Opey about this endpoint"
 			>
 				Tell Me More
@@ -283,7 +283,7 @@
 					href={buildApiExplorerUrl(endpoint.operation_id)}
 					target="_blank"
 					rel="noopener noreferrer"
-					class="text-xs text-primary-500 dark:text-primary-200 hover:underline"
+					class="text-xs hover:underline ui-text-brand"
 					title="View in API Explorer"
 				>
 					Explore: <span class="font-mono">{endpoint.operation_id}</span>
@@ -291,11 +291,11 @@
 				<button
 					type="button"
 					onclick={(e) => { e.preventDefault(); e.stopPropagation(); copyCard(); }}
-					class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors cursor-pointer"
+					class="transition-colors cursor-pointer ui-muted"
 					title="Copy Endpoint summary"
 				>
 					{#if copied}
-						<Check class="h-4 w-4 text-green-500" />
+						<Check class="h-4 w-4 ui-text-success" />
 					{:else}
 						<Copy class="h-4 w-4" />
 					{/if}

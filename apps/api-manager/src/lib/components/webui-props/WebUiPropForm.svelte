@@ -85,13 +85,13 @@
   }
 </script>
 
-<div class="rounded-lg bg-white p-6 shadow-md dark:bg-gray-800 dark:shadow-gray-900/50">
+<div class="rounded-lg p-6 shadow-md ui-card">
   {#if formError}
     <div
-      class="mb-4 rounded-lg border border-red-300 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20"
+      class="mb-4 rounded-lg border p-4 ui-tone-error"
       data-testid="webui-prop-error"
     >
-      <p class="text-sm text-red-800 dark:text-red-200">{formError}</p>
+      <p class="text-sm ui-text-error">{formError}</p>
     </div>
   {/if}
 
@@ -99,8 +99,8 @@
     <div class="space-y-6">
       {#if mode === "create"}
         <div>
-          <label for="name" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Name <span class="text-red-600">*</span>
+          <label for="name" class="mb-2 block text-sm font-medium ui-muted">
+            Name <span class="ui-text-error">*</span>
           </label>
           <input
             id="name"
@@ -108,10 +108,10 @@
             bind:value={name}
             required
             placeholder="webui_..."
-            class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 font-mono text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:focus:border-blue-400"
+            class="w-full rounded-lg border px-4 py-2 font-mono text-sm focus:outline-none focus:ring-2 ui-card ui-text ui-border"
             data-testid="webui-prop-name"
           />
-          <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+          <p class="mt-1 text-xs ui-muted">
             Starts with <code>webui_</code>; letters, digits, <code>_</code> and <code>.</code> only.
           </p>
         </div>
@@ -119,33 +119,33 @@
 
       {#if known}
         <dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm" data-testid="webui-prop-known">
-          <dt class="font-medium text-gray-600 dark:text-gray-400">Used by</dt>
-          <dd class="text-gray-900 dark:text-gray-100">{known.usedBy}</dd>
-          <dt class="font-medium text-gray-600 dark:text-gray-400">Format</dt>
-          <dd class="text-gray-900 dark:text-gray-100">
+          <dt class="font-medium ui-muted">Used by</dt>
+          <dd class="ui-text">{known.usedBy}</dd>
+          <dt class="font-medium ui-muted">Format</dt>
+          <dd class="ui-text">
             {#if !isMarkdown}Plain text{:else if known.inline}Inline markdown{:else}Markdown{/if}
           </dd>
           {#if known.envVar}
-            <dt class="font-medium text-gray-600 dark:text-gray-400">Overrides</dt>
-            <dd class="font-mono text-gray-900 dark:text-gray-100">{known.envVar}</dd>
+            <dt class="font-medium ui-muted">Overrides</dt>
+            <dd class="font-mono ui-text">{known.envVar}</dd>
           {/if}
         </dl>
       {/if}
 
       <div>
-        <label for="value" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-          Value <span class="text-red-600">*</span>
+        <label for="value" class="mb-2 block text-sm font-medium ui-muted">
+          Value <span class="ui-text-error">*</span>
         </label>
         <textarea
           id="value"
           bind:value
           required
           rows={known && isMarkdown && !known.inline ? 16 : 6}
-          class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 font-mono text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:focus:border-blue-400"
+          class="w-full rounded-lg border px-4 py-2 font-mono text-sm focus:outline-none focus:ring-2 ui-card ui-text ui-border"
           data-testid="webui-prop-value"
         ></textarea>
         {#if !known}
-          <p class="mt-1 text-xs text-gray-500 dark:text-gray-400" data-testid="webui-prop-format">
+          <p class="mt-1 text-xs ui-muted" data-testid="webui-prop-format">
             {isMarkdown ? "Rendered as markdown" : "Plain text"}
           </p>
         {/if}
@@ -153,7 +153,7 @@
 
       {#if known}
         <div>
-          <div class="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Preview</div>
+          <div class="mb-2 text-sm font-medium ui-muted">Preview</div>
           <WebUiPropPreview name={known.name} {value} inline={known.inline} />
         </div>
       {/if}
@@ -162,14 +162,14 @@
     <div class="mt-8 flex justify-end gap-3">
       <a
         href={LIST_URL}
-        class="rounded-lg border border-gray-300 bg-white px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+        class="rounded-lg border px-6 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 ui-card ui-hover ui-muted ui-border"
       >
         Cancel
       </a>
       <button
         type="submit"
         disabled={isSubmitting}
-        class="rounded-lg bg-blue-600 px-6 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
+        class="rounded-lg px-6 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 preset-filled-primary-500"
         data-testid="webui-prop-submit"
       >
         {#if isSubmitting}

@@ -141,39 +141,39 @@
 
   <div class="container mx-auto px-4 py-8">
     <div class="mb-6">
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
+      <h1 class="text-3xl font-bold ui-text">
         Create ABAC Rule
       </h1>
-      <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+      <p class="mt-2 text-sm ui-muted">
         Create a new Attribute-Based Access Control rule with custom logic
       </p>
     </div>
 
     <div class="mx-auto max-w-3xl">
       <div
-        class="rounded-lg bg-white p-6 shadow-md dark:bg-gray-800 dark:shadow-gray-900/50"
+        class="rounded-lg p-6 shadow-md ui-card"
       >
         {#if formError}
           <div
-            class="mb-4 flex items-start gap-3 rounded-lg border border-red-300 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20"
+            class="mb-4 flex items-start gap-3 rounded-lg border p-4 ui-tone-error"
           >
             <AlertCircle
-              class="mt-0.5 flex-shrink-0 text-red-600 dark:text-red-400"
+              class="mt-0.5 flex-shrink-0 ui-text-error"
               size={20}
             />
-            <p class="text-sm text-red-800 dark:text-red-200">{formError}</p>
+            <p class="text-sm ui-text-error">{formError}</p>
           </div>
         {/if}
 
         <!-- Info Banner -->
         <div
-          class="mb-6 flex items-start gap-3 rounded-lg border border-blue-300 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20"
+          class="mb-6 flex items-start gap-3 rounded-lg border p-4 ui-tone-info"
         >
           <Info
-            class="mt-0.5 flex-shrink-0 text-blue-600 dark:text-blue-400"
+            class="mt-0.5 flex-shrink-0 ui-link"
             size={20}
           />
-          <div class="text-sm text-blue-800 dark:text-blue-200">
+          <div class="text-sm ui-link">
             <p class="font-medium">About ABAC Rules</p>
             <p class="mt-1">
               ABAC rules use code expressions to define access control logic.
@@ -189,9 +189,9 @@
             <div>
               <label
                 for="rule_name"
-                class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                class="mb-2 block text-sm font-medium ui-muted"
               >
-                Rule Name <span class="text-red-600">*</span>
+                Rule Name <span class="ui-text-error">*</span>
               </label>
               <input
                 id="rule_name"
@@ -199,9 +199,9 @@
                 bind:value={formRuleName}
                 required
                 placeholder="e.g., admin_only"
-                class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:focus:border-blue-400"
+                class="w-full rounded-lg border px-4 py-2 focus:outline-none focus:ring-2 ui-card ui-text ui-border"
               />
-              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              <p class="mt-1 text-xs ui-muted">
                 A unique identifier for this rule
               </p>
             </div>
@@ -211,14 +211,14 @@
               <div class="mb-2 flex items-center justify-between">
                 <label
                   for="rule_code"
-                  class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  class="block text-sm font-medium ui-muted"
                 >
-                  Rule Code <span class="text-red-600">*</span>
+                  Rule Code <span class="ui-text-error">*</span>
                 </label>
                 <button
                   type="button"
                   onclick={() => (showExamples = !showExamples)}
-                  class="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                  class="text-xs ui-link"
                 >
                   {showExamples ? "Hide" : "Show"} Examples
                 </button>
@@ -226,39 +226,39 @@
 
               {#if showExamples}
                 <div
-                  class="mb-3 rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900"
+                  class="mb-3 rounded-lg border p-4 ui-card ui-border"
                 >
                   <p
-                    class="mb-2 text-xs font-medium text-gray-700 dark:text-gray-300"
+                    class="mb-2 text-xs font-medium ui-muted"
                   >
                     Example Rule Codes:
                   </p>
                   <div class="space-y-2">
                     {#each exampleRuleCodes as example}
                       <div
-                        class="rounded border border-gray-200 bg-white p-2 dark:border-gray-600 dark:bg-gray-800"
+                        class="rounded border p-2 ui-card ui-border"
                       >
                         <div class="mb-1 flex items-center justify-between">
                           <span
-                            class="text-xs font-medium text-gray-700 dark:text-gray-300"
+                            class="text-xs font-medium ui-muted"
                           >
                             {example.title}
                           </span>
                           <button
                             type="button"
                             onclick={() => insertExample(example.code)}
-                            class="text-xs text-blue-600 hover:underline dark:text-blue-400"
+                            class="text-xs hover:underline ui-link"
                           >
                             Use this
                           </button>
                         </div>
                         <code
-                          class="block text-xs text-gray-600 dark:text-gray-400 break-all whitespace-pre-wrap"
+                          class="block text-xs break-all whitespace-pre-wrap ui-muted"
                         >
                           {example.code}
                         </code>
                         <p
-                          class="mt-1 text-xs text-gray-500 dark:text-gray-500"
+                          class="mt-1 text-xs ui-muted"
                         >
                           {example.description}
                         </p>
@@ -269,7 +269,7 @@
               {/if}
 
               <div class="relative">
-                <Code class="absolute left-3 top-3 text-gray-400" size={18} />
+                <Code class="absolute left-3 top-3 ui-muted" size={18} />
                 <textarea
                   id="rule_code"
                   bind:value={formRuleCode}
@@ -277,10 +277,10 @@
                   rows="4"
                   spellcheck="false"
                   placeholder="e.g., user.emailAddress.contains('admin')"
-                  class="w-full rounded-lg border border-gray-300 bg-white py-2 pl-10 pr-4 font-mono text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:focus:border-blue-400"
+                  class="w-full rounded-lg border py-2 pl-10 pr-4 font-mono text-sm focus:outline-none focus:ring-2 ui-card ui-text ui-border"
                 ></textarea>
               </div>
-              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              <p class="mt-1 text-xs ui-muted">
                 A code expression that evaluates the access control logic (e.g.,
                 checking user attributes, roles, or resource properties)
               </p>
@@ -290,7 +290,7 @@
             <div>
               <label
                 for="description"
-                class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                class="mb-2 block text-sm font-medium ui-muted"
               >
                 Description
               </label>
@@ -299,9 +299,9 @@
                 bind:value={formDescription}
                 rows="3"
                 placeholder="Only allow access to users with admin email"
-                class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:focus:border-blue-400"
+                class="w-full rounded-lg border px-4 py-2 focus:outline-none focus:ring-2 ui-card ui-text ui-border"
               ></textarea>
-              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              <p class="mt-1 text-xs ui-muted">
                 A human-readable description of what this rule does
               </p>
             </div>
@@ -310,9 +310,9 @@
             <div>
               <label
                 for="policy"
-                class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                class="mb-2 block text-sm font-medium ui-muted"
               >
-                Policy <span class="text-red-600">*</span>
+                Policy <span class="ui-text-error">*</span>
               </label>
               <input
                 id="policy"
@@ -320,30 +320,30 @@
                 bind:value={formPolicy}
                 required
                 placeholder="e.g., account-access"
-                class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:focus:border-blue-400"
+                class="w-full rounded-lg border px-4 py-2 focus:outline-none focus:ring-2 ui-card ui-text ui-border"
               />
-              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              <p class="mt-1 text-xs ui-muted">
                 Policy this Rule supports
               </p>
             </div>
 
             <!-- Is Active Checkbox -->
             <div
-              class="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900"
+              class="rounded-lg border p-4 ui-card ui-border"
             >
               <label class="flex items-start">
                 <input
                   type="checkbox"
                   bind:checked={formIsActive}
-                  class="mt-0.5 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
+                  class="mt-0.5 h-4 w-4 rounded focus:ring-2 ui-link ui-panel ui-border"
                 />
                 <div class="ml-3">
                   <span
-                    class="text-sm font-medium text-gray-700 dark:text-gray-300"
+                    class="text-sm font-medium ui-muted"
                   >
                     Rule is Active
                   </span>
-                  <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  <p class="mt-1 text-xs ui-muted">
                     When active, this rule will be evaluated for access control
                     decisions. Inactive rules are ignored but remain in the
                     system.
@@ -359,14 +359,14 @@
               type="button"
               onclick={handleCancel}
               disabled={isSubmitting}
-              class="rounded-lg border border-gray-300 bg-white px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+              class="rounded-lg border px-6 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 ui-card ui-hover ui-muted ui-border"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              class="rounded-lg bg-blue-600 px-6 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
+              class="rounded-lg px-6 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 preset-filled-primary-500"
             >
               {#if isSubmitting}
                 <span class="flex items-center">

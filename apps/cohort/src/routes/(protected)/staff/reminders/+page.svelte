@@ -11,12 +11,12 @@
 <h1 class="h2">{t(locale, 'reminders_heading')}</h1>
 <p class="mt-2">{t(locale, 'reminders_intro')}</p>
 
-{#if form?.form === 'role' && form?.requested}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'access_requested_notice')}</p>{/if}
+{#if form?.form === 'role' && form?.requested}<p class="mt-4 ui-tone-success rounded p-3" role="status">{t(locale, 'access_requested_notice')}</p>{/if}
 
-{#if form?.form === 'emails' && form?.saved}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'emails_saved')}</p>{/if}
-{#if form?.form === 'emails' && form?.error}<p class="mt-4 preset-tonal-error rounded p-3" role="alert">{String(form.error) === 'email_days_invalid' ? t(locale, 'email_days_invalid') : `${t(locale, 'staff_error')} ${String(form.error)}`}</p>{/if}
+{#if form?.form === 'emails' && form?.saved}<p class="mt-4 ui-tone-success rounded p-3" role="status">{t(locale, 'emails_saved')}</p>{/if}
+{#if form?.form === 'emails' && form?.error}<p class="mt-4 ui-tone-error rounded p-3" role="alert">{String(form.error) === 'email_days_invalid' ? t(locale, 'email_days_invalid') : `${t(locale, 'staff_error')} ${String(form.error)}`}</p>{/if}
 
-<section class="card preset-outlined-surface-200-800 mt-6 p-4" data-testid="email-settings">
+<section class="card border ui-border mt-6 p-4" data-testid="email-settings">
 	<h2 class="h4">{t(locale, 'emails_heading')}</h2>
 	<p class="mt-1 text-sm">{t(locale, 'emails_intro')}</p>
 	{#if data.lackingSettings}<div class="mt-2"><MissingRole {locale} space={data.space} role={data.lackingSettings} entitlementRequestsUrl={data.entitlementRequestsUrl} /></div>{/if}
@@ -30,11 +30,11 @@
 	</form>
 </section>
 
-<section class="card preset-outlined-surface-200-800 mt-6 p-4" data-testid="reminders">
+<section class="card border ui-border mt-6 p-4" data-testid="reminders">
 	{#if data.lacking}
 		<MissingRole {locale} space={data.space} role={data.lacking} entitlementRequestsUrl={data.entitlementRequestsUrl} />
 	{:else if data.error}
-		<p class="preset-tonal-error rounded p-3" role="alert">{data.error}</p>
+		<p class="ui-tone-error rounded p-3" role="alert">{data.error}</p>
 	{:else if data.reminders.length === 0}
 		<p>{t(locale, 'reminders_none')}</p>
 	{:else}

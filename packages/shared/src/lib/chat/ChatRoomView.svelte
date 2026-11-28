@@ -271,8 +271,8 @@
         const el = messagesContainer?.querySelector(`[data-testid="message-${messageId}"]`);
         if (el) {
             el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            el.classList.add('ring-2', 'ring-primary-500/50');
-            setTimeout(() => el.classList.remove('ring-2', 'ring-primary-500/50'), 1500);
+            el.classList.add('ring-2', '');
+            setTimeout(() => el.classList.remove('ring-2', ''), 1500);
         }
     }
 
@@ -620,7 +620,7 @@
             if (mentionedUsernames.size > 0) {
                 const escaped = [...mentionedUsernames].map(u => u.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
                 const mentionRegex = new RegExp(`(@(?:${escaped.join('|')}))(?=\\s|[<&]|$)`, 'g');
-                html = html.replace(mentionRegex, `<span class="font-semibold bg-primary-500/20 rounded px-0.5">$1</span>`);
+                html = html.replace(mentionRegex, `<span class="font-semibold rounded px-0.5 ui-tone-info">$1</span>`);
             }
         }
 
@@ -747,21 +747,21 @@
             title={chatRoomDisplayName(data.chatRoom, data.participants, data.currentUserId)}
         />
         <div class="min-w-0">
-            <h2 class="text-lg font-semibold text-surface-900-50 truncate flex items-center gap-2" data-testid="chat-room-name">
+            <h2 class="text-lg font-semibold truncate flex items-center gap-2 ui-text" data-testid="chat-room-name">
                 {chatRoomDisplayName(data.chatRoom, data.participants, data.currentUserId)}
                 {#if isDirectMessage(data.chatRoom)}
-                    <span class="inline-flex items-center rounded-full bg-tertiary-500/10 px-2 py-0.5 text-xs font-normal text-tertiary-600 dark:text-tertiary-400" data-testid="dm-badge">
+                    <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-normal ui-tone-info" data-testid="dm-badge">
                         {labels.dm}
                     </span>
                 {:else}
-                    <span class="inline-flex items-center gap-1 text-xs font-normal text-surface-500" data-testid="participant-count">
+                    <span class="inline-flex items-center gap-1 text-xs font-normal ui-muted" data-testid="participant-count">
                         <Users class="size-3" />
                         {data.chatRoom.participant_count}
                     </span>
                 {/if}
             </h2>
             {#if data.chatRoom.description}
-                <p class="text-sm text-surface-600-400 truncate" dir="auto">{data.chatRoom.description}</p>
+                <p class="text-sm truncate ui-muted" dir="auto">{data.chatRoom.description}</p>
             {/if}
         </div>
     </div>
@@ -779,7 +779,7 @@
             data-transport={streamConnected ? 'grpc' : 'rest'}
         >
             <span
-                class="inline-block size-2 rounded-full {streamConnected ? 'bg-green-500' : 'bg-orange-500'}"
+                class="inline-block size-2 rounded-full {streamConnected ? 'preset-filled-primary-500' : 'preset-filled-primary-500'}"
                 aria-hidden="true"
             ></span>
         </span>
@@ -804,14 +804,14 @@
 </div>
 
 {#if showParticipants}
-    <div class="mb-4 rounded-lg border border-surface-300-600 bg-surface-50-900 p-4" data-testid="participants-list">
+    <div class="mb-4 rounded-lg border p-4 ui-card ui-border" data-testid="participants-list">
         <h3 class="mb-2 text-sm font-semibold">{labels.participants}</h3>
         <ul class="space-y-1">
             {#each data.participants as participant (participant.participant_id)}
-                <li class="text-sm text-surface-700-300" data-testid="participant-{participant.user_id}">
+                <li class="text-sm ui-muted" data-testid="participant-{participant.user_id}">
                     {participant.username || participant.user_id}
                     {#if participant.user_id === data.currentUserId}
-                        <span class="text-xs text-primary-500">{labels.you}</span>
+                        <span class="text-xs ui-text-brand">{labels.you}</span>
                     {/if}
                 </li>
             {/each}
@@ -820,21 +820,21 @@
 {/if}
 
 {#if errorMessage}
-    <div class="bg-error-500/10 border-error-500 mb-4 rounded-lg border p-3 text-center">
-        <p class="text-error-500 text-sm font-semibold">{errorMessage}</p>
+    <div class="mb-4 rounded-lg border p-3 text-center ui-tone-error">
+        <p class="text-sm font-semibold ui-text-error">{errorMessage}</p>
     </div>
 {/if}
 
 {#if dmStatus}
-    <div class="bg-primary-500/10 border-primary-500 mb-4 rounded-lg border p-3 text-center" data-testid="dm-status">
-        <p class="text-surface-900-50 text-sm font-semibold">{dmStatus}</p>
+    <div class="mb-4 rounded-lg border p-3 text-center ui-tone-info" data-testid="dm-status">
+        <p class="text-sm font-semibold ui-text">{dmStatus}</p>
     </div>
 {/if}
 
 <!-- Messages -->
 <div
     bind:this={messagesContainer}
-    class="mb-4 space-y-3 rounded-lg border border-surface-300-600 bg-surface-50-900 p-4"
+    class="mb-4 space-y-3 rounded-lg border p-4 ui-card ui-border"
     style="min-height: 300px; max-height: 60vh; overflow-y: auto;"
     data-testid="messages-container"
     onmouseenter={handleMessagesMouseEnter}
@@ -860,7 +860,7 @@
                     {:else}
                         <button
                             type="button"
-                            class="block rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:cursor-wait"
+                            class="block rounded-full focus:outline-none focus:ring-2 disabled:cursor-wait"
                             onclick={() => startDm(message.sender_user_id)}
                             disabled={startingDm}
                             aria-label="{labels.start_chat_with} {senderName}"
@@ -879,7 +879,7 @@
                     <!-- Emoji picker popup -->
                     {#if emojiPickerMessageId === message.chat_message_id}
                         <div
-                            class="absolute end-0 bottom-full mb-1 z-10 flex gap-1 rounded-lg border border-surface-300-600 bg-surface-50-900 p-2 shadow-lg"
+                            class="absolute end-0 bottom-full mb-1 z-10 flex gap-1 rounded-lg border p-2 shadow-lg ui-card ui-border"
                             data-testid="emoji-picker-{message.chat_message_id}"
                         >
                             {#each EMOJI_CHOICES as emoji}
@@ -894,7 +894,7 @@
                             {/each}
                         </div>
                     {/if}
-                    <div class="rounded-lg px-4 py-2 bg-surface-100-800 text-surface-900-50 border-s-2 {isOwn ? 'border-primary-500' : 'border-transparent'}">
+                    <div class="rounded-lg px-4 py-2 border-s-2 ui-panel ui-text {isOwn ? 'ui-border-brand' : 'border-transparent'}">
                         <p class="mb-1 text-xs font-semibold opacity-70" data-testid="message-sender">
                             {#if isOwn || !startDmUrl}
                                 {senderName}
@@ -915,7 +915,7 @@
                             {@const parent = messages.find(m => m.chat_message_id === message.reply_to_message_id)}
                             <button
                                 type="button"
-                                class="mb-1 block w-full text-start border-s-2 border-surface-400 ps-2 text-xs opacity-60 truncate"
+                                class="mb-1 block w-full text-start border-s-2 ps-2 text-xs opacity-60 truncate ui-border"
                                 onclick={() => parent && scrollToMessage(parent.chat_message_id)}
                                 data-testid="reply-ref-{message.chat_message_id}"
                             >
@@ -935,7 +935,7 @@
                                     onkeydown={handleEditKeydown}
                                     oninput={(e) => { const t = e.currentTarget; t.style.height = 'auto'; t.style.height = Math.min(t.scrollHeight, 300) + 'px'; }}
                                     use:autoResizeEdit
-                                    class="w-full rounded border border-surface-400 bg-surface-50-900 px-2 py-1 text-sm text-inherit focus:outline-none focus:ring-1 focus:ring-primary-500 resize overflow-auto"
+                                    class="w-full rounded border px-2 py-1 text-sm text-inherit focus:outline-none focus:ring-1 resize overflow-auto ui-card ui-border"
                                     rows="3"
                                     maxlength={data.maxMessageLength}
                                     data-testid="edit-message-input"
@@ -979,8 +979,8 @@
                                     type="button"
                                     class="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs transition-colors
                                         {reaction.reactedByMe
-                                            ? 'border-primary-500 bg-primary-500/10 text-primary-700'
-                                            : 'border-surface-300-600 bg-surface-100-800 text-surface-700-300'}"
+                                            ? 'ui-tone-info'
+                                            : 'ui-panel ui-muted ui-border'}"
                                     onclick={() => toggleReaction(message.chat_message_id, reaction.emoji)}
                                     aria-label="{reaction.emoji} {reaction.reactedByMe ? labels.remove_reaction : labels.add_reaction}"
                                     data-testid="reaction-badge-{message.chat_message_id}-{reaction.emoji}"
@@ -1001,7 +1001,7 @@
                                 aria-label={labels.edit_message}
                                 data-testid="edit-message-{message.chat_message_id}"
                             >
-                                <Pencil class="size-3.5 text-surface-500" />
+                                <Pencil class="size-3.5 ui-muted" />
                             </button>
                         {/if}
                         <button
@@ -1010,7 +1010,7 @@
                             aria-label={labels.add_reaction}
                             data-testid="emoji-button-{message.chat_message_id}"
                         >
-                            <SmilePlus class="size-3.5 text-surface-500" />
+                            <SmilePlus class="size-3.5 ui-muted" />
                         </button>
                         <button
                             type="button"
@@ -1018,14 +1018,14 @@
                             aria-label={labels.reply}
                             data-testid="reply-button-{message.chat_message_id}"
                         >
-                            <Reply class="size-3.5 text-surface-500" />
+                            <Reply class="size-3.5 ui-muted" />
                         </button>
                     </div>
                 {/if}
             </div>
         {/each}
     {:else}
-        <div class="flex items-center justify-center py-12 text-surface-500">
+        <div class="flex items-center justify-center py-12 ui-muted">
             <p>{labels.no_messages}</p>
         </div>
     {/if}
@@ -1034,10 +1034,10 @@
 <!-- Send Message -->
 {#if !data.chatRoom.is_archived}
     {#if replyingTo}
-        <div class="flex items-center gap-2 mb-2 rounded-lg border border-surface-300-600 bg-surface-100-800 px-3 py-2" data-testid="reply-preview">
+        <div class="flex items-center gap-2 mb-2 rounded-lg border px-3 py-2 ui-panel ui-border" data-testid="reply-preview">
             <div class="flex-1 min-w-0">
-                <p class="text-xs text-surface-500">{labels.replying_to} <span class="font-semibold">{messageSenderName(replyingTo)}</span></p>
-                <p class="text-sm text-surface-700-300 truncate">{replyingTo.content}</p>
+                <p class="text-xs ui-muted">{labels.replying_to} <span class="font-semibold">{messageSenderName(replyingTo)}</span></p>
+                <p class="text-sm truncate ui-muted">{replyingTo.content}</p>
             </div>
             <button
                 type="button"
@@ -1046,7 +1046,7 @@
                 aria-label={labels.cancel_reply}
                 data-testid="cancel-reply-button"
             >
-                <X class="size-4 text-surface-500" />
+                <X class="size-4 ui-muted" />
             </button>
         </div>
     {/if}
@@ -1054,14 +1054,14 @@
         <div class="relative flex-1">
             {#if showMentionDropdown && filteredParticipants.length > 0}
                 <div
-                    class="absolute bottom-full mb-1 start-0 z-10 w-full max-h-40 overflow-y-auto rounded-lg border border-surface-300-600 bg-surface-50-900 shadow-lg"
+                    class="absolute bottom-full mb-1 start-0 z-10 w-full max-h-40 overflow-y-auto rounded-lg border shadow-lg ui-card ui-border"
                     data-testid="mention-dropdown"
                 >
                     {#each filteredParticipants as participant, i (participant.user_id)}
                         <button
                             type="button"
                             class="block w-full text-start px-3 py-1.5 text-sm
-                                {i === selectedMentionIndex ? 'bg-primary-500/10 text-primary-700' : 'text-surface-700-300'}"
+                                {i === selectedMentionIndex ? 'ui-tone-info' : 'ui-muted'}"
                             onclick={() => insertMention(participant)}
                             data-testid="mention-option-{participant.user_id}"
                         >
@@ -1076,7 +1076,7 @@
                 bind:value={messageContent}
                 oninput={() => { handleMessageInput(); autoResize(); }}
                 onkeydown={handleInputKeydown}
-                class="input w-full rounded-md border border-surface-300-600 px-3 py-2 resize-none overflow-hidden"
+                class="input w-full rounded-md border px-3 py-2 resize-none overflow-hidden ui-border"
                 placeholder={replyingTo ? labels.placeholder_reply : labels.placeholder_message}
                 disabled={sending}
                 autocomplete="off"
@@ -1085,7 +1085,7 @@
                 data-testid="message-input"
             ></textarea>
             {#if messageContent.length > data.maxMessageLength - 500}
-                <div class="text-xs text-surface-500 text-end" data-testid="message-length-counter">
+                <div class="text-xs text-end ui-muted" data-testid="message-length-counter">
                     {messageContent.length}/{data.maxMessageLength}
                 </div>
             {/if}
@@ -1099,7 +1099,7 @@
                     { icon: List, label: labels.list, before: '- ', after: '', sample: labels.sample_list }
                 ] as tool (tool.label)}
                     {@const Icon = tool.icon}
-                    <button type="button" onclick={() => insertFormatting(tool.before, tool.after, tool.sample)} aria-label={tool.label} class="p-1 rounded text-surface-500">
+                    <button type="button" onclick={() => insertFormatting(tool.before, tool.after, tool.sample)} aria-label={tool.label} class="p-1 rounded ui-muted">
                         <Icon class="size-3.5" />
                     </button>
                 {/each}
@@ -1116,7 +1116,7 @@
         </button>
     </form>
 {:else}
-    <div class="rounded-lg bg-surface-200-700 p-3 text-center text-sm text-surface-600-400">
+    <div class="rounded-lg p-3 text-center text-sm ui-panel ui-muted">
         {labels.room_archived}
     </div>
 {/if}

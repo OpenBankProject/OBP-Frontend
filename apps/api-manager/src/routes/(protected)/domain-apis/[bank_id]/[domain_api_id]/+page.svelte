@@ -79,36 +79,36 @@
 <div class="container mx-auto max-w-7xl px-4 py-8">
   <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
     <div>
-      <a href={listHref} class="mb-4 inline-flex items-center text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">← Back to Domain APIs</a>
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">{d.title}</h1>
+      <a href={listHref} class="mb-4 inline-flex items-center text-sm ui-link">← Back to Domain APIs</a>
+      <h1 class="text-3xl font-bold ui-text">{d.title}</h1>
       <dl class="mt-2 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm" data-testid="domain-api-details">
-        <dt class="text-gray-500 dark:text-gray-400">URL</dt>
-        <dd class="font-mono text-xs"><a href={safeLinkHref(d.url)} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-blue-600 hover:underline dark:text-blue-400">{d.url} <ExternalLink size={12} /></a></dd>
-        <dt class="text-gray-500 dark:text-gray-400">OpenAPI</dt>
-        <dd class="font-mono text-xs"><a href={safeLinkHref(d.openapi_url)} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-blue-600 hover:underline dark:text-blue-400">{d.openapi_url} <ExternalLink size={12} /></a></dd>
-        <dt class="text-gray-500 dark:text-gray-400">Space</dt>
-        <dd class="font-mono text-xs text-gray-900 dark:text-gray-100">{d.bank_id}</dd>
-        <dt class="text-gray-500 dark:text-gray-400">domain_api_id</dt>
-        <dd class="font-mono text-xs text-gray-900 dark:text-gray-100">{d.domain_api_id}</dd>
-        <dt class="text-gray-500 dark:text-gray-400">Created</dt>
-        <dd class="text-xs text-gray-900 dark:text-gray-100">{d.created_at} by <a href="/users/{encodeURIComponent(d.created_by_user_id)}" class="font-mono text-blue-600 hover:underline dark:text-blue-400">{d.created_by_user_id}</a></dd>
-        <dt class="text-gray-500 dark:text-gray-400">Updated</dt>
-        <dd class="text-xs text-gray-900 dark:text-gray-100">{d.updated_at}</dd>
+        <dt class="ui-muted">URL</dt>
+        <dd class="font-mono text-xs"><a href={safeLinkHref(d.url)} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 hover:underline ui-link">{d.url} <ExternalLink size={12} /></a></dd>
+        <dt class="ui-muted">OpenAPI</dt>
+        <dd class="font-mono text-xs"><a href={safeLinkHref(d.openapi_url)} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 hover:underline ui-link">{d.openapi_url} <ExternalLink size={12} /></a></dd>
+        <dt class="ui-muted">Space</dt>
+        <dd class="font-mono text-xs ui-text">{d.bank_id}</dd>
+        <dt class="ui-muted">domain_api_id</dt>
+        <dd class="font-mono text-xs ui-text">{d.domain_api_id}</dd>
+        <dt class="ui-muted">Created</dt>
+        <dd class="text-xs ui-text">{d.created_at} by <a href="/users/{encodeURIComponent(d.created_by_user_id)}" class="font-mono hover:underline ui-link">{d.created_by_user_id}</a></dd>
+        <dt class="ui-muted">Updated</dt>
+        <dd class="text-xs ui-text">{d.updated_at}</dd>
       </dl>
       <div class="mt-3"><ApiExplorerEndpoints endpoints={data.endpoints} /></div>
     </div>
-    <button type="button" onclick={handleDelete} disabled={deleting} data-testid="delete-btn" class="inline-flex items-center gap-1 rounded-lg border border-red-300 bg-white px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-50 disabled:opacity-50 dark:border-red-700 dark:bg-gray-800 dark:text-red-400 dark:hover:bg-red-900/20">
+    <button type="button" onclick={handleDelete} disabled={deleting} data-testid="delete-btn" class="inline-flex items-center gap-1 rounded-lg border px-3 py-2 text-sm font-medium disabled:opacity-50 ui-card ui-tone-error">
       <Trash2 size={14} /> {deleting ? "Deleting…" : "Delete"}
     </button>
   </div>
 
   {#if actionError}
-    <div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300" data-testid="action-error">{actionError}</div>
+    <div class="mb-6 rounded-lg border p-4 text-sm ui-tone-error" data-testid="action-error">{actionError}</div>
   {/if}
 
   <ResizableSplit breakpoint="lg">
     {#snippet main()}
-    <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+    <div class="rounded-lg border p-6 shadow-sm ui-card ui-border">
       {#key d.domain_api_id}
         <DomainApiForm
           initial={{ base_path: d.base_path, version: d.version, title: d.title, description: d.description, is_publicly_discoverable: d.is_publicly_discoverable }}
@@ -123,7 +123,7 @@
     {/snippet}
 
     {#snippet side()}
-      <div class="h-[36rem] w-full overflow-hidden rounded-lg border border-gray-200 shadow-sm lg:h-[calc(100vh-80px-3rem)] dark:border-gray-700">
+      <div class="h-[36rem] w-full overflow-hidden rounded-lg border shadow-sm lg:h-[calc(100vh-80px-3rem)] ui-border">
         <OpeyChat {opeyChatOptions} userAuthenticated={!!page.data.userId} {clientTools} {clientContext} />
       </div>
     {/snippet}

@@ -53,17 +53,17 @@
   <div class="mb-6">
     <a
       href="/consumers/{consumer.consumer_id}/rate-limits"
-      class="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+      class="text-sm ui-link"
     >
       ← Back to Rate Limits
     </a>
   </div>
 
-  <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+  <h1 class="text-2xl font-bold mb-2 ui-text">
     Delete Rate Limit
   </h1>
 
-  <p class="mb-6 text-gray-700 dark:text-gray-300">
+  <p class="mb-6 ui-muted">
     Are you sure you want to delete this rate limit for <strong
       >{consumer.app_name}</strong
     >?
@@ -71,11 +71,11 @@
 
   {#if form?.error}
     <div
-      class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20"
+      class="mb-6 rounded-lg border p-4 ui-tone-error"
     >
       <div class="flex items-start">
         <svg
-          class="mr-3 mt-0.5 h-5 w-5 flex-shrink-0 text-red-600 dark:text-red-400"
+          class="mr-3 mt-0.5 h-5 w-5 flex-shrink-0 ui-text-error"
           fill="currentColor"
           viewBox="0 0 20 20"
         >
@@ -86,10 +86,10 @@
           />
         </svg>
         <div>
-          <h3 class="text-sm font-medium text-red-900 dark:text-red-100">
+          <h3 class="text-sm font-medium ui-text-error">
             Error
           </h3>
-          <p class="mt-1 text-sm text-red-800 dark:text-red-200">
+          <p class="mt-1 text-sm ui-text-error">
             {form.error}
           </p>
         </div>
@@ -99,11 +99,11 @@
 
   <!-- Warning Notice -->
   <div
-    class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20"
+    class="mb-6 rounded-lg border p-4 ui-tone-error"
   >
     <div class="flex items-start">
       <svg
-        class="mr-3 mt-0.5 h-5 w-5 flex-shrink-0 text-red-600 dark:text-red-400"
+        class="mr-3 mt-0.5 h-5 w-5 flex-shrink-0 ui-text-error"
         fill="currentColor"
         viewBox="0 0 20 20"
       >
@@ -114,7 +114,7 @@
         />
       </svg>
       <div>
-        <h3 class="text-sm font-medium text-red-900 dark:text-red-100">
+        <h3 class="text-sm font-medium ui-text-error">
           Are you sure you want to delete this record?
         </h3>
       </div>
@@ -123,87 +123,87 @@
 
   <!-- Rate Limit Details -->
   <div
-    class="mb-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+    class="mb-6 rounded-lg border p-6 shadow-sm ui-card ui-border"
   >
-    <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
+    <h2 class="mb-4 text-lg font-semibold ui-text">
       Rate Limit Details
     </h2>
 
     <div class="space-y-3 text-sm">
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-1">
-        <span class="font-medium text-gray-600 dark:text-gray-400"
+        <span class="font-medium ui-muted"
           >Consumer:</span
         >
-        <span class="sm:col-span-2 text-gray-900 dark:text-gray-100"
+        <span class="sm:col-span-2 ui-text"
           >{consumer.app_name}</span
         >
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-1">
-        <span class="font-medium text-gray-600 dark:text-gray-400"
+        <span class="font-medium ui-muted"
           >Consumer ID:</span
         >
-        <span class="sm:col-span-2 text-gray-900 dark:text-gray-100 font-mono"
+        <span class="sm:col-span-2 font-mono ui-text"
           >{consumer.consumer_id}</span
         >
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-1">
-        <span class="font-medium text-gray-600 dark:text-gray-400"
+        <span class="font-medium ui-muted"
           >Rate Limit ID:</span
         >
-        <span class="sm:col-span-2 text-gray-900 dark:text-gray-100 font-mono"
+        <span class="sm:col-span-2 font-mono ui-text"
           >{rateLimit.rate_limiting_id}</span
         >
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-1">
-        <span class="font-medium text-gray-600 dark:text-gray-400"
+        <span class="font-medium ui-muted"
           >Valid Period:</span
         >
-        <span class="sm:col-span-2 text-gray-900 dark:text-gray-100">
+        <span class="sm:col-span-2 ui-text">
           {formatDate(rateLimit.from_date)} → {formatDate(rateLimit.to_date)}
         </span>
       </div>
 
-      <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-        <h3 class="mb-2 font-medium text-gray-900 dark:text-gray-100">
+      <div class="mt-4 pt-4 border-t ui-border">
+        <h3 class="mb-2 font-medium ui-text">
           Current Limits:
         </h3>
         <div class="grid grid-cols-2 gap-2 text-xs sm:grid-cols-3">
           <div>
-            <div class="text-gray-600 dark:text-gray-400">Per Second</div>
-            <div class="font-medium text-gray-900 dark:text-gray-100">
+            <div class="ui-muted">Per Second</div>
+            <div class="font-medium ui-text">
               {formatLimitValue(rateLimit.per_second_call_limit)}
             </div>
           </div>
           <div>
-            <div class="text-gray-600 dark:text-gray-400">Per Minute</div>
-            <div class="font-medium text-gray-900 dark:text-gray-100">
+            <div class="ui-muted">Per Minute</div>
+            <div class="font-medium ui-text">
               {formatLimitValue(rateLimit.per_minute_call_limit)}
             </div>
           </div>
           <div>
-            <div class="text-gray-600 dark:text-gray-400">Per Hour</div>
-            <div class="font-medium text-gray-900 dark:text-gray-100">
+            <div class="ui-muted">Per Hour</div>
+            <div class="font-medium ui-text">
               {formatLimitValue(rateLimit.per_hour_call_limit)}
             </div>
           </div>
           <div>
-            <div class="text-gray-600 dark:text-gray-400">Per Day</div>
-            <div class="font-medium text-gray-900 dark:text-gray-100">
+            <div class="ui-muted">Per Day</div>
+            <div class="font-medium ui-text">
               {formatLimitValue(rateLimit.per_day_call_limit)}
             </div>
           </div>
           <div>
-            <div class="text-gray-600 dark:text-gray-400">Per Week</div>
-            <div class="font-medium text-gray-900 dark:text-gray-100">
+            <div class="ui-muted">Per Week</div>
+            <div class="font-medium ui-text">
               {formatLimitValue(rateLimit.per_week_call_limit)}
             </div>
           </div>
           <div>
-            <div class="text-gray-600 dark:text-gray-400">Per Month</div>
-            <div class="font-medium text-gray-900 dark:text-gray-100">
+            <div class="ui-muted">Per Month</div>
+            <div class="font-medium ui-text">
               {formatLimitValue(rateLimit.per_month_call_limit)}
             </div>
           </div>
@@ -227,7 +227,7 @@
       <button
         type="submit"
         disabled={isSubmitting}
-        class="inline-flex items-center rounded-lg bg-red-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-4 focus:ring-red-300 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-red-500 dark:hover:bg-red-600 dark:focus:ring-red-800"
+        class="inline-flex items-center rounded-lg px-5 py-2.5 text-sm font-medium focus:outline-none focus:ring-4 disabled:cursor-not-allowed disabled:opacity-50 preset-filled-error-500"
       >
         {#if isSubmitting}
           <svg
@@ -270,7 +270,7 @@
 
       <a
         href="/consumers/{consumer.consumer_id}/rate-limits"
-        class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 dark:focus:ring-gray-700"
+        class="inline-flex items-center rounded-lg border px-5 py-2.5 text-sm font-medium focus:outline-none focus:ring-4 ui-card ui-hover ui-muted ui-border"
       >
         Cancel
       </a>

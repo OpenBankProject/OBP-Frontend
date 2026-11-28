@@ -137,11 +137,11 @@
 	}
 
 	const statusStyles: Record<OBPApiProductSubscriptionStatus, string> = {
-		requested: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
-		active: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
-		past_due: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
-		suspended: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300',
-		cancelled: 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
+		requested: 'ui-tone-info',
+		active: 'ui-tone-success',
+		past_due: 'ui-tone-warning',
+		suspended: 'ui-tone-warning',
+		cancelled: 'ui-panel ui-muted'
 	};
 
 	const statusLabels: Record<OBPApiProductSubscriptionStatus, string> = {
@@ -197,8 +197,8 @@
 
 <div class="container mx-auto max-w-7xl px-4 py-8">
 	<div class="mb-8 text-center">
-		<h1 class="mb-2 text-3xl font-bold text-gray-900 dark:text-gray-100">Subscriptions</h1>
-		<p class="mx-auto max-w-2xl text-gray-600 dark:text-gray-400">
+		<h1 class="mb-2 text-3xl font-bold ui-text">Subscriptions</h1>
+		<p class="mx-auto max-w-2xl ui-muted">
 			Subscribe one of your consumers (applications) to an API product. An active subscription applies the
 			product's rate limits and endpoint access to that consumer.
 		</p>
@@ -206,7 +206,7 @@
 
 	{#if data.warnings.length > 0}
 		<div
-			class="mb-6 rounded-lg border border-yellow-300 bg-yellow-50 p-4 text-sm text-yellow-800 dark:border-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-200"
+			class="mb-6 rounded-lg border p-4 text-sm ui-tone-warning"
 			data-testid="subscriptions-warnings"
 		>
 			<ul class="list-disc space-y-1 pl-5">
@@ -220,8 +220,8 @@
 	{#if form?.message}
 		<div
 			class="mb-6 rounded-lg border p-4 text-sm {form.success
-				? 'border-green-300 bg-green-50 text-green-800 dark:border-green-700 dark:bg-green-900/20 dark:text-green-200'
-				: 'border-red-300 bg-red-50 text-red-800 dark:border-red-700 dark:bg-red-900/20 dark:text-red-200'}"
+				? 'ui-tone-success'
+				: 'ui-tone-error'}"
 			role="status"
 			data-testid="subscriptions-form-result"
 			data-success={form.success ? 'true' : 'false'}
@@ -238,35 +238,35 @@
 
 	{#if !data.isLoggedIn}
 		<div
-			class="rounded-lg border border-gray-200 bg-white p-8 text-center shadow-sm dark:border-gray-700 dark:bg-gray-800"
+			class="rounded-lg border p-8 text-center shadow-sm ui-card ui-border"
 			data-testid="subscriptions-login-prompt"
 		>
-			<p class="mb-4 text-gray-700 dark:text-gray-300">Sign in to view your subscriptions and apply for new ones.</p>
+			<p class="mb-4 ui-muted">Sign in to view your subscriptions and apply for new ones.</p>
 			<a href={loginHref} class="btn preset-filled-primary-500 px-8">Sign in</a>
-			<p class="mt-4 text-sm text-gray-500 dark:text-gray-400">
-				Browse the <a href="/products" class="underline hover:text-gray-900 dark:hover:text-gray-100">API products</a> first if you like.
+			<p class="mt-4 text-sm ui-muted">
+				Browse the <a href="/products" class="underline">API products</a> first if you like.
 			</p>
 		</div>
 	{:else}
 		<!-- Apply for a subscription -->
 		<section
-			class="mb-10 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+			class="mb-10 rounded-lg border p-6 shadow-sm ui-card ui-border"
 			data-testid="subscriptions-apply"
 		>
-			<h2 class="mb-1 text-xl font-semibold text-gray-900 dark:text-gray-100">Apply for a subscription</h2>
-			<p class="mb-6 text-sm text-gray-600 dark:text-gray-400">
+			<h2 class="mb-1 text-xl font-semibold ui-text">Apply for a subscription</h2>
+			<p class="mb-6 text-sm ui-muted">
 				Choose a product and the consumer that should hold it. Free products activate at once; billed or
 				reviewed products stay "requested" until they are approved or paid.
 			</p>
 
 			{#if data.products.length === 0}
-				<p class="text-sm text-gray-500 dark:text-gray-400" data-testid="subscriptions-no-products">
+				<p class="text-sm ui-muted" data-testid="subscriptions-no-products">
 					There are no API products to subscribe to at the moment.
 				</p>
 			{:else if data.consumers.length === 0}
-				<p class="text-sm text-gray-700 dark:text-gray-300" data-testid="subscriptions-no-consumers">
+				<p class="text-sm ui-muted" data-testid="subscriptions-no-consumers">
 					You have no consumers (applications) yet. A subscription is held by a consumer, so please
-					<a href="/consumers/register" class="underline hover:text-gray-900 dark:hover:text-gray-100">register one</a>
+					<a href="/consumers/register" class="underline">register one</a>
 					first.
 				</p>
 			{:else}
@@ -292,7 +292,7 @@
 
 					<div class="grid grid-cols-1 gap-5 md:grid-cols-2">
 						<label class="label">
-							<span class="label-text font-semibold">API product <span class="text-error-500">*</span></span>
+							<span class="label-text font-semibold">API product <span class="ui-text-error">*</span></span>
 							<select
 								class="select"
 								bind:value={selectedProductKey}
@@ -313,7 +313,7 @@
 						</label>
 
 						<label class="label">
-							<span class="label-text font-semibold">Consumer (application) <span class="text-error-500">*</span></span>
+							<span class="label-text font-semibold">Consumer (application) <span class="ui-text-error">*</span></span>
 							<select
 								class="select"
 								name="consumer_id"
@@ -328,7 +328,7 @@
 									</option>
 								{/each}
 							</select>
-							<span class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+							<span class="mt-1 text-xs ui-muted">
 								Need another one? <a href="/consumers/register" class="underline">Register a consumer</a>.
 							</span>
 						</label>
@@ -336,56 +336,56 @@
 
 					{#if selectedProduct}
 						<div
-							class="rounded-lg bg-gray-50 p-4 text-sm dark:bg-gray-900/50"
+							class="rounded-lg p-4 text-sm ui-card"
 							data-testid="subscriptions-product-summary"
 						>
 							<div class="flex flex-wrap items-baseline justify-between gap-2">
 								<div>
-									<span class="font-semibold text-gray-900 dark:text-gray-100">{selectedProduct.name}</span>
+									<span class="font-semibold ui-text">{selectedProduct.name}</span>
 									{#if selectedProduct.category}
-										<span class="ml-2 rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">{selectedProduct.category}</span>
+										<span class="ml-2 rounded-full px-2 py-0.5 text-xs ui-tone-info">{selectedProduct.category}</span>
 									{/if}
 								</div>
-								<span class="font-medium text-gray-800 dark:text-gray-200">{formatPrice(selectedProduct.price_monthly, selectedProduct.price_currency)}</span>
+								<span class="font-medium ui-text">{formatPrice(selectedProduct.price_monthly, selectedProduct.price_currency)}</span>
 							</div>
 							{#if selectedProduct.description}
-								<p class="mt-2 text-gray-700 dark:text-gray-300">{selectedProduct.description}</p>
+								<p class="mt-2 ui-muted">{selectedProduct.description}</p>
 							{/if}
-							<p class="mt-2 flex items-start gap-1.5 text-gray-600 dark:text-gray-400">
+							<p class="mt-2 flex items-start gap-1.5 ui-muted">
 								<Info class="mt-0.5 h-4 w-4 flex-shrink-0" />
 								<span>{billingExplanation(selectedProduct)}</span>
 							</p>
 							{#if selectedProduct.attributes_unknown}
-								<p class="mt-1 text-xs text-yellow-700 dark:text-yellow-300">
+								<p class="mt-1 text-xs ui-text-warning">
 									The product's billing settings could not be loaded; the outcome may differ from the description above.
 								</p>
 							{/if}
-							<p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+							<p class="mt-2 text-xs ui-muted">
 								<a href="/products/{selectedProduct.api_product_code}" class="underline">Product details</a>
-								· Bank <code class="rounded bg-white px-1 py-0.5 dark:bg-gray-800">{selectedProduct.bank_id}</code>
-								· Code <code class="rounded bg-white px-1 py-0.5 dark:bg-gray-800">{selectedProduct.api_product_code}</code>
+								· Bank <code class="rounded px-1 py-0.5 ui-card">{selectedProduct.bank_id}</code>
+								· Code <code class="rounded px-1 py-0.5 ui-card">{selectedProduct.api_product_code}</code>
 							</p>
 						</div>
 					{/if}
 
 					<details class="text-sm">
-						<summary class="cursor-pointer text-gray-600 dark:text-gray-400">Optional: start and end dates</summary>
+						<summary class="cursor-pointer ui-muted">Optional: start and end dates</summary>
 						<div class="mt-3 grid grid-cols-1 gap-5 md:grid-cols-2">
 							<label class="label">
 								<span class="label-text">Start date</span>
 								<input type="date" class="input" name="start_date" bind:value={startDate} data-testid="subscriptions-start-date" />
-								<span class="mt-1 text-xs text-gray-500 dark:text-gray-400">Defaults to today.</span>
+								<span class="mt-1 text-xs ui-muted">Defaults to today.</span>
 							</label>
 							<label class="label">
 								<span class="label-text">End date</span>
 								<input type="date" class="input" name="end_date" bind:value={endDate} min={startDate || undefined} data-testid="subscriptions-end-date" />
-								<span class="mt-1 text-xs text-gray-500 dark:text-gray-400">Leave empty for an open-ended subscription.</span>
+								<span class="mt-1 text-xs ui-muted">Leave empty for an open-ended subscription.</span>
 							</label>
 						</div>
 					</details>
 
 					{#if existingSubscription}
-						<p class="text-sm text-yellow-700 dark:text-yellow-300" data-testid="subscriptions-already-subscribed">
+						<p class="text-sm ui-text-warning" data-testid="subscriptions-already-subscribed">
 							This consumer already holds a subscription to this product (status: {statusLabel(existingSubscription.status)}).
 							Cancel it below before subscribing again.
 						</p>
@@ -402,7 +402,7 @@
 							{submitting ? 'Submitting…' : submitLabel}
 						</button>
 						{#if selectedProduct?.action === 'contact'}
-							<span class="text-sm text-gray-600 dark:text-gray-400">Only the bank can enrol a consumer to this product.</span>
+							<span class="text-sm ui-muted">Only the bank can enrol a consumer to this product.</span>
 						{/if}
 					</div>
 				</form>
@@ -411,20 +411,20 @@
 
 		<!-- Your subscriptions -->
 		<section
-			class="mb-10 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+			class="mb-10 rounded-lg border p-6 shadow-sm ui-card ui-border"
 			data-testid="subscriptions-list"
 		>
-			<h2 class="mb-1 text-xl font-semibold text-gray-900 dark:text-gray-100">Your subscriptions</h2>
-			<p class="mb-6 text-sm text-gray-600 dark:text-gray-400">
+			<h2 class="mb-1 text-xl font-semibold ui-text">Your subscriptions</h2>
+			<p class="mb-6 text-sm ui-muted">
 				Subscriptions held by consumers you created. Cancelling is final; subscribe again to start a new one.
 			</p>
 
 			{#if data.subscriptions.length === 0}
-				<p class="text-sm text-gray-500 dark:text-gray-400" data-testid="subscriptions-empty">You have no subscriptions yet.</p>
+				<p class="text-sm ui-muted" data-testid="subscriptions-empty">You have no subscriptions yet.</p>
 			{:else}
 				<div class="overflow-x-auto">
 					<table class="w-full text-left text-sm">
-						<thead class="border-b border-gray-200 text-xs uppercase text-gray-500 dark:border-gray-700 dark:text-gray-400">
+						<thead class="border-b text-xs uppercase ui-muted ui-border">
 							<tr>
 								<th class="py-2 pr-4">Product</th>
 								<th class="py-2 pr-4">Consumer</th>
@@ -437,26 +437,26 @@
 						<tbody>
 							{#each data.subscriptions as subscription (subscription.api_product_subscription_id)}
 								<tr
-									class="border-b border-gray-100 align-top dark:border-gray-700/60"
+									class="border-b align-top ui-border"
 									data-testid="subscription-row"
 									data-status={subscription.status}
 								>
 									<td class="py-3 pr-4">
-										<a href="/products/{subscription.api_product_code}" class="font-medium text-gray-900 underline-offset-2 hover:underline dark:text-gray-100">
+										<a href="/products/{subscription.api_product_code}" class="font-medium underline-offset-2 hover:underline ui-text">
 											{productName(subscription)}
 										</a>
-										<div class="text-xs text-gray-500 dark:text-gray-400">{subscription.bank_id} · {subscription.api_product_code}</div>
+										<div class="text-xs ui-muted">{subscription.bank_id} · {subscription.api_product_code}</div>
 									</td>
 									<td class="py-3 pr-4">
-										<div class="text-gray-900 dark:text-gray-100">{consumerName(subscription.consumer_id)}</div>
-										<code class="text-xs text-gray-500 dark:text-gray-400">{subscription.consumer_id}</code>
+										<div class="ui-text">{consumerName(subscription.consumer_id)}</div>
+										<code class="text-xs ui-muted">{subscription.consumer_id}</code>
 									</td>
 									<td class="py-3 pr-4">
 										<span class="rounded-full px-2.5 py-0.5 text-xs font-medium {statusStyle(subscription.status)}">
 											{statusLabel(subscription.status)}
 										</span>
 									</td>
-									<td class="py-3 pr-4 whitespace-nowrap text-gray-700 dark:text-gray-300">
+									<td class="py-3 pr-4 whitespace-nowrap ui-muted">
 										{formatDate(subscription.start_date)}
 										{#if subscription.end_date}
 											– {formatDate(subscription.end_date)}
@@ -465,14 +465,14 @@
 										{/if}
 									</td>
 									<td class="py-3 pr-4">
-										<code class="text-xs text-gray-600 dark:text-gray-400">{subscription.api_product_subscription_id}</code>
+										<code class="text-xs ui-muted">{subscription.api_product_subscription_id}</code>
 									</td>
 									<td class="py-3 text-right">
 										{#if billingLink(subscription)}
 											{@const link = billingLink(subscription)}
 											<a
 												href={link?.href}
-												class="mb-2 inline-flex items-center gap-1 rounded-md border border-primary-300 px-3 py-1 text-xs font-medium text-primary-700 hover:bg-primary-50 dark:border-primary-700 dark:text-primary-200 dark:hover:bg-primary-900/20"
+												class="mb-2 inline-flex items-center gap-1 rounded-md border px-3 py-1 text-xs font-medium preset-outlined-surface-500"
 												data-testid="subscription-billing-link"
 												data-billing-action={link?.label === 'Pay' ? 'pay' : 'manage'}
 											>
@@ -499,7 +499,7 @@
 												<input type="hidden" name="api_product_subscription_id" value={subscription.api_product_subscription_id} />
 												<button
 													type="submit"
-													class="rounded-md border border-red-300 px-3 py-1 text-xs font-medium text-red-700 hover:bg-red-50 disabled:opacity-60 dark:border-red-700 dark:text-red-300 dark:hover:bg-red-900/20"
+													class="rounded-md px-3 py-1 text-xs font-medium disabled:opacity-60 preset-filled-error-500"
 													disabled={cancellingId === subscription.api_product_subscription_id}
 													data-testid="subscription-cancel"
 												>

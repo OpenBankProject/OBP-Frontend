@@ -38,9 +38,9 @@
 >
 	<div class="mt-8" data-testid="configured-text">
 		<h2 class="mb-4 text-2xl font-bold">Configured Text</h2>
-		<div class="overflow-x-auto rounded-lg bg-white shadow dark:bg-gray-800">
+		<div class="overflow-x-auto rounded-lg shadow ui-card">
 			<table class="w-full text-left text-sm">
-				<thead class="text-xs uppercase text-gray-500 dark:text-gray-400">
+				<thead class="text-xs uppercase ui-muted">
 					<tr>
 						<th class="px-4 py-2">webui_prop</th>
 						<th class="px-4 py-2">Env var</th>
@@ -49,7 +49,7 @@
 				</thead>
 				<tbody>
 					{#each Object.values(data.webUiText) as text (text.envVar)}
-						<tr class="border-t border-gray-100 dark:border-gray-700" data-testid="configured-text-{text.envVar}">
+						<tr class="border-t ui-border" data-testid="configured-text-{text.envVar}">
 							<td class="px-4 py-2 font-mono">{text.webUiPropName}</td>
 							<td class="px-4 py-2 font-mono">{text.envVar}</td>
 							<td class="px-4 py-2" data-source={text.source}>{SOURCE_LABEL[text.source]}</td>

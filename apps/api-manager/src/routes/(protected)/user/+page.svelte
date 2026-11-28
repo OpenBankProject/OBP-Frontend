@@ -44,10 +44,10 @@
   }
 
   function tokenStatusColor(seconds: number | null): string {
-    if (seconds === null) return "bg-surface-300 dark:bg-surface-600";
-    if (seconds <= 0) return "bg-error-500";
-    if (seconds < 300) return "bg-warning-500";
-    return "bg-success-500";
+    if (seconds === null) return "ui-panel";
+    if (seconds <= 0) return "preset-filled-error-500";
+    if (seconds < 300) return "preset-filled-primary-500";
+    return "preset-filled-primary-500";
   }
 
   function formatDateFromUnix(epochDateMilliseconds: number | string): string {
@@ -175,11 +175,11 @@
       <header class="flex items-center justify-between py-4">
         <h1 class="h4 text-center align-middle">User Information</h1>
         <button
-          class="btn preset-outlined-tertiary-500 rounded-md p-1 text-sm"
+          class="btn preset-outlined-surface-500 rounded-md p-1 text-sm"
           onclick={() => copyJsonToClipboard(userData)}>Copy JSON</button
         >
       </header>
-      <article class="border-primary-500 space-y-3 border-b-[1px] p-4">
+      <article class="space-y-3 border-b-[1px] p-4 ui-border">
         <!-- Group entries by type -->
         {#each Object.entries(userData) as [key, value]}
           {#if Array.isArray(value) || (value !== null && typeof value === "object")}
@@ -196,7 +196,7 @@
                     class="flex w-full items-center justify-between"
                   >
                     <strong>{snakeCaseToTitleCase(key)}</strong>
-                    <span class="text-tertiary-400 text-sm">
+                    <span class="text-sm ui-link">
                       {getComplexValueSummary(value)}
                     </span>
                   </Accordion.ItemTrigger>
@@ -208,11 +208,11 @@
                     <div class="space-y-2">
                       {#each value as item, i}
                         <div class="flex items-start gap-2">
-                          <span class="text-tertiary-400 w-8">{i}:</span>
+                          <span class="w-8 ui-link">{i}:</span>
                           {#if item !== null && typeof item === "object"}
                             <div class="flex-1">
                               <pre
-                                class="max-w-full overflow-x-auto rounded bg-gray-800/10 p-2 text-sm">
+                                class="max-w-full overflow-x-auto rounded p-2 text-sm ui-card">
                                                                 {JSON.stringify(
                                   item,
                                   null,
@@ -220,7 +220,7 @@
                                 )}
                                                             </pre>
                               <button
-                                class="btn btn-sm preset-outlined-tertiary-500 mt-1"
+                                class="btn btn-sm preset-outlined-surface-500 mt-1"
                                 onclick={() =>
                                   copyToClipboard(
                                     JSON.stringify(item, null, 2),
@@ -233,7 +233,7 @@
                             <div class="flex items-center gap-2">
                               <span>{formatValue(item)}</span>
                               <button
-                                class="btn btn-sm preset-tonal-tertiary"
+                                class="btn btn-sm preset-tonal"
                                 onclick={() => copyToClipboard(String(item))}
                               >
                                 Copy
@@ -248,19 +248,19 @@
                     <div class="space-y-2">
                       {#each Object.entries(value) as [arrayKey, arrayValue]}
                         <div class="flex items-start gap-2">
-                          <span class="text-tertiary-400 min-w-20 font-semibold"
+                          <span class="min-w-20 font-semibold ui-link"
                             >{arrayKey}:</span
                           >
                           {#if Array.isArray(arrayValue)}
                             <div class="flex-1 space-y-2">
                               {#each arrayValue as item, i}
                                 <div class="flex items-start gap-2">
-                                  <span class="text-tertiary-400 w-8">{i}:</span
+                                  <span class="w-8 ui-link">{i}:</span
                                   >
                                   {#if item !== null && typeof item === "object"}
                                     <div class="flex-1">
                                       <pre
-                                        class="max-w-full overflow-x-auto rounded bg-gray-800/10 p-2 text-sm">
+                                        class="max-w-full overflow-x-auto rounded p-2 text-sm ui-card">
                                                                                 {JSON.stringify(
                                           item,
                                           null,
@@ -268,7 +268,7 @@
                                         )}
                                                                             </pre>
                                       <button
-                                        class="btn btn-sm preset-outlined-tertiary-500 mt-1"
+                                        class="btn btn-sm preset-outlined-surface-500 mt-1"
                                         onclick={() =>
                                           copyToClipboard(
                                             JSON.stringify(item, null, 2),
@@ -281,7 +281,7 @@
                                     <div class="flex items-center gap-2">
                                       <span>{formatValue(item)}</span>
                                       <button
-                                        class="btn btn-sm preset-tonal-tertiary"
+                                        class="btn btn-sm preset-tonal"
                                         onclick={() =>
                                           copyToClipboard(String(item))}
                                       >
@@ -303,13 +303,13 @@
                     <div class="space-y-2">
                       {#each Object.entries(value) as [subKey, subValue]}
                         <div class="flex items-start gap-2">
-                          <span class="text-tertiary-400 min-w-20 font-semibold"
+                          <span class="min-w-20 font-semibold ui-link"
                             >{subKey}:</span
                           >
                           {#if subValue !== null && typeof subValue === "object"}
                             <div class="flex-1">
                               <pre
-                                class="max-w-full overflow-x-auto rounded bg-gray-800/10 p-2 text-sm">
+                                class="max-w-full overflow-x-auto rounded p-2 text-sm ui-card">
                                                                 {JSON.stringify(
                                   subValue,
                                   null,
@@ -317,7 +317,7 @@
                                 )}
                                                             </pre>
                               <button
-                                class="btn btn-sm preset-outlined-tertiary-500 mt-1"
+                                class="btn btn-sm preset-outlined-surface-500 mt-1"
                                 onclick={() =>
                                   copyToClipboard(
                                     JSON.stringify(subValue, null, 2),
@@ -330,7 +330,7 @@
                             <div class="flex items-center gap-2">
                               <span>{formatValue(subValue)}</span>
                               <button
-                                class="btn btn-sm preset-tonal-tertiary"
+                                class="btn btn-sm preset-tonal"
                                 onclick={() =>
                                   copyToClipboard(String(subValue))}
                               >
@@ -349,15 +349,15 @@
           {:else}
             <!-- Simple values displayed directly -->
             <div
-              class="hover:bg-primary-500/5 flex items-center justify-between rounded-md p-2"
+              class="flex items-center justify-between rounded-md p-2 ui-hover"
             >
               <strong>{snakeCaseToTitleCase(key)}</strong>
               <div class="flex items-center gap-2">
-                <span class="rounded-sm bg-gray-800/20 p-2 backdrop-blur-2xl">
+                <span class="rounded-sm p-2 backdrop-blur-2xl ui-card">
                   {value}
                 </span>
                 <button
-                  class="btn-icon btn-sm preset-tonal-tertiary"
+                  class="btn-icon btn-sm preset-tonal"
                   onclick={() => copyToClipboard(String(value))}
                   title="Copy to clipboard"
                   aria-label="Copy to clipboard"
@@ -402,14 +402,14 @@
       <h1 class="h4 text-center align-middle">Session Info</h1>
     </header>
     {#if sessionInfo && sessionInfo.hasAccessToken}
-      <article class="border-primary-500 space-y-1 border-b-[1px] p-4">
+      <article class="space-y-1 border-b-[1px] p-4 ui-border">
         {#each [
           { label: "Session ID", value: sessionInfo.sessionId },
           { label: "OAuth Provider", value: sessionInfo.oauthProvider },
         ] as item}
-          <div class="hover:bg-primary-500/5 flex items-center justify-between rounded-md p-2" data-testid={`session-${item.label.toLowerCase().replace(/\s+/g, "-")}`}>
+          <div class="flex items-center justify-between rounded-md p-2 ui-hover" data-testid={`session-${item.label.toLowerCase().replace(/\s+/g, "-")}`}>
             <strong>{item.label}</strong>
-            <span class="rounded-sm bg-gray-800/20 p-2 font-mono text-sm backdrop-blur-2xl">
+            <span class="rounded-sm p-2 font-mono text-sm backdrop-blur-2xl ui-card">
               {item.value || "N/A"}
             </span>
           </div>
@@ -417,16 +417,16 @@
         {/each}
 
         <!-- Access Token -->
-        <div class="hover:bg-primary-500/5 flex items-center justify-between rounded-md p-2" data-testid="session-access-token">
+        <div class="flex items-center justify-between rounded-md p-2 ui-hover" data-testid="session-access-token">
           <div class="flex items-center gap-2">
             <strong>Access Token</strong>
             <span class="h-2.5 w-2.5 rounded-full {tokenStatusColor(sessionInfo.accessTokenExpiresInSeconds)}" title={sessionInfo.accessTokenExpiresInSeconds !== null && sessionInfo.accessTokenExpiresInSeconds <= 0 ? "Expired" : "Active"}></span>
           </div>
           <div class="flex items-center gap-3">
-            <span class="rounded-sm bg-gray-800/20 p-2 font-mono text-sm backdrop-blur-2xl">
+            <span class="rounded-sm p-2 font-mono text-sm backdrop-blur-2xl ui-card">
               {sessionInfo.accessTokenPreview || "N/A"}
             </span>
-            <span class="text-xs text-surface-600 dark:text-surface-400">
+            <span class="text-xs ui-muted">
               {#if sessionInfo.accessTokenExpiresInSeconds !== null && sessionInfo.accessTokenExpiresInSeconds <= 0}
                 Expired
               {:else}
@@ -438,21 +438,21 @@
         <hr class="hr !my-0 opacity-20" />
 
         <!-- Refresh Token -->
-        <div class="hover:bg-primary-500/5 flex items-center justify-between rounded-md p-2" data-testid="session-refresh-token">
+        <div class="flex items-center justify-between rounded-md p-2 ui-hover" data-testid="session-refresh-token">
           <div class="flex items-center gap-2">
             <strong>Refresh Token</strong>
             {#if sessionInfo.hasRefreshToken}
               <span class="h-2.5 w-2.5 rounded-full {tokenStatusColor(sessionInfo.refreshTokenExpiresInSeconds)}" title={sessionInfo.refreshTokenExpiresInSeconds !== null && sessionInfo.refreshTokenExpiresInSeconds <= 0 ? "Expired" : "Active"}></span>
             {:else}
-              <span class="h-2.5 w-2.5 rounded-full bg-error-500" title="Missing"></span>
+              <span class="h-2.5 w-2.5 rounded-full preset-filled-error-500" title="Missing"></span>
             {/if}
           </div>
           <div class="flex items-center gap-3">
             {#if sessionInfo.hasRefreshToken}
-              <span class="rounded-sm bg-gray-800/20 p-2 font-mono text-sm backdrop-blur-2xl">
+              <span class="rounded-sm p-2 font-mono text-sm backdrop-blur-2xl ui-card">
                 {sessionInfo.refreshTokenPreview}
               </span>
-              <span class="text-xs text-surface-600 dark:text-surface-400">
+              <span class="text-xs ui-muted">
                 {#if sessionInfo.refreshTokenExpiresAt === null}
                   Expiry unknown (not a JWT)
                 {:else if sessionInfo.refreshTokenExpiresInSeconds !== null && sessionInfo.refreshTokenExpiresInSeconds <= 0}
@@ -462,7 +462,7 @@
                 {/if}
               </span>
             {:else}
-              <span class="text-xs text-error-600 dark:text-error-400">
+              <span class="text-xs ui-text-error">
                 None — session cannot auto-renew
               </span>
             {/if}
@@ -471,11 +471,11 @@
         <hr class="hr !my-0 opacity-20" />
       </article>
     {:else}
-      <article class="border-primary-500 border-b-[1px] p-4">
-        <div class="rounded-lg bg-warning-50 p-3 dark:bg-warning-900/20" data-testid="session-warning">
-          <p class="text-sm text-warning-700 dark:text-warning-300">
+      <article class="border-b-[1px] p-4 ui-border">
+        <div class="rounded-lg p-3 ui-tone-warning" data-testid="session-warning">
+          <p class="text-sm ui-text-warning">
             No active session found. Your session may have expired.
-            <a href="/login" class="font-medium underline hover:text-warning-900 dark:hover:text-warning-100">Log in again</a> to restore full functionality.
+            <a href="/login" class="font-medium underline ui-text-warning">Log in again</a> to restore full functionality.
           </p>
         </div>
       </article>
@@ -487,11 +487,11 @@
     <header class="flex items-center justify-between py-4">
       <h1 class="h4 text-center align-middle">Preferences</h1>
     </header>
-    <article class="border-primary-500 space-y-4 border-b-[1px] p-4">
-      <div class="flex items-center justify-between rounded-md p-2 hover:bg-primary-500/5">
+    <article class="space-y-4 border-b-[1px] p-4 ui-border">
+      <div class="flex items-center justify-between rounded-md p-2 ui-hover">
         <strong>Date Format</strong>
         <select
-          class="rounded-md border border-surface-300-700 bg-surface-100-900 px-3 py-1.5 text-sm"
+          class="rounded-md border px-3 py-1.5 text-sm ui-panel ui-border"
           value={userPreferences.dateFormat}
           onchange={(e) => userPreferences.setDateFormat(e.currentTarget.value as DateFormat)}
         >
@@ -501,10 +501,10 @@
         </select>
       </div>
       <hr class="hr !my-0 opacity-20" />
-      <div class="flex items-center justify-between rounded-md p-2 hover:bg-primary-500/5">
+      <div class="flex items-center justify-between rounded-md p-2 ui-hover">
         <strong>Theme</strong>
         <select
-          class="rounded-md border border-surface-300-700 bg-surface-100-900 px-3 py-1.5 text-sm"
+          class="rounded-md border px-3 py-1.5 text-sm ui-panel ui-border"
           value={userPreferences.theme}
           onchange={(e) => userPreferences.setTheme(e.currentTarget.value as Theme)}
         >
@@ -513,7 +513,7 @@
           {/each}
         </select>
       </div>
-      <p class="text-xs text-surface-500">Preferences are saved to your account and sync across devices.</p>
+      <p class="text-xs ui-muted">Preferences are saved to your account and sync across devices.</p>
     </article>
   </div>
 
@@ -530,73 +530,73 @@
       </div>
     {:else if entitlementRequests.length === 0}
       <div class="empty-state">
-        <Clock size={48} class="mx-auto mb-4 text-gray-400" />
-        <p class="text-gray-600 dark:text-gray-400">
+        <Clock size={48} class="mx-auto mb-4 ui-muted" />
+        <p class="ui-muted">
           No pending entitlement requests
         </p>
       </div>
     {:else}
       <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead class="bg-gray-50 dark:bg-gray-800">
+        <table class="min-w-full divide-y ui-border">
+          <thead class="ui-card">
             <tr>
               <th
-                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
+                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted"
               >
                 Role Name
               </th>
               <th
-                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
+                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted"
               >
                 Bank ID
               </th>
               <th
-                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
+                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted"
               >
                 Created
               </th>
               <th
-                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
+                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted"
               >
                 Status
               </th>
             </tr>
           </thead>
           <tbody
-            class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-900"
+            class="divide-y ui-card ui-border"
           >
             {#each entitlementRequests as request}
-              <tr class="hover:bg-gray-50 dark:hover:bg-gray-800">
+              <tr class="ui-hover">
                 <td
-                  class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100"
+                  class="whitespace-nowrap px-6 py-4 text-sm font-medium ui-text"
                 >
                   {request.role_name}
                 </td>
                 <td
-                  class="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400"
+                  class="whitespace-nowrap px-6 py-4 text-sm ui-muted"
                 >
                   {#if request.bank_id}
                     <span
-                      class="inline-flex rounded-full bg-blue-100 px-2 text-xs font-semibold leading-5 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
+                      class="inline-flex rounded-full px-2 text-xs font-semibold leading-5 ui-tone-info"
                     >
                       {request.bank_id}
                     </span>
                   {:else}
                     <span
-                      class="inline-flex rounded-full bg-gray-100 px-2 text-xs font-semibold leading-5 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
+                      class="inline-flex rounded-full px-2 text-xs font-semibold leading-5 ui-panel ui-text"
                     >
                       System-wide
                     </span>
                   {/if}
                 </td>
                 <td
-                  class="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400"
+                  class="whitespace-nowrap px-6 py-4 text-sm ui-muted"
                 >
                   {formatDate(request.created)}
                 </td>
                 <td class="whitespace-nowrap px-6 py-4 text-sm">
                   <span
-                    class="inline-flex rounded-full bg-yellow-100 px-2 text-xs font-semibold leading-5 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
+                    class="inline-flex rounded-full px-2 text-xs font-semibold leading-5 ui-tone-warning"
                   >
                     <Clock size={12} class="mr-1" />
                     Pending
@@ -619,53 +619,53 @@
     </div>
   {/if}
   <!-- <div
-		class="card preset-filled-primary-100-900 border-primary-200-800 divide-primary-200-800 mx-auto my-10 flex max-w-md flex-col divide-y border-[1px] shadow-lg sm:max-w-2xl lg:max-w-3xl"
+		class="card mx-auto my-10 flex max-w-md flex-col divide-y border-[1px] shadow-lg sm:max-w-2xl lg:max-w-3xl ui-card ui-border"
 	>
 		<header class="py-4">
 			<h1 class="h4 text-center">Consent for Opey</h1>
 		</header>
 		<article class="space-y-4 p-4">
 			{#if opeyConsentInfo}
-				<div class="preset-filled-primary-50-950 m-1.5 rounded-lg p-4 shadow-md">
+				<div class="m-1.5 ui-panel rounded-lg p-4 shadow-md">
 					{#if opeyConsentInfo.hasActiveConsent}
 						<div class="mb-4 flex items-center gap-2">
-							<div class="h-3 w-3 rounded-full bg-green-500"></div>
-							<span class="font-semibold text-gray-900 dark:text-gray-100">Active Consent</span>
+							<div class="h-3 w-3 rounded-full preset-filled-primary-500"></div>
+							<span class="font-semibold ui-text">Active Consent</span>
 						</div>
-						<ul class="list-inside space-y-2 text-gray-900 dark:text-gray-100">
+						<ul class="list-inside space-y-2 ui-text">
 							<li>
-								<strong class="text-tertiary-400">Consent ID:</strong>
+								<strong class="ui-link">Consent ID:</strong>
 								{opeyConsentInfo.consent_id}
 							</li>
 							<li>
-								<strong class="text-tertiary-400">Status:</strong>
+								<strong class="ui-link">Status:</strong>
 								{opeyConsentInfo.status}
 							</li>
 							<li>
-								<strong class="text-tertiary-400">Consumer ID:</strong>
+								<strong class="ui-link">Consumer ID:</strong>
 								{opeyConsentInfo.consumer_id}
 							</li>
 							<li>
-								<strong class="text-tertiary-400">Created At:</strong>
+								<strong class="ui-link">Created At:</strong>
 								{opeyConsentInfo.jwt_payload?.iat ? formatDateFromUnix(opeyConsentInfo.jwt_payload?.iat * 1000) : 'Not available'}
 							</li>
 							{#if opeyConsentInfo.last_usage_date}
 								<li>
-									<strong class="text-tertiary-400">Last Usage Date:</strong>
+									<strong class="ui-link">Last Usage Date:</strong>
 									{fromatDateFromISO(opeyConsentInfo.last_usage_date)}
 								</li>
 							{/if}
 							{#if opeyConsentInfo.jwt_payload?.exp}
 								{@const jwtExp = formatJwtExpiration(opeyConsentInfo.jwt_payload?.exp * 1000)}
 								<li>
-									<strong class="text-tertiary-400">JWT Expires:</strong>
+									<strong class="ui-link">JWT Expires:</strong>
 									{jwtExp.formatted}
 									{jwtExp.isExpired ? '(Expired)' : ''}
 								</li>
 							{/if}
 						</ul>
-						<div class="bg-primary-100 dark:bg-primary-900/20 mt-4 rounded-lg p-3">
-							<p class="text-sm text-gray-700 dark:text-gray-300">
+						<div class="mt-4 rounded-lg p-3 ui-tone-info">
+							<p class="text-sm ui-muted">
 								<strong>Info:</strong> This consent allows Opey to access your Open Bank Project data
 								on your behalf. The JWT token is used for secure communication between the portal and
 								Opey services.
@@ -674,26 +674,26 @@
 						<div class="mt-4">
 							<a
 								href="/user/consents"
-								class="hover:text-tertiary-400 text-sm font-medium underline"
+								class="text-sm font-medium underline ui-link"
 							>
 								All My Consents
 							</a>
 						</div>
 					{:else}
 						<div class="mb-4 flex items-center gap-2">
-							<div class="h-3 w-3 rounded-full bg-yellow-500"></div>
-							<span class="font-semibold text-gray-900 dark:text-gray-100">No Active Consent</span>
+							<div class="h-3 w-3 rounded-full preset-filled-primary-500"></div>
+							<span class="font-semibold ui-text">No Active Consent</span>
 						</div>
 						{#if opeyConsentInfo.error}
-							<div class="bg-primary-100 dark:bg-primary-900/20 rounded-lg p-3">
-								<p class="text-gray-700 dark:text-gray-300">
+							<div class="rounded-lg p-3 ui-tone-info">
+								<p class="ui-muted">
 									<strong>Error:</strong>
 									{opeyConsentInfo.error}
 								</p>
 							</div>
 						{:else}
-							<div class="bg-primary-100 dark:bg-primary-900/20 rounded-lg p-3">
-								<p class="text-gray-700 dark:text-gray-300">
+							<div class="rounded-lg p-3 ui-tone-info">
+								<p class="ui-muted">
 									{opeyConsentInfo.message}
 								</p>
 							</div>
@@ -701,7 +701,7 @@
 						<div class="mt-4">
 							<a
 								href="/user/consents"
-								class="hover:text-tertiary-400 text-sm font-medium underline"
+								class="text-sm font-medium underline ui-link"
 							>
 								All My Consents
 							</a>
@@ -709,10 +709,10 @@
 					{/if}
 				</div>
 			{:else}
-				<div class="preset-filled-primary-50-950 m-1.5 rounded-lg p-4 shadow-md">
-					<p class="text-surface-600-400 text-center">Opey integration not configured.</p>
+				<div class="m-1.5 ui-panel rounded-lg p-4 shadow-md">
+					<p class="text-center ui-muted">Opey integration not configured.</p>
 					<div class="mt-4 text-center">
-						<a href="/user/consents" class="hover:text-tertiary-400 text-sm font-medium underline">
+						<a href="/user/consents" class="text-sm font-medium underline ui-link">
 							All My Consents
 						</a>
 					</div>

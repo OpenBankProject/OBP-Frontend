@@ -9,11 +9,11 @@
 
 <h1 class="h2">{t(locale, 'review_heading')}</h1>
 
-{#if form?.form === 'role' && form?.requested}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'access_requested_notice')}</p>{/if}
-{#if form?.error}<p class="mt-4 preset-tonal-error rounded p-3" role="alert">{t(locale, 'staff_error')} {String(form.error)}</p>{/if}
+{#if form?.form === 'role' && form?.requested}<p class="mt-4 ui-tone-success rounded p-3" role="status">{t(locale, 'access_requested_notice')}</p>{/if}
+{#if form?.error}<p class="mt-4 ui-tone-error rounded p-3" role="alert">{t(locale, 'staff_error')} {String(form.error)}</p>{/if}
 
 {#if !data.profile}
-	<section class="card preset-outlined-surface-200-800 mt-6 max-w-xl p-4" data-testid="review-register">
+	<section class="card border ui-border mt-6 max-w-xl p-4" data-testid="review-register">
 		<h2 class="h4">{t(locale, 'review_become')}</h2>
 		<p class="mt-1">{t(locale, 'review_become_intro')}</p>
 		<form method="POST" action="?/register" class="mt-3 flex flex-col gap-2">
@@ -32,7 +32,7 @@
 {/if}
 
 {#if data.profile && data.standing === 'accepted'}
-<section class="card preset-outlined-surface-200-800 mt-6 p-4" data-testid="review-assignments">
+<section class="card border ui-border mt-6 p-4" data-testid="review-assignments">
 	<h2 class="h4">{t(locale, 'review_assigned')}</h2>
 	{#each Object.values(data.lacking).filter(Boolean) as role (role!.role_name)}
 		<div class="mt-2"><MissingRole {locale} space={data.space} role={role!} entitlementRequestsUrl={data.entitlementRequestsUrl} /></div>

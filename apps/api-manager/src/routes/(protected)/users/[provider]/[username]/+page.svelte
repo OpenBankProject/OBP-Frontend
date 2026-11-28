@@ -67,7 +67,7 @@
     <div class="panel mb-6">
       <div class="panel-header">
         <h1 class="text-2xl font-bold">{user.username}</h1>
-        <div class="text-sm text-gray-500 mt-1">
+        <div class="text-sm mt-1 ui-muted">
           {data.provider} Provider
         </div>
       </div>
@@ -104,10 +104,10 @@
             <div class="info-value">
               {#if user.is_locked}
                 <span class="badge badge-error">Yes</span>
-                <a href="/users/{encodeURIComponent(data.provider)}/{encodeURIComponent(data.username)}/unlock" class="action-link" style="color: #059669;">Unlock User</a>
+                <a href="/users/{encodeURIComponent(data.provider)}/{encodeURIComponent(data.username)}/unlock" class="action-link action-link-success">Unlock User</a>
               {:else}
                 <span class="badge badge-success">No</span>
-                <a href="/users/{encodeURIComponent(data.provider)}/{encodeURIComponent(data.username)}/lock" class="action-link" style="color: #dc2626;">Lock User</a>
+                <a href="/users/{encodeURIComponent(data.provider)}/{encodeURIComponent(data.username)}/lock" class="action-link action-link-error">Lock User</a>
               {/if}
             </div>
           </div>
@@ -267,7 +267,7 @@
   }
 
   .breadcrumb-link {
-    color: #3b82f6;
+    color: var(--ui-link);
     text-decoration: none;
   }
 
@@ -276,51 +276,35 @@
   }
 
   .breadcrumb-separator {
-    color: #9ca3af;
+    color: var(--ui-muted);
   }
 
   .breadcrumb-current {
-    color: #6b7280;
+    color: var(--ui-muted);
   }
 
   .panel {
-    background: white;
+    background: var(--ui-card);
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     overflow: hidden;
   }
 
-  :global([data-mode="dark"]) .panel {
-    background: rgb(var(--color-surface-800));
-  }
-
   .panel-header {
     padding: 1.5rem;
-    border-bottom: 1px solid #e5e7eb;
-  }
-
-  :global([data-mode="dark"]) .panel-header {
-    border-bottom-color: rgb(var(--color-surface-700));
+    border-bottom: 1px solid var(--ui-border);
   }
 
   .panel-title {
     font-size: 1.125rem;
     font-weight: 600;
-    color: #111827;
-  }
-
-  :global([data-mode="dark"]) .panel-title {
-    color: var(--color-surface-100);
+    color: var(--ui-text);
   }
 
   .panel-subtitle {
     font-size: 0.875rem;
-    color: #6b7280;
+    color: var(--ui-muted);
     margin-top: 0.25rem;
-  }
-
-  :global([data-mode="dark"]) .panel-subtitle {
-    color: var(--color-surface-400);
   }
 
   .panel-content {
@@ -343,21 +327,13 @@
     font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
-    color: #6b7280;
+    color: var(--ui-muted);
     letter-spacing: 0.05em;
-  }
-
-  :global([data-mode="dark"]) .info-label {
-    color: var(--color-surface-400);
   }
 
   .info-value {
     font-size: 0.875rem;
-    color: #111827;
-  }
-
-  :global([data-mode="dark"]) .info-value {
-    color: var(--color-surface-100);
+    color: var(--ui-text);
   }
 
   .entitlements-grid {
@@ -368,34 +344,21 @@
 
   .entitlement-card {
     padding: 1rem;
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
+    background: var(--ui-card);
+    border: 1px solid var(--ui-border);
     border-radius: 0.5rem;
-  }
-
-  :global([data-mode="dark"]) .entitlement-card {
-    background: rgb(var(--color-surface-700));
-    border-color: rgb(var(--color-surface-600));
   }
 
   .entitlement-name {
     font-weight: 600;
-    color: #111827;
+    color: var(--ui-text);
     margin-bottom: 0.5rem;
-  }
-
-  :global([data-mode="dark"]) .entitlement-name {
-    color: var(--color-surface-100);
   }
 
   .entitlement-detail {
     font-size: 0.875rem;
-    color: #6b7280;
+    color: var(--ui-muted);
     margin-top: 0.25rem;
-  }
-
-  :global([data-mode="dark"]) .entitlement-detail {
-    color: var(--color-surface-400);
   }
 
   .detail-label {
@@ -418,36 +381,20 @@
     padding: 0.75rem;
     font-weight: 600;
     font-size: 0.875rem;
-    color: #374151;
-    border-bottom: 2px solid #e5e7eb;
-  }
-
-  :global([data-mode="dark"]) .accounts-table th,
-  :global([data-mode="dark"]) .views-table th {
-    color: var(--color-surface-300);
-    border-bottom-color: rgb(var(--color-surface-700));
+    color: var(--ui-text);
+    border-bottom: 2px solid var(--ui-border);
   }
 
   .accounts-table td,
   .views-table td {
     padding: 0.75rem;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--ui-border);
     font-size: 0.875rem;
-  }
-
-  :global([data-mode="dark"]) .accounts-table td,
-  :global([data-mode="dark"]) .views-table td {
-    border-bottom-color: rgb(var(--color-surface-700));
   }
 
   .accounts-table tbody tr:hover,
   .views-table tbody tr:hover {
-    background: #f9fafb;
-  }
-
-  :global([data-mode="dark"]) .accounts-table tbody tr:hover,
-  :global([data-mode="dark"]) .views-table tbody tr:hover {
-    background: rgb(var(--color-surface-700));
+    background: var(--ui-hover);
   }
 
   .badge {
@@ -459,39 +406,24 @@
   }
 
   .badge-success {
-    background: #d1fae5;
-    color: #065f46;
-  }
-
-  :global([data-mode="dark"]) .badge-success {
-    background: rgb(var(--color-success-900));
-    color: rgb(var(--color-success-200));
+    background: var(--ui-tone-success-bg);
+    color: var(--ui-tone-success-text);
   }
 
   .badge-default {
-    background: #f3f4f6;
-    color: #374151;
-  }
-
-  :global([data-mode="dark"]) .badge-default {
-    background: rgb(var(--color-surface-700));
-    color: var(--color-surface-300);
+    background: var(--ui-panel);
+    color: var(--ui-text);
   }
 
   .badge-error {
-    background: #fee2e2;
-    color: #991b1b;
-  }
-
-  :global([data-mode="dark"]) .badge-error {
-    background: rgb(var(--color-error-900));
-    color: rgb(var(--color-error-200));
+    background: var(--ui-tone-error-bg);
+    color: var(--ui-tone-error-text);
   }
 
   .action-link {
     margin-left: 0.5rem;
     font-size: 0.75rem;
-    color: #3b82f6;
+    color: var(--ui-link);
     text-decoration: none;
   }
 
@@ -499,33 +431,32 @@
     text-decoration: underline;
   }
 
+  .action-link-success {
+    color: var(--ui-success);
+  }
+
+  .action-link-error {
+    color: var(--ui-error);
+  }
 
   .empty-state {
     text-align: center;
     padding: 3rem;
-    color: #6b7280;
+    color: var(--ui-muted);
   }
 
   .empty-state-inline {
     text-align: center;
     padding: 1.5rem;
-    color: #6b7280;
+    color: var(--ui-muted);
     font-size: 0.875rem;
   }
 
-  :global([data-mode="dark"]) .empty-state-inline {
-    color: var(--color-surface-400);
-  }
-
   .empty-state-inline code {
-    background: #f3f4f6;
+    background: var(--ui-panel);
     padding: 0.125rem 0.375rem;
     border-radius: 0.25rem;
     font-size: 0.8125rem;
-  }
-
-  :global([data-mode="dark"]) .empty-state-inline code {
-    background: rgb(var(--color-surface-700));
   }
 
   .alert {
@@ -535,27 +466,15 @@
   }
 
   .alert-error {
-    background: #fee2e2;
-    color: #991b1b;
-    border: 1px solid #fecaca;
-  }
-
-  :global([data-mode="dark"]) .alert-error {
-    background: rgb(var(--color-error-900));
-    color: rgb(var(--color-error-200));
-    border-color: rgb(var(--color-error-800));
+    background: var(--ui-tone-error-bg);
+    color: var(--ui-tone-error-text);
+    border: 1px solid var(--ui-tone-error-border);
   }
 
   .alert-success {
-    background: #d1fae5;
-    color: #065f46;
-    border: 1px solid #a7f3d0;
-  }
-
-  :global([data-mode="dark"]) .alert-success {
-    background: rgb(var(--color-success-900));
-    color: rgb(var(--color-success-200));
-    border-color: rgb(var(--color-success-800));
+    background: var(--ui-tone-success-bg);
+    color: var(--ui-tone-success-text);
+    border: 1px solid var(--ui-tone-success-border);
   }
 
   .btn {
@@ -577,40 +496,31 @@
   }
 
   .btn-secondary {
-    background: #f3f4f6;
-    color: #374151;
-    border: 1px solid #d1d5db;
+    background: var(--ui-panel);
+    color: var(--ui-text);
+    border: 1px solid var(--ui-border);
   }
 
   .btn-secondary:hover:not(:disabled) {
-    background: #e5e7eb;
-  }
-
-  :global([data-mode="dark"]) .btn-secondary {
-    background: rgb(var(--color-surface-700));
-    color: var(--color-surface-200);
-    border-color: rgb(var(--color-surface-600));
-  }
-
-  :global([data-mode="dark"]) .btn-secondary:hover:not(:disabled) {
-    background: rgb(var(--color-surface-600));
+    background: var(--ui-hover);
   }
 
   .btn-success {
-    background: #059669;
-    color: white;
+    background: var(--ui-tone-success-bg);
+    color: var(--ui-tone-success-text);
   }
 
   .btn-success:hover:not(:disabled) {
-    background: #047857;
+    background: var(--ui-tone-success-bg);
+    color: var(--ui-tone-success-text);
   }
 
   .btn-danger {
-    background: #dc2626;
-    color: white;
+    background: var(--ui-fill-danger-bg);
+    color: var(--ui-fill-danger-text);
   }
 
   .btn-danger:hover:not(:disabled) {
-    background: #b91c1c;
+    opacity: 0.85;
   }
 </style>

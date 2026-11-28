@@ -91,67 +91,37 @@
 
   /* Error Alert */
   .alert-error {
-    background: #fee2e2;
-    border-color: #fecaca;
-    color: #991b1b;
-  }
-
-  :global([data-mode="dark"]) .alert-error {
-    background: rgb(var(--color-error-900));
-    border-color: rgb(var(--color-error-700));
-    color: rgb(var(--color-error-200));
+    background: var(--ui-tone-error-bg);
+    border-color: var(--ui-tone-error-border);
+    color: var(--ui-tone-error-text);
   }
 
   /* Warning Alert */
   .alert-warning {
-    background: #fef3c7;
-    border-color: #fde047;
-    color: #92400e;
-  }
-
-  :global([data-mode="dark"]) .alert-warning {
-    background: rgb(var(--color-warning-900));
-    border-color: rgb(var(--color-warning-700));
-    color: rgb(var(--color-warning-200));
+    background: var(--ui-tone-warning-bg);
+    border-color: var(--ui-tone-warning-border);
+    color: var(--ui-tone-warning-text);
   }
 
   /* Success Alert */
   .alert-success {
-    background: #d1fae5;
-    border-color: #a7f3d0;
-    color: #065f46;
-  }
-
-  :global([data-mode="dark"]) .alert-success {
-    background: rgb(var(--color-success-900));
-    border-color: rgb(var(--color-success-700));
-    color: rgb(var(--color-success-200));
+    background: var(--ui-tone-success-bg);
+    border-color: var(--ui-tone-success-border);
+    color: var(--ui-tone-success-text);
   }
 
   /* Info Alert */
   .alert-info {
-    background: #dbeafe;
-    border-color: #bfdbfe;
-    color: #1e3a8a;
-  }
-
-  :global([data-mode="dark"]) .alert-info {
-    background: rgb(var(--color-primary-900));
-    border-color: rgb(var(--color-primary-700));
-    color: rgb(var(--color-primary-200));
+    background: var(--ui-tone-info-bg);
+    border-color: var(--ui-tone-info-border);
+    color: var(--ui-tone-info-text);
   }
 
   /* Missing Role Alert */
   .alert-missing-role {
-    background: #fef3c7;
-    border: 2px solid #f59e0b;
-    color: #92400e;
+    background: var(--ui-tone-warning-bg);
+    border: 2px solid var(--ui-tone-warning-border);
+    color: var(--ui-tone-warning-text);
     padding: 1.5rem;
-  }
-
-  :global([data-mode="dark"]) .alert-missing-role {
-    background: rgb(var(--color-warning-900));
-    border-color: rgb(var(--color-warning-600));
-    color: rgb(var(--color-warning-200));
   }
 </style>

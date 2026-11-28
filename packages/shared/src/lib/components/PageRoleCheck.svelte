@@ -157,17 +157,11 @@
 
   .or-header {
     font-size: 0.875rem;
-    color: #92400e;
+    color: var(--ui-tone-warning-text);
     padding: 0.5rem 1rem;
-    background: #fffbeb;
-    border: 1px solid #fde68a;
+    background: var(--ui-tone-warning-bg);
+    border: 1px solid var(--ui-tone-warning-border);
     border-radius: 0.5rem;
-  }
-
-  :global([data-mode="dark"]) .or-header {
-    background: rgba(217, 119, 6, 0.1);
-    border-color: rgba(217, 119, 6, 0.3);
-    color: #fbbf24;
   }
 
   .or-divider {
@@ -182,24 +176,15 @@
     content: "";
     flex: 1;
     height: 1px;
-    background: #d1d5db;
-  }
-
-  :global([data-mode="dark"]) .or-divider::before,
-  :global([data-mode="dark"]) .or-divider::after {
-    background: rgba(255, 255, 255, 0.15);
+    background: var(--ui-panel);
   }
 
   .or-divider span {
     font-size: 0.75rem;
     font-weight: 700;
-    color: #9ca3af;
+    color: var(--ui-muted);
     text-transform: uppercase;
     letter-spacing: 0.05em;
-  }
-
-  :global([data-mode="dark"]) .or-divider span {
-    color: rgba(255, 255, 255, 0.4);
   }
 
   .scope-note {
@@ -208,18 +193,12 @@
     gap: 0.5rem;
     padding: 0.75rem 1rem;
     margin-bottom: 1rem;
-    background: #fffbeb;
-    border: 1px solid #fde68a;
+    background: var(--ui-tone-warning-bg);
+    border: 1px solid var(--ui-tone-warning-border);
     border-radius: 0.5rem;
-    color: #92400e;
+    color: var(--ui-tone-warning-text);
     font-size: 0.875rem;
     line-height: 1.5;
-  }
-
-  :global([data-mode="dark"]) .scope-note {
-    background: rgba(217, 119, 6, 0.1);
-    border-color: rgba(217, 119, 6, 0.3);
-    color: #fbbf24;
   }
 
   .jit-note {
@@ -228,18 +207,12 @@
     gap: 0.5rem;
     padding: 0.75rem 1rem;
     margin-bottom: 1rem;
-    background: #f0fdf4;
-    border: 1px solid #86efac;
+    background: var(--ui-tone-success-bg);
+    border: 1px solid var(--ui-tone-success-border);
     border-radius: 0.5rem;
-    color: #166534;
+    color: var(--ui-tone-success-text);
     font-size: 0.875rem;
     line-height: 1.5;
-  }
-
-  :global([data-mode="dark"]) .jit-note {
-    background: rgba(34, 197, 94, 0.1);
-    border-color: rgba(34, 197, 94, 0.3);
-    color: #4ade80;
   }
 
   .optional-role-alerts {
@@ -259,18 +232,12 @@
     gap: 0.5rem;
     padding: 0.75rem 1rem;
     margin-bottom: 1rem;
-    background: #eff6ff;
-    border: 1px solid #bfdbfe;
+    background: var(--ui-tone-info-bg);
+    border: 1px solid var(--ui-tone-info-border);
     border-radius: 0.5rem;
-    color: #1e40af;
+    color: var(--ui-tone-info-text);
     font-size: 0.875rem;
     line-height: 1.5;
-  }
-
-  :global([data-mode="dark"]) .optional-role-note {
-    background: rgba(59, 130, 246, 0.15);
-    border-color: rgba(59, 130, 246, 0.3);
-    color: #93c5fd;
   }
 
   .note-icon {

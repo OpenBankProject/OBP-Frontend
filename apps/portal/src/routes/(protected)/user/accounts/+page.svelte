@@ -54,19 +54,19 @@
 
 	const tierStyle: Record<AccessTier, { header: string; row: string; label: string }> = {
 		owner: {
-			header: 'bg-success-500/40 text-success-700-300',
-			row: 'bg-success-500/10',
-			label: 'text-success-700-300'
+			header: 'preset-filled-primary-500',
+			row: 'ui-tone-success',
+			label: 'ui-text-success'
 		},
 		private: {
-			header: 'bg-tertiary-500/40 text-tertiary-700-300',
-			row: 'bg-tertiary-500/10',
-			label: 'text-tertiary-700-300'
+			header: 'preset-filled-primary-500',
+			row: 'ui-tone-info',
+			label: 'ui-link'
 		},
 		public: {
-			header: 'bg-warning-500/40 text-warning-700-300',
-			row: 'bg-warning-500/10',
-			label: 'text-warning-700-300'
+			header: 'preset-filled-primary-500',
+			row: 'ui-tone-warning',
+			label: 'ui-text-warning'
 		}
 	};
 
@@ -146,7 +146,7 @@
 </script>
 
 <div class="mx-auto max-w-7xl py-2">
-<p class="mb-4 text-surface-700-300">
+<p class="mb-4 ui-muted">
 	Accounts you have access to across all banks. Click one for balance, transactions, and access settings.
 </p>
 
@@ -157,13 +157,13 @@
 {/if}
 
 {#if data.accounts.length === 0 && !data.fetchError}
-	<p class="text-surface-600-400" data-testid="accounts-empty">
+	<p class="ui-muted" data-testid="accounts-empty">
 		No accounts available to your user.
 	</p>
 {:else if data.accounts.length > 0}
 	{#if bankOptions.length > 1}
 		<div class="mb-4 flex max-w-2xl items-center gap-2" data-testid="bank-filter">
-			<label for="bank-filter-input" class="text-sm text-surface-600-400">Bank:</label>
+			<label for="bank-filter-input" class="text-sm ui-muted">Bank:</label>
 			<input
 				id="bank-filter-input"
 				class="input flex-1"
@@ -192,7 +192,7 @@
 	{/if}
 
 	{#if filteredAccounts.length === 0}
-		<p class="text-surface-600-400" data-testid="accounts-filtered-empty">
+		<p class="ui-muted" data-testid="accounts-filtered-empty">
 			No accounts match "{bankSearch}".
 		</p>
 	{:else}
@@ -235,7 +235,7 @@
 								<td class="min-w-[18rem] whitespace-nowrap">
 									<div>
 										<a
-											class="font-medium text-primary-500 hover:underline dark:text-primary-200"
+											class="font-medium hover:underline ui-text-brand"
 											{href}
 											data-testid="account-link"
 										>{account.label}</a>
@@ -244,22 +244,22 @@
 										class="hover:underline"
 										{href}
 										data-testid="account-id-link"
-									><code class="text-xs text-primary-500 dark:text-primary-200" data-testid="account-id">{account.id}</code></a>
+									><code class="text-xs ui-text-brand" data-testid="account-id">{account.id}</code></a>
 								</td>
 								<td>
 									{#if account.account_type}
 										<a
-											class="text-primary-500 hover:underline dark:text-primary-200"
+											class="hover:underline ui-text-brand"
 											href={`/financial-products/${encodeURIComponent(account.bank_id)}/${encodeURIComponent(account.account_type)}`}
 											data-testid="account-type-link"
 										>{account.account_type}</a>
 									{:else}
-										<span class="text-xs text-surface-600-400">—</span>
+										<span class="text-xs ui-muted">—</span>
 									{/if}
 								</td>
 								<td>
 									{#if account.account_routings.length === 0}
-										<span class="text-xs text-surface-600-400">—</span>
+										<span class="text-xs ui-muted">—</span>
 									{:else}
 										<ul class="space-y-0.5" data-testid="account-routings">
 											{#each account.account_routings as r}
@@ -272,7 +272,7 @@
 								</td>
 								<td>
 									{#if account.views.length === 0}
-										<span class="text-xs text-surface-600-400">—</span>
+										<span class="text-xs ui-muted">—</span>
 									{:else}
 										<ul class="flex flex-wrap gap-1" data-testid="account-views">
 											{#each account.views as v (v.id)}
@@ -292,7 +292,7 @@
 								</td>
 								<td>
 									<div class="font-medium" data-testid="account-bank-name">{bankName(account.bank_id)}</div>
-									<code class="text-xs text-surface-600-400" data-testid="account-bank-id">{account.bank_id}</code>
+									<code class="text-xs ui-muted" data-testid="account-bank-id">{account.bank_id}</code>
 								</td>
 							</tr>
 						{/each}

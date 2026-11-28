@@ -13,7 +13,7 @@
 
 <ul class="mt-4 flex flex-col gap-3" data-testid="example-list">
 	{#each data.examples as p (p.name)}
-		<li class="card preset-outlined-surface-200-800 p-4">
+		<li class="card border ui-border p-4">
 			<p class="font-semibold">{p.name} <Badge {locale} kind="status" value={p.status} /></p>
 			<ul class="mt-1 list-inside list-disc text-sm">
 				{#each p.calls as c (c.title)}
@@ -24,10 +24,10 @@
 	{/each}
 </ul>
 
-{#if form?.form === 'role' && form?.requested}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'access_requested_notice')}</p>{/if}
-{#if form?.error}<p class="mt-4 preset-tonal-error rounded p-3" role="alert">{t(locale, 'staff_error')} {String(form.error)}</p>{/if}
+{#if form?.form === 'role' && form?.requested}<p class="mt-4 ui-tone-success rounded p-3" role="status">{t(locale, 'access_requested_notice')}</p>{/if}
+{#if form?.error}<p class="mt-4 ui-tone-error rounded p-3" role="alert">{t(locale, 'staff_error')} {String(form.error)}</p>{/if}
 {#if form && 'added' in form && form.added}
-	<p class="mt-4 preset-tonal-success rounded p-3" role="status" data-testid="example-added">
+	<p class="mt-4 ui-tone-success rounded p-3" role="status" data-testid="example-added">
 		{t(locale, 'example_added')}
 		{form.added.programmes} {t(locale, 'staff_programmes')} · {form.added.calls} {t(locale, 'staff_calls')} · {form.added.applications} {t(locale, 'staff_applications')}
 		{#if form.added.skipped} · {form.added.skipped} {t(locale, 'example_skipped')}{/if}
@@ -42,6 +42,6 @@
 	</div>
 {:else}
 	<form method="POST" action="?/add" class="mt-6">
-		<button class="btn preset-filled" data-testid="example-add">{t(locale, 'example_add')}</button>
+		<button class="btn preset-filled-primary-500" data-testid="example-add">{t(locale, 'example_add')}</button>
 	</form>
 {/if}

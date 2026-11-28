@@ -100,9 +100,9 @@
 
   const STATE_TEXT = { ok: "All required Scopes held", missing: "Scopes missing", not_declared: "Not declared yet" };
   const STATE_CLASS = {
-    ok: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
-    missing: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
-    not_declared: "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300",
+    ok: "ui-tone-success",
+    missing: "ui-tone-error",
+    not_declared: "ui-panel ui-muted",
   };
 </script>
 
@@ -112,12 +112,12 @@
 
 <div class="container mx-auto max-w-7xl px-4 py-8">
   <div class="mb-6 flex items-center justify-between gap-4">
-    <h1 class="flex items-center gap-2 text-3xl font-bold text-gray-900 dark:text-gray-100">
+    <h1 class="flex items-center gap-2 text-3xl font-bold ui-text">
       <AppWindow size={28} /> Platform Apps
     </h1>
     <a
       href="/consumers/platform-apps/help"
-      class="flex items-center gap-1 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+      class="flex items-center gap-1 rounded-lg border px-4 py-2 text-sm font-medium ui-hover ui-muted ui-border"
       data-testid="platform-apps-help-link"
     >
       <CircleHelp size={16} /> Help
@@ -125,13 +125,13 @@
   </div>
 
   {#if data.loadError}
-    <p class="mb-6 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300" data-testid="platform-apps-load-error">
+    <p class="mb-6 rounded-lg border p-3 text-sm ui-tone-error" data-testid="platform-apps-load-error">
       {data.loadError}
     </p>
   {/if}
 
   {#if actionError}
-    <p class="mb-6 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300" data-testid="platform-apps-action-error">
+    <p class="mb-6 rounded-lg border p-3 text-sm ui-tone-error" data-testid="platform-apps-action-error">
       {actionError}
     </p>
   {/if}
@@ -155,13 +155,13 @@
   <div class="space-y-6">
     {#each data.apps as app (app.consumer_id)}
       <section
-        class="rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
+        class="rounded-lg border shadow-sm ui-card ui-border"
         data-testid="platform-app-{app.consumer_id}"
         data-state={app.state}
         data-consumer-enabled={String(app.consumer_enabled)}
       >
         <div class="flex flex-wrap items-baseline justify-between gap-2 px-6 pt-5 pb-3">
-          <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{app.label}</h2>
+          <h2 class="text-lg font-semibold ui-text">{app.label}</h2>
           <div class="flex items-center gap-3">
             <span class="rounded-full px-2.5 py-0.5 text-xs font-medium {STATE_CLASS[app.state]}" data-testid="platform-app-{app.consumer_id}-state">
               {STATE_TEXT[app.state]}
@@ -171,7 +171,7 @@
                 type="button"
                 onclick={() => unmark(app)}
                 disabled={busy !== null}
-                class="rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                class="rounded-md border px-2 py-1 text-xs disabled:opacity-50 ui-hover ui-muted ui-border"
                 data-testid="platform-app-{app.consumer_id}-unmark"
               >
                 Unmark
@@ -182,7 +182,7 @@
 
         {#if !app.consumer_enabled}
           <p
-            class="mx-6 mb-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-300"
+            class="mx-6 mb-3 rounded-lg border p-3 text-sm ui-tone-warning"
             role="alert"
             data-testid="platform-app-{app.consumer_id}-consumer-disabled"
           >
@@ -191,7 +191,7 @@
           </p>
         {/if}
 
-        <dl class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 px-6 pb-4 text-sm text-gray-700 dark:text-gray-300">
+        <dl class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 px-6 pb-4 text-sm ui-muted">
           <dt class="font-medium">Consumer</dt>
           <dd>
             {app.consumer_name}
@@ -208,26 +208,26 @@
         {#if app.required_scopes.length > 0}
           <div class="overflow-x-auto">
             <table class="w-full text-sm" data-testid="platform-app-{app.consumer_id}-scopes">
-              <thead class="bg-gray-50 text-left text-xs uppercase text-gray-500 dark:bg-gray-900/40 dark:text-gray-400">
+              <thead class="text-left text-xs uppercase ui-card ui-muted">
                 <tr>
                   <th class="px-6 py-3">Scope</th>
                   <th class="px-6 py-3">Needed for</th>
                   <th class="px-6 py-3">Status</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+              <tbody class="divide-y ui-border">
                 {#each app.required_scopes as scope (scope.role_name + "|" + scope.bank_id)}
                   {@const key = `grant-${app.consumer_id}-${scope.role_name}-${scope.bank_id}`}
                   <tr data-testid="platform-app-{app.consumer_id}-scope-{scope.role_name}" data-held={String(scope.held)}>
-                    <td class="px-6 py-3 font-mono text-gray-900 dark:text-gray-100">
-                      {scope.role_name}{" "}<span class="text-gray-500 dark:text-gray-400">at {scope.bank_id || "(system)"}</span>
+                    <td class="px-6 py-3 font-mono ui-text">
+                      {scope.role_name}{" "}<span class="ui-muted">at {scope.bank_id || "(system)"}</span>
                     </td>
-                    <td class="px-6 py-3 text-gray-700 dark:text-gray-300">{scope.needed_for}</td>
+                    <td class="px-6 py-3 ui-muted">{scope.needed_for}</td>
                     <td class="px-6 py-3 whitespace-nowrap">
                       {#if scope.held}
-                        <span class="text-green-700 dark:text-green-400">held</span>
+                        <span class="ui-text-success">held</span>
                       {:else}
-                        <span class={scope.optional ? "text-amber-700 dark:text-amber-400" : "text-red-700 dark:text-red-400"}>
+                        <span class={scope.optional ? "ui-text-warning" : "ui-text-error"}>
                           missing{scope.optional ? " (optional)" : ""}
                         </span>
                         {#if canGrantAt(scope.bank_id)}
@@ -235,7 +235,7 @@
                             type="button"
                             onclick={() => grant(app, scope)}
                             disabled={busy !== null}
-                            class="ml-2 rounded-md bg-blue-600 px-2 py-1 text-xs font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                            class="ml-2 rounded-md px-2 py-1 text-xs font-medium disabled:opacity-50 preset-filled-primary-500"
                             data-testid="platform-app-{app.consumer_id}-add-{scope.role_name}"
                             data-state={busy === key ? "submitting" : "idle"}
                           >
@@ -253,16 +253,16 @@
       </section>
     {:else}
       {#if !data.loadError}
-        <p class="text-sm text-gray-600 dark:text-gray-400" data-testid="platform-apps-empty">No Consumer is marked as a Platform App yet.</p>
+        <p class="text-sm ui-muted" data-testid="platform-apps-empty">No Consumer is marked as a Platform App yet.</p>
       {/if}
     {/each}
   </div>
 
   {#if canMark}
-    <section class="mt-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800" data-testid="platform-apps-mark">
-      <h2 class="mb-3 text-lg font-semibold text-gray-900 dark:text-gray-100">Mark a Consumer as a Platform App</h2>
+    <section class="mt-6 rounded-lg border p-6 shadow-sm ui-card ui-border" data-testid="platform-apps-mark">
+      <h2 class="mb-3 text-lg font-semibold ui-text">Mark a Consumer as a Platform App</h2>
       {#if data.ownConsumerId}
-        <p class="mb-3 text-sm text-gray-700 dark:text-gray-300">
+        <p class="mb-3 text-sm ui-muted">
           This API Manager runs as Consumer <span class="font-mono">{data.ownConsumerId}</span>, which is not marked.
           <button
             type="button"
@@ -273,25 +273,25 @@
         </p>
       {/if}
       <form class="flex flex-wrap items-end gap-3" onsubmit={mark}>
-        <label class="text-sm text-gray-700 dark:text-gray-300">
+        <label class="text-sm ui-muted">
           consumer_id
           <input name="consumer_id" required bind:value={markForm.consumer_id}
-            class="mt-1 block w-96 max-w-full rounded-md border border-gray-300 px-2 py-1.5 font-mono text-sm dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100"
+            class="mt-1 block w-96 max-w-full rounded-md border px-2 py-1.5 font-mono text-sm ui-card ui-text ui-border"
             data-testid="platform-apps-mark-consumer-id" />
         </label>
-        <label class="text-sm text-gray-700 dark:text-gray-300">
+        <label class="text-sm ui-muted">
           Name
           <input name="label" required maxlength="100" bind:value={markForm.label} placeholder="Portal"
-            class="mt-1 block w-56 rounded-md border border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100"
+            class="mt-1 block w-56 rounded-md border px-2 py-1.5 text-sm ui-card ui-text ui-border"
             data-testid="platform-apps-mark-label" />
         </label>
         <button type="submit" disabled={busy !== null}
-          class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+          class="rounded-lg px-4 py-2 text-sm font-medium disabled:opacity-50 preset-filled-primary-500"
           data-testid="platform-apps-mark-submit" data-state={busy === "mark" ? "submitting" : "idle"}>
           Mark
         </button>
       </form>
-      <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+      <p class="mt-2 text-xs ui-muted">
         Each app shows the consumer_id it runs as on its own /status page, in the "OBP Consumer scopes" row.
       </p>
     </section>

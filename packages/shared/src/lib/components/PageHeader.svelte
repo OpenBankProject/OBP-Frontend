@@ -47,7 +47,7 @@
 		<div class="relative mx-4">
 			<button
 				type="button"
-				class="flex items-center gap-1 hover:text-tertiary-400"
+				class="flex items-center gap-1 ui-link"
 				onclick={() => (userMenuOpen = !userMenuOpen)}
 				onblur={() => setTimeout(() => (userMenuOpen = false), 150)}
 			>
@@ -55,7 +55,7 @@
 				<ChevronDown class="size-4" />
 			</button>
 			{#if userMenuOpen}
-				<div class="absolute end-0 z-50 mt-2 min-w-[140px] rounded-md border border-surface-300-700 bg-surface-100-900 py-1 shadow-lg">
+				<div class="absolute end-0 z-50 mt-2 min-w-[140px] rounded-md border py-1 shadow-lg ui-panel ui-border">
 					<a
 						href={profileUrl}
 						class="block px-4 py-2 text-sm hover:preset-tonal"
@@ -72,8 +72,8 @@
 			{/if}
 		</div>
 	{:else}
-		<span class="mx-4 hover:text-tertiary-400"><a href={registerUrl}>Register</a> </span>
-		<button type="button" class="btn preset-filled-surface-950-50"
+		<span class="mx-4 ui-link"><a href={registerUrl}>Register</a> </span>
+		<button type="button" class="btn preset-filled-primary-500"
 			><a href={loginUrl}>Login</a></button
 		>
 	{/if}

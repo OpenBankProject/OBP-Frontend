@@ -84,10 +84,10 @@
   }
 
   function getUsageColor(percentage: number): string {
-    if (percentage >= 90) return "bg-red-500";
-    if (percentage >= 75) return "bg-orange-500";
-    if (percentage >= 50) return "bg-yellow-500";
-    return "bg-green-500";
+    if (percentage >= 90) return "preset-filled-error-500";
+    if (percentage >= 75) return "preset-filled-primary-500";
+    if (percentage >= 50) return "preset-filled-primary-500";
+    return "preset-filled-primary-500";
   }
 
   function formatUsageValue(usageData: any, period: string): string {
@@ -155,13 +155,13 @@
 <div class="mb-6 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
   <a
     href="/consumers"
-    class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+    class="ui-link"
   >
     ← Back to Consumers
   </a>
   <a
     href="/system/rate-limiting"
-    class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+    class="ui-link"
     data-testid="system-rate-limiting-link"
   >
     Instance rate limiters and all consumers' limits
@@ -172,12 +172,12 @@
 <div class="mb-6">
   <div class="flex items-start justify-between">
     <div>
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+      <h1 class="text-3xl font-bold mb-2 ui-text">
         Rate Limits: {consumer.app_name}
       </h1>
-      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+      <p class="mt-1 text-sm ui-muted">
         Consumer ID: <code
-          class="rounded bg-gray-100 px-2 py-0.5 text-xs dark:bg-gray-900"
+          class="rounded px-2 py-0.5 text-xs ui-panel"
           >{consumer.consumer_id}</code
         >
       </p>
@@ -185,13 +185,13 @@
     <div class="flex items-center gap-2">
       <span
         class="rounded-full px-3 py-1 text-xs font-medium {consumer.enabled
-          ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-          : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'}"
+          ? 'ui-tone-success'
+          : 'ui-tone-error'}"
       >
         {consumer.enabled ? "Enabled" : "Disabled"}
       </span>
       <span
-        class="rounded-full px-3 py-1 text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
+        class="rounded-full px-3 py-1 text-xs font-medium ui-tone-info"
       >
         {consumer.app_type}
       </span>
@@ -199,7 +199,7 @@
   </div>
 
   <!-- Caching Information -->
-  <div class="mt-4 text-sm text-gray-600 dark:text-gray-400">
+  <div class="mt-4 text-sm ui-muted">
     <svg
       class="inline-block mr-1 h-4 w-4"
       fill="currentColor"
@@ -220,15 +220,15 @@
   <div
     class="mb-4 rounded-lg border p-3 {rateLimitingInfo.enabled &&
     rateLimitingInfo.is_active
-      ? 'border-green-200 bg-green-50 dark:border-green-700 dark:bg-green-900/20'
-      : 'border-yellow-200 bg-yellow-50 dark:border-yellow-700 dark:bg-yellow-900/20'}"
+      ? 'ui-tone-success'
+      : 'ui-tone-warning'}"
   >
     <div class="flex items-start gap-3">
       <svg
         class="h-5 w-5 flex-shrink-0 {rateLimitingInfo.enabled &&
         rateLimitingInfo.is_active
-          ? 'text-green-600 dark:text-green-400'
-          : 'text-yellow-600 dark:text-yellow-400'}"
+          ? 'ui-text-success'
+          : 'ui-text-warning'}"
         fill="currentColor"
         viewBox="0 0 20 20"
       >
@@ -243,16 +243,16 @@
           <h3
             class="text-sm font-medium {rateLimitingInfo.enabled &&
             rateLimitingInfo.is_active
-              ? 'text-green-900 dark:text-green-100'
-              : 'text-yellow-900 dark:text-yellow-100'}"
+              ? 'ui-text-success'
+              : 'ui-text-warning'}"
           >
             Rate Limiting System Status
           </h3>
           <span
             class="rounded-full px-2 py-0.5 text-xs font-medium {rateLimitingInfo.enabled &&
             rateLimitingInfo.is_active
-              ? 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300'
-              : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300'}"
+              ? 'ui-tone-success'
+              : 'ui-tone-warning'}"
           >
             {rateLimitingInfo.enabled && rateLimitingInfo.is_active
               ? "Active"
@@ -262,8 +262,8 @@
         <div
           class="mt-1 grid grid-cols-2 gap-x-4 gap-y-1 text-xs {rateLimitingInfo.enabled &&
           rateLimitingInfo.is_active
-            ? 'text-green-800 dark:text-green-200'
-            : 'text-yellow-800 dark:text-yellow-200'}"
+            ? 'ui-text-success'
+            : 'ui-text-warning'}"
         >
           <div>
             <span class="font-medium">Enabled:</span>
@@ -289,14 +289,14 @@
 
 <!-- Current Usage Card -->
 <div
-  class="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-6 dark:border-blue-700 dark:bg-blue-900/20"
+  class="mb-6 rounded-lg border p-6 ui-tone-info"
 >
   <div class="mb-4 flex items-center justify-between">
-    <h2 class="text-lg font-semibold text-blue-900 dark:text-blue-100">
+    <h2 class="text-lg font-semibold ui-link">
       Call Counters / Active Limits
     </h2>
     {#if activeRateLimits}
-      <div class="text-sm text-blue-800 dark:text-blue-200">
+      <div class="text-sm ui-link">
         Active as of {formatFullDateTime(activeRateLimits.active_at_date)}
       </div>
     {/if}
@@ -305,82 +305,82 @@
   <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
     <!-- Per Second -->
     <div>
-      <div class="mb-1 text-xs text-blue-700 dark:text-blue-300">
+      <div class="mb-1 text-xs ui-link">
         Per Second
       </div>
-      <div class="text-sm font-medium text-blue-900 dark:text-blue-100">
+      <div class="text-sm font-medium ui-link">
         {formatUsageValue(callCounters, "per_second")}
         {#if activeRateLimits && activeRateLimits.active_per_second_rate_limit > 0}
           / {formatNumber(activeRateLimits.active_per_second_rate_limit)}
         {:else}
-          / <span class="text-gray-500 dark:text-gray-400">Unlimited</span>
+          / <span class="ui-muted">Unlimited</span>
         {/if}
       </div>
     </div>
 
     <!-- Per Minute -->
     <div>
-      <div class="mb-1 text-xs text-blue-700 dark:text-blue-300">
+      <div class="mb-1 text-xs ui-link">
         Per Minute
       </div>
-      <div class="text-sm font-medium text-blue-900 dark:text-blue-100">
+      <div class="text-sm font-medium ui-link">
         {formatUsageValue(callCounters, "per_minute")}
         {#if activeRateLimits && activeRateLimits.active_per_minute_rate_limit > 0}
           / {formatNumber(activeRateLimits.active_per_minute_rate_limit)}
         {:else}
-          / <span class="text-gray-500 dark:text-gray-400">Unlimited</span>
+          / <span class="ui-muted">Unlimited</span>
         {/if}
       </div>
     </div>
 
     <!-- Per Hour -->
     <div>
-      <div class="mb-1 text-xs text-blue-700 dark:text-blue-300">Per Hour</div>
-      <div class="text-sm font-medium text-blue-900 dark:text-blue-100">
+      <div class="mb-1 text-xs ui-link">Per Hour</div>
+      <div class="text-sm font-medium ui-link">
         {formatUsageValue(callCounters, "per_hour")}
         {#if activeRateLimits && activeRateLimits.active_per_hour_rate_limit > 0}
           / {formatNumber(activeRateLimits.active_per_hour_rate_limit)}
         {:else}
-          / <span class="text-gray-500 dark:text-gray-400">Unlimited</span>
+          / <span class="ui-muted">Unlimited</span>
         {/if}
       </div>
     </div>
 
     <!-- Per Day -->
     <div>
-      <div class="mb-1 text-xs text-blue-700 dark:text-blue-300">Per Day</div>
-      <div class="text-sm font-medium text-blue-900 dark:text-blue-100">
+      <div class="mb-1 text-xs ui-link">Per Day</div>
+      <div class="text-sm font-medium ui-link">
         {formatUsageValue(callCounters, "per_day")}
         {#if activeRateLimits && activeRateLimits.active_per_day_rate_limit > 0}
           / {formatNumber(activeRateLimits.active_per_day_rate_limit)}
         {:else}
-          / <span class="text-gray-500 dark:text-gray-400">Unlimited</span>
+          / <span class="ui-muted">Unlimited</span>
         {/if}
       </div>
     </div>
 
     <!-- Per Week -->
     <div>
-      <div class="mb-1 text-xs text-blue-700 dark:text-blue-300">Per Week</div>
-      <div class="text-sm font-medium text-blue-900 dark:text-blue-100">
+      <div class="mb-1 text-xs ui-link">Per Week</div>
+      <div class="text-sm font-medium ui-link">
         {formatUsageValue(callCounters, "per_week")}
         {#if activeRateLimits && activeRateLimits.active_per_week_rate_limit > 0}
           / {formatNumber(activeRateLimits.active_per_week_rate_limit)}
         {:else}
-          / <span class="text-gray-500 dark:text-gray-400">Unlimited</span>
+          / <span class="ui-muted">Unlimited</span>
         {/if}
       </div>
     </div>
 
     <!-- Per Month -->
     <div>
-      <div class="mb-1 text-xs text-blue-700 dark:text-blue-300">Per Month</div>
-      <div class="text-sm font-medium text-blue-900 dark:text-blue-100">
+      <div class="mb-1 text-xs ui-link">Per Month</div>
+      <div class="text-sm font-medium ui-link">
         {formatUsageValue(callCounters, "per_month")}
         {#if activeRateLimits && activeRateLimits.active_per_month_rate_limit > 0}
           / {formatNumber(activeRateLimits.active_per_month_rate_limit)}
         {:else}
-          / <span class="text-gray-500 dark:text-gray-400">Unlimited</span>
+          / <span class="ui-muted">Unlimited</span>
         {/if}
       </div>
     </div>
@@ -389,20 +389,20 @@
 
 <!-- Rate Limits Section -->
 <div
-  class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+  class="rounded-lg border p-6 shadow-sm ui-card ui-border"
 >
   <div class="mb-4 flex items-center justify-between">
-    <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+    <h2 class="text-lg font-semibold ui-text">
       Rate Limit Records
       {#if rateLimits.length > 0}
-        <span class="ml-2 text-sm font-normal text-gray-500 dark:text-gray-400">
+        <span class="ml-2 text-sm font-normal ui-muted">
           ({rateLimits.length})
         </span>
       {/if}
     </h2>
     <a
       href="/consumers/{consumer.consumer_id}/rate-limits/create"
-      class="inline-flex items-center rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-500 dark:hover:bg-blue-600"
+      class="inline-flex items-center rounded-lg px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 preset-filled-primary-500"
     >
       <svg
         class="mr-1.5 h-4 w-4"
@@ -426,24 +426,24 @@
       {#each rateLimits as limit (limit.rate_limiting_id)}
         <div
           class="rounded-lg border p-4 {isLimitActive(limit)
-            ? 'border-blue-300 bg-blue-50 dark:border-blue-700 dark:bg-blue-900/30'
-            : 'border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-900/50'}"
+            ? 'ui-tone-info'
+            : 'ui-card ui-border'}"
         >
           <div class="mb-3 flex items-start justify-between">
             <div>
               <div class="flex items-center gap-2">
-                <span class="text-xs text-gray-600 dark:text-gray-400">
+                <span class="text-xs ui-muted">
                   Rate Limit ID: {limit.rate_limiting_id}
                 </span>
                 {#if isLimitActive(limit)}
                   <span
-                    class="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                    class="rounded-full px-2 py-0.5 text-xs font-medium ui-tone-success"
                   >
                     Active
                   </span>
                 {/if}
               </div>
-              <div class="mt-1 text-xs text-gray-500 dark:text-gray-500">
+              <div class="mt-1 text-xs ui-muted">
                 Valid: {formatShortDate(limit.from_date)} → {formatShortDate(
                   limit.to_date,
                 )}
@@ -452,13 +452,13 @@
             <div class="flex gap-2">
               <a
                 href="/consumers/{consumer.consumer_id}/rate-limits/{limit.rate_limiting_id}/edit"
-                class="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                class="text-sm ui-link"
               >
                 Edit
               </a>
               <a
                 href="/consumers/{consumer.consumer_id}/rate-limits/{limit.rate_limiting_id}/delete"
-                class="text-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                class="text-sm ui-text-error"
               >
                 Delete
               </a>
@@ -469,38 +469,38 @@
             class="grid grid-cols-2 gap-2 text-xs sm:grid-cols-3 lg:grid-cols-6"
           >
             <div>
-              <div class="text-gray-600 dark:text-gray-400">Per Second</div>
-              <div class="font-medium text-gray-900 dark:text-gray-100">
+              <div class="ui-muted">Per Second</div>
+              <div class="font-medium ui-text">
                 {formatNumber(limit.per_second_call_limit)}
               </div>
             </div>
             <div>
-              <div class="text-gray-600 dark:text-gray-400">Per Minute</div>
-              <div class="font-medium text-gray-900 dark:text-gray-100">
+              <div class="ui-muted">Per Minute</div>
+              <div class="font-medium ui-text">
                 {formatNumber(limit.per_minute_call_limit)}
               </div>
             </div>
             <div>
-              <div class="text-gray-600 dark:text-gray-400">Per Hour</div>
-              <div class="font-medium text-gray-900 dark:text-gray-100">
+              <div class="ui-muted">Per Hour</div>
+              <div class="font-medium ui-text">
                 {formatNumber(limit.per_hour_call_limit)}
               </div>
             </div>
             <div>
-              <div class="text-gray-600 dark:text-gray-400">Per Day</div>
-              <div class="font-medium text-gray-900 dark:text-gray-100">
+              <div class="ui-muted">Per Day</div>
+              <div class="font-medium ui-text">
                 {formatNumber(limit.per_day_call_limit)}
               </div>
             </div>
             <div>
-              <div class="text-gray-600 dark:text-gray-400">Per Week</div>
-              <div class="font-medium text-gray-900 dark:text-gray-100">
+              <div class="ui-muted">Per Week</div>
+              <div class="font-medium ui-text">
                 {formatNumber(limit.per_week_call_limit)}
               </div>
             </div>
             <div>
-              <div class="text-gray-600 dark:text-gray-400">Per Month</div>
-              <div class="font-medium text-gray-900 dark:text-gray-100">
+              <div class="ui-muted">Per Month</div>
+              <div class="font-medium ui-text">
                 {formatNumber(limit.per_month_call_limit)}
               </div>
             </div>
@@ -509,9 +509,9 @@
       {/each}
     </div>
   {:else}
-    <div class="rounded-lg bg-gray-100 p-8 text-center dark:bg-gray-900/50">
+    <div class="rounded-lg p-8 text-center ui-panel">
       <svg
-        class="mx-auto mb-4 h-12 w-12 text-gray-400"
+        class="mx-auto mb-4 h-12 w-12 ui-muted"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -523,15 +523,15 @@
           d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
         />
       </svg>
-      <p class="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+      <p class="mb-2 text-sm font-medium ui-muted">
         No rate limits configured
       </p>
-      <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">
+      <p class="mb-4 text-sm ui-muted">
         Create a rate limit to control API call frequency for this consumer.
       </p>
       <a
         href="/consumers/{consumer.consumer_id}/rate-limits/create"
-        class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-500 dark:hover:bg-blue-600"
+        class="inline-flex items-center rounded-lg px-4 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 preset-filled-primary-500"
       >
         <svg
           class="mr-2 h-4 w-4"

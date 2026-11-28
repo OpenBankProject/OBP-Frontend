@@ -76,32 +76,32 @@
 <div class="container mx-auto max-w-7xl px-4 py-8">
   <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
     <div>
-      <a href="/json-schema-validations" class="mb-4 inline-flex items-center text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">← Back to JSON Schema Validations</a>
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Edit JSON Schema Validation</h1>
-      <p class="mt-1 font-mono text-sm text-gray-600 dark:text-gray-400">{operationId}</p>
-      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+      <a href="/json-schema-validations" class="mb-4 inline-flex items-center text-sm ui-link">← Back to JSON Schema Validations</a>
+      <h1 class="text-3xl font-bold ui-text">Edit JSON Schema Validation</h1>
+      <p class="mt-1 font-mono text-sm ui-muted">{operationId}</p>
+      <p class="mt-1 text-sm ui-muted">
         {#if data.endpoint}
           <span class="font-mono text-xs">{data.endpoint.request_verb} {data.endpoint.request_url}</span> — {data.endpoint.summary}
         {:else}
           Not found in this instance's resource docs.
         {/if}
-        <a href={data.explorerUrl} target="_blank" rel="noopener noreferrer" class="ml-2 inline-flex items-center gap-1 text-blue-600 hover:underline dark:text-blue-400" data-testid="api-explorer-link">
+        <a href={data.explorerUrl} target="_blank" rel="noopener noreferrer" class="ml-2 inline-flex items-center gap-1 hover:underline ui-link" data-testid="api-explorer-link">
           API Explorer <ExternalLink size={12} />
         </a>
       </p>
     </div>
-    <button type="button" onclick={handleDelete} disabled={deleting} data-testid="delete-btn" class="inline-flex items-center gap-1 rounded-lg border border-red-300 bg-white px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-50 disabled:opacity-50 dark:border-red-700 dark:bg-gray-800 dark:text-red-400 dark:hover:bg-red-900/20">
+    <button type="button" onclick={handleDelete} disabled={deleting} data-testid="delete-btn" class="inline-flex items-center gap-1 rounded-lg border px-3 py-2 text-sm font-medium disabled:opacity-50 ui-card ui-tone-error">
       <Trash2 size={14} /> {deleting ? "Deleting…" : "Delete"}
     </button>
   </div>
 
   {#if actionError}
-    <div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300" data-testid="action-error">{actionError}</div>
+    <div class="mb-6 rounded-lg border p-4 text-sm ui-tone-error" data-testid="action-error">{actionError}</div>
   {/if}
 
   <ResizableSplit breakpoint="lg">
     {#snippet main()}
-    <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+    <div class="rounded-lg border p-6 shadow-sm ui-card ui-border">
       {#key operationId}
         <JsonSchemaValidationForm
           initial={{ operation_id: operationId, json_schema: schemaToText(data.validation.json_schema) }}
@@ -116,7 +116,7 @@
     {/snippet}
 
     {#snippet side()}
-      <div class="h-[36rem] w-full overflow-hidden rounded-lg border border-gray-200 shadow-sm lg:h-[calc(100vh-80px-3rem)] dark:border-gray-700">
+      <div class="h-[36rem] w-full overflow-hidden rounded-lg border shadow-sm lg:h-[calc(100vh-80px-3rem)] ui-border">
         <OpeyChat {opeyChatOptions} userAuthenticated={!!page.data.userId} {clientTools} {clientContext} />
       </div>
     {/snippet}

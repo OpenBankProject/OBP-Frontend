@@ -98,13 +98,13 @@
 	/>
 
 	<div class="flex items-center justify-between gap-2">
-		<p class="text-xs text-surface-600-400" aria-live="polite">
+		<p class="text-xs ui-muted" aria-live="polite">
 			{total}{typed.trim() ? ` of ${allItemCount}` : ''}
 		</p>
 		{#if typed.trim() && onQueryChange}
 			<button
 				type="button"
-				class="rounded border border-surface-300-600 px-2 py-0.5 text-xs text-surface-700-300 hover:bg-surface-100-800"
+				class="rounded border px-2 py-0.5 text-xs ui-hover ui-muted ui-border"
 				onclick={clearFilter}
 			>
 				Clear filter
@@ -115,7 +115,7 @@
 	<div class="min-h-0 flex-1 overflow-y-auto">
 		{#each filtered as group (group.name)}
 			{#if group.name}
-				<h2 class="px-2 pt-2 pb-1 text-xs font-semibold uppercase tracking-wide text-surface-600-400">
+				<h2 class="px-2 pt-2 pb-1 text-xs font-semibold uppercase tracking-wide ui-muted">
 					{group.name}
 				</h2>
 			{/if}
@@ -123,16 +123,16 @@
 				{#each group.items as item (item.href)}
 					<li>
 						<a
-							class="flex items-baseline justify-between gap-2 rounded px-2 py-1 text-xs hover:bg-surface-100-800 {item.href ===
+							class="flex items-baseline justify-between gap-2 rounded px-2 py-1 text-xs ui-hover {item.href ===
 							activeHref
-								? 'bg-surface-200-700 font-semibold'
+								? 'font-semibold ui-panel'
 								: ''}"
 							href={item.href}
 							aria-current={item.href === activeHref ? 'page' : undefined}
 						>
-							<span class="truncate text-surface-800-200">{item.label}</span>
+							<span class="truncate ui-text">{item.label}</span>
 							{#if item.note}
-								<span class="shrink-0 text-surface-600-400">{item.note}</span>
+								<span class="shrink-0 ui-muted">{item.note}</span>
 							{/if}
 						</a>
 					</li>
@@ -140,13 +140,13 @@
 			</ul>
 		{:else}
 			<div class="flex flex-col items-start gap-2 px-2 py-4">
-				<p class="text-sm text-surface-600-400">
+				<p class="text-sm ui-muted">
 					{typed.trim() ? `Nothing matches “${typed.trim()}”.` : emptyMessage}
 				</p>
 				{#if typed.trim() && onQueryChange}
 					<button
 						type="button"
-						class="rounded border border-surface-300-600 px-2 py-1 text-xs text-surface-700-300 hover:bg-surface-100-800"
+						class="rounded border px-2 py-1 text-xs ui-hover ui-muted ui-border"
 						onclick={clearFilter}
 					>
 						Clear filter

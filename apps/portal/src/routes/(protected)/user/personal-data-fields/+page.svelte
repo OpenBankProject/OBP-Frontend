@@ -74,25 +74,25 @@
 
 <h2 class="mb-4 text-xl font-semibold">Personal Data Fields</h2>
 
-<p class="mb-4 text-gray-700 dark:text-gray-300">
+<p class="mb-4 ui-muted">
 	Manage your personal data attributes. These are key-value pairs you can use to store personal information.
 </p>
 
 {#if data.loadError}
-	<div class="mb-4 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20">
-		<p class="text-sm text-red-800 dark:text-red-200">{data.loadError}</p>
+	<div class="mb-4 rounded-lg border p-4 ui-tone-error">
+		<p class="text-sm ui-text-error">{data.loadError}</p>
 	</div>
 {/if}
 
 {#if form?.success}
-	<div class="mb-4 rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-900/20">
-		<p class="text-sm text-green-800 dark:text-green-200">{form.message}</p>
+	<div class="mb-4 rounded-lg border p-4 ui-tone-success">
+		<p class="text-sm ui-text-success">{form.message}</p>
 	</div>
 {/if}
 
 {#if form?.message && form?.action !== 'create'}
-	<div class="mb-4 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20">
-		<p class="text-sm text-red-800 dark:text-red-200">{form.message}</p>
+	<div class="mb-4 rounded-lg border p-4 ui-tone-error">
+		<p class="text-sm ui-text-error">{form.message}</p>
 	</div>
 {/if}
 
@@ -116,7 +116,7 @@
 								<form method="POST" action="?/update" class="flex flex-wrap items-end gap-2">
 									<input type="hidden" name="user_attribute_id" value={field.user_attribute_id} />
 									<div>
-										<label class="text-xs font-medium text-gray-600 dark:text-gray-400" for="edit-name">Name</label>
+										<label class="text-xs font-medium ui-muted" for="edit-name">Name</label>
 										<input
 											id="edit-name"
 											class="input"
@@ -127,7 +127,7 @@
 										/>
 									</div>
 									<div>
-										<label class="text-xs font-medium text-gray-600 dark:text-gray-400" for="edit-type">Type</label>
+										<label class="text-xs font-medium ui-muted" for="edit-type">Type</label>
 										<select id="edit-type" class="select" name="type" bind:value={editType}>
 											{#each typeOptions as t}
 												<option value={t}>{t}</option>
@@ -135,7 +135,7 @@
 										</select>
 									</div>
 									<div>
-										<label class="text-xs font-medium text-gray-600 dark:text-gray-400" for="edit-value">Value</label>
+										<label class="text-xs font-medium ui-muted" for="edit-value">Value</label>
 										<input
 											id="edit-value"
 											class="input"
@@ -146,7 +146,7 @@
 										/>
 									</div>
 									<div class="flex gap-2">
-										<button type="submit" class="btn preset-outlined-success-500">Save</button>
+										<button type="submit" class="btn preset-outlined-surface-500">Save</button>
 										<button type="button" class="btn preset-outlined-surface-500" onclick={cancelEdit}>Cancel</button>
 									</div>
 								</form>
@@ -162,14 +162,14 @@
 								<div class="flex gap-2">
 									<button
 										type="button"
-										class="btn btn-sm preset-outlined-primary-500"
+										class="btn btn-sm preset-outlined-surface-500"
 										onclick={() => startEdit(field)}
 									>
 										Edit
 									</button>
 									<form method="POST" action="?/delete" class="inline">
 										<input type="hidden" name="user_attribute_id" value={field.user_attribute_id} />
-										<button type="submit" class="btn btn-sm preset-outlined-error-500">Delete</button>
+										<button type="submit" class="btn btn-sm preset-filled-error-500">Delete</button>
 									</form>
 								</div>
 							</td>
@@ -180,9 +180,9 @@
 		</table>
 	</div>
 {:else if !data.loadError}
-	<div class="mb-8 rounded-lg bg-gray-100 p-8 text-center dark:bg-gray-800">
-		<p class="mb-2 text-lg font-medium text-gray-700 dark:text-gray-300">No personal data fields found</p>
-		<p class="text-gray-600 dark:text-gray-400">
+	<div class="mb-8 rounded-lg p-8 text-center ui-panel">
+		<p class="mb-2 text-lg font-medium ui-muted">No personal data fields found</p>
+		<p class="ui-muted">
 			Use the form below to add your first personal data field.
 		</p>
 	</div>
@@ -191,8 +191,8 @@
 <h2 class="mt-8 mb-4 text-xl font-semibold">Add New Field</h2>
 
 {#if form?.message && form?.action === 'create'}
-	<div class="mb-4 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20">
-		<p class="text-sm text-red-800 dark:text-red-200">{form.message}</p>
+	<div class="mb-4 rounded-lg border p-4 ui-tone-error">
+		<p class="text-sm ui-text-error">{form.message}</p>
 	</div>
 {/if}
 
@@ -230,5 +230,5 @@
 		/>
 	</label>
 
-	<button class="btn preset-outlined-tertiary-500" type="submit">Add Field</button>
+	<button class="btn preset-outlined-surface-500" type="submit">Add Field</button>
 </form>

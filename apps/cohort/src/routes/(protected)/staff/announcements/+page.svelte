@@ -13,16 +13,16 @@
 <h1 class="h2">{t(locale, 'announcements_heading')}</h1>
 <p class="mt-2">{t(locale, 'announcements_intro')}</p>
 
-{#if form?.form === 'role' && form?.requested}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'access_requested_notice')}</p>{/if}
+{#if form?.form === 'role' && form?.requested}<p class="mt-4 ui-tone-success rounded p-3" role="status">{t(locale, 'access_requested_notice')}</p>{/if}
 {#if form?.error}
-	<p class="mt-4 preset-tonal-error rounded p-3" role="alert">
+	<p class="mt-4 ui-tone-error rounded p-3" role="alert">
 		{#if String(form.error) === 'announcement_title_missing'}{t(locale, 'announcement_title_missing')}{:else}{t(locale, 'staff_error')} {String(form.error)}{/if}
 	</p>
 {/if}
-{#if form?.form === 'publish' && form?.published}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'announcement_published')}</p>{/if}
-{#if form?.form === 'remove' && form?.removed}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'announcement_removed')}</p>{/if}
+{#if form?.form === 'publish' && form?.published}<p class="mt-4 ui-tone-success rounded p-3" role="status">{t(locale, 'announcement_published')}</p>{/if}
+{#if form?.form === 'remove' && form?.removed}<p class="mt-4 ui-tone-success rounded p-3" role="status">{t(locale, 'announcement_removed')}</p>{/if}
 
-<section class="card preset-outlined-surface-200-800 mt-6 p-4" data-testid="announcement-new">
+<section class="card border ui-border mt-6 p-4" data-testid="announcement-new">
 	<h2 class="h4">{t(locale, 'announcement_new')}</h2>
 	{#if missing('create')}
 		<div class="mt-2"><MissingRole {locale} space={data.space} role={missing('create')!} entitlementRequestsUrl={data.entitlementRequestsUrl} /></div>
@@ -45,7 +45,7 @@
 	{/if}
 </section>
 
-<section class="card preset-outlined-surface-200-800 mt-6 p-4" data-testid="announcements">
+<section class="card border ui-border mt-6 p-4" data-testid="announcements">
 	<h2 class="h4">{t(locale, 'announcements_published')}</h2>
 	{#if data.announcements.length === 0}
 		<p class="mt-2">{t(locale, 'announcements_none')}</p>
@@ -54,7 +54,7 @@
 		<ul class="mt-2 flex flex-col gap-3">
 			{#each data.announcements as a (a.id)}
 				{@const text = inReaderLocale(a, locale)}
-				<li class="border-surface-200-800 border-b pb-3">
+				<li class="ui-border border-b pb-3">
 					<p dir="auto"><strong>{text.title}</strong></p>
 					<p class="text-sm">
 						{a.published_at.replace('T', ' ').slice(0, 16)} · {a.programme_id ? programmeName(a.programme_id) : t(locale, 'announcement_everyone')}{#if a.published_by_username}{' '}· {a.published_by_username}{/if}
@@ -63,7 +63,7 @@
 					{#if !missing('remove')}
 						<form method="POST" action="?/remove" class="mt-1">
 							<input type="hidden" name="announcement_id" value={a.id} />
-							<button class="btn btn-sm preset-tonal-error" data-testid="announcement-remove-{a.id}">{t(locale, 'announcement_remove')}</button>
+							<button class="btn btn-sm preset-filled-error-500" data-testid="announcement-remove-{a.id}">{t(locale, 'announcement_remove')}</button>
 						</form>
 					{/if}
 				</li>

@@ -26,11 +26,11 @@
 </script>
 
 <div
-  class="rounded-lg border border-gray-200 p-4 text-sm text-gray-900 dark:border-gray-700 dark:text-gray-100"
+  class="rounded-lg border p-4 text-sm ui-text ui-border"
   data-testid="webui-prop-preview"
 >
   {#if !value.trim()}
-    <span class="text-gray-500 dark:text-gray-400">Empty</span>
+    <span class="ui-muted">Empty</span>
   {:else if !isWebUiPropMarkdown(name)}
     <span class="whitespace-pre-wrap break-all">{value}</span>
   {:else}

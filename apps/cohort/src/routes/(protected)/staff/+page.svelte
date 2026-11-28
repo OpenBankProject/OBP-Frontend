@@ -22,12 +22,12 @@
 
 <h1 class="h2">{t(locale, 'staff_heading')}</h1>
 <p class="mt-1"><a class="anchor" href="/staff/access" data-testid="staff-access-link">{t(locale, 'nav_access')}</a> · <a class="anchor" href="/staff/setup" data-testid="staff-setup-link">{t(locale, 'nav_setup')}</a></p>
-{#if form?.form === 'role' && form?.requested}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'access_requested_notice')}</p>{/if}
-{#if form?.form === 'role' && form?.error}<p class="mt-4 preset-tonal-error rounded p-3" role="alert">{t(locale, 'staff_error')} {form.error}</p>{/if}
+{#if form?.form === 'role' && form?.requested}<p class="mt-4 ui-tone-success rounded p-3" role="status">{t(locale, 'access_requested_notice')}</p>{/if}
+{#if form?.form === 'role' && form?.error}<p class="mt-4 ui-tone-error rounded p-3" role="alert">{t(locale, 'staff_error')} {form.error}</p>{/if}
 
-<section class="card preset-outlined-surface-200-800 mt-6 p-4" data-testid="staff-programmes">
+<section class="card border ui-border mt-6 p-4" data-testid="staff-programmes">
 	<h2 class="h4">{t(locale, 'staff_programmes')}</h2>
-	{#if data.errors.programmes}<p class="preset-tonal-error rounded p-3">{data.errors.programmes}</p>{/if}
+	{#if data.errors.programmes}<p class="ui-tone-error rounded p-3">{data.errors.programmes}</p>{/if}
 	{#if data.programmes.length === 0}<p>{t(locale, 'staff_none')}</p>{:else}
 		<div class="table-wrap mt-2">
 			<table class="table">
@@ -52,17 +52,17 @@
 		<summary class="btn btn-sm preset-tonal cursor-pointer">{t(locale, 'staff_create_programme')}</summary>
 		<form method="POST" action="?/createProgramme" class="mt-2 flex max-w-xl flex-col gap-2">
 			<ProgrammeFields {locale} />
-			<button class="btn preset-filled self-start" data-testid="staff-create-programme">{t(locale, 'staff_create')}</button>
+			<button class="btn preset-filled-primary-500 self-start" data-testid="staff-create-programme">{t(locale, 'staff_create')}</button>
 		</form>
 	</details>
 	{/if}
-	{#if formError('programme')}<p class="mt-2 preset-tonal-error rounded p-3" role="alert">{t(locale, 'staff_error')} {formError('programme')}</p>{/if}
+	{#if formError('programme')}<p class="mt-2 ui-tone-error rounded p-3" role="alert">{t(locale, 'staff_error')} {formError('programme')}</p>{/if}
 	{#if form?.form === 'programme' && form?.created}<p class="mt-2" role="status">{t(locale, 'staff_created')}</p>{/if}
 </section>
 
-<section class="card preset-outlined-surface-200-800 mt-6 p-4" data-testid="staff-calls">
+<section class="card border ui-border mt-6 p-4" data-testid="staff-calls">
 	<h2 class="h4">{t(locale, 'staff_calls')}</h2>
-	{#if data.errors.calls}<p class="preset-tonal-error rounded p-3">{data.errors.calls}</p>{/if}
+	{#if data.errors.calls}<p class="ui-tone-error rounded p-3">{data.errors.calls}</p>{/if}
 	{#if data.calls.length === 0}<p>{t(locale, 'staff_none')}</p>{:else}
 		<div class="table-wrap mt-2">
 			<table class="table">
@@ -91,21 +91,21 @@
 			<summary class="btn btn-sm preset-tonal cursor-pointer">{t(locale, 'staff_create_call')}</summary>
 			<form method="POST" action="?/createCall" class="mt-2 flex max-w-xl flex-col gap-2">
 				<CallFields {locale} programmes={data.programmes} />
-				<button class="btn preset-filled self-start" data-testid="staff-create-call">{t(locale, 'staff_create')}</button>
+				<button class="btn preset-filled-primary-500 self-start" data-testid="staff-create-call">{t(locale, 'staff_create')}</button>
 			</form>
 		</details>
 		{/if}
 	{/if}
-	{#if formError('call')}<p class="mt-2 preset-tonal-error rounded p-3" role="alert">{t(locale, 'staff_error')} {formError('call')}</p>{/if}
+	{#if formError('call')}<p class="mt-2 ui-tone-error rounded p-3" role="alert">{t(locale, 'staff_error')} {formError('call')}</p>{/if}
 	{#if form?.form === 'call' && form?.created}<p class="mt-2" role="status">{t(locale, 'staff_created')}</p>{/if}
 </section>
 
-<section class="card preset-outlined-surface-200-800 mt-6 p-4" data-testid="staff-applications">
+<section class="card border ui-border mt-6 p-4" data-testid="staff-applications">
 	<h2 class="h4">{t(locale, 'staff_applications')}</h2>
 	{#if lacking(APPLICATIONS_ROLE)}
 		<MissingRole {locale} space={data.space} role={lacking(APPLICATIONS_ROLE)!} entitlementRequestsUrl={data.entitlementRequestsUrl} />
 	{:else if data.errors.applications}
-		<p class="preset-tonal-error rounded p-3">{data.errors.applications}</p>
+		<p class="ui-tone-error rounded p-3">{data.errors.applications}</p>
 	{:else if data.applications.length === 0}
 		<p>{t(locale, 'staff_none')}</p>
 	{:else}

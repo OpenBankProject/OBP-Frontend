@@ -48,31 +48,31 @@
 <div class="container mx-auto max-w-7xl px-4 py-8">
   <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
     <div>
-      <h1 class="flex items-center gap-2 text-3xl font-bold text-gray-900 dark:text-gray-100"><FileSpreadsheet class="h-7 w-7" /> Reports</h1>
-      <p class="mt-1 text-gray-600 dark:text-gray-400">Saved report definitions. Each runs in your browser with your own OBP access; ask Opey to write or change one.</p>
+      <h1 class="flex items-center gap-2 text-3xl font-bold ui-text"><FileSpreadsheet class="h-7 w-7" /> Reports</h1>
+      <p class="mt-1 ui-muted">Saved report definitions. Each runs in your browser with your own OBP access; ask Opey to write or change one.</p>
     </div>
-    <a href="/reports/new" class="inline-flex items-center gap-1 rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700" data-testid="reports-new"><Plus class="h-4 w-4" /> New report</a>
+    <a href="/reports/new" class="inline-flex items-center gap-1 rounded-md px-3 py-2 text-sm font-medium preset-filled-primary-500" data-testid="reports-new"><Plus class="h-4 w-4" /> New report</a>
   </div>
 
   {#if error}
-    <p class="rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-800 dark:border-red-700 dark:bg-red-900/20 dark:text-red-200" data-testid="reports-error">{error}</p>
+    <p class="rounded-lg border p-4 text-sm ui-tone-error" data-testid="reports-error">{error}</p>
   {:else if loading}
-    <p class="text-sm text-gray-500 dark:text-gray-400">Loading…</p>
+    <p class="text-sm ui-muted">Loading…</p>
   {:else if reports.length === 0}
-    <p class="text-sm text-gray-500 dark:text-gray-400" data-testid="reports-empty">No reports yet. Create one and let Opey write it.</p>
+    <p class="text-sm ui-muted" data-testid="reports-empty">No reports yet. Create one and let Opey write it.</p>
   {:else}
-    <ul class="divide-y divide-gray-200 rounded-lg border border-gray-200 bg-white dark:divide-gray-700 dark:border-gray-700 dark:bg-gray-800" data-testid="reports-list">
+    <ul class="divide-y rounded-lg border ui-card ui-border" data-testid="reports-list">
       {#each reports as r (r.id)}
         {@const params = parseParameters(r.parameters).params}
         <li class="flex flex-wrap items-center gap-3 px-4 py-3" data-testid="reports-item">
           <div class="min-w-0 flex-1">
-            <a href="/reports/{r.id}" class="font-semibold text-gray-900 hover:underline dark:text-gray-100">{r.title}</a>
-            <span class="ml-2 font-mono text-xs text-gray-500 dark:text-gray-400">{r.slug}</span>
-            {#if r.description}<p class="mt-0.5 text-sm text-gray-600 dark:text-gray-400">{r.description}</p>{/if}
+            <a href="/reports/{r.id}" class="font-semibold hover:underline ui-text">{r.title}</a>
+            <span class="ml-2 font-mono text-xs ui-muted">{r.slug}</span>
+            {#if r.description}<p class="mt-0.5 text-sm ui-muted">{r.description}</p>{/if}
           </div>
-          <span class="text-xs text-gray-500 dark:text-gray-400">{params.length} parameter{params.length === 1 ? "" : "s"} · {r.author || "unknown"} · {r.updated_at}</span>
-          <a href="/reports/{r.id}" class="rounded-md border border-gray-300 px-3 py-1 text-sm text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">Open</a>
-          <button type="button" class="rounded-md border border-gray-300 px-3 py-1 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-60 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700" disabled={duplicatingId === r.id} onclick={() => duplicate(r.id)} data-testid="reports-duplicate">{duplicatingId === r.id ? "Duplicating…" : "Duplicate"}</button>
+          <span class="text-xs ui-muted">{params.length} parameter{params.length === 1 ? "" : "s"} · {r.author || "unknown"} · {r.updated_at}</span>
+          <a href="/reports/{r.id}" class="rounded-md border px-3 py-1 text-sm ui-hover ui-muted ui-border">Open</a>
+          <button type="button" class="rounded-md border px-3 py-1 text-sm disabled:opacity-60 ui-hover ui-muted ui-border" disabled={duplicatingId === r.id} onclick={() => duplicate(r.id)} data-testid="reports-duplicate">{duplicatingId === r.id ? "Duplicating…" : "Duplicate"}</button>
         </li>
       {/each}
     </ul>

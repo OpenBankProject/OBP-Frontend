@@ -67,17 +67,17 @@
 {/if}
 {#if f.entity_name && f.status !== 'draft'}<p class="mt-1 text-sm">{t(locale, 'forms_entity')} <code>{f.entity_name}</code></p>{/if}
 
-{#if form?.requested}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'access_requested_notice')}</p>{/if}
-{#if form?.error}<p class="mt-4 preset-tonal-error rounded p-3" role="alert">{errorText(String(form.error))}</p>{/if}
+{#if form?.requested}<p class="mt-4 ui-tone-success rounded p-3" role="status">{t(locale, 'access_requested_notice')}</p>{/if}
+{#if form?.error}<p class="mt-4 ui-tone-error rounded p-3" role="alert">{errorText(String(form.error))}</p>{/if}
 {#if form?.saved}<p class="mt-4" role="status">{t(locale, 'forms_saved')}</p>{/if}
-{#if form?.published}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'forms_published_notice')}</p>{/if}
+{#if form?.published}<p class="mt-4 ui-tone-success rounded p-3" role="status">{t(locale, 'forms_published_notice')}</p>{/if}
 {#if form?.closed}<p class="mt-4" role="status">{t(locale, 'forms_closed_notice')}</p>{/if}
 {#if form?.reopened}<p class="mt-4" role="status">{t(locale, 'forms_reopened_notice')}</p>{/if}
 {#if form?.newVersion}
-	<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'forms_new_version_notice')} <a class="anchor" href="/staff/forms/{form.newVersion}">{t(locale, 'forms_open_new_version')}</a></p>
+	<p class="mt-4 ui-tone-success rounded p-3" role="status">{t(locale, 'forms_new_version_notice')} <a class="anchor" href="/staff/forms/{form.newVersion}">{t(locale, 'forms_open_new_version')}</a></p>
 {/if}
 
-<section class="card preset-outlined-surface-200-800 mt-6 p-4" data-testid="form-status">
+<section class="card border ui-border mt-6 p-4" data-testid="form-status">
 	{#if f.status === 'draft'}
 		<p>{t(locale, 'forms_draft_text')}</p>
 		{@render roleNeeded('publish')}
@@ -110,7 +110,7 @@
 			<label class="label"><span class="label-text">{t(locale, 'forms_title_ar')}</span><input class="input" name="title_ar" maxlength="255" dir="rtl" lang="ar" value={f.title_ar} /></label>
 			<label class="label"><span class="label-text">{t(locale, 'forms_description_en')}</span><textarea class="textarea" name="description" rows="3" maxlength="4000">{f.description}</textarea></label>
 			<label class="label"><span class="label-text">{t(locale, 'forms_description_ar')}</span><textarea class="textarea" name="description_ar" rows="3" maxlength="4000" dir="rtl" lang="ar">{f.description_ar}</textarea></label>
-			<button class="btn btn-sm preset-filled self-start">{t(locale, 'staff_save')}</button>
+			<button class="btn btn-sm preset-filled-primary-500 self-start">{t(locale, 'staff_save')}</button>
 		</form>
 	</details>
 {/if}
@@ -122,13 +122,13 @@
 	{#if f.questions.length === 0}<p class="mt-2">{t(locale, 'forms_no_questions')}</p>{/if}
 	<ol class="mt-2 flex flex-col gap-3">
 		{#each f.questions as q, i (q.key)}
-			<li class="card preset-outlined-surface-200-800 p-3" data-testid="form-question-{q.key}">
+			<li class="card border ui-border p-3" data-testid="form-question-{q.key}">
 				<div class="flex flex-wrap items-baseline gap-x-2">
 					<strong>{q.label || '—'}</strong>
 					{#if q.label_ar}<span dir="rtl" lang="ar">{q.label_ar}</span>{/if}
 					<span class="badge preset-tonal">{kindLabel(q.kind)}</span>
 					{#if q.required}<span class="badge preset-tonal">{t(locale, 'forms_required')}</span>{/if}
-					{#if q.hidden}<span class="badge preset-tonal-warning">{t(locale, 'forms_hidden')}</span>{/if}
+					{#if q.hidden}<span class="badge ui-tone-warning">{t(locale, 'forms_hidden')}</span>{/if}
 					<code class="text-sm">{q.key}</code>
 				</div>
 				{#if q.kind === 'select'}<p class="mt-1 text-sm">{(q.options ?? []).map((o) => inLocale(locale, o.en, o.ar)).join(' · ')}</p>{/if}
@@ -142,7 +142,7 @@
 							<form method="POST" action="?/updateQuestion" class="mt-2 flex max-w-xl flex-col gap-2">
 								<input type="hidden" name="key" value={q.key} />
 								{@render questionFields(q)}
-								<button class="btn btn-sm preset-filled self-start">{t(locale, 'staff_save')}</button>
+								<button class="btn btn-sm preset-filled-primary-500 self-start">{t(locale, 'staff_save')}</button>
 							</form>
 						</details>
 					</div>
@@ -151,11 +151,11 @@
 		{/each}
 	</ol>
 	{#if mayEdit}
-		<details class="card preset-outlined-surface-200-800 mt-4 p-4" open={f.questions.length === 0}>
+		<details class="card border ui-border mt-4 p-4" open={f.questions.length === 0}>
 			<summary class="btn btn-sm preset-tonal cursor-pointer">{t(locale, 'forms_add_question')}</summary>
 			<form method="POST" action="?/addQuestion" class="mt-2 flex max-w-xl flex-col gap-2" data-testid="form-add-question">
 				{@render questionFields(null)}
-				<button class="btn preset-filled self-start">{t(locale, 'forms_add')}</button>
+				<button class="btn preset-filled-primary-500 self-start">{t(locale, 'forms_add')}</button>
 			</form>
 		</details>
 	{/if}
@@ -165,7 +165,7 @@
 	<section class="mt-8 max-w-2xl" data-testid="form-preview">
 		<h2 class="h3">{t(locale, 'forms_preview')}</h2>
 		<p class="mt-1 text-sm">{t(locale, 'forms_preview_text')}</p>
-		<fieldset disabled class="card preset-outlined-surface-200-800 mt-2 flex flex-col gap-4 p-4">
+		<fieldset disabled class="card border ui-border mt-2 flex flex-col gap-4 p-4">
 			<FormQuestions {locale} questions={f.questions} />
 		</fieldset>
 	</section>
@@ -175,7 +175,7 @@
 	<section class="mt-8" data-testid="form-answers">
 		<h2 class="h3">{t(locale, 'forms_answers')}</h2>
 		{@render roleNeeded('answers')}
-		{#if data.answersError}<p class="mt-2 preset-tonal-error rounded p-3">{data.answersError}</p>{/if}
+		{#if data.answersError}<p class="mt-2 ui-tone-error rounded p-3">{data.answersError}</p>{/if}
 		{#if !missing('answers') && !data.answersError}
 			<p class="mt-1">
 				{data.answeredCount} {t(locale, f.purpose === 'survey' ? 'forms_answers_teams' : 'forms_answers_submitted')}{#if data.drafts}{' '}· {data.drafts} {t(locale, 'forms_answers_drafts')}{/if}
@@ -186,7 +186,7 @@
 					{#each f.questions as q (q.key)}
 						{@const s = summaryOf(q)}
 						{#if s && (s.answered || !q.hidden)}
-							<li class="card preset-outlined-surface-200-800 p-3">
+							<li class="card border ui-border p-3">
 								<strong>{questionLabel(q, locale)}</strong> <span class="text-sm">({s.answered} {t(locale, 'forms_answered')})</span>
 								{#if 'counts' in s}
 									<ul class="mt-1">{#each s.counts as c (c.label)}<li>{c.label}: {c.count}</li>{/each}</ul>

@@ -51,19 +51,17 @@
 </script>
 
 <div class="card rounded-lg border-2 p-4 text-start"
-     class:border-error-500={isError}
-     class:bg-error-50={isError}
-     class:dark:bg-error-950={isError}
-     class:border-surface-300-700={!isError}
-     class:bg-surface-50-950={!isError}>
+     class:ui-tone-error={isError}
+     class:ui-card={!isError}
+     class:ui-border={!isError}>
     <!-- Header -->
     <div class="mb-3 flex items-center justify-between">
         <div class="flex items-center gap-2">
             {#if isError}
-                <AlertTriangle class="text-error-600-400" size={20} />
-                <h4 class="text-sm font-semibold text-error-700-300">API Response (Error)</h4>
+                <AlertTriangle class="ui-text-error" size={20} />
+                <h4 class="text-sm font-semibold ui-text-error">API Response (Error)</h4>
             {:else}
-                <CheckCircle class="text-success-600-400" size={20} />
+                <CheckCircle class="ui-text-success" size={20} />
                 <h4 class="text-sm font-semibold">API Response</h4>
             {/if}
         </div>
@@ -71,20 +69,20 @@
 
     <!-- Tool Name -->
     <div class="mb-3">
-        <span class="text-xs font-medium text-surface-600-400">Tool:</span>
-        <code class="ms-2 rounded bg-primary-100-900 px-2 py-1 text-xs">
+        <span class="text-xs font-medium ui-muted">Tool:</span>
+        <code class="ms-2 rounded px-2 py-1 text-xs ui-tone-info">
             {message.toolName}
         </code>
     </div>
 
     <!-- Error Message -->
     {#if isError}
-        <div class="mb-3 rounded-lg bg-error-100-900 p-3">
-            <div class="text-sm font-medium text-error-950-50">
+        <div class="mb-3 rounded-lg p-3 ui-tone-error">
+            <div class="text-sm font-medium ui-text-error">
                 {parsedOutput?.message || parsedOutput?.error || 'Request failed'}
             </div>
             {#if parsedOutput?.code || parsedOutput?.status}
-                <div class="mt-1 text-xs text-error-700-300">
+                <div class="mt-1 text-xs ui-text-error">
                     Status Code: {parsedOutput.code || parsedOutput.status}
                 </div>
             {/if}
@@ -94,9 +92,7 @@
     <!-- Output Toggle -->
     <button
         type="button"
-        class="btn btn-sm w-full mb-2"
-        class:preset-outlined-error-500={isError}
-        class:preset-outlined-primary-500={!isError}
+        class="btn btn-sm w-full mb-2 preset-outlined-surface-500"
         onclick={() => showOutput = !showOutput}
     >
         {showOutput ? 'Hide' : 'View'} Full Response
@@ -104,6 +100,6 @@
 
     <!-- Output Content -->
     {#if showOutput}
-        <pre class="text-xs text-start mt-2 preset-filled-surface-200-800 p-3 rounded-lg max-h-96 overflow-auto font-mono whitespace-pre border border-surface-300-700">{outputContent}</pre>
+        <pre class="text-xs text-start mt-2 ui-panel p-3 rounded-lg max-h-96 overflow-auto font-mono whitespace-pre border ui-border">{outputContent}</pre>
     {/if}
 </div>

@@ -13,11 +13,11 @@
 	/** A short word in a coloured box: a status, an outcome or a stage, in the page's language. */
 	let { value, tone = 'surface' }: { value: string; tone?: 'surface' | 'success' | 'warning' | 'error' | 'primary' } = $props();
 	const classes: Record<string, string> = {
-		surface: 'preset-tonal-surface',
-		success: 'preset-tonal-success',
-		warning: 'preset-tonal-warning',
-		error: 'preset-tonal-error',
-		primary: 'preset-tonal-primary'
+		surface: 'ui-tone-neutral',
+		success: 'ui-tone-success',
+		warning: 'ui-tone-warning',
+		error: 'ui-tone-error',
+		primary: 'ui-tone-info'
 	};
 </script>
 

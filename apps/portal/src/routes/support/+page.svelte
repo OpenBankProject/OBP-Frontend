@@ -32,7 +32,7 @@
 	</div>
 	<div class="text-center mt-6 max-w-xl">
 		<h1 class="text-2xl font-bold mb-4">Need a hand?</h1>
-		<p class="text-gray-500 mb-8">
+		<p class="mb-8 ui-muted">
 			Reach the team on our internal chat, or contact the support platform.
 		</p>
 		<div class="flex flex-col sm:flex-row justify-center gap-4">

@@ -52,7 +52,7 @@
 							<form method="POST" action="?/approveFile"><input type="hidden" name="file_id" value={file.file_id} /><button class="btn btn-sm preset-tonal">{t(locale, 'files_approve')}</button></form>
 						{/if}
 						{#if file.scan_status !== 'rejected'}
-							<form method="POST" action="?/rejectFile"><input type="hidden" name="file_id" value={file.file_id} /><button class="btn btn-sm preset-tonal-error">{t(locale, 'files_reject')}</button></form>
+							<form method="POST" action="?/rejectFile"><input type="hidden" name="file_id" value={file.file_id} /><button class="btn btn-sm preset-filled-error-500">{t(locale, 'files_reject')}</button></form>
 						{/if}
 					{/if}
 				</td>

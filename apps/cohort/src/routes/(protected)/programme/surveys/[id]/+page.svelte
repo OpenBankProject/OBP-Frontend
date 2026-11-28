@@ -17,15 +17,15 @@
 <p class="mt-1">{data.participant.startup_name}</p>
 {#if description}<p class="mt-2 max-w-2xl whitespace-pre-line">{description}</p>{/if}
 
-{#if form?.saved}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'application_saved')}</p>{/if}
-{#if form?.submittedNow}<p class="mt-4 preset-tonal-success rounded p-3" role="status" data-testid="survey-submitted">{t(locale, 'survey_thanks')}</p>{/if}
+{#if form?.saved}<p class="mt-4 ui-tone-success rounded p-3" role="status">{t(locale, 'application_saved')}</p>{/if}
+{#if form?.submittedNow}<p class="mt-4 ui-tone-success rounded p-3" role="status" data-testid="survey-submitted">{t(locale, 'survey_thanks')}</p>{/if}
 {#if form?.missing}
-	<div class="mt-4 preset-tonal-warning rounded p-3" role="alert" data-testid="survey-missing">
+	<div class="mt-4 ui-tone-warning rounded p-3" role="alert" data-testid="survey-missing">
 		{t(locale, 'application_missing')}
 		<ul class="list-inside list-disc">{#each f.questions.filter((q) => form.missing.includes(q.key)) as q (q.key)}<li>{questionLabel(q, locale)}</li>{/each}</ul>
 	</div>
 {/if}
-{#if form?.error}<p class="mt-4 preset-tonal-error rounded p-3" role="alert">{form.error === 'closed' ? t(locale, 'survey_closed') : `${t(locale, 'staff_error')} ${form.error}`}</p>{/if}
+{#if form?.error}<p class="mt-4 ui-tone-error rounded p-3" role="alert">{form.error === 'closed' ? t(locale, 'survey_closed') : `${t(locale, 'staff_error')} ${form.error}`}</p>{/if}
 
 {#if data.submitted_at}<p class="mt-4 text-sm">{t(locale, 'survey_submitted_at')} {String(data.submitted_at).slice(0, 10)}</p>{/if}
 
@@ -34,7 +34,7 @@
 		<FormQuestions {locale} questions={f.questions} answers={data.answers} />
 		<div class="flex gap-3">
 			<button type="submit" formaction="?/save&participant={data.participant.id}" class="btn preset-tonal">{t(locale, 'application_save')}</button>
-			<button type="submit" formaction="?/submit&participant={data.participant.id}" class="btn preset-filled" data-testid="survey-submit">{t(locale, data.submitted_at ? 'survey_submit_again' : 'survey_submit')}</button>
+			<button type="submit" formaction="?/submit&participant={data.participant.id}" class="btn preset-filled-primary-500" data-testid="survey-submit">{t(locale, data.submitted_at ? 'survey_submit_again' : 'survey_submit')}</button>
 		</div>
 	</form>
 {:else}

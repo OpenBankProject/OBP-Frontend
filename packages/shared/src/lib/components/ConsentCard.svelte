@@ -157,16 +157,16 @@
     function getStatusColor(status: string): string {
         switch (status.toUpperCase()) {
             case 'ACCEPTED':
-                return 'text-green-600 bg-green-100 dark:bg-green-900/20 dark:text-green-400';
+                return 'ui-tone-success';
             case 'PENDING':
-                return 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/20 dark:text-yellow-400';
+                return 'ui-tone-warning';
             case 'REJECTED':
             case 'REVOKED':
-                return 'text-red-600 bg-red-100 dark:bg-red-900/20 dark:text-red-400';
+                return 'ui-tone-error';
             case 'EXPIRED':
-                return 'text-gray-600 bg-gray-100 dark:bg-gray-900/20 dark:text-gray-400';
+                return 'ui-panel ui-muted';
             default:
-                return 'text-gray-600 bg-gray-100 dark:bg-gray-900/20 dark:text-gray-400';
+                return 'ui-panel ui-muted';
         }
     }
 
@@ -186,11 +186,11 @@
 </script>
 
 
-<div class="rounded-lg bg-white p-6 shadow-md dark:bg-gray-800">
+<div class="rounded-lg p-6 shadow-md ui-card">
     <!-- Header -->
     <div class="mb-4 flex items-start justify-between">
         <div class="flex-1">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            <h3 class="text-lg font-semibold ui-text">
                 {consent.consent_id}
             </h3>
             <div class="mt-1 flex items-center gap-2">
@@ -200,11 +200,11 @@
                 {#if isRevoked}
                     <!-- consent.status already shows REVOKED in red; a JWT-active badge here would contradict it -->
                 {:else if jwtExpInfo.isExpired}
-                    <span class="inline-flex rounded-full bg-red-100 px-2 py-1 text-xs font-medium text-red-600 dark:bg-red-900/20 dark:text-red-400">
+                    <span class="inline-flex rounded-full px-2 py-1 text-xs font-medium ui-tone-error">
                         JWT Expired
                     </span>
                 {:else}
-                    <span class="inline-flex rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-600 dark:bg-green-900/20 dark:text-green-400">
+                    <span class="inline-flex rounded-full px-2 py-1 text-xs font-medium ui-tone-success">
                         JWT Active
                     </span>
                 {/if}
@@ -213,7 +213,7 @@
 
         <!-- Copy button for consent ID -->
         <button
-            class="btn-icon btn-sm preset-filled-tertiary ms-2"
+            class="btn-icon btn-sm preset-tonal ms-2"
             onclick={() => copyToClipboard(consent.consent_id, 'Consent ID')}
             title="Copy consent ID"
             aria-label="Copy consent ID"
@@ -229,11 +229,11 @@
     <div class="grid gap-3 text-sm  mx-auto">
         <!-- Consumer ID -->
         <div class="flex items-center justify-between">
-            <span class="font-medium text-gray-700 dark:text-gray-300">Consumer ID:</span>
+            <span class="font-medium ui-muted">Consumer ID:</span>
             <div class="flex items-center gap-2">
-                <span class="text-gray-900 dark:text-gray-100">{consent.consumer_id}</span>
+                <span class="ui-text">{consent.consumer_id}</span>
                 <button
-                    class="btn-icon btn-sm preset-filled-tertiary"
+                    class="btn-icon btn-sm preset-tonal"
                     onclick={() => copyToClipboard(consent.consumer_id, 'Consumer ID')}
                     title="Copy consumer ID"
                     aria-label="Copy consumer ID"
@@ -249,12 +249,12 @@
         <!-- Consent Reference ID -->
         {#if consent.consent_reference_id}
             <div class="flex items-center justify-between">
-                <span class="font-medium text-gray-700 dark:text-gray-300">Consent Reference ID:</span>
+                <span class="font-medium ui-muted">Consent Reference ID:</span>
                 <div class="flex items-center gap-2">
                     {#if metricsHref}
                         <a
                             href={`${metricsHref}?consent_reference_id=${encodeURIComponent(consent.consent_reference_id)}`}
-                            class="text-tertiary-600 underline-offset-2 hover:underline dark:text-tertiary-400"
+                            class="underline-offset-2 hover:underline ui-link"
                             title="Search metrics for this consent reference"
                             data-testid="consent-reference-id-metrics-link"
                         >
@@ -262,12 +262,12 @@
                         </a>
                     {:else}
                         <span
-                            class="text-gray-900 dark:text-gray-100"
+                            class="ui-text"
                             data-testid="consent-reference-id"
                         >{consent.consent_reference_id}</span>
                     {/if}
                     <button
-                        class="btn-icon btn-sm preset-filled-tertiary"
+                        class="btn-icon btn-sm preset-tonal"
                         onclick={() => copyToClipboard(consent.consent_reference_id!, 'Consent Reference ID')}
                         title="Copy consent reference ID"
                         aria-label="Copy consent reference ID"
@@ -284,39 +284,39 @@
         <!-- Created Date -->
         {#if consent.created_date}
             <div class="flex items-center justify-between">
-                <span class="font-medium text-gray-700 dark:text-gray-300">Created:</span>
-                <span class="text-gray-900 dark:text-gray-100">{formatDate(consent.created_date)}</span>
+                <span class="font-medium ui-muted">Created:</span>
+                <span class="ui-text">{formatDate(consent.created_date)}</span>
             </div>
         {/if}
 
         <!-- Last Action Date NOT WORKING AT OBP SIDE -->
         <!-- <div class="flex items-center justify-between">
-            <span class="font-medium text-gray-700 dark:text-gray-300">Last Action:</span>
-            <span class="text-gray-900 dark:text-gray-100">{formatDate(consent.last_action_date)}</span>
+            <span class="font-medium ui-muted">Last Action:</span>
+            <span class="ui-text">{formatDate(consent.last_action_date)}</span>
         </div> -->
 
         <!-- Last Usage Date -->
         {#if consent.last_usage_date}
             <div class="flex items-center justify-between">
-                <span class="font-medium text-gray-700 dark:text-gray-300">Last Usage:</span>
-                <span class="text-gray-900 dark:text-gray-100">{formatDate(consent.last_usage_date)}</span>
+                <span class="font-medium ui-muted">Last Usage:</span>
+                <span class="ui-text">{formatDate(consent.last_usage_date)}</span>
             </div>
         {/if}
 
         <!-- JWT Expiration -->
         <div class="flex items-start justify-between">
-            <span class="font-medium text-gray-700 dark:text-gray-300">JWT Expires:</span>
+            <span class="font-medium ui-muted">JWT Expires:</span>
             <span class="flex flex-col items-end text-end">
                 <span class={isRevoked
-                    ? 'text-gray-500 line-through dark:text-gray-400'
+                    ? 'line-through ui-muted'
                     : jwtExpInfo.isExpired
-                        ? 'text-red-600 dark:text-red-400'
-                        : 'text-green-600 dark:text-green-400'}>
+                        ? 'ui-text-error'
+                        : 'ui-text-success'}>
                     {jwtExpInfo.formatted}
                 </span>
                 {#if jwtExpInfo.relative}
                     <span
-                        class="text-xs text-gray-500 dark:text-gray-400"
+                        class="text-xs ui-muted"
                         data-testid="consent-jwt-expires-relative"
                     >
                         {jwtExpInfo.relative}
@@ -328,17 +328,17 @@
     </div>
 
     <!-- Permissions Section -->
-    <div class="mt-4 border-t pt-4 dark:border-gray-700">
-        <h4 class="mb-2 font-medium text-gray-900 dark:text-gray-100">Permissions</h4>
+    <div class="mt-4 border-t pt-4 ui-border">
+        <h4 class="mb-2 font-medium ui-text">Permissions</h4>
 
         <!-- Everything -->
         <div class="mb-3 flex items-center gap-2">
-            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Everything:</span>
-            <span class={`text-sm font-medium ${consent.everything ? 'text-green-600 dark:text-green-400' : 'text-gray-500'}`}>
+            <span class="text-sm font-medium ui-muted">Everything:</span>
+            <span class={`text-sm font-medium ${consent.everything ? 'ui-text-success' : 'ui-muted'}`}>
                 {consent.everything ? 'True' : 'False'}
             </span>
             {#if consent.everything}
-                <span class="text-xs text-gray-500 dark:text-gray-400">
+                <span class="text-xs ui-muted">
                     — this consent grants full access
                 </span>
             {/if}
@@ -346,11 +346,11 @@
 
         <!-- Roles / Entitlements -->
         <div class="mb-3">
-            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Roles</span>
+            <span class="text-sm font-medium ui-muted">Roles</span>
             {#if payload.entitlements.length}
                 <div class="mt-1 flex flex-wrap gap-1">
                     {#each payload.entitlements as ent}
-                        <span class="inline-flex items-center gap-1 rounded-full bg-tertiary-100 px-2 py-0.5 text-xs font-medium dark:bg-tertiary-800">
+                        <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ui-tone-info">
                             {typeof ent === 'string' ? ent : (ent.role_name ?? 'Unknown role')}
                             {#if ent?.bank_id}
                                 <span class="font-mono opacity-60">@ {ent.bank_id}</span>
@@ -359,17 +359,17 @@
                     {/each}
                 </div>
             {:else}
-                <span class="ms-2 text-sm text-gray-500">None</span>
+                <span class="ms-2 text-sm ui-muted">None</span>
             {/if}
         </div>
 
         <!-- My resources: the user's own personal dynamic entities the consent may act on -->
         {#if payload.myResources.length}
             <div class="mb-3">
-                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">My resources</span>
+                <span class="text-sm font-medium ui-muted">My resources</span>
                 <div class="mt-1 flex flex-wrap gap-1">
                     {#each payload.myResources as r}
-                        <span class="inline-flex items-center gap-1 rounded-full bg-tertiary-100 px-2 py-0.5 text-xs font-medium dark:bg-tertiary-800" data-testid="consent-my-resource-row">
+                        <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ui-tone-info" data-testid="consent-my-resource-row">
                             {Array.isArray(r?.actions) ? r.actions.join(' and ') : ''} {r?.entity_name ?? 'Unknown entity'}
                             {#if r?.bank_id}
                                 <span class="font-mono opacity-60">@ {r.bank_id}</span>
@@ -382,12 +382,12 @@
 
         <!-- Views -->
         <div>
-            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Views</span>
+            <span class="text-sm font-medium ui-muted">Views</span>
             {#if payload.views.length}
                 <div class="mt-1 flex flex-col gap-1">
                     {#each payload.views as view}
                         <div
-                            class="rounded bg-tertiary-100 px-2 py-1 text-xs dark:bg-tertiary-800"
+                            class="rounded px-2 py-1 text-xs ui-tone-info"
                             data-testid="consent-view-row"
                         >
                             {#if typeof view === 'string'}
@@ -401,24 +401,24 @@
                     {/each}
                 </div>
             {:else}
-                <span class="ms-2 text-sm text-gray-500">None</span>
+                <span class="ms-2 text-sm ui-muted">None</span>
             {/if}
         </div>
     </div>
 
     <!-- JWT Section -->
-    <div class="mt-4 border-t pt-4 dark:border-gray-700">
+    <div class="mt-4 border-t pt-4 ui-border">
         <div class="flex items-center justify-between">
-            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">JWT Token:</span>
+            <span class="text-sm font-medium ui-muted">JWT Token:</span>
             <button
-                class="btn preset-outlined-tertiary-500 text-xs"
+                class="btn preset-outlined-surface-500 text-xs"
                 onclick={() => copyToClipboard(consent.jwt, 'JWT')}
             >
                 Copy JWT
             </button>
         </div>
-        <div class="mt-2 rounded bg-gray-100 p-2 dark:bg-gray-900">
-            <code class="text-xs text-gray-600 dark:text-gray-400">
+        <div class="mt-2 rounded p-2 ui-panel">
+            <code class="text-xs ui-muted">
                 {consent.jwt.substring(0, 50)}...
             </code>
         </div>
@@ -426,12 +426,12 @@
 
     <!-- Delete Action -->
     {#if showDeleteButton && !isRevoked}
-        <div class="mt-4 border-t pt-4 dark:border-gray-700">
+        <div class="mt-4 border-t pt-4 ui-border">
             <form method="post" action="?/delete">
                 <input type="hidden" name="consent_id" value={consent.consent_id} />
                 <button
                     type="submit"
-                    class="btn preset-filled-error-500 text-sm hover:preset-filled-error-600"
+                    class="btn preset-filled-error-500 text-sm hover:preset-filled-error-500"
                     data-testid="consent-delete-button"
                 >
                     Delete Consent

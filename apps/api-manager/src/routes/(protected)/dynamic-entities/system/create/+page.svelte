@@ -233,7 +233,7 @@
   <div class="mb-6">
     <a
       href="/dynamic-entities/system"
-      class="mb-4 inline-flex items-center text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+      class="mb-4 inline-flex items-center text-sm ui-link"
     >
       <svg
         class="mr-2 h-4 w-4"
@@ -250,22 +250,22 @@
       </svg>
       Back to System Dynamic Entities
     </a>
-    <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
+    <h1 class="text-3xl font-bold ui-text">
       Create Dynamic Entity
     </h1>
-    <p class="mt-1 text-gray-600 dark:text-gray-400">
+    <p class="mt-1 ui-muted">
       Define a new dynamic entity schema
     </p>
     {#if template}
       <p
-        class="mt-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-800 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-200"
+        class="mt-2 rounded-lg border px-3 py-2 text-sm ui-tone-info"
         data-testid="template-applied"
       >
         Form prefilled from the <code>{templateKey}</code> template.
       </p>
     {:else if templateKey}
       <p
-        class="mt-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:border-amber-700 dark:bg-amber-900/20 dark:text-amber-200"
+        class="mt-2 rounded-lg border px-3 py-2 text-sm ui-tone-warning"
         data-testid="template-unknown"
       >
         Unknown template <code>{templateKey}</code> — starting from the default example.
@@ -275,42 +275,42 @@
 
   <!-- Form -->
   <div
-    class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+    class="rounded-lg border p-6 shadow-sm ui-card ui-border"
   >
     <form onsubmit={handleSubmit} class="space-y-6">
       <!-- Level -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label class="block text-sm font-medium ui-muted">
           Level
         </label>
-        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+        <p class="mt-1 text-xs ui-muted">
           System entities are available across all banks. Bank entities are scoped to a specific bank.
         </p>
         <div class="mt-2 flex gap-4">
-          <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+          <label class="flex items-center gap-2 text-sm ui-muted">
             <input
               type="radio"
               name="entityLevel"
               value="system"
               bind:group={entityLevel}
-              class="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500"
+              class="h-4 w-4 ui-link ui-border"
             />
             System
           </label>
-          <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+          <label class="flex items-center gap-2 text-sm ui-muted">
             <input
               type="radio"
               name="entityLevel"
               value="bank"
               bind:group={entityLevel}
               disabled={!bankId}
-              class="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500 disabled:opacity-50"
+              class="h-4 w-4 disabled:opacity-50 ui-link ui-border"
             />
             Bank
             {#if bankId}
-              <span class="text-xs text-gray-500 dark:text-gray-400">({currentBank.bank?.full_name || bankId})</span>
+              <span class="text-xs ui-muted">({currentBank.bank?.full_name || bankId})</span>
             {:else}
-              <span class="text-xs text-gray-400">(no bank selected)</span>
+              <span class="text-xs ui-muted">(no bank selected)</span>
             {/if}
           </label>
         </div>
@@ -329,11 +329,11 @@
       <div>
         <label
           for="entityName"
-          class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+          class="block text-sm font-medium ui-muted"
         >
-          Entity Name <span class="text-red-600">*</span>
+          Entity Name <span class="ui-text-error">*</span>
         </label>
-        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+        <p class="mt-1 text-xs ui-muted">
           The name of your entity. Only lowercase letters, numbers, and underscores allowed (e.g., piano, school_friend)
         </p>
         <input
@@ -342,7 +342,7 @@
           bind:value={entityName}
           required
           placeholder="e.g., piano"
-          class="mt-2 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+          class="mt-2 block w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 ui-card ui-text ui-border"
         />
       </div>
 
@@ -350,11 +350,11 @@
       <div>
         <label
           for="description"
-          class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+          class="block text-sm font-medium ui-muted"
         >
           Description
         </label>
-        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+        <p class="mt-1 text-xs ui-muted">
           A brief description of this entity
         </p>
         <input
@@ -362,7 +362,7 @@
           id="description"
           bind:value={entityDescription}
           placeholder="e.g., Musical instrument entity"
-          class="mt-2 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+          class="mt-2 block w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 ui-card ui-text ui-border"
         />
       </div>
 
@@ -374,17 +374,17 @@
               type="checkbox"
               id="hasPersonalEntity"
               bind:checked={hasPersonalEntity}
-              class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
+              class="h-4 w-4 rounded ui-link ui-panel ui-border"
             />
           </div>
           <div class="ml-3">
             <label
               for="hasPersonalEntity"
-              class="text-sm font-medium text-gray-700 dark:text-gray-300"
+              class="text-sm font-medium ui-muted"
             >
               Has Personal Entity
             </label>
-            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            <p class="mt-1 text-xs ui-muted">
               When enabled, each user can create their own personal instances of
               this entity type. Personal entity records are private to the user
               who created them, while the system entity definition remains
@@ -404,17 +404,17 @@
               id="hasPublicAccess"
               bind:checked={hasPublicAccess}
               disabled={useRowLevelAccess}
-              class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
+              class="h-4 w-4 rounded disabled:opacity-50 ui-link ui-panel ui-border"
             />
           </div>
           <div class="ml-3">
             <label
               for="hasPublicAccess"
-              class="text-sm font-medium text-gray-700 dark:text-gray-300"
+              class="text-sm font-medium ui-muted"
             >
               Has Public Access
             </label>
-            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            <p class="mt-1 text-xs ui-muted">
               When enabled, records of this entity type can be accessed publicly
               without authentication.
             </p>
@@ -431,17 +431,17 @@
               id="hasCommunityAccess"
               bind:checked={hasCommunityAccess}
               disabled={useRowLevelAccess}
-              class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
+              class="h-4 w-4 rounded disabled:opacity-50 ui-link ui-panel ui-border"
             />
           </div>
           <div class="ml-3">
             <label
               for="hasCommunityAccess"
-              class="text-sm font-medium text-gray-700 dark:text-gray-300"
+              class="text-sm font-medium ui-muted"
             >
               Has Community Access
             </label>
-            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            <p class="mt-1 text-xs ui-muted">
               When enabled, records of this entity type can be accessed by any
               authenticated user (community member).
             </p>
@@ -457,17 +457,17 @@
               type="checkbox"
               id="personalRequiresRole"
               bind:checked={personalRequiresRole}
-              class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
+              class="h-4 w-4 rounded ui-link ui-panel ui-border"
             />
           </div>
           <div class="ml-3">
             <label
               for="personalRequiresRole"
-              class="text-sm font-medium text-gray-700 dark:text-gray-300"
+              class="text-sm font-medium ui-muted"
             >
               Personal Requires Role
             </label>
-            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            <p class="mt-1 text-xs ui-muted">
               Restricts who can create personal entity records to those who have
               the role.
             </p>
@@ -486,23 +486,23 @@
               bind:checked={useRowLevelAccess}
               disabled={hasPublicAccess || hasCommunityAccess}
               data-testid="dynamic-entity-use-row-level-access"
-              class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
+              class="h-4 w-4 rounded disabled:opacity-50 ui-link ui-panel ui-border"
             />
           </div>
           <div class="ml-3">
             <label
               for="useRowLevelAccess"
-              class="text-sm font-medium text-gray-700 dark:text-gray-300"
+              class="text-sm font-medium ui-muted"
             >
               Use Row Level Access
             </label>
-            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            <p class="mt-1 text-xs ui-muted">
               Per-record sharing. The entity's Get, Update and Delete roles no longer decide access
               on the shared routes; an access list on each record does. The user who creates a record
               gets read, update, delete and grant on it, and names the user to share with in the
               request body:
             </p>
-            <pre class="mt-2 overflow-x-auto rounded border border-gray-200 bg-gray-50 p-2 font-mono text-xs text-gray-700 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300">PUT /obp/v7.0.0/banks/BANK_ID/dynamic-entities/ENTITY_NAME/RECORD_ID/access
+            <pre class="mt-2 overflow-x-auto rounded border p-2 font-mono text-xs ui-card ui-muted ui-border">PUT /obp/v7.0.0/banks/BANK_ID/dynamic-entities/ENTITY_NAME/RECORD_ID/access
 &#123;
   "user_id": "9ca9a7e4-6d02-40e3-a129-0b2bf89de9b1",
   "can_read": true,
@@ -510,9 +510,9 @@
   "can_delete": false,
   "can_grant": true
 &#125;</pre>
-            <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+            <p class="mt-2 text-xs ui-muted">
               <code>user_id</code> is the OBP user id of the person you are sharing with — the same id the
-              <a href="/users" class="text-blue-600 hover:underline dark:text-blue-400">Users</a> page shows.
+              <a href="/users" class="hover:underline ui-link">Users</a> page shows.
               PUT an array to grant several users at once; sending the same user again replaces their
               permissions. <code>GET</code> the same URL to list the access list, and
               <code>DELETE /obp/v7.0.0/banks/BANK_ID/dynamic-entities/ENTITY_NAME/RECORD_ID/access/USER_ID</code> to revoke.
@@ -525,7 +525,7 @@
                   href="{data.externalLinks.API_EXPLORER_URL}/glossary#Dynamic-Entity-Access-Model"
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="font-medium text-blue-600 hover:underline dark:text-blue-400"
+                  class="font-medium hover:underline ui-link"
                   data-testid="row-level-access-glossary-link"
                 >
                   Dynamic Entity Access Model in the API Explorer
@@ -540,8 +540,8 @@
 
       <!-- Who may use the entity -->
       <div data-testid="dynamic-entity-roles-note">
-        <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Who may use this entity</p>
-        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+        <p class="text-sm font-medium ui-muted">Who may use this entity</p>
+        <p class="mt-1 text-xs ui-muted">
           The roles are CanCreate, CanGet, CanUpdate and CanDelete for this entity. Grant them to people as
           Entitlements. An application that uses the entity by itself needs them as Scopes, and must be a Platform App.
           Personal (<code>/my/</code>) endpoints always need a User.
@@ -552,11 +552,11 @@
       <div>
         <label
           for="schema"
-          class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+          class="block text-sm font-medium ui-muted"
         >
-          Schema (JSON) <span class="text-red-600">*</span>
+          Schema (JSON) <span class="ui-text-error">*</span>
         </label>
-        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+        <p class="mt-1 text-xs ui-muted">
           Define the properties of your entity in JSON format
         </p>
         <textarea
@@ -564,10 +564,10 @@
           bind:value={schemaJson}
           oninput={() => validateSchema()}
           rows="15"
-          class="mt-2 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 font-mono text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+          class="mt-2 block w-full rounded-lg border px-3 py-2 font-mono text-sm focus:outline-none focus:ring-2 ui-card ui-text ui-border"
         ></textarea>
         {#if schemaError}
-          <p class="mt-2 text-sm text-red-600 dark:text-red-400">
+          <p class="mt-2 text-sm ui-text-error">
             {schemaError}
           </p>
         {/if}
@@ -575,12 +575,12 @@
 
       <!-- Help Text -->
       <div
-        class="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20"
+        class="rounded-lg border p-4 ui-tone-info"
       >
-        <h3 class="text-sm font-semibold text-blue-900 dark:text-blue-100">
+        <h3 class="text-sm font-semibold ui-link">
           Schema Format Guide
         </h3>
-        <ul class="mt-2 space-y-1 text-xs text-blue-800 dark:text-blue-200">
+        <ul class="mt-2 space-y-1 text-xs ui-link">
           <li>
             <strong>properties:</strong> Define fields with type, description, and
             validation rules
@@ -603,13 +603,13 @@
           </li>
         </ul>
 
-        <h4 class="mt-4 text-sm font-semibold text-blue-900 dark:text-blue-100">
+        <h4 class="mt-4 text-sm font-semibold ui-link">
           Field-level access control
         </h4>
-        <p class="mt-1 text-xs text-blue-800 dark:text-blue-200">
+        <p class="mt-1 text-xs ui-link">
           Set these keys on a property, in snake_case — OBP-API ignores any other spelling.
         </p>
-        <ul class="mt-2 space-y-1 text-xs text-blue-800 dark:text-blue-200">
+        <ul class="mt-2 space-y-1 text-xs ui-link">
           <li>
             <strong><code>write_role_required</code>: true</strong> — the field becomes
             <em>write-restricted</em>: POST ignores it and PUT preserves its existing value; it is
@@ -636,13 +636,13 @@
           </li>
         </ul>
 
-        <h4 class="mt-4 text-sm font-semibold text-blue-900 dark:text-blue-100">
+        <h4 class="mt-4 text-sm font-semibold ui-link">
           Who may create, update and delete records
         </h4>
-        <p class="mt-1 text-xs text-blue-800 dark:text-blue-200">
+        <p class="mt-1 text-xs ui-link">
           Four layers, set by the options above rather than in the schema JSON. They stack.
         </p>
-        <ul class="mt-2 space-y-1 text-xs text-blue-800 dark:text-blue-200">
+        <ul class="mt-2 space-y-1 text-xs ui-link">
           <li>
             <strong>1. Entity roles.</strong> Every entity generates
             <code>CanCreateDynamicEntityRecord_&lt;Entity&gt;</code>,
@@ -682,13 +682,13 @@
         </ul>
 
         {#if data.externalLinks?.API_EXPLORER_URL}
-          <div class="mt-3 border-t border-blue-300 pt-3 dark:border-blue-700">
+          <div class="mt-3 border-t pt-3 ui-border">
             <a
               href="{data.externalLinks
                 .API_EXPLORER_URL}/resource-docs/OBPv7.0.0?operationid=OBPv7.0.0-createDynamicEntityDefinition"
               target="_blank"
               rel="noopener noreferrer"
-              class="inline-flex items-center text-xs font-medium text-blue-700 hover:text-blue-900 hover:underline dark:text-blue-300 dark:hover:text-blue-100"
+              class="inline-flex items-center text-xs font-medium hover:underline ui-link"
             >
               View API Documentation on API Explorer
               <svg
@@ -710,10 +710,10 @@
       </div>
 
       <!-- Actions -->
-      <div class="flex justify-end gap-3 border-t pt-4 dark:border-gray-700">
+      <div class="flex justify-end gap-3 border-t pt-4 ui-border">
         <a
           href="/dynamic-entities/system"
-          class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+          class="rounded-lg border px-4 py-2 text-sm font-medium ui-card ui-hover ui-muted ui-border"
         >
           Cancel
         </a>
@@ -721,7 +721,7 @@
           type="submit"
           disabled={isSubmitting}
           data-testid="submit-create-entity"
-          class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
+          class="inline-flex items-center rounded-lg px-4 py-2 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50 preset-filled-primary-500"
         >
           {#if isSubmitting}
             Creating...

@@ -17,7 +17,7 @@
 
 <h1 class="h2">{m.conformator_nav_catalogue()}</h1>
 {#if data.error}
-	<p class="mt-4 preset-tonal-error rounded p-3" role="alert">{m.conformator_catalogue_unreadable({ error: data.error })}</p>
+	<p class="mt-4 ui-tone-error rounded p-3" role="alert">{m.conformator_catalogue_unreadable({ error: data.error })}</p>
 {:else if data.suites.length === 0}
 	<p class="mt-4">{m.conformator_no_suites_yet()}</p>
 {:else}

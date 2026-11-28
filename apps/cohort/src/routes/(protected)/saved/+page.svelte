@@ -9,7 +9,7 @@
 
 <h1 class="h2">{t(locale, 'saved_heading')}</h1>
 <p class="mt-2">{t(locale, 'saved_intro')}</p>
-{#if form?.error}<p class="mt-4 preset-tonal-error rounded p-3" role="alert">{t(locale, 'staff_error')} {String(form.error)}</p>{/if}
+{#if form?.error}<p class="mt-4 ui-tone-error rounded p-3" role="alert">{t(locale, 'staff_error')} {String(form.error)}</p>{/if}
 
 {#if data.bookmarks.length === 0}
 	<p class="mt-6" data-testid="saved-none">{t(locale, 'saved_none')}</p>
@@ -17,7 +17,7 @@
 	{#each kinds as kind (kind)}
 		{@const list = data.bookmarks.filter((b) => b.kind === kind)}
 		{#if list.length}
-			<section class="card preset-outlined-surface-200-800 mt-6 p-4" data-testid="saved-{kind}">
+			<section class="card border ui-border mt-6 p-4" data-testid="saved-{kind}">
 				<h2 class="h4">{t(locale, `saved_kind_${kind}` as MessageKey)}</h2>
 				<ul class="mt-2 flex flex-col gap-2">
 					{#each list as b (b.id)}

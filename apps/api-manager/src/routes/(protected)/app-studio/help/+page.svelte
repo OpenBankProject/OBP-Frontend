@@ -55,18 +55,18 @@
 
 <div class="container mx-auto max-w-5xl px-4 py-8">
   <div class="mb-6">
-    <a href="/app-studio" class="mb-4 inline-flex items-center text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">← Back to App Studio</a>
-    <h1 class="flex items-center gap-2 text-3xl font-bold text-gray-900 dark:text-gray-100">
+    <a href="/app-studio" class="mb-4 inline-flex items-center text-sm ui-link">← Back to App Studio</a>
+    <h1 class="flex items-center gap-2 text-3xl font-bold ui-text">
       <CircleHelp class="h-7 w-7" />
       App Studio Help
     </h1>
-    <p class="mt-1 text-gray-600 dark:text-gray-400">
+    <p class="mt-1 ui-muted">
       Setup for this OBP instance, then how App Studio is used.
     </p>
   </div>
 
   {#if data.warnings.length > 0}
-    <div class="mb-6 rounded-lg border border-yellow-300 bg-yellow-50 p-4 text-sm text-yellow-800 dark:border-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-200" data-testid="help-warnings">
+    <div class="mb-6 rounded-lg border p-4 text-sm ui-tone-warning" data-testid="help-warnings">
       <ul class="list-disc space-y-1 pl-5">{#each data.warnings as w}<li>{w}</li>{/each}</ul>
     </div>
   {/if}
@@ -78,20 +78,20 @@
 
   <!-- ============================ SETUP ============================ -->
   <section id="setup" class="mb-12">
-    <h2 class="mb-2 text-2xl font-semibold text-gray-900 dark:text-gray-100">Setup</h2>
-    <p class="mb-6 text-sm text-gray-600 dark:text-gray-400">
+    <h2 class="mb-2 text-2xl font-semibold ui-text">Setup</h2>
+    <p class="mb-6 text-sm ui-muted">
       Pages and apps written in App Studio are stored in OBP as records of the system-level dynamic entity
       <code>{data.entityName}</code>. The Portal reads the published ones as an application, with its own consumer.
       Three things have to be in place.
     </p>
 
     <!-- Step 1: the Portal's consumer is a Platform App -->
-    <div class="mb-4 rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800" data-testid="help-step-platform-app">
+    <div class="mb-4 rounded-lg border p-5 ui-card ui-border" data-testid="help-step-platform-app">
       <div class="flex items-start gap-3">
-        <Search class="mt-0.5 h-5 w-5 flex-shrink-0 text-gray-500" />
+        <Search class="mt-0.5 h-5 w-5 flex-shrink-0 ui-muted" />
         <div>
-          <h3 class="font-semibold text-gray-900 dark:text-gray-100">1. Mark the Portal's consumer as a Platform App</h3>
-          <p class="mt-1 text-sm text-gray-700 dark:text-gray-300">
+          <h3 class="font-semibold ui-text">1. Mark the Portal's consumer as a Platform App</h3>
+          <p class="mt-1 text-sm ui-muted">
             The Portal reads published pages as itself, with its own consumer. OBP-API counts that consumer's Scopes only if it is a Platform App.
             Mark it on the <a href="/consumers/platform-apps" class="underline">Platform Apps</a> page. The list of consumers in step 3 shows which ones are Platform Apps.
           </p>
@@ -100,28 +100,28 @@
     </div>
 
     <!-- Step 2: the entity -->
-    <div class="mb-4 rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800" data-testid="help-step-entity" data-state={entityOk ? "ok" : "missing"}>
+    <div class="mb-4 rounded-lg border p-5 ui-card ui-border" data-testid="help-step-entity" data-state={entityOk ? "ok" : "missing"}>
       <div class="flex items-start gap-3">
-        {#if entityOk}<CircleCheck class="mt-0.5 h-5 w-5 flex-shrink-0 text-green-600" />{:else}<CircleX class="mt-0.5 h-5 w-5 flex-shrink-0 text-red-600" />{/if}
+        {#if entityOk}<CircleCheck class="mt-0.5 h-5 w-5 flex-shrink-0 ui-text-success" />{:else}<CircleX class="mt-0.5 h-5 w-5 flex-shrink-0 ui-text-error" />{/if}
         <div class="min-w-0 flex-1">
-          <h3 class="font-semibold text-gray-900 dark:text-gray-100">2. The <code>{data.entityName}</code> dynamic entity</h3>
+          <h3 class="font-semibold ui-text">2. The <code>{data.entityName}</code> dynamic entity</h3>
           {#if data.entity.exists}
-            <p class="mt-1 text-sm text-gray-700 dark:text-gray-300">
+            <p class="mt-1 text-sm ui-muted">
               Exists, id <code>{data.entity.dynamic_entity_id}</code>{#if data.entity.record_count !== null}, {data.entity.record_count} record{data.entity.record_count === 1 ? "" : "s"}{/if}.
             </p>
             <a href="/dynamic-entities/system/{data.entity.dynamic_entity_id}" class="mt-2 inline-block text-sm underline">Open the entity</a>
           {:else}
-            <p class="mt-1 text-sm text-gray-700 dark:text-gray-300">
+            <p class="mt-1 text-sm ui-muted">
               Not found. The API Manager creates it at startup when its own consumer holds the scopes <code>CanGetDynamicEntityDefinitions</code> and <code>CanCreateDynamicEntityDefinition</code> at <code>SYS</code>, the system space.
               Otherwise create it from the template, which prefills every field:
             </p>
-            <a href="/dynamic-entities/system/create?template=obp-portal-page" class="mt-2 inline-flex items-center gap-1 rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700" data-testid="help-create-entity">
+            <a href="/dynamic-entities/system/create?template=obp-portal-page" class="mt-2 inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-sm font-medium preset-filled-primary-500" data-testid="help-create-entity">
               Create {data.entityName} from the template
             </a>
           {/if}
           <details class="mt-3 text-sm">
-            <summary class="cursor-pointer text-gray-600 dark:text-gray-400">Fields</summary>
-            <ul class="mt-2 list-disc space-y-1 pl-5 text-gray-700 dark:text-gray-300">
+            <summary class="cursor-pointer ui-muted">Fields</summary>
+            <ul class="mt-2 list-disc space-y-1 pl-5 ui-muted">
               <li><code>slug</code>, <code>title</code>, <code>kind</code> (page or app), <code>status</code> (draft or published), <code>summary</code>, <code>source</code>, <code>author</code>, <code>updated_at</code>.</li>
               <li>Not personal, not public, not community: drafts must never be readable by anyone but the editors and the Portal.</li>
               <li>Editors use their Entitlements. The Portal uses its consumer's Scope, as a Platform App.</li>
@@ -132,47 +132,47 @@
     </div>
 
     <!-- Step 3: the Portal's consumer -->
-    <div class="mb-4 rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800" data-testid="help-step-scope">
+    <div class="mb-4 rounded-lg border p-5 ui-card ui-border" data-testid="help-step-scope">
       <div class="flex items-start gap-3">
-        <Search class="mt-0.5 h-5 w-5 flex-shrink-0 text-gray-500" />
+        <Search class="mt-0.5 h-5 w-5 flex-shrink-0 ui-muted" />
         <div class="min-w-0 flex-1">
-          <h3 class="font-semibold text-gray-900 dark:text-gray-100">3. Let the Portal read published pages</h3>
-          <p class="mt-1 text-sm text-gray-700 dark:text-gray-300">
+          <h3 class="font-semibold ui-text">3. Let the Portal read published pages</h3>
+          <p class="mt-1 text-sm ui-muted">
             The Portal calls OBP with its own OAuth client (client credentials). Its consumer needs exactly one Scope, the Get role of the entity, and nothing else:
           </p>
-          <pre class="mt-2 rounded-md bg-gray-50 px-3 py-2 font-mono text-sm text-gray-900 dark:bg-gray-900 dark:text-gray-100" data-testid="help-get-role">{data.getRole}</pre>
-          <p class="mt-2 text-sm text-gray-700 dark:text-gray-300">
+          <pre class="mt-2 rounded-md px-3 py-2 font-mono text-sm ui-card ui-text" data-testid="help-get-role">{data.getRole}</pre>
+          <p class="mt-2 text-sm ui-muted">
             Find the Portal's consumer below (its key is the Portal's OAuth client id), open it, and add that role under <em>Consumer Scopes</em> with an empty bank id.
             Adding a scope needs <code>CanCreateScopeAtOneBank</code>.
             For the FAQ's "Start a chat" button, which links a new group chat to a question, the same consumer also needs <code>CanUpdateDynamicEntityRecord_obp_developer_faq</code>.
           </p>
 
           <div class="mt-3">
-            <input type="search" name="consumer_filter" placeholder="Filter consumers by name, email or id" class="w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-900" bind:value={consumerFilter} data-testid="help-consumer-filter" />
-            <ul class="mt-2 divide-y divide-gray-200 rounded-md border border-gray-200 dark:divide-gray-700 dark:border-gray-700" data-testid="help-consumers">
+            <input type="search" name="consumer_filter" placeholder="Filter consumers by name, email or id" class="w-full rounded-md border px-3 py-1.5 text-sm ui-card ui-border" bind:value={consumerFilter} data-testid="help-consumer-filter" />
+            <ul class="mt-2 divide-y rounded-md border ui-border" data-testid="help-consumers">
               {#each filteredConsumers as c (c.consumer_id)}
                 {@const check = scopeChecks[c.consumer_id]}
                 <li class="flex flex-wrap items-center gap-3 px-3 py-2 text-sm" data-testid="help-consumer-row" data-state={check?.state ?? "unchecked"}>
                   <div class="min-w-0 flex-1">
-                    <span class="font-medium text-gray-900 dark:text-gray-100">{c.app_name}</span>{#if !c.enabled}<span class="ml-2 text-xs text-red-600">disabled</span>{/if}
-                    {#if c.platform_app === true}<span class="ml-2 text-xs text-green-700 dark:text-green-300" data-testid="help-consumer-platform-app">Platform App</span>{:else if c.platform_app === false}<span class="ml-2 text-xs text-yellow-700 dark:text-yellow-300" data-testid="help-consumer-not-platform-app">not a Platform App</span>{/if}
-                    <div class="truncate text-xs text-gray-500 dark:text-gray-400">{c.developer_email} · <code>{c.consumer_id}</code></div>
+                    <span class="font-medium ui-text">{c.app_name}</span>{#if !c.enabled}<span class="ml-2 text-xs ui-text-error">disabled</span>{/if}
+                    {#if c.platform_app === true}<span class="ml-2 text-xs ui-text-success" data-testid="help-consumer-platform-app">Platform App</span>{:else if c.platform_app === false}<span class="ml-2 text-xs ui-text-warning" data-testid="help-consumer-not-platform-app">not a Platform App</span>{/if}
+                    <div class="truncate text-xs ui-muted">{c.developer_email} · <code>{c.consumer_id}</code></div>
                   </div>
                   {#if check?.state === "granted"}
-                    <span class="inline-flex items-center gap-1 text-green-700 dark:text-green-300"><CircleCheck class="h-4 w-4" /> has the scope</span>
+                    <span class="inline-flex items-center gap-1 ui-text-success"><CircleCheck class="h-4 w-4" /> has the scope</span>
                   {:else if check?.state === "missing"}
-                    <span class="inline-flex items-center gap-1 text-yellow-700 dark:text-yellow-300"><CircleAlert class="h-4 w-4" /> no scope yet</span>
+                    <span class="inline-flex items-center gap-1 ui-text-warning"><CircleAlert class="h-4 w-4" /> no scope yet</span>
                   {:else if check?.state === "error"}
-                    <span class="text-red-700 dark:text-red-300">{check.message}</span>
+                    <span class="ui-text-error">{check.message}</span>
                   {:else if check?.state === "checking"}
-                    <span class="text-gray-500">checking…</span>
+                    <span class="ui-muted">checking…</span>
                   {/if}
-                  <button type="button" class="rounded-md border border-gray-300 px-2 py-1 text-xs hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700" onclick={() => checkScope(c.consumer_id)} data-testid="help-check-scope">Check</button>
+                  <button type="button" class="rounded-md border px-2 py-1 text-xs ui-hover ui-border" onclick={() => checkScope(c.consumer_id)} data-testid="help-check-scope">Check</button>
                   <a href="/consumers/{c.consumer_id}/edit" class="inline-flex items-center gap-1 text-xs underline">Open <ExternalLink class="h-3 w-3" /></a>
                 </li>
               {/each}
-              {#if filteredConsumers.length === 0}<li class="px-3 py-2 text-sm text-gray-500">No consumers match.</li>{/if}
-              {#if data.consumers.length > 25 && filteredConsumers.length === 25}<li class="px-3 py-2 text-xs text-gray-500">Showing the first 25; filter to find others.</li>{/if}
+              {#if filteredConsumers.length === 0}<li class="px-3 py-2 text-sm ui-muted">No consumers match.</li>{/if}
+              {#if data.consumers.length > 25 && filteredConsumers.length === 25}<li class="px-3 py-2 text-xs ui-muted">Showing the first 25; filter to find others.</li>{/if}
             </ul>
           </div>
 
@@ -181,50 +181,50 @@
     </div>
 
     <!-- Editors -->
-    <div class="mb-4 rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800" data-testid="help-step-editors">
-      <h3 class="font-semibold text-gray-900 dark:text-gray-100">4. Who may save and publish</h3>
-      <p class="mt-1 text-sm text-gray-700 dark:text-gray-300">
+    <div class="mb-4 rounded-lg border p-5 ui-card ui-border" data-testid="help-step-editors">
+      <h3 class="font-semibold ui-text">4. Who may save and publish</h3>
+      <p class="mt-1 text-sm ui-muted">
         Saving in App Studio writes <code>{data.entityName}</code> records with the editor's own login, so an editor (marketing, for example) needs these Entitlements and no other administrative role:
       </p>
-      <ul class="mt-2 space-y-1 font-mono text-sm text-gray-900 dark:text-gray-100">
+      <ul class="mt-2 space-y-1 font-mono text-sm ui-text">
         {#each data.editorRoles as r}<li>{r}</li>{/each}
         <li>{data.getRole}</li>
       </ul>
-      <p class="mt-2 text-sm text-gray-700 dark:text-gray-300">Grant them on the <a href="/users" class="underline">Users</a> page, or ask Opey.</p>
+      <p class="mt-2 text-sm ui-muted">Grant them on the <a href="/users" class="underline">Users</a> page, or ask Opey.</p>
     </div>
 
-    <div class="rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-200">
+    <div class="rounded-lg border p-4 text-sm ui-tone-info">
       Published records are served by each site ticked under "Menu of" (the Portal, Cohort or both){#if data.portalUrl}, e.g. at <code>{data.portalUrl}/pages/SLUG</code>{:else} at <code>/pages/SLUG</code>{/if}, and appear directly in that site's menu, ordered by their menu position. A page with a language is shown only to visitors using that language. Pages are sanitised and rendered inline with live catalogue data; Apps run in a sandboxed frame and reach OBP through the site, anonymously for visitors who are not signed in. Each site reads the entity with its own application token, so its Consumer needs the Scope of step 3 first.
     </div>
   </section>
 
   <!-- ============================ USAGE ============================ -->
   <section id="usage">
-    <h2 class="mb-2 text-2xl font-semibold text-gray-900 dark:text-gray-100">Usage</h2>
-    <p class="mb-6 text-sm text-gray-600 dark:text-gray-400">
+    <h2 class="mb-2 text-2xl font-semibold ui-text">Usage</h2>
+    <p class="mb-6 text-sm ui-muted">
       Open <a href="/app-studio" class="underline">App Studio</a>, describe what you want to Opey on the right, and review the preview. Every change Opey makes can be kept or reverted.
     </p>
 
     <div class="grid gap-4 md:grid-cols-2">
-      <div class="rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
-        <h3 class="font-semibold text-gray-900 dark:text-gray-100">App: runs code, sealed off</h3>
-        <ul class="mt-2 list-disc space-y-1 pl-5 text-sm text-gray-700 dark:text-gray-300">
+      <div class="rounded-lg border p-5 ui-card ui-border">
+        <h3 class="font-semibold ui-text">App: runs code, sealed off</h3>
+        <ul class="mt-2 list-disc space-y-1 pl-5 text-sm ui-muted">
           <li>A self-contained web app with JavaScript, shown in a phone frame or at page width.</li>
           <li>It runs in a sandboxed iframe with no session and no access to the page around it. It calls OBP with <code>obp.get('/obp/v6.0.0/…')</code>, <code>obp.post</code>, <code>obp.put</code>, <code>obp.delete</code>; the API Manager makes the real call. Reads run unattended, writes ask you first.</li>
           <li><strong>Access</strong> chooses whose credentials those calls use: your session, or a consent you create for one of your consumers, limited to chosen accounts and roles. OBP sends a code to confirm the consent.</li>
           <li><code>obp.navigate(url)</code> asks the hosting page to navigate, for sign-in links. Console output and API calls appear under the editor and are shown to Opey.</li>
         </ul>
       </div>
-      <div class="rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
-        <h3 class="font-semibold text-gray-900 dark:text-gray-100">Page: no code, lives in the Portal</h3>
-        <ul class="mt-2 list-disc space-y-1 pl-5 text-sm text-gray-700 dark:text-gray-300">
+      <div class="rounded-lg border p-5 ui-card ui-border">
+        <h3 class="font-semibold ui-text">Page: no code, lives in the Portal</h3>
+        <ul class="mt-2 list-disc space-y-1 pl-5 text-sm ui-muted">
           <li>Free HTML and CSS. Scripts are removed, so the page can be rendered inside the Portal as a first-class page.</li>
           <li>Live catalogue data comes from tags the server fills in; interaction comes from behaviours declared with <code>data-behaviour</code>. See the <a href="/app-studio/blocks" class="underline">Page Blocks</a> demo and tick "Outline the blocks".</li>
           <li>Preview at page width or phone width; Opey is told which one you are looking at.</li>
         </ul>
         <details class="mt-3 text-sm">
-          <summary class="cursor-pointer text-gray-600 dark:text-gray-400">Tags and behaviours</summary>
-          <ul class="mt-2 space-y-1 text-gray-700 dark:text-gray-300">
+          <summary class="cursor-pointer ui-muted">Tags and behaviours</summary>
+          <ul class="mt-2 space-y-1 ui-muted">
             {#each LIVE_TAGS as t (t.tag)}<li><code>&lt;{t.tag}&gt;</code> {t.description}</li>{/each}
             {#each BEHAVIOURS as b (b.name)}<li><code>data-behaviour="{b.name}"</code> {b.description}</li>{/each}
           </ul>
@@ -232,18 +232,18 @@
       </div>
     </div>
 
-    <div class="mt-4 rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
-      <h3 class="font-semibold text-gray-900 dark:text-gray-100">Saving and publishing</h3>
-      <ul class="mt-2 list-disc space-y-1 pl-5 text-sm text-gray-700 dark:text-gray-300">
+    <div class="mt-4 rounded-lg border p-5 ui-card ui-border">
+      <h3 class="font-semibold ui-text">Saving and publishing</h3>
+      <ul class="mt-2 list-disc space-y-1 pl-5 text-sm ui-muted">
         <li><strong>Save draft</strong> stores the current source under a slug. <strong>Publish to Portal</strong> stores it with status published; <strong>Unpublish</strong> returns it to draft. <strong>Delete</strong> removes the record.</li>
         <li><strong>Open saved…</strong> loads any saved page or app back into the studio in its mode. <strong>Start a new one</strong> detaches the editor from the record so the next save creates a new one.</li>
         <li>Copy and Download give you the raw source at any time.</li>
       </ul>
     </div>
 
-    <div class="mt-4 rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
-      <h3 class="font-semibold text-gray-900 dark:text-gray-100">Working with Opey</h3>
-      <ul class="mt-2 list-disc space-y-1 pl-5 text-sm text-gray-700 dark:text-gray-300">
+    <div class="mt-4 rounded-lg border p-5 ui-card ui-border">
+      <h3 class="font-semibold ui-text">Working with Opey</h3>
+      <ul class="mt-2 list-disc space-y-1 pl-5 text-sm ui-muted">
         <li>Opey fills the editor through the same form-fill tool as the other pages. It always sends the complete source, so ask for changes in plain words: "make the hero green", "add a transactions screen".</li>
         <li>Opey sees the current source, the preview width, the last API calls and console errors in App mode, and any block errors in Page mode, so it can fix what it broke.</li>
         <li>After each fill a banner offers Keep or Revert. Revert restores what you had before Opey touched it.</li>

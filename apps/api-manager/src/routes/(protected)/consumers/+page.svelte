@@ -115,12 +115,12 @@
 </script>
 
   <div class="flex items-center justify-between mb-4">
-    <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+    <h1 class="text-2xl font-bold ui-text">
       API Consumers
     </h1>
     <div class="flex items-center gap-4">
       {#if consumers && consumers.length > 0}
-        <span class="text-sm text-gray-600 dark:text-gray-400">
+        <span class="text-sm ui-muted">
           Total: {consumers.length}
         </span>
       {/if}
@@ -129,7 +129,7 @@
           href="{data.portalUrl}/consumers/register"
           target="_blank"
           rel="noopener noreferrer"
-          class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+          class="inline-flex items-center rounded-lg px-4 py-2 text-sm font-medium preset-filled-primary-500"
           data-testid="consumers-register-in-portal"
         >
           Register Consumer in Portal
@@ -140,7 +140,7 @@
 
   {#if data.createdWindow}
     <div
-      class="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-900 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-200"
+      class="mb-4 rounded-lg border p-3 text-sm ui-tone-info"
       data-testid="consumers-created-window"
     >
       Showing consumers created between {formatDate(data.createdWindow.from)} and {formatDate(
@@ -153,11 +153,11 @@
   <!-- Error Message -->
   {#if errorMessage}
     <div
-      class="mb-4 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20"
+      class="mb-4 rounded-lg border p-4 ui-tone-error"
     >
       <div class="flex items-start">
         <svg
-          class="mr-3 h-5 w-5 flex-shrink-0 text-red-600 dark:text-red-400"
+          class="mr-3 h-5 w-5 flex-shrink-0 ui-text-error"
           fill="currentColor"
           viewBox="0 0 20 20"
         >
@@ -168,10 +168,10 @@
           />
         </svg>
         <div>
-          <h3 class="text-sm font-medium text-red-900 dark:text-red-100">
+          <h3 class="text-sm font-medium ui-text-error">
             Error Loading Consumers
           </h3>
-          <p class="mt-1 text-sm text-red-800 dark:text-red-200">
+          <p class="mt-1 text-sm ui-text-error">
             {errorMessage}
           </p>
         </div>
@@ -187,7 +187,7 @@
           class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
         >
           <svg
-            class="h-4 w-4 text-gray-400"
+            class="h-4 w-4 ui-muted"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -204,12 +204,12 @@
           type="text"
           bind:value={searchQuery}
           placeholder="Search consumers by name, ID, company, email, or type..."
-          class="block w-full rounded-lg border border-gray-300 bg-white py-2 pl-10 pr-3 text-sm text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400"
+          class="block w-full rounded-lg border py-2 pl-10 pr-3 text-sm focus:outline-none focus:ring-1 ui-card ui-text ui-border"
         />
         {#if searchQuery}
           <button
             onclick={() => (searchQuery = "")}
-            class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+            class="absolute inset-y-0 right-0 flex items-center pr-3 ui-muted"
           >
             <svg
               class="h-4 w-4"
@@ -228,7 +228,7 @@
         {/if}
       </div>
       {#if searchQuery && filteredConsumers}
-        <p class="mt-1 text-xs text-gray-600 dark:text-gray-400">
+        <p class="mt-1 text-xs ui-muted">
           Showing {filteredConsumers.length} of {consumers.length} consumers
         </p>
       {/if}
@@ -245,7 +245,7 @@
     <div class="space-y-2">
       {#each filteredConsumers as consumer (consumer.consumer_id)}
         <div
-          class="rounded-lg border border-gray-200 bg-white p-3 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+          class="rounded-lg border p-3 shadow-sm ui-card ui-border"
         >
           <!-- Name, last call, actions and status on one line -->
           <div class="flex items-center gap-3">
@@ -253,7 +253,7 @@
               <a
                 data-testid="consumer-name-link"
                 href="/consumers/{consumer.consumer_id}/edit"
-                class="text-gray-900 hover:text-blue-600 hover:underline dark:text-gray-100 dark:hover:text-blue-400"
+                class="hover:underline ui-link ui-text"
               >
                 {consumer.app_name}
               </a>
@@ -261,7 +261,7 @@
             {#if lastCalls}
               <span
                 data-testid="consumer-last-call-{consumer.consumer_id}"
-                class="flex-shrink-0 whitespace-nowrap text-xs text-gray-600 dark:text-gray-400"
+                class="flex-shrink-0 whitespace-nowrap text-xs ui-muted"
               >
                 {#if lastCalls.lastCalls[consumer.consumer_id]}
                   Last call: {timeAgo(lastCalls.lastCalls[consumer.consumer_id])}
@@ -279,7 +279,7 @@
                 aria-label="Copy the details of {consumer.app_name}"
                 title="Copy details"
                 onclick={() => copyConsumer(consumer)}
-                class="inline-flex items-center rounded p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200"
+                class="inline-flex items-center rounded p-1 focus:outline-none focus:ring-2 focus:ring-offset-1 ui-hover ui-muted"
               >
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -288,7 +288,7 @@
               <a
                 data-testid="consumer-view-metrics-link-{consumer.consumer_id}"
                 href="/metrics?consumer_id={consumer.consumer_id}"
-                class="inline-flex items-center rounded border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-yellow-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 dark:border-gray-600 dark:bg-gray-700 dark:text-yellow-400 dark:hover:bg-gray-600"
+                class="inline-flex items-center rounded border px-2 py-1 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-offset-1 ui-text-warning ui-card ui-hover ui-border"
               >
                 <svg
                   class="mr-1 h-3 w-3"
@@ -307,7 +307,7 @@
               </a>
               <a
                 href="/consumers/{consumer.consumer_id}/rate-limits"
-                class="inline-flex items-center rounded border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                class="inline-flex items-center rounded border px-2 py-1 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-offset-1 ui-card ui-hover ui-muted ui-border"
               >
                 <svg
                   class="mr-1 h-3 w-3"
@@ -326,7 +326,7 @@
               </a>
               <a
                 href="/consumers/{consumer.consumer_id}/edit"
-                class="inline-flex items-center rounded border border-blue-300 bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 dark:border-blue-600 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
+                class="inline-flex items-center rounded border px-2 py-1 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-offset-1 ui-tone-info"
               >
                 <svg
                   class="mr-1 h-3 w-3"
@@ -345,13 +345,13 @@
               </a>
               <span
                 class="rounded-full px-2 py-0.5 text-xs font-medium {consumer.enabled
-                  ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                  : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'}"
+                  ? 'ui-tone-success'
+                  : 'ui-tone-error'}"
               >
                 {consumer.enabled ? "Enabled" : "Disabled"}
               </span>
               <span
-                class="rounded-full px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
+                class="rounded-full px-2 py-0.5 text-xs font-medium ui-tone-info"
               >
                 {consumer.app_type}
               </span>
@@ -359,7 +359,7 @@
                 <span
                   data-testid="consumer-platform-app-unknown-{consumer.consumer_id}"
                   title={data.canGetPlatformApps ? `Could not read the Platform Apps: ${data.platformAppsError}` : `Needs the Role ${data.platformAppsRole}`}
-                  class="rounded-full px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
+                  class="rounded-full px-2 py-0.5 text-xs font-medium ui-panel ui-muted"
                 >
                   {platformAppText(consumer.consumer_id)}
                 </span>
@@ -368,7 +368,7 @@
                   data-testid="consumer-platform-app-{consumer.consumer_id}"
                   href="/consumers/platform-apps"
                   title={platformApps[consumer.consumer_id].label}
-                  class="rounded-full px-2 py-0.5 text-xs font-medium bg-purple-100 text-purple-800 hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:hover:bg-purple-900/50"
+                  class="rounded-full px-2 py-0.5 text-xs font-medium ui-tone-accent"
                 >
                   Platform App
                 </a>
@@ -377,7 +377,7 @@
           </div>
 
           {#if consumer.description}
-            <p class="mt-1 text-xs text-gray-700 dark:text-gray-300">
+            <p class="mt-1 text-xs ui-muted">
               {consumer.description}
             </p>
           {/if}
@@ -385,25 +385,25 @@
           <!-- Details on as few lines as the width allows -->
           <div class="mt-1 flex flex-wrap gap-x-4 gap-y-0.5 text-xs">
             <span>
-              <span class="font-medium text-gray-600 dark:text-gray-400">Created:</span>
-              <span class="text-gray-900 dark:text-gray-100">{formatDate(consumer.created)}</span>
+              <span class="font-medium ui-muted">Created:</span>
+              <span class="ui-text">{formatDate(consumer.created)}</span>
             </span>
             <span>
-              <span class="font-medium text-gray-600 dark:text-gray-400">Consumer ID:</span>
-              <span class="font-mono text-gray-900 dark:text-gray-100">{consumer.consumer_id}</span>
+              <span class="font-medium ui-muted">Consumer ID:</span>
+              <span class="font-mono ui-text">{consumer.consumer_id}</span>
             </span>
             {#if consumer.company}
               <span>
-                <span class="font-medium text-gray-600 dark:text-gray-400">Company:</span>
-                <span class="text-gray-900 dark:text-gray-100">{consumer.company}</span>
+                <span class="font-medium ui-muted">Company:</span>
+                <span class="ui-text">{consumer.company}</span>
               </span>
             {/if}
             <span>
-              <span class="font-medium text-gray-600 dark:text-gray-400">Developer Email:</span>
-              <span class="text-gray-900 dark:text-gray-100">{consumer.developer_email}</span>
+              <span class="font-medium ui-muted">Developer Email:</span>
+              <span class="ui-text">{consumer.developer_email}</span>
             </span>
             <span>
-              <span class="font-medium text-gray-600 dark:text-gray-400">Redirect URL:</span>
+              <span class="font-medium ui-muted">Redirect URL:</span>
               {#if consumer.redirect_url}
                 <!-- Each entry on its own; only an http or https entry becomes a link, so a stored
                      javascript: value is shown as text and can never run when clicked. -->
@@ -414,14 +414,14 @@
                       href={entry}
                       target="_blank"
                       rel="noopener noreferrer"
-                      class="ml-1 text-blue-600 hover:text-blue-700 hover:underline break-all dark:text-blue-400 dark:hover:text-blue-300"
+                      class="ml-1 hover:underline break-all ui-link"
                     >{entry}</a>
                   {:else}
-                    <span data-testid="consumer-redirect-url-text" class="ml-1 text-gray-900 break-all dark:text-gray-100">{entry}</span>
+                    <span data-testid="consumer-redirect-url-text" class="ml-1 break-all ui-text">{entry}</span>
                   {/if}
                 {/each}
               {:else}
-                <span class="text-gray-900 dark:text-gray-100">Not specified</span>
+                <span class="ui-text">Not specified</span>
               {/if}
             </span>
           </div>
@@ -429,9 +429,9 @@
       {/each}
     </div>
   {:else if !errorMessage}
-    <div class="rounded-lg bg-gray-100 p-8 text-center dark:bg-gray-800">
+    <div class="rounded-lg p-8 text-center ui-panel">
       <svg
-        class="mx-auto mb-4 h-16 w-16 text-gray-400"
+        class="mx-auto mb-4 h-16 w-16 ui-muted"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -443,15 +443,15 @@
           d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
         />
       </svg>
-      <p class="mb-2 text-lg font-medium text-gray-700 dark:text-gray-300">
+      <p class="mb-2 text-lg font-medium ui-muted">
         No API consumers found
       </p>
-      <p class="mb-4 text-gray-600 dark:text-gray-400">
+      <p class="mb-4 ui-muted">
         You haven't registered any API consumers yet.
       </p>
       <a
         href="/consumers/register"
-        class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-500 dark:hover:bg-blue-600"
+        class="inline-flex items-center rounded-lg px-4 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 preset-filled-primary-500"
       >
         Register Your First Consumer
       </a>

@@ -762,11 +762,11 @@
 <div class="container mx-auto max-w-[110rem] px-4 py-8">
   <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
     <div>
-      <h1 class="flex items-center gap-2 text-3xl font-bold text-gray-900 dark:text-gray-100">
+      <h1 class="flex items-center gap-2 text-3xl font-bold ui-text">
         <Smartphone class="h-7 w-7" />
         App Studio
       </h1>
-      <p class="mt-1 text-gray-600 dark:text-gray-400">
+      <p class="mt-1 ui-muted">
         {#if mode === "page"}
           Page: no code, lives in the Portal. Opey writes HTML and CSS; live-data tags are filled from the catalogue on the server and
           behaviours come from data attributes. See the <a href="/app-studio/blocks" class="underline">blocks</a> demo and the <a href="/app-studio/help" class="underline">help</a>.
@@ -776,11 +776,11 @@
         {/if}
       </p>
     </div>
-    <div class="inline-flex rounded-md border border-gray-300 dark:border-gray-600" role="tablist" aria-label="Studio mode" data-testid="app-studio-mode" data-state={mode}>
-      <button type="button" role="tab" aria-selected={mode === "app"} class="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium {mode === 'app' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700'}" onclick={() => switchMode("app")} data-testid="app-studio-mode-app">
+    <div class="inline-flex rounded-md border ui-border" role="tablist" aria-label="Studio mode" data-testid="app-studio-mode" data-state={mode}>
+      <button type="button" role="tab" aria-selected={mode === "app"} class="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium {mode === 'app' ? 'preset-filled-primary-500' : 'ui-hover ui-muted'}" onclick={() => switchMode("app")} data-testid="app-studio-mode-app">
         <Smartphone class="h-4 w-4" /> App
       </button>
-      <button type="button" role="tab" aria-selected={mode === "page"} class="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium {mode === 'page' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700'}" onclick={() => switchMode("page")} data-testid="app-studio-mode-page">
+      <button type="button" role="tab" aria-selected={mode === "page"} class="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium {mode === 'page' ? 'preset-filled-primary-500' : 'ui-hover ui-muted'}" onclick={() => switchMode("page")} data-testid="app-studio-mode-page">
         <LayoutTemplate class="h-4 w-4" /> Page
       </button>
     </div>
@@ -788,13 +788,13 @@
 
   {#if opeyPreviousSource !== null || opeyPreviousTitle !== null}
     <div
-      class="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-200"
+      class="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border px-4 py-3 text-sm ui-tone-info"
       data-testid="app-studio-opey-banner"
     >
       <span>Opey updated the {mode === "page" ? "page" : "app"}. Review the preview, then keep or revert.</span>
       <div class="flex gap-2">
-        <button type="button" class="rounded-md border border-blue-300 px-3 py-1 font-medium hover:bg-blue-100 dark:border-blue-700 dark:hover:bg-blue-900/40" onclick={revertOpey} data-testid="app-studio-revert">Revert</button>
-        <button type="button" class="rounded-md bg-blue-600 px-3 py-1 font-medium text-white hover:bg-blue-700" onclick={keepOpey} data-testid="app-studio-keep">Keep</button>
+        <button type="button" class="rounded-md border px-3 py-1 font-medium ui-tone-info" onclick={revertOpey} data-testid="app-studio-revert">Revert</button>
+        <button type="button" class="rounded-md px-3 py-1 font-medium preset-filled-primary-500" onclick={keepOpey} data-testid="app-studio-keep">Keep</button>
       </div>
     </div>
   {/if}
@@ -803,18 +803,18 @@
     <div class="flex min-w-0 flex-col gap-6">
       {#if mode === "app"}
         <!-- Access: whose credentials the app's OBP calls use -->
-        <section class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800" data-testid="app-studio-access" data-state={access}>
+        <section class="rounded-lg border p-4 shadow-sm ui-card ui-border" data-testid="app-studio-access" data-state={access}>
           <div class="flex flex-wrap items-center gap-3">
-            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">The app calls OBP with</span>
-            <div class="inline-flex rounded-md border border-gray-300 dark:border-gray-600" role="radiogroup" aria-label="Access">
-              <button type="button" role="radio" aria-checked={access === "session"} class="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium {access === 'session' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700'}" onclick={() => selectAccess("session")} data-testid="app-studio-access-session">
+            <span class="text-sm font-medium ui-muted">The app calls OBP with</span>
+            <div class="inline-flex rounded-md border ui-border" role="radiogroup" aria-label="Access">
+              <button type="button" role="radio" aria-checked={access === "session"} class="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium {access === 'session' ? 'preset-filled-primary-500' : 'ui-hover ui-muted'}" onclick={() => selectAccess("session")} data-testid="app-studio-access-session">
                 <KeyRound class="h-4 w-4" /> Your session
               </button>
-              <button type="button" role="radio" aria-checked={access === "consent"} class="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium {access === 'consent' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700'}" onclick={() => selectAccess("consent")} data-testid="app-studio-access-consent">
+              <button type="button" role="radio" aria-checked={access === "consent"} class="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium {access === 'consent' ? 'preset-filled-primary-500' : 'ui-hover ui-muted'}" onclick={() => selectAccess("consent")} data-testid="app-studio-access-consent">
                 <ShieldCheck class="h-4 w-4" /> A consent
               </button>
             </div>
-            <span class="text-xs text-gray-500 dark:text-gray-400">
+            <span class="text-xs ui-muted">
               {#if access === "session"}
                 Your OAuth2 bearer token, everything you can do. The token stays on the server.
               {:else if consent}
@@ -826,33 +826,33 @@
               {/if}
             </span>
             {#if access === "consent" && (consent || pendingConsent)}
-              <button type="button" class="ml-auto rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700" onclick={dropConsent} data-testid="app-studio-consent-drop">{consent ? "Drop consent" : "Cancel"}</button>
+              <button type="button" class="ml-auto rounded-md border px-2 py-1 text-xs ui-hover ui-muted ui-border" onclick={dropConsent} data-testid="app-studio-consent-drop">{consent ? "Drop consent" : "Cancel"}</button>
             {/if}
           </div>
 
           {#if access === "consent" && pendingConsent}
             <div class="mt-4 flex flex-wrap items-center gap-3" data-testid="app-studio-consent-challenge">
-              <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+              <label class="flex items-center gap-2 text-sm ui-muted">
                 Code from the email or SMS
-                <input type="text" name="challenge_answer" inputmode="numeric" autocomplete="one-time-code" class="w-32 rounded-md border border-gray-300 px-2 py-1 font-mono text-sm dark:border-gray-600 dark:bg-gray-900" bind:value={challengeAnswer} onkeydown={(e) => { if (e.key === "Enter") answerChallenge(); }} data-testid="app-studio-consent-answer" />
+                <input type="text" name="challenge_answer" inputmode="numeric" autocomplete="one-time-code" class="w-32 rounded-md border px-2 py-1 font-mono text-sm ui-card ui-border" bind:value={challengeAnswer} onkeydown={(e) => { if (e.key === "Enter") answerChallenge(); }} data-testid="app-studio-consent-answer" />
               </label>
-              <button type="button" class="inline-flex items-center gap-1 rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60" disabled={challengeSubmitting} onclick={answerChallenge} data-testid="app-studio-consent-confirm">
+              <button type="button" class="inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-sm font-medium disabled:opacity-60 preset-filled-primary-500" disabled={challengeSubmitting} onclick={answerChallenge} data-testid="app-studio-consent-confirm">
                 <ShieldCheck class="h-4 w-4" /> {challengeSubmitting ? "Confirming…" : "Confirm consent"}
               </button>
-              {#if consentError}<span class="text-sm text-red-700 dark:text-red-300" data-testid="app-studio-consent-error">{consentError}</span>{/if}
+              {#if consentError}<span class="text-sm ui-text-error" data-testid="app-studio-consent-error">{consentError}</span>{/if}
             </div>
           {/if}
 
           {#if access === "consent" && !consent && !pendingConsent}
             <div class="mt-4 grid gap-4 md:grid-cols-2" data-testid="app-studio-consent-form">
               {#if consentOptionsError}
-                <p class="md:col-span-2 text-sm text-red-700 dark:text-red-300">{consentOptionsError}</p>
+                <p class="md:col-span-2 text-sm ui-text-error">{consentOptionsError}</p>
               {:else if !consentOptions}
-                <p class="md:col-span-2 text-sm text-gray-500 dark:text-gray-400">Loading your consumers, accounts and roles…</p>
+                <p class="md:col-span-2 text-sm ui-muted">Loading your consumers, accounts and roles…</p>
               {:else}
                 <label class="flex flex-col gap-1 text-sm">
-                  <span class="font-medium text-gray-700 dark:text-gray-300">Consumer the consent is issued to</span>
-                  <select name="consumer_id" class="rounded-md border border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-900" bind:value={formConsumerId} data-testid="app-studio-consent-consumer">
+                  <span class="font-medium ui-muted">Consumer the consent is issued to</span>
+                  <select name="consumer_id" class="rounded-md border px-2 py-1.5 text-sm ui-card ui-border" bind:value={formConsumerId} data-testid="app-studio-consent-consumer">
                     <option value="" disabled>Choose a consumer</option>
                     {#each consentOptions.consumers as c (c.consumer_id)}
                       <option value={c.consumer_id}>{c.app_name}{c.enabled ? "" : " (disabled)"}</option>
@@ -860,54 +860,54 @@
                   </select>
                 </label>
                 <label class="flex flex-col gap-1 text-sm">
-                  <span class="font-medium text-gray-700 dark:text-gray-300">That consumer's key</span>
-                  <input type="password" name="consumer_key" autocomplete="off" class="rounded-md border border-gray-300 px-2 py-1.5 font-mono text-sm dark:border-gray-600 dark:bg-gray-900" bind:value={formConsumerKey} data-testid="app-studio-consent-consumer-key" />
-                  <span class="text-xs text-gray-500 dark:text-gray-400">OBP requires the consumer key on every consent call. Kept in this page only.</span>
+                  <span class="font-medium ui-muted">That consumer's key</span>
+                  <input type="password" name="consumer_key" autocomplete="off" class="rounded-md border px-2 py-1.5 font-mono text-sm ui-card ui-border" bind:value={formConsumerKey} data-testid="app-studio-consent-consumer-key" />
+                  <span class="text-xs ui-muted">OBP requires the consumer key on every consent call. Kept in this page only.</span>
                 </label>
 
                 <div class="flex flex-col gap-1 text-sm">
                   <div class="flex items-center justify-between">
-                    <span class="font-medium text-gray-700 dark:text-gray-300">Accounts ({selectedAccountCount} selected)</span>
-                    <label class="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">View <input type="text" name="view_id" class="w-20 rounded-md border border-gray-300 px-1.5 py-0.5 text-xs dark:border-gray-600 dark:bg-gray-900" bind:value={formViewId} /></label>
+                    <span class="font-medium ui-muted">Accounts ({selectedAccountCount} selected)</span>
+                    <label class="flex items-center gap-1 text-xs ui-muted">View <input type="text" name="view_id" class="w-20 rounded-md border px-1.5 py-0.5 text-xs ui-card ui-border" bind:value={formViewId} /></label>
                   </div>
-                  <input type="search" name="account_filter" placeholder="Filter by label, bank or account id" class="rounded-md border border-gray-300 px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-900" bind:value={formAccountFilter} />
-                  <ul class="max-h-44 overflow-auto rounded-md border border-gray-200 p-1 dark:border-gray-700" data-testid="app-studio-consent-accounts">
+                  <input type="search" name="account_filter" placeholder="Filter by label, bank or account id" class="rounded-md border px-2 py-1 text-sm ui-card ui-border" bind:value={formAccountFilter} />
+                  <ul class="max-h-44 overflow-auto rounded-md border p-1 ui-border" data-testid="app-studio-consent-accounts">
                     {#each filteredAccounts as a (accountKey(a))}
                       <li>
-                        <label class="flex cursor-pointer items-center gap-2 rounded px-1.5 py-0.5 hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <label class="flex cursor-pointer items-center gap-2 rounded px-1.5 py-0.5 ui-hover">
                           <input type="checkbox" name="account" value={accountKey(a)} bind:checked={formAccounts[accountKey(a)]} />
-                          <span class="truncate">{a.label} <span class="text-xs text-gray-500 dark:text-gray-400">{a.bank_id} · {a.account_id}</span></span>
+                          <span class="truncate">{a.label} <span class="text-xs ui-muted">{a.bank_id} · {a.account_id}</span></span>
                         </label>
                       </li>
                     {/each}
-                    {#if filteredAccounts.length === 0}<li class="px-1.5 py-0.5 text-xs text-gray-400">No accounts match.</li>{/if}
-                    {#if (consentOptions.accounts.length > MAX_LIST) && filteredAccounts.length === MAX_LIST}<li class="px-1.5 py-0.5 text-xs text-gray-400">Showing the first {MAX_LIST}; filter to find others.</li>{/if}
+                    {#if filteredAccounts.length === 0}<li class="px-1.5 py-0.5 text-xs ui-muted">No accounts match.</li>{/if}
+                    {#if (consentOptions.accounts.length > MAX_LIST) && filteredAccounts.length === MAX_LIST}<li class="px-1.5 py-0.5 text-xs ui-muted">Showing the first {MAX_LIST}; filter to find others.</li>{/if}
                   </ul>
                 </div>
 
                 <div class="flex flex-col gap-1 text-sm">
-                  <span class="font-medium text-gray-700 dark:text-gray-300">Roles ({selectedRoleCount} selected)</span>
-                  <input type="search" name="role_filter" placeholder="Filter by role or bank" class="rounded-md border border-gray-300 px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-900" bind:value={formRoleFilter} />
-                  <ul class="max-h-44 overflow-auto rounded-md border border-gray-200 p-1 dark:border-gray-700" data-testid="app-studio-consent-roles">
+                  <span class="font-medium ui-muted">Roles ({selectedRoleCount} selected)</span>
+                  <input type="search" name="role_filter" placeholder="Filter by role or bank" class="rounded-md border px-2 py-1 text-sm ui-card ui-border" bind:value={formRoleFilter} />
+                  <ul class="max-h-44 overflow-auto rounded-md border p-1 ui-border" data-testid="app-studio-consent-roles">
                     {#each filteredRoles as e (roleKey(e))}
                       <li>
-                        <label class="flex cursor-pointer items-center gap-2 rounded px-1.5 py-0.5 hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <label class="flex cursor-pointer items-center gap-2 rounded px-1.5 py-0.5 ui-hover">
                           <input type="checkbox" name="role" value={roleKey(e)} bind:checked={formRoles[roleKey(e)]} />
-                          <span class="truncate">{e.role_name} <span class="text-xs text-gray-500 dark:text-gray-400">{e.bank_id || "system"}</span></span>
+                          <span class="truncate">{e.role_name} <span class="text-xs ui-muted">{e.bank_id || "system"}</span></span>
                         </label>
                       </li>
                     {/each}
-                    {#if filteredRoles.length === 0}<li class="px-1.5 py-0.5 text-xs text-gray-400">No roles match.</li>{/if}
-                    {#if (consentOptions.entitlements.length > MAX_LIST) && filteredRoles.length === MAX_LIST}<li class="px-1.5 py-0.5 text-xs text-gray-400">Showing the first {MAX_LIST}; filter to find others.</li>{/if}
+                    {#if filteredRoles.length === 0}<li class="px-1.5 py-0.5 text-xs ui-muted">No roles match.</li>{/if}
+                    {#if (consentOptions.entitlements.length > MAX_LIST) && filteredRoles.length === MAX_LIST}<li class="px-1.5 py-0.5 text-xs ui-muted">Showing the first {MAX_LIST}; filter to find others.</li>{/if}
                   </ul>
                 </div>
 
                 <div class="flex flex-wrap items-center gap-3 md:col-span-2">
-                  <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">Valid for <input type="number" name="ttl_minutes" min="1" max="1440" class="w-20 rounded-md border border-gray-300 px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-900" bind:value={formTtlMinutes} /> minutes</label>
-                  <button type="button" class="inline-flex items-center gap-1 rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60" disabled={consentCreating} onclick={createConsent} data-testid="app-studio-consent-create">
+                  <label class="flex items-center gap-2 text-sm ui-muted">Valid for <input type="number" name="ttl_minutes" min="1" max="1440" class="w-20 rounded-md border px-2 py-1 text-sm ui-card ui-border" bind:value={formTtlMinutes} /> minutes</label>
+                  <button type="button" class="inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-sm font-medium disabled:opacity-60 preset-filled-primary-500" disabled={consentCreating} onclick={createConsent} data-testid="app-studio-consent-create">
                     <ShieldCheck class="h-4 w-4" /> {consentCreating ? "Creating…" : "Create consent"}
                   </button>
-                  {#if consentError}<span class="text-sm text-red-700 dark:text-red-300" data-testid="app-studio-consent-error">{consentError}</span>{/if}
+                  {#if consentError}<span class="text-sm ui-text-error" data-testid="app-studio-consent-error">{consentError}</span>{/if}
                 </div>
               {/if}
             </div>
@@ -916,36 +916,36 @@
       {/if}
 
       <!-- Source -->
-      <section class="flex flex-col rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800" data-testid="app-studio-source">
+      <section class="flex flex-col rounded-lg border p-4 shadow-sm ui-card ui-border" data-testid="app-studio-source">
         <div class="mb-3 flex flex-wrap items-center gap-2">
           <label class="flex items-center gap-2 text-sm">
-            <span class="font-medium text-gray-700 dark:text-gray-300">Title</span>
-            <input type="text" name="title" class="input w-48 rounded-md border border-gray-300 px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-900" bind:value={title} data-testid="app-studio-title" />
+            <span class="font-medium ui-muted">Title</span>
+            <input type="text" name="title" class="input w-48 rounded-md border px-2 py-1 text-sm ui-card ui-border" bind:value={title} data-testid="app-studio-title" />
           </label>
           <div class="ml-auto flex flex-wrap gap-2">
-            <button type="button" class="inline-flex items-center gap-1 rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700" onclick={run} data-testid="app-studio-run">
+            <button type="button" class="inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-sm font-medium preset-filled-primary-500" onclick={run} data-testid="app-studio-run">
               <Play class="h-4 w-4" /> Run
             </button>
-            <button type="button" class="inline-flex items-center gap-1 rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700" onclick={copySource} data-testid="app-studio-copy">
+            <button type="button" class="inline-flex items-center gap-1 rounded-md border px-3 py-1.5 text-sm ui-hover ui-muted ui-border" onclick={copySource} data-testid="app-studio-copy">
               <Copy class="h-4 w-4" /> {copied ? "Copied" : "Copy"}
             </button>
-            <a href={downloadHref} download={downloadName} class="inline-flex items-center gap-1 rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700" data-testid="app-studio-download">
+            <a href={downloadHref} download={downloadName} class="inline-flex items-center gap-1 rounded-md border px-3 py-1.5 text-sm ui-hover ui-muted ui-border" data-testid="app-studio-download">
               <Download class="h-4 w-4" /> Download
             </a>
-            <button type="button" class="inline-flex items-center gap-1 rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700" onclick={resetToStarter} data-testid="app-studio-reset">
+            <button type="button" class="inline-flex items-center gap-1 rounded-md border px-3 py-1.5 text-sm ui-hover ui-muted ui-border" onclick={resetToStarter} data-testid="app-studio-reset">
               <RotateCcw class="h-4 w-4" /> Starter
             </button>
           </div>
         </div>
         <textarea
           name="html"
-          class="min-h-[16rem] resize-y rounded-md border border-gray-300 bg-gray-50 p-3 font-mono text-xs leading-5 text-gray-900 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100 {mode === 'page' ? 'h-[16rem]' : 'h-[28rem]'}"
+          class="min-h-[16rem] resize-y rounded-md border p-3 font-mono text-xs leading-5 ui-card ui-text ui-border {mode === 'page' ? 'h-[16rem]' : 'h-[28rem]'}"
           spellcheck="false"
           bind:value={source}
           onkeydown={handleEditorKeydown}
           data-testid="app-studio-html"
         ></textarea>
-        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+        <p class="mt-1 text-xs ui-muted">
           Ctrl+Enter runs it.
           {#if mode === "page"}
             Live data via <code>&lt;obp-products&gt;</code>, <code>&lt;obp-endpoints&gt;</code>, <code>&lt;obp-banks&gt;</code>, <code>&lt;obp-signup&gt;</code>, <code>&lt;obp-stat&gt;</code>; clicks via <code>data-behaviour</code>.
@@ -956,21 +956,21 @@
 
         {#if mode === "app"}
           <div class="mt-4 grid gap-3 md:grid-cols-2">
-            <div class="rounded-md border border-gray-200 dark:border-gray-700">
-              <div class="border-b border-gray-200 px-3 py-1.5 text-xs font-semibold uppercase text-gray-500 dark:border-gray-700 dark:text-gray-400">OBP calls</div>
+            <div class="rounded-md border ui-border">
+              <div class="border-b px-3 py-1.5 text-xs font-semibold uppercase ui-muted ui-border">OBP calls</div>
               <ul class="max-h-40 overflow-auto p-2 font-mono text-xs" data-testid="app-studio-network">
-                {#if network.length === 0}<li class="text-gray-400">None yet.</li>{/if}
+                {#if network.length === 0}<li class="ui-muted">None yet.</li>{/if}
                 {#each network as n, i (i)}
-                  <li class={n.error ? "text-red-600 dark:text-red-400" : "text-gray-700 dark:text-gray-300"}>{n.method} {n.path} → {n.status || "—"} {n.ms}ms{n.error ? ` · ${n.error}` : ""}</li>
+                  <li class={n.error ? "ui-text-error" : "ui-muted"}>{n.method} {n.path} → {n.status || "—"} {n.ms}ms{n.error ? ` · ${n.error}` : ""}</li>
                 {/each}
               </ul>
             </div>
-            <div class="rounded-md border border-gray-200 dark:border-gray-700">
-              <div class="border-b border-gray-200 px-3 py-1.5 text-xs font-semibold uppercase text-gray-500 dark:border-gray-700 dark:text-gray-400">Console</div>
+            <div class="rounded-md border ui-border">
+              <div class="border-b px-3 py-1.5 text-xs font-semibold uppercase ui-muted ui-border">Console</div>
               <ul class="max-h-40 overflow-auto p-2 font-mono text-xs" data-testid="app-studio-console">
-                {#if logs.length === 0}<li class="text-gray-400">Nothing logged.</li>{/if}
+                {#if logs.length === 0}<li class="ui-muted">Nothing logged.</li>{/if}
                 {#each logs as l, i (i)}
-                  <li class={l.level === "error" ? "text-red-600 dark:text-red-400" : l.level === "warn" ? "text-yellow-700 dark:text-yellow-300" : "text-gray-700 dark:text-gray-300"}>[{l.level}] {l.message}</li>
+                  <li class={l.level === "error" ? "ui-text-error" : l.level === "warn" ? "ui-text-warning" : "ui-muted"}>[{l.level}] {l.message}</li>
                 {/each}
               </ul>
             </div>
@@ -979,18 +979,18 @@
       </section>
 
       <!-- Save / publish to the Portal -->
-      <section class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800" data-testid="app-studio-publish" data-state={currentPage ? currentPage.status : "unsaved"}>
+      <section class="rounded-lg border p-4 shadow-sm ui-card ui-border" data-testid="app-studio-publish" data-state={currentPage ? currentPage.status : "unsaved"}>
         <div class="flex flex-wrap items-end gap-3">
           <label class="flex flex-col gap-1 text-sm">
-            <span class="font-medium text-gray-700 dark:text-gray-300">Slug</span>
-            <input type="text" name="slug" class="w-56 rounded-md border border-gray-300 px-2 py-1 font-mono text-sm dark:border-gray-600 dark:bg-gray-900" placeholder={slugFromTitle(title) || "my-page"} bind:value={slug} data-testid="app-studio-slug" />
+            <span class="font-medium ui-muted">Slug</span>
+            <input type="text" name="slug" class="w-56 rounded-md border px-2 py-1 font-mono text-sm ui-card ui-border" placeholder={slugFromTitle(title) || "my-page"} bind:value={slug} data-testid="app-studio-slug" />
           </label>
           <label class="flex min-w-[16rem] flex-1 flex-col gap-1 text-sm">
-            <span class="font-medium text-gray-700 dark:text-gray-300">Summary</span>
-            <input type="text" name="summary" class="rounded-md border border-gray-300 px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-900" placeholder="One line for listings" bind:value={summary} data-testid="app-studio-summary" />
+            <span class="font-medium ui-muted">Summary</span>
+            <input type="text" name="summary" class="rounded-md border px-2 py-1 text-sm ui-card ui-border" placeholder="One line for listings" bind:value={summary} data-testid="app-studio-summary" />
           </label>
           <fieldset class="flex flex-col gap-1 text-sm" data-testid="app-studio-sites">
-            <legend class="font-medium text-gray-700 dark:text-gray-300">Menu of</legend>
+            <legend class="font-medium ui-muted">Menu of</legend>
             <div class="flex gap-3 py-1">
               {#each Object.entries(SITE_LABELS) as [site, label] (site)}
                 <label class="inline-flex items-center gap-1"><input type="checkbox" value={site} bind:group={sites} data-testid="app-studio-site-{site}" /> {label}</label>
@@ -998,35 +998,35 @@
             </div>
           </fieldset>
           <label class="flex flex-col gap-1 text-sm">
-            <span class="font-medium text-gray-700 dark:text-gray-300">Language</span>
-            <select class="rounded-md border border-gray-300 px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-900" bind:value={lang} data-testid="app-studio-lang">
+            <span class="font-medium ui-muted">Language</span>
+            <select class="rounded-md border px-2 py-1 text-sm ui-card ui-border" bind:value={lang} data-testid="app-studio-lang">
               <option value="">Every language</option>
               <option value="en">English</option>
               <option value="ar">Arabic</option>
             </select>
           </label>
           <label class="flex flex-col gap-1 text-sm">
-            <span class="font-medium text-gray-700 dark:text-gray-300">Menu position</span>
-            <input type="text" inputmode="numeric" pattern="-?[0-9]*" class="w-24 rounded-md border border-gray-300 px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-900" placeholder="last" bind:value={menuPosition} data-testid="app-studio-menu-position" />
+            <span class="font-medium ui-muted">Menu position</span>
+            <input type="text" inputmode="numeric" pattern="-?[0-9]*" class="w-24 rounded-md border px-2 py-1 text-sm ui-card ui-border" placeholder="last" bind:value={menuPosition} data-testid="app-studio-menu-position" />
           </label>
           <div class="flex flex-wrap gap-2">
-            <button type="button" class="inline-flex items-center gap-1 rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-60 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700" disabled={saving} onclick={() => savePage("draft")} data-testid="app-studio-save-draft">
+            <button type="button" class="inline-flex items-center gap-1 rounded-md border px-3 py-1.5 text-sm disabled:opacity-60 ui-hover ui-muted ui-border" disabled={saving} onclick={() => savePage("draft")} data-testid="app-studio-save-draft">
               <Save class="h-4 w-4" /> {currentPage ? "Save" : "Save draft"}
             </button>
-            <button type="button" class="inline-flex items-center gap-1 rounded-md bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-60" disabled={saving} onclick={() => savePage("published")} data-testid="app-studio-publish-btn">
+            <button type="button" class="inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-sm font-medium disabled:opacity-60 preset-filled-primary-500" disabled={saving} onclick={() => savePage("published")} data-testid="app-studio-publish-btn">
               <Globe class="h-4 w-4" /> {currentPage?.status === "published" ? "Republish" : "Publish"}
             </button>
             {#if currentPage?.status === "published"}
-              <button type="button" class="inline-flex items-center gap-1 rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-60 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700" disabled={saving} onclick={() => savePage("draft")} data-testid="app-studio-unpublish">Unpublish</button>
+              <button type="button" class="inline-flex items-center gap-1 rounded-md border px-3 py-1.5 text-sm disabled:opacity-60 ui-hover ui-muted ui-border" disabled={saving} onclick={() => savePage("draft")} data-testid="app-studio-unpublish">Unpublish</button>
             {/if}
             {#if currentPage}
-              <button type="button" class="inline-flex items-center gap-1 rounded-md border border-red-300 px-3 py-1.5 text-sm text-red-700 hover:bg-red-50 dark:border-red-700 dark:text-red-300 dark:hover:bg-red-900/20" onclick={deleteCurrentPage} data-testid="app-studio-delete">
+              <button type="button" class="inline-flex items-center gap-1 rounded-md border px-3 py-1.5 text-sm ui-tone-error" onclick={deleteCurrentPage} data-testid="app-studio-delete">
                 <Trash2 class="h-4 w-4" /> Delete
               </button>
             {/if}
           </div>
         </div>
-        <div class="mt-3 flex flex-wrap items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+        <div class="mt-3 flex flex-wrap items-center gap-3 text-xs ui-muted">
           {#if currentPage}
             <span data-testid="app-studio-current-page">Editing <code>{currentPage.slug}</code> ({currentPage.kind}, {currentPage.status}, saved {currentPage.updated_at} by {currentPage.author || "unknown"})</span>
             {#if currentPage.status === "published" && currentPage.sites.includes("portal") && page.data.externalLinks?.PORTAL_URL}
@@ -1038,7 +1038,7 @@
           {/if}
           <label class="ml-auto flex items-center gap-1">
             <FolderOpen class="h-3.5 w-3.5" />
-            <select class="rounded-md border border-gray-300 px-2 py-1 text-xs dark:border-gray-600 dark:bg-gray-900" bind:value={openId} onchange={() => openSavedPage(openId)} data-testid="app-studio-open-saved">
+            <select class="rounded-md border px-2 py-1 text-xs ui-card ui-border" bind:value={openId} onchange={() => openSavedPage(openId)} data-testid="app-studio-open-saved">
               <option value="">Open saved…</option>
               {#each savedPages as sp (sp.id)}
                 <option value={sp.id}>{sp.title} · {sp.kind} · {sp.status} · {sp.sites.map((x) => SITE_LABELS[x] ?? x).join("+") || "no site"}{sp.lang ? ` · ${sp.lang}` : ""}</option>
@@ -1046,9 +1046,9 @@
             </select>
           </label>
           <a href="/app-studio/pages" class="underline" data-testid="app-studio-all-pages">All pages</a>
-          {#if saveMessage}<span class="text-emerald-700 dark:text-emerald-300" data-testid="app-studio-save-message">{saveMessage}</span>{/if}
-          {#if saveError && !saveMissingRoles}<span class="text-red-700 dark:text-red-300" data-testid="app-studio-save-error">{saveError}</span>{/if}
-          {#if savedPagesError}<span class="text-red-700 dark:text-red-300">{savedPagesError}</span>{/if}
+          {#if saveMessage}<span class="ui-text-success" data-testid="app-studio-save-message">{saveMessage}</span>{/if}
+          {#if saveError && !saveMissingRoles}<span class="ui-text-error" data-testid="app-studio-save-error">{saveError}</span>{/if}
+          {#if savedPagesError}<span class="ui-text-error">{savedPagesError}</span>{/if}
         </div>
         {#if saveMissingRoles}
           {#key saveError}
@@ -1062,10 +1062,10 @@
       <!-- App at page width sits under the editor; height follows the app's content -->
       {#if mode === "app" && previewWidth === "desktop"}
         <section data-testid="app-studio-preview" data-state="ready">
-          <h2 class="mb-2 text-base font-semibold text-gray-900 dark:text-gray-100" data-testid="app-studio-preview-heading">Preview</h2>
-          <div class="mb-2 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+          <h2 class="mb-2 text-base font-semibold ui-text" data-testid="app-studio-preview-heading">Preview</h2>
+          <div class="mb-2 flex items-center justify-between text-xs ui-muted">
             <span>{title || "Untitled app"} · run {runId} · page width</span>
-            <button type="button" class="inline-flex items-center gap-1 rounded-md border border-gray-300 px-2 py-1 dark:border-gray-600" onclick={() => (previewWidth = "phone")} data-testid="app-studio-width-phone"><Smartphone class="h-3.5 w-3.5" /> Phone width</button>
+            <button type="button" class="inline-flex items-center gap-1 rounded-md border px-2 py-1 ui-border" onclick={() => (previewWidth = "phone")} data-testid="app-studio-width-phone"><Smartphone class="h-3.5 w-3.5" /> Phone width</button>
           </div>
           <AppStudioPreview {source} {runId} layout="fill" onRequest={handleAppRequest} onLog={pushLog} onNavigate={handleAppNavigate} />
         </section>
@@ -1074,17 +1074,17 @@
       <!-- Landing preview at desktop width sits under the editor, full column width -->
       {#if mode === "page" && previewWidth === "desktop"}
         <section data-testid="app-studio-preview" data-state={expanding ? "rendering" : expandError ? "error" : "ready"}>
-          <h2 class="mb-2 text-base font-semibold text-gray-900 dark:text-gray-100" data-testid="app-studio-preview-heading">Preview</h2>
-          <div class="mb-2 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+          <h2 class="mb-2 text-base font-semibold ui-text" data-testid="app-studio-preview-heading">Preview</h2>
+          <div class="mb-2 flex items-center justify-between text-xs ui-muted">
             <span>{title || "Untitled page"} · run {runId}{expanding ? " · rendering…" : ""}</span>
-            <button type="button" class="inline-flex items-center gap-1 rounded-md border border-gray-300 px-2 py-1 dark:border-gray-600" onclick={() => (previewWidth = "phone")} data-testid="app-studio-width-phone"><Smartphone class="h-3.5 w-3.5" /> Phone width</button>
+            <button type="button" class="inline-flex items-center gap-1 rounded-md border px-2 py-1 ui-border" onclick={() => (previewWidth = "phone")} data-testid="app-studio-width-phone"><Smartphone class="h-3.5 w-3.5" /> Phone width</button>
           </div>
           {#if expandError}
-            <div class="rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-800 dark:border-red-700 dark:bg-red-900/20 dark:text-red-200">{expandError}</div>
+            <div class="rounded-lg border p-4 text-sm ui-tone-error">{expandError}</div>
           {/if}
           {@html `<style>${LANDING_BASE_CSS}</style>`}
           {#key runId}
-            <div bind:this={landingEl} class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-700" data-testid="app-studio-landing">
+            <div bind:this={landingEl} class="overflow-hidden rounded-2xl border shadow-sm ui-card ui-border" data-testid="app-studio-landing">
               {@html expandedHtml}
             </div>
           {/key}
@@ -1095,29 +1095,29 @@
     <!-- Phone-sized preview column (either mode at phone width) -->
     {#if previewWidth === "phone"}
       <section class="xl:sticky xl:top-8 xl:self-start" data-testid="app-studio-preview" data-state={mode === "page" ? (expanding ? "rendering" : expandError ? "error" : "ready") : "ready"}>
-        <h2 class="mb-2 text-base font-semibold text-gray-900 dark:text-gray-100" data-testid="app-studio-preview-heading">Preview</h2>
+        <h2 class="mb-2 text-base font-semibold ui-text" data-testid="app-studio-preview-heading">Preview</h2>
         {#if mode === "app"}
           <AppStudioPreview {source} {runId} onRequest={handleAppRequest} onLog={pushLog} onNavigate={handleAppNavigate} />
-          <p class="mt-2 flex items-center justify-center gap-3 text-center text-xs text-gray-500 dark:text-gray-400">
+          <p class="mt-2 flex items-center justify-center gap-3 text-center text-xs ui-muted">
             <span>{title || "Untitled app"} · run {runId}</span>
-            <button type="button" class="inline-flex items-center gap-1 rounded-md border border-gray-300 px-2 py-1 dark:border-gray-600" onclick={() => (previewWidth = "desktop")} data-testid="app-studio-width-desktop"><Monitor class="h-3.5 w-3.5" /> Page width</button>
+            <button type="button" class="inline-flex items-center gap-1 rounded-md border px-2 py-1 ui-border" onclick={() => (previewWidth = "desktop")} data-testid="app-studio-width-desktop"><Monitor class="h-3.5 w-3.5" /> Page width</button>
           </p>
         {:else}
           {#if expandError}
-            <div class="mb-2 w-[410px] max-w-full rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-800 dark:border-red-700 dark:bg-red-900/20 dark:text-red-200">{expandError}</div>
+            <div class="mb-2 w-[410px] max-w-full rounded-lg border p-3 text-sm ui-tone-error">{expandError}</div>
           {/if}
           {@html `<style>${LANDING_BASE_CSS}</style>`}
-          <div class="mx-auto rounded-[2.5rem] border-[10px] border-gray-900 bg-gray-900 shadow-xl dark:border-gray-700" style="width: 410px; max-width: 100%;" data-testid="app-studio-phone">
-            <div class="mx-auto mb-1 mt-2 h-1.5 w-20 rounded-full bg-gray-700"></div>
+          <div class="mx-auto rounded-[2.5rem] border-[10px] shadow-xl ui-panel ui-border" style="width: 410px; max-width: 100%;" data-testid="app-studio-phone">
+            <div class="mx-auto mb-1 mt-2 h-1.5 w-20 rounded-full ui-panel"></div>
             <div class="overflow-auto rounded-[2rem] bg-white" style="height: 780px;">
               {#key runId}
                 <div bind:this={landingEl} data-testid="app-studio-landing">{@html expandedHtml}</div>
               {/key}
             </div>
           </div>
-          <p class="mt-2 flex items-center justify-center gap-3 text-center text-xs text-gray-500 dark:text-gray-400">
+          <p class="mt-2 flex items-center justify-center gap-3 text-center text-xs ui-muted">
             <span>{title || "Untitled page"} · run {runId}{expanding ? " · rendering…" : ""}</span>
-            <button type="button" class="inline-flex items-center gap-1 rounded-md border border-gray-300 px-2 py-1 dark:border-gray-600" onclick={() => (previewWidth = "desktop")} data-testid="app-studio-width-desktop"><Monitor class="h-3.5 w-3.5" /> Desktop width</button>
+            <button type="button" class="inline-flex items-center gap-1 rounded-md border px-2 py-1 ui-border" onclick={() => (previewWidth = "desktop")} data-testid="app-studio-width-desktop"><Monitor class="h-3.5 w-3.5" /> Desktop width</button>
           </p>
         {/if}
       </section>
@@ -1125,7 +1125,7 @@
 
     <!-- Opey pane: OpeyChat requires a definite height all the way down -->
     <aside class="xl:sticky xl:top-8" data-testid="opey-form-pane">
-      <div class="h-[36rem] w-full overflow-hidden rounded-lg border border-gray-200 shadow-sm xl:h-[calc(100vh-80px-3rem)] dark:border-gray-700">
+      <div class="h-[36rem] w-full overflow-hidden rounded-lg border shadow-sm xl:h-[calc(100vh-80px-3rem)] ui-border">
         {#key mode}
           <OpeyChat {opeyChatOptions} userAuthenticated={!!page.data.userId} {clientTools} {clientContext} />
         {/key}

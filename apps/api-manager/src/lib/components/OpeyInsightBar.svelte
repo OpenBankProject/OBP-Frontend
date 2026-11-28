@@ -83,12 +83,12 @@
   <div
     data-testid="opey-insight-bar"
     data-state={loading ? "loading" : "ready"}
-    class="flex items-center gap-3 border-b border-surface-200-800 bg-surface-50-950 px-4 py-2 text-sm"
+    class="flex items-center gap-3 border-b px-4 py-2 text-sm ui-card ui-border"
   >
     <button
       type="button"
       data-testid="opey-insight-toggle"
-      class="hover:text-tertiary-400"
+      class="ui-link"
       onclick={() => userPreferences.setOpeyInsightsOpen(false)}
       aria-label="Hide insights"
     >
@@ -96,14 +96,14 @@
     </button>
 
     {#if loading}
-      <Loader2 class="size-4 shrink-0 animate-spin text-tertiary-500" />
-      <span class="flex-1 text-surface-500">Opey is thinking...</span>
+      <Loader2 class="size-4 shrink-0 animate-spin ui-link" />
+      <span class="flex-1 ui-muted">Opey is thinking...</span>
     {:else}
-      <MessageCircle class="size-4 shrink-0 text-tertiary-500" />
+      <MessageCircle class="size-4 shrink-0 ui-link" />
       {#if isEditing}
         <input
           type="text"
-          class="flex-1 rounded border border-surface-300-700 bg-surface-50-950 px-2 py-1 text-sm focus:border-tertiary-500 focus:outline-none"
+          class="flex-1 rounded border px-2 py-1 text-sm focus:outline-none ui-card ui-border"
           bind:value={editedPrompt}
           data-testid="opey-insight-edit-input"
           onkeydown={(e) => { if (e.key === "Escape") isEditing = false; }}
@@ -112,7 +112,7 @@
         <!-- svelte-ignore a11y_click_events_have_key_events -->
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <span
-          class="flex-1 cursor-text rounded px-1 hover:bg-surface-100-900"
+          class="flex-1 cursor-text rounded px-1 ui-hover"
           onclick={startEditing}
           data-testid="opey-insight-text"
         >
@@ -126,7 +126,7 @@
       <a
         href="/?ask={encodeURIComponent(askPrompt)}"
         data-testid="opey-insight-ask-button"
-        class="btn btn-sm preset-tonal-tertiary shrink-0"
+        class="btn btn-sm preset-tonal shrink-0"
       >
         Ask Opey
       </a>

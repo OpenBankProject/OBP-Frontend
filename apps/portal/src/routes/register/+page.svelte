@@ -108,7 +108,7 @@
 </script>
 
 <div
-	class="card dark:bg-primary-500/50 backdrop-blur-3xl border-primary-200-800 divide-primary-200-800 mx-auto my-10 md:px-15 flex flex-col divide-y border-[1px] shadow-lg max-w-[90%] lg:max-w-4xl"
+	class="card ui-card ui-border backdrop-blur-3xl mx-auto my-10 md:px-15 flex flex-col divide-y border-[1px] shadow-lg max-w-[90%] lg:max-w-4xl"
 >
 	<header class="py-4">
 		<h1 class="h4 text-center">{registerHeadline}</h1>
@@ -116,8 +116,8 @@
 	<article class="space-y-4 p-4">
 		<form class="mx-auto w-full max-w-md space-y-6" method="POST">
 			{#if showError && form?.message}
-				<div class="bg-error-500/10 border-error-500 rounded-lg border p-4 text-center" data-testid="registration-error">
-					<p class="text-error-500 font-semibold">{form?.message}</p>
+				<div class="rounded-lg border p-4 text-center ui-tone-error" data-testid="registration-error">
+					<p class="font-semibold ui-text-error">{form?.message}</p>
 				</div>
 			{/if}
 			<!-- --- -->
@@ -145,7 +145,7 @@
 			</label>
 			<!-- --- -->
 			<label class="label">
-				<span class="label-text">Mobile Phone Number <span class="text-secondary-800-200 font-normal">(optional)</span></span>
+				<span class="label-text">Mobile Phone Number <span class="font-normal ui-text-brand">(optional)</span></span>
 				<input
 					type="tel"
 					class="input"
@@ -157,14 +157,14 @@
 					maxlength="51"
 					data-testid="register-mobile-phone-number"
 				/>
-				<p class="text-secondary-800-200 text-xs">Include your country code, e.g. +44. You can verify it later from your profile.</p>
+				<p class="text-xs ui-text-brand">Include your country code, e.g. +44. You can verify it later from your profile.</p>
 			</label>
 			<!-- --- -->
 			<label class="label">
 				<span class="label-text">Username</span>
 				<input type="text" class="input" name="username" placeholder="coffeespoon123" bind:value={username} oninput={handleUsernameInput} autocomplete="username" minlength="8" required />
 				{#if username.length > 0 && !isUsernameValid}
-					<p class="text-error-500 text-xs">Username must be at least 8 characters long.</p>
+					<p class="text-xs ui-text-error">Username must be at least 8 characters long.</p>
 				{/if}
 			</label>
 
@@ -185,7 +185,7 @@
 					/>
 					<button
 						type="button"
-						class="absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+						class="absolute top-1/2 right-3 -translate-y-1/2 ui-muted"
 						onclick={togglePasswordVisibility}
 						aria-label={showPassword ? 'Hide password' : 'Show password'}
 						aria-pressed={showPassword}
@@ -198,14 +198,14 @@
 					</button>
 				</div>
 
-				<p id="password-hint" class="text-secondary-800-200 text-xs">
+				<p id="password-hint" class="text-xs ui-text-brand">
 					Tip: your browser or password manager can suggest and save a strong password.
 				</p>
 
 				<PasswordPolicyFeedback {password} policies={data.passwordPolicies} />
 
 				{#if password.length > 0 && repeatPassword.length > 0 && !arePasswordsMatching}
-					<p class="text-error-500 text-xs">Passwords do not match!</p>
+					<p class="text-xs ui-text-error">Passwords do not match!</p>
 				{/if}
 			</label>
 
@@ -224,7 +224,7 @@
 					/>
 					<button
 						type="button"
-						class="absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+						class="absolute top-1/2 right-3 -translate-y-1/2 ui-muted"
 						onclick={togglePasswordVisibility}
 						aria-label={showPassword ? 'Hide password' : 'Show password'}
 						aria-pressed={showPassword}
@@ -241,19 +241,19 @@
 			<hr class="hr" />
 
 			<div class="space-y-4">
-				<p class="text-secondary-800-200 text-center text-sm">
+				<p class="text-center text-sm ui-text-brand">
 					By registering, you must read and accept our legal documents:
 				</p>
 
 				<div class="space-y-3">
 					<div
 						class="flex items-center justify-between rounded-lg border p-3 {termsAccepted
-							? 'border-green-200 bg-green-50'
-							: 'border-gray-200 bg-gray-50'}"
+							? 'ui-tone-success'
+							: 'ui-card ui-border'}"
 					>
 						<div class="flex items-center space-x-3">
 							{#if termsAccepted}
-								<svg class="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+								<svg class="h-5 w-5 ui-text-success" fill="currentColor" viewBox="0 0 20 20">
 									<path
 										fill-rule="evenodd"
 										d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
@@ -261,7 +261,7 @@
 									></path>
 								</svg>
 							{:else}
-								<svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+								<svg class="h-5 w-5 ui-muted" fill="currentColor" viewBox="0 0 20 20">
 									<path
 										fill-rule="evenodd"
 										d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v3.586L7.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 10.586V7z"
@@ -270,7 +270,7 @@
 								</svg>
 							{/if}
 							<span
-								class="text-sm font-medium {termsAccepted ? 'text-green-700' : 'text-gray-700'}"
+								class="text-sm font-medium {termsAccepted ? 'ui-text-success' : 'ui-muted'}"
 							>
 								Terms of Service {termsAccepted ? '(Accepted)' : ''}
 							</span>
@@ -287,12 +287,12 @@
 
 					<div
 						class="flex items-center justify-between rounded-lg border p-3 {privacyAccepted
-							? 'border-green-200 bg-green-50'
-							: 'border-gray-200 bg-gray-50'}"
+							? 'ui-tone-success'
+							: 'ui-card ui-border'}"
 					>
 						<div class="flex items-center space-x-3">
 							{#if privacyAccepted}
-								<svg class="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+								<svg class="h-5 w-5 ui-text-success" fill="currentColor" viewBox="0 0 20 20">
 									<path
 										fill-rule="evenodd"
 										d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
@@ -300,7 +300,7 @@
 									></path>
 								</svg>
 							{:else}
-								<svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+								<svg class="h-5 w-5 ui-muted" fill="currentColor" viewBox="0 0 20 20">
 									<path
 										fill-rule="evenodd"
 										d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v3.586L7.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 10.586V7z"
@@ -309,7 +309,7 @@
 								</svg>
 							{/if}
 							<span
-								class="text-sm font-medium {privacyAccepted ? 'text-green-700' : 'text-gray-700'}"
+								class="text-sm font-medium {privacyAccepted ? 'ui-text-success' : 'ui-muted'}"
 							>
 								Privacy Policy {privacyAccepted ? '(Accepted)' : ''}
 							</span>

@@ -50,7 +50,7 @@
 
 <div class="mb-4">
 	<a
-		class="text-sm text-primary-500 hover:underline dark:text-primary-200"
+		class="text-sm hover:underline ui-text-brand"
 		href={panelsHref}
 		data-testid="back-to-panels"
 	>← Signatory panels</a>
@@ -109,7 +109,7 @@
 		</div>
 
 		{#if user_ids.length === 0}
-			<p class="text-sm text-surface-600-400" data-testid="user-ids-empty">
+			<p class="text-sm ui-muted" data-testid="user-ids-empty">
 				No members added yet.
 			</p>
 		{:else}

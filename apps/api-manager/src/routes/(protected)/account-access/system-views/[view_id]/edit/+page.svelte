@@ -168,23 +168,23 @@
 
   <div class="container mx-auto px-4 py-8">
     <div class="mb-6">
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
+      <h1 class="text-3xl font-bold ui-text">
         Update System View: {data.view?.short_name}
       </h1>
-      <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+      <p class="mt-2 text-sm ui-muted">
         Update the system view configuration and permissions
       </p>
     </div>
 
     <div class="mx-auto max-w-4xl">
       <div
-        class="rounded-lg bg-white p-6 shadow-md dark:bg-gray-800 dark:shadow-gray-900/50"
+        class="rounded-lg p-6 shadow-md ui-card"
       >
         {#if formError}
           <div
-            class="mb-4 rounded-lg border border-red-300 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20"
+            class="mb-4 rounded-lg border p-4 ui-tone-error"
           >
-            <p class="text-sm text-red-800 dark:text-red-200">{formError}</p>
+            <p class="text-sm ui-text-error">{formError}</p>
           </div>
         {/if}
 
@@ -194,18 +194,18 @@
             <div>
               <label
                 for="name"
-                class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                class="mb-2 block text-sm font-medium ui-muted"
               >
-                View Name <span class="text-red-600">*</span>
+                View Name <span class="ui-text-error">*</span>
               </label>
               <input
                 id="name"
                 type="text"
                 value={formName}
                 disabled
-                class="w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-2 text-gray-600 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-400"
+                class="w-full rounded-lg border px-4 py-2 ui-panel ui-muted ui-border"
               />
-              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              <p class="mt-1 text-xs ui-muted">
                 View name cannot be changed
               </p>
             </div>
@@ -214,9 +214,9 @@
             <div>
               <label
                 for="description"
-                class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                class="mb-2 block text-sm font-medium ui-muted"
               >
-                Description <span class="text-red-600">*</span>
+                Description <span class="ui-text-error">*</span>
               </label>
               <textarea
                 id="description"
@@ -224,7 +224,7 @@
                 required
                 rows="3"
                 placeholder="Describe the purpose and scope of this view"
-                class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:focus:border-blue-400"
+                class="w-full rounded-lg border px-4 py-2 focus:outline-none focus:ring-2 ui-card ui-text ui-border"
               ></textarea>
             </div>
 
@@ -232,7 +232,7 @@
             <div>
               <label
                 for="metadata_view"
-                class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                class="mb-2 block text-sm font-medium ui-muted"
               >
                 Metadata View
               </label>
@@ -241,7 +241,7 @@
                 bind:value={formMetadataView}
                 rows="2"
                 placeholder="Optional metadata description (defaults to description)"
-                class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:focus:border-blue-400"
+                class="w-full rounded-lg border px-4 py-2 focus:outline-none focus:ring-2 ui-card ui-text ui-border"
               ></textarea>
             </div>
 
@@ -253,15 +253,15 @@
                   <input
                     type="checkbox"
                     bind:checked={formIsPublic}
-                    class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
+                    class="h-4 w-4 rounded focus:ring-2 ui-link ui-panel ui-border"
                   />
                   <span
-                    class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300"
+                    class="ml-2 text-sm font-medium ui-muted"
                   >
                     Public View
                   </span>
                 </label>
-                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                <p class="mt-1 text-xs ui-muted">
                   Accessible to all users
                 </p>
               </div>
@@ -272,15 +272,15 @@
                   <input
                     type="checkbox"
                     bind:checked={formHideMetadataIfAliasUsed}
-                    class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
+                    class="h-4 w-4 rounded focus:ring-2 ui-link ui-panel ui-border"
                   />
                   <span
-                    class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300"
+                    class="ml-2 text-sm font-medium ui-muted"
                   >
                     Hide Metadata If Alias Used
                   </span>
                 </label>
-                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                <p class="mt-1 text-xs ui-muted">
                   Hide metadata when alias is shown
                 </p>
               </div>
@@ -290,14 +290,14 @@
             <div>
               <label
                 for="alias"
-                class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                class="mb-2 block text-sm font-medium ui-muted"
               >
                 Which Alias to Use
               </label>
               <select
                 id="alias"
                 bind:value={formWhichAliasToUse}
-                class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:focus:border-blue-400"
+                class="w-full rounded-lg border px-4 py-2 focus:outline-none focus:ring-2 ui-card ui-text ui-border"
               >
                 <option value="public">Public</option>
                 <option value="private">Private</option>
@@ -309,7 +309,7 @@
             <div>
               <label
                 for="grant_access"
-                class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                class="mb-2 block text-sm font-medium ui-muted"
               >
                 Can Grant Access to Views
               </label>
@@ -318,9 +318,9 @@
                 type="text"
                 bind:value={grantAccessViews}
                 placeholder="e.g., owner, public (comma-separated)"
-                class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:focus:border-blue-400"
+                class="w-full rounded-lg border px-4 py-2 focus:outline-none focus:ring-2 ui-card ui-text ui-border"
               />
-              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              <p class="mt-1 text-xs ui-muted">
                 Comma-separated list of views
               </p>
             </div>
@@ -329,7 +329,7 @@
             <div>
               <label
                 for="revoke_access"
-                class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                class="mb-2 block text-sm font-medium ui-muted"
               >
                 Can Revoke Access to Views
               </label>
@@ -338,9 +338,9 @@
                 type="text"
                 bind:value={revokeAccessViews}
                 placeholder="e.g., owner, public (comma-separated)"
-                class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:focus:border-blue-400"
+                class="w-full rounded-lg border px-4 py-2 focus:outline-none focus:ring-2 ui-card ui-text ui-border"
               />
-              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              <p class="mt-1 text-xs ui-muted">
                 Comma-separated list of views
               </p>
             </div>
@@ -349,7 +349,7 @@
             <div>
               <div class="mb-2 flex items-center justify-between">
                 <label
-                  class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  class="block text-sm font-medium ui-muted"
                 >
                   Allowed Actions ({selectedActions.length} selected)
                 </label>
@@ -357,14 +357,14 @@
                   <button
                     type="button"
                     onclick={selectAllActions}
-                    class="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                    class="text-xs ui-link"
                   >
                     Select All
                   </button>
                   <button
                     type="button"
                     onclick={deselectAllActions}
-                    class="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                    class="text-xs ui-link"
                   >
                     Deselect All
                   </button>
@@ -372,24 +372,24 @@
               </div>
               <div class="space-y-4">
                 {#each permissionsByCategory as group}
-                  <div class="rounded-lg border border-gray-300 dark:border-gray-600">
-                    <div class="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-4 py-2 dark:border-gray-600 dark:bg-gray-800">
-                      <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  <div class="rounded-lg border ui-border">
+                    <div class="flex items-center justify-between border-b px-4 py-2 ui-card ui-border">
+                      <span class="text-sm font-semibold ui-muted">
                         {group.category}
-                        <span class="ml-1 font-normal text-gray-500 dark:text-gray-400">({countSelectedInGroup(group.permissions)}/{group.permissions.length})</span>
+                        <span class="ml-1 font-normal ui-muted">({countSelectedInGroup(group.permissions)}/{group.permissions.length})</span>
                       </span>
                       <div class="flex gap-2">
                         <button
                           type="button"
                           onclick={() => selectAllInGroup(group.permissions)}
-                          class="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                          class="text-xs ui-link"
                         >
                           All
                         </button>
                         <button
                           type="button"
                           onclick={() => deselectAllInGroup(group.permissions)}
-                          class="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                          class="text-xs ui-link"
                         >
                           None
                         </button>
@@ -397,16 +397,16 @@
                     </div>
                     <div class="grid grid-cols-3 gap-1 p-3">
                       {#each group.permissions as action}
-                        <label class="flex items-center rounded px-1 py-0.5 hover:bg-gray-50 dark:hover:bg-gray-800">
+                        <label class="flex items-center rounded px-1 py-0.5 ui-hover">
                           <input
                             type="checkbox"
                             checked={selectedActions.includes(action)}
                             onclick={() => toggleAction(action)}
                             data-testid="action-{action}"
-                            class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
+                            class="h-4 w-4 rounded focus:ring-2 ui-link ui-panel ui-border"
                           />
                           <span
-                            class="ml-2 text-xs text-gray-700 dark:text-gray-300"
+                            class="ml-2 text-xs ui-muted"
                           >
                             {action}
                           </span>
@@ -425,14 +425,14 @@
               type="button"
               onclick={handleCancel}
               disabled={isSubmitting}
-              class="rounded-lg border border-gray-300 bg-white px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+              class="rounded-lg border px-6 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 ui-card ui-hover ui-muted ui-border"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              class="rounded-lg bg-blue-600 px-6 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
+              class="rounded-lg px-6 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 preset-filled-primary-500"
             >
               {#if isSubmitting}
                 <span class="flex items-center">

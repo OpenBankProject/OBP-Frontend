@@ -65,24 +65,24 @@
 </script>
 
 <div class="flex h-full w-full items-center justify-center">
-    <div class="rounded-xl mx-auto w-auto sm:w-sm md:w-lg h-xl bg-white/10 p-4 max-w-xl backdrop-blur-xs align-middle divide-primary-50-950 divide-y">
+    <div class="rounded-xl mx-auto w-auto sm:w-sm md:w-lg h-xl bg-white/10 p-4 max-w-xl backdrop-blur-xs align-middle divide-y ui-border">
         <div class="flex justify-between items-center">
             <h1 class="h2">Login</h1>
         </div>
 
         {#if data.errorMessage}
-            <div class="mt-4 p-4 rounded-lg bg-red-500/20 border border-red-500/50 flex items-start justify-between">
+            <div class="mt-4 p-4 rounded-lg border flex items-start justify-between ui-tone-error">
                 <div class="flex items-start gap-3">
-                    <span class="text-red-400 text-xl">⚠</span>
+                    <span class="text-xl ui-text-error">⚠</span>
                     <div>
-                        <p class="text-red-300 font-semibold">Authentication Failed</p>
-                        <p class="text-red-200 text-sm mt-1">{data.errorMessage}</p>
+                        <p class="font-semibold ui-text-error">Authentication Failed</p>
+                        <p class="text-sm mt-1 ui-text-error">{data.errorMessage}</p>
                     </div>
                 </div>
                 <button 
                     type="button" 
                     onclick={clearError}
-                    class="text-red-300 hover:text-red-100 ml-2"
+                    class="ml-2 ui-text-error"
                     aria-label="Close error message"
                 >
                     ✕
@@ -92,23 +92,23 @@
 
         {#if data.availableProviders.length === 0}
             <div class="text-center my-4">
-                <p class="text-red-500">No authentication providers available. Please contact your administrator.</p>
+                <p class="ui-text-error">No authentication providers available. Please contact your administrator.</p>
 
                 <!-- Show unavailable providers even when no available providers -->
                 {#if data.unavailableProviders.length > 0}
-                    <div class="mt-6 pt-4 border-t border-gray-600">
-                        <p class="text-center text-sm text-gray-400 mb-3">Currently unavailable:</p>
+                    <div class="mt-6 pt-4 border-t ui-border">
+                        <p class="text-center text-sm mb-3 ui-muted">Currently unavailable:</p>
                         {#each data.unavailableProviders as provider}
-                            <div class="w-full p-3 rounded-lg border border-gray-600 bg-gray-800/50 opacity-60">
+                            <div class="w-full p-3 rounded-lg border opacity-60 ui-panel ui-border">
                                 <div class="flex items-center justify-between">
                                     <span class="flex items-center gap-2">
-                                        <span class="text-red-400">●</span>
-                                        <span class="text-gray-300">{formatProviderName(provider.provider)}</span>
+                                        <span class="ui-text-error">●</span>
+                                        <span class="ui-muted">{formatProviderName(provider.provider)}</span>
                                     </span>
-                                    <span class="text-xs text-red-400">Unavailable</span>
+                                    <span class="text-xs ui-text-error">Unavailable</span>
                                 </div>
                                 {#if provider.error}
-                                    <div class="text-xs text-gray-400 mt-1 ml-5">
+                                    <div class="text-xs mt-1 ml-5 ui-muted">
                                         {provider.error}
                                     </div>
                                 {/if}
@@ -120,12 +120,12 @@
         {:else}
             <!-- Available providers -->
             <div class="space-y-3 mt-4">
-                <p class="text-center text-sm text-gray-300">Choose your authentication provider:</p>
+                <p class="text-center text-sm ui-muted">Choose your authentication provider:</p>
                 {#each data.availableProviders as provider}
                     <button type="button" class="btn preset-filled-primary-500 mx-auto w-full">
                         <a href={providerLoginUrl(provider.provider)} class="w-full flex items-center justify-between">
                             <span class="flex items-center gap-2">
-                                <span class="text-green-400">●</span>
+                                <span class="ui-text-success">●</span>
                                 {formatProviderName(provider.provider)}
                             </span>
                         </a>
@@ -134,19 +134,19 @@
 
                 <!-- Unavailable providers -->
                 {#if data.unavailableProviders.length > 0}
-                    <div class="mt-6 pt-4 border-t border-gray-600">
-                        <p class="text-center text-sm text-gray-400 mb-3">Currently unavailable:</p>
+                    <div class="mt-6 pt-4 border-t ui-border">
+                        <p class="text-center text-sm mb-3 ui-muted">Currently unavailable:</p>
                         {#each data.unavailableProviders as provider}
-                            <div class="w-full p-3 rounded-lg border border-gray-600 bg-gray-800/50 opacity-60">
+                            <div class="w-full p-3 rounded-lg border opacity-60 ui-panel ui-border">
                                 <div class="flex items-center justify-between">
                                     <span class="flex items-center gap-2">
-                                        <span class="text-red-400">●</span>
-                                        <span class="text-gray-300">{formatProviderName(provider.provider)}</span>
+                                        <span class="ui-text-error">●</span>
+                                        <span class="ui-muted">{formatProviderName(provider.provider)}</span>
                                     </span>
-                                    <span class="text-xs text-red-400">Unavailable</span>
+                                    <span class="text-xs ui-text-error">Unavailable</span>
                                 </div>
                                 {#if provider.error}
-                                    <div class="text-xs text-gray-400 mt-1 ml-5">
+                                    <div class="text-xs mt-1 ml-5 ui-muted">
                                         {provider.error}
                                     </div>
                                 {/if}

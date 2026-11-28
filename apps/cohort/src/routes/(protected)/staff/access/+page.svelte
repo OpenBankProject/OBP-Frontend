@@ -10,9 +10,9 @@
 <h1 class="h2">{t(locale, 'access_heading')}</h1>
 <p class="mt-2">{t(locale, 'access_intro')} <code>{data.space}</code>.</p>
 
-{#if page.url.searchParams.has('no_role')}<p class="mt-4 preset-tonal-warning rounded p-3" role="status" data-testid="access-no-role">{t(locale, 'access_no_role_notice')}</p>{/if}
-{#if form?.error}<p class="mt-4 preset-tonal-error rounded p-3" role="alert">{t(locale, 'staff_error')} {form.error}</p>{/if}
-{#if form?.requested}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'access_requested_notice')}</p>{/if}
+{#if page.url.searchParams.has('no_role')}<p class="mt-4 ui-tone-warning rounded p-3" role="status" data-testid="access-no-role">{t(locale, 'access_no_role_notice')}</p>{/if}
+{#if form?.error}<p class="mt-4 ui-tone-error rounded p-3" role="alert">{t(locale, 'staff_error')} {form.error}</p>{/if}
+{#if form?.requested}<p class="mt-4 ui-tone-success rounded p-3" role="status">{t(locale, 'access_requested_notice')}</p>{/if}
 
 <table class="table mt-4" data-testid="access-roles">
 	<thead>

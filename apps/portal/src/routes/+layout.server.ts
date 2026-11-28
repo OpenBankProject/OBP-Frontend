@@ -29,6 +29,7 @@ import { env } from "$env/dynamic/private";
 import { menuItemOf } from '@obp/shared/landing';
 import { listPublishedPages } from '$lib/server/landing/portalPages';
 import { env as publicEnv } from '$env/dynamic/public';
+import { portalBranding } from '$lib/server/branding';
 
 export interface RootLayoutData {
     userId?: string;
@@ -41,6 +42,8 @@ export interface RootLayoutData {
     webUiText: Record<WebUiTextKey, ResolvedWebUiValue>;
     /** The pages published to the Portal with App Studio, shown directly in the menu. */
     sitePages: { slug: string; title: string }[];
+    /** The installation's extra stylesheet (PORTAL_STYLESHEET_URL), loaded after the Portal's own; '' for none. */
+    stylesheetUrl: string;
 }
 
 // Operator-configurable text: webui_prop (e.g. webui_welcome_title), then env var, then default
@@ -161,6 +164,7 @@ export async function load(event: RequestEvent) {
 		totalUnreadCount,
 		publicObpMcpUrl: appDirectory['public_obp_mcp_url'],
 		webUiText,
-		sitePages
+		sitePages,
+		stylesheetUrl: portalBranding.stylesheetUrl
 	} as RootLayoutData
 }

@@ -72,9 +72,9 @@
     align-items: center;
     gap: 1rem;
     padding: 0.75rem;
-    background: var(--color-surface-200);
+    background: var(--ui-panel);
     border-radius: 0.5rem;
-    border: 1px solid var(--color-surface-300);
+    border: 1px solid var(--ui-border);
   }
 
   .auth-info {
@@ -95,12 +95,12 @@
     width: 2.5rem;
     height: 2.5rem;
     border-radius: 50%;
-    background: var(--color-primary-500);
+    background: var(--ui-fill-main-bg);
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 600;
-    color: white;
+    color: var(--ui-fill-main-text);
   }
 
   .user-initials {
@@ -116,13 +116,13 @@
 
   .user-name {
     font-weight: 600;
-    color: var(--color-surface-900);
+    color: var(--ui-text);
     font-size: 0.95rem;
   }
 
   .user-status {
     font-size: 0.8rem;
-    color: var(--color-surface-600);
+    color: var(--ui-muted);
   }
 
   .status-badge {
@@ -136,15 +136,15 @@
   }
 
   .status-success {
-    background: var(--color-success-100);
-    color: var(--color-success-800);
-    border: 1px solid var(--color-success-200);
+    background: var(--ui-tone-success-bg);
+    color: var(--ui-tone-success-text);
+    border: 1px solid var(--ui-tone-success-border);
   }
 
   .status-error {
-    background: var(--color-error-100);
-    color: var(--color-error-800);
-    border: 1px solid var(--color-error-200);
+    background: var(--ui-tone-error-bg);
+    color: var(--ui-tone-error-text);
+    border: 1px solid var(--ui-tone-error-border);
   }
 
   .status-icon {

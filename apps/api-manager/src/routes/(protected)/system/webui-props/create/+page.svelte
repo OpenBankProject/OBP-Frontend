@@ -28,7 +28,7 @@
 </svelte:head>
 
 <div class="container mx-auto px-4 py-8">
-  <h1 class="mb-6 text-3xl font-bold text-gray-900 dark:text-gray-100">Create WebUI Prop</h1>
+  <h1 class="mb-6 text-3xl font-bold ui-text">Create WebUI Prop</h1>
   <div class="mx-auto max-w-3xl">
     <WebUiPropForm mode="create" {initialName} />
   </div>

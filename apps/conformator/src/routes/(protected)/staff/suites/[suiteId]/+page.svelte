@@ -143,17 +143,17 @@
 	{/if}
 	{#if data.suite.replaces_suite_id}<p class="mt-2 text-sm">Replaces <a class="anchor" href="/staff/suites/{data.suite.replaces_suite_id}">an earlier version</a>.</p>{/if}
 
-	{#if form?.statusChanged}<p class="mt-4 preset-tonal-success rounded p-3" role="status">The suite is now {form.statusChanged}.</p>{/if}
+	{#if form?.statusChanged}<p class="mt-4 ui-tone-success rounded p-3" role="status">The suite is now {form.statusChanged}.</p>{/if}
 	{#if form?.added}
-		<p class="mt-4 preset-tonal-success rounded p-3" role="status">Added {form.added}.</p>
+		<p class="mt-4 ui-tone-success rounded p-3" role="status">Added {form.added}.</p>
 		{#if form.advice?.length}
-			<div class="mt-2 preset-tonal-warning rounded p-3" role="status"><p>Check the order of its steps:</p><ul class="list-inside list-disc">{#each form.advice as line, i (i)}<li>{line}</li>{/each}</ul></div>
+			<div class="mt-2 ui-tone-warning rounded p-3" role="status"><p>Check the order of its steps:</p><ul class="list-inside list-disc">{#each form.advice as line, i (i)}<li>{line}</li>{/each}</ul></div>
 		{/if}
 	{/if}
 
 	<TestList tests={data.tests} />
 
-	<section class="mt-8 rounded border border-surface-500/30 p-4" data-testid="suite-reference">
+	<section class="mt-8 rounded border ui-border/30 p-4" data-testid="suite-reference">
 		<h2 class="h4">Reference run</h2>
 		<p class="mt-1 text-sm">Run the suite against the reference, the OBP sandbox or the mock of the suite's file, before participants use it. A test that fails there is more likely wrong than the reference.</p>
 		{#if data.reference.missing}
@@ -174,7 +174,7 @@
 	<section class="mt-8 flex flex-wrap gap-3" data-testid="suite-actions">
 		{#if data.can.updateSuite}
 			{#if data.editable}
-				<form method="POST" action="?/approve"><button class="btn preset-filled" disabled={data.approvalProblems.length > 0} data-testid="suite-approve">Approve this version</button></form>
+				<form method="POST" action="?/approve"><button class="btn preset-filled-primary-500" disabled={data.approvalProblems.length > 0} data-testid="suite-approve">Approve this version</button></form>
 			{:else if data.suite.status === 'approved'}
 				<form method="POST" action="?/retire"><button class="btn preset-tonal" data-testid="suite-retire">Retire this version</button></form>
 			{/if}
@@ -228,7 +228,7 @@
 				<label class="label"><span>Evidence required (evidence and control tests)</span><textarea class="textarea" name="evidence_required" rows="2" maxlength="4000">{values.evidence_required ?? ''}</textarea></label>
 				<label class="label"><span>Suggested fix when it fails</span><textarea class="textarea" name="suggested_fix" rows="2" maxlength="4000">{values.suggested_fix ?? ''}</textarea></label>
 				{#if data.endpoints.length}
-					<div class="grid gap-2 rounded border border-surface-500/30 p-3" data-testid="endpoint-picker">
+					<div class="grid gap-2 rounded border ui-border/30 p-3" data-testid="endpoint-picker">
 						<span class="label">Add a step for an endpoint of the suite's source ({data.endpoints.length} endpoints)</span>
 						<div class="flex flex-wrap gap-2">
 							<select class="select flex-1" bind:value={chosenEndpoint} onchange={suggestTitle} aria-label="Endpoint">
@@ -242,15 +242,15 @@
 							<button type="button" class="btn preset-tonal" onclick={addStep} disabled={!chosenEndpoint}>Add the step</button>
 						</div>
 						<p class="text-sm opacity-80">The step calls the endpoint as the runner's own client and expects its success status{data.endpoints.some((e) => e.schemaPointer) ? ' and response schema' : ''}. Change the credentials, the body and what to keep as the test needs; a path parameter such as {'{{accountid}}'} must be kept by an earlier step.</p>
-						{#if addProblem}<p class="preset-tonal-error rounded p-2 text-sm" role="alert">{addProblem}</p>{/if}
+						{#if addProblem}<p class="ui-tone-error rounded p-2 text-sm" role="alert">{addProblem}</p>{/if}
 					</div>
 				{:else if data.endpointsProblem}
-					<p class="preset-tonal-warning rounded p-2 text-sm" role="alert">{data.endpointsProblem}</p>
+					<p class="ui-tone-warning rounded p-2 text-sm" role="alert">{data.endpointsProblem}</p>
 				{/if}
 				<label class="label"><span>Definition (automated tests): the steps, as JSON</span>
 					<textarea class="textarea font-mono text-sm" name="definition" rows="12" maxlength="20000" placeholder={example} bind:value={definition}></textarea>
 				</label>
-				<div><button class="btn preset-filled" data-testid="test-add">Add the test</button></div>
+				<div><button class="btn preset-filled-primary-500" data-testid="test-add">Add the test</button></div>
 			</form>
 		{:else}
 			<div class="mt-2"><MissingRoleAlert roles={[data.roles.addTest]} bankId={data.space || undefined} /></div>
@@ -262,7 +262,7 @@
 	<ResizableSplit breakpoint="xl" storageKey="conformator-opey-width">
 		{#snippet main()}{@render suitePage()}{/snippet}
 		{#snippet side()}
-			<div class="h-[36rem] w-full overflow-hidden rounded border border-surface-500/30 xl:sticky xl:top-4 xl:h-[calc(100vh-8rem)]">
+			<div class="h-[36rem] w-full overflow-hidden rounded border ui-border/30 xl:sticky xl:top-4 xl:h-[calc(100vh-8rem)]">
 				<OpeyChat {opeyChatOptions} userAuthenticated={!!page.data.user} {clientTools} {clientContext} />
 			</div>
 		{/snippet}

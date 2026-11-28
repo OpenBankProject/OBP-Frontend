@@ -59,70 +59,70 @@
 <div class="container mx-auto px-4 py-8">
   <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
     <div>
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">JSON Schema Validations</h1>
-      <p class="mt-1 text-gray-600 dark:text-gray-400">Request-body rules OBP enforces on individual endpoints, keyed by operation id.</p>
+      <h1 class="text-3xl font-bold ui-text">JSON Schema Validations</h1>
+      <p class="mt-1 ui-muted">Request-body rules OBP enforces on individual endpoints, keyed by operation id.</p>
     </div>
     <div class="flex items-center gap-2">
-      <a href="/json-schema-validations/help" data-testid="json-schema-validations-help-link" class="inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
+      <a href="/json-schema-validations/help" data-testid="json-schema-validations-help-link" class="inline-flex items-center gap-1 rounded-lg border px-3 py-2 text-sm font-medium ui-card ui-hover ui-muted ui-border">
         <CircleHelp size={16} /> Help
       </a>
-      <a href="/json-schema-validations/create" data-testid="create-link" class="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600">
+      <a href="/json-schema-validations/create" data-testid="create-link" class="inline-flex items-center gap-1 rounded-lg px-4 py-2 text-sm font-medium preset-filled-primary-500">
         <Plus size={16} /> Create Validation
       </a>
     </div>
   </div>
 
   {#if data.loadError}
-    <div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300" data-testid="load-error">{data.loadError}</div>
+    <div class="mb-6 rounded-lg border p-4 text-sm ui-tone-error" data-testid="load-error">{data.loadError}</div>
   {/if}
   {#if actionError}
-    <div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300" data-testid="action-error">{actionError}</div>
+    <div class="mb-6 rounded-lg border p-4 text-sm ui-tone-error" data-testid="action-error">{actionError}</div>
   {/if}
   {#if message}
-    <div class="mb-6 rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-700 dark:border-green-800 dark:bg-green-900/20 dark:text-green-300" role="status" data-testid="message">{message}</div>
+    <div class="mb-6 rounded-lg border p-4 text-sm ui-tone-success" role="status" data-testid="message">{message}</div>
   {/if}
 
-  <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+  <div class="overflow-hidden rounded-lg border shadow-sm ui-card ui-border">
     {#if data.rows.length === 0}
-      <div class="p-8 text-center text-sm text-gray-500 dark:text-gray-400" data-testid="empty">
+      <div class="p-8 text-center text-sm ui-muted" data-testid="empty">
         No JSON Schema Validations yet.
-        <a href="/json-schema-validations/create" class="text-blue-600 hover:underline dark:text-blue-400">Create one</a> to constrain an endpoint's request body.
+        <a href="/json-schema-validations/create" class="hover:underline ui-link">Create one</a> to constrain an endpoint's request body.
       </div>
     {:else}
       <div class="overflow-x-auto">
         <table class="w-full text-sm" data-testid="json-schema-validations-table">
-          <thead class="bg-gray-50 dark:bg-gray-900">
+          <thead class="ui-card">
             <tr>
-              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Operation id</th>
-              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Endpoint</th>
-              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Schema</th>
-              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Required</th>
-              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Actions</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Operation id</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Endpoint</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Schema</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Required</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Actions</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+          <tbody class="divide-y ui-border">
             {#each data.rows as row (row.operation_id)}
               <tr data-testid="row-{row.operation_id}">
-                <td class="px-4 py-3 font-mono text-xs text-gray-900 dark:text-gray-100">
-                  <a href="/json-schema-validations/{encodeURIComponent(row.operation_id)}" class="text-blue-600 hover:underline dark:text-blue-400">{row.operation_id}</a>
+                <td class="px-4 py-3 font-mono text-xs ui-text">
+                  <a href="/json-schema-validations/{encodeURIComponent(row.operation_id)}" class="hover:underline ui-link">{row.operation_id}</a>
                 </td>
-                <td class="px-4 py-3 text-gray-700 dark:text-gray-300">
+                <td class="px-4 py-3 ui-muted">
                   {#if row.endpoint}
                     <span class="font-mono text-xs">{row.endpoint.request_verb} {row.endpoint.request_url}</span>
-                    <div class="text-xs text-gray-500 dark:text-gray-400">{row.endpoint.summary}</div>
+                    <div class="text-xs ui-muted">{row.endpoint.summary}</div>
                   {:else}
-                    <span class="text-xs text-gray-400">not in the resource docs</span>
+                    <span class="text-xs ui-muted">not in the resource docs</span>
                   {/if}
                 </td>
-                <td class="px-4 py-3 text-gray-700 dark:text-gray-300">
+                <td class="px-4 py-3 ui-muted">
                   {row.json_schema?.title ? String(row.json_schema.title) : ""}
-                  <div class="text-xs text-gray-500 dark:text-gray-400">{propertyCount(row.json_schema)} propert{propertyCount(row.json_schema) === 1 ? "y" : "ies"}</div>
+                  <div class="text-xs ui-muted">{propertyCount(row.json_schema)} propert{propertyCount(row.json_schema) === 1 ? "y" : "ies"}</div>
                 </td>
-                <td class="px-4 py-3 font-mono text-xs text-gray-700 dark:text-gray-300">{requiredFields(row.json_schema)}</td>
+                <td class="px-4 py-3 font-mono text-xs ui-muted">{requiredFields(row.json_schema)}</td>
                 <td class="px-4 py-3">
                   <div class="flex items-center gap-2">
-                    <a href="/json-schema-validations/{encodeURIComponent(row.operation_id)}" class="inline-flex items-center gap-1 rounded border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700" data-testid="edit-{row.operation_id}"><Pencil size={12} /> Edit</a>
-                    <button type="button" onclick={() => remove(row.operation_id)} disabled={deleting === row.operation_id} class="inline-flex items-center gap-1 rounded border border-red-300 px-2 py-1 text-xs text-red-700 hover:bg-red-50 disabled:opacity-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-900/20" data-testid="delete-{row.operation_id}">
+                    <a href="/json-schema-validations/{encodeURIComponent(row.operation_id)}" class="inline-flex items-center gap-1 rounded border px-2 py-1 text-xs ui-hover ui-muted ui-border" data-testid="edit-{row.operation_id}"><Pencil size={12} /> Edit</a>
+                    <button type="button" onclick={() => remove(row.operation_id)} disabled={deleting === row.operation_id} class="inline-flex items-center gap-1 rounded border px-2 py-1 text-xs disabled:opacity-50 ui-tone-error" data-testid="delete-{row.operation_id}">
                       <Trash2 size={12} /> {deleting === row.operation_id ? "Deleting…" : "Delete"}
                     </button>
                   </div>
@@ -132,7 +132,7 @@
           </tbody>
         </table>
       </div>
-      <div class="border-t border-gray-200 px-4 py-2 text-xs text-gray-500 dark:border-gray-700 dark:text-gray-400">{data.rows.length} validation{data.rows.length === 1 ? "" : "s"}</div>
+      <div class="border-t px-4 py-2 text-xs ui-muted ui-border">{data.rows.length} validation{data.rows.length === 1 ? "" : "s"}</div>
     {/if}
   </div>
 </div>

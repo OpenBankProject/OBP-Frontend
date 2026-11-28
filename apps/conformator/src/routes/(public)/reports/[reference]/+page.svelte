@@ -22,7 +22,7 @@
 <p><a class="anchor" href="/reports">{m.conformator_nav_reports()}</a></p>
 <h1 class="h2 mt-2">{m.conformator_report_title({ reference: data.report.reference })}</h1>
 
-<section class="mt-4 rounded border-2 p-4 {genuine ? 'border-success-500' : 'border-error-500'}" data-testid="report-check">
+<section class="mt-4 rounded border-2 p-4 {genuine ? 'ui-tone-success' : 'ui-tone-error'}" data-testid="report-check">
 	<p class="text-lg font-semibold">
 		{#if !genuine}{m.conformator_report_untrusted({
 				reason: !data.check.hashMatches ? m.conformator_report_bad_hash() : !data.check.keyKnown ? m.conformator_report_unknown_key() : m.conformator_report_bad_signature()
@@ -66,11 +66,11 @@
 	<a class="anchor" href="/reports/signing-key">{m.conformator_report_public_key()}</a> · {m.conformator_report_print()}
 </p>
 
-{#if form?.done}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{form.done}</p>{/if}
-{#if form?.problem}<p class="mt-4 preset-tonal-error rounded p-3" role="alert">{form.problem}</p>{/if}
+{#if form?.done}<p class="mt-4 ui-tone-success rounded p-3" role="status">{form.done}</p>{/if}
+{#if form?.problem}<p class="mt-4 ui-tone-error rounded p-3" role="alert">{form.problem}</p>{/if}
 {#if data.canWithdraw}
 	<form method="POST" action="?/withdraw" class="mt-6 flex max-w-3xl items-end gap-2 print:hidden" data-testid="report-withdraw">
 		<label class="label flex-1"><span>{m.conformator_report_withdraw_because()}</span><input class="input" name="reason" required maxlength="4000" /></label>
-		<button class="btn preset-tonal-error">{m.conformator_report_withdraw()}</button>
+		<button class="btn preset-filled-error-500">{m.conformator_report_withdraw()}</button>
 	</form>
 {/if}

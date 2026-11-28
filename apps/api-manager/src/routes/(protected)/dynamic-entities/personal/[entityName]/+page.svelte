@@ -351,19 +351,19 @@
 
   function getTypeBadgeColor(type: string): string {
     const colorMap: Record<string, string> = {
-      string: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
+      string: "ui-tone-info",
       integer:
-        "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+        "ui-tone-success",
       number:
-        "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200",
+        "ui-tone-accent",
       boolean:
-        "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
+        "ui-tone-warning",
       DATE_WITH_DAY:
-        "bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200",
+        "ui-tone-error",
     };
     return (
       colorMap[type] ||
-      "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
+      "ui-panel ui-text"
     );
   }
 </script>
@@ -378,33 +378,33 @@
     <div class="flex items-center gap-2 text-sm">
       <a
         href="/dynamic-entities/personal"
-        class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+        class="ui-link"
       >
         Personal Dynamic Entities
       </a>
-      <span class="text-gray-400">/</span>
-      <span class="text-gray-600 dark:text-gray-400">{entityName}</span>
+      <span class="ui-muted">/</span>
+      <span class="ui-muted">{entityName}</span>
     </div>
   </div>
 
   <!-- Header -->
   <div class="mb-6 flex items-center justify-between">
     <div>
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
+      <h1 class="text-3xl font-bold ui-text">
         {entityName}
       </h1>
-      <p class="mt-1 text-gray-600 dark:text-gray-400">
+      <p class="mt-1 ui-muted">
         {description}
       </p>
       {#if entity.bank_id}
         <span
-          class="mt-2 inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-200"
+          class="mt-2 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ui-panel ui-text"
         >
           Bank: {entity.bank_id}
         </span>
       {:else}
         <span
-          class="mt-2 inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-500 dark:bg-gray-700 dark:text-gray-400"
+          class="mt-2 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ui-panel ui-muted"
         >
           System-level
         </span>
@@ -414,7 +414,7 @@
       <button
         type="button"
         onclick={openCreateModal}
-        class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+        class="inline-flex items-center rounded-lg px-4 py-2 text-sm font-medium preset-filled-primary-500"
       >
         <svg
           class="mr-2 h-4 w-4"
@@ -435,20 +435,20 @@
   </div>
 
   <!-- Tab Bar -->
-  <div class="mb-4 border-b border-gray-200 dark:border-gray-700">
+  <div class="mb-4 border-b ui-border">
     <nav class="-mb-px flex gap-4" aria-label="Scope tabs">
       <button
         type="button"
         onclick={() => (activeTab = "my")}
         class="flex items-center gap-2 border-b-2 px-1 py-3 text-sm font-medium transition-colors {activeTab === 'my'
-          ? 'border-green-500 text-green-600 dark:text-green-400'
-          : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'}"
+          ? 'ui-tone-success'
+          : 'border-transparent ui-muted ui-border'}"
       >
         My Records
         <span
           class="rounded-full px-2 py-0.5 text-xs font-medium {activeTab === 'my'
-            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-            : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'}"
+            ? 'ui-tone-success'
+            : 'ui-panel ui-muted'}"
         >
           {myRecords.length}
         </span>
@@ -458,14 +458,14 @@
         type="button"
         onclick={() => (activeTab = "community")}
         class="flex items-center gap-2 border-b-2 px-1 py-3 text-sm font-medium transition-colors {activeTab === 'community'
-          ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-          : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'}"
+          ? 'ui-link ui-border-brand'
+          : 'border-transparent ui-muted ui-border'}"
       >
         Community Records
         <span
           class="rounded-full px-2 py-0.5 text-xs font-medium {activeTab === 'community'
-            ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-            : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'}"
+            ? 'ui-tone-info'
+            : 'ui-panel ui-muted'}"
         >
           {communityRecords.length}
         </span>
@@ -475,14 +475,14 @@
         type="button"
         onclick={() => (activeTab = "public")}
         class="flex items-center gap-2 border-b-2 px-1 py-3 text-sm font-medium transition-colors {activeTab === 'public'
-          ? 'border-purple-500 text-purple-600 dark:text-purple-400'
-          : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'}"
+          ? 'ui-text-brand ui-border-brand'
+          : 'border-transparent ui-muted ui-border'}"
       >
         Public Records
         <span
           class="rounded-full px-2 py-0.5 text-xs font-medium {activeTab === 'public'
-            ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
-            : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'}"
+            ? 'ui-tone-accent'
+            : 'ui-panel ui-muted'}"
         >
           {publicRecords.length}
         </span>
@@ -494,25 +494,25 @@
   <div class="mb-4">
     {#if activeTab === "my"}
       <div
-        class="rounded-lg border border-green-200 bg-green-50 px-4 py-3 dark:border-green-800 dark:bg-green-900/20"
+        class="rounded-lg border px-4 py-3 ui-tone-success"
       >
-        <p class="text-sm text-green-800 dark:text-green-300">
+        <p class="text-sm ui-text-success">
           Showing your personal records. You can create, edit, and delete.
         </p>
       </div>
     {:else if activeTab === "community"}
       <div
-        class="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 dark:border-blue-800 dark:bg-blue-900/20"
+        class="rounded-lg border px-4 py-3 ui-tone-info"
       >
-        <p class="text-sm text-blue-800 dark:text-blue-300">
+        <p class="text-sm ui-link">
           Showing all users' records (read-only). Requires community access role.
         </p>
       </div>
     {:else if activeTab === "public"}
       <div
-        class="rounded-lg border border-purple-200 bg-purple-50 px-4 py-3 dark:border-purple-800 dark:bg-purple-900/20"
+        class="rounded-lg border px-4 py-3 ui-tone-accent"
       >
-        <p class="text-sm text-purple-800 dark:text-purple-300">
+        <p class="text-sm ui-text-brand">
           Showing publicly accessible records (read-only). No authentication required.
         </p>
       </div>
@@ -522,23 +522,23 @@
   <!-- Scope Errors -->
   {#if activeTab === "my" && data.myError}
     <div
-      class="mb-4 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20"
+      class="mb-4 rounded-lg border p-4 ui-tone-error"
     >
-      <p class="text-sm text-red-700 dark:text-red-400">{data.myError}</p>
+      <p class="text-sm ui-text-error">{data.myError}</p>
     </div>
   {/if}
   {#if activeTab === "community" && data.communityError}
     <div
-      class="mb-4 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20"
+      class="mb-4 rounded-lg border p-4 ui-tone-error"
     >
-      <p class="text-sm text-red-700 dark:text-red-400">{data.communityError}</p>
+      <p class="text-sm ui-text-error">{data.communityError}</p>
     </div>
   {/if}
   {#if activeTab === "public" && data.publicError}
     <div
-      class="mb-4 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20"
+      class="mb-4 rounded-lg border p-4 ui-tone-error"
     >
-      <p class="text-sm text-red-700 dark:text-red-400">{data.publicError}</p>
+      <p class="text-sm ui-text-error">{data.publicError}</p>
     </div>
   {/if}
 
@@ -549,10 +549,10 @@
         type="text"
         bind:value={searchQuery}
         placeholder="Search records..."
-        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 pl-10 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400"
+        class="w-full rounded-lg border px-4 py-2 pl-10 focus:outline-none focus:ring-2 ui-card ui-text ui-border"
       />
       <svg
-        class="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400"
+        class="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 ui-muted"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -569,12 +569,12 @@
 
   <!-- Records Table -->
   <div
-    class="rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
+    class="rounded-lg border shadow-sm ui-card ui-border"
   >
     {#if filteredRecords.length === 0}
       <div class="flex flex-col items-center justify-center py-12 text-center">
         <svg
-          class="mb-4 h-16 w-16 text-gray-400"
+          class="mb-4 h-16 w-16 ui-muted"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -586,12 +586,12 @@
             d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
           />
         </svg>
-        <h3 class="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-100">
+        <h3 class="mb-2 text-lg font-semibold ui-text">
           {displayedRecords.length === 0
             ? "No Records"
             : "No Matching Records"}
         </h3>
-        <p class="mb-4 text-gray-600 dark:text-gray-400">
+        <p class="mb-4 ui-muted">
           {displayedRecords.length === 0
             ? activeTab === "my"
               ? "Get started by creating your first record"
@@ -602,7 +602,7 @@
           <button
             type="button"
             onclick={openCreateModal}
-            class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+            class="inline-flex items-center rounded-lg px-4 py-2 text-sm font-medium preset-filled-primary-500"
           >
             <svg
               class="mr-2 h-4 w-4"
@@ -623,43 +623,43 @@
       </div>
     {:else}
       <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead class="bg-gray-50 dark:bg-gray-900">
+        <table class="min-w-full divide-y ui-border">
+          <thead class="ui-card">
             <tr>
               <th
-                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
+                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted"
               >
                 ID
               </th>
               {#each Object.keys(properties).slice(0, 4) as fieldName}
                 <th
-                  class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
+                  class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted"
                 >
                   {fieldName}
                 </th>
               {/each}
               <th
-                class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
+                class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider ui-muted"
               >
                 Actions
               </th>
             </tr>
           </thead>
           <tbody
-            class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800"
+            class="divide-y ui-card ui-border"
           >
             {#each filteredRecords as record}
               {@const recordData = getRecordData(record)}
               {@const recordId = getRecordId(record)}
-              <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+              <tr class="ui-hover">
                 <td
-                  class="max-w-xs truncate px-6 py-4 font-mono text-sm text-gray-600 dark:text-gray-400"
+                  class="max-w-xs truncate px-6 py-4 font-mono text-sm ui-muted"
                 >
                   {recordId || "-"}
                 </td>
                 {#each Object.keys(properties).slice(0, 4) as fieldName}
                   <td
-                    class="max-w-xs truncate px-6 py-4 text-sm text-gray-900 dark:text-gray-100"
+                    class="max-w-xs truncate px-6 py-4 text-sm ui-text"
                   >
                     {recordData[fieldName] !== undefined &&
                     recordData[fieldName] !== null
@@ -673,7 +673,7 @@
                     <button
                       type="button"
                       onclick={() => openViewModal(record)}
-                      class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                      class="ui-link"
                       title="View"
                     >
                       <svg
@@ -701,7 +701,7 @@
                       <button
                         type="button"
                         onclick={() => openEditModal(record)}
-                        class="text-yellow-600 hover:text-yellow-900 dark:text-yellow-400 dark:hover:text-yellow-300"
+                        class="ui-text-warning"
                         title="Edit"
                       >
                         <svg
@@ -722,7 +722,7 @@
                       <button
                         type="button"
                         onclick={() => handleDelete(record)}
-                        class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                        class="ui-text-error"
                         title="Delete"
                       >
                         <svg
@@ -753,17 +753,17 @@
   <!-- Schema Info (Collapsible) -->
   <div class="mt-6">
     <div
-      class="rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800"
+      class="rounded-lg border ui-card ui-border"
     >
       <button
         onclick={() => (schemaCollapsed = !schemaCollapsed)}
-        class="flex w-full items-center justify-between p-6 text-left transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/50"
+        class="flex w-full items-center justify-between p-6 text-left transition-colors ui-hover"
       >
         <div>
-          <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <h2 class="text-lg font-semibold ui-text">
             Schema Properties
           </h2>
-          <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+          <p class="mt-1 text-sm ui-muted">
             {Object.keys(properties).length} properties defined
             {#if requiredFields.length > 0}
               ({requiredFields.length} required)
@@ -771,7 +771,7 @@
           </p>
         </div>
         <svg
-          class="h-5 w-5 text-gray-500 transition-transform dark:text-gray-400"
+          class="h-5 w-5 transition-transform ui-muted"
           class:rotate-180={!schemaCollapsed}
           fill="none"
           stroke="currentColor"
@@ -786,21 +786,21 @@
         </svg>
       </button>
       {#if !schemaCollapsed}
-        <div class="border-t border-gray-200 dark:border-gray-700">
-          <div class="divide-y divide-gray-200 dark:divide-gray-700">
+        <div class="border-t ui-border">
+          <div class="divide-y ui-border">
             {#each Object.entries(properties) as [fieldName, fieldDef]}
               {@const fieldDefTyped = fieldDef as any}
               {@const isRequired = requiredFields.includes(fieldName)}
               <div class="px-6 py-4">
                 <div class="flex items-center gap-2">
                   <span
-                    class="font-mono text-sm font-semibold text-gray-900 dark:text-gray-100"
+                    class="font-mono text-sm font-semibold ui-text"
                   >
                     {fieldName}
                   </span>
                   {#if isRequired}
                     <span
-                      class="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900 dark:text-red-200"
+                      class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ui-tone-error"
                     >
                       Required
                     </span>
@@ -814,7 +814,7 @@
                   </span>
                 </div>
                 {#if fieldDefTyped.description}
-                  <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                  <p class="mt-1 text-sm ui-muted">
                     {fieldDefTyped.description}
                   </p>
                 {/if}
@@ -833,18 +833,18 @@
     class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
   >
     <div
-      class="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white dark:bg-gray-800"
+      class="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg ui-card"
     >
       <div
-        class="sticky top-0 flex items-center justify-between border-b border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800"
+        class="sticky top-0 flex items-center justify-between border-b p-6 ui-card ui-border"
       >
-        <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100">
+        <h2 class="text-xl font-semibold ui-text">
           Create New Record
         </h2>
         <button
           type="button"
           onclick={closeModals}
-          class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+          class="ui-muted"
         >
           <svg
             class="h-6 w-6"
@@ -867,7 +867,7 @@
           e.preventDefault();
           handleCreate();
         }}
-        class="bg-white p-6 dark:bg-gray-800"
+        class="p-6 ui-card"
       >
         <div class="space-y-4">
           {#each Object.entries(properties) as [fieldName, fieldDef]}
@@ -876,20 +876,20 @@
             <div>
               <label
                 for="create-{fieldName}"
-                class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                class="block text-sm font-medium ui-muted"
               >
                 {fieldName}
                 {#if isRequired}
-                  <span class="text-red-600">*</span>
+                  <span class="ui-text-error">*</span>
                 {/if}
               </label>
               {#if fieldDef.description}
-                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                <p class="mt-1 text-xs ui-muted">
                   {fieldDef.description}
                 </p>
               {/if}
               {#if fieldDef.type === "DATE_WITH_DAY"}
-                <p class="mt-1 text-xs text-blue-600 dark:text-blue-400">
+                <p class="mt-1 text-xs ui-link">
                   Format: YYYY-MM-DD (e.g., 2023-06-15)
                 </p>
               {/if}
@@ -899,7 +899,7 @@
                     type="checkbox"
                     id="create-{fieldName}"
                     bind:checked={formData[fieldName]}
-                    class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    class="h-4 w-4 rounded ui-link ui-border"
                   />
                 </div>
               {:else if inputType === "textarea"}
@@ -910,7 +910,7 @@
                   placeholder={fieldDef.example
                     ? JSON.stringify(fieldDef.example, null, 2)
                     : '{ }'}
-                  class="mt-2 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 font-mono text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                  class="mt-2 block w-full rounded-lg border px-3 py-2 font-mono text-sm focus:outline-none focus:ring-2 ui-card ui-text ui-border"
                 ></textarea>
               {:else}
                 <input
@@ -936,11 +936,11 @@
                   max={fieldDef.maximum !== undefined
                     ? fieldDef.maximum
                     : undefined}
-                  class="mt-2 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 font-mono text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                  class="mt-2 block w-full rounded-lg border px-3 py-2 font-mono focus:outline-none focus:ring-2 ui-card ui-text ui-border"
                 />
               {/if}
               {#if validationErrors[fieldName]}
-                <p class="mt-1 text-sm text-red-600 dark:text-red-400">
+                <p class="mt-1 text-sm ui-text-error">
                   {validationErrors[fieldName]}
                 </p>
               {/if}
@@ -952,14 +952,14 @@
           <button
             type="button"
             onclick={closeModals}
-            class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+            class="rounded-lg border px-4 py-2 text-sm font-medium ui-card ui-hover ui-muted ui-border"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={isSubmitting}
-            class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
+            class="rounded-lg px-4 py-2 text-sm font-medium disabled:opacity-50 preset-filled-primary-500"
           >
             {isSubmitting ? "Creating..." : "Create Record"}
           </button>
@@ -975,18 +975,18 @@
     class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
   >
     <div
-      class="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white dark:bg-gray-800"
+      class="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg ui-card"
     >
       <div
-        class="sticky top-0 flex items-center justify-between border-b border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800"
+        class="sticky top-0 flex items-center justify-between border-b p-6 ui-card ui-border"
       >
-        <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100">
+        <h2 class="text-xl font-semibold ui-text">
           Edit Record
         </h2>
         <button
           type="button"
           onclick={closeModals}
-          class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+          class="ui-muted"
         >
           <svg
             class="h-6 w-6"
@@ -1009,7 +1009,7 @@
           e.preventDefault();
           handleUpdate();
         }}
-        class="bg-white p-6 dark:bg-gray-800"
+        class="p-6 ui-card"
       >
         <div class="space-y-4">
           {#each Object.entries(properties) as [fieldName, fieldDef]}
@@ -1018,20 +1018,20 @@
             <div>
               <label
                 for="edit-{fieldName}"
-                class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                class="block text-sm font-medium ui-muted"
               >
                 {fieldName}
                 {#if isRequired}
-                  <span class="text-red-600">*</span>
+                  <span class="ui-text-error">*</span>
                 {/if}
               </label>
               {#if fieldDef.description}
-                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                <p class="mt-1 text-xs ui-muted">
                   {fieldDef.description}
                 </p>
               {/if}
               {#if fieldDef.type === "DATE_WITH_DAY"}
-                <p class="mt-1 text-xs text-blue-600 dark:text-blue-400">
+                <p class="mt-1 text-xs ui-link">
                   Format: YYYY-MM-DD (e.g., 2023-06-15)
                 </p>
               {/if}
@@ -1041,7 +1041,7 @@
                     type="checkbox"
                     id="edit-{fieldName}"
                     bind:checked={formData[fieldName]}
-                    class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    class="h-4 w-4 rounded ui-link ui-border"
                   />
                 </div>
               {:else if inputType === "textarea"}
@@ -1052,7 +1052,7 @@
                   placeholder={fieldDef.example
                     ? JSON.stringify(fieldDef.example, null, 2)
                     : '{ }'}
-                  class="mt-2 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 font-mono text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                  class="mt-2 block w-full rounded-lg border px-3 py-2 font-mono text-sm focus:outline-none focus:ring-2 ui-card ui-text ui-border"
                 ></textarea>
               {:else}
                 <input
@@ -1078,11 +1078,11 @@
                   max={fieldDef.maximum !== undefined
                     ? fieldDef.maximum
                     : undefined}
-                  class="mt-2 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 font-mono text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                  class="mt-2 block w-full rounded-lg border px-3 py-2 font-mono focus:outline-none focus:ring-2 ui-card ui-text ui-border"
                 />
               {/if}
               {#if validationErrors[fieldName]}
-                <p class="mt-1 text-sm text-red-600 dark:text-red-400">
+                <p class="mt-1 text-sm ui-text-error">
                   {validationErrors[fieldName]}
                 </p>
               {/if}
@@ -1094,14 +1094,14 @@
           <button
             type="button"
             onclick={closeModals}
-            class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+            class="rounded-lg border px-4 py-2 text-sm font-medium ui-card ui-hover ui-muted ui-border"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={isSubmitting}
-            class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
+            class="rounded-lg px-4 py-2 text-sm font-medium disabled:opacity-50 preset-filled-primary-500"
           >
             {isSubmitting ? "Updating..." : "Update Record"}
           </button>
@@ -1117,21 +1117,21 @@
     class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
   >
     <div
-      class="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white dark:bg-gray-800"
+      class="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg ui-card"
     >
       <div
-        class="sticky top-0 flex items-center justify-between border-b border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800"
+        class="sticky top-0 flex items-center justify-between border-b p-6 ui-card ui-border"
       >
-        <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100">
+        <h2 class="text-xl font-semibold ui-text">
           View Record
           {#if isReadOnly}
-            <span class="ml-2 text-sm font-normal text-gray-500">(read-only)</span>
+            <span class="ml-2 text-sm font-normal ui-muted">(read-only)</span>
           {/if}
         </h2>
         <button
           type="button"
           onclick={closeModals}
-          class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+          class="ui-muted"
         >
           <svg
             class="h-6 w-6"
@@ -1149,26 +1149,26 @@
         </button>
       </div>
 
-      <div class="bg-white p-6 dark:bg-gray-800">
+      <div class="p-6 ui-card">
         <dl class="space-y-4">
           <div>
-            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
+            <dt class="text-sm font-medium ui-muted">
               ID
             </dt>
-            <dd class="mt-1 font-mono text-sm text-gray-600 dark:text-gray-400">
+            <dd class="mt-1 font-mono text-sm ui-muted">
               {getRecordId(selectedRecord) || "-"}
             </dd>
           </div>
           {#each Object.entries(properties) as [fieldName, fieldDef]}
             {@const recordData = getRecordData(selectedRecord)}
             <div>
-              <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
+              <dt class="text-sm font-medium ui-muted">
                 {fieldName}
                 {#if requiredFields.includes(fieldName)}
-                  <span class="ml-1 text-xs text-red-600">(Required)</span>
+                  <span class="ml-1 text-xs ui-text-error">(Required)</span>
                 {/if}
               </dt>
-              <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">
+              <dd class="mt-1 text-sm ui-text">
                 {recordData[fieldName] !== undefined &&
                 recordData[fieldName] !== null
                   ? String(recordData[fieldName])
@@ -1182,7 +1182,7 @@
           <button
             type="button"
             onclick={closeModals}
-            class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+            class="rounded-lg border px-4 py-2 text-sm font-medium ui-card ui-hover ui-muted ui-border"
           >
             Close
           </button>

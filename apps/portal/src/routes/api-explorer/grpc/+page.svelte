@@ -30,8 +30,8 @@
 
 <div class="mx-auto flex w-full max-w-3xl flex-col gap-5 p-6">
 	<header class="flex flex-col gap-2">
-		<h1 class="text-2xl font-semibold text-surface-900-50">gRPC</h1>
-		<p class="text-sm text-surface-600-400">
+		<h1 class="text-2xl font-semibold ui-text">gRPC</h1>
+		<p class="text-sm ui-muted">
 			{data.services.length}
 			{data.services.length === 1 ? 'service' : 'services'}, {methodCount}
 			{methodCount === 1 ? 'method' : 'methods'} on
@@ -41,10 +41,10 @@
 	</header>
 
 	{#if data.reflectionError}
-		<div class="flex flex-col gap-2 rounded border border-surface-300-600 p-4 text-sm" role="alert">
-			<p class="text-surface-900-50">Could not reflect against <span class="font-mono">{data.host}</span>.</p>
-			<p class="font-mono text-xs text-surface-600-400">{data.reflectionError}</p>
-			<p class="text-xs text-surface-600-400">
+		<div class="flex flex-col gap-2 rounded border p-4 text-sm ui-border" role="alert">
+			<p class="ui-text">Could not reflect against <span class="font-mono">{data.host}</span>.</p>
+			<p class="font-mono text-xs ui-muted">{data.reflectionError}</p>
+			<p class="text-xs ui-muted">
 				This OBP instance may not serve gRPC, or may not have server reflection enabled. The
 				target comes from <span class="font-mono">OBP_GRPC_HOST</span>, falling back to the API
 				host.
@@ -53,53 +53,53 @@
 	{/if}
 
 	{#each data.services as service (service.name)}
-		<section class="flex flex-col gap-2 border-t border-surface-300-600 pt-4" id={service.name}>
-			<h2 class="font-mono text-sm font-semibold text-surface-900-50">{service.name}</h2>
+		<section class="flex flex-col gap-2 border-t pt-4 ui-border" id={service.name}>
+			<h2 class="font-mono text-sm font-semibold ui-text">{service.name}</h2>
 
 			{#if service.error}
-				<p class="font-mono text-xs text-surface-600-400">{service.error}</p>
+				<p class="font-mono text-xs ui-muted">{service.error}</p>
 			{/if}
 
 			{#each service.methods as method (method.name)}
-				<details class="border-t border-surface-200-700 pt-2">
-					<summary class="cursor-pointer font-mono text-xs text-surface-800-200">
+				<details class="border-t pt-2 ui-border">
+					<summary class="cursor-pointer font-mono text-xs ui-text">
 						{method.signature}
 					</summary>
 					<div class="mt-2 grid gap-4 sm:grid-cols-2">
 						<div>
-							<h3 class="text-xs font-semibold uppercase tracking-wide text-surface-600-400">
+							<h3 class="text-xs font-semibold uppercase tracking-wide ui-muted">
 								Request
 							</h3>
 							<dl class="mt-1 grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 text-xs">
 								{#each method.requestFields as field (field.name)}
-									<dt class="font-mono text-surface-800-200">{field.name}</dt>
-									<dd class="text-surface-600-400">
+									<dt class="font-mono ui-text">{field.name}</dt>
+									<dd class="ui-muted">
 										{field.rule ? `${field.rule} ` : ''}{field.type}
 									</dd>
 								{:else}
-									<dd class="col-span-2 text-surface-600-400">No fields.</dd>
+									<dd class="col-span-2 ui-muted">No fields.</dd>
 								{/each}
 							</dl>
 						</div>
 						<div>
-							<h3 class="text-xs font-semibold uppercase tracking-wide text-surface-600-400">
+							<h3 class="text-xs font-semibold uppercase tracking-wide ui-muted">
 								Response
 							</h3>
 							<dl class="mt-1 grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 text-xs">
 								{#each method.responseFields as field (field.name)}
-									<dt class="font-mono text-surface-800-200">{field.name}</dt>
-									<dd class="text-surface-600-400">
+									<dt class="font-mono ui-text">{field.name}</dt>
+									<dd class="ui-muted">
 										{field.rule ? `${field.rule} ` : ''}{field.type}
 									</dd>
 								{:else}
-									<dd class="col-span-2 text-surface-600-400">No fields.</dd>
+									<dd class="col-span-2 ui-muted">No fields.</dd>
 								{/each}
 							</dl>
 						</div>
 					</div>
 				</details>
 			{:else}
-				<p class="text-xs text-surface-600-400">No methods resolved.</p>
+				<p class="text-xs ui-muted">No methods resolved.</p>
 			{/each}
 		</section>
 	{/each}

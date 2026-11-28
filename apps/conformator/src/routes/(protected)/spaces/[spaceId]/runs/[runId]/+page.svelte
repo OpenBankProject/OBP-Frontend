@@ -36,7 +36,7 @@
 </p>
 {#if data.run.status === 'queued'}<p class="mt-2 text-sm" role="status">Waiting for the runner. This page updates itself.</p>{/if}
 {#if data.run.status === 'harness_error'}
-	<p class="mt-4 preset-tonal-warning rounded p-3" role="alert">
+	<p class="mt-4 ui-tone-warning rounded p-3" role="alert">
 		The run could not be completed because of a problem on the test platform's side, not yours: {data.run.problem}
 	</p>
 {/if}
@@ -44,20 +44,20 @@
 {#if data.submissions.length}
 	<p class="mt-4">Submitted for review: {#each data.submissions as sub, i (sub.id)}{i ? ', ' : ''}<a class="anchor" href="/spaces/{data.space}/submissions/{sub.id}">{sub.submitted_at || 'see the submission'}</a>{/each}</p>
 {:else if data.canSubmit}
-	<form method="POST" action="?/submit" class="mt-4 grid max-w-3xl gap-2 rounded border border-surface-500/30 p-4" data-testid="run-submit">
+	<form method="POST" action="?/submit" class="mt-4 grid max-w-3xl gap-2 rounded border ui-border/30 p-4" data-testid="run-submit">
 		<p class="font-semibold">Submit this run for the regulator's review</p>
 		<p class="text-sm">You can add evidence for the evidence and control tests, ask for waivers and appeal results on the submission's page.</p>
 		<label class="label"><span>A note for the reviewer (optional)</span><textarea class="textarea" name="note" rows="2" maxlength="4000"></textarea></label>
-		<div><button class="btn preset-filled">Submit for review</button></div>
-		{#if form?.problem}<p class="preset-tonal-error rounded p-2" role="alert">{form.problem}</p>{/if}
+		<div><button class="btn preset-filled-primary-500">Submit for review</button></div>
+		{#if form?.problem}<p class="ui-tone-error rounded p-2" role="alert">{form.problem}</p>{/if}
 	</form>
 {/if}
 
 {#if !data.resultsReadable}
 	<div class="mt-4"><MissingRoleAlert roles={['CanGetDynamicEntityRecord_conformator_result']} bankId={data.space} /></div>
 {:else}
-	<section class="mt-6 rounded border border-surface-500/30 p-4" data-testid="run-summary">
-		<p class="font-semibold" class:text-error-500={s.mandatoryFailed.length > 0}>{s.headline}</p>
+	<section class="mt-6 rounded border ui-border/30 p-4" data-testid="run-summary">
+		<p class="font-semibold" class:ui-text-error={s.mandatoryFailed.length > 0}>{s.headline}</p>
 		{#if s.mandatoryFailed.length}<p class="mt-1">Failed: {#each s.mandatoryFailed as id, i (id)}{i ? ', ' : ''}<a class="anchor" href="#{id}">{id}</a>{/each}</p>{/if}
 		<p class="mt-2 text-sm">
 			{s.counts.pass} passed, {s.counts.fail} failed, {s.counts.blocked} blocked, {s.counts.not_executed} not executed, {s.counts.not_applicable} not applicable.
@@ -68,7 +68,7 @@
 
 	<ol class="mt-6 flex flex-col gap-4" data-testid="run-results">
 		{#each data.rows as row (row.test_id)}
-			<li id={row.test_id} class="rounded border border-surface-500/30 p-4" data-testid="result-{row.test_id}">
+			<li id={row.test_id} class="rounded border ui-border/30 p-4" data-testid="result-{row.test_id}">
 				<div class="flex flex-wrap items-center gap-2">
 					<code>{row.test_id}</code>
 					<span class="font-semibold">{row.title}</span>
@@ -91,7 +91,7 @@
 					{#if row.result.exchanges !== '[]'}
 						<details class="mt-2">
 							<summary class="cursor-pointer text-sm">Requests and responses (tokens hidden)</summary>
-							<pre class="mt-2 max-h-96 overflow-auto rounded bg-surface-100-900 p-2 text-xs">{row.result.exchanges}</pre>
+							<pre class="mt-2 max-h-96 overflow-auto rounded ui-panel p-2 text-xs">{row.result.exchanges}</pre>
 						</details>
 					{/if}
 				{/if}

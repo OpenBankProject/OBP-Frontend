@@ -38,11 +38,11 @@
 </script>
 
 {#if password.length > 0 && closest && !satisfied}
-	<div id="password-policy-feedback" class="text-error-500 mt-2 space-y-1 text-xs" data-testid="password-policy-feedback">
+	<div id="password-policy-feedback" class="mt-2 space-y-1 text-xs ui-text-error" data-testid="password-policy-feedback">
 		<p class="font-semibold">{describePasswordPolicy(closest.policy)}</p>
 		<ul class="list-inside list-disc">
 			{#each closest.requirements as requirement}
-				<li class={requirement.met ? 'text-success-500' : ''}>{requirement.label}</li>
+				<li class={requirement.met ? 'ui-text-success' : ''}>{requirement.label}</li>
 			{/each}
 			{#if closest.disallowedCharacters.length > 0}
 				<li>Not allowed: {describeDisallowedCharacters(closest.disallowedCharacters)}</li>

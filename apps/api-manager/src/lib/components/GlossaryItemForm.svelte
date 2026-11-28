@@ -184,24 +184,24 @@
 </script>
 
 {#if opeyFilledFields.length > 0}
-  <div class="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-200" data-testid="opey-filled-banner">
+  <div class="mb-4 flex flex-wrap items-center gap-2 rounded-lg border px-4 py-3 text-sm ui-tone-info" data-testid="opey-filled-banner">
     <span>Opey filled {opeyFilledFields.length} field{opeyFilledFields.length === 1 ? "" : "s"}:</span>
     {#each opeyFilledFields as name (name)}
-      <span class="inline-flex items-center gap-1 rounded-full bg-white px-2 py-0.5 text-xs dark:bg-gray-800">
+      <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs ui-card">
         {fieldLabels[name] ?? name}
         <button type="button" class="underline" onclick={() => revertField(name)} data-testid="opey-revert-{name}">revert</button>
       </span>
     {/each}
-    <button type="button" class="ml-auto rounded-md bg-blue-600 px-3 py-1 text-xs font-medium text-white hover:bg-blue-700" onclick={acceptAll} data-testid="opey-accept-all">Keep all</button>
+    <button type="button" class="ml-auto rounded-md px-3 py-1 text-xs font-medium preset-filled-primary-500" onclick={acceptAll} data-testid="opey-accept-all">Keep all</button>
   </div>
 {/if}
 
 <form onsubmit={handleSubmit} class="space-y-5" data-testid="glossary-item-form">
   <div>
-    <label for="glossary-item-title" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Title <span class="text-red-500">*</span></label>
+    <label for="glossary-item-title" class="block text-sm font-medium ui-muted">Title <span class="ui-text-error">*</span></label>
     {#if lockTitle}
-      <p class="mt-1 font-mono text-sm text-gray-900 dark:text-gray-100" data-testid="field-title-locked">{title}</p>
-      <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">The title is the Glossary key and cannot be changed. To rename an entry, delete it and create a new one.</p>
+      <p class="mt-1 font-mono text-sm ui-text" data-testid="field-title-locked">{title}</p>
+      <p class="mt-1 text-xs ui-muted">The title is the Glossary key and cannot be changed. To rename an entry, delete it and create a new one.</p>
     {:else}
       <input
         id="glossary-item-title"
@@ -212,42 +212,42 @@
         maxlength={GLOSSARY_ITEM_MAX_TITLE_LENGTH}
         placeholder="e.g. Bank.bank_id"
         bind:value={title}
-        class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 font-mono text-sm text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+        class="mt-1 block w-full rounded-lg border px-3 py-2 font-mono text-sm focus:ring-2 ui-card ui-text ui-border"
         data-testid="field-title"
       />
       {#if titleError}
-        <p class="mt-1 text-xs text-red-600 dark:text-red-400" data-testid="title-error">{titleError}</p>
+        <p class="mt-1 text-xs ui-text-error" data-testid="title-error">{titleError}</p>
       {:else if duplicateDynamic}
-        <p class="mt-1 text-xs text-amber-700 dark:text-amber-400" data-testid="title-duplicate">
+        <p class="mt-1 text-xs ui-text-warning" data-testid="title-duplicate">
           A Dynamic Glossary Item titled <span class="font-mono">{duplicateDynamic}</span> already exists — creating it again returns 409.
           <a class="underline" href="/glossary-items/{encodeURIComponent(duplicateDynamic)}">Edit it instead</a>.
         </p>
       {:else if collidesWithStatic}
-        <p class="mt-1 text-xs text-amber-700 dark:text-amber-400" data-testid="title-shadows-static">
+        <p class="mt-1 text-xs ui-text-warning" data-testid="title-shadows-static">
           This matches the static Glossary Item <span class="font-mono">{shadowedStatic}</span> — see the override box below.
         </p>
       {:else}
-        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">The Glossary key, unique case insensitively. Dots and spaces are fine; a slash is not.</p>
+        <p class="mt-1 text-xs ui-muted">The Glossary key, unique case insensitively. Dots and spaces are fine; a slash is not.</p>
       {/if}
     {/if}
   </div>
 
-  <div class="rounded-lg border {collidesWithStatic ? 'border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-900/20' : 'border-gray-200 dark:border-gray-700'} p-4">
+  <div class="rounded-lg border {collidesWithStatic ? 'ui-tone-warning' : 'ui-border'} p-4">
     <label class="flex items-start gap-3">
       <input
         type="checkbox"
         bind:checked={overridesStaticItem}
-        class="mt-0.5 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600"
+        class="mt-0.5 h-4 w-4 rounded focus:ring-2 ui-link ui-border"
         data-testid="field-overrides-static-item"
       />
       <span class="text-sm">
-        <span class="font-medium text-gray-900 dark:text-gray-100">Override the static Glossary Item of this title</span>
+        <span class="font-medium ui-text">Override the static Glossary Item of this title</span>
         {#if collidesWithStatic}
-          <span class="mt-1 block text-amber-800 dark:text-amber-200" data-testid="override-required">
+          <span class="mt-1 block ui-text-warning" data-testid="override-required">
             <span class="font-mono">{shadowedStatic}</span> ships with the API. This has to be ticked to displace it — OBP refuses the write with <span class="font-mono">OBP-30577</span> otherwise. Deleting this item restores the shipped text.
           </span>
         {:else}
-          <span class="mt-1 block text-gray-500 dark:text-gray-400">
+          <span class="mt-1 block ui-muted">
             Nothing static uses this title, so this changes nothing today. Tick it only to record that displacing shipped documentation of this title is intended.
           </span>
         {/if}
@@ -257,10 +257,10 @@
 
   <div>
     <div class="flex flex-wrap items-baseline justify-between gap-2">
-      <label for="glossary-item-description" class="text-sm font-medium text-gray-700 dark:text-gray-300">Description (markdown) <span class="text-red-500">*</span></label>
+      <label for="glossary-item-description" class="text-sm font-medium ui-muted">Description (markdown) <span class="ui-text-error">*</span></label>
       <span class="flex gap-3">
-        <button type="button" onclick={useExample} class="text-xs text-blue-600 hover:underline dark:text-blue-400" data-testid="use-example-description">Insert example</button>
-        <button type="button" onclick={() => (showPreview = !showPreview)} class="text-xs text-blue-600 hover:underline dark:text-blue-400" data-testid="toggle-preview" aria-pressed={showPreview}>
+        <button type="button" onclick={useExample} class="text-xs hover:underline ui-link" data-testid="use-example-description">Insert example</button>
+        <button type="button" onclick={() => (showPreview = !showPreview)} class="text-xs hover:underline ui-link" data-testid="toggle-preview" aria-pressed={showPreview}>
           {showPreview ? "Hide preview" : "Show preview"}
         </button>
       </span>
@@ -271,38 +271,38 @@
       bind:value={description}
       rows="16"
       placeholder="What this term means, in markdown."
-      class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 font-mono text-xs text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+      class="mt-1 block w-full rounded-lg border px-3 py-2 font-mono text-xs focus:outline-none focus:ring-2 ui-card ui-text ui-border"
       data-testid="field-description"
     ></textarea>
-    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+    <p class="mt-1 text-xs ui-muted">
       Link to another Glossary entry with <span class="font-mono">[Bank](/glossary#Bank)</span>. OBP returns both the markdown and rendered HTML.
     </p>
   </div>
 
   {#if showPreview}
     <div>
-      <h2 class="text-sm font-medium text-gray-700 dark:text-gray-300">Preview</h2>
-      <div class="mt-1 rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900/40">
+      <h2 class="text-sm font-medium ui-muted">Preview</h2>
+      <div class="mt-1 rounded-lg border p-4 ui-card ui-border">
         {#if previewHtml}
           <!-- markdown-it runs with html:false, so raw HTML in the source is escaped, not executed. -->
           <div class="glossary-preview" data-testid="description-preview">{@html previewHtml}</div>
         {:else}
-          <p class="text-sm text-gray-500 dark:text-gray-400" data-testid="description-preview-empty">Nothing to preview yet.</p>
+          <p class="text-sm ui-muted" data-testid="description-preview-empty">Nothing to preview yet.</p>
         {/if}
       </div>
-      <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Rendered here by the Manager; OBP renders the stored markdown itself when it serves the Glossary, so small differences are possible.</p>
+      <p class="mt-1 text-xs ui-muted">Rendered here by the Manager; OBP renders the stored markdown itself when it serves the Glossary, so small differences are possible.</p>
     </div>
   {/if}
 
   {#if submitError}
-    <div class="rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-700 dark:bg-red-900/20 dark:text-red-200" data-testid="glossary-item-error">{submitError}</div>
+    <div class="rounded-lg border px-4 py-3 text-sm ui-tone-error" data-testid="glossary-item-error">{submitError}</div>
   {/if}
 
   <div class="flex flex-wrap gap-3">
-    <button type="submit" disabled={isSubmitting} class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60" data-testid="glossary-item-submit">
+    <button type="submit" disabled={isSubmitting} class="rounded-lg px-4 py-2 text-sm font-medium disabled:opacity-60 preset-filled-primary-500" data-testid="glossary-item-submit">
       {isSubmitting ? "Saving…" : submitLabel}
     </button>
-    <a href={cancelHref} class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">Cancel</a>
+    <a href={cancelHref} class="rounded-lg border px-4 py-2 text-sm font-medium ui-card ui-hover ui-muted ui-border">Cancel</a>
   </div>
 </form>
 
@@ -310,20 +310,20 @@
   .glossary-preview {
     font-size: 0.9375rem;
     line-height: 1.6;
-    color: #374151;
+    color: var(--ui-text);
   }
   .glossary-preview :global(h1),
   .glossary-preview :global(h2) {
     font-size: 1.0625rem;
     font-weight: 600;
     margin: 1.25rem 0 0.5rem;
-    color: #111827;
+    color: var(--ui-text);
   }
   .glossary-preview :global(h3) {
     font-size: 0.9375rem;
     font-weight: 600;
     margin: 1rem 0 0.375rem;
-    color: #111827;
+    color: var(--ui-text);
   }
   .glossary-preview :global(p) {
     margin: 0 0 0.75rem;
@@ -338,19 +338,19 @@
     margin-bottom: 0.25rem;
   }
   .glossary-preview :global(a) {
-    color: #2563eb;
+    color: var(--ui-link);
     text-decoration: underline;
   }
   .glossary-preview :global(code) {
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 0.8125rem;
-    background: rgba(0, 0, 0, 0.06);
+    background: var(--ui-panel);
     border-radius: 0.25rem;
     padding: 0.05rem 0.25rem;
   }
   .glossary-preview :global(pre) {
     overflow-x: auto;
-    background: rgba(0, 0, 0, 0.06);
+    background: var(--ui-panel);
     border-radius: 0.375rem;
     padding: 0.75rem;
     margin: 0 0 0.75rem;
@@ -363,28 +363,8 @@
   }
   .glossary-preview :global(th),
   .glossary-preview :global(td) {
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--ui-border);
     padding: 0.25rem 0.5rem;
     text-align: left;
-  }
-
-  :global([data-mode="dark"]) .glossary-preview {
-    color: #d1d5db;
-  }
-  :global([data-mode="dark"]) .glossary-preview :global(h1),
-  :global([data-mode="dark"]) .glossary-preview :global(h2),
-  :global([data-mode="dark"]) .glossary-preview :global(h3) {
-    color: #f3f4f6;
-  }
-  :global([data-mode="dark"]) .glossary-preview :global(a) {
-    color: #60a5fa;
-  }
-  :global([data-mode="dark"]) .glossary-preview :global(code),
-  :global([data-mode="dark"]) .glossary-preview :global(pre) {
-    background: rgba(255, 255, 255, 0.08);
-  }
-  :global([data-mode="dark"]) .glossary-preview :global(th),
-  :global([data-mode="dark"]) .glossary-preview :global(td) {
-    border-color: #374151;
   }
 </style>

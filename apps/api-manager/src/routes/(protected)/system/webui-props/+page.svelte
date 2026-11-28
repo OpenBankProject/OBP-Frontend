@@ -76,8 +76,8 @@
   <div class="mb-6">
     <div class="mb-4 flex items-center justify-between">
       <div>
-        <h1 class="text-gray-900 dark:text-gray-100">WebUI Props</h1>
-        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400" data-testid="webui-props-markdown-rule">
+        <h1 class="ui-text">WebUI Props</h1>
+        <p class="mt-1 text-sm ui-muted" data-testid="webui-props-markdown-rule">
           Values are rendered as markdown, except
           {#each WEB_UI_PROPS_NOT_MARKDOWN as name, i (name)}{i > 0 ? ", " : ""}<code>{name}</code>{/each}
           · {filteredWebUIProps.length} props
@@ -85,7 +85,7 @@
       </div>
       <button
         onclick={openCreateModal}
-        class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-500 dark:hover:bg-blue-600"
+        class="rounded-lg px-4 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 preset-filled-primary-500"
       >
         Create New Prop
       </button>
@@ -97,8 +97,8 @@
         onclick={() => switchFilter("active")}
         class="rounded-lg px-4 py-2 text-sm font-medium transition-colors {currentFilter ===
         'active'
-          ? 'bg-blue-600 text-white dark:bg-blue-500'
-          : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'}"
+          ? 'preset-filled-primary-500'
+          : 'ui-panel ui-hover ui-muted'}"
       >
         Active
       </button>
@@ -106,8 +106,8 @@
         onclick={() => switchFilter("database")}
         class="rounded-lg px-4 py-2 text-sm font-medium transition-colors {currentFilter ===
         'database'
-          ? 'bg-blue-600 text-white dark:bg-blue-500'
-          : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'}"
+          ? 'preset-filled-primary-500'
+          : 'ui-panel ui-hover ui-muted'}"
       >
         Database
       </button>
@@ -115,8 +115,8 @@
         onclick={() => switchFilter("config")}
         class="rounded-lg px-4 py-2 text-sm font-medium transition-colors {currentFilter ===
         'config'
-          ? 'bg-blue-600 text-white dark:bg-blue-500'
-          : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'}"
+          ? 'preset-filled-primary-500'
+          : 'ui-panel ui-hover ui-muted'}"
       >
         Config
       </button>
@@ -128,7 +128,7 @@
         type="text"
         bind:value={searchQuery}
         placeholder="Search by name, value, or description..."
-        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-blue-400"
+        class="w-full rounded-lg border px-4 py-2 focus:outline-none focus:ring-2 ui-card ui-text ui-border"
       />
     </div>
   </div>
@@ -138,14 +138,14 @@
     <div class="space-y-4">
       {#each filteredWebUIProps as prop, index (`${prop.name}-${index}`)}
         <div
-          class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+          class="rounded-lg border p-6 shadow-sm ui-card ui-border"
         >
           <!-- Header with Name -->
           <div class="mb-4">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100">
+            <h2 class="text-xl font-semibold ui-text">
               {prop.name}
             </h2>
-            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            <p class="mt-1 text-xs ui-muted">
               Source: {prop.source || "undefined"}
             </p>
           </div>
@@ -153,13 +153,13 @@
           <!-- Value -->
           <div class="mb-4">
             <div
-              class="mb-1 text-xs font-medium text-gray-600 dark:text-gray-400"
+              class="mb-1 text-xs font-medium ui-muted"
               data-testid="webui-prop-format-{prop.name}"
             >
               Value · {isWebUiPropMarkdown(prop.name) ? "markdown" : "plain text"}
             </div>
             <pre
-              class="whitespace-pre-wrap break-words rounded-lg bg-gray-50 p-4 text-sm text-gray-900 dark:bg-gray-900/50 dark:text-gray-100">{prop.value}</pre>
+              class="whitespace-pre-wrap break-words rounded-lg p-4 text-sm ui-card ui-text">{prop.value}</pre>
           </div>
 
           <!-- Action Buttons -->
@@ -168,7 +168,7 @@
               <!-- Edit button for config, active and database -->
               <button
                 onclick={() => openEditModal(prop)}
-                class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-500 dark:hover:bg-blue-600"
+                class="rounded-lg px-4 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 preset-filled-primary-500"
               >
                 Edit
               </button>
@@ -176,7 +176,7 @@
               {#if prop.source === "database"}
                 <button
                   onclick={() => openDeleteModal(prop)}
-                  class="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:bg-red-500 dark:hover:bg-red-600"
+                  class="rounded-lg px-4 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 preset-filled-error-500"
                 >
                   Delete
                 </button>
@@ -187,9 +187,9 @@
       {/each}
     </div>
   {:else}
-    <div class="rounded-lg bg-gray-100 p-8 text-center dark:bg-gray-800">
+    <div class="rounded-lg p-8 text-center ui-panel">
       <svg
-        class="mx-auto mb-4 h-16 w-16 text-gray-400"
+        class="mx-auto mb-4 h-16 w-16 ui-muted"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -207,10 +207,10 @@
           d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
         />
       </svg>
-      <p class="mb-2 text-lg font-medium text-gray-700 dark:text-gray-300">
+      <p class="mb-2 text-lg font-medium ui-muted">
         No props found
       </p>
-      <p class="text-gray-600 dark:text-gray-400">
+      <p class="ui-muted">
         {searchQuery
           ? "Try adjusting your search query"
           : "Create your first prop to get started"}

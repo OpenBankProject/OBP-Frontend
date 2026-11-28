@@ -233,7 +233,7 @@
 <div use:toBody>
 	<section
 		id="opey-panel"
-		class="card preset-outlined-surface-200-800 bg-surface-50-950 fixed z-40 flex flex-col overflow-hidden shadow-2xl"
+		class="card border ui-border ui-card fixed z-40 flex flex-col overflow-hidden shadow-2xl"
 		class:hidden={view === 'closed' || !box}
 		style={box
 			? view === 'minimised'
@@ -254,7 +254,7 @@
 		>
 			<div class="min-w-0 flex-1">
 				<h2 id="opey-heading" class="h5">{t(locale, 'opey_heading')}</h2>
-				<p class="text-sm text-surface-700-300" class:hidden={view === 'minimised'}>{t(locale, 'opey_intro')}</p>
+				<p class="text-sm ui-muted" class:hidden={view === 'minimised'}>{t(locale, 'opey_intro')}</p>
 			</div>
 			{#if view !== 'minimised'}
 				<button type="button" class="btn-icon btn-icon-sm shrink-0" aria-label={t(locale, 'opey_new_chat')} title={t(locale, 'opey_new_chat')} onclick={newConversation} data-testid="opey-new-chat">
@@ -287,12 +287,12 @@
 			onpointerdown={startResize}
 			data-testid="opey-resize"
 		>
-			<svg viewBox="0 0 20 20" class="size-full text-surface-500 rtl:-scale-x-100" aria-hidden="true"><path d="M18 8 8 18M18 13l-5 5" stroke="currentColor" stroke-width="1.5" fill="none" /></svg>
+			<svg viewBox="0 0 20 20" class="size-full ui-muted rtl:-scale-x-100" aria-hidden="true"><path d="M18 8 8 18M18 13l-5 5" stroke="currentColor" stroke-width="1.5" fill="none" /></svg>
 		</div>
 	</section>
 	<button
 		type="button"
-		class="fixed end-6 bottom-6 z-40 size-16 overflow-hidden rounded-full shadow-xl ring-2 ring-primary-500 transition-transform hover:scale-105"
+		class="fixed end-6 bottom-6 z-40 size-16 overflow-hidden rounded-full shadow-xl border-2 ui-border-brand transition-transform hover:scale-105"
 		aria-label={t(locale, view === 'open' ? 'opey_close' : 'opey_open')}
 		aria-expanded={view === 'open'}
 		aria-controls="opey-panel"

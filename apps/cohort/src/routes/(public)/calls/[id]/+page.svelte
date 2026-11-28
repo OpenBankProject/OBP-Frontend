@@ -21,12 +21,12 @@
 <EligibilitySummary {locale} rules={data.call.eligibility} />
 
 {#if data.myApplicationId}
-	<a class="btn preset-filled mt-6" href="/applications/{data.myApplicationId}" data-testid="call-continue"
+	<a class="btn preset-filled-primary-500 mt-6" href="/applications/{data.myApplicationId}" data-testid="call-continue"
 		>{t(locale, 'call_continue')}</a
 	>
 {:else if data.call.open}
 	<form method="POST" action="?/apply" class="mt-6">
-		<button type="submit" class="btn preset-filled" data-testid="call-apply">{t(locale, 'call_apply')}</button>
+		<button type="submit" class="btn preset-filled-primary-500" data-testid="call-apply">{t(locale, 'call_apply')}</button>
 	</form>
 {:else}
 	<p class="mt-6" data-testid="call-closed">{t(locale, 'call_closed')}</p>

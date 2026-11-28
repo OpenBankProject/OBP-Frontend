@@ -145,7 +145,7 @@
 {#if open}
 	<div
 		bind:this={wrapperEl}
-		class="inline-block rounded-md border border-surface-300-700 bg-surface-100-900 p-3 text-start min-w-[18rem] max-w-md"
+		class="inline-block rounded-md border p-3 text-start min-w-[18rem] max-w-md ui-panel ui-border"
 		data-testid="account-scope-picker-open"
 	>
 		<div class="mb-2 flex items-center justify-between gap-2">
@@ -166,7 +166,7 @@
 		<div class="mb-2 flex items-center gap-2">
 			<button
 				type="button"
-				class="rounded-md border border-surface-300-700 px-2 py-0.5 text-xs hover:bg-surface-200-800"
+				class="rounded-md border px-2 py-0.5 text-xs ui-hover ui-border"
 				onclick={fetchAccounts}
 				disabled={isLoading}
 				data-testid="account-scope-refresh"
@@ -177,7 +177,7 @@
 			{#if selected.length > 0}
 				<button
 					type="button"
-					class="rounded-md border border-surface-300-700 px-2 py-0.5 text-xs hover:bg-surface-200-800"
+					class="rounded-md border px-2 py-0.5 text-xs ui-hover ui-border"
 					onclick={clearAll}
 					data-testid="account-scope-clear"
 				>
@@ -187,7 +187,7 @@
 		</div>
 
 		{#if error}
-			<div class="mb-2 rounded bg-error-100-900 px-2 py-1 text-xs text-error-700-300">
+			<div class="mb-2 rounded px-2 py-1 text-xs ui-tone-error">
 				{error}
 			</div>
 		{/if}
@@ -203,7 +203,7 @@
 				{#each filteredAccounts as account (account.bank_id + '::' + account.account_id)}
 					{@const views = account.views || []}
 					<div
-						class="rounded-md border border-surface-200-800 p-2"
+						class="rounded-md border p-2 ui-border"
 						data-testid="account-scope-account"
 					>
 						<div class="mb-1 flex items-baseline justify-between gap-2">
@@ -219,8 +219,8 @@
 									<label
 										class="inline-flex cursor-pointer items-center gap-1 rounded-full border px-2 py-0.5 text-[11px]
 											{checked
-												? 'border-tertiary-500 bg-tertiary-100-900'
-												: 'border-surface-300-700 hover:bg-surface-200-800'}"
+												? 'ui-tone-info'
+												: 'ui-hover ui-border'}"
 									>
 										<input
 											type="checkbox"
@@ -244,7 +244,7 @@
 		Working accounts: {summary}
 		<button
 			type="button"
-			class="hover:text-tertiary-400"
+			class="ui-link"
 			onclick={() => (open = true)}
 			title="Choose working accounts"
 			aria-label="Choose working accounts"

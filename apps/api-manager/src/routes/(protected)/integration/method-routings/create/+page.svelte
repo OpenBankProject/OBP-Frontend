@@ -95,25 +95,25 @@
 
 <div class="container mx-auto max-w-7xl px-4 py-8">
   <div class="mb-6">
-    <a href="/integration/method-routings" class="mb-4 inline-flex items-center text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">← Back to Method Routings</a>
-    <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">{data.prefillMethod ? `Override ${data.prefillMethod}` : data.prefillFromId ? "Duplicate Method Routing" : "Create Method Routing"}</h1>
-    <p class="mt-1 text-gray-600 dark:text-gray-400">Send one connector method, for some or all banks, to a connector of your choice.</p>
+    <a href="/integration/method-routings" class="mb-4 inline-flex items-center text-sm ui-link">← Back to Method Routings</a>
+    <h1 class="text-3xl font-bold ui-text">{data.prefillMethod ? `Override ${data.prefillMethod}` : data.prefillFromId ? "Duplicate Method Routing" : "Create Method Routing"}</h1>
+    <p class="mt-1 ui-muted">Send one connector method, for some or all banks, to a connector of your choice.</p>
   </div>
 
   <ResizableSplit breakpoint="lg">
     {#snippet main()}
-    <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-      {#if loadError}<p class="mb-4 text-sm text-red-700 dark:text-red-300">{loadError}</p>{/if}
+    <div class="rounded-lg border p-6 shadow-sm ui-card ui-border">
+      {#if loadError}<p class="mb-4 text-sm ui-text-error">{loadError}</p>{/if}
       {#if ready}
         <MethodRoutingForm {initial} {methodNames} {connectorNames} {bankIds} {listsLoading} submitLabel="Create routing" cancelHref="/integration/method-routings" onSubmit={handleSubmit} />
       {:else}
-        <p class="text-sm text-gray-500 dark:text-gray-400">Loading…</p>
+        <p class="text-sm ui-muted">Loading…</p>
       {/if}
     </div>
     {/snippet}
 
     {#snippet side()}
-      <div class="h-[36rem] w-full overflow-hidden rounded-lg border border-gray-200 shadow-sm lg:h-[calc(100vh-80px-3rem)] dark:border-gray-700">
+      <div class="h-[36rem] w-full overflow-hidden rounded-lg border shadow-sm lg:h-[calc(100vh-80px-3rem)] ui-border">
         <OpeyChat {opeyChatOptions} userAuthenticated={!!page.data.userId} {clientTools} {clientContext} />
       </div>
     {/snippet}

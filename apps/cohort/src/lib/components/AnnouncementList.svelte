@@ -8,7 +8,7 @@
 </script>
 
 {#if announcements.length > 0}
-	<section class="card preset-tonal-secondary p-4" data-testid={testid}>
+	<section class="card ui-tone-accent p-4" data-testid={testid}>
 		<h2 class="h5 flex items-center gap-2"><Megaphone class="size-5" aria-hidden="true" />{t(locale, 'announcements_heading')}</h2>
 		<ul class="mt-2 flex flex-col gap-3">
 			{#each announcements as a (a.id)}

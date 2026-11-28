@@ -230,17 +230,17 @@ In-Memory Status:
     <div class="mb-6">
       <div class="mb-4 flex items-center justify-between">
         <div>
-          <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
+          <h1 class="text-3xl font-bold ui-text">
             Cache Management
           </h1>
-          <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+          <p class="mt-1 text-sm ui-muted">
             Monitor cache configuration and manage cache namespaces
           </p>
         </div>
         <button
           onclick={refreshAll}
           disabled={isLoadingConfig || isLoadingInfo}
-          class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
+          class="rounded-lg px-4 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 preset-filled-primary-500"
         >
           {isLoadingConfig || isLoadingInfo ? "Refreshing..." : "Refresh All"}
         </button>
@@ -250,18 +250,18 @@ In-Memory Status:
     <!-- Cache Configuration Section -->
     <div class="mb-8">
       <div class="mb-4 flex items-center justify-between">
-        <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100">
+        <h2 class="text-xl font-semibold ui-text">
           Cache Configuration
         </h2>
         <button
           onclick={copyCacheConfig}
-          class="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200"
+          class="rounded-lg p-2 focus:outline-none focus:ring-2 ui-hover ui-muted"
           title="Copy cache configuration"
           aria-label="Copy cache configuration"
         >
           {#if copiedCacheConfig}
             <svg
-              class="h-5 w-5 text-green-600 dark:text-green-400"
+              class="h-5 w-5 ui-text-success"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -303,67 +303,67 @@ In-Memory Status:
       </div>
       {#if errorConfig}
         <div
-          class="rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 dark:border-red-800 dark:bg-red-900/20 dark:text-red-200"
+          class="rounded-lg border p-4 ui-tone-error"
         >
           <strong>Error:</strong>
           {errorConfig}
         </div>
       {:else if isLoadingConfig}
         <div
-          class="flex items-center justify-center rounded-lg bg-gray-100 p-8 dark:bg-gray-800"
+          class="flex items-center justify-center rounded-lg p-8 ui-panel"
         >
           <div
-            class="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"
+            class="h-8 w-8 animate-spin rounded-full border-4 border-t-transparent border-current ui-text-brand"
           ></div>
-          <p class="ml-3 text-gray-700 dark:text-gray-300">
+          <p class="ml-3 ui-muted">
             Loading configuration...
           </p>
         </div>
       {:else if cacheConfig}
         <div
-          class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+          class="rounded-lg border p-6 shadow-sm ui-card ui-border"
         >
           <div class="space-y-6">
             <!-- Instance Information -->
             <div>
               <h3
-                class="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-300"
+                class="mb-3 text-sm font-semibold ui-muted"
               >
                 Instance Information
               </h3>
               <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
                 <div>
                   <div
-                    class="text-sm font-medium text-gray-600 dark:text-gray-400"
+                    class="text-sm font-medium ui-muted"
                   >
                     Instance ID
                   </div>
                   <div
-                    class="mt-1 text-lg font-semibold text-gray-900 dark:text-gray-100"
+                    class="mt-1 text-lg font-semibold ui-text"
                   >
                     {cacheConfig.instance_id || "N/A"}
                   </div>
                 </div>
                 <div>
                   <div
-                    class="text-sm font-medium text-gray-600 dark:text-gray-400"
+                    class="text-sm font-medium ui-muted"
                   >
                     Environment
                   </div>
                   <div
-                    class="mt-1 text-lg font-semibold text-gray-900 dark:text-gray-100"
+                    class="mt-1 text-lg font-semibold ui-text"
                   >
                     {cacheConfig.environment || "N/A"}
                   </div>
                 </div>
                 <div>
                   <div
-                    class="text-sm font-medium text-gray-600 dark:text-gray-400"
+                    class="text-sm font-medium ui-muted"
                   >
                     Global Prefix
                   </div>
                   <div
-                    class="mt-1 text-lg font-semibold text-gray-900 dark:text-gray-100"
+                    class="mt-1 text-lg font-semibold ui-text"
                   >
                     {cacheConfig.global_prefix || "N/A"}
                   </div>
@@ -375,7 +375,7 @@ In-Memory Status:
             {#if cacheConfig.redis_status}
               <div>
                 <h3
-                  class="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-300"
+                  class="mb-3 text-sm font-semibold ui-muted"
                 >
                   Redis Status
                 </h3>
@@ -384,48 +384,48 @@ In-Memory Status:
                 >
                   <div>
                     <div
-                      class="text-sm font-medium text-gray-600 dark:text-gray-400"
+                      class="text-sm font-medium ui-muted"
                     >
                       Available
                     </div>
                     <div
-                      class="mt-1 text-lg font-semibold text-gray-900 dark:text-gray-100"
+                      class="mt-1 text-lg font-semibold ui-text"
                     >
                       {cacheConfig.redis_status.available ? "Yes" : "No"}
                     </div>
                   </div>
                   <div>
                     <div
-                      class="text-sm font-medium text-gray-600 dark:text-gray-400"
+                      class="text-sm font-medium ui-muted"
                     >
                       URL
                     </div>
                     <div
-                      class="mt-1 text-lg font-semibold text-gray-900 dark:text-gray-100"
+                      class="mt-1 text-lg font-semibold ui-text"
                     >
                       {cacheConfig.redis_status.url || "N/A"}
                     </div>
                   </div>
                   <div>
                     <div
-                      class="text-sm font-medium text-gray-600 dark:text-gray-400"
+                      class="text-sm font-medium ui-muted"
                     >
                       Port
                     </div>
                     <div
-                      class="mt-1 text-lg font-semibold text-gray-900 dark:text-gray-100"
+                      class="mt-1 text-lg font-semibold ui-text"
                     >
                       {cacheConfig.redis_status.port ?? "N/A"}
                     </div>
                   </div>
                   <div>
                     <div
-                      class="text-sm font-medium text-gray-600 dark:text-gray-400"
+                      class="text-sm font-medium ui-muted"
                     >
                       Use SSL
                     </div>
                     <div
-                      class="mt-1 text-lg font-semibold text-gray-900 dark:text-gray-100"
+                      class="mt-1 text-lg font-semibold ui-text"
                     >
                       {cacheConfig.redis_status.use_ssl !== undefined
                         ? cacheConfig.redis_status.use_ssl
@@ -442,31 +442,31 @@ In-Memory Status:
             {#if cacheConfig.in_memory_status}
               <div>
                 <h3
-                  class="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-300"
+                  class="mb-3 text-sm font-semibold ui-muted"
                 >
                   In-Memory Status
                 </h3>
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <div>
                     <div
-                      class="text-sm font-medium text-gray-600 dark:text-gray-400"
+                      class="text-sm font-medium ui-muted"
                     >
                       Available
                     </div>
                     <div
-                      class="mt-1 text-lg font-semibold text-gray-900 dark:text-gray-100"
+                      class="mt-1 text-lg font-semibold ui-text"
                     >
                       {cacheConfig.in_memory_status.available ? "Yes" : "No"}
                     </div>
                   </div>
                   <div>
                     <div
-                      class="text-sm font-medium text-gray-600 dark:text-gray-400"
+                      class="text-sm font-medium ui-muted"
                     >
                       Current Size
                     </div>
                     <div
-                      class="mt-1 text-lg font-semibold text-gray-900 dark:text-gray-100"
+                      class="mt-1 text-lg font-semibold ui-text"
                     >
                       {cacheConfig.in_memory_status.current_size ?? "N/A"}
                     </div>
@@ -483,7 +483,7 @@ In-Memory Status:
     <div class="mb-8">
       {#if successMessage}
         <div
-          class="mb-4 rounded-lg border border-green-200 bg-green-50 p-4 text-green-800 dark:border-green-800 dark:bg-green-900/20 dark:text-green-200"
+          class="mb-4 rounded-lg border p-4 ui-tone-success"
         >
           {successMessage}
         </div>
@@ -491,7 +491,7 @@ In-Memory Status:
 
       {#if errorInvalidate}
         <div
-          class="mb-4 rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 dark:border-red-800 dark:bg-red-900/20 dark:text-red-200"
+          class="mb-4 rounded-lg border p-4 ui-tone-error"
         >
           <strong>Error:</strong>
           {errorInvalidate}
@@ -503,16 +503,16 @@ In-Memory Status:
     <div>
       <div class="mb-4">
         <div class="flex items-center justify-between">
-          <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100">
+          <h2 class="text-xl font-semibold ui-text">
             Cache Information
           </h2>
           {#if lastUpdated}
-            <div class="text-sm text-gray-600 dark:text-gray-400">
+            <div class="text-sm ui-muted">
               Last updated: <span class="font-medium">{lastUpdated}</span>
             </div>
           {/if}
         </div>
-        <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+        <p class="mt-2 text-sm ui-muted">
           <strong>Note:</strong> Invalidating a cache namespace works by incrementing
           its version counter which forms part of the namespace key prefix, thus
           hiding old keys which will expire in due course based on their TTL. Key
@@ -522,71 +522,71 @@ In-Memory Status:
 
       {#if errorInfo}
         <div
-          class="rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 dark:border-red-800 dark:bg-red-900/20 dark:text-red-200"
+          class="rounded-lg border p-4 ui-tone-error"
         >
           <strong>Error:</strong>
           {errorInfo}
         </div>
       {:else if isLoadingInfo}
         <div
-          class="flex items-center justify-center rounded-lg bg-gray-100 p-8 dark:bg-gray-800"
+          class="flex items-center justify-center rounded-lg p-8 ui-panel"
         >
           <div
-            class="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"
+            class="h-8 w-8 animate-spin rounded-full border-4 border-t-transparent border-current ui-text-brand"
           ></div>
-          <p class="ml-3 text-gray-700 dark:text-gray-300">
+          <p class="ml-3 ui-muted">
             Loading cache information...
           </p>
         </div>
       {:else if cacheInfo}
         <div class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
           <div
-            class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+            class="rounded-lg border p-6 shadow-sm ui-card ui-border"
           >
-            <div class="text-sm font-medium text-gray-600 dark:text-gray-400">
+            <div class="text-sm font-medium ui-muted">
               Total Keys
             </div>
             <div
-              class="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100"
+              class="mt-2 text-3xl font-bold ui-text"
             >
               {cacheInfo.total_keys?.toLocaleString() ?? "—"}
             </div>
           </div>
           <div
-            class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+            class="rounded-lg border p-6 shadow-sm ui-card ui-border"
           >
-            <div class="text-sm font-medium text-gray-600 dark:text-gray-400">
+            <div class="text-sm font-medium ui-muted">
               Total Namespaces
             </div>
             <div
-              class="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100"
+              class="mt-2 text-3xl font-bold ui-text"
             >
               {cacheInfo.namespaces?.length ?? "—"}
             </div>
           </div>
           <div
-            class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+            class="rounded-lg border p-6 shadow-sm ui-card ui-border"
           >
-            <div class="text-sm font-medium text-gray-600 dark:text-gray-400">
+            <div class="text-sm font-medium ui-muted">
               Redis Available
             </div>
             <div
-              class="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100"
+              class="mt-2 text-3xl font-bold ui-text"
             >
               {cacheInfo.redis_available ? "Yes" : "No"}
             </div>
           </div>
           {#if storageStats}
             <div
-              class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+              class="rounded-lg border p-6 shadow-sm ui-card ui-border"
             >
-              <div class="text-sm font-medium text-gray-600 dark:text-gray-400">
+              <div class="text-sm font-medium ui-muted">
                 Storage Locations
               </div>
               <div class="mt-2 space-y-1 text-sm">
                 {#if storageStats.redis > 0}
                   <div class="flex items-center justify-between">
-                    <span class="text-gray-700 dark:text-gray-300"
+                    <span class="ui-muted"
                       >{storageStats.redis} Namespace{storageStats.redis !== 1
                         ? "s"
                         : ""} in Redis</span
@@ -595,7 +595,7 @@ In-Memory Status:
                 {/if}
                 {#if storageStats.memory > 0}
                   <div class="flex items-center justify-between">
-                    <span class="text-gray-700 dark:text-gray-300"
+                    <span class="ui-muted"
                       >{storageStats.memory} Namespace{storageStats.memory !== 1
                         ? "s"
                         : ""} in Memory</span
@@ -604,7 +604,7 @@ In-Memory Status:
                 {/if}
                 {#if storageStats.both > 0}
                   <div class="flex items-center justify-between">
-                    <span class="text-gray-700 dark:text-gray-300"
+                    <span class="ui-muted"
                       >{storageStats.both} Namespace{storageStats.both !== 1
                         ? "s"
                         : ""} in Both</span
@@ -613,7 +613,7 @@ In-Memory Status:
                 {/if}
                 {#if storageStats.unknown > 0}
                   <div class="flex items-center justify-between">
-                    <span class="text-gray-700 dark:text-gray-300"
+                    <span class="ui-muted"
                       >{storageStats.unknown} Namespace{storageStats.unknown !==
                       1
                         ? "s"
@@ -630,17 +630,17 @@ In-Memory Status:
           <div class="space-y-4">
             {#each cacheInfo.namespaces as namespace}
               <div
-                class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+                class="rounded-lg border p-6 shadow-sm ui-card ui-border"
               >
                 <div class="mb-4 flex items-start justify-between">
                   <div class="flex-1">
                     <h3
-                      class="text-lg font-semibold text-gray-900 dark:text-gray-100"
+                      class="text-lg font-semibold ui-text"
                     >
                       {namespace.namespace_id}
                     </h3>
                     {#if namespace.description}
-                      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                      <p class="mt-1 text-sm ui-muted">
                         {namespace.description}
                       </p>
                     {/if}
@@ -648,13 +648,13 @@ In-Memory Status:
                   <div class="flex items-start gap-2">
                     <button
                       onclick={() => copyNamespaceInfo(namespace)}
-                      class="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200"
+                      class="rounded-lg p-2 focus:outline-none focus:ring-2 ui-hover ui-muted"
                       title="Copy namespace information"
                       aria-label="Copy namespace information"
                     >
                       {#if copiedNamespaceId === namespace.namespace_id}
                         <svg
-                          class="h-5 w-5 text-green-600 dark:text-green-400"
+                          class="h-5 w-5 ui-text-success"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -695,11 +695,11 @@ In-Memory Status:
                     </button>
                     <div class="text-right">
                       <div
-                        class="text-2xl font-bold text-blue-600 dark:text-blue-400"
+                        class="text-2xl font-bold ui-link"
                       >
                         {namespace.key_count?.toLocaleString() ?? "—"}
                       </div>
-                      <div class="text-xs text-gray-600 dark:text-gray-400">
+                      <div class="text-xs ui-muted">
                         keys
                       </div>
                     </div>
@@ -710,43 +710,43 @@ In-Memory Status:
                 >
                   <div>
                     <div
-                      class="text-sm font-medium text-gray-600 dark:text-gray-400"
+                      class="text-sm font-medium ui-muted"
                     >
                       Prefix
                     </div>
                     <div
-                      class="mt-1 font-mono text-sm text-gray-900 dark:text-gray-100"
+                      class="mt-1 font-mono text-sm ui-text"
                     >
                       {namespace.prefix || "N/A"}
                     </div>
                   </div>
                   <div>
                     <div
-                      class="text-sm font-medium text-gray-600 dark:text-gray-400"
+                      class="text-sm font-medium ui-muted"
                     >
                       Current Version
                     </div>
                     <div
-                      class="mt-1 font-mono text-sm text-gray-900 dark:text-gray-100"
+                      class="mt-1 font-mono text-sm ui-text"
                     >
                       {namespace.current_version || "N/A"}
                     </div>
                   </div>
                   <div>
                     <div
-                      class="text-sm font-medium text-gray-600 dark:text-gray-400"
+                      class="text-sm font-medium ui-muted"
                     >
                       Category
                     </div>
                     <div
-                      class="mt-1 font-mono text-sm text-gray-900 dark:text-gray-100"
+                      class="mt-1 font-mono text-sm ui-text"
                     >
                       {namespace.category || "N/A"}
                     </div>
                   </div>
                   <div>
                     <div
-                      class="text-sm font-medium text-gray-600 dark:text-gray-400"
+                      class="text-sm font-medium ui-muted"
                     >
                       Storage Location
                     </div>
@@ -755,14 +755,14 @@ In-Memory Status:
                         <span
                           class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium {namespace.storage_location.toLowerCase() ===
                           'redis'
-                            ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300'
+                            ? 'ui-tone-accent'
                             : namespace.storage_location.toLowerCase() ===
                                 'memory'
-                              ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
+                              ? 'ui-tone-info'
                               : namespace.storage_location.toLowerCase() ===
                                   'both'
-                                ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-                                : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'}"
+                                ? 'ui-tone-success'
+                                : 'ui-panel ui-text'}"
                         >
                           {#if namespace.storage_location.toLowerCase() === "redis"}
                             <svg
@@ -810,7 +810,7 @@ In-Memory Status:
                           {namespace.storage_location}
                         </span>
                       {:else}
-                        <span class="text-sm text-gray-500 dark:text-gray-400"
+                        <span class="text-sm ui-muted"
                           >N/A</span
                         >
                       {/if}
@@ -818,12 +818,12 @@ In-Memory Status:
                   </div>
                   <div>
                     <div
-                      class="text-sm font-medium text-gray-600 dark:text-gray-400"
+                      class="text-sm font-medium ui-muted"
                     >
                       TTL Info
                     </div>
                     <div
-                      class="mt-1 font-mono text-sm text-gray-900 dark:text-gray-100"
+                      class="mt-1 font-mono text-sm ui-text"
                     >
                       {namespace.ttl_info || "TTL info NOT FOUND"}
                     </div>
@@ -834,7 +834,7 @@ In-Memory Status:
                     onclick={() => invalidateCache(namespace.namespace_id)}
                     disabled={invalidatingNamespaceId ===
                       namespace.namespace_id}
-                    class="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-red-500 dark:hover:bg-red-600"
+                    class="rounded-lg px-4 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 preset-filled-error-500"
                     title="Invalidate namespace cache"
                     aria-label="Invalidate namespace cache"
                   >
@@ -847,8 +847,8 @@ In-Memory Status:
             {/each}
           </div>
         {:else}
-          <div class="rounded-lg bg-gray-100 p-8 text-center dark:bg-gray-800">
-            <p class="text-lg font-medium text-gray-700 dark:text-gray-300">
+          <div class="rounded-lg p-8 text-center ui-panel">
+            <p class="text-lg font-medium ui-muted">
               No cache namespaces found
             </p>
           </div>

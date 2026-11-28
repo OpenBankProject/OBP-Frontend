@@ -77,11 +77,11 @@
 </script>
 
 <div
-	class="card preset-filled-primary-100-900 border-primary-200-800 divide-primary-200-800 mx-auto my-10 flex max-w-md flex-col divide-y border-[1px] shadow-lg sm:max-w-2xl lg:max-w-3xl"
+	class="card ui-panel ui-border mx-auto my-10 flex max-w-md flex-col divide-y border-[1px] shadow-lg sm:max-w-2xl lg:max-w-3xl"
 >
 	<header class="py-4">
 		<h1 class="h4 text-center">User Registration Success</h1>
-		<p class="text-center mt-2 text-sm text-surface-700-300">
+		<p class="text-center mt-2 text-sm ui-muted">
 			Please check your email to validate your email address.
 		</p>
 	</header>
@@ -89,7 +89,7 @@
 		{#if userData.username}
 			<h2 class="h3 text-center mb-4">{userData.username}</h2>
 		{/if}
-        <div class="preset-filled-primary-50-950 shadow-md rounded-lg p-4 m-1.5 relative">
+        <div class="ui-card shadow-md rounded-lg p-4 m-1.5 relative">
             <button
                 class="absolute top-4 right-4 btn btn-sm preset-filled-primary-500"
                 onclick={clickToCopy}
@@ -111,11 +111,11 @@
                         <!-- Skip empty fields -->
                     {:else if key === 'created_by_user'}
                     <li>
-                        <strong class="text-tertiary-400">{formatFieldName(key)}:</strong> {JSON.stringify(value)}
+                        <strong class="ui-link">{formatFieldName(key)}:</strong> {JSON.stringify(value)}
                     </li>
                     {:else}
                     <li>
-                        <strong class="text-tertiary-400">{formatFieldName(key)}:</strong> {value}
+                        <strong class="ui-link">{formatFieldName(key)}:</strong> {value}
                     </li>
                     {/if}
                 {/each}

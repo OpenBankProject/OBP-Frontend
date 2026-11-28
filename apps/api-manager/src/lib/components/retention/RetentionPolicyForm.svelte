@@ -37,8 +37,8 @@
   // svelte-ignore state_referenced_locally
   let dateBasis = $state<string>(policy?.date_basis?.startsWith("field:") ? "field:" : (policy?.date_basis ?? DATE_BASES[policy?.resource_type ?? "dynamic_entity_record"][0]));
   const bases = $derived(DATE_BASES[type]);
-  const input = "w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100";
-  const label = "block text-sm font-medium text-gray-700 dark:text-gray-300";
+  const input = "w-full rounded-lg border px-3 py-2 text-sm ui-card ui-text ui-border";
+  const label = "block text-sm font-medium ui-muted";
 
   function chooseType(e: Event) {
     type = (e.currentTarget as HTMLSelectElement).value as ResourceType;
@@ -59,7 +59,7 @@
   <div>
     <label class={label} for="resource_type">Resources</label>
     {#if policy}
-      <p class="py-2 text-sm text-gray-900 dark:text-gray-100">{RESOURCE_LABELS[policy.resource_type]}{policy.entity_name ? `: ${policy.entity_name}` : ""}</p>
+      <p class="py-2 text-sm ui-text">{RESOURCE_LABELS[policy.resource_type]}{policy.entity_name ? `: ${policy.entity_name}` : ""}</p>
     {:else}
       <select id="resource_type" name="resource_type" class={input} value={type} onchange={chooseType} data-testid="resource-type">
         {#each RESOURCE_TYPES as r (r)}<option value={r}>{RESOURCE_LABELS[r]}</option>{/each}
@@ -112,9 +112,9 @@
     </div>
   {/if}
 </div>
-<div class="mt-4 flex flex-col gap-2 text-sm text-gray-700 dark:text-gray-300">
+<div class="mt-4 flex flex-col gap-2 text-sm ui-muted">
   <label class="flex items-center gap-2"><input type="checkbox" name="cascade" checked={policy?.cascade ?? false} /> With attached files and links (each takes the same action)</label>
   <label class="flex items-center gap-2"><input type="checkbox" name="requires_approval" checked={policy?.requires_approval ?? true} /> A run needs approval by a second person</label>
   <label class="flex items-center gap-2"><input type="checkbox" name="enabled" checked={policy?.enabled ?? false} /> The scheduler runs it (a manual run is always possible)</label>
 </div>
-<button type="submit" class="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white dark:bg-blue-500" data-testid="policy-submit">{submitLabel}</button>
+<button type="submit" class="mt-4 rounded-lg px-4 py-2 text-sm font-medium preset-filled-primary-500" data-testid="policy-submit">{submitLabel}</button>

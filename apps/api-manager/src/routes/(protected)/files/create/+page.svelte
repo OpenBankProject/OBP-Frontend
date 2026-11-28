@@ -76,12 +76,12 @@
 
 <div class="container mx-auto max-w-3xl px-4 py-8">
   <div class="mb-6">
-    <a href="/files" class="text-sm text-blue-600 hover:underline dark:text-blue-400">← Files</a>
-    <h1 class="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100">Create File</h1>
+    <a href="/files" class="text-sm hover:underline ui-link">← Files</a>
+    <h1 class="mt-2 text-3xl font-bold ui-text">Create File</h1>
   </div>
 
   {#if !bankId}
-    <div class="mb-6 rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300" data-testid="no-bank">
+    <div class="mb-6 rounded-lg border p-4 text-sm ui-card ui-muted ui-border" data-testid="no-bank">
       Select a bank using the bank selector to store a file in it.
     </div>
   {:else}
@@ -93,31 +93,31 @@
       ]}
     />
 
-    <form onsubmit={createFile} class="space-y-5 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800" data-testid="create-file-form">
+    <form onsubmit={createFile} class="space-y-5 rounded-lg border p-6 shadow-sm ui-card ui-border" data-testid="create-file-form">
       <div>
-        <label for="file" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">File</label>
+        <label for="file" class="mb-1 block text-sm font-medium ui-muted">File</label>
         <input
           id="file"
           type="file"
           required
           onchange={chooseFile}
-          class="block w-full cursor-pointer rounded-lg border-2 border-dashed border-gray-300 p-4 text-sm text-gray-700 hover:border-blue-400 dark:border-gray-600 dark:text-gray-300 dark:hover:border-blue-500 file:mr-4 file:cursor-pointer file:rounded-lg file:border-0 file:bg-blue-600 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-blue-700 dark:file:bg-blue-500 dark:hover:file:bg-blue-600"
+          class="block w-full cursor-pointer rounded-lg border-2 border-dashed p-4 text-sm file:mr-4 file:cursor-pointer file:rounded-lg file:border-0 file:px-4 file:py-2 file:text-sm file:font-medium ui-muted ui-border ui-hover"
           data-testid="file-input"
         />
       </div>
 
-      <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+      <label class="flex items-center gap-2 text-sm ui-muted">
         <input type="checkbox" bind:checked={isPublic} data-testid="is-public" />
         Public: anyone may read it without logging in
       </label>
 
-      <p class="text-sm text-gray-600 dark:text-gray-400">Stored in <span class="font-mono">{bankId}</span>.</p>
+      <p class="text-sm ui-muted">Stored in <span class="font-mono">{bankId}</span>.</p>
 
       {#if saveError}
-        <div class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300" data-testid="save-error">{saveError}</div>
+        <div class="rounded-lg border p-4 text-sm ui-tone-error" data-testid="save-error">{saveError}</div>
       {/if}
 
-      <button type="submit" disabled={saving} class="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600" data-testid="create-button">
+      <button type="submit" disabled={saving} class="inline-flex items-center gap-1 rounded-lg px-4 py-2 text-sm font-medium disabled:opacity-50 preset-filled-primary-500" data-testid="create-button">
         {saving ? "Storing…" : "Create File"}
       </button>
     </form>

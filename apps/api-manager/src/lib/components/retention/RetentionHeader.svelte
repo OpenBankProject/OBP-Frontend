@@ -48,24 +48,24 @@
 
 <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
   <div class="max-w-3xl">
-    <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">{title}</h1>
-    <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">{intro}</p>
+    <h1 class="text-3xl font-bold ui-text">{title}</h1>
+    <p class="mt-1 text-sm ui-muted">{intro}</p>
   </div>
   <div class="flex items-center gap-2">
-    <label for="space" class="text-sm text-gray-700 dark:text-gray-300">Space</label>
-    <select id="space" value={bankId} onchange={chooseSpace} class="rounded-lg border border-gray-300 bg-white px-3 py-2 font-mono text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" data-testid="space-select">
+    <label for="space" class="text-sm ui-muted">Space</label>
+    <select id="space" value={bankId} onchange={chooseSpace} class="rounded-lg border px-3 py-2 font-mono text-sm ui-card ui-text ui-border" data-testid="space-select">
       {#each spaces as s (s)}<option value={s}>{s}</option>{/each}
     </select>
   </div>
 </div>
 
-<nav aria-label="Data retention" class="mb-6 flex flex-wrap gap-2 border-b border-gray-200 pb-2 dark:border-gray-700">
+<nav aria-label="Data retention" class="mb-6 flex flex-wrap gap-2 border-b pb-2 ui-border">
   {#each tabs as tab (tab.href)}
     {@const active = tab.href === "/retention" ? current === "/retention" || /^\/retention\/[^/]+\/[^/]+$/.test(current) : current.startsWith(tab.href)}
     <a
       href="{tab.href}?bank_id={encodeURIComponent(bankId)}"
       aria-current={active ? "page" : undefined}
-      class="rounded-lg px-3 py-1.5 text-sm font-medium {active ? 'bg-blue-600 text-white dark:bg-blue-500' : 'text-gray-700 dark:text-gray-300'}"
+      class="rounded-lg px-3 py-1.5 text-sm font-medium {active ? 'preset-filled-primary-500' : 'ui-muted'}"
       data-testid="retention-tab-{tab.label.toLowerCase().replace(' ', '-')}">{tab.label}</a>
   {/each}
 </nav>

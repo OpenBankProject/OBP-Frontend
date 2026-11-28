@@ -100,12 +100,12 @@
 <div class="container mx-auto max-w-7xl px-4 py-8">
   <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
     <div>
-      <a href="/integration/method-routings" class="mb-4 inline-flex items-center text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">← Back to Method Routings</a>
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Edit Method Routing</h1>
-      <p class="mt-1 text-gray-600 dark:text-gray-400">{initial ? `${initial.method_name} → ${initial.connector_name}` : ""} <code class="text-xs">{data.methodRoutingId}</code></p>
+      <a href="/integration/method-routings" class="mb-4 inline-flex items-center text-sm ui-link">← Back to Method Routings</a>
+      <h1 class="text-3xl font-bold ui-text">Edit Method Routing</h1>
+      <p class="mt-1 ui-muted">{initial ? `${initial.method_name} → ${initial.connector_name}` : ""} <code class="text-xs">{data.methodRoutingId}</code></p>
     </div>
     {#if initial}
-      <button type="button" class="inline-flex items-center gap-1 rounded-lg border border-red-300 px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-50 disabled:opacity-60 dark:border-red-700 dark:text-red-300 dark:hover:bg-red-900/20" disabled={deleting} onclick={handleDelete} data-testid="method-routing-delete">
+      <button type="button" class="inline-flex items-center gap-1 rounded-lg border px-3 py-2 text-sm font-medium disabled:opacity-60 ui-tone-error" disabled={deleting} onclick={handleDelete} data-testid="method-routing-delete">
         <Trash2 class="h-4 w-4" /> {deleting ? "Deleting…" : "Delete routing"}
       </button>
     {/if}
@@ -113,18 +113,18 @@
 
   <ResizableSplit breakpoint="lg">
     {#snippet main()}
-    <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-      {#if loadError}<p class="mb-4 text-sm text-red-700 dark:text-red-300">{loadError}</p>{/if}
+    <div class="rounded-lg border p-6 shadow-sm ui-card ui-border">
+      {#if loadError}<p class="mb-4 text-sm ui-text-error">{loadError}</p>{/if}
       {#if initial}
         <MethodRoutingForm {initial} {methodNames} {connectorNames} {bankIds} {listsLoading} submitLabel="Save changes" cancelHref="/integration/method-routings" onSubmit={handleSubmit} />
       {:else if !loadError}
-        <p class="text-sm text-gray-500 dark:text-gray-400">Loading…</p>
+        <p class="text-sm ui-muted">Loading…</p>
       {/if}
     </div>
     {/snippet}
 
     {#snippet side()}
-      <div class="h-[36rem] w-full overflow-hidden rounded-lg border border-gray-200 shadow-sm lg:h-[calc(100vh-80px-3rem)] dark:border-gray-700">
+      <div class="h-[36rem] w-full overflow-hidden rounded-lg border shadow-sm lg:h-[calc(100vh-80px-3rem)] ui-border">
         <OpeyChat {opeyChatOptions} userAuthenticated={!!page.data.userId} {clientTools} {clientContext} />
       </div>
     {/snippet}

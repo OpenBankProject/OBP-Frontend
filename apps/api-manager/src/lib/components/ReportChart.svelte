@@ -140,7 +140,7 @@
       <div class="viz-donut" data-testid="{chartId}-donut">
         <svg viewBox="-{DONUT_R + 8} -{DONUT_R + 8} {(DONUT_R + 8) * 2} {(DONUT_R + 8) * 2}" class="viz-donut-svg" role="img" aria-label={spec.title ?? `share of ${data.series[0]?.name} by ${spec.x}`} onmouseleave={() => (hover = null)}>
           {#each donut as sl, i (sl.name)}
-            <path d={sl.path} class="viz-bar" class:viz-bar-hover={hover?.ci === i} style="fill: var(--series-{i + 1})" onmouseenter={() => (hover = { ci: i, si: 0 })} role="presentation" />
+            <path d={sl.path} class="viz-bar" class:viz-bar-hover={hover?.ci === i} style="fill: var(--ui-chart-{i + 1})" onmouseenter={() => (hover = { ci: i, si: 0 })} role="presentation" />
             {#if sl.pct >= 0.05}
               <text x={sl.lx} y={sl.ly} class="viz-slice-label" text-anchor="middle" dominant-baseline="middle">{pct.format(sl.pct)}</text>
             {/if}
@@ -151,7 +151,7 @@
         <ul class="viz-legend viz-legend-col" aria-label="Slices">
           {#each donut as sl, i (sl.name)}
             <li class:viz-legend-hover={hover?.ci === i} onmouseenter={() => (hover = { ci: i, si: 0 })} onmouseleave={() => (hover = null)}>
-              <span class="viz-swatch" style="background: var(--series-{i + 1})"></span>
+              <span class="viz-swatch" style="background: var(--ui-chart-{i + 1})"></span>
               <span class="viz-legend-name">{sl.name}</span>
               <span class="viz-legend-value">{fmt.format(sl.value)} · {pct.format(sl.pct)}</span>
             </li>
@@ -162,7 +162,7 @@
     {#if data.series.length >= 2}
       <ul class="viz-legend" aria-label="Series">
         {#each data.series as s, si (s.name)}
-          <li><span class="viz-swatch" style="background: var(--series-{si + 1})"></span>{s.name}</li>
+          <li><span class="viz-swatch" style="background: var(--ui-chart-{si + 1})"></span>{s.name}</li>
         {/each}
       </ul>
     {/if}
@@ -204,10 +204,10 @@
         <!-- marks -->
         {#if type === "line"}
           {#each data.series as s, si (s.name)}
-            <path d={linePath(s.values)} class="viz-line" style="stroke: var(--series-{si + 1})" />
+            <path d={linePath(s.values)} class="viz-line" style="stroke: var(--ui-chart-{si + 1})" />
             {#each s.values as v, ci (ci)}
               {#if v !== null}
-                <circle cx={point(String(ci))} cy={value(v)} r={hover?.ci === ci && hover?.si === si ? 6 : 4} class="viz-dot" style="fill: var(--series-{si + 1})" />
+                <circle cx={point(String(ci))} cy={value(v)} r={hover?.ci === ci && hover?.si === si ? 6 : 4} class="viz-dot" style="fill: var(--ui-chart-{si + 1})" />
                 <rect x={(point(String(ci)) ?? 0) - Math.max(8, point.step() / 2)} y={0} width={Math.max(16, point.step())} height={innerH} class="viz-hit" onmouseenter={() => (hover = { ci, si })} role="presentation" />
               {/if}
             {/each}
@@ -230,7 +230,7 @@
                     x={value(v0) + (stacked && si > 0 ? GAP : 0)} y={along} width={len} height={barThickness}
                     rx={stacked && si < data.series.length - 1 ? 0 : 4}
                     class="viz-bar" class:viz-bar-hover={hover?.ci === ci && hover?.si === si}
-                    style="fill: var(--series-{si + 1})"
+                    style="fill: var(--ui-chart-{si + 1})"
                     onmouseenter={() => (hover = { ci, si })} role="presentation"
                   />
                   {#if si === 0 && ci === peak && !stacked}
@@ -241,7 +241,7 @@
                     x={along} y={value(v1)} width={barThickness} height={len}
                     rx={stacked && si < data.series.length - 1 ? 0 : 4}
                     class="viz-bar" class:viz-bar-hover={hover?.ci === ci && hover?.si === si}
-                    style="fill: var(--series-{si + 1})"
+                    style="fill: var(--ui-chart-{si + 1})"
                     onmouseenter={() => (hover = { ci, si })} role="presentation"
                   />
                   {#if si === 0 && ci === peak && !stacked}
@@ -273,40 +273,16 @@
 </figure>
 
 <style>
-  /* Reference palette from the data-viz method, validated for both surfaces (2026-09-07). */
+  /* Colours come from the named styles; the series palette is --ui-chart-1 to --ui-chart-8 in packages/shared/styles.css. */
   .viz-root {
-    --surface-1: #ffffff;
-    --text-primary: #111827;
-    --text-secondary: #4b5563;
-    --text-muted: #6b7280;
-    --grid: #e5e7eb;
-    --axis: #c3c2b7;
-    --series-1: #2a78d6;
-    --series-2: #eb6834;
-    --series-3: #1baf7a;
-    --series-4: #eda100;
-    --series-5: #e87ba4;
-    --series-6: #008300;
-    --series-7: #4a3aa7;
-    --series-8: #e34948;
+    --surface-1: var(--ui-card);
+    --text-primary: var(--ui-text);
+    --text-secondary: var(--ui-muted);
+    --text-muted: var(--ui-muted);
+    --grid: var(--ui-border);
+    --axis: var(--ui-muted);
     margin: 0;
     font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-  }
-  :global([data-mode="dark"]) .viz-root {
-    --surface-1: #1f2937;
-    --text-primary: #f9fafb;
-    --text-secondary: #d1d5db;
-    --text-muted: #9ca3af;
-    --grid: #374151;
-    --axis: #4b5563;
-    --series-1: #3987e5;
-    --series-2: #d95926;
-    --series-3: #199e70;
-    --series-4: #c98500;
-    --series-5: #d55181;
-    --series-6: #008300;
-    --series-7: #9085e9;
-    --series-8: #e66767;
   }
   .viz-title { font-size: 0.875rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.25rem; }
   .viz-problem, .viz-note { font-size: 0.75rem; color: var(--text-muted); }
@@ -325,7 +301,7 @@
   .viz-hit { fill: transparent; }
   .viz-donut { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 1rem; align-items: center; }
   .viz-donut-svg { width: 240px; height: 240px; background: var(--surface-1); }
-  .viz-slice-label { font-size: 11px; font-weight: 600; fill: #ffffff; paint-order: stroke; stroke: rgba(0, 0, 0, 0.35); stroke-width: 2px; }
+  .viz-slice-label { font-size: 11px; font-weight: 600; fill: var(--ui-chart-label); paint-order: stroke; stroke: var(--ui-chart-label-halo); stroke-width: 2px; }
   .viz-total { font-size: 22px; font-weight: 600; fill: var(--text-primary); }
   .viz-legend-col { flex-direction: column; gap: 0.25rem; }
   .viz-legend-col li { display: grid; grid-template-columns: 10px minmax(0, 1fr) auto; gap: 0.5rem; align-items: center; padding: 0.125rem 0.25rem; border-radius: 4px; }

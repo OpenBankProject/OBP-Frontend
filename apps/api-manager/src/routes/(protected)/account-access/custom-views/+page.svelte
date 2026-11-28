@@ -49,20 +49,8 @@
     });
   });
 
-  // Palette cycles through a fixed set of distinct hues. Bank ids encountered
-  // in sorted order get assigned palette[0], palette[1], ... (wrapping).
-  const bankPalette = [
-    "#3b82f6", // blue
-    "#10b981", // emerald
-    "#f59e0b", // amber
-    "#ec4899", // pink
-    "#8b5cf6", // violet
-    "#14b8a6", // teal
-    "#ef4444", // red
-    "#6366f1", // indigo
-    "#f97316", // orange
-    "#22c55e", // green
-  ];
+  // Bank ids encountered in sorted order get the chart series 1, 2, ... (wrapping after 8).
+  const bankPalette = Array.from({ length: 8 }, (_, index) => `var(--ui-chart-${index + 1})`);
 
   const bankColors = $derived.by(() => {
     const map = new Map<string, string>();
@@ -78,7 +66,7 @@
   });
 
   function bankColor(bankId: string | undefined): string {
-    return bankColors.get(bankId || "") || "#9ca3af";
+    return bankColors.get(bankId || "") || "var(--ui-muted)";
   }
 </script>
 
@@ -209,23 +197,15 @@
   }
 
   .panel {
-    background: white;
+    background: var(--ui-card);
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     overflow: hidden;
   }
 
-  :global([data-mode="dark"]) .panel {
-    background: rgb(var(--color-surface-800));
-  }
-
   .panel-header {
     padding: 1.5rem;
-    border-bottom: 1px solid #e5e7eb;
-  }
-
-  :global([data-mode="dark"]) .panel-header {
-    border-bottom-color: rgb(var(--color-surface-700));
+    border-bottom: 1px solid var(--ui-border);
   }
 
   .header-content {
@@ -238,22 +218,14 @@
   .panel-title {
     font-size: 1.5rem;
     font-weight: 600;
-    color: #111827;
+    color: var(--ui-text);
     margin: 0;
-  }
-
-  :global([data-mode="dark"]) .panel-title {
-    color: var(--color-surface-100);
   }
 
   .panel-subtitle {
     font-size: 0.875rem;
-    color: #6b7280;
+    color: var(--ui-muted);
     margin-top: 0.5rem;
-  }
-
-  :global([data-mode="dark"]) .panel-subtitle {
-    color: var(--color-surface-400);
   }
 
   .header-actions {
@@ -266,8 +238,8 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.625rem 1.25rem;
-    background: #3b82f6;
-    color: white;
+    background: var(--ui-fill-main-bg);
+    color: var(--ui-fill-main-text);
     border: none;
     border-radius: 6px;
     font-size: 0.875rem;
@@ -279,7 +251,7 @@
   }
 
   .btn-create:hover {
-    background: #2563eb;
+    opacity: 0.85;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
     transform: translateY(-1px);
   }
@@ -289,14 +261,6 @@
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   }
 
-  :global([data-mode="dark"]) .btn-create {
-    background: rgb(var(--color-primary-600));
-  }
-
-  :global([data-mode="dark"]) .btn-create:hover {
-    background: rgb(var(--color-primary-500));
-  }
-
   .panel-content {
     padding: 2rem;
   }
@@ -304,80 +268,50 @@
   .error-message {
     margin-bottom: 1.5rem;
     padding: 1rem;
-    background: #fef2f2;
-    border: 1px solid #fecaca;
+    background: var(--ui-tone-error-bg);
+    border: 1px solid var(--ui-tone-error-border);
     border-radius: 6px;
-    color: #991b1b;
+    color: var(--ui-tone-error-text);
     font-size: 0.875rem;
-  }
-
-  :global([data-mode="dark"]) .error-message {
-    background: rgba(239, 68, 68, 0.1);
-    border-color: rgba(239, 68, 68, 0.3);
-    color: rgb(var(--color-error-200));
   }
 
   .empty-state {
     text-align: center;
     padding: 3rem;
-    color: #6b7280;
-  }
-
-  :global([data-mode="dark"]) .empty-state {
-    color: var(--color-surface-400);
+    color: var(--ui-muted);
   }
 
   .empty-icon {
     display: flex;
     justify-content: center;
     margin-bottom: 1rem;
-    color: #d1d5db;
-  }
-
-  :global([data-mode="dark"]) .empty-icon {
-    color: var(--color-surface-600);
+    color: var(--ui-muted);
   }
 
   .empty-title {
     font-size: 1.125rem;
     font-weight: 600;
-    color: #4a5568;
+    color: var(--ui-muted);
     margin: 0 0 0.5rem 0;
-  }
-
-  :global([data-mode="dark"]) .empty-title {
-    color: var(--color-surface-300);
   }
 
   .empty-description {
     margin: 0 0 1.5rem 0;
-    color: #6b7280;
-  }
-
-  :global([data-mode="dark"]) .empty-description {
-    color: var(--color-surface-400);
+    color: var(--ui-muted);
   }
 
   .debug-info {
     margin-top: 1rem;
     padding: 1rem;
-    background: #f3f4f6;
+    background: var(--ui-panel);
     border-radius: 6px;
     font-size: 0.75rem;
     text-align: left;
   }
 
-  :global([data-mode="dark"]) .debug-info {
-    background: rgb(var(--color-surface-800));
-  }
-
   .debug-info p {
     margin: 0.25rem 0;
-    color: #6b7280;
-  }
-
-  :global([data-mode="dark"]) .debug-info p {
-    color: var(--color-surface-400);
+    color: var(--ui-muted);
   }
 
   .search-bar {
@@ -390,18 +324,14 @@
     left: 1rem;
     top: 50%;
     transform: translateY(-50%);
-    color: #9ca3af;
+    color: var(--ui-muted);
     pointer-events: none;
-  }
-
-  :global([data-mode="dark"]) .search-bar :global(.search-icon) {
-    color: var(--color-surface-400);
   }
 
   .search-input {
     width: 100%;
     padding: 0.75rem 1rem 0.75rem 3rem;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--ui-border);
     border-radius: 6px;
     font-size: 0.875rem;
     transition: all 0.2s;
@@ -409,19 +339,8 @@
 
   .search-input:focus {
     outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
-
-  :global([data-mode="dark"]) .search-input {
-    background: rgb(var(--color-surface-700));
-    border-color: rgb(var(--color-surface-600));
-    color: var(--color-surface-100);
-  }
-
-  :global([data-mode="dark"]) .search-input:focus {
-    border-color: rgb(var(--color-primary-500));
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    border-color: var(--ui-link);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-link) 10%, transparent);
   }
 
   .stats {
@@ -433,37 +352,24 @@
 
   .stat-item {
     padding: 1rem;
-    background: #f9fafb;
+    background: var(--ui-card);
     border-radius: 6px;
-    border: 1px solid #e5e7eb;
-  }
-
-  :global([data-mode="dark"]) .stat-item {
-    background: rgb(var(--color-surface-900));
-    border-color: rgb(var(--color-surface-700));
+    border: 1px solid var(--ui-border);
   }
 
   .stat-label {
     font-size: 0.75rem;
-    color: #6b7280;
+    color: var(--ui-muted);
     margin-bottom: 0.25rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     font-weight: 600;
   }
 
-  :global([data-mode="dark"]) .stat-label {
-    color: var(--color-surface-400);
-  }
-
   .stat-value {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #111827;
-  }
-
-  :global([data-mode="dark"]) .stat-value {
-    color: var(--color-surface-100);
+    color: var(--ui-text);
   }
 
   .views-table {
@@ -473,50 +379,33 @@
   }
 
   .views-table thead {
-    border-bottom: 2px solid #e5e7eb;
-  }
-
-  :global([data-mode="dark"]) .views-table thead {
-    border-bottom-color: rgb(var(--color-surface-600));
+    border-bottom: 2px solid var(--ui-border);
   }
 
   .views-table th {
     text-align: left;
     padding: 0.5rem 0.75rem;
     font-weight: 600;
-    color: #6b7280;
+    color: var(--ui-muted);
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.03em;
     white-space: nowrap;
   }
 
-  :global([data-mode="dark"]) .views-table th {
-    color: var(--color-surface-400);
-  }
-
   .views-table td {
     padding: 0.5rem 0.75rem;
-    color: #374151;
-    border-bottom: 1px solid #f3f4f6;
+    color: var(--ui-text);
+    border-bottom: 1px solid var(--ui-border);
     vertical-align: top;
   }
 
-  :global([data-mode="dark"]) .views-table td {
-    color: var(--color-surface-200);
-    border-bottom-color: rgb(var(--color-surface-700));
-  }
-
   .views-table tbody tr:hover {
-    background: #f9fafb;
-  }
-
-  :global([data-mode="dark"]) .views-table tbody tr:hover {
-    background: rgb(var(--color-surface-900));
+    background: var(--ui-hover);
   }
 
   .view-link {
-    color: #2563eb;
+    color: var(--ui-link);
     text-decoration: none;
     font-weight: 500;
     white-space: nowrap;
@@ -524,10 +413,6 @@
 
   .view-link:hover {
     text-decoration: underline;
-  }
-
-  :global([data-mode="dark"]) .view-link {
-    color: rgb(var(--color-primary-400));
   }
 
   .cell-mono {

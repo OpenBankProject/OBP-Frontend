@@ -177,7 +177,7 @@
   <div class="mb-6">
     <a
       href="/dynamic-endpoints/system"
-      class="mb-4 inline-flex items-center text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+      class="mb-4 inline-flex items-center text-sm ui-link"
     >
       <svg
         class="mr-2 h-4 w-4"
@@ -198,10 +198,10 @@
     <!-- Header -->
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
+        <h1 class="text-3xl font-bold ui-text">
           {info.title}
         </h1>
-        <p class="mt-1 text-gray-600 dark:text-gray-400">
+        <p class="mt-1 ui-muted">
           System Dynamic Endpoint Details
         </p>
       </div>
@@ -210,7 +210,7 @@
           href="{apiExplorerUrl}/resource-docs/OBPv6.0.0?operationid=OBPv4.0.0-getDynamicEndpoint"
           target="_blank"
           rel="noopener noreferrer"
-          class="inline-flex items-center rounded-lg border border-purple-300 bg-purple-600 px-4 py-2 text-sm font-medium text-white hover:bg-purple-700 dark:border-purple-600 dark:bg-purple-500 dark:hover:bg-purple-600"
+          class="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-medium preset-filled-primary-500"
           title="Open in API Explorer"
         >
           <svg
@@ -234,69 +234,69 @@
 
   <!-- Endpoint Information Card -->
   <div
-    class="mb-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+    class="mb-6 rounded-lg border p-6 shadow-sm ui-card ui-border"
   >
-    <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
+    <h2 class="mb-4 text-lg font-semibold ui-text">
       Endpoint Information
     </h2>
     <dl class="grid grid-cols-1 gap-4 sm:grid-cols-2">
       <div>
-        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
+        <dt class="text-sm font-medium ui-muted">
           Endpoint ID
         </dt>
-        <dd class="mt-1 font-mono text-sm text-gray-900 dark:text-gray-100">
+        <dd class="mt-1 font-mono text-sm ui-text">
           {endpoint.dynamic_endpoint_id}
         </dd>
       </div>
       <div>
-        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
+        <dt class="text-sm font-medium ui-muted">
           User ID
         </dt>
-        <dd class="mt-1 font-mono text-sm text-gray-900 dark:text-gray-100">
+        <dd class="mt-1 font-mono text-sm ui-text">
           {endpoint.user_id}
         </dd>
       </div>
       <div>
-        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
+        <dt class="text-sm font-medium ui-muted">
           Title
         </dt>
-        <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">
+        <dd class="mt-1 text-sm ui-text">
           {info.title}
         </dd>
       </div>
       <div>
-        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
+        <dt class="text-sm font-medium ui-muted">
           Version
         </dt>
-        <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">
+        <dd class="mt-1 text-sm ui-text">
           {info.version}
         </dd>
       </div>
       <div>
-        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
+        <dt class="text-sm font-medium ui-muted">
           Host
         </dt>
         <dd class="mt-1 text-sm">
           <span
-            class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+            class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ui-tone-info"
           >
             {info.host}
           </span>
         </dd>
       </div>
       <div>
-        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
+        <dt class="text-sm font-medium ui-muted">
           Base Path
         </dt>
-        <dd class="mt-1 font-mono text-sm text-gray-900 dark:text-gray-100">
+        <dd class="mt-1 font-mono text-sm ui-text">
           {info.basePath}
         </dd>
       </div>
       <div class="sm:col-span-2">
-        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
+        <dt class="text-sm font-medium ui-muted">
           Description
         </dt>
-        <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">
+        <dd class="mt-1 text-sm ui-text">
           {info.description}
         </dd>
       </div>
@@ -305,19 +305,19 @@
 
   <!-- Update Host Section -->
   <div
-    class="mb-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+    class="mb-6 rounded-lg border p-6 shadow-sm ui-card ui-border"
   >
-    <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
+    <h2 class="mb-4 text-lg font-semibold ui-text">
       Update Host
     </h2>
-    <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">
+    <p class="mb-4 text-sm ui-muted">
       Change where this dynamic endpoint routes requests to.
     </p>
     <div class="flex flex-col gap-4 sm:flex-row sm:items-end">
       <div class="flex-1">
         <label
           for="host"
-          class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+          class="block text-sm font-medium ui-muted"
         >
           Host
         </label>
@@ -326,19 +326,19 @@
           id="host"
           bind:value={newHost}
           placeholder="obp_mock, dynamic_entity, or URL"
-          class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+          class="mt-1 block w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 ui-card ui-text ui-border"
         />
-        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-          Options: <code class="bg-gray-100 px-1 dark:bg-gray-700">obp_mock</code>,
-          <code class="bg-gray-100 px-1 dark:bg-gray-700">dynamic_entity</code>, or a URL like
-          <code class="bg-gray-100 px-1 dark:bg-gray-700">https://api.example.com</code>
+        <p class="mt-1 text-xs ui-muted">
+          Options: <code class="px-1 ui-panel">obp_mock</code>,
+          <code class="px-1 ui-panel">dynamic_entity</code>, or a URL like
+          <code class="px-1 ui-panel">https://api.example.com</code>
         </p>
       </div>
       <button
         type="button"
         onclick={updateHost}
         disabled={isUpdatingHost}
-        class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
+        class="inline-flex items-center rounded-lg px-4 py-2 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50 preset-filled-primary-500"
       >
         {#if isUpdatingHost}
           Updating...
@@ -348,12 +348,12 @@
       </button>
     </div>
     {#if hostUpdateError}
-      <div class="mt-2 text-sm text-red-600 dark:text-red-400">
+      <div class="mt-2 text-sm ui-text-error">
         {hostUpdateError}
       </div>
     {/if}
     {#if hostUpdateSuccess}
-      <div class="mt-2 flex items-center gap-1 text-sm text-green-600 dark:text-green-400">
+      <div class="mt-2 flex items-center gap-1 text-sm ui-text-success">
         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
         </svg>
@@ -369,20 +369,20 @@
 
   <!-- Raw Swagger View -->
   <div
-    class="mb-6 rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
+    class="mb-6 rounded-lg border shadow-sm ui-card ui-border"
   >
-    <div class="border-b border-gray-200 p-6 dark:border-gray-700">
-      <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+    <div class="border-b p-6 ui-border">
+      <h2 class="text-lg font-semibold ui-text">
         Raw Swagger Specification
       </h2>
-      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+      <p class="mt-1 text-sm ui-muted">
         Complete swagger specification in JSON format
       </p>
     </div>
     <div class="p-6">
       <pre
-        class="max-h-96 overflow-auto rounded-lg bg-gray-50 p-4 text-sm dark:bg-gray-900"><code
-          class="text-gray-900 dark:text-gray-100"
+        class="max-h-96 overflow-auto rounded-lg p-4 text-sm ui-card"><code
+          class="ui-text"
           >{JSON.stringify(swagger, null, 2)}</code
         ></pre>
     </div>
@@ -393,7 +393,7 @@
     <button
       type="button"
       onclick={exportDefinition}
-      class="inline-flex items-center rounded-lg border border-green-300 bg-white px-4 py-2 text-sm font-medium text-green-700 hover:bg-green-50 dark:border-green-600 dark:bg-gray-800 dark:text-green-400 dark:hover:bg-green-900/20"
+      class="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-medium ui-card ui-tone-success"
       title="Copy definition to clipboard"
     >
       {#if exportCopied}
@@ -431,7 +431,7 @@
     <button
       type="button"
       onclick={downloadDefinition}
-      class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+      class="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-medium ui-card ui-hover ui-muted ui-border"
       title="Download definition as JSON file"
     >
       <svg
@@ -452,7 +452,7 @@
     <button
       type="button"
       onclick={handleDelete}
-      class="inline-flex items-center rounded-lg border border-red-300 bg-white px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-50 dark:border-red-600 dark:bg-gray-800 dark:text-red-400 dark:hover:bg-red-900/20"
+      class="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-medium ui-card ui-tone-error"
     >
       <svg
         class="mr-2 h-4 w-4"

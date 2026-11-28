@@ -38,9 +38,9 @@
 <ol class="mt-6 flex flex-col gap-3" data-testid="conversation-messages">
 	{#each messages as m (m.id)}
 		<li
-			class="card max-w-3xl p-3 {m.role === 'user' ? 'preset-tonal-tertiary self-end' : 'preset-outlined-surface-200-800 self-start'}"
+			class="card max-w-3xl p-3 {m.role === 'user' ? 'ui-tone-info self-end' : 'border ui-border self-start'}"
 		>
-			<p class="text-xs text-surface-700-300">{m.role === 'user' ? t(locale, 'conversation_role_user') : t(locale, 'conversation_role_opey')} · {m.at}</p>
+			<p class="text-xs ui-muted">{m.role === 'user' ? t(locale, 'conversation_role_user') : t(locale, 'conversation_role_opey')} · {m.at}</p>
 			<p class="mt-1 whitespace-pre-wrap break-words">{m.text}</p>
 		</li>
 	{/each}

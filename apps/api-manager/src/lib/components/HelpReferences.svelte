@@ -76,10 +76,10 @@
     display: flex;
     flex-direction: column;
     gap: 0.375rem;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid var(--ui-border);
     padding-top: 0.75rem;
     font-size: 0.75rem;
-    color: #6b7280;
+    color: var(--ui-muted);
   }
 
   .row {
@@ -107,17 +107,8 @@
     display: inline-flex;
     align-items: center;
     gap: 0.2rem;
-    color: #2563eb;
+    color: var(--ui-link);
     text-decoration: underline;
     text-underline-offset: 2px;
-  }
-
-  :global([data-mode="dark"]) .references {
-    border-top-color: rgb(var(--color-surface-700));
-    color: var(--color-surface-400);
-  }
-
-  :global([data-mode="dark"]) .row-list a {
-    color: #60a5fa;
   }
 </style>

@@ -33,23 +33,23 @@
 </svelte:head>
 
 <div class="container mx-auto max-w-7xl px-4 py-8">
-  <nav class="mb-6 text-sm text-gray-600 dark:text-gray-400" aria-label="Breadcrumb">
+  <nav class="mb-6 text-sm ui-muted" aria-label="Breadcrumb">
     <a href="/system/rate-limiting" class="hover:underline">Rate Limiting</a>
     <span class="mx-2" aria-hidden="true">&gt;</span>
-    <span class="text-gray-900 dark:text-gray-100">Help</span>
+    <span class="ui-text">Help</span>
   </nav>
 
   <div class="mb-6 flex items-center gap-3">
-    <CircleHelp size={32} class="text-blue-600 dark:text-blue-400" />
+    <CircleHelp size={32} class="ui-link" />
     <div>
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Rate Limiting Help</h1>
-      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Which limiter a 429 came from, and what each one counts.</p>
+      <h1 class="text-3xl font-bold ui-text">Rate Limiting Help</h1>
+      <p class="mt-1 text-sm ui-muted">Which limiter a 429 came from, and what each one counts.</p>
     </div>
   </div>
 
   {#if data.warnings.length > 0}
     <div
-      class="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-200"
+      class="mb-6 rounded-lg border p-4 text-sm ui-tone-warning"
       data-testid="rate-limiting-help-warnings"
     >
       <ul class="list-disc pl-5">{#each data.warnings as w}<li>{w}</li>{/each}</ul>
@@ -57,11 +57,11 @@
   {/if}
 
   <section
-    class="mb-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+    class="mb-6 rounded-lg border p-6 shadow-sm ui-card ui-border"
     data-testid="rate-limiting-help-summary"
   >
-    <h2 class="mb-3 text-xl font-semibold text-gray-900 dark:text-gray-100">In short</h2>
-    <ul class="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+    <h2 class="mb-3 text-xl font-semibold ui-text">In short</h2>
+    <ul class="space-y-2 text-sm ui-muted">
       <li>
         <strong>Self-service</strong> is checked first, before login, by client IP address, on the endpoints anyone
         can call: sign-up, password reset, consent requests, consumer registration, lookups, channel creation.
@@ -84,10 +84,10 @@
   </section>
 
   <section
-    class="mb-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+    class="mb-6 rounded-lg border p-6 shadow-sm ui-card ui-border"
     data-testid="rate-limiting-help-glossary"
   >
-    <h2 class="mb-3 text-xl font-semibold text-gray-900 dark:text-gray-100">From the OBP glossary</h2>
+    <h2 class="mb-3 text-xl font-semibold ui-text">From the OBP glossary</h2>
     <GlossaryEntry
       html={data.glossary.html}
       testid="rate-limiting-glossary-entry"

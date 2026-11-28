@@ -228,55 +228,35 @@
   }
 
   .breadcrumb-link {
-    color: #3b82f6;
+    color: var(--ui-link);
     text-decoration: none;
     transition: color 0.2s;
   }
 
   .breadcrumb-link:hover {
-    color: #2563eb;
+    color: var(--ui-link-hover);
     text-decoration: underline;
   }
 
-  :global([data-mode="dark"]) .breadcrumb-link {
-    color: rgb(var(--color-primary-400));
-  }
-
   .breadcrumb-separator {
-    color: #9ca3af;
-  }
-
-  :global([data-mode="dark"]) .breadcrumb-separator {
-    color: var(--color-surface-500);
+    color: var(--ui-muted);
   }
 
   .breadcrumb-current {
-    color: #6b7280;
+    color: var(--ui-muted);
     font-weight: 500;
   }
 
-  :global([data-mode="dark"]) .breadcrumb-current {
-    color: var(--color-surface-400);
-  }
-
   .panel {
-    background: white;
+    background: var(--ui-card);
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     overflow: hidden;
   }
 
-  :global([data-mode="dark"]) .panel {
-    background: rgb(var(--color-surface-800));
-  }
-
   .panel-header {
     padding: 1.5rem;
-    border-bottom: 1px solid #e5e7eb;
-  }
-
-  :global([data-mode="dark"]) .panel-header {
-    border-bottom-color: rgb(var(--color-surface-700));
+    border-bottom: 1px solid var(--ui-border);
   }
 
   .panel-content {
@@ -301,12 +281,8 @@
   .role-title {
     font-size: 2rem;
     font-weight: 700;
-    color: #111827;
+    color: var(--ui-text);
     margin: 0 0 0.75rem 0;
-  }
-
-  :global([data-mode="dark"]) .role-title {
-    color: var(--color-surface-100);
   }
 
   .role-stats {
@@ -324,28 +300,16 @@
   .stat-number {
     font-size: 1.25rem;
     font-weight: 700;
-    color: #3b82f6;
-  }
-
-  :global([data-mode="dark"]) .stat-number {
-    color: rgb(var(--color-primary-400));
+    color: var(--ui-link);
   }
 
   .stat-label {
     font-size: 0.875rem;
-    color: #6b7280;
-  }
-
-  :global([data-mode="dark"]) .stat-label {
-    color: var(--color-surface-400);
+    color: var(--ui-muted);
   }
 
   .stat-separator {
-    color: #d1d5db;
-  }
-
-  :global([data-mode="dark"]) .stat-separator {
-    color: var(--color-surface-600);
+    color: var(--ui-muted);
   }
 
   .alert {
@@ -354,15 +318,9 @@
   }
 
   .alert-error {
-    background: #fee2e2;
-    color: #991b1b;
-    border: 1px solid #fecaca;
-  }
-
-  :global([data-mode="dark"]) .alert-error {
-    background: rgb(var(--color-error-900));
-    color: rgb(var(--color-error-200));
-    border-color: rgb(var(--color-error-800));
+    background: var(--ui-tone-error-bg);
+    color: var(--ui-tone-error-text);
+    border: 1px solid var(--ui-tone-error-border);
   }
 
   .grid-layout {
@@ -380,15 +338,11 @@
   .section-title {
     font-size: 1.25rem;
     font-weight: 600;
-    color: #111827;
+    color: var(--ui-text);
     margin: 0;
     display: flex;
     align-items: center;
     gap: 0.5rem;
-  }
-
-  :global([data-mode="dark"]) .section-title {
-    color: var(--color-surface-100);
   }
 
   .section-icon {
@@ -396,33 +350,23 @@
   }
 
   .section-count {
-    background: #f3f4f6;
-    color: #6b7280;
+    background: var(--ui-panel);
+    color: var(--ui-muted);
     padding: 0.25rem 0.75rem;
     border-radius: 9999px;
     font-size: 0.875rem;
     font-weight: 500;
   }
 
-  :global([data-mode="dark"]) .section-count {
-    background: rgb(var(--color-surface-700));
-    color: var(--color-surface-400);
-  }
-
   .empty-state,
   .empty-state-small {
     text-align: center;
     padding: 3rem;
-    color: #6b7280;
+    color: var(--ui-muted);
   }
 
   .empty-state-small {
     padding: 2rem;
-  }
-
-  :global([data-mode="dark"]) .empty-state,
-  :global([data-mode="dark"]) .empty-state-small {
-    color: var(--color-surface-400);
   }
 
   .empty-icon {
@@ -432,32 +376,20 @@
   }
 
   .empty-title {
-    color: #4a5568;
+    color: var(--ui-muted);
     margin-bottom: 0.5rem;
     font-size: 1.125rem;
     font-weight: 600;
   }
 
-  :global([data-mode="dark"]) .empty-title {
-    color: var(--color-surface-300);
-  }
-
   .empty-text {
-    color: #6b7280;
-  }
-
-  :global([data-mode="dark"]) .empty-text {
-    color: var(--color-surface-400);
+    color: var(--ui-muted);
   }
 
   .table-wrapper {
     overflow-x: auto;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--ui-border);
     border-radius: 0.5rem;
-  }
-
-  :global([data-mode="dark"]) .table-wrapper {
-    border-color: rgb(var(--color-surface-700));
   }
 
   .data-table {
@@ -470,35 +402,20 @@
     padding: 0.75rem 1rem;
     font-weight: 600;
     font-size: 0.875rem;
-    color: #374151;
-    background: #f9fafb;
-    border-bottom: 2px solid #e5e7eb;
-  }
-
-  :global([data-mode="dark"]) .data-table th {
-    color: var(--color-surface-300);
-    background: rgb(var(--color-surface-700));
-    border-bottom-color: rgb(var(--color-surface-600));
+    color: var(--ui-text);
+    background: var(--ui-card);
+    border-bottom: 2px solid var(--ui-border);
   }
 
   .data-table td {
     padding: 0.75rem 1rem;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--ui-border);
     font-size: 0.875rem;
-    color: #111827;
-  }
-
-  :global([data-mode="dark"]) .data-table td {
-    border-bottom-color: rgb(var(--color-surface-700));
-    color: var(--color-surface-100);
+    color: var(--ui-text);
   }
 
   .data-table tbody tr:hover {
-    background: #f9fafb;
-  }
-
-  :global([data-mode="dark"]) .data-table tbody tr:hover {
-    background: rgb(var(--color-surface-700));
+    background: var(--ui-hover);
   }
 
   .data-table tbody tr:last-child td {
@@ -513,41 +430,25 @@
   }
 
   .username-link {
-    color: #3b82f6;
+    color: var(--ui-link);
     text-decoration: none;
     transition: color 0.2s;
   }
 
   .username-link:hover {
-    color: #2563eb;
+    color: var(--ui-link-hover);
     text-decoration: underline;
   }
 
-  :global([data-mode="dark"]) .username-link {
-    color: rgb(var(--color-primary-400));
-  }
-
-  :global([data-mode="dark"]) .username-link:hover {
-    color: rgb(var(--color-primary-300));
-  }
-
   .entitlement-link {
-    color: #3b82f6;
+    color: var(--ui-link);
     text-decoration: none;
     transition: color 0.2s;
   }
 
   .entitlement-link:hover {
-    color: #2563eb;
+    color: var(--ui-link-hover);
     text-decoration: underline;
-  }
-
-  :global([data-mode="dark"]) .entitlement-link {
-    color: rgb(var(--color-primary-400));
-  }
-
-  :global([data-mode="dark"]) .entitlement-link:hover {
-    color: rgb(var(--color-primary-300));
   }
 
   .user-icon {
@@ -557,85 +458,57 @@
   .userid-cell {
     font-family: monospace;
     font-size: 0.75rem;
-    color: #6b7280;
-  }
-
-  :global([data-mode="dark"]) .userid-cell {
-    color: var(--color-surface-400);
+    color: var(--ui-muted);
   }
 
   .userid-cell code {
-    background: #f3f4f6;
+    background: var(--ui-panel);
     padding: 0.125rem 0.375rem;
     border-radius: 0.25rem;
-  }
-
-  :global([data-mode="dark"]) .userid-cell code {
-    background: rgb(var(--color-surface-700));
   }
 
   .bank-badge {
     display: inline-block;
     padding: 0.25rem 0.5rem;
-    background: #dbeafe;
-    color: #1e40af;
+    background: var(--ui-tone-info-bg);
+    color: var(--ui-tone-info-text);
     border-radius: 0.25rem;
     font-size: 0.75rem;
     font-weight: 500;
-  }
-
-  :global([data-mode="dark"]) .bank-badge {
-    background: rgba(59, 130, 246, 0.2);
-    color: rgb(147, 197, 253);
   }
 
   .system-badge {
     display: inline-block;
     padding: 0.25rem 0.5rem;
-    background: #f3f4f6;
-    color: #6b7280;
+    background: var(--ui-panel);
+    color: var(--ui-muted);
     border-radius: 0.25rem;
     font-size: 0.75rem;
     font-weight: 500;
   }
 
-  :global([data-mode="dark"]) .system-badge {
-    background: rgb(var(--color-surface-700));
-    color: var(--color-surface-300);
-  }
-
   .requires-bank-badge {
     display: inline-block;
     padding: 0.375rem 0.75rem;
-    background: #dbeafe;
-    color: #1e40af;
+    background: var(--ui-tone-info-bg);
+    color: var(--ui-tone-info-text);
     border-radius: 0.375rem;
     font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-  }
-
-  :global([data-mode="dark"]) .requires-bank-badge {
-    background: rgba(59, 130, 246, 0.2);
-    color: rgb(var(--color-primary-300));
   }
 
   .system-wide-badge {
     display: inline-block;
     padding: 0.375rem 0.75rem;
-    background: #f3f4f6;
-    color: #6b7280;
+    background: var(--ui-panel);
+    color: var(--ui-muted);
     border-radius: 0.375rem;
     font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-  }
-
-  :global([data-mode="dark"]) .system-wide-badge {
-    background: rgb(var(--color-surface-700));
-    color: var(--color-surface-300);
   }
 
   .actions-cell {
@@ -648,24 +521,15 @@
     align-items: center;
     justify-content: center;
     padding: 0.375rem;
-    color: #6b7280;
+    color: var(--ui-muted);
     border-radius: 0.25rem;
     transition: all 0.2s;
     text-decoration: none;
   }
 
   .delete-button:hover {
-    color: #dc2626;
-    background: #fee2e2;
-  }
-
-  :global([data-mode="dark"]) .delete-button {
-    color: var(--color-surface-400);
-  }
-
-  :global([data-mode="dark"]) .delete-button:hover {
-    color: rgb(var(--color-error-400));
-    background: rgb(var(--color-error-900));
+    color: var(--ui-tone-error-text);
+    background: var(--ui-tone-error-bg);
   }
 
   .endpoints-list {
@@ -675,23 +539,15 @@
   }
 
   .endpoint-card {
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--ui-border);
     border-radius: 0.5rem;
     overflow: hidden;
     transition: all 0.2s;
   }
 
   .endpoint-card:hover {
-    border-color: #d1d5db;
+    border-color: var(--ui-border);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  }
-
-  :global([data-mode="dark"]) .endpoint-card {
-    border-color: rgb(var(--color-surface-700));
-  }
-
-  :global([data-mode="dark"]) .endpoint-card:hover {
-    border-color: rgb(var(--color-surface-600));
   }
 
   .endpoint-header {
@@ -699,13 +555,8 @@
     align-items: center;
     gap: 1rem;
     padding: 0.75rem 1rem;
-    background: #f9fafb;
-    border-bottom: 1px solid #e5e7eb;
-  }
-
-  :global([data-mode="dark"]) .endpoint-header {
-    background: rgb(var(--color-surface-700));
-    border-bottom-color: rgb(var(--color-surface-600));
+    background: var(--ui-card);
+    border-bottom: 1px solid var(--ui-border);
   }
 
   .http-method {
@@ -720,73 +571,42 @@
   }
 
   .method-get {
-    background: #d1fae5;
-    color: #065f46;
+    background: var(--ui-tone-success-bg);
+    color: var(--ui-tone-success-text);
   }
 
   .method-post {
-    background: #dbeafe;
-    color: #1e40af;
+    background: var(--ui-tone-info-bg);
+    color: var(--ui-tone-info-text);
   }
 
   .method-put {
-    background: #fef3c7;
-    color: #92400e;
+    background: var(--ui-tone-warning-bg);
+    color: var(--ui-tone-warning-text);
   }
 
   .method-delete {
-    background: #fee2e2;
-    color: #991b1b;
+    background: var(--ui-tone-error-bg);
+    color: var(--ui-tone-error-text);
   }
 
   .method-patch {
-    background: #e0e7ff;
-    color: #3730a3;
-  }
-
-  :global([data-mode="dark"]) .method-get {
-    background: rgba(16, 185, 129, 0.2);
-    color: rgb(110, 231, 183);
-  }
-
-  :global([data-mode="dark"]) .method-post {
-    background: rgba(59, 130, 246, 0.2);
-    color: rgb(147, 197, 253);
-  }
-
-  :global([data-mode="dark"]) .method-put {
-    background: rgba(251, 191, 36, 0.2);
-    color: rgb(253, 224, 71);
-  }
-
-  :global([data-mode="dark"]) .method-delete {
-    background: rgba(239, 68, 68, 0.2);
-    color: rgb(252, 165, 165);
-  }
-
-  :global([data-mode="dark"]) .method-patch {
-    background: rgba(99, 102, 241, 0.2);
-    color: rgb(165, 180, 252);
+    background: var(--ui-tone-info-bg);
+    color: var(--ui-tone-info-text);
   }
 
   .endpoint-url {
     font-family: monospace;
     font-size: 0.8125rem;
-    color: #111827;
-    background: white;
+    color: var(--ui-text);
+    background: var(--ui-card);
     padding: 0.25rem 0.5rem;
     border-radius: 0.25rem;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--ui-border);
     flex: 1;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-  }
-
-  :global([data-mode="dark"]) .endpoint-url {
-    color: var(--color-surface-100);
-    background: rgb(var(--color-surface-800));
-    border-color: rgb(var(--color-surface-600));
   }
 
   .endpoint-body {
@@ -796,12 +616,8 @@
   .endpoint-title {
     font-size: 0.9375rem;
     font-weight: 600;
-    color: #111827;
+    color: var(--ui-text);
     margin: 0 0 0.5rem 0;
-  }
-
-  :global([data-mode="dark"]) .endpoint-title {
-    color: var(--color-surface-100);
   }
 
   .endpoint-meta {
@@ -813,37 +629,24 @@
 
   .meta-label {
     font-size: 0.75rem;
-    color: #6b7280;
+    color: var(--ui-muted);
     font-weight: 500;
-  }
-
-  :global([data-mode="dark"]) .meta-label {
-    color: var(--color-surface-400);
   }
 
   .operation-id {
     font-family: monospace;
     font-size: 0.75rem;
-    color: #3b82f6;
-    background: #eff6ff;
+    color: var(--ui-tone-info-text);
+    background: var(--ui-tone-info-bg);
     padding: 0.125rem 0.375rem;
     border-radius: 0.25rem;
   }
 
-  :global([data-mode="dark"]) .operation-id {
-    color: rgb(var(--color-primary-400));
-    background: rgba(59, 130, 246, 0.1);
-  }
-
   .endpoint-description {
     font-size: 0.875rem;
-    color: #6b7280;
+    color: var(--ui-muted);
     line-height: 1.5;
     margin: 0;
-  }
-
-  :global([data-mode="dark"]) .endpoint-description {
-    color: var(--color-surface-400);
   }
 
   .endpoint-description :global(h1),
@@ -853,38 +656,23 @@
     font-weight: 600;
     margin-top: 0.75rem;
     margin-bottom: 0.5rem;
-    color: #111827;
-  }
-
-  :global([data-mode="dark"]) .endpoint-description :global(h1),
-  :global([data-mode="dark"]) .endpoint-description :global(h2),
-  :global([data-mode="dark"]) .endpoint-description :global(h3),
-  :global([data-mode="dark"]) .endpoint-description :global(h4) {
-    color: var(--color-surface-100);
+    color: var(--ui-text);
   }
 
   .endpoint-description :global(code) {
-    background: #f3f4f6;
+    background: var(--ui-panel);
     padding: 0.125rem 0.25rem;
     border-radius: 0.25rem;
     font-size: 0.8125rem;
     font-family: monospace;
   }
 
-  :global([data-mode="dark"]) .endpoint-description :global(code) {
-    background: rgb(var(--color-surface-700));
-  }
-
   .endpoint-description :global(pre) {
-    background: #f9fafb;
+    background: var(--ui-card);
     padding: 0.75rem;
     border-radius: 0.375rem;
     overflow-x: auto;
     margin: 0.5rem 0;
-  }
-
-  :global([data-mode="dark"]) .endpoint-description :global(pre) {
-    background: rgb(var(--color-surface-700));
   }
 
   .endpoint-description :global(ul),
@@ -898,12 +686,8 @@
   }
 
   .endpoint-description :global(a) {
-    color: #3b82f6;
+    color: var(--ui-link);
     text-decoration: underline;
-  }
-
-  :global([data-mode="dark"]) .endpoint-description :global(a) {
-    color: rgb(var(--color-primary-400));
   }
 
   @media (max-width: 768px) {

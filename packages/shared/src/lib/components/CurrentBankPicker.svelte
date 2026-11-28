@@ -128,7 +128,7 @@
 				placeholder="Type bank id, code or name"
 				autocomplete="off"
 				spellcheck="false"
-				class="w-[28rem] max-w-[80vw] rounded-md border border-surface-300-700 bg-surface-100-900 px-2 py-1 text-sm"
+				class="w-[28rem] max-w-[80vw] rounded-md border px-2 py-1 text-sm ui-panel ui-border"
 				bind:value={query}
 				oninput={onInput}
 				onkeydown={onKeydown}
@@ -138,7 +138,7 @@
 				id={listboxId}
 				role="listbox"
 				aria-label="Banks"
-				class="absolute top-full start-0 z-50 mt-1 max-h-72 w-[36rem] max-w-[90vw] overflow-y-auto rounded-md border border-surface-300-700 bg-surface-100-900 py-1 text-sm shadow-lg"
+				class="absolute top-full start-0 z-50 mt-1 max-h-72 w-[36rem] max-w-[90vw] overflow-y-auto rounded-md border py-1 text-sm shadow-lg ui-panel ui-border"
 				data-testid="current-bank-options"
 			>
 				{#if filteredBanks.length === 0}
@@ -152,8 +152,8 @@
 							role="option"
 							aria-selected={bank.bank_id === store.bankId}
 							class="cursor-pointer px-3 py-1.5 {index === activeIndex
-								? 'bg-primary-500/20'
-								: 'hover:bg-surface-200-800'}"
+								? 'ui-tone-info'
+								: 'ui-hover'}"
 							data-testid="current-bank-option-{bank.bank_id}"
 							onpointerdown={(e) => {
 								// pointerdown, not click: selecting must win the race against the
@@ -181,7 +181,7 @@
 		{store.bank.full_name}: {store.bank.bank_id} ({store.bank.bank_code})
 		<button
 			type="button"
-			class="hover:text-tertiary-400"
+			class="ui-link"
 			onclick={openPicker}
 			aria-label="Change current bank"
 		>&#9998;</button>
@@ -189,7 +189,7 @@
 {:else}
 	<button
 		type="button"
-		class="text-sm opacity-70 hover:text-tertiary-400 hover:opacity-100"
+		class="text-sm opacity-70 hover:opacity-100 ui-link"
 		onclick={openPicker}
 		data-testid="current-bank-picker"
 	>Select Bank &#9998;</button>
@@ -198,16 +198,16 @@
 <style>
 	@keyframes bank-highlight {
 		0% {
-			color: #22c55e;
+			color: var(--ui-chart-3);
 		}
 		25% {
-			color: #3b82f6;
+			color: var(--ui-chart-1);
 		}
 		50% {
-			color: #a855f7;
+			color: var(--ui-chart-7);
 		}
 		75% {
-			color: #f59e0b;
+			color: var(--ui-chart-4);
 		}
 		100% {
 			color: inherit;

@@ -21,12 +21,12 @@
 	{#if username}
 		<span class="text-sm" data-testid="header-username">{username}</span>
 		<form method="POST" action="/logout">
-			<button type="submit" class="btn btn-sm preset-outlined-primary-500 gap-2" data-testid="logout">
+			<button type="submit" class="btn btn-sm preset-outlined-surface-500 gap-2" data-testid="logout">
 				<LogOut class="size-4 rtl:rotate-180" aria-hidden="true" />{t(locale, 'logout')}
 			</button>
 		</form>
 	{:else}
-		<a href="/login" class="btn btn-sm preset-filled-surface-950-50 gap-2" data-testid="login">
+		<a href="/login" class="btn btn-sm preset-filled-primary-500 gap-2" data-testid="login">
 			<LogIn class="size-4 rtl:rotate-180" aria-hidden="true" />{t(locale, 'login')}
 		</a>
 	{/if}

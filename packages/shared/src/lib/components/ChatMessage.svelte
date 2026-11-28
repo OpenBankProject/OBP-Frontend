@@ -117,7 +117,7 @@
 					title="Avatar for {userName}"
 				/>
 			{:else}
-				<Avatar class="h-7 w-7 border border-primary-500 bg-secondary-500 p-1">
+				<Avatar class="h-7 w-7 p-1 preset-filled-primary-500">
 					<Avatar.Image src="/images/opey-icon-white.png" alt="opey" />
 					<Avatar.Fallback>OP</Avatar.Fallback>
 				</Avatar>
@@ -137,7 +137,7 @@
 		aria-label="Chat message"
 	>
 		{#if message.role === 'user'}
-			<div class="relative max-w-full rounded-2xl preset-filled-tertiary-500 p-2 text-white">
+			<div class="relative max-w-full rounded-2xl p-2 ui-tone-info">
 				{message.message}
 			</div>
 
@@ -151,7 +151,7 @@
 						title={m.chat_regenerate()}
 						aria-label={m.chat_regenerate()}
 					>
-						<RotateCw class="h-4 w-4 text-surface-700 dark:text-surface-200" />
+						<RotateCw class="h-4 w-4 ui-muted" />
 					</button>
 				{/if}
 			</div>
@@ -160,7 +160,7 @@
 				<!-- Loading spinner while waiting for response -->
 				<div class="flex items-center gap-3 p-2">
 					<svg
-						class="animate-spin text-primary-500"
+						class="animate-spin ui-text-brand"
 						width="20"
 						height="20"
 						viewBox="0 0 24 24"
@@ -190,7 +190,7 @@
 					{@html renderMarkdown(message.message)}
 					{#if message.error}
 						<div class="mt-2">
-							<p class="text-sm text-error-500 dark:text-error-400">
+							<p class="text-sm ui-text-error">
 								{getErrorMessage(message.error)}
 							</p>
 						</div>
@@ -212,20 +212,20 @@
 				{onConsentDeny}
 			/>
 		{:else if message.role === 'error'}
-			<div class="max-w-full rounded-lg border border-error-300 bg-error-50 p-4 dark:border-error-700 dark:bg-error-950/30">
+			<div class="max-w-full rounded-lg border p-4 ui-tone-error">
 				<div class="flex items-start gap-3">
-					<AlertTriangle class="mt-0.5 h-5 w-5 flex-shrink-0 text-error-500" />
+					<AlertTriangle class="mt-0.5 h-5 w-5 flex-shrink-0 ui-text-error" />
 					<div class="flex-1">
-						<p class="text-sm font-medium text-error-700 dark:text-error-300">
+						<p class="text-sm font-medium ui-text-error">
 							{m.error_title()}
 						</p>
-						<p class="mt-1 text-sm text-error-600 dark:text-error-400 whitespace-pre-wrap break-words select-text">
+						<p class="mt-1 text-sm whitespace-pre-wrap break-words select-text ui-text-error">
 							{getErrorMessage(message.error || message.message)}
 						</p>
 						{#if onRetry}
 							<button
 								onclick={() => onRetry?.()}
-								class="mt-3 inline-flex items-center gap-1.5 rounded-md bg-error-100 px-3 py-1.5 text-sm font-medium text-error-700 transition-colors hover:bg-error-200 dark:bg-error-900/50 dark:text-error-300 dark:hover:bg-error-900/80"
+								class="mt-3 inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ui-tone-error"
 							>
 								<RotateCw class="h-3.5 w-3.5" />
 								{m.chat_retry()}
@@ -244,7 +244,7 @@
 		{#each foldedTools ?? [] as foldedTool (foldedTool.toolCallId)}
 			<button
 				type="button"
-				class="rounded-md px-2 text-lg leading-none text-surface-600-400 hover:bg-surface-200-800 hover:text-surface-950-50"
+				class="rounded-md px-2 text-lg leading-none ui-hover ui-muted"
 				title={m.chat_show_tool({ tool: foldedTool.toolName.replace(/_/g, ' ') })}
 				aria-label={m.chat_show_tool_call({ tool: foldedTool.toolName.replace(/_/g, ' ') })}
 				onclick={() => onUnfoldTool?.(foldedTool.toolCallId)}

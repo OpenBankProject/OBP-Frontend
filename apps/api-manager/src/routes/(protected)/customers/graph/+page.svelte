@@ -16,6 +16,8 @@
   along with this program. If not, see <https://www.gnu.org/licenses/>.
 -->
 <script lang="ts">
+  /** The chart series (--ui-chart-N) for each kind of node, matching the legend's colours. */
+  const NODE_SERIES = { customer: 7, account: 1, user: 2, transaction: 3 } as const;
   import { onMount } from "svelte";
   import { page } from "$app/state";
   import { Loader2, Landmark, Users } from "@lucide/svelte";
@@ -670,7 +672,7 @@
       .attr("orient", "auto")
       .append("path")
       .attr("d", "M0,-5L10,0L0,5")
-      .attr("fill", "#94a3b8");
+      .style("fill", "var(--ui-muted)");
 
     // Local copies for D3
     const localNodes = nodes.map((n) => ({ ...n }));
@@ -691,7 +693,7 @@
       .selectAll("line")
       .data(localLinks)
       .join("line")
-      .attr("stroke", "#94a3b8")
+      .style("stroke", "var(--ui-muted)")
       .attr("stroke-width", 1.5)
       .attr("marker-end", "url(#arrow)");
 
@@ -701,7 +703,7 @@
       .data(localLinks.filter((l) => l.label))
       .join("text")
       .attr("font-size", 9)
-      .attr("fill", "#94a3b8")
+      .style("fill", "var(--ui-muted)")
       .attr("text-anchor", "middle")
       .text((d) => d.label || "");
 
@@ -741,10 +743,9 @@
 
     const nodeRadius = (t: GraphNode["type"]) =>
       t === "customer" ? 24 : t === "account" ? 18 : t === "user" ? 16 : 12;
+    // Each kind of node is a chart series; the legend below uses the same numbers.
     const nodeFill = (t: GraphNode["type"]) =>
-      t === "customer" ? "#6366f1" : t === "account" ? "#0ea5e9" : t === "user" ? "#f97316" : "#22c55e";
-    const nodeStroke = (t: GraphNode["type"]) =>
-      t === "customer" ? "#4338ca" : t === "account" ? "#0284c7" : t === "user" ? "#c2410c" : "#16a34a";
+      `var(--ui-chart-${NODE_SERIES[t]})`;
     const nodeLetter = (t: GraphNode["type"]) =>
       t === "customer" ? "C" : t === "account" ? "A" : t === "user" ? "U" : "T";
     const nodeLabelDy = (t: GraphNode["type"]) =>
@@ -755,8 +756,8 @@
     // Node circles
     nodeGroup.append("circle")
       .attr("r", (d) => nodeRadius(d.type))
-      .attr("fill", (d) => nodeFill(d.type))
-      .attr("stroke", (d) => nodeStroke(d.type))
+      .style("fill", (d) => nodeFill(d.type))
+      .style("stroke", "var(--ui-card)")
       .attr("stroke-width", 2);
 
     // Node labels
@@ -773,7 +774,7 @@
       .attr("text-anchor", "middle")
       .attr("dy", "0.35em")
       .attr("font-size", (d) => nodeLetterSize(d.type))
-      .attr("fill", "white")
+      .style("fill", "var(--ui-chart-label)")
       .attr("pointer-events", "none")
       .text((d) => nodeLetter(d.type));
 
@@ -926,14 +927,9 @@
     align-items: center;
     gap: 1rem;
     padding: 0.75rem 1.5rem;
-    border-bottom: 1px solid #e5e7eb;
-    background: white;
+    border-bottom: 1px solid var(--ui-border);
+    background: var(--ui-card);
     flex-shrink: 0;
-  }
-
-  :global([data-mode="dark"]) .graph-toolbar {
-    background: rgb(var(--color-surface-800));
-    border-bottom-color: rgb(var(--color-surface-700));
   }
 
   .toolbar-title {
@@ -945,21 +941,17 @@
 
   .toolbar-hint {
     font-size: 0.813rem;
-    color: #6b7280;
-  }
-
-  :global([data-mode="dark"]) .toolbar-hint {
-    color: var(--color-surface-400);
+    color: var(--ui-muted);
   }
 
   .toolbar-error {
     font-size: 0.813rem;
-    color: #dc2626;
+    color: var(--ui-error);
   }
 
   .toolbar-select {
     padding: 0.375rem 0.625rem;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--ui-border);
     border-radius: 6px;
     font-size: 0.813rem;
     min-width: 250px;
@@ -967,14 +959,8 @@
 
   .toolbar-select:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
-  }
-
-  :global([data-mode="dark"]) .toolbar-select {
-    background: rgb(var(--color-surface-700));
-    border-color: rgb(var(--color-surface-600));
-    color: var(--color-surface-100);
+    border-color: var(--ui-link);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--ui-link) 10%, transparent);
   }
 
   .toolbar-legend {
@@ -983,11 +969,7 @@
     gap: 1rem;
     margin-left: auto;
     font-size: 0.75rem;
-    color: #6b7280;
-  }
-
-  :global([data-mode="dark"]) .toolbar-legend {
-    color: var(--color-surface-400);
+    color: var(--ui-muted);
   }
 
   .legend-item {
@@ -1003,10 +985,10 @@
     border-radius: 50%;
   }
 
-  .legend-dot.customer { background: #6366f1; }
-  .legend-dot.account { background: #0ea5e9; }
-  .legend-dot.user { background: #f97316; }
-  .legend-dot.transaction { background: #22c55e; }
+  .legend-dot.customer { background: var(--ui-chart-7); }
+  .legend-dot.account { background: var(--ui-chart-1); }
+  .legend-dot.user { background: var(--ui-chart-2); }
+  .legend-dot.transaction { background: var(--ui-chart-3); }
 
   .graph-container {
     flex: 1;
@@ -1027,11 +1009,7 @@
     justify-content: center;
     height: 100%;
     gap: 1rem;
-    color: #9ca3af;
-  }
-
-  :global([data-mode="dark"]) .graph-empty {
-    color: var(--color-surface-500);
+    color: var(--ui-muted);
   }
 
   .missing-role-wrap {
@@ -1041,30 +1019,18 @@
 
   .graph-error {
     padding: 0.75rem 1.5rem;
-    background: #fef2f2;
-    border-bottom: 1px solid #fca5a5;
+    background: var(--ui-tone-error-bg);
+    border-bottom: 1px solid var(--ui-tone-error-border);
     font-size: 0.813rem;
-    color: #991b1b;
-  }
-
-  :global([data-mode="dark"]) .graph-error {
-    background: rgba(220, 38, 38, 0.1);
-    border-bottom-color: rgba(220, 38, 38, 0.3);
-    color: rgb(var(--color-error-300));
+    color: var(--ui-tone-error-text);
   }
 
   .graph-warning {
     padding: 0.5rem 1.5rem;
-    background: #fffbeb;
-    border-bottom: 1px solid #fde68a;
+    background: var(--ui-tone-warning-bg);
+    border-bottom: 1px solid var(--ui-tone-warning-border);
     font-size: 0.75rem;
-    color: #92400e;
-  }
-
-  :global([data-mode="dark"]) .graph-warning {
-    background: rgba(245, 158, 11, 0.1);
-    border-bottom-color: rgba(245, 158, 11, 0.3);
-    color: rgb(var(--color-warning-300));
+    color: var(--ui-tone-warning-text);
   }
 
   .graph-toolbar :global(.spinner-icon) {

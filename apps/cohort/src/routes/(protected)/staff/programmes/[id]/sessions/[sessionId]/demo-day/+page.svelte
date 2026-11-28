@@ -22,10 +22,10 @@
 <p class="mt-1">{data.session.starts_at.replace('T', ' ')}{#if data.session.location} · {data.session.location}{/if}</p>
 <p class="mt-1"><a class="anchor" href="/demo-day/{data.session.id}" data-testid="demo-public-link">{t(locale, 'demo_public_page')}</a> · <span class="text-sm">{t(locale, 'demo_public_note')}</span></p>
 
-{#if form?.form === 'role' && form?.requested}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'access_requested_notice')}</p>{/if}
-{#if form?.error}<p class="mt-4 preset-tonal-error rounded p-3" role="alert">{ERRORS.includes(String(form.error)) ? t(locale, String(form.error) as MessageKey) : `${t(locale, 'staff_error')} ${String(form.error)}`}</p>{/if}
+{#if form?.form === 'role' && form?.requested}<p class="mt-4 ui-tone-success rounded p-3" role="status">{t(locale, 'access_requested_notice')}</p>{/if}
+{#if form?.error}<p class="mt-4 ui-tone-error rounded p-3" role="alert">{ERRORS.includes(String(form.error)) ? t(locale, String(form.error) as MessageKey) : `${t(locale, 'staff_error')} ${String(form.error)}`}</p>{/if}
 
-<section class="card preset-outlined-surface-200-800 mt-6 p-4" data-testid="demo-slots">
+<section class="card border ui-border mt-6 p-4" data-testid="demo-slots">
 	<h2 class="h4">{t(locale, 'demo_running_order')}</h2>
 	{#if data.slots.length === 0}<p class="mt-2">{t(locale, 'demo_slots_none')}</p>{:else}
 		<ol class="mt-2 flex flex-col gap-2">
@@ -35,7 +35,7 @@
 					{#if slot.starts_at}<span>{slot.starts_at}</span>{/if}
 					<strong>{slot.startup_name}</strong>{#if slot.pitch_title}<span>· {slot.pitch_title}</span>{/if}
 					{#if !missing('removeSlot')}
-						<form method="POST" action="?/removeSlot"><input type="hidden" name="slot_id" value={slot.id} /><button class="btn btn-sm preset-tonal-error">{t(locale, 'demo_slot_remove')}</button></form>
+						<form method="POST" action="?/removeSlot"><input type="hidden" name="slot_id" value={slot.id} /><button class="btn btn-sm preset-filled-error-500">{t(locale, 'demo_slot_remove')}</button></form>
 					{/if}
 				</li>
 			{/each}
@@ -53,7 +53,7 @@
 	{/if}
 </section>
 
-<section class="card preset-outlined-surface-200-800 mt-6 p-4" data-testid="demo-guests">
+<section class="card border ui-border mt-6 p-4" data-testid="demo-guests">
 	<h2 class="h4">{t(locale, 'demo_guests')}</h2>
 	{@render role('guests')}
 	{#if !missing('guests')}
@@ -86,7 +86,7 @@
 	{/if}
 </section>
 
-<section class="card preset-outlined-surface-200-800 mt-6 p-4" data-testid="demo-feedback">
+<section class="card border ui-border mt-6 p-4" data-testid="demo-feedback">
 	<h2 class="h4">{t(locale, 'demo_feedback')}</h2>
 	<p class="mt-1 text-sm">{t(locale, 'demo_feedback_intro')}</p>
 	{@render role('feedback')}

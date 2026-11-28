@@ -49,17 +49,17 @@
 </script>
 
 <div
-	class="card dark:bg-primary-500/50 backdrop-blur-3xl border-primary-200-800 divide-primary-200-800 mx-auto my-10 md:px-15 flex flex-col divide-y border-[1px] shadow-lg max-w-[90%] lg:max-w-2xl"
+	class="card ui-card ui-border backdrop-blur-3xl mx-auto my-10 md:px-15 flex flex-col divide-y border-[1px] shadow-lg max-w-[90%] lg:max-w-2xl"
 >
 	<header class="py-4">
 		<h1 class="h4 text-center">Reset Your Password</h1>
-		<p class="text-center text-sm text-gray-400 mt-2">Enter your new password below</p>
+		<p class="text-center text-sm mt-2 ui-muted">Enter your new password below</p>
 	</header>
 	<article class="space-y-4 p-4">
 		<form class="mx-auto w-full max-w-md space-y-6" method="POST">
 			{#if form?.message}
-				<div class="bg-error-500/10 border-error-500 rounded-lg border p-4 text-center" data-testid="reset-password-error">
-					<p class="text-error-500 font-semibold">{form.message}</p>
+				<div class="rounded-lg border p-4 text-center ui-tone-error" data-testid="reset-password-error">
+					<p class="font-semibold ui-text-error">{form.message}</p>
 				</div>
 			{/if}
 
@@ -78,7 +78,7 @@
 					/>
 					<button
 						type="button"
-						class="absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+						class="absolute top-1/2 right-3 -translate-y-1/2 ui-muted"
 						onclick={togglePasswordVisibility}
 					>
 						{#if showPassword}
@@ -107,7 +107,7 @@
 					/>
 					<button
 						type="button"
-						class="absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+						class="absolute top-1/2 right-3 -translate-y-1/2 ui-muted"
 						onclick={togglePasswordVisibility}
 					>
 						{#if showPassword}
@@ -119,11 +119,11 @@
 				</div>
 
 				{#if newPassword.length > 0 && confirmPassword.length > 0 && !arePasswordsMatching}
-					<p class="text-error-500 text-xs mt-2">Passwords do not match!</p>
+					<p class="text-xs mt-2 ui-text-error">Passwords do not match!</p>
 				{/if}
 
 				{#if arePasswordsMatching && confirmPassword.length > 0 && isPasswordValid}
-					<p class="text-success-500 text-xs mt-2">Passwords match</p>
+					<p class="text-xs mt-2 ui-text-success">Passwords match</p>
 				{/if}
 			</label>
 
@@ -146,7 +146,7 @@
 			</button>
 
 			<div class="text-center mt-4">
-				<a href="/login" class="text-sm text-primary-500 hover:text-primary-400">
+				<a href="/login" class="text-sm ui-text-brand">
 					Back to Login
 				</a>
 			</div>

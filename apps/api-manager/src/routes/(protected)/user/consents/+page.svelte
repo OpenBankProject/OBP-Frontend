@@ -44,24 +44,24 @@
   }
 </script>
 
-<h1 class="text-gray-900 dark:text-gray-100">Consents Management</h1>
+<h1 class="ui-text">Consents Management</h1>
 
-<p class="mb-4 text-gray-700 dark:text-gray-300">
+<p class="mb-4 ui-muted">
   Here you can manage your consents.
 </p>
 
 <!-- Current Local Time for debugging -->
 <div
-  class="mb-8 rounded-lg border border-surface-300 bg-surface-100 p-4 dark:border-surface-700 dark:bg-surface-800"
+  class="mb-8 rounded-lg border p-4 ui-panel ui-border"
 >
-  <h3 class="mb-2 text-sm font-medium text-surface-900 dark:text-surface-100">
+  <h3 class="mb-2 text-sm font-medium ui-text">
     Debug Information
   </h3>
-  <p class="text-sm text-surface-800 dark:text-surface-200">
+  <p class="text-sm ui-text">
     <strong>Current Local Time:</strong>
     {currentLocalTime}
   </p>
-  <p class="mt-1 text-xs text-surface-600 dark:text-surface-300">
+  <p class="mt-1 text-xs ui-muted">
     All times are displayed in your local timezone. Compare with consent
     expiration times.
   </p>
@@ -69,7 +69,7 @@
 
 <!-- Consents for Opey Section -->
 <div class="mb-10">
-  <h2 class="mb-4 text-xl font-semibold text-gray-900 dark:text-gray-100">
+  <h2 class="mb-4 text-xl font-semibold ui-text">
     Consents for Opey
   </h2>
   {#if data.opeyConsents && data.opeyConsents.length > 0}
@@ -79,15 +79,15 @@
       {/each}
     </div>
   {:else}
-    <div class="rounded-lg bg-gray-100 p-6 text-center dark:bg-gray-800">
-      <p class="text-gray-700 dark:text-gray-300">No Opey consents found.</p>
+    <div class="rounded-lg p-6 text-center ui-panel">
+      <p class="ui-muted">No Opey consents found.</p>
     </div>
   {/if}
 </div>
 
 <!-- Other Consents Section -->
 <div>
-  <h2 class="mb-4 text-xl font-semibold text-gray-900 dark:text-gray-100">
+  <h2 class="mb-4 text-xl font-semibold ui-text">
     Other Consents
   </h2>
   {#if data.otherConsents && data.otherConsents.length > 0}
@@ -97,8 +97,8 @@
       {/each}
     </div>
   {:else}
-    <div class="rounded-lg bg-gray-100 p-6 text-center dark:bg-gray-800">
-      <p class="text-gray-700 dark:text-gray-300">No other consents found.</p>
+    <div class="rounded-lg p-6 text-center ui-panel">
+      <p class="ui-muted">No other consents found.</p>
     </div>
   {/if}
 </div>

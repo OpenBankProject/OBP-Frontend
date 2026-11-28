@@ -84,19 +84,19 @@
 <div class="container mx-auto px-4 py-8">
   <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
     <div>
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Dynamic Glossary Items</h1>
-      <p class="mt-1 text-gray-600 dark:text-gray-400">
+      <h1 class="text-3xl font-bold ui-text">Dynamic Glossary Items</h1>
+      <p class="mt-1 ui-muted">
         Glossary entries held in the database and editable at runtime. They are served alongside the static ones, and replace a static entry of the same title.
       </p>
     </div>
     <div class="flex items-center gap-2">
-      <a href="{data.explorerUrl}/glossary" target="_blank" rel="noopener noreferrer" data-testid="explorer-glossary-link" class="inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
+      <a href="{data.explorerUrl}/glossary" target="_blank" rel="noopener noreferrer" data-testid="explorer-glossary-link" class="inline-flex items-center gap-1 rounded-lg border px-3 py-2 text-sm font-medium ui-card ui-hover ui-muted ui-border">
         API Explorer <ExternalLink size={12} />
       </a>
-      <a href="/glossary-items/help" data-testid="glossary-items-help-link" class="inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
+      <a href="/glossary-items/help" data-testid="glossary-items-help-link" class="inline-flex items-center gap-1 rounded-lg border px-3 py-2 text-sm font-medium ui-card ui-hover ui-muted ui-border">
         <CircleHelp size={16} /> Help
       </a>
-      <a href="/glossary-items/create" data-testid="create-link" class="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600">
+      <a href="/glossary-items/create" data-testid="create-link" class="inline-flex items-center gap-1 rounded-lg px-4 py-2 text-sm font-medium preset-filled-primary-500">
         <Plus size={16} /> Create Glossary Item
       </a>
     </div>
@@ -107,84 +107,84 @@
   </div>
 
   {#if data.loadError}
-    <div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300" data-testid="load-error">{data.loadError}</div>
+    <div class="mb-6 rounded-lg border p-4 text-sm ui-tone-error" data-testid="load-error">{data.loadError}</div>
   {/if}
   {#if actionError}
-    <div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300" data-testid="action-error">{actionError}</div>
+    <div class="mb-6 rounded-lg border p-4 text-sm ui-tone-error" data-testid="action-error">{actionError}</div>
   {/if}
   {#if message}
-    <div class="mb-6 rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-700 dark:border-green-800 dark:bg-green-900/20 dark:text-green-300" role="status" data-testid="message">{message}</div>
+    <div class="mb-6 rounded-lg border p-4 text-sm ui-tone-success" role="status" data-testid="message">{message}</div>
   {/if}
 
   <form method="GET" action="/glossary-items" class="mb-4 flex flex-wrap items-end gap-3" data-testid="filter-form">
     <div>
-      <label for="title-filter" class="block text-xs font-medium text-gray-600 dark:text-gray-400">Filter by title</label>
+      <label for="title-filter" class="block text-xs font-medium ui-muted">Filter by title</label>
       <input
         id="title-filter"
         name="title"
         type="search"
         value={data.titleFilter}
         placeholder="Part of a title, e.g. bank"
-        class="mt-1 w-72 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+        class="mt-1 w-72 rounded-lg border px-3 py-2 text-sm focus:ring-2 ui-card ui-text ui-border"
         data-testid="title-filter"
       />
     </div>
-    <button type="submit" class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">Filter</button>
+    <button type="submit" class="rounded-lg border px-3 py-2 text-sm font-medium ui-card ui-hover ui-muted ui-border">Filter</button>
     {#if data.titleFilter}
-      <a href="/glossary-items" class="text-sm text-blue-600 hover:underline dark:text-blue-400">Clear</a>
+      <a href="/glossary-items" class="text-sm hover:underline ui-link">Clear</a>
     {/if}
   </form>
 
-  <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+  <div class="overflow-hidden rounded-lg border shadow-sm ui-card ui-border">
     {#if data.rows.length === 0}
-      <div class="p-8 text-center text-sm text-gray-500 dark:text-gray-400" data-testid="empty">
+      <div class="p-8 text-center text-sm ui-muted" data-testid="empty">
         {#if data.titleFilter}
           No Dynamic Glossary Item title contains "{data.titleFilter}".
-          <a href="/glossary-items" class="text-blue-600 hover:underline dark:text-blue-400">Show all</a>.
+          <a href="/glossary-items" class="hover:underline ui-link">Show all</a>.
         {:else}
           No Dynamic Glossary Items yet. The Glossary is being served from the static entries alone.
-          <a href="/glossary-items/create" class="text-blue-600 hover:underline dark:text-blue-400">Create one</a> to add or correct a term.
+          <a href="/glossary-items/create" class="hover:underline ui-link">Create one</a> to add or correct a term.
         {/if}
       </div>
     {:else}
       <div class="overflow-x-auto">
         <table class="w-full text-sm" data-testid="glossary-items-table">
-          <thead class="bg-gray-50 dark:bg-gray-900">
+          <thead class="ui-card">
             <tr>
-              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Title</th>
-              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Description</th>
-              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Overrides static</th>
-              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">In the Glossary</th>
-              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Updated</th>
-              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Actions</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Title</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Description</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Overrides static</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">In the Glossary</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Updated</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Actions</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+          <tbody class="divide-y ui-border">
             {#each data.rows as row (row.glossary_item_id)}
               <tr data-testid="row-{row.title}">
-                <td class="px-4 py-3 font-mono text-xs text-gray-900 dark:text-gray-100">
-                  <a href="/glossary-items/{encodeURIComponent(row.title)}" class="text-blue-600 hover:underline dark:text-blue-400">{row.title}</a>
+                <td class="px-4 py-3 font-mono text-xs ui-text">
+                  <a href="/glossary-items/{encodeURIComponent(row.title)}" class="hover:underline ui-link">{row.title}</a>
                 </td>
-                <td class="px-4 py-3 text-gray-700 dark:text-gray-300">{firstLine(row.description.markdown)}</td>
+                <td class="px-4 py-3 ui-muted">{firstLine(row.description.markdown)}</td>
                 <td class="px-4 py-3">
                   {#if isUndeclaredShadow(row)}
-                    <span class="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900/40 dark:text-red-200" data-testid="undeclared-{row.title}">Undeclared</span>
-                    <div class="mt-1 text-xs text-red-700 dark:text-red-300">Shadowing a static item it never declared</div>
+                    <span class="rounded-full px-2 py-0.5 text-xs font-medium ui-tone-error" data-testid="undeclared-{row.title}">Undeclared</span>
+                    <div class="mt-1 text-xs ui-text-error">Shadowing a static item it never declared</div>
                   {:else if row.overrides_static_item}
-                    <span class="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900/40 dark:text-amber-200" data-testid="overrides-{row.title}">Yes</span>
+                    <span class="rounded-full px-2 py-0.5 text-xs font-medium ui-tone-warning" data-testid="overrides-{row.title}">Yes</span>
                   {:else}
-                    <span class="text-xs text-gray-500 dark:text-gray-400">No</span>
+                    <span class="text-xs ui-muted">No</span>
                   {/if}
                 </td>
                 <td class="px-4 py-3">
-                  <a href="/glossary/{encodeURIComponent(row.title)}" class="text-xs text-blue-600 hover:underline dark:text-blue-400" data-testid="view-{row.title}">View entry</a>
+                  <a href="/glossary/{encodeURIComponent(row.title)}" class="text-xs hover:underline ui-link" data-testid="view-{row.title}">View entry</a>
                 </td>
-                <td class="px-4 py-3 text-xs text-gray-600 dark:text-gray-400">{formatDate(row.updated_at)}</td>
+                <td class="px-4 py-3 text-xs ui-muted">{formatDate(row.updated_at)}</td>
                 <td class="px-4 py-3">
                   <div class="flex items-center gap-2">
-                    <a href="/glossary-items/{encodeURIComponent(row.title)}" class="inline-flex items-center gap-1 rounded border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700" data-testid="edit-{row.title}"><Pencil size={12} /> Edit</a>
-                    <a href={row.explorerUrl} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 rounded border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700" data-testid="explorer-{row.title}">API Explorer <ExternalLink size={12} /></a>
-                    <button type="button" onclick={() => remove(row.title, row.shadows_static_glossary_item)} disabled={deleting === row.title} class="inline-flex items-center gap-1 rounded border border-red-300 px-2 py-1 text-xs text-red-700 hover:bg-red-50 disabled:opacity-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-900/20" data-testid="delete-{row.title}">
+                    <a href="/glossary-items/{encodeURIComponent(row.title)}" class="inline-flex items-center gap-1 rounded border px-2 py-1 text-xs ui-hover ui-muted ui-border" data-testid="edit-{row.title}"><Pencil size={12} /> Edit</a>
+                    <a href={row.explorerUrl} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 rounded border px-2 py-1 text-xs ui-hover ui-muted ui-border" data-testid="explorer-{row.title}">API Explorer <ExternalLink size={12} /></a>
+                    <button type="button" onclick={() => remove(row.title, row.shadows_static_glossary_item)} disabled={deleting === row.title} class="inline-flex items-center gap-1 rounded border px-2 py-1 text-xs disabled:opacity-50 ui-tone-error" data-testid="delete-{row.title}">
                       <Trash2 size={12} /> {deleting === row.title ? "Deleting…" : "Delete"}
                     </button>
                   </div>
@@ -194,12 +194,12 @@
           </tbody>
         </table>
       </div>
-      <div class="flex flex-wrap items-center justify-between gap-3 border-t border-gray-200 px-4 py-2 text-xs text-gray-500 dark:border-gray-700 dark:text-gray-400">
+      <div class="flex flex-wrap items-center justify-between gap-3 border-t px-4 py-2 text-xs ui-muted ui-border">
         <span data-testid="pagination-summary">Showing {firstShown}–{lastShown} of {data.pagination.total}</span>
         {#if hasPrev || hasNext}
           <span class="flex gap-3">
-            {#if hasPrev}<a href={pageHref(prevOffset)} class="text-blue-600 hover:underline dark:text-blue-400" data-testid="prev-page">← Previous</a>{/if}
-            {#if hasNext}<a href={pageHref(nextOffset)} class="text-blue-600 hover:underline dark:text-blue-400" data-testid="next-page">Next →</a>{/if}
+            {#if hasPrev}<a href={pageHref(prevOffset)} class="hover:underline ui-link" data-testid="prev-page">← Previous</a>{/if}
+            {#if hasNext}<a href={pageHref(nextOffset)} class="hover:underline ui-link" data-testid="next-page">Next →</a>{/if}
           </span>
         {/if}
       </div>

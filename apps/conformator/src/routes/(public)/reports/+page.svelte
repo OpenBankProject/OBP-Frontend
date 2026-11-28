@@ -15,6 +15,6 @@
 <p class="mt-2 max-w-3xl">{m.conformator_reports_intro()}</p>
 <form method="POST" action="?/find" class="mt-4 flex max-w-xl gap-2">
 	<input class="input" name="reference" required maxlength="32" placeholder="CR-2026-..." aria-label={m.conformator_reports_reference()} />
-	<button class="btn preset-filled">{m.conformator_reports_check()}</button>
+	<button class="btn preset-filled-primary-500">{m.conformator_reports_check()}</button>
 </form>
 <p class="mt-4 text-sm"><a class="anchor" href="/reports/signing-key">{m.conformator_reports_public_key_link()}</a></p>

@@ -89,9 +89,9 @@
 		<OpeyChat {opeyChatOptions} userAuthenticated={isAuthenticated}>
 			{#snippet splash()}
 				<div class="flex w-2/3 flex-col items-center justify-center text-center">
-					<h1 class="h3 text-surface-700-300 mb-2">{welcomeTitle}</h1>
+					<h1 class="h3 mb-2 ui-muted">{welcomeTitle}</h1>
 					<h1 class="h3 mb-4">{helpQuestion}</h1>
-					<p class="text-surface-700-300 mb-7 text-sm">
+					<p class="mb-7 text-sm ui-muted">
 						{welcomeDescription}
 					</p>
 				</div>

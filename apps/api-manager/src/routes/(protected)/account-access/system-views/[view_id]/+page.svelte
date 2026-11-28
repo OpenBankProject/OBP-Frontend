@@ -188,7 +188,7 @@
               {/each}
             </div>
           {:else}
-            <p class="text-gray-600 dark:text-gray-400">No actions allowed</p>
+            <p class="ui-muted">No actions allowed</p>
           {/if}
         </section>
 
@@ -245,7 +245,7 @@
   }
 
   .breadcrumb-link {
-    color: #3b82f6;
+    color: var(--ui-link);
     text-decoration: none;
   }
 
@@ -253,59 +253,33 @@
     text-decoration: underline;
   }
 
-  :global([data-mode="dark"]) .breadcrumb-link {
-    color: rgb(var(--color-primary-400));
-  }
-
   .breadcrumb-separator {
-    color: #9ca3af;
-  }
-
-  :global([data-mode="dark"]) .breadcrumb-separator {
-    color: var(--color-surface-500);
+    color: var(--ui-muted);
   }
 
   .breadcrumb-current {
-    color: #6b7280;
-  }
-
-  :global([data-mode="dark"]) .breadcrumb-current {
-    color: var(--color-surface-400);
+    color: var(--ui-muted);
   }
 
   .error-message {
     padding: 1rem;
-    background: #fef2f2;
-    border: 1px solid #fecaca;
+    background: var(--ui-tone-error-bg);
+    border: 1px solid var(--ui-tone-error-border);
     border-radius: 6px;
-    color: #991b1b;
+    color: var(--ui-tone-error-text);
     font-size: 0.875rem;
   }
 
-  :global([data-mode="dark"]) .error-message {
-    background: rgba(239, 68, 68, 0.1);
-    border-color: rgba(239, 68, 68, 0.3);
-    color: rgb(var(--color-error-200));
-  }
-
   .panel {
-    background: white;
+    background: var(--ui-card);
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     overflow: hidden;
   }
 
-  :global([data-mode="dark"]) .panel {
-    background: rgb(var(--color-surface-800));
-  }
-
   .panel-header {
     padding: 2rem;
-    border-bottom: 1px solid #e5e7eb;
-  }
-
-  :global([data-mode="dark"]) .panel-header {
-    border-bottom-color: rgb(var(--color-surface-700));
+    border-bottom: 1px solid var(--ui-border);
   }
 
   .header-content {
@@ -328,15 +302,10 @@
     justify-content: center;
     width: 64px;
     height: 64px;
-    background: #eff6ff;
-    color: #3b82f6;
+    background: var(--ui-tone-info-bg);
+    color: var(--ui-tone-info-text);
     border-radius: 12px;
     flex-shrink: 0;
-  }
-
-  :global([data-mode="dark"]) .header-icon {
-    background: rgba(59, 130, 246, 0.2);
-    color: rgb(var(--color-primary-400));
   }
 
   .header-title-row {
@@ -349,22 +318,14 @@
   .panel-title {
     font-size: 1.875rem;
     font-weight: 700;
-    color: #111827;
+    color: var(--ui-text);
     margin: 0;
-  }
-
-  :global([data-mode="dark"]) .panel-title {
-    color: var(--color-surface-100);
   }
 
   .panel-subtitle {
     font-size: 0.875rem;
-    color: #6b7280;
+    color: var(--ui-muted);
     line-height: 1.5;
-  }
-
-  :global([data-mode="dark"]) .panel-subtitle {
-    color: var(--color-surface-400);
   }
 
   .status-badge {
@@ -379,25 +340,18 @@
   }
 
   .status-public {
-    background: #10b981;
-    color: #ffffff;
+    background: var(--ui-tone-success-bg);
+    color: var(--ui-tone-success-text);
     font-weight: 600;
   }
 
   :global([data-mode="dark"]) .status-public {
-    background: #10b981;
-    color: #ffffff;
     font-weight: 600;
   }
 
   .status-private {
-    background: #fee2e2;
-    color: #991b1b;
-  }
-
-  :global([data-mode="dark"]) .status-private {
-    background: rgba(239, 68, 68, 0.2);
-    color: rgb(var(--color-error-300));
+    background: var(--ui-tone-error-bg);
+    color: var(--ui-tone-error-text);
   }
 
   .header-actions {
@@ -411,8 +365,8 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.5rem 1rem;
-    background: #3b82f6;
-    color: white;
+    background: var(--ui-fill-main-bg);
+    color: var(--ui-fill-main-text);
     border-radius: 0.5rem;
     font-size: 0.875rem;
     font-weight: 500;
@@ -421,15 +375,7 @@
   }
 
   .btn-primary:hover {
-    background: #2563eb;
-  }
-
-  :global([data-mode="dark"]) .btn-primary {
-    background: #3b82f6;
-  }
-
-  :global([data-mode="dark"]) .btn-primary:hover {
-    background: #2563eb;
+    opacity: 0.85;
   }
 
   .btn-secondary {
@@ -437,8 +383,8 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.75rem 1.25rem;
-    background: #f3f4f6;
-    color: #374151;
+    background: var(--ui-panel);
+    color: var(--ui-text);
     border: none;
     border-radius: 6px;
     font-size: 0.875rem;
@@ -450,16 +396,7 @@
   }
 
   .btn-secondary:hover {
-    background: #e5e7eb;
-  }
-
-  :global([data-mode="dark"]) .btn-secondary {
-    background: rgb(var(--color-surface-700));
-    color: var(--color-surface-200);
-  }
-
-  :global([data-mode="dark"]) .btn-secondary:hover {
-    background: rgb(var(--color-surface-600));
+    background: var(--ui-hover);
   }
 
   .panel-content {
@@ -480,15 +417,10 @@
     gap: 0.5rem;
     font-size: 1.125rem;
     font-weight: 600;
-    color: #111827;
+    color: var(--ui-text);
     margin: 0 0 1.5rem 0;
     padding-bottom: 0.75rem;
-    border-bottom: 2px solid #e5e7eb;
-  }
-
-  :global([data-mode="dark"]) .section-title {
-    color: var(--color-surface-100);
-    border-bottom-color: rgb(var(--color-surface-700));
+    border-bottom: 2px solid var(--ui-border);
   }
 
   .info-grid {
@@ -506,35 +438,23 @@
   .info-label {
     font-size: 0.75rem;
     font-weight: 600;
-    color: #6b7280;
+    color: var(--ui-muted);
     text-transform: uppercase;
     letter-spacing: 0.05em;
   }
 
-  :global([data-mode="dark"]) .info-label {
-    color: var(--color-surface-400);
-  }
-
   .info-value {
     font-size: 0.875rem;
-    color: #111827;
+    color: var(--ui-text);
     font-weight: 500;
-  }
-
-  :global([data-mode="dark"]) .info-value {
-    color: var(--color-surface-200);
   }
 
   .info-value.code {
     font-family: monospace;
-    background: #f3f4f6;
+    background: var(--ui-panel);
     padding: 0.5rem;
     border-radius: 4px;
     word-break: break-all;
-  }
-
-  :global([data-mode="dark"]) .info-value.code {
-    background: rgb(var(--color-surface-900));
   }
 
   .permission-groups {
@@ -544,13 +464,9 @@
   }
 
   .permission-group {
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--ui-border);
     border-radius: 8px;
     overflow: hidden;
-  }
-
-  :global([data-mode="dark"]) .permission-group {
-    border-color: rgb(var(--color-surface-700));
   }
 
   .group-header {
@@ -558,32 +474,19 @@
     justify-content: space-between;
     align-items: center;
     padding: 0.625rem 1rem;
-    background: #f9fafb;
-    border-bottom: 1px solid #e5e7eb;
-  }
-
-  :global([data-mode="dark"]) .group-header {
-    background: rgb(var(--color-surface-900));
-    border-bottom-color: rgb(var(--color-surface-700));
+    background: var(--ui-card);
+    border-bottom: 1px solid var(--ui-border);
   }
 
   .group-label {
     font-size: 0.813rem;
     font-weight: 600;
-    color: #374151;
-  }
-
-  :global([data-mode="dark"]) .group-label {
-    color: var(--color-surface-200);
+    color: var(--ui-text);
   }
 
   .group-count {
     font-size: 0.75rem;
-    color: #6b7280;
-  }
-
-  :global([data-mode="dark"]) .group-count {
-    color: var(--color-surface-400);
+    color: var(--ui-muted);
   }
 
   .permissions-grid {
@@ -601,35 +504,22 @@
     border-radius: 4px;
   }
 
-
   .permission-icon {
     flex-shrink: 0;
   }
 
   .permission-icon.enabled {
-    color: #10b981;
-  }
-
-  :global([data-mode="dark"]) .permission-icon.enabled {
-    color: rgb(var(--color-success-400));
+    color: var(--ui-success);
   }
 
   .permission-icon.disabled {
-    color: #d1d5db;
-  }
-
-  :global([data-mode="dark"]) .permission-icon.disabled {
-    color: var(--color-surface-600);
+    color: var(--ui-muted);
   }
 
   .permission-label {
     font-size: 0.813rem;
-    color: #374151;
+    color: var(--ui-text);
     font-weight: 500;
-  }
-
-  :global([data-mode="dark"]) .permission-label {
-    color: var(--color-surface-300);
   }
 
   @media (max-width: 768px) {

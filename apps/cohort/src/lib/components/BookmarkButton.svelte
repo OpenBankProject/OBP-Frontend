@@ -17,7 +17,7 @@
 	<form method="POST" action="/saved?/remove" class="inline">
 		<input type="hidden" name="bookmark_id" value={bookmarkId} />
 		<input type="hidden" name="return_to" value={path} />
-		<button class="btn btn-sm preset-tonal-primary" data-testid="bookmark-remove"><BookmarkCheck class="size-4" aria-hidden="true" />{t(locale, 'saved_saved')}</button>
+		<button class="btn btn-sm preset-tonal" data-testid="bookmark-remove"><BookmarkCheck class="size-4" aria-hidden="true" />{t(locale, 'saved_saved')}</button>
 	</form>
 {:else}
 	<form method="POST" action="/saved?/save" class="inline">

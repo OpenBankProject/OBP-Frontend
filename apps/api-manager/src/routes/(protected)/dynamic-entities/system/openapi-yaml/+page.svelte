@@ -52,24 +52,24 @@
   <div class="mb-6">
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
+        <h1 class="text-3xl font-bold ui-text">
           OpenAPI YAML - Dynamic Entities
         </h1>
-        <p class="mt-1 text-gray-600 dark:text-gray-400">
+        <p class="mt-1 ui-muted">
           OpenAPI specification for dynamic entity endpoints in YAML format
         </p>
         {#if data.tags}
-          <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+          <p class="mt-1 text-sm ui-muted">
             <span class="font-semibold">Tag:</span>
             {data.tags}
           </p>
         {/if}
-        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+        <p class="mt-1 text-sm ui-muted">
           <span class="font-semibold">Character count:</span>
           {data.characterCount?.toLocaleString()}
         </p>
         {#if data.apiUrl}
-          <p class="mt-1 text-xs text-gray-500 dark:text-gray-500 font-mono">
+          <p class="mt-1 text-xs font-mono ui-muted">
             API: {data.apiUrl}
           </p>
         {/if}
@@ -77,7 +77,7 @@
       <div class="flex gap-2">
         <a
           href="/dynamic-entities/system"
-          class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+          class="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-medium ui-card ui-hover ui-muted ui-border"
         >
           <svg
             class="mr-2 h-4 w-4"
@@ -97,7 +97,7 @@
         <button
           type="button"
           onclick={copyToClipboard}
-          class="inline-flex items-center rounded-lg border border-green-300 bg-white px-4 py-2 text-sm font-medium text-green-700 hover:bg-green-50 dark:border-green-600 dark:bg-gray-800 dark:text-green-400 dark:hover:bg-green-900/20"
+          class="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-medium ui-card ui-tone-success"
           title="Copy to clipboard"
         >
           {#if copied}
@@ -138,12 +138,12 @@
 
   <!-- Content -->
   <div
-    class="rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
+    class="rounded-lg border shadow-sm ui-card ui-border"
   >
     <div class="p-6">
       <pre
-        class="overflow-x-auto rounded-lg bg-gray-50 p-4 text-sm dark:bg-gray-900"><code
-          class="text-gray-900 dark:text-gray-100">{data.openApiYaml}</code
+        class="overflow-x-auto rounded-lg p-4 text-sm ui-card"><code
+          class="ui-text">{data.openApiYaml}</code
         ></pre>
     </div>
   </div>

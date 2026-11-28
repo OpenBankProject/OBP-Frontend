@@ -88,7 +88,7 @@
         <div class="flex items-center justify-between">
           <div>
             <h1 class="text-2xl font-bold">{user.username || "Unknown User"}</h1>
-            <div class="text-sm text-gray-500 mt-1">
+            <div class="text-sm mt-1 ui-muted">
               {user.provider || "Unknown"} Provider
             </div>
           </div>
@@ -98,7 +98,7 @@
               href="{data.portalUrl}/user/chat/dm/{encodeURIComponent(user.user_id)}"
               target="_blank"
               rel="noopener noreferrer"
-              class="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600"
+              class="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium preset-filled-primary-500"
               data-testid="user-chat-link"
             >
               <svg
@@ -122,7 +122,7 @@
               href="/metrics?user_id={encodeURIComponent(
                 user.user_id,
               )}&from_date={encodeURIComponent(metricsFromDate)}"
-              class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+              class="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium preset-filled-primary-500"
               data-testid="user-metrics-link"
             >
               <svg
@@ -213,12 +213,12 @@
               {#if user.is_locked}
                 <span class="badge badge-error">Yes</span>
                 {#if user.provider && user.username}
-                  <a href="/users/{encodeURIComponent(user.provider)}/{encodeURIComponent(user.username)}/unlock" class="action-link" style="color: #059669;">Unlock User</a>
+                  <a href="/users/{encodeURIComponent(user.provider)}/{encodeURIComponent(user.username)}/unlock" class="action-link action-link-success">Unlock User</a>
                 {/if}
               {:else}
                 <span class="badge badge-success">No</span>
                 {#if user.provider && user.username}
-                  <a href="/users/{encodeURIComponent(user.provider)}/{encodeURIComponent(user.username)}/lock" class="action-link" style="color: #dc2626;">Lock User</a>
+                  <a href="/users/{encodeURIComponent(user.provider)}/{encodeURIComponent(user.username)}/lock" class="action-link action-link-error">Lock User</a>
                 {/if}
               {/if}
             </div>
@@ -243,10 +243,8 @@
                 {#if user.user_id}
                   <a
                     href="/users/{encodeURIComponent(user.user_id)}/validate-email"
-                    class="action-link"
-                    style="color: #059669;"
-                    data-testid="user-send-validation-email-link"
-                  >Send Validation Email</a>
+                    class="action-link action-link-success"
+                    data-testid="user-send-validation-email-link">Send Validation Email</a>
                 {/if}
               {:else}
                 <span class="badge badge-default">Unknown</span>
@@ -272,7 +270,7 @@
                     </div>
                   {/each}
                   {#if user.recent_operation_ids.length > 3}
-                    <div class="text-xs text-gray-500 mt-1">
+                    <div class="text-xs mt-1 ui-muted">
                       +{user.recent_operation_ids.length - 3} more
                     </div>
                   {/if}
@@ -298,7 +296,7 @@
             href="/rbac/entitlements/create?username={encodeURIComponent(
               user.username || '',
             )}"
-            class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+            class="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium preset-filled-primary-500"
           >
             <svg
               class="h-4 w-4"
@@ -396,7 +394,7 @@
   }
 
   .breadcrumb-link {
-    color: #3b82f6;
+    color: var(--ui-link);
     text-decoration: none;
   }
 
@@ -404,64 +402,36 @@
     text-decoration: underline;
   }
 
-  :global([data-mode="dark"]) .breadcrumb-link {
-    color: rgb(var(--color-primary-400));
-  }
-
   .breadcrumb-separator {
-    color: #9ca3af;
-  }
-
-  :global([data-mode="dark"]) .breadcrumb-separator {
-    color: var(--color-surface-500);
+    color: var(--ui-muted);
   }
 
   .breadcrumb-current {
-    color: #6b7280;
-  }
-
-  :global([data-mode="dark"]) .breadcrumb-current {
-    color: var(--color-surface-400);
+    color: var(--ui-muted);
   }
 
   .panel {
-    background: white;
+    background: var(--ui-card);
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     overflow: hidden;
   }
 
-  :global([data-mode="dark"]) .panel {
-    background: rgb(var(--color-surface-800));
-  }
-
   .panel-header {
     padding: 1.5rem;
-    border-bottom: 1px solid #e5e7eb;
-  }
-
-  :global([data-mode="dark"]) .panel-header {
-    border-bottom-color: rgb(var(--color-surface-700));
+    border-bottom: 1px solid var(--ui-border);
   }
 
   .panel-title {
     font-size: 1.125rem;
     font-weight: 600;
-    color: #111827;
-  }
-
-  :global([data-mode="dark"]) .panel-title {
-    color: var(--color-surface-100);
+    color: var(--ui-text);
   }
 
   .panel-subtitle {
     font-size: 0.875rem;
-    color: #6b7280;
+    color: var(--ui-muted);
     margin-top: 0.25rem;
-  }
-
-  :global([data-mode="dark"]) .panel-subtitle {
-    color: var(--color-surface-400);
   }
 
   .panel-content {
@@ -487,23 +457,15 @@
     font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
-    color: #6b7280;
+    color: var(--ui-muted);
     letter-spacing: 0.05em;
-  }
-
-  :global([data-mode="dark"]) .info-label {
-    color: var(--color-surface-400);
   }
 
   .info-value {
     font-size: 0.875rem;
-    color: #111827;
+    color: var(--ui-text);
     /* Long unbroken emails / usernames / ids wrap instead of overflowing. */
     overflow-wrap: anywhere;
-  }
-
-  :global([data-mode="dark"]) .info-value {
-    color: var(--color-surface-100);
   }
 
   .entitlements-grid {
@@ -520,14 +482,9 @@
 
   .entitlement-card {
     padding: 1rem;
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
+    background: var(--ui-card);
+    border: 1px solid var(--ui-border);
     border-radius: 0.5rem;
-  }
-
-  :global([data-mode="dark"]) .entitlement-card {
-    background: rgb(var(--color-surface-700));
-    border-color: rgb(var(--color-surface-600));
   }
 
   .entitlement-header {
@@ -539,14 +496,10 @@
 
   .entitlement-name {
     font-weight: 600;
-    color: #111827;
+    color: var(--ui-text);
     word-break: break-word;
     overflow-wrap: break-word;
     hyphens: auto;
-  }
-
-  :global([data-mode="dark"]) .entitlement-name {
-    color: var(--color-surface-100);
   }
 
   .delete-button {
@@ -554,34 +507,21 @@
     align-items: center;
     justify-content: center;
     padding: 0.25rem;
-    color: #6b7280;
+    color: var(--ui-muted);
     border-radius: 0.25rem;
     transition: all 0.2s;
     text-decoration: none;
   }
 
   .delete-button:hover {
-    color: #dc2626;
-    background: #fee2e2;
-  }
-
-  :global([data-mode="dark"]) .delete-button {
-    color: var(--color-surface-400);
-  }
-
-  :global([data-mode="dark"]) .delete-button:hover {
-    color: rgb(var(--color-error-400));
-    background: rgb(var(--color-error-900));
+    color: var(--ui-tone-error-text);
+    background: var(--ui-tone-error-bg);
   }
 
   .entitlement-detail {
     font-size: 0.875rem;
-    color: #6b7280;
+    color: var(--ui-muted);
     margin-top: 0.25rem;
-  }
-
-  :global([data-mode="dark"]) .entitlement-detail {
-    color: var(--color-surface-400);
   }
 
   .detail-label {
@@ -596,15 +536,10 @@
 
   .operation-id-compact {
     font-size: 0.75rem;
-    color: #374151;
+    color: var(--ui-text);
     padding: 0.25rem 0.5rem;
-    background: #f3f4f6;
+    background: var(--ui-panel);
     border-radius: 0.25rem;
-  }
-
-  :global([data-mode="dark"]) .operation-id-compact {
-    color: var(--color-surface-200);
-    background: rgb(var(--color-surface-700));
   }
 
   .badge {
@@ -616,39 +551,24 @@
   }
 
   .badge-success {
-    background: #d1fae5;
-    color: #065f46;
-  }
-
-  :global([data-mode="dark"]) .badge-success {
-    background: rgb(var(--color-success-900));
-    color: rgb(var(--color-success-200));
+    background: var(--ui-tone-success-bg);
+    color: var(--ui-tone-success-text);
   }
 
   .badge-default {
-    background: #f3f4f6;
-    color: #374151;
-  }
-
-  :global([data-mode="dark"]) .badge-default {
-    background: rgb(var(--color-surface-700));
-    color: var(--color-surface-300);
+    background: var(--ui-panel);
+    color: var(--ui-text);
   }
 
   .badge-error {
-    background: #fee2e2;
-    color: #991b1b;
-  }
-
-  :global([data-mode="dark"]) .badge-error {
-    background: rgb(var(--color-error-900));
-    color: rgb(var(--color-error-200));
+    background: var(--ui-tone-error-bg);
+    color: var(--ui-tone-error-text);
   }
 
   .action-link {
     margin-left: 0.5rem;
     font-size: 0.75rem;
-    color: #3b82f6;
+    color: var(--ui-link);
     text-decoration: none;
   }
 
@@ -656,67 +576,52 @@
     text-decoration: underline;
   }
 
+  .action-link-success {
+    color: var(--ui-success);
+  }
+
+  .action-link-error {
+    color: var(--ui-error);
+  }
 
   .system-wide-badge {
     display: inline-block;
     padding: 0.25rem 0.5rem;
-    background: #f3f4f6;
-    color: #6b7280;
+    background: var(--ui-panel);
+    color: var(--ui-muted);
     border-radius: 0.25rem;
     font-size: 0.75rem;
     font-weight: 500;
   }
 
-  :global([data-mode="dark"]) .system-wide-badge {
-    background: rgb(var(--color-surface-700));
-    color: var(--color-surface-300);
-  }
-
   .group-badge {
     display: inline-block;
     padding: 0.25rem 0.5rem;
-    background: #dcfce7;
-    color: #166534;
+    background: var(--ui-tone-success-bg);
+    color: var(--ui-tone-success-text);
     border-radius: 0.25rem;
     font-size: 0.75rem;
     font-weight: 600;
   }
 
-  :global([data-mode="dark"]) .group-badge {
-    background: rgba(34, 197, 94, 0.2);
-    color: rgb(var(--color-success-300));
-  }
-
   .empty-state {
     text-align: center;
     padding: 3rem;
-    color: #6b7280;
-  }
-
-  :global([data-mode="dark"]) .empty-state {
-    color: var(--color-surface-400);
+    color: var(--ui-muted);
   }
 
   .empty-state-inline {
     text-align: center;
     padding: 1.5rem;
-    color: #6b7280;
+    color: var(--ui-muted);
     font-size: 0.875rem;
   }
 
-  :global([data-mode="dark"]) .empty-state-inline {
-    color: var(--color-surface-400);
-  }
-
   .empty-state-inline code {
-    background: #f3f4f6;
+    background: var(--ui-panel);
     padding: 0.125rem 0.375rem;
     border-radius: 0.25rem;
     font-size: 0.8125rem;
-  }
-
-  :global([data-mode="dark"]) .empty-state-inline code {
-    background: rgb(var(--color-surface-700));
   }
 
   .alert {
@@ -726,27 +631,15 @@
   }
 
   .alert-error {
-    background: #fee2e2;
-    color: #991b1b;
-    border: 1px solid #fecaca;
-  }
-
-  :global([data-mode="dark"]) .alert-error {
-    background: rgb(var(--color-error-900));
-    color: rgb(var(--color-error-200));
-    border-color: rgb(var(--color-error-800));
+    background: var(--ui-tone-error-bg);
+    color: var(--ui-tone-error-text);
+    border: 1px solid var(--ui-tone-error-border);
   }
 
   .alert-success {
-    background: #d1fae5;
-    color: #065f46;
-    border: 1px solid #a7f3d0;
-  }
-
-  :global([data-mode="dark"]) .alert-success {
-    background: rgb(var(--color-success-900));
-    color: rgb(var(--color-success-200));
-    border-color: rgb(var(--color-success-800));
+    background: var(--ui-tone-success-bg);
+    color: var(--ui-tone-success-text);
+    border: 1px solid var(--ui-tone-success-border);
   }
 
   .btn {
@@ -768,40 +661,31 @@
   }
 
   .btn-secondary {
-    background: #f3f4f6;
-    color: #374151;
-    border: 1px solid #d1d5db;
+    background: var(--ui-panel);
+    color: var(--ui-text);
+    border: 1px solid var(--ui-border);
   }
 
   .btn-secondary:hover:not(:disabled) {
-    background: #e5e7eb;
-  }
-
-  :global([data-mode="dark"]) .btn-secondary {
-    background: rgb(var(--color-surface-700));
-    color: var(--color-surface-200);
-    border-color: rgb(var(--color-surface-600));
-  }
-
-  :global([data-mode="dark"]) .btn-secondary:hover:not(:disabled) {
-    background: rgb(var(--color-surface-600));
+    background: var(--ui-hover);
   }
 
   .btn-success {
-    background: #059669;
-    color: white;
+    background: var(--ui-tone-success-bg);
+    color: var(--ui-tone-success-text);
   }
 
   .btn-success:hover:not(:disabled) {
-    background: #047857;
+    background: var(--ui-tone-success-bg);
+    color: var(--ui-tone-success-text);
   }
 
   .btn-danger {
-    background: #dc2626;
-    color: white;
+    background: var(--ui-fill-danger-bg);
+    color: var(--ui-fill-danger-text);
   }
 
   .btn-danger:hover:not(:disabled) {
-    background: #b91c1c;
+    opacity: 0.85;
   }
 </style>

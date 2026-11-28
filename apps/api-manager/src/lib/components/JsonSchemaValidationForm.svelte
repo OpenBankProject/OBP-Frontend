@@ -174,24 +174,24 @@
 </script>
 
 {#if opeyFilledFields.length > 0}
-  <div class="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-200" data-testid="opey-filled-banner">
+  <div class="mb-4 flex flex-wrap items-center gap-2 rounded-lg border px-4 py-3 text-sm ui-tone-info" data-testid="opey-filled-banner">
     <span>Opey filled {opeyFilledFields.length} field{opeyFilledFields.length === 1 ? "" : "s"}:</span>
     {#each opeyFilledFields as name (name)}
-      <span class="inline-flex items-center gap-1 rounded-full bg-white px-2 py-0.5 text-xs dark:bg-gray-800">
+      <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs ui-card">
         {fieldLabels[name] ?? name}
         <button type="button" class="underline" onclick={() => revertField(name)} data-testid="opey-revert-{name}">revert</button>
       </span>
     {/each}
-    <button type="button" class="ml-auto rounded-md bg-blue-600 px-3 py-1 text-xs font-medium text-white hover:bg-blue-700" onclick={acceptAll} data-testid="opey-accept-all">Keep all</button>
+    <button type="button" class="ml-auto rounded-md px-3 py-1 text-xs font-medium preset-filled-primary-500" onclick={acceptAll} data-testid="opey-accept-all">Keep all</button>
   </div>
 {/if}
 
 <form onsubmit={handleSubmit} class="space-y-5" data-testid="json-schema-validation-form">
   <div>
-    <label for="operation_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Operation id <span class="text-red-500">*</span></label>
+    <label for="operation_id" class="block text-sm font-medium ui-muted">Operation id <span class="ui-text-error">*</span></label>
     <input type="hidden" name="operation_id" value={operation_id} />
     {#if lockOperationId}
-      <p class="mt-1 font-mono text-sm text-gray-900 dark:text-gray-100" data-testid="field-operation-id-locked">{operation_id}</p>
+      <p class="mt-1 font-mono text-sm ui-text" data-testid="field-operation-id-locked">{operation_id}</p>
     {:else}
       <input
         id="operation_id"
@@ -201,11 +201,11 @@
         placeholder="Type part of the operation id, verb, path or summary, e.g. create customer"
         bind:value={search}
         oninput={onSearchInput}
-        class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 font-mono text-sm text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+        class="mt-1 block w-full rounded-lg border px-3 py-2 font-mono text-sm focus:ring-2 ui-card ui-text ui-border"
         data-testid="field-operation-id"
       />
       {#if !picked && searchTerms.length > 0 && matches.length === 0}
-        <p class="mt-1 text-xs text-amber-700 dark:text-amber-400" data-testid="operation-id-no-matches">
+        <p class="mt-1 text-xs ui-text-warning" data-testid="operation-id-no-matches">
           {#if operationChoices.length === 0}
             The operation id list could not be loaded from the resource docs, so nothing can be suggested. The value will be sent as typed.
           {:else}
@@ -214,24 +214,24 @@
         </p>
       {/if}
       {#if matches.length > 0}
-        <ul class="mt-2 max-h-64 divide-y divide-gray-100 overflow-auto rounded-lg border border-gray-300 bg-white dark:divide-gray-700 dark:border-gray-600 dark:bg-gray-700" data-testid="operation-id-results">
+        <ul class="mt-2 max-h-64 divide-y overflow-auto rounded-lg border ui-card ui-border" data-testid="operation-id-results">
           {#each matches as c (c.operation_id)}
             <li>
-              <button type="button" class="block w-full px-3 py-1.5 text-left text-sm hover:bg-blue-50 dark:hover:bg-gray-600" onclick={() => choose(c)}>
+              <button type="button" class="block w-full px-3 py-1.5 text-left text-sm ui-hover" onclick={() => choose(c)}>
                 <span class="font-mono">{c.operation_id}</span>
-                <span class="ml-2 text-xs text-gray-500 dark:text-gray-300">{c.request_verb} {c.request_url}</span>
-                <span class="block text-xs text-gray-500 dark:text-gray-300">{c.summary}</span>
+                <span class="ml-2 text-xs ui-muted">{c.request_verb} {c.request_url}</span>
+                <span class="block text-xs ui-muted">{c.summary}</span>
               </button>
             </li>
           {/each}
         </ul>
       {/if}
     {/if}
-    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+    <p class="mt-1 text-xs ui-muted">
       {#if chosen}
         <span class="font-mono">{chosen.request_verb} {chosen.request_url}</span> — {chosen.summary}
         {#if chosen.request_verb !== "POST" && chosen.request_verb !== "PUT" && chosen.request_verb !== "PATCH"}
-          <span class="text-amber-700 dark:text-amber-400">This endpoint takes no request body, so the schema will never be applied.</span>
+          <span class="ui-text-warning">This endpoint takes no request body, so the schema will never be applied.</span>
         {/if}
       {:else if operation_id}
         <span class="font-mono">{operation_id}</span> is not in the {operationChoices.length} known operation ids; it will be sent as typed.
@@ -243,28 +243,28 @@
 
   <div>
     <div class="flex items-baseline justify-between">
-      <label for="json_schema" class="text-sm font-medium text-gray-700 dark:text-gray-300">JSON Schema (draft-07) <span class="text-red-500">*</span></label>
+      <label for="json_schema" class="text-sm font-medium ui-muted">JSON Schema (draft-07) <span class="ui-text-error">*</span></label>
       <span class="flex gap-3">
-        <button type="button" onclick={useExample} class="text-xs text-blue-600 hover:underline dark:text-blue-400" data-testid="use-example-schema">Insert example</button>
-        <button type="button" onclick={prettify} disabled={!!schemaError || !json_schema.trim()} class="text-xs text-blue-600 hover:underline disabled:opacity-50 dark:text-blue-400" data-testid="prettify-schema">Format</button>
+        <button type="button" onclick={useExample} class="text-xs hover:underline ui-link" data-testid="use-example-schema">Insert example</button>
+        <button type="button" onclick={prettify} disabled={!!schemaError || !json_schema.trim()} class="text-xs hover:underline disabled:opacity-50 ui-link" data-testid="prettify-schema">Format</button>
       </span>
     </div>
-    <textarea id="json_schema" name="json_schema" bind:value={json_schema} rows="18" spellcheck="false" class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 font-mono text-xs text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" data-testid="field-json-schema"></textarea>
+    <textarea id="json_schema" name="json_schema" bind:value={json_schema} rows="18" spellcheck="false" class="mt-1 block w-full rounded-lg border px-3 py-2 font-mono text-xs focus:outline-none focus:ring-2 ui-card ui-text ui-border" data-testid="field-json-schema"></textarea>
     {#if schemaError}
-      <p class="mt-1 text-xs text-red-600 dark:text-red-400">{schemaError}</p>
+      <p class="mt-1 text-xs ui-text-error">{schemaError}</p>
     {:else}
-      <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Sent to OBP as the request body. Takes effect after OBP's validation cache refreshes, which can be a few minutes.</p>
+      <p class="mt-1 text-xs ui-muted">Sent to OBP as the request body. Takes effect after OBP's validation cache refreshes, which can be a few minutes.</p>
     {/if}
   </div>
 
   {#if submitError}
-    <div class="rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-700 dark:bg-red-900/20 dark:text-red-200" data-testid="json-schema-validation-error">{submitError}</div>
+    <div class="rounded-lg border px-4 py-3 text-sm ui-tone-error" data-testid="json-schema-validation-error">{submitError}</div>
   {/if}
 
   <div class="flex flex-wrap gap-3">
-    <button type="submit" disabled={isSubmitting} class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60" data-testid="json-schema-validation-submit">
+    <button type="submit" disabled={isSubmitting} class="rounded-lg px-4 py-2 text-sm font-medium disabled:opacity-60 preset-filled-primary-500" data-testid="json-schema-validation-submit">
       {isSubmitting ? "Saving…" : submitLabel}
     </button>
-    <a href={cancelHref} class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">Cancel</a>
+    <a href={cancelHref} class="rounded-lg border px-4 py-2 text-sm font-medium ui-card ui-hover ui-muted ui-border">Cancel</a>
   </div>
 </form>

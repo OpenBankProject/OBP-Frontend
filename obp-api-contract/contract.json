@@ -11583,6 +11583,13 @@
     "`${links.explorerUrl}/resource-docs/v6.0.0?operationid=${encodeURIComponent(e.operation_id)}`"
    ],
    "reason": "link to the API Explorer page for an endpoint; nothing is requested"
+  },
+  {
+   "source": "apps/api-manager/src/routes/(protected)/consumers/+page.server.ts",
+   "needles": [
+    "path: \"/obp/v7.0.0/management/platform-apps\" }"
+   ],
+   "reason": "descriptor table of operation ids and paths shown as API Explorer links"
   }
  ]
 }

@@ -184,7 +184,7 @@
 	{:else}
 		{#if entityMissing}
 			<div
-				class="mb-6 rounded-lg border border-amber-400 bg-amber-50 p-4 dark:border-amber-600 dark:bg-amber-900/20"
+				class="mb-6 rounded-lg border p-4 ui-tone-warning"
 				data-testid="training-entity-missing"
 			>
 				<p class="font-semibold">Progress tracking is not set up on this instance yet.</p>
@@ -212,17 +212,17 @@
 			</div>
 		{:else}
 			<div class="mb-6 flex flex-wrap gap-3" data-testid="training-summary">
-				<span class="rounded-full bg-primary-100 px-4 py-1 font-medium dark:bg-primary-900/30">
+				<span class="rounded-full px-4 py-1 font-medium ui-tone-info">
 					{interestedCount} interested
 				</span>
-				<span class="rounded-full bg-green-100 px-4 py-1 font-medium dark:bg-green-900/30">
+				<span class="rounded-full px-4 py-1 font-medium ui-tone-success">
 					{coveredCount} of {totalTopics} covered
 				</span>
 			</div>
 		{/if}
 
 		{#if errorMessage}
-			<p class="mb-4 rounded bg-red-100 px-4 py-2 text-red-800 dark:bg-red-900/30 dark:text-red-300" data-testid="training-error">
+			<p class="mb-4 rounded px-4 py-2 ui-tone-error" data-testid="training-error">
 				{errorMessage}
 			</p>
 		{/if}
@@ -231,7 +231,7 @@
 			{#each trainingSections as section (section.id)}
 				<a
 					href={`#${section.id}`}
-					class="rounded-full border border-surface-300 px-3 py-1 text-sm hover:border-primary-500 dark:border-surface-600"
+					class="rounded-full border px-3 py-1 text-sm ui-hover ui-border"
 				>
 					{section.title}
 					{#if !entityMissing}
@@ -247,10 +247,10 @@
 				{#if section.audience}
 					<p class="mb-3 text-sm opacity-70">{section.audience}</p>
 				{/if}
-				<div class="overflow-x-auto rounded-lg border border-surface-300 dark:border-surface-600">
+				<div class="overflow-x-auto rounded-lg border ui-border">
 					<table class="w-full min-w-[720px] table-auto">
 						<thead>
-							<tr class="bg-surface-100 text-left text-sm uppercase tracking-wide dark:bg-surface-800">
+							<tr class="text-left text-sm uppercase tracking-wide ui-panel">
 								<th class="px-4 py-2">Topic</th>
 								<th class="px-4 py-2">What it covers</th>
 								<th class="px-2 py-2 text-center">Interested</th>
@@ -263,7 +263,7 @@
 								{@const p = getProgress(section.id, topic.id)}
 								{@const k = key(section.id, topic.id)}
 								<tr
-									class="border-t border-surface-200 align-top dark:border-surface-700 {p.covered ? 'bg-green-50/50 dark:bg-green-900/10' : ''}"
+									class="border-t align-top ui-border {p.covered ? 'ui-tone-success' : ''}"
 									data-testid={`training-topic-${section.id}--${topic.id}`}
 									data-covered={p.covered}
 									data-interested={p.interested}

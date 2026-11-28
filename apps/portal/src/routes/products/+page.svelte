@@ -42,32 +42,32 @@
 <div class="container mx-auto max-w-6xl px-4 py-8">
 	<!-- Header -->
 	<div class="mb-8 text-center">
-		<h1 class="mb-2 text-3xl font-bold text-gray-900 dark:text-gray-100">API Products</h1>
-		<p class="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+		<h1 class="mb-2 text-3xl font-bold ui-text">API Products</h1>
+		<p class="max-w-2xl mx-auto ui-muted">
 			Choose the right API access tier for your needs. Each product includes different rate limits
 			and access to specific API endpoints.
 		</p>
 	</div>
 
 	{#if data.loginRequired}
-		<div class="mb-6 rounded-lg border border-yellow-200 bg-yellow-50 p-4 dark:border-yellow-700 dark:bg-yellow-900/20">
-			<p class="text-sm text-yellow-700 dark:text-yellow-300">
+		<div class="mb-6 rounded-lg border p-4 ui-tone-warning">
+			<p class="text-sm ui-text-warning">
 				<a href="/login?redirect=/products" class="underline">Please login</a>
 			</p>
 		</div>
 	{/if}
 
 	{#if data.warnings && data.warnings.length > 0}
-		<div class="mb-6 rounded-lg border border-yellow-200 bg-yellow-50 p-4 dark:border-yellow-700 dark:bg-yellow-900/20">
+		<div class="mb-6 rounded-lg border p-4 ui-tone-warning">
 			{#each data.warnings as warning}
-				<p class="text-sm text-yellow-700 dark:text-yellow-300">{warning}</p>
+				<p class="text-sm ui-text-warning">{warning}</p>
 			{/each}
 		</div>
 	{/if}
 
 	{#if data.message}
-		<div class="rounded-lg border border-red-200 bg-red-50 p-4 text-center dark:border-red-800 dark:bg-red-900/20">
-			<p class="text-red-600 dark:text-red-400">{data.message}</p>
+		<div class="rounded-lg border p-4 text-center ui-tone-error">
+			<p class="ui-text-error">{data.message}</p>
 		</div>
 	{:else if sortedProducts.length > 0}
 		<!-- Products Grid -->
@@ -81,18 +81,18 @@
 			{/each}
 		</div>
 
-		<p class="mt-8 text-center text-sm text-gray-500 dark:text-gray-400">
+		<p class="mt-8 text-center text-sm ui-muted">
 			{sortedProducts.length} product{sortedProducts.length === 1 ? '' : 's'} available
 		</p>
 
-		<div class="mt-16 border-t pt-8 text-center dark:border-gray-700">
-			<p class="text-gray-600 dark:text-gray-400">
-				Questions about rate limits, tiers or getting started? See the <a href="/faq" class="underline hover:text-gray-900 dark:hover:text-gray-100" data-testid="products-faq-link">FAQ</a>.
+		<div class="mt-16 border-t pt-8 text-center ui-border">
+			<p class="ui-muted">
+				Questions about rate limits, tiers or getting started? See the <a href="/faq" class="underline" data-testid="products-faq-link">FAQ</a>.
 			</p>
 		</div>
 	{:else}
-		<div class="rounded-lg bg-gray-100 p-8 text-center dark:bg-gray-800">
-			<p class="text-gray-600 dark:text-gray-400">
+		<div class="rounded-lg p-8 text-center ui-panel">
+			<p class="ui-muted">
 				No Products Defined.
 			</p>
 		</div>

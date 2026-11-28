@@ -34,7 +34,7 @@
 	{#each tracks as t (t.key)}
 		<a
 			href="/prepare?for={t.key}"
-			class="btn {data.track === t.key ? 'preset-filled' : 'preset-tonal'}"
+			class="btn {data.track === t.key ? 'preset-filled-primary-500' : 'preset-tonal'}"
 			aria-current={data.track === t.key ? 'page' : undefined}
 			data-testid="start-track-{t.key}">{t.label}</a
 		>
@@ -58,13 +58,13 @@
 			<a href="#step-{step.key}" class="flex items-center gap-2" title={step.title}>
 				<span
 					class="flex size-9 shrink-0 items-center justify-center rounded-full border-2 font-bold
-						{step.status === 'done' ? 'border-success-500 bg-success-500 text-white' : step.status === 'next' ? 'border-primary-500 bg-primary-500 text-white ring-4 ring-primary-500/30' : 'border-surface-400-600'}"
+						{step.status === 'done' ? 'ui-tone-success' : step.status === 'next' ? 'preset-filled-primary-500 ui-border-brand' : 'ui-border'}"
 				>
 					{#if step.status === 'done'}<Check size={18} aria-label={m.conformator_prepare_done()} />{:else}{formatNumber(i + 1)}{/if}
 				</span>
 				<span class="hidden text-sm lg:inline {step.status === 'next' ? 'font-semibold' : ''}">{step.title}</span>
 			</a>
-			{#if i < data.steps.length - 1}<span class="mx-2 h-0.5 w-6 lg:w-8 {step.status === 'done' ? 'bg-success-500' : 'bg-surface-300-700'}" aria-hidden="true"></span>{/if}
+			{#if i < data.steps.length - 1}<span class="mx-2 h-0.5 w-6 lg:w-8" style="background: var({step.status === 'done' ? '--ui-success' : '--ui-border'})" aria-hidden="true"></span>{/if}
 		</li>
 	{/each}
 </ol>
@@ -78,17 +78,17 @@
 	{#each data.steps as step, i (step.key)}
 		<li
 			id="step-{step.key}"
-			class="scroll-mt-4 rounded-lg border-2 p-5 {step.status === 'next' ? 'border-primary-500 preset-tonal-primary' : step.status === 'done' ? 'border-success-500' : 'border-surface-200-800'}"
+			class="scroll-mt-4 rounded-lg border-2 p-5 {step.status === 'next' ? 'ui-tone-info' : 'ui-border'}"
 			data-testid="start-step-{step.key}"
 			data-status={step.status}
 		>
 			<div class="flex flex-wrap items-baseline justify-between gap-2">
 				<h2 class="h4 flex items-center gap-2">
-					{#if step.status === 'done'}<span class="flex size-7 shrink-0 items-center justify-center rounded-full bg-success-500 text-white"><Check size={16} aria-hidden="true" /></span>{/if}
+					{#if step.status === 'done'}<span class="flex size-7 shrink-0 items-center justify-center rounded-full ui-tone-success"><Check size={16} aria-hidden="true" /></span>{/if}
 					{formatNumber(i + 1)}. {step.title}
 				</h2>
 				{#if step.status === 'done'}
-					<span class="badge preset-filled-success-500 gap-1 text-base font-semibold" data-testid="start-done-{step.key}"><Check size={16} aria-hidden="true" />{m.conformator_prepare_done()}</span>
+					<span class="badge ui-tone-success gap-1 text-base font-semibold" data-testid="start-done-{step.key}"><Check size={16} aria-hidden="true" />{m.conformator_prepare_done()}</span>
 				{:else if step.status === 'next'}
 					<span class="badge preset-filled-primary-500">{m.conformator_prepare_next_step()}</span>
 				{/if}
@@ -97,7 +97,7 @@
 			<p class="mt-2 text-sm"><strong>{m.conformator_prepare_who()}</strong> {step.who}</p>
 			{#if step.progress}<p class="mt-1 text-sm" data-testid="start-progress-{step.key}">{step.progress}</p>{/if}
 			<div class="mt-3 flex flex-wrap items-center gap-3">
-				<a class="btn {step.status === 'next' ? 'preset-filled' : 'preset-tonal'}" href={step.href}>{step.action}</a>
+				<a class="btn {step.status === 'next' ? 'preset-filled-primary-500' : 'preset-tonal'}" href={step.href}>{step.action}</a>
 				{#if step.shortcut}<a class="anchor text-sm" href={step.shortcut.href}>{step.shortcut.label}</a>{/if}
 			</div>
 		</li>

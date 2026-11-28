@@ -88,39 +88,21 @@
   }
 
   .error-error {
-    background: #fee2e2;
-    border-color: #fecaca;
-    color: #991b1b;
-  }
-
-  :global([data-mode="dark"]) .error-error {
-    background: rgb(var(--color-error-900));
-    border-color: rgb(var(--color-error-700));
-    color: rgb(var(--color-error-200));
+    background: var(--ui-tone-error-bg);
+    border-color: var(--ui-tone-error-border);
+    color: var(--ui-tone-error-text);
   }
 
   .error-warning {
-    background: #fef3c7;
-    border-color: #fde047;
-    color: #92400e;
-  }
-
-  :global([data-mode="dark"]) .error-warning {
-    background: rgb(var(--color-warning-900));
-    border-color: rgb(var(--color-warning-700));
-    color: rgb(var(--color-warning-200));
+    background: var(--ui-tone-warning-bg);
+    border-color: var(--ui-tone-warning-border);
+    color: var(--ui-tone-warning-text);
   }
 
   .error-info {
-    background: #dbeafe;
-    border-color: #bfdbfe;
-    color: #1e3a8a;
-  }
-
-  :global([data-mode="dark"]) .error-info {
-    background: rgb(var(--color-primary-900));
-    border-color: rgb(var(--color-primary-700));
-    color: rgb(var(--color-primary-200));
+    background: var(--ui-tone-info-bg);
+    border-color: var(--ui-tone-info-border);
+    color: var(--ui-tone-info-text);
   }
 
   .error-header {
@@ -145,7 +127,7 @@
 
   .copy-button {
     margin-left: auto;
-    background: rgba(0, 0, 0, 0.1);
+    background: var(--ui-panel);
     border: none;
     border-radius: 4px;
     padding: 0.375rem;
@@ -158,19 +140,11 @@
   }
 
   .copy-button:hover {
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--ui-hover);
     transform: scale(1.1);
   }
 
   .copy-button:active {
     transform: scale(0.95);
-  }
-
-  :global([data-mode="dark"]) .copy-button {
-    background: rgba(255, 255, 255, 0.1);
-  }
-
-  :global([data-mode="dark"]) .copy-button:hover {
-    background: rgba(255, 255, 255, 0.2);
   }
 </style>

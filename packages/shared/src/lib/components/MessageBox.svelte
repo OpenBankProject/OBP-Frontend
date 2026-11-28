@@ -73,54 +73,30 @@
 
   /* Error type */
   .message-error {
-    background: rgba(239, 68, 68, 0.1);
-    border-color: rgba(239, 68, 68, 0.3);
-    color: #991b1b;
-  }
-
-  :global([data-mode="dark"]) .message-error {
-    background: rgba(239, 68, 68, 0.15);
-    border-color: rgba(239, 68, 68, 0.4);
-    color: rgb(var(--color-error-200));
+    background: var(--ui-tone-error-bg);
+    border-color: var(--ui-tone-error-border);
+    color: var(--ui-tone-error-text);
   }
 
   /* Warning type */
   .message-warning {
-    background: rgba(245, 158, 11, 0.1);
-    border-color: rgba(245, 158, 11, 0.3);
-    color: #92400e;
-  }
-
-  :global([data-mode="dark"]) .message-warning {
-    background: rgba(245, 158, 11, 0.15);
-    border-color: rgba(245, 158, 11, 0.4);
-    color: rgb(var(--color-warning-200));
+    background: var(--ui-tone-warning-bg);
+    border-color: var(--ui-tone-warning-border);
+    color: var(--ui-tone-warning-text);
   }
 
   /* Info type */
   .message-info {
-    background: rgba(59, 130, 246, 0.1);
-    border-color: rgba(59, 130, 246, 0.3);
-    color: #1e40af;
-  }
-
-  :global([data-mode="dark"]) .message-info {
-    background: rgba(59, 130, 246, 0.15);
-    border-color: rgba(59, 130, 246, 0.4);
-    color: rgb(var(--color-primary-200));
+    background: var(--ui-tone-info-bg);
+    border-color: var(--ui-tone-info-border);
+    color: var(--ui-tone-info-text);
   }
 
   /* Success type */
   .message-success {
-    background: rgba(16, 185, 129, 0.1);
-    border-color: rgba(16, 185, 129, 0.3);
-    color: #065f46;
-  }
-
-  :global([data-mode="dark"]) .message-success {
-    background: rgba(16, 185, 129, 0.15);
-    border-color: rgba(16, 185, 129, 0.4);
-    color: rgb(var(--color-success-200));
+    background: var(--ui-tone-success-bg);
+    border-color: var(--ui-tone-success-border);
+    color: var(--ui-tone-success-text);
   }
 
   .message-text {
@@ -132,7 +108,7 @@
     position: absolute;
     top: 0.5rem;
     right: 0.5rem;
-    background: rgba(0, 0, 0, 0.1);
+    background: var(--ui-panel);
     border: none;
     border-radius: 4px;
     padding: 0.375rem;
@@ -145,19 +121,11 @@
   }
 
   .copy-button:hover {
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--ui-hover);
     transform: scale(1.1);
   }
 
   .copy-button:active {
     transform: scale(0.95);
-  }
-
-  :global([data-mode="dark"]) .copy-button {
-    background: rgba(255, 255, 255, 0.1);
-  }
-
-  :global([data-mode="dark"]) .copy-button:hover {
-    background: rgba(255, 255, 255, 0.2);
   }
 </style>

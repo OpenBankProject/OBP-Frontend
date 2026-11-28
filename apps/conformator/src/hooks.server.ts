@@ -28,6 +28,8 @@ import RedisStore from 'svelte-kit-connect-redis';
 import { createLogger, reloadPathAfterSessionEnds } from '@obp/shared/utils';
 import { loginUrlReturningTo } from '@obp/shared/server/auth';
 import { i18nHandle } from '@obp/shared/server/i18n';
+import { withBranding } from '@obp/shared/branding';
+import { conformatorBranding } from '$lib/server/branding';
 import { healthCheckRegistry } from '@obp/shared/health-check';
 import { oauth2ProviderManager, sessionOAuth, SESSION_COOKIE } from '$lib/server/oauth';
 import { redisService } from '$lib/server/redis';
@@ -110,8 +112,12 @@ const checkAuthorization: Handle = async ({ event, resolve }) => {
 	return resolve(event);
 };
 
+/** The theme, extra stylesheet and favicon from the CONFORMATOR_* settings, in app.html. */
+const branding: Handle = ({ event, resolve }) => resolve(event, { transformPageChunk: ({ html }) => withBranding(html, conformatorBranding) });
+
 export const handle: Handle = sequence(
 	requestTelemetry,
+	branding,
 	// The page's language (and lang and dir in app.html), before anything draws a page
 	i18nHandle,
 	sveltekitSessionHandle({

@@ -27,7 +27,7 @@
   // Configuration
   $: obpInfo = configHelpers.getObpConnectionInfo();
   $: connectionStatus = hasApiAccess ? "connected" : "disconnected";
-  $: statusColor = hasApiAccess ? "#10b981" : "#ef4444";
+  $: statusColor = hasApiAccess ? "var(--ui-success)" : "var(--ui-error)";
   $: statusIcon = hasApiAccess ? "🟢" : "🔴";
   $: statusText = hasApiAccess ? "Connected" : "Disconnected";
 
@@ -132,7 +132,7 @@
   .status-dot-inner {
     width: 50%;
     height: 50%;
-    background-color: rgba(255, 255, 255, 0.8);
+    background-color: var(--ui-card);
     border-radius: 50%;
   }
 
@@ -142,13 +142,13 @@
 
   @keyframes pulse-animation {
     0% {
-      box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+      box-shadow: 0 0 0 0 color-mix(in srgb, var(--ui-success) 70%, transparent);
     }
     70% {
-      box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+      box-shadow: 0 0 0 10px transparent;
     }
     100% {
-      box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+      box-shadow: 0 0 0 0 transparent;
     }
   }
 
@@ -219,7 +219,7 @@
   }
 
   .status-text {
-    color: #374151;
+    color: var(--ui-text);
     line-height: 1.2;
   }
 
@@ -227,7 +227,7 @@
     display: flex;
     flex-direction: column;
     gap: 0.125rem;
-    color: #6b7280;
+    color: var(--ui-muted);
     margin-top: 0.25rem;
   }
 
@@ -244,7 +244,7 @@
 
   .detail-value {
     font-family: monospace;
-    color: #374151;
+    color: var(--ui-text);
   }
 
   /* Responsive Design */
@@ -271,26 +271,7 @@
   }
 
   .status-indicator:hover .status-text {
-    color: #1f2937;
+    color: var(--ui-text);
     transition: color 0.2s ease-in-out;
-  }
-
-  /* Dark Mode Support (if needed) */
-  @media (prefers-color-scheme: dark) {
-    .status-text {
-      color: #e5e7eb;
-    }
-
-    .status-details {
-      color: #9ca3af;
-    }
-
-    .detail-value {
-      color: #e5e7eb;
-    }
-
-    .status-indicator:hover .status-text {
-      color: #f9fafb;
-    }
   }
 </style>

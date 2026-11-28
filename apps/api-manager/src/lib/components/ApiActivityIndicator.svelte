@@ -30,10 +30,10 @@
     right: 1rem;
     width: 12px;
     height: 12px;
-    background: oklch(68.5% 0.14 148.36deg);
+    background: var(--ui-success);
     border-radius: 50%;
     z-index: 9999;
-    box-shadow: 0 2px 8px oklch(68.5% 0.14 148.36deg / 0.4);
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--ui-success) 40%, transparent);
     animation: pulse-and-fade 3s ease-in-out infinite;
   }
 
@@ -41,23 +41,23 @@
     0% {
       opacity: 1;
       transform: scale(1);
-      box-shadow: 0 2px 8px oklch(68.5% 0.14 148.36deg / 0.4);
+      box-shadow: 0 2px 8px color-mix(in srgb, var(--ui-success) 40%, transparent);
     }
     50% {
       opacity: 0.4;
       transform: scale(1.3);
-      box-shadow: 0 2px 16px oklch(68.5% 0.14 148.36deg / 0.6);
+      box-shadow: 0 2px 16px color-mix(in srgb, var(--ui-success) 60%, transparent);
     }
     100% {
       opacity: 0.1;
       transform: scale(1);
-      box-shadow: 0 2px 8px oklch(68.5% 0.14 148.36deg / 0.1);
+      box-shadow: 0 2px 8px color-mix(in srgb, var(--ui-success) 10%, transparent);
     }
   }
 
   :global([data-mode="dark"]) .api-indicator {
-    background: oklch(72.39% 0.11 211.15deg);
-    box-shadow: 0 2px 8px oklch(72.39% 0.11 211.15deg / 0.4);
+    background: var(--ui-link);
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--ui-link) 40%, transparent);
   }
 
   :global([data-mode="dark"]) .api-indicator {
@@ -68,17 +68,17 @@
     0% {
       opacity: 1;
       transform: scale(1);
-      box-shadow: 0 2px 8px oklch(72.39% 0.11 211.15deg / 0.4);
+      box-shadow: 0 2px 8px color-mix(in srgb, var(--ui-link) 40%, transparent);
     }
     50% {
       opacity: 0.4;
       transform: scale(1.3);
-      box-shadow: 0 2px 16px oklch(72.39% 0.11 211.15deg / 0.6);
+      box-shadow: 0 2px 16px color-mix(in srgb, var(--ui-link) 60%, transparent);
     }
     100% {
       opacity: 0.1;
       transform: scale(1);
-      box-shadow: 0 2px 8px oklch(72.39% 0.11 211.15deg / 0.1);
+      box-shadow: 0 2px 8px color-mix(in srgb, var(--ui-link) 10%, transparent);
     }
   }
 </style>

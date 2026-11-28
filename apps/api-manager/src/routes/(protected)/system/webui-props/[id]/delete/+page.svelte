@@ -69,23 +69,23 @@
 
 <div class="container mx-auto px-4 py-8">
     <div class="mb-6">
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
+      <h1 class="text-3xl font-bold ui-text">
         Delete WebUI Prop
       </h1>
-      <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+      <p class="mt-2 text-sm ui-muted">
         Permanently remove this configuration property
       </p>
     </div>
 
     <div class="mx-auto max-w-2xl">
       <div
-        class="rounded-lg bg-white p-6 shadow-md dark:bg-gray-800 dark:shadow-gray-900/50"
+        class="rounded-lg p-6 shadow-md ui-card"
       >
         {#if formError}
           <div
-            class="mb-4 rounded-lg border border-red-300 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20"
+            class="mb-4 rounded-lg border p-4 ui-tone-error"
           >
-            <p class="text-sm text-red-800 dark:text-red-200">{formError}</p>
+            <p class="text-sm ui-text-error">{formError}</p>
           </div>
         {/if}
 
@@ -93,12 +93,12 @@
         <div class="mb-6 space-y-4">
           <div>
             <label
-              class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+              class="mb-2 block text-sm font-medium ui-muted"
             >
               Property ID
             </label>
             <div
-              class="rounded-lg border border-gray-300 bg-gray-50 px-4 py-2 font-mono text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+              class="rounded-lg border px-4 py-2 font-mono text-sm ui-card ui-text ui-border"
             >
               {data.prop?.web_ui_props_id || ""}
             </div>
@@ -106,12 +106,12 @@
 
           <div>
             <label
-              class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+              class="mb-2 block text-sm font-medium ui-muted"
             >
               Property Name
             </label>
             <div
-              class="rounded-lg border border-gray-300 bg-gray-50 px-4 py-2 font-mono text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+              class="rounded-lg border px-4 py-2 font-mono text-sm ui-card ui-text ui-border"
             >
               {data.prop?.name || ""}
             </div>
@@ -119,12 +119,12 @@
 
           <div>
             <label
-              class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+              class="mb-2 block text-sm font-medium ui-muted"
             >
               Property Value
             </label>
             <div
-              class="max-h-48 overflow-y-auto rounded-lg border border-gray-300 bg-gray-50 px-4 py-2 font-mono text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+              class="max-h-48 overflow-y-auto rounded-lg border px-4 py-2 font-mono text-sm ui-card ui-text ui-border"
             >
               <pre class="whitespace-pre-wrap break-words">{data.prop?.value ||
                   ""}</pre>
@@ -139,14 +139,14 @@
               type="button"
               onclick={handleCancel}
               disabled={isDeleting}
-              class="rounded-lg border border-gray-300 bg-white px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+              class="rounded-lg border px-6 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 ui-card ui-hover ui-muted ui-border"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isDeleting}
-              class="rounded-lg bg-red-600 px-6 py-2 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 dark:bg-red-500 dark:hover:bg-red-600"
+              class="rounded-lg px-6 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 preset-filled-error-500"
             >
               {#if isDeleting}
                 <span class="flex items-center">

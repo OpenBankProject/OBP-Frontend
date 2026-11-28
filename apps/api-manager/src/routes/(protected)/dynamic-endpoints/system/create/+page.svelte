@@ -145,7 +145,7 @@
   <div class="mb-6">
     <a
       href="/dynamic-endpoints/system"
-      class="mb-4 inline-flex items-center text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+      class="mb-4 inline-flex items-center text-sm ui-link"
     >
       <svg
         class="mr-2 h-4 w-4"
@@ -162,28 +162,28 @@
       </svg>
       Back to System Dynamic Endpoints
     </a>
-    <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
+    <h1 class="text-3xl font-bold ui-text">
       Create System Dynamic Endpoint
     </h1>
-    <p class="mt-1 text-gray-600 dark:text-gray-400">
+    <p class="mt-1 ui-muted">
       Define a new system dynamic endpoint using Swagger/OpenAPI specification
     </p>
   </div>
 
   <!-- Form -->
   <div
-    class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+    class="rounded-lg border p-6 shadow-sm ui-card ui-border"
   >
     <form onsubmit={handleSubmit} class="space-y-6">
       <!-- Swagger JSON -->
       <div>
         <label
           for="swagger"
-          class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+          class="block text-sm font-medium ui-muted"
         >
-          Swagger/OpenAPI Specification (JSON) <span class="text-red-600">*</span>
+          Swagger/OpenAPI Specification (JSON) <span class="ui-text-error">*</span>
         </label>
-        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+        <p class="mt-1 text-xs ui-muted">
           Define your endpoint using Swagger 2.0 or OpenAPI 3.0 specification
         </p>
         <textarea
@@ -191,10 +191,10 @@
           bind:value={swaggerJson}
           oninput={() => validateSwagger()}
           rows="25"
-          class="mt-2 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 font-mono text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+          class="mt-2 block w-full rounded-lg border px-3 py-2 font-mono text-sm focus:outline-none focus:ring-2 ui-card ui-text ui-border"
         ></textarea>
         {#if swaggerError}
-          <p class="mt-2 text-sm text-red-600 dark:text-red-400">
+          <p class="mt-2 text-sm ui-text-error">
             {swaggerError}
           </p>
         {/if}
@@ -202,12 +202,12 @@
 
       <!-- Help Text -->
       <div
-        class="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20"
+        class="rounded-lg border p-4 ui-tone-info"
       >
-        <h3 class="text-sm font-semibold text-blue-900 dark:text-blue-100">
+        <h3 class="text-sm font-semibold ui-link">
           Swagger Specification Guide
         </h3>
-        <ul class="mt-2 space-y-1 text-xs text-blue-800 dark:text-blue-200">
+        <ul class="mt-2 space-y-1 text-xs ui-link">
           <li>
             <strong>swagger/openapi:</strong> Version (e.g., "2.0" or "3.0.0")
           </li>
@@ -224,23 +224,23 @@
             <strong>responses:</strong> Define response schemas and status codes
           </li>
         </ul>
-        <div class="mt-3 border-t border-blue-300 pt-3 dark:border-blue-700">
-          <p class="text-xs text-blue-800 dark:text-blue-200">
+        <div class="mt-3 border-t pt-3 ui-border">
+          <p class="text-xs ui-link">
             <strong>Host options:</strong>
           </p>
-          <ul class="mt-1 space-y-1 text-xs text-blue-700 dark:text-blue-300">
-            <li><code class="bg-blue-100 px-1 dark:bg-blue-900">obp_mock</code> - Returns mock response based on swagger example</li>
-            <li><code class="bg-blue-100 px-1 dark:bg-blue-900">dynamic_entity</code> - Routes to a dynamic entity</li>
-            <li><code class="bg-blue-100 px-1 dark:bg-blue-900">https://example.com</code> - Proxies to external URL</li>
+          <ul class="mt-1 space-y-1 text-xs ui-link">
+            <li><code class="px-1 ui-tone-info">obp_mock</code> - Returns mock response based on swagger example</li>
+            <li><code class="px-1 ui-tone-info">dynamic_entity</code> - Routes to a dynamic entity</li>
+            <li><code class="px-1 ui-tone-info">https://example.com</code> - Proxies to external URL</li>
           </ul>
         </div>
         {#if data.externalLinks?.API_EXPLORER_URL}
-          <div class="mt-3 border-t border-blue-300 pt-3 dark:border-blue-700">
+          <div class="mt-3 border-t pt-3 ui-border">
             <a
               href="{data.externalLinks.API_EXPLORER_URL}/resource-docs/OBPv6.0.0?operationid=OBPv4.0.0-createDynamicEndpoint"
               target="_blank"
               rel="noopener noreferrer"
-              class="inline-flex items-center text-xs font-medium text-blue-700 hover:text-blue-900 hover:underline dark:text-blue-300 dark:hover:text-blue-100"
+              class="inline-flex items-center text-xs font-medium hover:underline ui-link"
             >
               View API Documentation on API Explorer
               <svg
@@ -262,17 +262,17 @@
       </div>
 
       <!-- Actions -->
-      <div class="flex justify-end gap-3 border-t pt-4 dark:border-gray-700">
+      <div class="flex justify-end gap-3 border-t pt-4 ui-border">
         <a
           href="/dynamic-endpoints/system"
-          class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+          class="rounded-lg border px-4 py-2 text-sm font-medium ui-card ui-hover ui-muted ui-border"
         >
           Cancel
         </a>
         <button
           type="submit"
           disabled={isSubmitting}
-          class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
+          class="inline-flex items-center rounded-lg px-4 py-2 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50 preset-filled-primary-500"
         >
           {#if isSubmitting}
             Creating...

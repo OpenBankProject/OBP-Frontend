@@ -35,9 +35,9 @@
         </div>
         <div class="text-center mt-10">
             <h1 class="text-2xl font-bold mb-4">Oops! Page Not Found</h1>
-            <p class="text-2xl text-gray-500 mb-4">{page.status}</p>
+            <p class="text-2xl mb-4 ui-muted">{page.status}</p>
             {#if page.error?.message && page.error.message !== "Not Found"}
-                <p class="text-red-500 mb-4">{page.error.message}</p>
+                <p class="mb-4 ui-text-error">{page.error.message}</p>
             {/if}
             <div class="mt-6 flex justify-center space-x-4">
                 <a href="/" class="btn btn-primary">Go to Home</a>
@@ -50,9 +50,9 @@
         </div>
         <div class="text-center">
             <h1 class="text-2xl font-bold mb-4">Something Went Wrong</h1>
-            <p class="text-xl text-gray-500 mb-4">{page.status}</p>
+            <p class="text-xl mb-4 ui-muted">{page.status}</p>
             {#if page.error?.message && page.error.message !== "Internal Server Error"}
-                <p class="text-red-500 mb-4">{page.error.message}</p>
+                <p class="mb-4 ui-text-error">{page.error.message}</p>
             {/if}
             <div class="mt-6 flex justify-center space-x-4">
                 <a href="/" class="btn btn-primary">Go to Home</a>
@@ -65,9 +65,9 @@
         </div>
         <div class="text-center">
             <h1 class="text-2xl font-bold mb-4">Access Denied</h1>
-            <p class="text-xl text-gray-500 mb-4">{page.status}</p>
+            <p class="text-xl mb-4 ui-muted">{page.status}</p>
             {#if page.error?.message && page.error.message !== "Forbidden"}
-                <p class="text-red-500 mb-4">{page.error.message}</p>
+                <p class="mb-4 ui-text-error">{page.error.message}</p>
             {/if}
             <div class="mt-6 flex justify-center space-x-4">
                 <a href="/" class="btn btn-primary">Go to Home</a>
@@ -80,9 +80,9 @@
         </div>
         <div class="text-center">
             <h1 class="text-2xl font-bold mb-4">Please Sign In</h1>
-            <p class="text-xl text-gray-500 mb-4">{page.status}</p>
+            <p class="text-xl mb-4 ui-muted">{page.status}</p>
             {#if page.error?.message && page.error.message !== "Unauthorized"}
-                <p class="text-red-500 mb-4">{page.error.message}</p>
+                <p class="mb-4 ui-text-error">{page.error.message}</p>
             {/if}
             <div class="mt-6 flex justify-center space-x-4">
                 <a href="/login" class="btn btn-primary">Log In</a>
@@ -95,9 +95,9 @@
         </div>
         <div class="text-center">
             <h1 class="text-2xl font-bold mb-4">We'll Be Right Back</h1>
-            <p class="text-xl text-gray-500 mb-4">{page.status}</p>
+            <p class="text-xl mb-4 ui-muted">{page.status}</p>
             {#if page.error?.message && page.error.message !== "Service Unavailable"}
-                <p class="text-red-500 mb-4">{page.error.message}</p>
+                <p class="mb-4 ui-text-error">{page.error.message}</p>
             {/if}
             <div class="mt-6 flex justify-center space-x-4">
                 <a href="/" class="btn btn-primary">Go to Home</a>
@@ -110,9 +110,9 @@
         </div>
         <div class="text-center">
             <h1 class="text-2xl font-bold mb-4">Hmm, Something's Not Right</h1>
-            <p class="text-xl text-gray-500 mb-4">{page.status}</p>
+            <p class="text-xl mb-4 ui-muted">{page.status}</p>
             {#if page.error?.message}
-                <p class="text-red-500 mb-4">{page.error.message}</p>
+                <p class="mb-4 ui-text-error">{page.error.message}</p>
             {/if}
             <div class="mt-6 flex justify-center space-x-4">
                 <a href="/" class="btn btn-primary">Go to Home</a>

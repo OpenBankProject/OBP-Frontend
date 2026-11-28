@@ -83,6 +83,11 @@
 			"types": "./src/lib/config/index.ts",
 			"svelte": "./src/lib/config/index.ts"
 		},
+		"./branding": {
+			"types": "./src/lib/branding/index.ts",
+			"svelte": "./src/lib/branding/index.ts",
+			"default": "./src/lib/branding/index.ts"
+		},
 		"./server": {
 			"types": "./src/lib/server/index.ts",
 			"default": "./src/lib/server/index.ts"

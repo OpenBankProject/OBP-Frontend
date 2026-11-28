@@ -48,13 +48,13 @@
 
 {#if outcome?.status === 'error'}
 	<div class="flex items-start gap-2 text-sm" data-testid="form-fill-error">
-		<CircleAlert size={16} class="mt-0.5 shrink-0 text-error-500" />
+		<CircleAlert size={16} class="mt-0.5 shrink-0 ui-text-error" />
 		<span>Could not fill the form: {outcome.error ?? 'unknown error'}</span>
 	</div>
 {:else if outcome}
 	<div class="space-y-2 text-sm" data-testid="form-fill-result">
 		<div class="flex items-center gap-2">
-			<CircleCheck size={16} class="shrink-0 text-success-500" />
+			<CircleCheck size={16} class="shrink-0 ui-text-success" />
 			<span>
 				{applied.length === 1 ? 'Filled 1 field' : `Filled ${applied.length} fields`} in the form —
 				review the highlighted values before submitting.
@@ -63,12 +63,12 @@
 		{#if applied.length > 0}
 			<div class="flex flex-wrap gap-1.5">
 				{#each applied as field (field)}
-					<code class="rounded bg-surface-200-800 px-1.5 py-0.5 text-xs" data-testid="form-fill-field">{field}</code>
+					<code class="rounded px-1.5 py-0.5 text-xs ui-panel" data-testid="form-fill-field">{field}</code>
 				{/each}
 			</div>
 		{/if}
 		{#if ignored.length > 0}
-			<p class="text-xs text-surface-600-400">
+			<p class="text-xs ui-muted">
 				Ignored (unknown to this form): {ignored.join(', ')}
 			</p>
 		{/if}

@@ -23,15 +23,15 @@
 </script>
 
 <div
-	class="card dark:bg-primary-500/50 backdrop-blur-3xl border-primary-200-800 divide-primary-200-800 mx-auto my-10 md:px-15 flex flex-col divide-y shadow-lg w-[90%] lg:max-w-3xl"
+	class="card ui-card ui-border backdrop-blur-3xl mx-auto my-10 md:px-15 flex flex-col divide-y shadow-lg w-[90%] lg:max-w-3xl"
 >
 	<header class="py-4">
 		<h1 class="h4 text-center">Register a consumer</h1>
 	</header>
 	<article class="space-y-4 p-4">
 		{#if form?.message}
-			<div class="bg-error-500/10 border-error-500 rounded-lg border p-4 text-center">
-				<p class="text-error-500 font-semibold">{form.message}</p>
+			<div class="rounded-lg border p-4 text-center ui-tone-error">
+				<p class="font-semibold ui-text-error">{form.message}</p>
 			</div>
 		{/if}
 		<form class="w-full space-y-6 pb-10" method="POST">

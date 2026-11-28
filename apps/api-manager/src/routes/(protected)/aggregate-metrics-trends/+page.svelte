@@ -363,7 +363,7 @@
 
 <div class="container mx-auto max-w-7xl px-4 py-6">
 	<h1 class="mb-2 text-3xl font-bold">Aggregate Metrics Over Time</h1>
-	<p class="mb-6 text-sm text-gray-600 dark:text-gray-400">
+	<p class="mb-6 text-sm ui-muted">
 		Call the aggregate-metrics endpoint repeatedly across a sliding window to see how usage and
 		latency change over time.
 	</p>
@@ -375,7 +375,7 @@
 				<button
 					type="button"
 					onclick={() => applyPreset(p)}
-					class="rounded bg-blue-600 px-3 py-1.5 text-sm text-white hover:bg-blue-700"
+					class="rounded px-3 py-1.5 text-sm preset-filled-primary-500"
 					data-testid="preset-{p.bucketCount}-{p.bucketSizeMs}"
 				>
 					{p.label}
@@ -392,7 +392,7 @@
 				<select
 					name="bucket-size"
 					bind:value={bucketSizeMs}
-					class="rounded border px-2 py-1 dark:border-gray-600 dark:bg-gray-700"
+					class="rounded border px-2 py-1 ui-panel ui-border"
 					data-testid="bucket-size"
 				>
 					<option value={5 * MINUTE}>5 minutes</option>
@@ -412,7 +412,7 @@
 					min="1"
 					max="500"
 					bind:value={bucketCount}
-					class="rounded border px-2 py-1 dark:border-gray-600 dark:bg-gray-700"
+					class="rounded border px-2 py-1 ui-panel ui-border"
 					data-testid="bucket-count"
 				/>
 			</label>
@@ -423,11 +423,11 @@
 					type="datetime-local"
 					max={toLocalInput(new Date())}
 					bind:value={endTimeLocal}
-					class="rounded border px-2 py-1 dark:border-gray-600 dark:bg-gray-700"
+					class="rounded border px-2 py-1 ui-panel ui-border"
 					data-testid="end-time"
 				/>
 				<span
-					class="mt-1 text-xs text-gray-500 dark:text-gray-400"
+					class="mt-1 text-xs ui-muted"
 					data-testid="aligned-end"
 				>
 					Aligned to (UTC, for cache reuse): {alignedEndPreview.toISOString().replace('T', ' ').slice(0, 19)}
@@ -439,7 +439,7 @@
 				type="button"
 				onclick={runQuery}
 				disabled={isRunning}
-				class="rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
+				class="rounded px-4 py-2 disabled:cursor-not-allowed disabled:opacity-50 preset-filled-primary-500"
 				data-testid="run-query"
 			>
 				{isRunning
@@ -450,7 +450,7 @@
 				type="button"
 				onclick={downloadCsv}
 				disabled={buckets.length === 0}
-				class="rounded border border-gray-300 px-4 py-2 text-sm hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:hover:bg-gray-700"
+				class="rounded border px-4 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50 ui-hover ui-border"
 				data-testid="export-csv"
 			>
 				Export CSV
@@ -458,13 +458,13 @@
 			<button
 				type="button"
 				onclick={clearLocalCache}
-				class="rounded border border-gray-300 px-4 py-2 text-sm hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700"
+				class="rounded border px-4 py-2 text-sm ui-hover ui-border"
 				data-testid="clear-cache"
 			>
 				Clear local cache
 			</button>
 			{#if buckets.length > 0}
-				<span class="text-sm text-gray-600 dark:text-gray-400">
+				<span class="text-sm ui-muted">
 					{doneCount} done ({cachedCount} cached) · {errorCount} error · {totalCount -
 						doneCount -
 						errorCount} pending
@@ -472,7 +472,7 @@
 			{/if}
 			{#if cacheClearedMessage}
 				<span
-					class="text-sm text-purple-600 dark:text-purple-400"
+					class="text-sm ui-text-brand"
 					data-testid="cache-cleared-message"
 				>
 					{cacheClearedMessage}
@@ -483,7 +483,7 @@
 
 	{#if runErrorMessage}
 		<div
-			class="mb-4 rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300"
+			class="mb-4 rounded border p-3 text-sm ui-tone-error"
 			data-testid="run-error"
 		>
 			{runErrorMessage}
@@ -498,7 +498,7 @@
 					Metric:
 					<select
 						bind:value={selectedMetric}
-						class="ml-2 rounded border px-2 py-1 dark:border-gray-600 dark:bg-gray-700"
+						class="ml-2 rounded border px-2 py-1 ui-panel ui-border"
 						data-testid="metric-selector"
 					>
 						{#each metricKeys as m}
@@ -507,7 +507,7 @@
 					</select>
 				</label>
 			</div>
-			<div class="rounded-lg bg-white p-4 shadow dark:bg-gray-800">
+			<div class="rounded-lg p-4 shadow ui-card">
 				<svg
 					viewBox="0 0 {CHART_W} {CHART_H}"
 					class="h-auto w-full"
@@ -552,7 +552,7 @@
 								{y}
 								width={barW}
 								height={CHART_H - CHART_PAD - y}
-								fill="rgb(34 197 94)"
+								style="fill: var(--ui-success)"
 								opacity="0.85"
 								data-testid="bar-{i}"
 							>
@@ -564,7 +564,7 @@
 								y={CHART_H - CHART_PAD - 4}
 								width={barW}
 								height={4}
-								fill="rgb(239 68 68)"
+								style="fill: var(--ui-error)"
 								data-testid="bar-{i}"
 							>
 								<title>{formatBucketRange(b)}: {b.error}</title>
@@ -582,7 +582,7 @@
 						{/if}
 					{/each}
 				</svg>
-				<div class="mt-2 flex justify-between text-xs text-gray-500 dark:text-gray-400">
+				<div class="mt-2 flex justify-between text-xs ui-muted">
 					<span>{buckets[0].fromDate.toLocaleString(undefined, { hourCycle: "h23" })}</span>
 					<span>{buckets[buckets.length - 1].toDate.toLocaleString(undefined, { hourCycle: "h23" })}</span>
 				</div>
@@ -591,9 +591,9 @@
 
 		<section>
 			<h2 class="mb-2 text-lg font-semibold">Buckets</h2>
-			<div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+			<div class="overflow-x-auto rounded-lg border ui-border">
 				<table class="min-w-full text-sm" data-testid="buckets-table">
-					<thead class="bg-gray-50 dark:bg-gray-800">
+					<thead class="ui-card">
 						<tr>
 							<th class="px-3 py-2 text-left">From (UTC)</th>
 							<th class="px-3 py-2 text-left">To (UTC)</th>
@@ -607,7 +607,7 @@
 					<tbody>
 						{#each buckets as b, i}
 							<tr
-								class="border-t border-gray-200 dark:border-gray-700"
+								class="border-t ui-border"
 								data-testid="bucket-row-{i}"
 								data-state={b.status}
 							>
@@ -631,18 +631,18 @@
 									{#if b.status === 'done'}
 										{#if b.fromCache}
 											<span
-												class="text-purple-600 dark:text-purple-400"
+												class="ui-text-brand"
 												title="Served from browser localStorage"
 											>cached</span>
 										{:else}
-											<span class="text-green-600 dark:text-green-400">done</span>
+											<span class="ui-text-success">done</span>
 										{/if}
 									{:else if b.status === 'error'}
-										<span class="text-red-600 dark:text-red-400" title={b.error}>error</span>
+										<span class="ui-text-error" title={b.error}>error</span>
 									{:else if b.status === 'loading'}
-										<span class="text-blue-600 dark:text-blue-400">loading…</span>
+										<span class="ui-link">loading…</span>
 									{:else}
-										<span class="text-gray-500">pending</span>
+										<span class="ui-muted">pending</span>
 									{/if}
 								</td>
 							</tr>

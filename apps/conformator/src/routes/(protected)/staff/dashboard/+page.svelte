@@ -21,7 +21,7 @@
 <div class="mt-4">
 <PageRoleCheck userEntitlements={data.userEntitlements} required={data.required} requirementType="AND">
 {#if data.problem}
-	<p class="preset-tonal-error rounded p-3" role="alert">The dashboard could not be counted: {data.problem}</p>
+	<p class="ui-tone-error rounded p-3" role="alert">The dashboard could not be counted: {data.problem}</p>
 {:else if d}
 	<p class="mt-2 text-sm">
 		Counted now from the records. Runs, results and submissions come from the {d.spacesReadable} of {d.spacesTotal} participant spaces you can read.
@@ -31,19 +31,19 @@
 	</p>
 
 	<section class="mt-6 grid gap-4 md:grid-cols-3" data-testid="dashboard-counts">
-		<div class="rounded border border-surface-500/30 p-4">
+		<div class="rounded border ui-border/30 p-4">
 			<h2 class="h5">Participants by stage</h2>
 			<dl class="mt-2 grid grid-cols-[1fr_max-content] gap-x-4 text-sm">
 				{#each Object.entries(d.byStage) as [stage, n] (stage)}<dt>{words(stage)}</dt><dd class="text-end">{n}</dd>{/each}
 			</dl>
 		</div>
-		<div class="rounded border border-surface-500/30 p-4">
+		<div class="rounded border ui-border/30 p-4">
 			<h2 class="h5">Participants by kind</h2>
 			<dl class="mt-2 grid grid-cols-[1fr_max-content] gap-x-4 text-sm">
 				{#each Object.entries(d.byCategory) as [category, n] (category)}<dt>{words(category)}</dt><dd class="text-end">{n}</dd>{/each}
 			</dl>
 		</div>
-		<div class="rounded border border-surface-500/30 p-4">
+		<div class="rounded border ui-border/30 p-4">
 			<h2 class="h5">Reports</h2>
 			<dl class="mt-2 grid grid-cols-[1fr_max-content] gap-x-4 text-sm">
 				{#each Object.entries(d.reportsByStanding) as [standing, n] (standing)}<dt>{standing}</dt><dd class="text-end">{n}</dd>{/each}

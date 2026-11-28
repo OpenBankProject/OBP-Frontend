@@ -20,23 +20,23 @@
 </script>
 
 <div class="mx-auto max-w-lg p-8">
-		<h1 class="mb-4 text-2xl font-bold text-gray-900 dark:text-gray-100">
+		<h1 class="mb-4 text-2xl font-bold ui-text">
 			Strong Customer Authentication
 		</h1>
 
 		{#if data.loadError}
-			<div class="bg-error-500/10 border-error-500 mb-4 rounded-lg border p-4">
-				<p class="text-error-500 font-semibold">{data.loadError}</p>
+			<div class="mb-4 rounded-lg border p-4 ui-tone-error">
+				<p class="font-semibold ui-text-error">{data.loadError}</p>
 			</div>
 		{/if}
 
-			<p class="mb-6 text-gray-700 dark:text-gray-300">
+			<p class="mb-6 ui-muted">
 				Please enter the OTP code to confirm the consent.
 			</p>
 
 			{#if form?.message}
-				<div class="bg-error-500/10 border-error-500 mb-4 rounded-lg border p-4">
-					<p class="text-error-500 font-semibold">{form.message}</p>
+				<div class="mb-4 rounded-lg border p-4 ui-tone-error">
+					<p class="font-semibold ui-text-error">{form.message}</p>
 				</div>
 			{/if}
 
@@ -47,7 +47,7 @@
 				<div>
 					<label
 						for="otp"
-						class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+						class="mb-1 block text-sm font-medium ui-muted"
 					>
 						OTP Code
 					</label>
@@ -56,7 +56,7 @@
 						name="otp"
 						type="text"
 						required
-						class="input w-full rounded-md border border-gray-300 p-2 dark:border-gray-600 dark:bg-gray-800"
+						class="input w-full rounded-md border p-2 ui-panel ui-border"
 						placeholder="Enter OTP code"
 					/>
 				</div>

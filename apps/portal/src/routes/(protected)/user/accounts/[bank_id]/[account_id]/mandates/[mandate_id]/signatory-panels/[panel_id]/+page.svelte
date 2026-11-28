@@ -57,7 +57,7 @@
 
 <div class="mb-4">
 	<a
-		class="text-sm text-primary-500 hover:underline dark:text-primary-200"
+		class="text-sm hover:underline ui-text-brand"
 		href={panelsHref}
 		data-testid="back-to-panels"
 	>← Signatory panels</a>
@@ -73,7 +73,7 @@
 	<h2 class="mb-1 text-2xl font-semibold" data-testid="panel-heading">
 		{data.panel.panel_name}
 	</h2>
-	<p class="mb-4 text-xs text-surface-600-400">
+	<p class="mb-4 text-xs ui-muted">
 		Panel <code data-testid="panel-id">{data.panel.panel_id}</code>
 	</p>
 
@@ -134,7 +134,7 @@
 			</div>
 
 			{#if user_ids.length === 0}
-				<p class="text-sm text-surface-600-400" data-testid="user-ids-empty">
+				<p class="text-sm ui-muted" data-testid="user-ids-empty">
 					No members.
 				</p>
 			{:else}

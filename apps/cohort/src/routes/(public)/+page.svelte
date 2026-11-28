@@ -24,18 +24,18 @@
 		<h1 class="h2">{t(locale, 'calls_open_heading')}</h1>
 
 		{#if data.error}
-			<p class="mt-4 preset-tonal-error rounded p-3" role="alert">{data.error}</p>
+			<p class="mt-4 ui-tone-error rounded p-3" role="alert">{data.error}</p>
 		{:else if data.calls.length === 0}
 			<p class="mt-4" data-testid="calls-none">{t(locale, 'calls_none')}</p>
 		{:else}
 			<ul class="mt-4 flex flex-col gap-4" data-testid="calls">
 				{#each data.calls as call (call.id)}
-					<li class="card preset-filled-surface-50-950 flex flex-col gap-2 p-5 shadow-md">
-						{#if call.programme}<span class="badge preset-tonal-tertiary self-start">{call.programme}</span>{/if}
+					<li class="card ui-card flex flex-col gap-2 p-5 shadow-md">
+						{#if call.programme}<span class="badge ui-tone-info self-start">{call.programme}</span>{/if}
 						<h2 class="h4" dir="auto"><a href="/calls/{call.id}">{call.title}</a></h2>
 						{#if call.description}<p dir="auto">{call.description}</p>{/if}
 						<div class="mt-1 flex flex-wrap items-center justify-between gap-3">
-							<p class="flex items-center gap-2 text-sm text-surface-700-300">
+							<p class="flex items-center gap-2 text-sm ui-muted">
 								<CalendarClock class="size-4" aria-hidden="true" />
 								{#if call.opens_at}{t(locale, 'call_opens')}: {call.opens_at}{/if}
 								{#if call.closes_at} · {t(locale, 'call_closes')}: {call.closes_at}{/if}

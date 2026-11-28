@@ -20,12 +20,12 @@
 <p class="mt-2">{t(locale, 'retention_intro')}</p>
 <p class="mt-2 text-sm">{t(locale, 'retention_safety')}</p>
 
-{#if form?.form === 'role' && form?.requested}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'access_requested_notice')}</p>{/if}
-{#if form?.error}<p class="mt-4 preset-tonal-error rounded p-3" role="alert">{String(form.error) === 'retention_invalid' ? t(locale, 'retention_invalid') : `${t(locale, 'staff_error')} ${String(form.error)}`}</p>{/if}
-{#if form?.saved || form?.removed || form?.started || form?.decided}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'retention_done')}</p>{/if}
-{#if data.error}<p class="mt-4 preset-tonal-error rounded p-3" role="alert">{data.error}</p>{/if}
+{#if form?.form === 'role' && form?.requested}<p class="mt-4 ui-tone-success rounded p-3" role="status">{t(locale, 'access_requested_notice')}</p>{/if}
+{#if form?.error}<p class="mt-4 ui-tone-error rounded p-3" role="alert">{String(form.error) === 'retention_invalid' ? t(locale, 'retention_invalid') : `${t(locale, 'staff_error')} ${String(form.error)}`}</p>{/if}
+{#if form?.saved || form?.removed || form?.started || form?.decided}<p class="mt-4 ui-tone-success rounded p-3" role="status">{t(locale, 'retention_done')}</p>{/if}
+{#if data.error}<p class="mt-4 ui-tone-error rounded p-3" role="alert">{data.error}</p>{/if}
 
-<section class="card preset-outlined-surface-200-800 mt-6 p-4" data-testid="retention-policies">
+<section class="card border ui-border mt-6 p-4" data-testid="retention-policies">
 	<h2 class="h4">{t(locale, 'retention_policies')}</h2>
 	{@render role('read')}
 	{#if !missing('read')}
@@ -33,11 +33,11 @@
 		<ul class="mt-2 flex flex-col gap-4">
 			{#each data.policies as p (p.retention_policy_id)}
 				{@const pv = p.preview as Record<string, unknown>}
-				<li class="border-surface-200-800 border-b pb-3" data-testid="retention-policy-{p.retention_policy_id}">
+				<li class="ui-border border-b pb-3" data-testid="retention-policy-{p.retention_policy_id}">
 					<p class="flex flex-wrap items-center gap-2">
 						<strong>{what(p)}</strong>
 						<span class="badge preset-tonal">{t(locale, `retention_action_${p.action}` as MessageKey)}</span>
-						{#if !p.enabled}<span class="badge preset-tonal-warning">{t(locale, 'retention_off')}</span>{/if}
+						{#if !p.enabled}<span class="badge ui-tone-warning">{t(locale, 'retention_off')}</span>{/if}
 						{#if p.requires_approval}<span class="badge preset-tonal">{t(locale, 'retention_requires_approval')}</span>{/if}
 					</p>
 					<p class="mt-1 text-sm">
@@ -52,7 +52,7 @@
 							<form method="POST" action="?/run"><input type="hidden" name="retention_policy_id" value={p.retention_policy_id} /><button class="btn btn-sm preset-filled-primary-500" data-testid="retention-run-{p.retention_policy_id}">{t(locale, p.requires_approval ? 'retention_run_request' : 'retention_run')}</button></form>
 						{/if}
 						{#if !missing('manage')}
-							<form method="POST" action="?/remove"><input type="hidden" name="retention_policy_id" value={p.retention_policy_id} /><button class="btn btn-sm preset-tonal-error">{t(locale, 'retention_remove')}</button></form>
+							<form method="POST" action="?/remove"><input type="hidden" name="retention_policy_id" value={p.retention_policy_id} /><button class="btn btn-sm preset-filled-error-500">{t(locale, 'retention_remove')}</button></form>
 						{/if}
 					</div>
 					{#if !missing('manage')}
@@ -72,7 +72,7 @@
 	{@render role('run')}
 </section>
 
-<section class="card preset-outlined-surface-200-800 mt-6 p-4" data-testid="retention-new">
+<section class="card border ui-border mt-6 p-4" data-testid="retention-new">
 	<h2 class="h4">{t(locale, 'retention_new')}</h2>
 	{@render role('manage')}
 	{#if !missing('manage')}
@@ -100,7 +100,7 @@
 	{/if}
 </section>
 
-<section class="card preset-outlined-surface-200-800 mt-6 p-4" data-testid="retention-runs">
+<section class="card border ui-border mt-6 p-4" data-testid="retention-runs">
 	<h2 class="h4">{t(locale, 'retention_runs')}</h2>
 	{@render role('runs')}
 	{@render role('approve')}
@@ -110,7 +110,7 @@
 			{#each data.runs as r (r.retention_run_id)}
 				{@const policy = data.policies.find((p) => p.retention_policy_id === r.retention_policy_id)}
 				<li class="flex flex-wrap items-center gap-2 text-sm">
-					<span class="badge {r.status === 'pending' ? 'preset-tonal-warning' : r.status === 'failed' || r.status === 'refused' ? 'preset-tonal-error' : 'preset-tonal'}">{r.status}</span>
+					<span class="badge {r.status === 'pending' ? 'ui-tone-warning' : r.status === 'failed' || r.status === 'refused' ? 'ui-tone-error' : 'preset-tonal'}">{r.status}</span>
 					<span>{r.created_at.replace('T', ' ').slice(0, 16)}</span>
 					<span>{policy ? what(policy) : r.retention_policy_id}</span>
 					{#if Object.keys(r.counts).length}<span>· {Object.entries(r.counts).map(([k, v]) => `${k} ${v}`).join(', ')}</span>{/if}
@@ -119,7 +119,7 @@
 						<form method="POST" action="?/decide" class="flex gap-1">
 							<input type="hidden" name="retention_run_id" value={r.retention_run_id} />
 							<button class="btn btn-sm preset-filled-primary-500" name="decision" value="approve">{t(locale, 'retention_approve')}</button>
-							<button class="btn btn-sm preset-tonal-error" name="decision" value="reject">{t(locale, 'retention_reject')}</button>
+							<button class="btn btn-sm preset-filled-error-500" name="decision" value="reject">{t(locale, 'retention_reject')}</button>
 						</form>
 					{/if}
 				</li>

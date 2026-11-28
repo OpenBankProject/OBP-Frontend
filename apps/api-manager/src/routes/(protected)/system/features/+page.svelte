@@ -84,17 +84,17 @@
   <div class="mb-6">
     <div class="mb-4 flex items-center justify-between">
       <div>
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
+        <h1 class="text-3xl font-bold ui-text">
           Features
         </h1>
-        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+        <p class="mt-1 text-sm ui-muted">
           Features enabled on this OBP instance
         </p>
       </div>
       <button
         onclick={fetchFeatures}
         disabled={isLoading}
-        class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
+        class="rounded-lg px-4 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 preset-filled-primary-500"
         data-testid="refresh-features"
       >
         {isLoading ? "Refreshing..." : "Refresh"}
@@ -104,7 +104,7 @@
 
   {#if error}
     <div
-      class="rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 dark:border-red-800 dark:bg-red-900/20 dark:text-red-200"
+      class="rounded-lg border p-4 ui-tone-error"
       data-testid="features-error"
     >
       <strong>Error:</strong>
@@ -112,51 +112,51 @@
     </div>
   {:else if isLoading}
     <div
-      class="flex items-center justify-center rounded-lg bg-gray-100 p-8 dark:bg-gray-800"
+      class="flex items-center justify-center rounded-lg p-8 ui-panel"
     >
       <div
-        class="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"
+        class="h-8 w-8 animate-spin rounded-full border-4 border-t-transparent border-current ui-text-brand"
       ></div>
-      <p class="ml-3 text-gray-700 dark:text-gray-300">
+      <p class="ml-3 ui-muted">
         Loading features...
       </p>
     </div>
   {:else if features}
     <div class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3">
       <div
-        class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+        class="rounded-lg border p-6 shadow-sm ui-card ui-border"
       >
-        <div class="text-sm font-medium text-gray-600 dark:text-gray-400">
+        <div class="text-sm font-medium ui-muted">
           Total Features
         </div>
         <div
-          class="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100"
+          class="mt-2 text-3xl font-bold ui-text"
           data-testid="features-total-count"
         >
           {featureEntries.length}
         </div>
       </div>
       <div
-        class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+        class="rounded-lg border p-6 shadow-sm ui-card ui-border"
       >
-        <div class="text-sm font-medium text-gray-600 dark:text-gray-400">
+        <div class="text-sm font-medium ui-muted">
           Enabled
         </div>
         <div
-          class="mt-2 text-3xl font-bold text-green-600 dark:text-green-400"
+          class="mt-2 text-3xl font-bold ui-text-success"
           data-testid="features-enabled-count"
         >
           {enabledCount}
         </div>
       </div>
       <div
-        class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+        class="rounded-lg border p-6 shadow-sm ui-card ui-border"
       >
-        <div class="text-sm font-medium text-gray-600 dark:text-gray-400">
+        <div class="text-sm font-medium ui-muted">
           Disabled
         </div>
         <div
-          class="mt-2 text-3xl font-bold text-gray-500 dark:text-gray-400"
+          class="mt-2 text-3xl font-bold ui-muted"
           data-testid="features-disabled-count"
         >
           {disabledCount}
@@ -165,26 +165,26 @@
     </div>
 
     <div
-      class="rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
+      class="rounded-lg border shadow-sm ui-card ui-border"
       data-testid="features-table-container"
     >
       <table class="w-full">
         <thead>
           <tr
-            class="border-b border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-900"
+            class="border-b ui-card ui-border"
           >
             <th
-              class="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300"
+              class="px-6 py-3 text-left text-sm font-semibold ui-muted"
             >
               Feature
             </th>
             <th
-              class="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300"
+              class="px-6 py-3 text-left text-sm font-semibold ui-muted"
             >
               API Key
             </th>
             <th
-              class="px-6 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300"
+              class="px-6 py-3 text-left text-sm font-semibold ui-muted"
             >
               Status
             </th>
@@ -193,17 +193,17 @@
         <tbody>
           {#each featureEntries as [key, value]}
             <tr
-              class="border-b border-gray-100 last:border-b-0 dark:border-gray-700"
+              class="border-b last:border-b-0 ui-border"
               data-testid="feature-row-{key}"
             >
               <td
-                class="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100"
+                class="px-6 py-4 text-sm font-medium ui-text"
               >
                 {formatFeatureName(key)}
               </td>
               <td class="px-6 py-4">
                 <code
-                  class="rounded bg-gray-100 px-2 py-1 text-xs text-gray-700 dark:bg-gray-700 dark:text-gray-300"
+                  class="rounded px-2 py-1 text-xs ui-panel ui-muted"
                 >
                   {key}
                 </code>
@@ -211,14 +211,14 @@
               <td class="px-6 py-4">
                 {#if value === true}
                   <span
-                    class="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-300"
+                    class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ui-tone-success"
                     data-state="enabled"
                   >
                     Enabled
                   </span>
                 {:else}
                   <span
-                    class="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600 dark:bg-gray-700 dark:text-gray-400"
+                    class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ui-panel ui-muted"
                     data-state="disabled"
                   >
                     Disabled

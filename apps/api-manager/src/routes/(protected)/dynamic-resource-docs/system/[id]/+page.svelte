@@ -167,23 +167,23 @@
   <div class="mb-6">
     <a
       href="/dynamic-resource-docs/system"
-      class="mb-4 inline-flex items-center text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+      class="mb-4 inline-flex items-center text-sm ui-link"
     >
       ← Back to System Dynamic Resource Docs
     </a>
     <div class="flex items-start justify-between gap-4">
       <div>
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
+        <h1 class="text-3xl font-bold ui-text">
           {doc?.partial_function_name || "Dynamic Resource Doc"}
         </h1>
-        <p class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-gray-600 dark:text-gray-400">
+        <p class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 ui-muted">
           <span class="font-mono">{doc?.request_verb} {doc?.request_url}</span>
           {#if resourceDoc?.explorerUrl}
             <a
               href={resourceDoc.explorerUrl}
               target="_blank"
               rel="noopener noreferrer"
-              class="inline-flex items-center gap-1 text-blue-600 hover:underline dark:text-blue-400"
+              class="inline-flex items-center gap-1 hover:underline ui-link"
               data-testid="api-explorer-link"
             >
               API Explorer <ExternalLink size={14} />
@@ -192,13 +192,13 @@
         </p>
         {#if resourceDoc?.servedUrl}
           <p class="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[0.65rem]" data-testid="served-url">
-            <span class="text-gray-500 dark:text-gray-400">Served at</span>
-            <code class="break-all rounded bg-gray-100 px-1 py-0.5 text-gray-800 dark:bg-gray-900 dark:text-gray-200">{resourceDoc.servedUrl}</code>
+            <span class="ui-muted">Served at</span>
+            <code class="break-all rounded px-1 py-0.5 ui-panel ui-text">{resourceDoc.servedUrl}</code>
             <button
               type="button"
               onclick={copyServedUrl}
               aria-label={servedUrlCopied ? "Copied" : "Copy served URL"}
-              class="inline-flex items-center rounded p-0.5 text-gray-500 hover:bg-gray-100 hover:text-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200"
+              class="inline-flex items-center rounded p-0.5 ui-hover ui-muted"
               data-testid="copy-served-url"
               data-state={servedUrlCopied ? "copied" : "idle"}
             >
@@ -209,7 +209,7 @@
 
         <!-- Shown only when OBP's resource docs do not list this doc: after a save that means OBP's own cache was not invalidated -->
         {#if resourceDoc?.error || !resourceDoc?.found}
-          <p class="mt-2 flex flex-wrap items-center gap-2 text-xs text-amber-800 dark:text-amber-200" data-testid="resource-doc-status" data-state={resourceDoc?.error ? "error" : "missing"}>
+          <p class="mt-2 flex flex-wrap items-center gap-2 text-xs ui-text-warning" data-testid="resource-doc-status" data-state={resourceDoc?.error ? "error" : "missing"}>
             {#if resourceDoc?.error}
               Resource docs could not be read: {resourceDoc.error}
             {:else}
@@ -219,7 +219,7 @@
               type="button"
               onclick={recheckResourceDoc}
               disabled={isRechecking}
-              class="inline-flex items-center gap-1 rounded border border-gray-300 px-2 py-0.5 text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+              class="inline-flex items-center gap-1 rounded border px-2 py-0.5 disabled:opacity-50 ui-hover ui-muted ui-border"
               data-testid="recheck-resource-doc"
             >
               <RefreshCw size={12} /> {isRechecking ? "Checking..." : "Re-check"}
@@ -232,7 +232,7 @@
         onclick={handleDelete}
         disabled={isDeleting}
         data-testid="delete-btn"
-        class="rounded-lg border border-red-300 bg-white px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-50 disabled:opacity-50 dark:border-red-700 dark:bg-gray-800 dark:text-red-400 dark:hover:bg-red-900/20"
+        class="rounded-lg border px-4 py-2 text-sm font-medium disabled:opacity-50 ui-card ui-tone-error"
       >
         {isDeleting ? "Deleting..." : "Delete"}
       </button>
@@ -240,25 +240,25 @@
   </div>
 
   {#if deleteError}
-    <div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300" data-testid="delete-error">
+    <div class="mb-6 rounded-lg border p-4 text-sm ui-tone-error" data-testid="delete-error">
       {deleteError}
     </div>
   {/if}
   {#if successMessage}
-    <div class="mb-6 rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-700 dark:border-green-800 dark:bg-green-900/20 dark:text-green-300" data-testid="success-message">
+    <div class="mb-6 rounded-lg border p-4 text-sm ui-tone-success" data-testid="success-message">
       {successMessage}
     </div>
   {/if}
 
   <ResizableSplit breakpoint="lg">
     {#snippet main()}
-    <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+    <div class="rounded-lg border p-6 shadow-sm ui-card ui-border">
     {#key docId}
       <DynamicResourceDocForm initial={doc} onSubmit={handleSubmit} submitLabel="Save Changes" {onFixWithOpey} callPath={resourceDoc?.servedPath}>
         {#snippet cancel()}
           <a
             href="/dynamic-resource-docs/system"
-            class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+            class="rounded-lg border px-4 py-2 text-sm font-medium ui-card ui-hover ui-muted ui-border"
           >
             Cancel
           </a>
@@ -271,7 +271,7 @@
     {#snippet side()}
     <!-- Opey pane: OpeyChat requires a definite height all the way down -->
       <div
-        class="h-[36rem] w-full overflow-hidden rounded-lg border border-gray-200 shadow-sm lg:h-[calc(100vh-80px-3rem)] dark:border-gray-700"
+        class="h-[36rem] w-full overflow-hidden rounded-lg border shadow-sm lg:h-[calc(100vh-80px-3rem)] ui-border"
       >
         <OpeyChat
           bind:this={opeyChat}

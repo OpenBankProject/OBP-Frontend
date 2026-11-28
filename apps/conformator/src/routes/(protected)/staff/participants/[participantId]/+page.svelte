@@ -34,7 +34,7 @@
 	{#if !data.can.readDecisions}
 		<div class="mt-2"><MissingRoleAlert roles={[data.roles.readDecisions]} bankId={data.space || undefined} /></div>
 	{:else}
-		{#if form?.decided}<p class="mt-2 preset-tonal-success rounded p-3" role="status">Recorded: {form.decided}.</p>{/if}
+		{#if form?.decided}<p class="mt-2 ui-tone-success rounded p-3" role="status">Recorded: {form.decided}.</p>{/if}
 		{#if data.decisions && data.decisions.length > 0}
 			<table class="table mt-2">
 				<thead><tr><th>When</th><th>Stage</th><th>Why</th></tr></thead>
@@ -58,7 +58,7 @@
 						</select>
 					</label>
 					<label class="label"><span>Why</span><textarea class="textarea" name="reason" rows="2" required maxlength="4000">{values.reason ?? ''}</textarea></label>
-					<div><button class="btn preset-filled" data-testid="participant-decide">Record the decision</button></div>
+					<div><button class="btn preset-filled-primary-500" data-testid="participant-decide">Record the decision</button></div>
 				</form>
 			{:else}
 				<div class="mt-4"><MissingRoleAlert roles={[data.roles.decide]} bankId={data.space || undefined} /></div>
@@ -86,7 +86,7 @@
 
 	{#if form?.steps}
 		<ol class="mt-4 list-inside list-decimal" data-testid="space-steps">
-			{#each form.steps as s, i (i)}<li class={s.ok ? '' : 'text-error-500'}>{s.step}: {s.ok ? 'done' : 'failed'}{s.detail ? `. ${s.detail}` : ''}</li>{/each}
+			{#each form.steps as s, i (i)}<li class={s.ok ? '' : 'ui-text-error'}>{s.step}: {s.ok ? 'done' : 'failed'}{s.detail ? `. ${s.detail}` : ''}</li>{/each}
 		</ol>
 	{/if}
 	{#if ready}<p class="mt-4"><a class="anchor" href="/spaces/{ps.id}">Open the participant's space</a></p>{/if}
@@ -94,7 +94,7 @@
 		{#if ps.exists === false && !data.can.createBank}
 			<div class="mt-4"><MissingRoleAlert roles={["CanCreateBank"]} bankId={undefined} /></div>
 		{:else}
-			<form method="POST" action="?/setUpSpace" class="mt-4"><button class="btn preset-filled" data-testid="participant-set-up-space">Set up the space</button></form>
+			<form method="POST" action="?/setUpSpace" class="mt-4"><button class="btn preset-filled-primary-500" data-testid="participant-set-up-space">Set up the space</button></form>
 		{/if}
 	{/if}
 </section>
@@ -103,7 +103,7 @@
 	<h2 class="h4">Organisation</h2>
 	{#if form?.organisationSteps}
 		<ol class="mt-2 list-inside list-decimal" data-testid="organisation-steps">
-			{#each form.organisationSteps as s, i (i)}<li class={s.ok ? '' : 'text-error-500'}>{s.step}: {s.ok ? 'done' : 'failed'}{s.detail ? `. ${s.detail}` : ''}</li>{/each}
+			{#each form.organisationSteps as s, i (i)}<li class={s.ok ? '' : 'ui-text-error'}>{s.step}: {s.ok ? 'done' : 'failed'}{s.detail ? `. ${s.detail}` : ''}</li>{/each}
 		</ol>
 	{/if}
 	<FormProblems problems={form?.organisationProblems} />
@@ -121,7 +121,7 @@
 		{#if !data.can.readOrganisation}
 			<div class="mt-2"><MissingRoleAlert roles={[data.roles.readOrganisation]} bankId={data.space || undefined} /></div>
 		{:else if data.organisation?.problem}
-			<p class="mt-2 text-error-500" role="alert">{data.organisation.problem}</p>
+			<p class="mt-2 ui-text-error" role="alert">{data.organisation.problem}</p>
 		{/if}
 		{#if data.organisation?.members}
 			<table class="table mt-4" data-testid="organisation-members">
@@ -132,7 +132,7 @@
 			</table>
 		{/if}
 		{#if data.organisation?.membersHaveAccess === false}
-			<p class="mt-2 preset-tonal-warning rounded p-3" role="status" data-testid="organisation-suspended">The Organisation is {data.organisation.organisation?.status}, so its members have no access to the participant's space. Bringing access in line takes their Roles there away.</p>
+			<p class="mt-2 ui-tone-warning rounded p-3" role="status" data-testid="organisation-suspended">The Organisation is {data.organisation.organisation?.status}, so its members have no access to the participant's space. Bringing access in line takes their Roles there away.</p>
 		{/if}
 		{#if !ready}
 			<p class="mt-2">Its members get access to the participant's space once the space is set up.</p>
@@ -149,7 +149,7 @@
 			{/if}
 			{#if data.can.bringAccessInLine}
 				<form method="POST" action="?/bringAccessInLine" class="mt-4">
-					<button class="btn preset-filled" data-testid="organisation-bring-in-line">Bring access in line with the Organisation</button>
+					<button class="btn preset-filled-primary-500" data-testid="organisation-bring-in-line">Bring access in line with the Organisation</button>
 				</form>
 			{:else}
 				<div class="mt-4"><MissingRoleAlert roles={[data.roles.accessAtSpace]} bankId={ps.id} /></div>
@@ -160,7 +160,7 @@
 		{#if data.can.createOrganisation}
 			<form method="POST" action="?/createOrganisation" class="mt-2 flex max-w-3xl flex-wrap items-end gap-3">
 				<label class="label flex-1"><span>Username of its first admin</span><input class="input" name="admin_username" required maxlength="100" /></label>
-				<button class="btn preset-filled" data-testid="organisation-create">Create the Organisation</button>
+				<button class="btn preset-filled-primary-500" data-testid="organisation-create">Create the Organisation</button>
 			</form>
 		{:else}
 			<div class="mt-2"><MissingRoleAlert roles={data.roles.createOrganisation} bankId={data.space || undefined} /></div>
@@ -180,7 +180,7 @@
 		<h2 class="h4">Reviewers and approvers</h2>
 		{#if form?.memberSteps}
 			<ol class="mt-2 list-inside list-decimal" data-testid="member-steps">
-				{#each form.memberSteps as s, i (i)}<li class={s.ok ? '' : 'text-error-500'}>{s.step}: {s.ok ? 'done' : 'failed'}{s.detail ? `. ${s.detail}` : ''}</li>{/each}
+				{#each form.memberSteps as s, i (i)}<li class={s.ok ? '' : 'ui-text-error'}>{s.step}: {s.ok ? 'done' : 'failed'}{s.detail ? `. ${s.detail}` : ''}</li>{/each}
 			</ol>
 		{/if}
 		<FormProblems problems={form?.memberProblems} />
@@ -192,7 +192,7 @@
 						{#each data.regulatorRoleSets as rs (rs.key)}<option value={rs.key}>{rs.label}</option>{/each}
 					</select>
 				</label>
-				<button class="btn preset-filled" data-testid="member-add">Add</button>
+				<button class="btn preset-filled-primary-500" data-testid="member-add">Add</button>
 			</form>
 		{:else}
 			<p class="mt-2 text-sm">Adding reviewers and approvers needs CanCreateEntitlementAtOneBank at <code>{ps.id}</code> (whoever set the space up holds it) and the system Role CanGetAnyUser.</p>

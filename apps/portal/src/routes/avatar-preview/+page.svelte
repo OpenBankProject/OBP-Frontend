@@ -53,11 +53,11 @@
 <div class="space-y-8 p-6">
 	<header>
 		<h1 class="text-2xl font-bold">Avatar preview</h1>
-		<p class="text-sm text-surface-600-400 mt-1">
+		<p class="text-sm mt-1 ui-muted">
 			Deterministic pixel-art identicons. Seed = <code>OBP_BASE_URL|username</code>, so the
 			same username on a different OBP instance produces a different avatar.
 		</p>
-		<p class="text-xs text-surface-500 mt-1">
+		<p class="text-xs mt-1 ui-muted">
 			Host: <code>{host}</code>
 		</p>
 	</header>
@@ -65,7 +65,7 @@
 	<section class="flex flex-wrap items-center gap-6">
 		<label class="flex items-center gap-2 text-sm">
 			Size:
-			<select bind:value={selectedSize} class="select rounded border border-surface-300-600 px-2 py-1">
+			<select bind:value={selectedSize} class="select rounded border px-2 py-1 ui-border">
 				{#each sizes as s}
 					<option value={s}>{s}px</option>
 				{/each}
@@ -73,7 +73,7 @@
 		</label>
 		<label class="flex items-center gap-2 text-sm">
 			Grid:
-			<select bind:value={selectedGrid} class="select rounded border border-surface-300-600 px-2 py-1">
+			<select bind:value={selectedGrid} class="select rounded border px-2 py-1 ui-border">
 				{#each [5, 6, 7, 8, 10] as g}
 					<option value={g}>{g}×{g}</option>
 				{/each}
@@ -85,9 +85,9 @@
 		<h2 class="mb-3 text-lg font-semibold">Sample usernames</h2>
 		<div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
 			{#each usernames as username (username)}
-				<div class="flex items-center gap-3 rounded-lg border border-surface-300-600 bg-surface-50-900 p-3">
+				<div class="flex items-center gap-3 rounded-lg border p-3 ui-card ui-border">
 					<Avatar seed={userAvatarSeed(username)} size={selectedSize} gridSize={selectedGrid} title="Avatar for {username}" />
-					<code class="truncate text-xs text-surface-600-400" title={username}>{username}</code>
+					<code class="truncate text-xs ui-muted" title={username}>{username}</code>
 				</div>
 			{/each}
 		</div>
@@ -97,11 +97,11 @@
 		<h2 class="mb-3 text-lg font-semibold">Inline use (chat-message style)</h2>
 		<div class="space-y-3">
 			{#each usernames.slice(0, 6) as username (username)}
-				<div class="flex items-start gap-3 rounded-lg border border-surface-300-600 bg-surface-50-900 p-3">
+				<div class="flex items-start gap-3 rounded-lg border p-3 ui-card ui-border">
 					<Avatar seed={userAvatarSeed(username)} size={32} gridSize={selectedGrid} title="Avatar for {username}" />
 					<div class="flex-1">
 						<p class="text-sm font-semibold">{username}</p>
-						<p class="text-sm text-surface-600-400">
+						<p class="text-sm ui-muted">
 							Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 						</p>
 					</div>

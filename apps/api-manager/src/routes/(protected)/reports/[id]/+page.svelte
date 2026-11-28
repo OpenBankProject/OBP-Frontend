@@ -109,29 +109,29 @@
 
 <div class="container mx-auto max-w-[110rem] px-4 py-8">
   <div class="mb-6">
-    <a href="/reports" class="mb-4 inline-flex items-center text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">← Back to Reports</a>
-    <h1 class="flex items-center gap-2 text-3xl font-bold text-gray-900 dark:text-gray-100"><FileSpreadsheet class="h-7 w-7" /> {isNew ? "New Report" : (initial?.title || "Report")}</h1>
-    <p class="mt-1 text-gray-600 dark:text-gray-400">A definition is JavaScript that calls OBP with your access and returns rows. Runs happen in your browser, in a sandbox.</p>
-    {#if savedMessage}<p class="mt-1 text-sm text-emerald-700 dark:text-emerald-300" data-testid="report-saved">{savedMessage}</p>{/if}
+    <a href="/reports" class="mb-4 inline-flex items-center text-sm ui-link">← Back to Reports</a>
+    <h1 class="flex items-center gap-2 text-3xl font-bold ui-text"><FileSpreadsheet class="h-7 w-7" /> {isNew ? "New Report" : (initial?.title || "Report")}</h1>
+    <p class="mt-1 ui-muted">A definition is JavaScript that calls OBP with your access and returns rows. Runs happen in your browser, in a sandbox.</p>
+    {#if savedMessage}<p class="mt-1 text-sm ui-text-success" data-testid="report-saved">{savedMessage}</p>{/if}
   </div>
 
   <ResizableSplit breakpoint="xl">
     {#snippet main()}
     <div>
       {#if loadError}
-        <p class="rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-800 dark:border-red-700 dark:bg-red-900/20 dark:text-red-200">{loadError}</p>
+        <p class="rounded-lg border p-4 text-sm ui-tone-error">{loadError}</p>
       {:else if initial}
         {#key currentId}
           <ReportEditor {initial} {bankIds} {saving} canDelete={!!currentId} onSave={handleSave} onDelete={handleDelete} onDuplicate={handleDuplicate} {onAskOpey} />
         {/key}
       {:else}
-        <p class="text-sm text-gray-500 dark:text-gray-400">Loading…</p>
+        <p class="text-sm ui-muted">Loading…</p>
       {/if}
     </div>
     {/snippet}
 
     {#snippet side()}
-      <div class="h-[36rem] w-full overflow-hidden rounded-lg border border-gray-200 shadow-sm xl:h-[calc(100vh-80px-3rem)] dark:border-gray-700">
+      <div class="h-[36rem] w-full overflow-hidden rounded-lg border shadow-sm xl:h-[calc(100vh-80px-3rem)] ui-border">
         <OpeyChat bind:this={opeyChat} {opeyChatOptions} userAuthenticated={!!page.data.userId} {clientTools} {clientContext} />
       </div>
     {/snippet}

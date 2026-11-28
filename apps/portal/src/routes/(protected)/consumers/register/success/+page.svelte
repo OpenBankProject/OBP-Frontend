@@ -47,7 +47,7 @@
 </script>
 
 <div
-	class="card preset-filled-primary-100-900 border-primary-200-800 divide-primary-200-800 mx-auto my-10 flex max-w-md flex-col divide-y border-[1px] shadow-lg sm:max-w-2xl lg:max-w-3xl"
+	class="card ui-panel ui-border mx-auto my-10 flex max-w-md flex-col divide-y border-[1px] shadow-lg sm:max-w-2xl lg:max-w-3xl"
 >
 	<header class="py-4">
 		<h1 class="h4 text-center">Consumer registration success</h1>
@@ -56,32 +56,32 @@
         <p class="text-center text-xl">
             Save these credentials securely.
         </p>
-        <p class="text-center text-warning-400">
+        <p class="text-center ui-text-warning">
             You will not be able to retrieve them again.
         </p>
         {#if isDisabled}
-            <div class="rounded-lg bg-warning-50 p-3 dark:bg-warning-900/20" role="alert" data-testid="consumer-disabled-warning">
-                <p class="text-sm text-warning-700 dark:text-warning-300">
+            <div class="rounded-lg p-3 ui-tone-warning" role="alert" data-testid="consumer-disabled-warning">
+                <p class="text-sm ui-text-warning">
                     This Consumer is disabled. Its key and secret will not work until an administrator enables it.
                     Ask an administrator of this API to enable Consumer ID <code>{consumerData.consumer_id}</code>.
                 </p>
             </div>
         {/if}
-        <div class="preset-filled-primary-50-950 shadow-md rounded-lg p-4 m-1.5">
+        <div class="ui-card shadow-md rounded-lg p-4 m-1.5">
             {#if apiHost}
                 <p class="mb-2" data-testid="consumer-api-host">
-                    <strong class="text-tertiary-400">API Host:</strong> {apiHost}
+                    <strong class="ui-link">API Host:</strong> {apiHost}
                 </p>
             {/if}
             <ul class="list-inside space-y-2">
                 {#each Object.entries(consumerData) as [key, value]}
                     {#if key === 'created_by_user'}
                     <li>
-                        <strong class="text-tertiary-400">{key}:</strong> {JSON.stringify(value)}
+                        <strong class="ui-link">{key}:</strong> {JSON.stringify(value)}
                     </li>
                     {:else}
                     <li>
-                        <strong class="text-tertiary-400">{key}:</strong> {value}
+                        <strong class="ui-link">{key}:</strong> {value}
                     </li>
                     {/if}
                 {/each}

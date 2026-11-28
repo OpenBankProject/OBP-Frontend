@@ -22,9 +22,9 @@
 
   let { data, form } = $props();
   const when = (v?: string) => (v ? new Date(v).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short", hourCycle: "h23" }) : "—");
-  const th = "px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400";
-  const input = "w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100";
-  const label = "block text-sm font-medium text-gray-700 dark:text-gray-300";
+  const th = "px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted";
+  const input = "w-full rounded-lg border px-3 py-2 text-sm ui-card ui-text ui-border";
+  const label = "block text-sm font-medium ui-muted";
   let type = $state("dynamic_entity_record");
 </script>
 
@@ -37,25 +37,25 @@
 
   <SpaceRoleAlerts bankId={data.bankId} roles={[{ role: RETENTION_ROLES.holds, purpose: "to place and release legal holds" }]} />
 
-  {#if data.loadError}<div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300" data-testid="load-error">{data.loadError}</div>{/if}
-  {#if form?.error}<div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300" data-testid="action-error">{form.error}</div>{/if}
-  {#if form?.message}<div class="mb-6 rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-700 dark:border-green-800 dark:bg-green-900/20 dark:text-green-300" role="status" data-testid="message">{form.message}</div>{/if}
+  {#if data.loadError}<div class="mb-6 rounded-lg border p-4 text-sm ui-tone-error" data-testid="load-error">{data.loadError}</div>{/if}
+  {#if form?.error}<div class="mb-6 rounded-lg border p-4 text-sm ui-tone-error" data-testid="action-error">{form.error}</div>{/if}
+  {#if form?.message}<div class="mb-6 rounded-lg border p-4 text-sm ui-tone-success" role="status" data-testid="message">{form.message}</div>{/if}
 
-  <p class="mb-2 text-sm"><a class="text-blue-600 underline dark:text-blue-400" href="?bank_id={encodeURIComponent(data.bankId)}{data.showAll ? '' : '&all=true'}">{data.showAll ? "Show active holds only" : "Show released holds too"}</a></p>
-  <div class="mb-8 overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+  <p class="mb-2 text-sm"><a class="underline ui-link" href="?bank_id={encodeURIComponent(data.bankId)}{data.showAll ? '' : '&all=true'}">{data.showAll ? "Show active holds only" : "Show released holds too"}</a></p>
+  <div class="mb-8 overflow-x-auto rounded-lg border shadow-sm ui-card ui-border">
     {#if data.holds.length === 0}
-      <div class="p-8 text-center text-sm text-gray-500 dark:text-gray-400" data-testid="empty">No holds in {data.bankId}.</div>
+      <div class="p-8 text-center text-sm ui-muted" data-testid="empty">No holds in {data.bankId}.</div>
     {:else}
       <table class="w-full text-sm" data-testid="holds-table">
-        <thead class="bg-gray-50 dark:bg-gray-900"><tr><th class={th}>Held</th><th class={th}>Reason</th><th class={th}>Placed</th><th class={th}>Released</th><th class={th}></th></tr></thead>
-        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+        <thead class="ui-card"><tr><th class={th}>Held</th><th class={th}>Reason</th><th class={th}>Placed</th><th class={th}>Released</th><th class={th}></th></tr></thead>
+        <tbody class="divide-y ui-border">
           {#each data.holds as h (h.retention_hold_id)}
             <tr data-testid="row-{h.retention_hold_id}">
               <td class="px-4 py-3 font-mono text-xs">{h.resource_type}{h.entity_name ? ` ${h.entity_name}` : ""} {h.resource_id ?? "(all records)"}</td>
-              <td class="px-4 py-3 text-gray-700 dark:text-gray-300">{h.reason}</td>
-              <td class="px-4 py-3 text-xs text-gray-700 dark:text-gray-300">{when(h.placed_at)}<div class="font-mono">{h.placed_by_user_id}</div></td>
-              <td class="px-4 py-3 text-xs text-gray-700 dark:text-gray-300">{#if h.released_at}{when(h.released_at)}<div class="font-mono">{h.released_by_user_id}</div>{:else}—{/if}</td>
-              <td class="px-4 py-3">{#if h.is_active}<form method="POST" action="?/release&bank_id={encodeURIComponent(data.bankId)}"><input type="hidden" name="retention_hold_id" value={h.retention_hold_id} /><button class="rounded bg-red-600 px-2 py-1 text-xs text-white dark:bg-red-500" data-testid="release-{h.retention_hold_id}">Release</button></form>{/if}</td>
+              <td class="px-4 py-3 ui-muted">{h.reason}</td>
+              <td class="px-4 py-3 text-xs ui-muted">{when(h.placed_at)}<div class="font-mono">{h.placed_by_user_id}</div></td>
+              <td class="px-4 py-3 text-xs ui-muted">{#if h.released_at}{when(h.released_at)}<div class="font-mono">{h.released_by_user_id}</div>{:else}—{/if}</td>
+              <td class="px-4 py-3">{#if h.is_active}<form method="POST" action="?/release&bank_id={encodeURIComponent(data.bankId)}"><input type="hidden" name="retention_hold_id" value={h.retention_hold_id} /><button class="rounded px-2 py-1 text-xs preset-filled-error-500" data-testid="release-{h.retention_hold_id}">Release</button></form>{/if}</td>
             </tr>
           {/each}
         </tbody>
@@ -63,8 +63,8 @@
     {/if}
   </div>
 
-  <section class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800" data-testid="place-hold">
-    <h2 class="mb-4 text-xl font-semibold text-gray-900 dark:text-gray-100">Place a hold in {data.bankId}</h2>
+  <section class="rounded-lg border p-6 shadow-sm ui-card ui-border" data-testid="place-hold">
+    <h2 class="mb-4 text-xl font-semibold ui-text">Place a hold in {data.bankId}</h2>
     <form method="POST" action="?/place&bank_id={encodeURIComponent(data.bankId)}" class="grid gap-4 md:grid-cols-2">
       <div><label class={label} for="resource_type">Resources</label>
         <select id="resource_type" name="resource_type" class={input} bind:value={type}>{#each RESOURCE_TYPES as r (r)}<option value={r}>{RESOURCE_LABELS[r]}</option>{/each}</select></div>
@@ -74,7 +74,7 @@
       {/if}
       <div><label class={label} for="resource_id">Resource id</label><input id="resource_id" name="resource_id" class="{input} font-mono" /></div>
       <div class="md:col-span-2"><label class={label} for="reason">Reason</label><input id="reason" name="reason" required maxlength="1000" class={input} /></div>
-      <button class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white dark:bg-blue-500 md:col-span-2 md:justify-self-start" data-testid="place">Place the hold</button>
+      <button class="rounded-lg px-4 py-2 text-sm font-medium md:col-span-2 md:justify-self-start preset-filled-primary-500" data-testid="place">Place the hold</button>
     </form>
   </section>
 </div>

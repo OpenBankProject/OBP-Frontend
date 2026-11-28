@@ -20,22 +20,22 @@
 </script>
 
 <div class="mx-auto max-w-lg p-8">
-		<h1 class="mb-4 text-2xl font-bold text-gray-900 dark:text-gray-100">Onboarding</h1>
+		<h1 class="mb-4 text-2xl font-bold ui-text">Onboarding</h1>
 
 		{#if data.loadError}
-			<div class="bg-error-500/10 border-error-500 mb-4 rounded-lg border p-4">
-				<p class="text-error-500 font-semibold">{data.loadError}</p>
+			<div class="mb-4 rounded-lg border p-4 ui-tone-error">
+				<p class="font-semibold ui-text-error">{data.loadError}</p>
 			</div>
 		{/if}
 
-			<p class="mb-6 text-gray-700 dark:text-gray-300">
+			<p class="mb-6 ui-muted">
 				Please enter your {data.key.replace(/_/g, ' ').toLowerCase()} to begin the verification
 				process.
 			</p>
 
 			{#if form?.message}
-				<div class="bg-error-500/10 border-error-500 mb-4 rounded-lg border p-4">
-					<p class="text-error-500 font-semibold">{form.message}</p>
+				<div class="mb-4 rounded-lg border p-4 ui-tone-error">
+					<p class="font-semibold ui-text-error">{form.message}</p>
 				</div>
 			{/if}
 
@@ -47,7 +47,7 @@
 				<div>
 					<label
 						for="value"
-						class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+						class="mb-1 block text-sm font-medium ui-muted"
 					>
 						{data.key.replace(/_/g, ' ')}
 					</label>
@@ -56,12 +56,12 @@
 						name="value"
 						type="text"
 						required
-						class="input w-full rounded-md border border-gray-300 p-2 dark:border-gray-600 dark:bg-gray-800"
+						class="input w-full rounded-md border p-2 ui-panel ui-border"
 						placeholder="Enter your {data.key.replace(/_/g, ' ').toLowerCase()}"
 					/>
 				</div>
 
-				<p class="text-sm text-gray-500 dark:text-gray-400">
+				<p class="text-sm ui-muted">
 					Bank: <strong>{data.bankId}</strong> | SCA Method: <strong>{data.scaMethod}</strong>
 				</p>
 

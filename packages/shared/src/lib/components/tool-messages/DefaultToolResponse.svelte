@@ -33,19 +33,19 @@
 
 </script>
 
-<div class="card rounded-lg border border-surface-300-700 bg-surface-50-950 p-4 text-start">
+<div class="card rounded-lg border p-4 text-start ui-card ui-border">
     <!-- Header -->
     <div class="mb-3 flex items-center justify-between">
         <div class="flex items-center gap-2">
-            <CheckCircle class="text-success-600-400" size={20} />
+            <CheckCircle class="ui-text-success" size={20} />
             <h4 class="text-sm font-semibold">Tool Output</h4>
         </div>
     </div>
 
     <!-- Tool Name -->
     <div class="mb-3">
-        <span class="text-xs font-medium text-surface-600-400">Tool:</span>
-        <code class="ms-2 rounded bg-primary-100-900 px-2 py-1 text-xs">
+        <span class="text-xs font-medium ui-muted">Tool:</span>
+        <code class="ms-2 rounded px-2 py-1 text-xs ui-tone-info">
             {message.toolName}
         </code>
     </div>
@@ -53,7 +53,7 @@
     <!-- Output Toggle -->
     <button
         type="button"
-        class="btn preset-outlined-primary-500 btn-sm w-full mb-2"
+        class="btn preset-outlined-surface-500 btn-sm w-full mb-2"
         onclick={() => showOutput = !showOutput}
     >
         {showOutput ? 'Hide' : 'View'} Output
@@ -61,6 +61,6 @@
 
     <!-- Output Content -->
     {#if showOutput}
-        <pre class="text-xs text-start mt-2 preset-filled-surface-200-800 p-3 rounded-lg max-h-96 overflow-auto font-mono whitespace-pre border border-surface-300-700">{outputContent}</pre>
+        <pre class="text-xs text-start mt-2 ui-panel p-3 rounded-lg max-h-96 overflow-auto font-mono whitespace-pre border ui-border">{outputContent}</pre>
     {/if}
 </div>

@@ -14,7 +14,7 @@
 <h1 class="h2">{t(locale, 'setup_heading')}</h1>
 <p class="mt-1"><a class="anchor" href="/setup" data-testid="staff-setup-platform-link">{t(locale, 'staff_setup_platform_link')}</a></p>
 {#if !data.apiManagerUrl}
-	<p class="mt-4 max-w-3xl rounded-lg border-2 border-error-500 preset-tonal-error p-4" role="alert" data-testid="staff-setup-no-api-manager">
+	<p class="mt-4 max-w-3xl rounded-lg border-2 ui-tone-error p-4" role="alert" data-testid="staff-setup-no-api-manager">
 		<strong>{t(locale, 'platform_setup_no_manager_heading')}.</strong> {t(locale, 'staff_setup_no_manager_text')}
 		<a class="anchor" href="/setup">/setup</a>
 	</p>
@@ -30,7 +30,7 @@
 	</dl>
 	{#if data.createBankUrl}
 		<p class="mt-2">{t(locale, 'setup_bank_missing')}</p>
-		<a class="btn preset-filled mt-2" href={data.createBankUrl} data-testid="setup-create-bank-link"
+		<a class="btn preset-filled-primary-500 mt-2" href={data.createBankUrl} data-testid="setup-create-bank-link"
 			>{t(locale, 'setup_create_bank')}</a
 		>
 	{/if}
@@ -47,7 +47,7 @@
 	</dl>
 	{#if data.createFormsBankUrl}
 		<p class="mt-2">{t(locale, 'setup_forms_bank_missing')}</p>
-		<a class="btn preset-filled mt-2" href={data.createFormsBankUrl} data-testid="setup-create-forms-bank-link">{t(locale, 'setup_create_bank')}</a>
+		<a class="btn preset-filled-primary-500 mt-2" href={data.createFormsBankUrl} data-testid="setup-create-forms-bank-link">{t(locale, 'setup_create_bank')}</a>
 	{/if}
 </section>
 
@@ -62,10 +62,10 @@
 		<dd>{data.checkedAt ?? t(locale, 'setup_not_checked')}</dd>
 	</dl>
 	{#if data.problem}
-		<p class="mt-2 preset-tonal-warning rounded p-3" role="alert" data-testid="setup-problem">{data.problem}</p>
+		<p class="mt-2 ui-tone-warning rounded p-3" role="alert" data-testid="setup-problem">{data.problem}</p>
 	{/if}
 	{#if data.platformAppsUrl}
-		<a class="btn preset-filled mt-4" href={data.platformAppsUrl} data-testid="setup-platform-apps-link"
+		<a class="btn preset-filled-primary-500 mt-4" href={data.platformAppsUrl} data-testid="setup-platform-apps-link"
 			>{t(locale, 'setup_open_platform_apps')}</a
 		>
 	{:else}

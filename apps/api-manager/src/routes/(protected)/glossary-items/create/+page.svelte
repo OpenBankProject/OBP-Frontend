@@ -60,17 +60,17 @@
 
 <div class="container mx-auto max-w-7xl px-4 py-8">
   <div class="mb-6">
-    <a href="/glossary-items" class="mb-4 inline-flex items-center text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">← Back to Dynamic Glossary Items</a>
-    <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Create Dynamic Glossary Item</h1>
-    <p class="mt-1 text-gray-600 dark:text-gray-400">Add a term to the Glossary, or correct one that ships with the API, without redeploying.</p>
+    <a href="/glossary-items" class="mb-4 inline-flex items-center text-sm ui-link">← Back to Dynamic Glossary Items</a>
+    <h1 class="text-3xl font-bold ui-text">Create Dynamic Glossary Item</h1>
+    <p class="mt-1 ui-muted">Add a term to the Glossary, or correct one that ships with the API, without redeploying.</p>
     <div class="mt-3"><ApiExplorerEndpoints endpoints={data.endpoints} label="Posts to" /></div>
   </div>
 
   <ResizableSplit breakpoint="lg">
     {#snippet main()}
-    <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+    <div class="rounded-lg border p-6 shadow-sm ui-card ui-border">
       {#if data.titlesError}
-        <p class="mb-4 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-900/20 dark:text-amber-100" data-testid="titles-error">
+        <p class="mb-4 rounded-lg border px-4 py-3 text-sm ui-tone-warning" data-testid="titles-error">
           The existing Dynamic Glossary Items could not be loaded: {data.titlesError}. You can still create one; OBP returns 409 if the title is already taken.
         </p>
       {/if}
@@ -86,7 +86,7 @@
     {/snippet}
 
     {#snippet side()}
-      <div class="h-[36rem] w-full overflow-hidden rounded-lg border border-gray-200 shadow-sm lg:h-[calc(100vh-80px-3rem)] dark:border-gray-700">
+      <div class="h-[36rem] w-full overflow-hidden rounded-lg border shadow-sm lg:h-[calc(100vh-80px-3rem)] ui-border">
         <OpeyChat {opeyChatOptions} userAuthenticated={!!page.data.userId} {clientTools} {clientContext} />
       </div>
     {/snippet}

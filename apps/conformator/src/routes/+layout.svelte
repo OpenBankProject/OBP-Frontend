@@ -114,7 +114,7 @@
 	<title>Conformator</title>
 </svelte:head>
 
-<div class="grid h-screen w-full grid-cols-[auto_1fr] grid-rows-[minmax(0,1fr)] divide-x divide-solid divide-surface-100-900 overflow-hidden">
+<div class="grid h-screen w-full grid-cols-[auto_1fr] grid-rows-[minmax(0,1fr)] divide-x divide-solid ui-border overflow-hidden">
 	<NavigationSidebar
 		{menuItems}
 		{sections}
@@ -128,17 +128,17 @@
 		copyrightHolder="TESOBE"
 		copyrightStartYear={2011}
 	/>
-	<div class="h-full min-w-0 bg-conic-250 from-30% via-40% to-50% dark:from-primary-950 dark:via-secondary-500/70 dark:to-primary-950">
+	<div class="h-full min-w-0 ui-glow">
 		<div class="flex h-full flex-col backdrop-blur-2xl">
 			<div class="z-10 flex shrink-0 items-center justify-end gap-4 px-4 py-2 shadow-md" style="height: 48px;">
 				<LanguageSwitch />
 				{#if data.user}
-					<span class="hover:text-tertiary-400" data-testid="header-username">{data.user.username}</span>
+					<span data-testid="header-username">{data.user.username}</span>
 					<form method="POST" action="/logout">
-						<button type="submit" class="btn preset-outlined-primary-500" data-testid="logout">{m.logout()}</button>
+						<button type="submit" class="btn preset-outlined-surface-500" data-testid="logout">{m.logout()}</button>
 					</form>
 				{:else}
-					<a href={loginHref} class="btn preset-filled-surface-950-50" data-testid="login">{m.login()}</a>
+					<a href={loginHref} class="btn preset-filled-primary-500" data-testid="login">{m.login()}</a>
 				{/if}
 			</div>
 			<main id="content" class="min-h-0 flex-1 overflow-auto px-4 py-8 md:px-8">

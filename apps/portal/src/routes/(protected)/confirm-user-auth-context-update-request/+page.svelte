@@ -20,29 +20,29 @@
 </script>
 
 <div class="mx-auto max-w-lg p-8">
-		<h1 class="mb-4 text-2xl font-bold text-gray-900 dark:text-gray-100">Confirm Verification</h1>
+		<h1 class="mb-4 text-2xl font-bold ui-text">Confirm Verification</h1>
 
 		{#if data.loadError}
-			<div class="bg-error-500/10 border-error-500 mb-4 rounded-lg border p-4">
-				<p class="text-error-500 font-semibold">{data.loadError}</p>
+			<div class="mb-4 rounded-lg border p-4 ui-tone-error">
+				<p class="font-semibold ui-text-error">{data.loadError}</p>
 			</div>
 		{/if}
 
-			<p class="mb-6 text-gray-700 dark:text-gray-300">
+			<p class="mb-6 ui-muted">
 				Please enter the OTP code you received to complete the verification process.
 			</p>
 
 			{#if form?.message}
-				<div class="bg-error-500/10 border-error-500 mb-4 rounded-lg border p-4">
-					<p class="text-error-500 font-semibold">{form.message}</p>
+				<div class="mb-4 rounded-lg border p-4 ui-tone-error">
+					<p class="font-semibold ui-text-error">{form.message}</p>
 				</div>
 			{/if}
 
 			{#if form?.success}
 				<div
-					class="mb-4 rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-900/20"
+					class="mb-4 rounded-lg border p-4 ui-tone-success"
 				>
-					<p class="font-semibold text-green-600 dark:text-green-400">{form.message}</p>
+					<p class="font-semibold ui-text-success">{form.message}</p>
 				</div>
 			{/if}
 
@@ -53,7 +53,7 @@
 				<div>
 					<label
 						for="answer"
-						class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+						class="mb-1 block text-sm font-medium ui-muted"
 					>
 						OTP Code
 					</label>
@@ -62,7 +62,7 @@
 						name="answer"
 						type="text"
 						required
-						class="input w-full rounded-md border border-gray-300 p-2 dark:border-gray-600 dark:bg-gray-800"
+						class="input w-full rounded-md border p-2 ui-panel ui-border"
 						placeholder="Enter OTP code"
 					/>
 				</div>

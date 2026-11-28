@@ -82,7 +82,7 @@
 					{#each suitesForSystem as s (s.id)}<option value={s.id}>{s.label}</option>{/each}
 				</select>
 			</label>
-			<button class="btn preset-filled" disabled={suitesForSystem.length === 0} data-testid="run-start">Start</button>
+			<button class="btn preset-filled-primary-500" disabled={suitesForSystem.length === 0} data-testid="run-start">Start</button>
 		</form>
 		{#if chosenRole && suitesForSystem.length === 0}<p class="mt-2 text-sm">There is no approved suite for this kind of system yet.</p>{/if}
 	{/if}
@@ -111,12 +111,12 @@
 
 	{#if data.can.addSystem}
 		<h3 class="h5 mt-6">Add a system</h3>
-		{#if form?.systemAdded}<p class="mt-2 preset-tonal-success rounded p-3" role="status">Added {form.systemAdded}.</p>{/if}
+		{#if form?.systemAdded}<p class="mt-2 ui-tone-success rounded p-3" role="status">Added {form.systemAdded}.</p>{/if}
 		<p class="mt-1 max-w-3xl text-sm">Give the system's address only. Secrets (client secrets, certificates, test customer logins) never go here: send them to the regulator's runner administrators.</p>
 		<FormProblems problems={systemForm?.problems} />
 		<form method="POST" action="?/addSystem" class="mt-2 grid max-w-3xl gap-3">
 			<SystemFields values={systemForm?.values ?? {}} systemRoles={data.systemRoles} />
-			<div><button class="btn preset-filled" data-testid="system-add">Add the system</button></div>
+			<div><button class="btn preset-filled-primary-500" data-testid="system-add">Add the system</button></div>
 		</form>
 	{/if}
 </section>

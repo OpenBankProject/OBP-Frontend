@@ -13,24 +13,24 @@
 <h1 class="h2">{t(locale, 'participants_heading')}</h1>
 <p class="mt-2">{t(locale, 'participants_intro')}</p>
 
-{#if form?.form === 'role' && form?.requested}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'access_requested_notice')}</p>{/if}
+{#if form?.form === 'role' && form?.requested}<p class="mt-4 ui-tone-success rounded p-3" role="status">{t(locale, 'access_requested_notice')}</p>{/if}
 {#if form?.error}
-	<p class="mt-4 preset-tonal-error rounded p-3" role="alert">
+	<p class="mt-4 ui-tone-error rounded p-3" role="alert">
 		{#if ['invalid', 'gate'].includes(String(form.error))}{t(locale, `stage_error_${form.error}` as MessageKey)}{:else if form.error === 'team_unknown'}{t(locale, 'team_error_unknown')}{:else}{t(locale, 'staff_error')} {String(form.error)}{/if}
 	</p>
 {/if}
-{#if form?.form === 'team' && form?.teamSet}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'team_saved')}</p>{/if}
-{#if form?.form === 'flag' && form?.flagged}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'risk_saved')}</p>{/if}
-{#if form?.form === 'advance' && form?.advanced}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'stage_advanced')} {form.advanced}.</p>{/if}
+{#if form?.form === 'team' && form?.teamSet}<p class="mt-4 ui-tone-success rounded p-3" role="status">{t(locale, 'team_saved')}</p>{/if}
+{#if form?.form === 'flag' && form?.flagged}<p class="mt-4 ui-tone-success rounded p-3" role="status">{t(locale, 'risk_saved')}</p>{/if}
+{#if form?.form === 'advance' && form?.advanced}<p class="mt-4 ui-tone-success rounded p-3" role="status">{t(locale, 'stage_advanced')} {form.advanced}.</p>{/if}
 
-<section class="card preset-outlined-surface-200-800 mt-6 p-4" data-testid="participants">
+<section class="card border ui-border mt-6 p-4" data-testid="participants">
 	{#each ['reports', 'reviews', 'advance', 'history', 'team'] as const as key (key)}
 		{#if missing(key)}<div class="mb-2"><MissingRole {locale} space={data.space} role={missing(key)!} entitlementRequestsUrl={data.entitlementRequestsUrl} /></div>{/if}
 	{/each}
 	{#if missing('read')}
 		<MissingRole {locale} space={data.space} role={missing('read')!} entitlementRequestsUrl={data.entitlementRequestsUrl} />
 	{:else if data.error}
-		<p class="preset-tonal-error rounded p-3" role="alert">{data.error}</p>
+		<p class="ui-tone-error rounded p-3" role="alert">{data.error}</p>
 	{:else if data.participants.length === 0}
 		<p>{t(locale, 'participants_none')}</p>
 	{:else}

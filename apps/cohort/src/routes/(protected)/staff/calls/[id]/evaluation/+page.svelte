@@ -20,18 +20,18 @@
 <p><a class="anchor" href="/staff/calls/{data.call.id}">{data.call.title}</a></p>
 <h1 class="h2">{t(locale, 'eval_heading')}</h1>
 
-{#if form?.form === 'role' && form?.requested}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'access_requested_notice')}</p>{/if}
+{#if form?.form === 'role' && form?.requested}<p class="mt-4 ui-tone-success rounded p-3" role="status">{t(locale, 'access_requested_notice')}</p>{/if}
 {#if form?.error}
-	<p class="mt-4 preset-tonal-error rounded p-3" role="alert">
+	<p class="mt-4 ui-tone-error rounded p-3" role="alert">
 		{#if ['invalid', 'reviewer', 'already_assigned'].includes(String(form.error))}{t(locale, `eval_error_${form.error}` as MessageKey)}{:else}{t(locale, 'staff_error')} {String(form.error)}{/if}
 	</p>
 {/if}
 {#if form?.form === 'criterion' && form?.added}<p class="mt-4" role="status">{t(locale, 'eval_criterion_added')}</p>{/if}
 {#if form?.form === 'assign' && form?.assigned}<p class="mt-4" role="status">{t(locale, 'eval_assigned')}</p>{/if}
-{#if form?.form === 'decide' && form?.decided}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'eval_decided')}{#if form.onboarded}{' '}{t(locale, 'eval_onboarded')}{/if}</p>{/if}
-{#if form?.form === 'decide' && form?.onboarded === false}<p class="mt-4 preset-tonal-error rounded p-3" role="alert">{t(locale, 'eval_onboard_failed')} {String(form.onboardError ?? '')}</p>{/if}
+{#if form?.form === 'decide' && form?.decided}<p class="mt-4 ui-tone-success rounded p-3" role="status">{t(locale, 'eval_decided')}{#if form.onboarded}{' '}{t(locale, 'eval_onboarded')}{/if}</p>{/if}
+{#if form?.form === 'decide' && form?.onboarded === false}<p class="mt-4 ui-tone-error rounded p-3" role="alert">{t(locale, 'eval_onboard_failed')} {String(form.onboardError ?? '')}</p>{/if}
 
-<section class="card preset-outlined-surface-200-800 mt-6 p-4" data-testid="eval-rubric">
+<section class="card border ui-border mt-6 p-4" data-testid="eval-rubric">
 	<h2 class="h4">{t(locale, 'eval_rubric')}</h2>
 	{#if data.rubric.length === 0}<p class="mt-2">{t(locale, 'eval_rubric_none')}</p>{:else}
 		<div class="table-wrap mt-2">
@@ -55,19 +55,19 @@
 					<label class="label"><span class="label-text">{t(locale, 'eval_max_score')} *</span><input class="input w-24" name="max_score" type="number" min="1" max="100" value="5" required /></label>
 					<label class="label"><span class="label-text">{t(locale, 'eval_weight')}</span><input class="input w-24" name="weight" type="number" min="1" max="10" value="1" /></label>
 				</div>
-				<button class="btn preset-filled self-start" data-testid="eval-add-criterion">{t(locale, 'staff_create')}</button>
+				<button class="btn preset-filled-primary-500 self-start" data-testid="eval-add-criterion">{t(locale, 'staff_create')}</button>
 			</form>
 		</details>
 	{/if}
 </section>
 
-<section class="card preset-outlined-surface-200-800 mt-6 p-4" data-testid="eval-ranking">
+<section class="card border ui-border mt-6 p-4" data-testid="eval-ranking">
 	<h2 class="h4">{t(locale, 'eval_ranking')}</h2>
 	<p class="mt-1 text-sm">{t(locale, 'eval_ranking_intro')}</p>
 	{@render roleNeeded('applications')}
 	{@render roleNeeded('assignments')}
 	{@render roleNeeded('reviews')}
-	{#if data.errors.applications}<p class="mt-2 preset-tonal-error rounded p-3">{data.errors.applications}</p>{/if}
+	{#if data.errors.applications}<p class="mt-2 ui-tone-error rounded p-3">{data.errors.applications}</p>{/if}
 	{#if data.rows.length === 0}<p class="mt-2">{t(locale, 'eval_none_submitted')}</p>{:else}
 		<div class="table-wrap mt-2">
 			<table class="table">
@@ -118,7 +118,7 @@
 											</select>
 											<label class="label"><span class="label-text text-sm">{t(locale, 'screening_message')}</span><textarea class="textarea" name="message_to_applicant" rows="2" maxlength="4000"></textarea></label>
 											<label class="label"><span class="label-text text-sm">{t(locale, 'screening_reason')}</span><textarea class="textarea" name="reason" rows="2" maxlength="4000"></textarea></label>
-											<button class="btn btn-sm preset-filled self-start" data-testid="eval-decide-{row.id}">{t(locale, 'screening_record')}</button>
+											<button class="btn btn-sm preset-filled-primary-500 self-start" data-testid="eval-decide-{row.id}">{t(locale, 'screening_record')}</button>
 										</form>
 									</details>
 								{/if}

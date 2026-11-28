@@ -303,23 +303,15 @@
   }
 
   .panel {
-    background: white;
+    background: var(--ui-card);
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     overflow: hidden;
   }
 
-  :global([data-mode="dark"]) .panel {
-    background: rgb(var(--color-surface-800));
-  }
-
   .panel-header {
     padding: 1.5rem;
-    border-bottom: 1px solid #e5e7eb;
-  }
-
-  :global([data-mode="dark"]) .panel-header {
-    border-bottom-color: rgb(var(--color-surface-700));
+    border-bottom: 1px solid var(--ui-border);
   }
 
   .header-content {
@@ -331,22 +323,14 @@
   .panel-title {
     font-size: 1.5rem;
     font-weight: 600;
-    color: #111827;
+    color: var(--ui-text);
     margin: 0;
-  }
-
-  :global([data-mode="dark"]) .panel-title {
-    color: var(--color-surface-100);
   }
 
   .panel-subtitle {
     font-size: 0.875rem;
-    color: #6b7280;
+    color: var(--ui-muted);
     margin-top: 0.5rem;
-  }
-
-  :global([data-mode="dark"]) .panel-subtitle {
-    color: var(--color-surface-400);
   }
 
   .panel-content {
@@ -362,19 +346,15 @@
     display: block;
     font-size: 0.875rem;
     font-weight: 500;
-    color: #374151;
+    color: var(--ui-text);
     margin-bottom: 0.5rem;
-  }
-
-  :global([data-mode="dark"]) .selector-label {
-    color: var(--color-surface-300);
   }
 
   .selector-input {
     width: 100%;
     max-width: 400px;
     padding: 0.625rem 0.75rem;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--ui-border);
     border-radius: 6px;
     font-size: 0.875rem;
     transition: all 0.2s;
@@ -382,19 +362,8 @@
 
   .selector-input:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-  }
-
-  :global([data-mode="dark"]) .selector-input {
-    background: rgb(var(--color-surface-700));
-    border-color: rgb(var(--color-surface-600));
-    color: var(--color-surface-100);
-  }
-
-  :global([data-mode="dark"]) .selector-input:focus {
-    border-color: rgb(var(--color-primary-500));
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+    border-color: var(--ui-link);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-link) 10%, transparent);
   }
 
   /* Count banner */
@@ -403,17 +372,11 @@
     align-items: center;
     gap: 0.5rem;
     padding: 1rem 1.5rem;
-    background: #f0fdf4;
-    border: 1px solid #bbf7d0;
+    background: var(--ui-tone-success-bg);
+    border: 1px solid var(--ui-tone-success-border);
     border-radius: 8px;
     margin-bottom: 1.5rem;
-    color: #166534;
-  }
-
-  :global([data-mode="dark"]) .count-banner {
-    background: rgba(34, 197, 94, 0.1);
-    border-color: rgba(34, 197, 94, 0.3);
-    color: rgb(var(--color-success-300));
+    color: var(--ui-tone-success-text);
   }
 
   .count-number {
@@ -436,18 +399,14 @@
   .search-wrapper :global(.search-icon) {
     position: absolute;
     left: 0.75rem;
-    color: #9ca3af;
+    color: var(--ui-muted);
     pointer-events: none;
-  }
-
-  :global([data-mode="dark"]) .search-wrapper :global(.search-icon) {
-    color: var(--color-surface-400);
   }
 
   .search-input {
     width: 100%;
     padding: 0.625rem 2.5rem 0.625rem 2.5rem;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--ui-border);
     border-radius: 6px;
     font-size: 0.875rem;
     transition: all 0.2s;
@@ -455,19 +414,8 @@
 
   .search-input:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-  }
-
-  :global([data-mode="dark"]) .search-input {
-    background: rgb(var(--color-surface-700));
-    border-color: rgb(var(--color-surface-600));
-    color: var(--color-surface-100);
-  }
-
-  :global([data-mode="dark"]) .search-input:focus {
-    border-color: rgb(var(--color-primary-500));
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+    border-color: var(--ui-link);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-link) 10%, transparent);
   }
 
   .clear-button {
@@ -475,7 +423,7 @@
     right: 0.75rem;
     background: none;
     border: none;
-    color: #9ca3af;
+    color: var(--ui-muted);
     cursor: pointer;
     padding: 0.25rem;
     display: flex;
@@ -484,17 +432,8 @@
   }
 
   .clear-button:hover {
-    color: #4b5563;
-    background: #f3f4f6;
-  }
-
-  :global([data-mode="dark"]) .clear-button {
-    color: var(--color-surface-400);
-  }
-
-  :global([data-mode="dark"]) .clear-button:hover {
-    color: var(--color-surface-200);
-    background: rgb(var(--color-surface-600));
+    color: var(--ui-muted);
+    background: var(--ui-hover);
   }
 
   /* Table */
@@ -512,34 +451,20 @@
     text-align: left;
     padding: 0.625rem 0.75rem;
     font-weight: 600;
-    color: #6b7280;
-    border-bottom: 2px solid #e5e7eb;
+    color: var(--ui-muted);
+    border-bottom: 2px solid var(--ui-border);
     white-space: nowrap;
-  }
-
-  :global([data-mode="dark"]) .directory-table th {
-    color: var(--color-surface-400);
-    border-bottom-color: rgb(var(--color-surface-600));
   }
 
   .directory-table td {
     padding: 0.625rem 0.75rem;
-    border-bottom: 1px solid #f3f4f6;
-    color: #374151;
+    border-bottom: 1px solid var(--ui-border);
+    color: var(--ui-text);
     vertical-align: top;
   }
 
-  :global([data-mode="dark"]) .directory-table td {
-    border-bottom-color: rgb(var(--color-surface-700));
-    color: var(--color-surface-200);
-  }
-
   .directory-table tbody tr:hover {
-    background: #f9fafb;
-  }
-
-  :global([data-mode="dark"]) .directory-table tbody tr:hover {
-    background: rgb(var(--color-surface-700));
+    background: var(--ui-hover);
   }
 
   .cell-mono {
@@ -548,17 +473,13 @@
   }
 
   .cell-mono :global(.account-link) {
-    color: #3b82f6;
+    color: var(--ui-link);
     text-decoration: none;
     font-weight: 500;
   }
 
   .cell-mono :global(.account-link:hover) {
     text-decoration: underline;
-  }
-
-  :global([data-mode="dark"]) .cell-mono :global(.account-link) {
-    color: rgb(var(--color-primary-400));
   }
 
   .badge {
@@ -570,69 +491,44 @@
   }
 
   .badge-info {
-    background: #eff6ff;
-    color: #1e40af;
-  }
-
-  :global([data-mode="dark"]) .badge-info {
-    background: rgba(59, 130, 246, 0.15);
-    color: rgb(var(--color-primary-300));
+    background: var(--ui-tone-info-bg);
+    color: var(--ui-tone-info-text);
   }
 
   /* Empty/Loading/Error states */
   .empty-state {
     text-align: center;
     padding: 3rem;
-    color: #6b7280;
-  }
-
-  :global([data-mode="dark"]) .empty-state {
-    color: var(--color-surface-400);
+    color: var(--ui-muted);
   }
 
   .empty-icon {
     display: flex;
     justify-content: center;
     margin-bottom: 1rem;
-    color: #d1d5db;
-  }
-
-  :global([data-mode="dark"]) .empty-icon {
-    color: var(--color-surface-600);
+    color: var(--ui-muted);
   }
 
   .empty-title {
     font-size: 1.125rem;
     font-weight: 600;
-    color: #4a5568;
+    color: var(--ui-muted);
     margin: 0 0 0.5rem 0;
-  }
-
-  :global([data-mode="dark"]) .empty-title {
-    color: var(--color-surface-300);
   }
 
   .empty-description {
     margin: 0;
-    color: #6b7280;
-  }
-
-  :global([data-mode="dark"]) .empty-description {
-    color: var(--color-surface-400);
+    color: var(--ui-muted);
   }
 
   .loading-state {
     text-align: center;
     padding: 3rem;
-    color: #6b7280;
+    color: var(--ui-muted);
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 0.75rem;
-  }
-
-  :global([data-mode="dark"]) .loading-state {
-    color: var(--color-surface-400);
   }
 
   .loading-state :global(.spinner-icon) {
@@ -650,25 +546,16 @@
 
   .error-state {
     padding: 1rem 1.5rem;
-    background: #fef2f2;
-    border: 1px solid #fca5a5;
+    background: var(--ui-tone-error-bg);
+    border: 1px solid var(--ui-tone-error-border);
     border-radius: 8px;
     margin: 1rem 0;
   }
 
-  :global([data-mode="dark"]) .error-state {
-    background: rgba(220, 38, 38, 0.1);
-    border-color: rgba(220, 38, 38, 0.3);
-  }
-
   .error-message {
-    color: #991b1b;
+    color: var(--ui-error);
     font-size: 0.875rem;
     margin: 0;
-  }
-
-  :global([data-mode="dark"]) .error-message {
-    color: rgb(var(--color-error-300));
   }
 
   @media (max-width: 768px) {

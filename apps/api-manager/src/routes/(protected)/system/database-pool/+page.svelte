@@ -125,9 +125,9 @@ Timeouts:
 
   // Determine status color based on utilization
   let utilizationColor = $derived.by(() => {
-    if (poolUtilization < 50) return "text-green-600 dark:text-green-400";
-    if (poolUtilization < 80) return "text-yellow-600 dark:text-yellow-400";
-    return "text-red-600 dark:text-red-400";
+    if (poolUtilization < 50) return "ui-text-success";
+    if (poolUtilization < 80) return "ui-text-warning";
+    return "ui-text-error";
   });
 
   onMount(() => {
@@ -143,17 +143,17 @@ Timeouts:
     <div class="mb-6">
       <div class="mb-4 flex items-center justify-between">
         <div>
-          <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
+          <h1 class="text-3xl font-bold ui-text">
             Database Pool
           </h1>
-          <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+          <p class="mt-1 text-sm ui-muted">
             Monitor database connection pool status and configuration
           </p>
         </div>
         <button
           onclick={fetchPoolInfo}
           disabled={isLoading}
-          class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
+          class="rounded-lg px-4 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 preset-filled-primary-500"
         >
           {isLoading ? "Refreshing..." : "Refresh"}
         </button>
@@ -162,19 +162,19 @@ Timeouts:
 
     {#if error}
       <div
-        class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 dark:border-red-800 dark:bg-red-900/20 dark:text-red-200"
+        class="mb-6 rounded-lg border p-4 ui-tone-error"
       >
         <strong>Error:</strong>
         {error}
       </div>
     {:else if isLoading}
       <div
-        class="flex items-center justify-center rounded-lg bg-gray-100 p-8 dark:bg-gray-800"
+        class="flex items-center justify-center rounded-lg p-8 ui-panel"
       >
         <div
-          class="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"
+          class="h-8 w-8 animate-spin rounded-full border-4 border-t-transparent border-current ui-text-brand"
         ></div>
-        <p class="ml-3 text-gray-700 dark:text-gray-300">
+        <p class="ml-3 ui-muted">
           Loading database pool information...
         </p>
       </div>
@@ -183,24 +183,24 @@ Timeouts:
         <!-- Pool Header with Copy Button -->
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100">
+            <h2 class="text-xl font-semibold ui-text">
               {poolInfo.pool_name}
             </h2>
             {#if lastUpdated}
-              <span class="text-sm text-gray-500 dark:text-gray-400">
+              <span class="text-sm ui-muted">
                 Last updated: {lastUpdated}
               </span>
             {/if}
           </div>
           <button
             onclick={copyPoolInfo}
-            class="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200"
+            class="rounded-lg p-2 focus:outline-none focus:ring-2 ui-hover ui-muted"
             title="Copy pool information"
             aria-label="Copy pool information"
           >
             {#if copiedPoolInfo}
               <svg
-                class="h-5 w-5 text-green-600 dark:text-green-400"
+                class="h-5 w-5 ui-text-success"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -244,9 +244,9 @@ Timeouts:
         <!-- Connection Stats Cards -->
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
           <div
-            class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+            class="rounded-lg border p-6 shadow-sm ui-card ui-border"
           >
-            <div class="text-sm font-medium text-gray-600 dark:text-gray-400">
+            <div class="text-sm font-medium ui-muted">
               Active Connections
             </div>
             <div
@@ -254,52 +254,52 @@ Timeouts:
             >
               {poolInfo.active_connections}
             </div>
-            <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            <div class="mt-1 text-xs ui-muted">
               {poolUtilization}% of max
             </div>
           </div>
           <div
-            class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+            class="rounded-lg border p-6 shadow-sm ui-card ui-border"
           >
-            <div class="text-sm font-medium text-gray-600 dark:text-gray-400">
+            <div class="text-sm font-medium ui-muted">
               Idle Connections
             </div>
             <div
-              class="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100"
+              class="mt-2 text-3xl font-bold ui-text"
             >
               {poolInfo.idle_connections}
             </div>
-            <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            <div class="mt-1 text-xs ui-muted">
               Available for use
             </div>
           </div>
           <div
-            class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+            class="rounded-lg border p-6 shadow-sm ui-card ui-border"
           >
-            <div class="text-sm font-medium text-gray-600 dark:text-gray-400">
+            <div class="text-sm font-medium ui-muted">
               Total Connections
             </div>
             <div
-              class="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100"
+              class="mt-2 text-3xl font-bold ui-text"
             >
               {poolInfo.total_connections}
             </div>
-            <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            <div class="mt-1 text-xs ui-muted">
               Active + Idle
             </div>
           </div>
           <div
-            class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+            class="rounded-lg border p-6 shadow-sm ui-card ui-border"
           >
-            <div class="text-sm font-medium text-gray-600 dark:text-gray-400">
+            <div class="text-sm font-medium ui-muted">
               Threads Awaiting
             </div>
             <div
-              class="mt-2 text-3xl font-bold {poolInfo.threads_awaiting_connection > 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-gray-100'}"
+              class="mt-2 text-3xl font-bold {poolInfo.threads_awaiting_connection > 0 ? 'ui-text-error' : 'ui-text'}"
             >
               {poolInfo.threads_awaiting_connection}
             </div>
-            <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            <div class="mt-1 text-xs ui-muted">
               Waiting for connection
             </div>
           </div>
@@ -307,25 +307,25 @@ Timeouts:
 
         <!-- Pool Configuration -->
         <div
-          class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+          class="rounded-lg border p-6 shadow-sm ui-card ui-border"
         >
-          <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <h3 class="mb-4 text-lg font-semibold ui-text">
             Pool Configuration
           </h3>
           <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div>
-              <div class="text-sm font-medium text-gray-600 dark:text-gray-400">
+              <div class="text-sm font-medium ui-muted">
                 Maximum Pool Size
               </div>
-              <div class="mt-1 text-2xl font-bold text-gray-900 dark:text-gray-100">
+              <div class="mt-1 text-2xl font-bold ui-text">
                 {poolInfo.maximum_pool_size}
               </div>
             </div>
             <div>
-              <div class="text-sm font-medium text-gray-600 dark:text-gray-400">
+              <div class="text-sm font-medium ui-muted">
                 Minimum Idle
               </div>
-              <div class="mt-1 text-2xl font-bold text-gray-900 dark:text-gray-100">
+              <div class="mt-1 text-2xl font-bold ui-text">
                 {poolInfo.minimum_idle}
               </div>
             </div>
@@ -334,53 +334,53 @@ Timeouts:
 
         <!-- Timeout Configuration -->
         <div
-          class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+          class="rounded-lg border p-6 shadow-sm ui-card ui-border"
         >
-          <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <h3 class="mb-4 text-lg font-semibold ui-text">
             Timeout Configuration
           </h3>
           <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
             <div>
-              <div class="text-sm font-medium text-gray-600 dark:text-gray-400">
+              <div class="text-sm font-medium ui-muted">
                 Connection Timeout
               </div>
-              <div class="mt-1 text-lg font-semibold text-gray-900 dark:text-gray-100">
+              <div class="mt-1 text-lg font-semibold ui-text">
                 {formatMs(poolInfo.connection_timeout_ms)}
               </div>
-              <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              <div class="mt-1 text-xs ui-muted">
                 {poolInfo.connection_timeout_ms.toLocaleString()}ms
               </div>
             </div>
             <div>
-              <div class="text-sm font-medium text-gray-600 dark:text-gray-400">
+              <div class="text-sm font-medium ui-muted">
                 Idle Timeout
               </div>
-              <div class="mt-1 text-lg font-semibold text-gray-900 dark:text-gray-100">
+              <div class="mt-1 text-lg font-semibold ui-text">
                 {formatMs(poolInfo.idle_timeout_ms)}
               </div>
-              <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              <div class="mt-1 text-xs ui-muted">
                 {poolInfo.idle_timeout_ms.toLocaleString()}ms
               </div>
             </div>
             <div>
-              <div class="text-sm font-medium text-gray-600 dark:text-gray-400">
+              <div class="text-sm font-medium ui-muted">
                 Max Lifetime
               </div>
-              <div class="mt-1 text-lg font-semibold text-gray-900 dark:text-gray-100">
+              <div class="mt-1 text-lg font-semibold ui-text">
                 {formatMs(poolInfo.max_lifetime_ms)}
               </div>
-              <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              <div class="mt-1 text-xs ui-muted">
                 {poolInfo.max_lifetime_ms.toLocaleString()}ms
               </div>
             </div>
             <div>
-              <div class="text-sm font-medium text-gray-600 dark:text-gray-400">
+              <div class="text-sm font-medium ui-muted">
                 Keepalive Time
               </div>
-              <div class="mt-1 text-lg font-semibold text-gray-900 dark:text-gray-100">
+              <div class="mt-1 text-lg font-semibold ui-text">
                 {formatMs(poolInfo.keepalive_time_ms)}
               </div>
-              <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              <div class="mt-1 text-xs ui-muted">
                 {poolInfo.keepalive_time_ms.toLocaleString()}ms
               </div>
             </div>
@@ -389,36 +389,36 @@ Timeouts:
 
         <!-- Visual Pool Usage -->
         <div
-          class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+          class="rounded-lg border p-6 shadow-sm ui-card ui-border"
         >
-          <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <h3 class="mb-4 text-lg font-semibold ui-text">
             Pool Usage
           </h3>
           <div class="space-y-4">
             <div>
               <div class="mb-2 flex justify-between text-sm">
-                <span class="text-gray-600 dark:text-gray-400">Pool Utilization</span>
+                <span class="ui-muted">Pool Utilization</span>
                 <span class="font-medium {utilizationColor}">{poolUtilization}%</span>
               </div>
-              <div class="h-4 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+              <div class="h-4 w-full overflow-hidden rounded-full ui-panel">
                 <div
-                  class="h-full transition-all duration-300 {poolUtilization < 50 ? 'bg-green-500' : poolUtilization < 80 ? 'bg-yellow-500' : 'bg-red-500'}"
+                  class="h-full transition-all duration-300 {poolUtilization < 50 ? 'preset-filled-primary-500' : poolUtilization < 80 ? 'preset-filled-primary-500' : 'preset-filled-error-500'}"
                   style="width: {poolUtilization}%"
                 ></div>
               </div>
             </div>
             <div class="flex gap-6 text-sm">
               <div class="flex items-center gap-2">
-                <div class="h-3 w-3 rounded-full bg-blue-500"></div>
-                <span class="text-gray-600 dark:text-gray-400">Active: {poolInfo.active_connections}</span>
+                <div class="h-3 w-3 rounded-full preset-filled-primary-500"></div>
+                <span class="ui-muted">Active: {poolInfo.active_connections}</span>
               </div>
               <div class="flex items-center gap-2">
-                <div class="h-3 w-3 rounded-full bg-gray-300 dark:bg-gray-600"></div>
-                <span class="text-gray-600 dark:text-gray-400">Idle: {poolInfo.idle_connections}</span>
+                <div class="h-3 w-3 rounded-full ui-panel"></div>
+                <span class="ui-muted">Idle: {poolInfo.idle_connections}</span>
               </div>
               <div class="flex items-center gap-2">
-                <div class="h-3 w-3 rounded-full bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600"></div>
-                <span class="text-gray-600 dark:text-gray-400">Available: {poolInfo.maximum_pool_size - poolInfo.total_connections}</span>
+                <div class="h-3 w-3 rounded-full border ui-panel ui-border"></div>
+                <span class="ui-muted">Available: {poolInfo.maximum_pool_size - poolInfo.total_connections}</span>
               </div>
             </div>
           </div>

@@ -13,7 +13,7 @@
 </script>
 
 {#if problems && problems.length > 0}
-	<div class="mt-2 preset-tonal-error rounded p-3" role="alert" data-testid="form-problems">
+	<div class="mt-2 ui-tone-error rounded p-3" role="alert" data-testid="form-problems">
 		<p>Please fix these first:</p>
 		<ul class="mt-1 list-inside list-disc">
 			{#each problems as problem, i (i)}<li>{problem}</li>{/each}

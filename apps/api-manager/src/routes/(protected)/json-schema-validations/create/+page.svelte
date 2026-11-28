@@ -59,16 +59,16 @@
 
 <div class="container mx-auto max-w-7xl px-4 py-8">
   <div class="mb-6">
-    <a href="/json-schema-validations" class="mb-4 inline-flex items-center text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">← Back to JSON Schema Validations</a>
-    <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Create JSON Schema Validation</h1>
-    <p class="mt-1 text-gray-600 dark:text-gray-400">Constrain the request body of one endpoint. OBP rejects non-conforming requests before the endpoint runs.</p>
+    <a href="/json-schema-validations" class="mb-4 inline-flex items-center text-sm ui-link">← Back to JSON Schema Validations</a>
+    <h1 class="text-3xl font-bold ui-text">Create JSON Schema Validation</h1>
+    <p class="mt-1 ui-muted">Constrain the request body of one endpoint. OBP rejects non-conforming requests before the endpoint runs.</p>
   </div>
 
   <ResizableSplit breakpoint="lg">
     {#snippet main()}
-    <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+    <div class="rounded-lg border p-6 shadow-sm ui-card ui-border">
       {#if data.choicesError}
-        <p class="mb-4 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-900/20 dark:text-amber-100" data-testid="choices-error">
+        <p class="mb-4 rounded-lg border px-4 py-3 text-sm ui-tone-warning" data-testid="choices-error">
           The operation id list could not be loaded from OBP's resource docs: {data.choicesError}. You can still type an operation id.
         </p>
       {/if}
@@ -83,7 +83,7 @@
     {/snippet}
 
     {#snippet side()}
-      <div class="h-[36rem] w-full overflow-hidden rounded-lg border border-gray-200 shadow-sm lg:h-[calc(100vh-80px-3rem)] dark:border-gray-700">
+      <div class="h-[36rem] w-full overflow-hidden rounded-lg border shadow-sm lg:h-[calc(100vh-80px-3rem)] ui-border">
         <OpeyChat {opeyChatOptions} userAuthenticated={!!page.data.userId} {clientTools} {clientContext} />
       </div>
     {/snippet}

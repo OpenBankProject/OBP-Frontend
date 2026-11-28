@@ -15,7 +15,8 @@
 	<button type="button" class="btn btn-sm preset-filled-primary-500" onclick={() => window.print()} data-testid="certificate-print">{t(locale, 'certificate_print')}</button>
 </div>
 
-<article class="certificate mx-auto max-w-3xl border-4 border-double border-surface-400-600 bg-white p-12 text-center text-surface-950" data-testid="certificate">
+<!-- Black on white in dark mode too, because it is a sheet of paper. -->
+<article class="certificate mx-auto max-w-3xl border-4 border-double ui-border bg-white p-12 text-center text-black" data-testid="certificate">
 	<img src={data.branding.logoUrl} alt={issuer} class="mx-auto h-16" />
 	<p class="mt-8 text-sm uppercase tracking-widest">{t(locale, 'certificate_title')}</p>
 	<p class="mt-8">{t(locale, 'certificate_certifies')}</p>

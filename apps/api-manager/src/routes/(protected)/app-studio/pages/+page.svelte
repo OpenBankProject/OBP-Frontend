@@ -67,38 +67,38 @@
 <div class="container mx-auto max-w-6xl px-4 py-8">
   <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
     <div>
-      <h1 class="flex items-center gap-2 text-3xl font-bold text-gray-900 dark:text-gray-100">
+      <h1 class="flex items-center gap-2 text-3xl font-bold ui-text">
         <FileText class="h-7 w-7" />
         Pages
       </h1>
-      <p class="mt-1 text-gray-600 dark:text-gray-400">
+      <p class="mt-1 ui-muted">
         The pages and apps saved in App Studio, newest change first. A published page shows at <code>/pages/SLUG</code> on each site ticked for it.
       </p>
     </div>
-    <a href="/app-studio?new=1" class="inline-flex items-center gap-1 rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700" data-testid="pages-new">
+    <a href="/app-studio?new=1" class="inline-flex items-center gap-1 rounded-md px-3 py-2 text-sm font-medium preset-filled-primary-500" data-testid="pages-new">
       <Plus class="h-4 w-4" /> New page
     </a>
   </div>
 
   {#if loading}
-    <p class="text-gray-600 dark:text-gray-400">Loading the pages…</p>
+    <p class="ui-muted">Loading the pages…</p>
   {:else if loadError}
-    <div class="rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-800 dark:border-red-700 dark:bg-red-900/20 dark:text-red-200" data-testid="pages-error">
+    <div class="rounded-lg border p-4 text-sm ui-tone-error" data-testid="pages-error">
       The pages could not be listed: {loadError}. <a href="/app-studio/help" class="underline">App Studio Help</a> shows what this instance needs.
     </div>
   {:else if pages.length === 0}
-    <p class="text-gray-600 dark:text-gray-400" data-testid="pages-empty">No pages saved yet. <a href="/app-studio" class="underline">Open App Studio</a> to write one.</p>
+    <p class="ui-muted" data-testid="pages-empty">No pages saved yet. <a href="/app-studio" class="underline">Open App Studio</a> to write one.</p>
   {:else}
     <input
       type="search"
       bind:value={filter}
       placeholder="Filter by title, slug, language, site, status or author"
-      class="mb-4 w-full max-w-md rounded-md border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-900"
+      class="mb-4 w-full max-w-md rounded-md border px-3 py-2 text-sm ui-card ui-border"
       data-testid="pages-filter"
     />
-    <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+    <div class="overflow-x-auto rounded-lg border ui-border">
       <table class="w-full text-left text-sm" data-testid="pages-table">
-        <thead class="bg-gray-50 text-xs uppercase text-gray-600 dark:bg-gray-800 dark:text-gray-300">
+        <thead class="text-xs uppercase ui-card ui-muted">
           <tr>
             <th class="px-3 py-2">Title</th>
             <th class="px-3 py-2">Slug</th>
@@ -110,23 +110,23 @@
             <th class="px-3 py-2"><span class="sr-only">Edit</span></th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+        <tbody class="divide-y ui-border">
           {#each shown as p (p.id)}
-            <tr class="text-gray-800 dark:text-gray-200" data-testid="pages-row">
+            <tr class="ui-text" data-testid="pages-row">
               <td class="px-3 py-2 font-medium"><a href="/app-studio?page={encodeURIComponent(p.id)}" class="hover:underline">{p.title}</a></td>
               <td class="px-3 py-2"><code>{p.slug}</code></td>
               <td class="px-3 py-2">{p.lang || "any"}</td>
               <td class="px-3 py-2">{p.kind === "app" ? "App" : "Page"}</td>
               <td class="px-3 py-2">
-                <span class="rounded px-1.5 py-0.5 text-xs {p.status === 'published' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200' : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'}">{p.status === "published" ? "Published" : "Draft"}</span>
+                <span class="rounded px-1.5 py-0.5 text-xs {p.status === 'published' ? 'ui-tone-success' : 'ui-panel ui-muted'}">{p.status === "published" ? "Published" : "Draft"}</span>
               </td>
               <td class="px-3 py-2">
                 {#if p.sites.length === 0}
-                  <span class="text-gray-500">No site</span>
+                  <span class="ui-muted">No site</span>
                 {/if}
                 {#each p.sites as site}
                   {#if p.status === "published" && data.siteUrls[site]}
-                    <a href="{data.siteUrls[site]}/pages/{p.slug}" target="_blank" rel="noopener noreferrer" class="mr-2 inline-flex items-center gap-0.5 text-blue-600 hover:underline dark:text-blue-400">{SITE_LABELS[site] ?? site}<ExternalLink class="h-3 w-3" /></a>
+                    <a href="{data.siteUrls[site]}/pages/{p.slug}" target="_blank" rel="noopener noreferrer" class="mr-2 inline-flex items-center gap-0.5 hover:underline ui-link">{SITE_LABELS[site] ?? site}<ExternalLink class="h-3 w-3" /></a>
                   {:else}
                     <span class="mr-2">{SITE_LABELS[site] ?? site}</span>
                   {/if}
@@ -134,13 +134,13 @@
               </td>
               <td class="px-3 py-2 whitespace-nowrap">{p.updated_at.replace("T", " ").slice(0, 16)}{p.author ? ` by ${p.author}` : ""}</td>
               <td class="px-3 py-2 text-right">
-                <a href="/app-studio?page={encodeURIComponent(p.id)}" class="inline-flex items-center gap-1 text-blue-600 hover:underline dark:text-blue-400" data-testid="pages-edit"><Pencil class="h-3.5 w-3.5" /> Edit</a>
+                <a href="/app-studio?page={encodeURIComponent(p.id)}" class="inline-flex items-center gap-1 hover:underline ui-link" data-testid="pages-edit"><Pencil class="h-3.5 w-3.5" /> Edit</a>
               </td>
             </tr>
           {/each}
         </tbody>
       </table>
     </div>
-    {#if shown.length === 0}<p class="mt-3 text-sm text-gray-600 dark:text-gray-400">No page matches “{filter}”.</p>{/if}
+    {#if shown.length === 0}<p class="mt-3 text-sm ui-muted">No page matches “{filter}”.</p>{/if}
   {/if}
 </div>

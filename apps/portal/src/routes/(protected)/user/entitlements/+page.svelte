@@ -94,13 +94,13 @@
 		{#each groupedEntitlements as group (group.bank_id || 'system')}
 			<section data-testid="entitlement-group" data-bank-id={group.bank_id}>
 				<header class="mb-2 flex flex-wrap items-baseline gap-2">
-					<h3 class="text-sm font-semibold uppercase tracking-wide text-surface-700-300">
+					<h3 class="text-sm font-semibold uppercase tracking-wide ui-muted">
 						{group.label}
 					</h3>
 					{#if group.bank_id}
-						<code class="text-xs text-surface-600-400">{group.bank_id}</code>
+						<code class="text-xs ui-muted">{group.bank_id}</code>
 					{/if}
-					<span class="text-xs text-surface-600-400">
+					<span class="text-xs ui-muted">
 						{group.entitlements.length} role{group.entitlements.length === 1 ? '' : 's'}
 					</span>
 				</header>
@@ -145,8 +145,8 @@
 			</select>
 		</label>
 
-		{#if form?.missing}<p class="text-error-500 text-xs">Please select an entitlement to add.</p>{/if}
-		{#if form?.message}<p class="text-error-500 text-xs">{form.message}</p>{/if}
+		{#if form?.missing}<p class="text-xs ui-text-error">Please select an entitlement to add.</p>{/if}
+		{#if form?.message}<p class="text-xs ui-text-error">{form.message}</p>{/if}
 
 		{#if selectedEntitlement.requires_bank_id}
 			<label class="label">
@@ -159,7 +159,7 @@
 				</select>
 			</label>
 		{/if}
-        <button class="btn preset-outlined-tertiary-500" type="submit">Add Entitlement</button>
+        <button class="btn preset-outlined-surface-500" type="submit">Add Entitlement</button>
 	</form>
 {:else if !canCreateEntitlements}
 	<h2 class="mt-8 mb-4 text-xl font-semibold">Request Entitlement</h2>

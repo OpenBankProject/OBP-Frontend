@@ -195,23 +195,23 @@
 <div class="mb-6">
   <a
     href="/consumers"
-    class="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+    class="text-sm ui-link"
   >
     &larr; Back to Consumers
   </a>
 </div>
 
 <div class="mb-4 flex flex-wrap items-center justify-between gap-4">
-  <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+  <h1 class="text-2xl font-bold ui-text">
     {consumer.app_name} - Detail
     {#if isCurrentConsumer}
-      <span data-testid="current-consumer-marker" class="ml-2 text-base font-normal text-blue-600 dark:text-blue-400">(the current consumer)</span>
+      <span data-testid="current-consumer-marker" class="ml-2 text-base font-normal ui-link">(the current consumer)</span>
     {/if}
   </h1>
   <a
     data-testid="view-metrics-link"
     href="/metrics?consumer_id={consumer.consumer_id}"
-    class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-800"
+    class="inline-flex items-center rounded-lg px-4 py-2 text-sm font-medium focus:outline-none focus:ring-4 preset-filled-primary-500"
   >
     <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -223,11 +223,11 @@
 <!-- Error/Success Messages -->
 {#if form?.error}
   <div
-    class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20"
+    class="mb-6 rounded-lg border p-4 ui-tone-error"
   >
     <div class="flex items-start">
       <svg
-        class="mr-3 mt-0.5 h-5 w-5 flex-shrink-0 text-red-600 dark:text-red-400"
+        class="mr-3 mt-0.5 h-5 w-5 flex-shrink-0 ui-text-error"
         fill="currentColor"
         viewBox="0 0 20 20"
       >
@@ -238,8 +238,8 @@
         />
       </svg>
       <div>
-        <h3 class="text-sm font-medium text-red-900 dark:text-red-100">Error</h3>
-        <p class="mt-1 text-sm text-red-800 dark:text-red-200">{form.error}</p>
+        <h3 class="text-sm font-medium ui-text-error">Error</h3>
+        <p class="mt-1 text-sm ui-text-error">{form.error}</p>
       </div>
     </div>
   </div>
@@ -247,11 +247,11 @@
 
 {#if form?.success}
   <div
-    class="mb-6 rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-900/20"
+    class="mb-6 rounded-lg border p-4 ui-tone-success"
   >
     <div class="flex items-start">
       <svg
-        class="mr-3 mt-0.5 h-5 w-5 flex-shrink-0 text-green-600 dark:text-green-400"
+        class="mr-3 mt-0.5 h-5 w-5 flex-shrink-0 ui-text-success"
         fill="currentColor"
         viewBox="0 0 20 20"
       >
@@ -262,30 +262,30 @@
         />
       </svg>
       <div>
-        <h3 class="text-sm font-medium text-green-900 dark:text-green-100">Success</h3>
-        <p class="mt-1 text-sm text-green-800 dark:text-green-200">Changes saved successfully.</p>
+        <h3 class="text-sm font-medium ui-text-success">Success</h3>
+        <p class="mt-1 text-sm ui-text-success">Changes saved successfully.</p>
       </div>
     </div>
   </div>
 {/if}
 
 <!-- Consumer / Client Section -->
-<div class="mb-8 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-  <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+<div class="mb-8 rounded-lg border p-6 shadow-sm ui-card ui-border">
+  <h2 class="text-lg font-semibold mb-4 ui-text">
     Consumer / Client
   </h2>
 
   <!-- Editable fields in 2-column grid -->
-  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 mb-4 pb-4 border-b border-gray-100 dark:border-gray-700">
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 mb-4 pb-4 border-b ui-border">
     <!-- Name (Editable) -->
     <div>
       <div class="flex items-center justify-between">
-        <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Name</label>
+        <label class="block text-sm font-medium ui-muted">Name</label>
         {#if editingField !== "name"}
           <button
             type="button"
             onclick={() => startEditing("name")}
-            class="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+            class="text-xs ui-link"
           >
             Edit
           </button>
@@ -311,27 +311,27 @@
             name="app_name"
             bind:value={editAppName}
             required
-            class="w-full rounded border border-gray-300 bg-white px-2 py-1 text-sm text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+            class="w-full rounded border px-2 py-1 text-sm focus:ring-1 ui-card ui-text ui-border"
           />
           <div class="mt-1 flex gap-1">
-            <button type="submit" disabled={isSubmitting} class="rounded bg-blue-600 px-2 py-0.5 text-xs font-medium text-white hover:bg-blue-700 disabled:opacity-50">Save</button>
-            <button type="button" onclick={cancelEditing} class="rounded border border-gray-300 px-2 py-0.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300">Cancel</button>
+            <button type="submit" disabled={isSubmitting} class="rounded px-2 py-0.5 text-xs font-medium disabled:opacity-50 preset-filled-primary-500">Save</button>
+            <button type="button" onclick={cancelEditing} class="rounded border px-2 py-0.5 text-xs font-medium ui-hover ui-muted ui-border">Cancel</button>
           </div>
         </form>
       {:else}
-        <p class="mt-1 text-gray-900 dark:text-gray-100">{consumer.app_name}</p>
+        <p class="mt-1 ui-text">{consumer.app_name}</p>
       {/if}
     </div>
 
     <!-- Redirect URL (Editable) -->
     <div>
       <div class="flex items-center justify-between">
-        <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Redirect URL</label>
+        <label class="block text-sm font-medium ui-muted">Redirect URL</label>
         {#if editingField !== "redirect_url"}
           <button
             type="button"
             onclick={() => { startEditing("redirect_url"); dismissMissingRole(); }}
-            class="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+            class="text-xs ui-link"
           >
             Edit
           </button>
@@ -369,27 +369,27 @@
             bind:value={editRedirectUrl}
             required
             placeholder="https://example.com/callback"
-            class="w-full rounded border border-gray-300 bg-white px-2 py-1 text-sm text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+            class="w-full rounded border px-2 py-1 text-sm focus:ring-1 ui-card ui-text ui-border"
           />
           <div class="mt-1 flex gap-1">
-            <button type="submit" disabled={isSubmitting} class="rounded bg-blue-600 px-2 py-0.5 text-xs font-medium text-white hover:bg-blue-700 disabled:opacity-50">Save</button>
-            <button type="button" onclick={() => { cancelEditing(); dismissMissingRole(); }} class="rounded border border-gray-300 px-2 py-0.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300">Cancel</button>
+            <button type="submit" disabled={isSubmitting} class="rounded px-2 py-0.5 text-xs font-medium disabled:opacity-50 preset-filled-primary-500">Save</button>
+            <button type="button" onclick={() => { cancelEditing(); dismissMissingRole(); }} class="rounded border px-2 py-0.5 text-xs font-medium ui-hover ui-muted ui-border">Cancel</button>
           </div>
         </form>
       {:else}
-        <p class="mt-1 text-gray-900 dark:text-gray-100 text-sm break-all">{consumer.redirect_url || "N/A"}</p>
+        <p class="mt-1 text-sm break-all ui-text">{consumer.redirect_url || "N/A"}</p>
       {/if}
     </div>
 
     <!-- Logo URL (Editable) -->
     <div>
       <div class="flex items-center justify-between">
-        <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Logo URL</label>
+        <label class="block text-sm font-medium ui-muted">Logo URL</label>
         {#if editingField !== "logo_url"}
           <button
             type="button"
             onclick={() => startEditing("logo_url")}
-            class="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+            class="text-xs ui-link"
           >
             Edit
           </button>
@@ -415,27 +415,27 @@
             name="logo_url"
             bind:value={editLogoUrl}
             placeholder="https://example.com/logo.png"
-            class="w-full rounded border border-gray-300 bg-white px-2 py-1 text-sm text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+            class="w-full rounded border px-2 py-1 text-sm focus:ring-1 ui-card ui-text ui-border"
           />
           <div class="mt-1 flex gap-1">
-            <button type="submit" disabled={isSubmitting} class="rounded bg-blue-600 px-2 py-0.5 text-xs font-medium text-white hover:bg-blue-700 disabled:opacity-50">Save</button>
-            <button type="button" onclick={cancelEditing} class="rounded border border-gray-300 px-2 py-0.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300">Cancel</button>
+            <button type="submit" disabled={isSubmitting} class="rounded px-2 py-0.5 text-xs font-medium disabled:opacity-50 preset-filled-primary-500">Save</button>
+            <button type="button" onclick={cancelEditing} class="rounded border px-2 py-0.5 text-xs font-medium ui-hover ui-muted ui-border">Cancel</button>
           </div>
         </form>
       {:else}
-        <p class="mt-1 text-gray-900 dark:text-gray-100 text-sm break-all">{consumer.logo_url || "Not set"}</p>
+        <p class="mt-1 text-sm break-all ui-text">{consumer.logo_url || "Not set"}</p>
       {/if}
     </div>
 
     <!-- Certificate (Editable) -->
     <div>
       <div class="flex items-center justify-between">
-        <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Certificate (PEM)</label>
+        <label class="block text-sm font-medium ui-muted">Certificate (PEM)</label>
         {#if editingField !== "certificate"}
           <button
             type="button"
             onclick={() => startEditing("certificate")}
-            class="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+            class="text-xs ui-link"
           >
             Edit
           </button>
@@ -461,16 +461,16 @@
             bind:value={editCertificate}
             rows="3"
             placeholder="-----BEGIN CERTIFICATE-----"
-            class="w-full rounded border border-gray-300 bg-white px-2 py-1 font-mono text-xs text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+            class="w-full rounded border px-2 py-1 font-mono text-xs focus:ring-1 ui-card ui-text ui-border"
           ></textarea>
           <div class="mt-1 flex gap-1">
-            <button type="submit" disabled={isSubmitting} class="rounded bg-blue-600 px-2 py-0.5 text-xs font-medium text-white hover:bg-blue-700 disabled:opacity-50">Save</button>
-            <button type="button" onclick={cancelEditing} class="rounded border border-gray-300 px-2 py-0.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300">Cancel</button>
+            <button type="submit" disabled={isSubmitting} class="rounded px-2 py-0.5 text-xs font-medium disabled:opacity-50 preset-filled-primary-500">Save</button>
+            <button type="button" onclick={cancelEditing} class="rounded border px-2 py-0.5 text-xs font-medium ui-hover ui-muted ui-border">Cancel</button>
           </div>
-          <p class="mt-1 text-xs text-amber-600 dark:text-amber-400">Warning: May disable consumer</p>
+          <p class="mt-1 text-xs ui-text-warning">Warning: May disable consumer</p>
         </form>
       {:else}
-        <p class="mt-1 text-gray-900 dark:text-gray-100 text-sm">{consumer.certificate_pem ? "Configured" : "Not set"}</p>
+        <p class="mt-1 text-sm ui-text">{consumer.certificate_pem ? "Configured" : "Not set"}</p>
       {/if}
     </div>
   </div>
@@ -478,16 +478,16 @@
   <!-- Read-only fields -->
   <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
     <div>
-      <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">App Type</label>
-      <p class="mt-1 text-gray-900 dark:text-gray-100">{consumer.app_type}</p>
+      <label class="block text-sm font-medium ui-muted">App Type</label>
+      <p class="mt-1 ui-text">{consumer.app_type}</p>
     </div>
     <div>
-      <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Developer Email</label>
+      <label class="block text-sm font-medium ui-muted">Developer Email</label>
       <div class="mt-1 flex items-center gap-2">
         <a
           data-testid="developer-email-link"
           href="mailto:{consumer.developer_email}"
-          class="text-blue-600 hover:text-blue-700 hover:underline break-all dark:text-blue-400 dark:hover:text-blue-300"
+          class="hover:underline break-all ui-link"
         >{consumer.developer_email}</a>
         <button
           type="button"
@@ -495,7 +495,7 @@
           aria-label="Copy developer email"
           title="Copy email"
           onclick={() => copyToClipboard(consumer.developer_email, "Developer email")}
-          class="inline-flex items-center rounded p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200"
+          class="inline-flex items-center rounded p-1 ui-hover ui-muted"
         >
           <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -504,45 +504,45 @@
       </div>
     </div>
     <div>
-      <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Company</label>
-      <p class="mt-1 text-gray-900 dark:text-gray-100">{consumer.company || "N/A"}</p>
+      <label class="block text-sm font-medium ui-muted">Company</label>
+      <p class="mt-1 ui-text">{consumer.company || "N/A"}</p>
     </div>
     <div>
-      <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Description</label>
-      <p class="mt-1 text-gray-900 dark:text-gray-100">{consumer.description || "N/A"}</p>
+      <label class="block text-sm font-medium ui-muted">Description</label>
+      <p class="mt-1 ui-text">{consumer.description || "N/A"}</p>
     </div>
     <div>
-      <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Consumer ID</label>
-      <p class="mt-1 font-mono text-sm text-gray-900 dark:text-gray-100">{consumer.consumer_id}</p>
+      <label class="block text-sm font-medium ui-muted">Consumer ID</label>
+      <p class="mt-1 font-mono text-sm ui-text">{consumer.consumer_id}</p>
     </div>
     <div>
-      <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Created</label>
-      <p class="mt-1 text-gray-900 dark:text-gray-100">{formatDate(consumer.created)}</p>
+      <label class="block text-sm font-medium ui-muted">Created</label>
+      <p class="mt-1 ui-text">{formatDate(consumer.created)}</p>
     </div>
   </div>
 </div>
 
 <!-- Enable/Disable Section -->
-<div class="mb-8 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-  <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+<div class="mb-8 rounded-lg border p-6 shadow-sm ui-card ui-border">
+  <h2 class="text-lg font-semibold mb-4 ui-text">
     Consumer Status
   </h2>
 
   <div class="flex items-center justify-between">
     <div>
-      <p class="text-gray-900 dark:text-gray-100">
+      <p class="ui-text">
         Status:
         {#if consumer.enabled}
-          <span class="ml-2 inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-200">
+          <span class="ml-2 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ui-tone-success">
             Enabled
           </span>
         {:else}
-          <span class="ml-2 inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900 dark:text-red-200">
+          <span class="ml-2 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ui-tone-error">
             Disabled
           </span>
         {/if}
       </p>
-      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+      <p class="mt-1 text-sm ui-muted">
         {consumer.enabled ? "This consumer can access the API." : "This consumer cannot access the API."}
       </p>
     </div>
@@ -568,8 +568,8 @@
         disabled={isSubmitting}
         class={`inline-flex items-center rounded-lg px-4 py-2 text-sm font-medium text-white focus:outline-none focus:ring-4 disabled:cursor-not-allowed disabled:opacity-50 ${
           consumer.enabled
-            ? "bg-red-600 hover:bg-red-700 focus:ring-red-300 dark:bg-red-500 dark:hover:bg-red-600 dark:focus:ring-red-800"
-            : "bg-green-600 hover:bg-green-700 focus:ring-green-300 dark:bg-green-500 dark:hover:bg-green-600 dark:focus:ring-green-800"
+            ? "preset-filled-error-500"
+            : "preset-filled-primary-500"
         }`}
       >
         {#if isSubmitting}
@@ -596,15 +596,15 @@
 </div>
 
 <!-- Rate Limits & Usage Section -->
-<div data-testid="rate-limits-and-usage" class="mb-8 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+<div data-testid="rate-limits-and-usage" class="mb-8 rounded-lg border p-6 shadow-sm ui-card ui-border">
   <div class="mb-4 flex items-center justify-between gap-4">
-    <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+    <h2 class="text-lg font-semibold ui-text">
       Rate Limits &amp; Usage
     </h2>
     <a
       data-testid="manage-rate-limits-link"
       href="/consumers/{consumer.consumer_id}/rate-limits"
-      class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-800"
+      class="inline-flex items-center rounded-lg px-4 py-2 text-sm font-medium focus:outline-none focus:ring-4 preset-filled-primary-500"
     >
       Manage Rate Limits
       <svg class="ml-1.5 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -612,11 +612,11 @@
       </svg>
     </a>
   </div>
-  <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
+  <p class="mb-2 text-sm ui-muted">
     Current usage against the active rate limit for each period. Shown as <code>calls / limit</code>.
   </p>
   {#if rateLimitingInfo}
-    <p class="mb-4 text-[11px] text-gray-400 dark:text-gray-500">
+    <p class="mb-4 text-[11px] ui-muted">
       Rate limiting: {rateLimitingInfo.enabled ? 'enabled' : 'disabled'}
       {#if rateLimitingInfo.enabled}
         • {rateLimitingInfo.is_active ? 'active' : 'inactive'}
@@ -632,21 +632,21 @@
   <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
     {#each ratePeriods as period}
       {@const counter = consumer.call_counters?.[period.key]}
-      <div data-testid="rate-usage-{period.key}" class="rounded-lg bg-gray-50 p-3 dark:bg-gray-900/50">
-        <div class="text-xs font-medium text-gray-500 dark:text-gray-400">{period.label}</div>
+      <div data-testid="rate-usage-{period.key}" class="rounded-lg p-3 ui-card">
+        <div class="text-xs font-medium ui-muted">{period.label}</div>
         {#if counter && typeof counter.calls_made === 'number'}
-          <div class="mt-1 text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <div class="mt-1 text-lg font-semibold ui-text">
             {counter.calls_made.toLocaleString()}
-            <span class="text-sm font-normal text-gray-500 dark:text-gray-400">/ {formatLimit(period.limit)}</span>
+            <span class="text-sm font-normal ui-muted">/ {formatLimit(period.limit)}</span>
           </div>
-          <div class="text-[10px] text-gray-400 dark:text-gray-500">resets: {counter.reset_in_seconds}s</div>
-          <div class="text-[10px] text-gray-400 dark:text-gray-500">{counter.status || ''}</div>
+          <div class="text-[10px] ui-muted">resets: {counter.reset_in_seconds}s</div>
+          <div class="text-[10px] ui-muted">{counter.status || ''}</div>
         {:else}
-          <div class="mt-1 text-lg font-semibold text-gray-900 dark:text-gray-100">
-            <span class="text-red-600 dark:text-red-400">Err</span>
-            <span class="text-sm font-normal text-gray-500 dark:text-gray-400">/ {formatLimit(period.limit)}</span>
+          <div class="mt-1 text-lg font-semibold ui-text">
+            <span class="ui-text-error">Err</span>
+            <span class="text-sm font-normal ui-muted">/ {formatLimit(period.limit)}</span>
           </div>
-          <div class="text-[10px] text-gray-400 dark:text-gray-500">unavailable</div>
+          <div class="text-[10px] ui-muted">unavailable</div>
         {/if}
       </div>
     {/each}
@@ -656,28 +656,28 @@
 <ConsumerApiProductSubscriptions consumerId={consumer.consumer_id} />
 
 <!-- Scopes Section -->
-<div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+<div class="rounded-lg border p-6 shadow-sm ui-card ui-border">
   <div class="flex items-center justify-between mb-4">
-    <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+    <h2 class="text-lg font-semibold ui-text">
       Consumer Scopes
     </h2>
     <button
       type="button"
       onclick={() => { showAddScopeForm = !showAddScopeForm; dismissMissingRole(); }}
-      class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-800"
+      class="inline-flex items-center rounded-lg px-4 py-2 text-sm font-medium focus:outline-none focus:ring-4 preset-filled-primary-500"
     >
       {showAddScopeForm ? "Cancel" : "Add Scope"}
     </button>
   </div>
 
-  <p class="mb-4 text-sm text-gray-500 dark:text-gray-400">
+  <p class="mb-4 text-sm ui-muted">
     Scopes grant roles to this consumer. System-level roles have an empty bank_id. Bank-level roles are scoped to a specific bank.
   </p>
 
   <!-- Add Scope Form -->
   {#if showAddScopeForm}
-    <div class="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
-      <h3 class="text-sm font-medium text-blue-900 dark:text-blue-100 mb-3">Add New Scope</h3>
+    <div class="mb-6 rounded-lg border p-4 ui-tone-info">
+      <h3 class="text-sm font-medium mb-3 ui-link">Add New Scope</h3>
 
       {#if showMissingRoleFor === "addScope"}
         <div class="mb-4">
@@ -709,8 +709,8 @@
         class="space-y-4"
       >
         <div>
-          <label for="role_name" class="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">
-            Role <span class="text-red-500">*</span>
+          <label for="role_name" class="block text-sm font-medium mb-1 ui-text">
+            Role <span class="ui-text-error">*</span>
           </label>
           <input type="hidden" name="role_name" value={selectedRole} />
           <input
@@ -721,12 +721,12 @@
             placeholder="Type part of the role name, e.g. get consumer, or dynamic portal"
             bind:value={roleSearch}
             oninput={onRoleSearchInput}
-            class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 font-mono text-sm text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+            class="w-full rounded-lg border px-4 py-2 font-mono text-sm focus:ring-2 ui-card ui-text ui-border"
             data-testid="scope-role-search"
             aria-controls="role-search-results"
             aria-describedby="role-search-hint"
           />
-          <p id="role-search-hint" class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+          <p id="role-search-hint" class="mt-1 text-xs ui-muted">
             {#if selectedRole}
               Selected <code>{selectedRole}</code>{selectedRoleRequiresBank ? " (bank-level)" : " (system-level)"}.
             {:else if roleSearch.trim()}
@@ -739,19 +739,19 @@
             <ul
               id="role-search-results"
               role="listbox"
-              class="mt-2 max-h-64 divide-y divide-gray-100 overflow-auto rounded-lg border border-gray-300 bg-white dark:divide-gray-700 dark:border-gray-600 dark:bg-gray-700"
+              class="mt-2 max-h-64 divide-y overflow-auto rounded-lg border ui-card ui-border"
               data-testid="scope-role-results"
             >
               {#each roleMatches as role (role.role)}
                 <li role="option" aria-selected="false">
                   <button
                     type="button"
-                    class="flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-sm hover:bg-blue-50 focus:bg-blue-50 focus:outline-none dark:hover:bg-gray-600 dark:focus:bg-gray-600"
+                    class="flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-sm focus:outline-none ui-hover"
                     onclick={() => chooseRole(role.role)}
                     data-testid="scope-role-option"
                   >
-                    <span class="font-mono text-gray-900 dark:text-gray-100">{role.role}</span>
-                    <span class="flex-shrink-0 rounded-full px-2 py-0.5 text-xs {role.requires_bank_id ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200' : 'bg-gray-100 text-gray-700 dark:bg-gray-600 dark:text-gray-200'}">
+                    <span class="font-mono ui-text">{role.role}</span>
+                    <span class="flex-shrink-0 rounded-full px-2 py-0.5 text-xs {role.requires_bank_id ? 'ui-tone-warning' : 'ui-panel ui-muted'}">
                       {role.requires_bank_id ? "Bank" : "System"}
                     </span>
                   </button>
@@ -759,22 +759,22 @@
               {/each}
             </ul>
           {:else if !selectedRole && roleSearch.trim() && roleMatches.length === 0}
-            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">No role matches. Dynamic-entity roles look like <code>CanGetDynamicEntityRecord_&lt;entity&gt;</code>.</p>
+            <p class="mt-2 text-sm ui-muted">No role matches. Dynamic-entity roles look like <code>CanGetDynamicEntityRecord_&lt;entity&gt;</code>.</p>
           {/if}
         </div>
 
         {#if selectedRoleRequiresBank}
           <input type="hidden" name="bank_id" value={selectedBankId} />
           <div>
-            <label class="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">
+            <label class="block text-sm font-medium mb-1 ui-text">
               Bank
             </label>
             {#if selectedBankId}
-              <div class="rounded-lg border border-gray-300 bg-gray-50 px-4 py-2 text-gray-700 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300">
+              <div class="rounded-lg border px-4 py-2 ui-card ui-muted ui-border">
                 {selectedBankId}
               </div>
             {:else}
-              <div class="text-sm text-amber-600 dark:text-amber-400">
+              <div class="text-sm ui-text-warning">
                 Please select a bank in <a href="/user" class="underline">My Account</a> first.
               </div>
             {/if}
@@ -787,7 +787,7 @@
           <button
             type="submit"
             disabled={isSubmitting || !selectedRole}
-            class="inline-flex items-center rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-300 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-green-500 dark:hover:bg-green-600 dark:focus:ring-green-800"
+            class="inline-flex items-center rounded-lg px-4 py-2 text-sm font-medium focus:outline-none focus:ring-4 disabled:cursor-not-allowed disabled:opacity-50 preset-filled-primary-500"
           >
             {#if isSubmitting}
               <svg class="mr-2 h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -802,7 +802,7 @@
           <button
             type="button"
             onclick={() => { showAddScopeForm = false; selectedRole = ""; roleSearch = ""; }}
-            class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+            class="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-medium ui-card ui-hover ui-muted ui-border"
           >
             Cancel
           </button>
@@ -814,33 +814,33 @@
   <!-- Scopes List -->
   {#if scopes.length > 0}
     <div class="overflow-x-auto">
-      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-        <thead class="bg-gray-50 dark:bg-gray-900">
+      <table class="min-w-full divide-y ui-border">
+        <thead class="ui-card">
           <tr>
-            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">
               Role Name
             </th>
-            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">
               Bank ID
             </th>
-            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">
               Scope ID
             </th>
-            <th class="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+            <th class="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider ui-muted">
               Actions
             </th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800">
+        <tbody class="divide-y ui-card ui-border">
           {#each scopes as scope}
-            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
-              <td class="whitespace-nowrap px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">
+            <tr class="ui-hover">
+              <td class="whitespace-nowrap px-4 py-3 text-sm font-medium ui-text">
                 {scope.role_name}
               </td>
-              <td class="whitespace-nowrap px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+              <td class="whitespace-nowrap px-4 py-3 text-sm ui-muted">
                 {scope.bank_id || "(System-level)"}
               </td>
-              <td class="whitespace-nowrap px-4 py-3 font-mono text-xs text-gray-500 dark:text-gray-400">
+              <td class="whitespace-nowrap px-4 py-3 font-mono text-xs ui-muted">
                 {scope.scope_id}
               </td>
               <td class="whitespace-nowrap px-4 py-3 text-right">
@@ -867,7 +867,7 @@
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 disabled:opacity-50"
+                    class="disabled:opacity-50 ui-text-error"
                   >
                     Delete
                   </button>
@@ -879,9 +879,9 @@
       </table>
     </div>
   {:else}
-    <div class="rounded-lg border-2 border-dashed border-gray-300 p-8 text-center dark:border-gray-600">
+    <div class="rounded-lg border-2 border-dashed p-8 text-center ui-border">
       <svg
-        class="mx-auto h-12 w-12 text-gray-400"
+        class="mx-auto h-12 w-12 ui-muted"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -893,8 +893,8 @@
           d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
         />
       </svg>
-      <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">No scopes</h3>
-      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+      <h3 class="mt-2 text-sm font-medium ui-text">No scopes</h3>
+      <p class="mt-1 text-sm ui-muted">
         This consumer has no scopes assigned. Add a scope to grant it specific roles.
       </p>
     </div>

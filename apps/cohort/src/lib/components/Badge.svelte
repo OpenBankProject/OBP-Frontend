@@ -8,20 +8,20 @@
 	let { locale, kind, value }: { locale: Locale; kind: 'status' | 'eligibility' | 'decision'; value: string } = $props();
 
 	const TONES: Record<string, string> = {
-		'status:draft': 'preset-tonal-surface',
-		'status:open': 'preset-tonal-success',
-		'status:published': 'preset-tonal-success',
-		'status:closed': 'preset-tonal-warning',
-		'status:submitted': 'preset-tonal-tertiary',
-		'eligibility:eligible': 'preset-tonal-success',
-		'eligibility:needs_review': 'preset-tonal-warning',
-		'decision:shortlisted': 'preset-tonal-success',
-		'decision:rejected': 'preset-tonal-error',
-		'decision:needs_info': 'preset-tonal-warning',
-		'decision:accepted': 'preset-tonal-success',
-		'decision:waitlisted': 'preset-tonal-warning'
+		'status:draft': 'ui-tone-neutral',
+		'status:open': 'ui-tone-success',
+		'status:published': 'ui-tone-success',
+		'status:closed': 'ui-tone-warning',
+		'status:submitted': 'ui-tone-info',
+		'eligibility:eligible': 'ui-tone-success',
+		'eligibility:needs_review': 'ui-tone-warning',
+		'decision:shortlisted': 'ui-tone-success',
+		'decision:rejected': 'ui-tone-error',
+		'decision:needs_info': 'ui-tone-warning',
+		'decision:accepted': 'ui-tone-success',
+		'decision:waitlisted': 'ui-tone-warning'
 	};
-	const tone = $derived(TONES[`${kind}:${value}`] ?? 'preset-tonal-surface');
+	const tone = $derived(TONES[`${kind}:${value}`] ?? 'ui-tone-neutral');
 </script>
 
 {#if value}

@@ -34,14 +34,14 @@
 
 <div class="mb-4">
 	<a
-		class="text-sm text-primary-500 hover:underline dark:text-primary-200"
+		class="text-sm hover:underline ui-text-brand"
 		href={accountHref}
 		data-testid="back-to-account"
 	>← Account</a>
 </div>
 
 <h2 class="mb-2 text-2xl font-semibold">Mandates</h2>
-<p class="mb-4 text-surface-700-300">
+<p class="mb-4 ui-muted">
 	Mandates governing payment authority on this account. Each mandate has signatory panels (groups of authorised signers) and provisions (the signing rules).
 </p>
 
@@ -52,7 +52,7 @@
 {/if}
 
 {#if data.mandates.length === 0 && !data.fetchError}
-	<p class="text-surface-600-400" data-testid="mandates-empty">No mandates on this account.</p>
+	<p class="ui-muted" data-testid="mandates-empty">No mandates on this account.</p>
 {:else if data.mandates.length > 0}
 	<div class="table-container" data-testid="mandates-table">
 		<table class="table-hover table">
@@ -76,7 +76,7 @@
 						<td>{fmtDate(m.valid_to)}</td>
 						<td>
 							<a
-								class="text-primary-500 hover:underline dark:text-primary-200"
+								class="hover:underline ui-text-brand"
 								href={panelsHref(m.mandate_id)}
 								data-testid="mandate-panels-link"
 							>Manage panels →</a>

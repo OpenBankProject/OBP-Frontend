@@ -38,34 +38,34 @@
 	}
 </script>
 
-<p class="mb-6 text-sm text-gray-700 dark:text-gray-300">
-	Keys and secrets are shown only at creation. If lost, <a href="/consumers/register" class="underline hover:text-gray-900 dark:hover:text-gray-100">register a new consumer</a>.
+<p class="mb-6 text-sm ui-muted">
+	Keys and secrets are shown only at creation. If lost, <a href="/consumers/register" class="underline">register a new consumer</a>.
 </p>
 
 {#if consumers && consumers.length > 0}
 	<div class="space-y-4">
 		{#each consumers as consumer (consumer.consumer_id)}
-			<div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+			<div class="rounded-lg border p-6 shadow-sm ui-card ui-border">
 				<!-- Header with App Name and Status -->
 				<div class="mb-4 flex items-start justify-between">
 					<div>
-						<h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100">
+						<h2 class="text-xl font-semibold ui-text">
 							{consumer.app_name}
 						</h2>
-						<p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+						<p class="mt-1 text-sm ui-muted">
 							Created: {formatDate(consumer.created)}
 						</p>
 					</div>
 					<div class="flex items-center gap-2">
 						<span
 							class="rounded-full px-3 py-1 text-xs font-medium {consumer.enabled
-								? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-								: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'}"
+								? 'ui-tone-success'
+								: 'ui-tone-error'}"
 						>
 							{consumer.enabled ? 'Enabled' : 'Disabled'}
 						</span>
 						<span
-							class="rounded-full px-3 py-1 text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
+							class="rounded-full px-3 py-1 text-xs font-medium ui-tone-info"
 						>
 							{consumer.app_type}
 						</span>
@@ -74,11 +74,11 @@
 
 				{#if !consumer.enabled}
 					<div
-						class="mb-4 rounded-lg bg-warning-50 p-3 dark:bg-warning-900/20"
+						class="mb-4 rounded-lg p-3 ui-tone-warning"
 						role="alert"
 						data-testid="consumer-disabled-warning-{consumer.consumer_id}"
 					>
-						<p class="text-sm text-warning-700 dark:text-warning-300">
+						<p class="text-sm ui-text-warning">
 							This Consumer is disabled. Its key and secret will not work until an administrator enables it.
 							Ask an administrator of this API to enable Consumer ID <code>{consumer.consumer_id}</code>.
 						</p>
@@ -87,21 +87,21 @@
 
 				<!-- Description -->
 				{#if consumer.description}
-					<p class="mb-4 text-sm text-gray-700 dark:text-gray-300">
+					<p class="mb-4 text-sm ui-muted">
 						{consumer.description}
 					</p>
 				{/if}
 
 				<!-- Credentials Section -->
-				<div class="space-y-3 rounded-lg bg-gray-50 p-4 dark:bg-gray-900/50">
+				<div class="space-y-3 rounded-lg p-4 ui-card">
 					<div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
 						<!-- Consumer ID -->
 						<div class="sm:col-span-2">
-							<div class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">
+							<div class="mb-1 block text-xs font-medium ui-muted">
 								Consumer ID
 							</div>
 							<code
-								class="block rounded bg-white px-3 py-2 text-sm text-gray-900 dark:bg-gray-800 dark:text-gray-100"
+								class="block rounded px-3 py-2 text-sm ui-card ui-text"
 							>
 								{consumer.consumer_id}
 							</code>
@@ -110,11 +110,11 @@
 						{#if consumer.key && consumer.secret}
 							<!-- Key -->
 							<div>
-								<div class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">
+								<div class="mb-1 block text-xs font-medium ui-muted">
 									Key
 								</div>
 								<code
-									class="block rounded bg-white px-3 py-2 text-sm text-gray-900 dark:bg-gray-800 dark:text-gray-100"
+									class="block rounded px-3 py-2 text-sm ui-card ui-text"
 								>
 									{consumer.key}
 								</code>
@@ -122,11 +122,11 @@
 
 							<!-- Secret -->
 							<div>
-								<div class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">
+								<div class="mb-1 block text-xs font-medium ui-muted">
 									Secret
 								</div>
 								<code
-									class="block rounded bg-white px-3 py-2 text-sm text-gray-900 dark:bg-gray-800 dark:text-gray-100"
+									class="block rounded px-3 py-2 text-sm ui-card ui-text"
 								>
 									{consumer.secret}
 								</code>
@@ -139,17 +139,17 @@
 				<div class="mt-4 space-y-2 text-sm">
 					{#if consumer.company}
 						<div class="grid grid-cols-1 sm:grid-cols-3 gap-1">
-							<span class="font-medium text-gray-600 dark:text-gray-400">Company:</span>
-							<span class="sm:col-span-2 text-gray-900 dark:text-gray-100">{consumer.company}</span>
+							<span class="font-medium ui-muted">Company:</span>
+							<span class="sm:col-span-2 ui-text">{consumer.company}</span>
 						</div>
 					{/if}
 					<div class="grid grid-cols-1 sm:grid-cols-3 gap-1">
-						<span class="font-medium text-gray-600 dark:text-gray-400">Developer Email:</span>
-						<span class="sm:col-span-2 text-gray-900 dark:text-gray-100">{consumer.developer_email}</span>
+						<span class="font-medium ui-muted">Developer Email:</span>
+						<span class="sm:col-span-2 ui-text">{consumer.developer_email}</span>
 					</div>
 					<div class="grid grid-cols-1 sm:grid-cols-3 gap-1">
-						<span class="font-medium text-gray-600 dark:text-gray-400">Redirect URL:</span>
-						<span class="sm:col-span-2 text-gray-900 dark:text-gray-100 break-all">
+						<span class="font-medium ui-muted">Redirect URL:</span>
+						<span class="sm:col-span-2 break-all ui-text">
 							{#if consumer.redirect_url}
 								<!-- Each entry on its own; only an http or https entry becomes a link, so a stored
 								     javascript: value is shown as text and can never run when clicked. -->
@@ -159,7 +159,7 @@
 											href={entry}
 											target="_blank"
 											rel="noopener noreferrer"
-											class="mr-2 text-blue-600 underline hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+											class="mr-2 underline ui-link"
 											data-testid="consumer-redirect-url"
 										>
 											{entry}
@@ -178,9 +178,9 @@
 		{/each}
 	</div>
 {:else}
-	<div class="rounded-lg bg-gray-100 p-8 text-center dark:bg-gray-800">
+	<div class="rounded-lg p-8 text-center ui-panel">
 		<svg
-			class="mx-auto mb-4 h-16 w-16 text-gray-400"
+			class="mx-auto mb-4 h-16 w-16 ui-muted"
 			fill="none"
 			stroke="currentColor"
 			viewBox="0 0 24 24"
@@ -192,13 +192,13 @@
 				d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
 			/>
 		</svg>
-		<p class="mb-2 text-lg font-medium text-gray-700 dark:text-gray-300">No API consumers found</p>
-		<p class="mb-4 text-gray-600 dark:text-gray-400">
+		<p class="mb-2 text-lg font-medium ui-muted">No API consumers found</p>
+		<p class="mb-4 ui-muted">
 			You haven't registered any API consumers yet.
 		</p>
 		<a
 			href="/consumers/register"
-			class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-500 dark:hover:bg-blue-600"
+			class="inline-flex items-center rounded-lg px-4 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 preset-filled-primary-500"
 		>
 			Register Your First Consumer
 		</a>

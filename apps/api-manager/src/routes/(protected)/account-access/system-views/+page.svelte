@@ -66,7 +66,7 @@
           <button
             onclick={handleCreateView}
             data-testid="create-system-view-btn"
-            class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-500 dark:hover:bg-blue-600"
+            class="rounded-lg px-4 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 preset-filled-primary-500"
           >
             Create System View
           </button>
@@ -141,23 +141,15 @@
   }
 
   .panel {
-    background: white;
+    background: var(--ui-card);
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     overflow: hidden;
   }
 
-  :global([data-mode="dark"]) .panel {
-    background: rgb(var(--color-surface-800));
-  }
-
   .panel-header {
     padding: 1rem 1.5rem;
-    border-bottom: 1px solid #e5e7eb;
-  }
-
-  :global([data-mode="dark"]) .panel-header {
-    border-bottom-color: rgb(var(--color-surface-700));
+    border-bottom: 1px solid var(--ui-border);
   }
 
   .header-content {
@@ -170,22 +162,14 @@
   .panel-title {
     font-size: 1.5rem;
     font-weight: 600;
-    color: #111827;
+    color: var(--ui-text);
     margin: 0;
-  }
-
-  :global([data-mode="dark"]) .panel-title {
-    color: var(--color-surface-100);
   }
 
   .panel-subtitle {
     font-size: 0.813rem;
-    color: #6b7280;
+    color: var(--ui-muted);
     margin-top: 0.25rem;
-  }
-
-  :global([data-mode="dark"]) .panel-subtitle {
-    color: var(--color-surface-400);
   }
 
   .panel-content {
@@ -195,48 +179,30 @@
   .error-message {
     margin-bottom: 1rem;
     padding: 0.75rem 1rem;
-    background: #fef2f2;
-    border: 1px solid #fecaca;
+    background: var(--ui-tone-error-bg);
+    border: 1px solid var(--ui-tone-error-border);
     border-radius: 6px;
-    color: #991b1b;
+    color: var(--ui-tone-error-text);
     font-size: 0.875rem;
-  }
-
-  :global([data-mode="dark"]) .error-message {
-    background: rgba(239, 68, 68, 0.1);
-    border-color: rgba(239, 68, 68, 0.3);
-    color: rgb(var(--color-error-200));
   }
 
   .empty-state {
     text-align: center;
     padding: 2rem;
-    color: #6b7280;
-  }
-
-  :global([data-mode="dark"]) .empty-state {
-    color: var(--color-surface-400);
+    color: var(--ui-muted);
   }
 
   .empty-title {
     font-size: 1rem;
     font-weight: 600;
-    color: #4a5568;
+    color: var(--ui-muted);
     margin: 0 0 0.5rem 0;
-  }
-
-  :global([data-mode="dark"]) .empty-title {
-    color: var(--color-surface-300);
   }
 
   .empty-description {
     margin: 0;
-    color: #6b7280;
+    color: var(--ui-muted);
     font-size: 0.875rem;
-  }
-
-  :global([data-mode="dark"]) .empty-description {
-    color: var(--color-surface-400);
   }
 
   .search-bar {
@@ -249,18 +215,14 @@
     left: 0.75rem;
     top: 50%;
     transform: translateY(-50%);
-    color: #9ca3af;
+    color: var(--ui-muted);
     pointer-events: none;
-  }
-
-  :global([data-mode="dark"]) .search-bar :global(.search-icon) {
-    color: var(--color-surface-400);
   }
 
   .search-input {
     width: 100%;
     padding: 0.5rem 0.75rem 0.5rem 2.25rem;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--ui-border);
     border-radius: 6px;
     font-size: 0.813rem;
     transition: all 0.2s;
@@ -268,19 +230,8 @@
 
   .search-input:focus {
     outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
-
-  :global([data-mode="dark"]) .search-input {
-    background: rgb(var(--color-surface-700));
-    border-color: rgb(var(--color-surface-600));
-    color: var(--color-surface-100);
-  }
-
-  :global([data-mode="dark"]) .search-input:focus {
-    border-color: rgb(var(--color-primary-500));
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    border-color: var(--ui-link);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-link) 10%, transparent);
   }
 
   .search-count {
@@ -289,16 +240,12 @@
     top: 50%;
     transform: translateY(-50%);
     font-size: 0.75rem;
-    color: #9ca3af;
-  }
-
-  :global([data-mode="dark"]) .search-count {
-    color: var(--color-surface-400);
+    color: var(--ui-muted);
   }
 
   .no-results {
     text-align: center;
-    color: #6b7280;
+    color: var(--ui-muted);
     font-size: 0.875rem;
     padding: 1rem 0;
   }
@@ -310,50 +257,33 @@
   }
 
   .views-table thead {
-    border-bottom: 2px solid #e5e7eb;
-  }
-
-  :global([data-mode="dark"]) .views-table thead {
-    border-bottom-color: rgb(var(--color-surface-600));
+    border-bottom: 2px solid var(--ui-border);
   }
 
   .views-table th {
     text-align: left;
     padding: 0.5rem 0.75rem;
     font-weight: 600;
-    color: #6b7280;
+    color: var(--ui-muted);
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.03em;
     white-space: nowrap;
   }
 
-  :global([data-mode="dark"]) .views-table th {
-    color: var(--color-surface-400);
-  }
-
   .views-table td {
     padding: 0.5rem 0.75rem;
-    color: #374151;
-    border-bottom: 1px solid #f3f4f6;
+    color: var(--ui-text);
+    border-bottom: 1px solid var(--ui-border);
     vertical-align: top;
   }
 
-  :global([data-mode="dark"]) .views-table td {
-    color: var(--color-surface-200);
-    border-bottom-color: rgb(var(--color-surface-700));
-  }
-
   .views-table tbody tr:hover {
-    background: #f9fafb;
-  }
-
-  :global([data-mode="dark"]) .views-table tbody tr:hover {
-    background: rgb(var(--color-surface-900));
+    background: var(--ui-hover);
   }
 
   .view-link {
-    color: #2563eb;
+    color: var(--ui-link);
     text-decoration: none;
     font-weight: 500;
     white-space: nowrap;
@@ -361,10 +291,6 @@
 
   .view-link:hover {
     text-decoration: underline;
-  }
-
-  :global([data-mode="dark"]) .view-link {
-    color: rgb(var(--color-primary-400));
   }
 
   .cell-mono {
@@ -385,19 +311,11 @@
   }
 
   :global(.icon-public) {
-    color: #10b981;
-  }
-
-  :global([data-mode="dark"]) :global(.icon-public) {
-    color: #34d399;
+    color: var(--ui-success);
   }
 
   .text-muted {
-    color: #d1d5db;
-  }
-
-  :global([data-mode="dark"]) .text-muted {
-    color: var(--color-surface-600);
+    color: var(--ui-muted);
   }
 
   @media (max-width: 768px) {

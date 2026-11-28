@@ -265,17 +265,17 @@
 <div class="container mx-auto max-w-7xl px-4 py-8">
   <div class="mb-6 flex items-center justify-between">
     <div>
-      <h1 class="flex items-center gap-2 text-3xl font-bold text-gray-900 dark:text-gray-100">
+      <h1 class="flex items-center gap-2 text-3xl font-bold ui-text">
         <Gauge size={28} /> Rate Limiting
       </h1>
-      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+      <p class="mt-1 text-sm ui-muted">
         The three rate limiters on this OBP instance, in the order a request meets them.
       </p>
     </div>
     <div class="flex items-center gap-2">
       <a
         href="/system/rate-limiting/help"
-        class="flex items-center gap-1 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+        class="flex items-center gap-1 rounded-lg border px-4 py-2 text-sm font-medium ui-hover ui-muted ui-border"
         data-testid="rate-limiting-help-link"
       >
         <CircleHelp size={16} /> Help
@@ -283,7 +283,7 @@
       <button
         onclick={refresh}
         disabled={isLoading}
-        class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+        class="rounded-lg px-4 py-2 text-sm font-medium focus:outline-none focus:ring-2 disabled:opacity-50 preset-filled-primary-500"
         data-testid="refresh-rate-limiters"
       >
         {isLoading ? "Refreshing..." : "Refresh"}
@@ -293,51 +293,51 @@
 
   {#if error}
     <div
-      class="rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 dark:border-red-800 dark:bg-red-900/20 dark:text-red-200"
+      class="rounded-lg border p-4 ui-tone-error"
       data-testid="rate-limiters-error"
     >
       <strong>Error:</strong>
       {error}
     </div>
   {:else if isLoading && !limiters}
-    <div class="flex items-center justify-center rounded-lg bg-gray-100 p-8 dark:bg-gray-800">
-      <div class="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
-      <p class="ml-3 text-gray-700 dark:text-gray-300">Loading rate limiters...</p>
+    <div class="flex items-center justify-center rounded-lg p-8 ui-panel">
+      <div class="h-8 w-8 animate-spin rounded-full border-4 border-t-transparent border-current ui-text-brand"></div>
+      <p class="ml-3 ui-muted">Loading rate limiters...</p>
     </div>
   {:else if limiters}
     <div class="space-y-6">
       {#each limiters as limiter (limiter.name)}
         <section
-          class="rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
+          class="rounded-lg border shadow-sm ui-card ui-border"
           data-testid="rate-limiter-{limiter.name}"
           data-state={limiter.enabled ? "enabled" : "disabled"}
         >
-          <div class="flex flex-wrap items-start justify-between gap-4 border-b border-gray-200 p-6 dark:border-gray-700">
+          <div class="flex flex-wrap items-start justify-between gap-4 border-b p-6 ui-border">
             <div>
-              <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100">
+              <h2 class="text-xl font-semibold ui-text">
                 {limiter.order}. {TITLES[limiter.name]}
               </h2>
-              <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+              <p class="mt-1 text-sm ui-muted">
                 Runs {limiter.runs}. Keyed by {limiter.keyed_by}.
               </p>
             </div>
             <dl class="grid grid-cols-3 gap-x-6 gap-y-1 text-sm">
-              <dt class="text-gray-500 dark:text-gray-400">Enabled</dt>
-              <dt class="text-gray-500 dark:text-gray-400">Mode</dt>
-              <dt class="text-gray-500 dark:text-gray-400">429 code</dt>
+              <dt class="ui-muted">Enabled</dt>
+              <dt class="ui-muted">Mode</dt>
+              <dt class="ui-muted">429 code</dt>
               <dd
-                class="font-medium {limiter.enabled ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'}"
+                class="font-medium {limiter.enabled ? 'ui-text-success' : 'ui-muted'}"
                 data-testid="rate-limiter-{limiter.name}-enabled"
               >
                 {limiter.enabled ? "yes" : "no"}
               </dd>
               <dd
-                class="font-medium {limiter.mode === 'enforce' ? 'text-red-600 dark:text-red-400' : 'text-amber-600 dark:text-amber-400'}"
+                class="font-medium {limiter.mode === 'enforce' ? 'ui-text-error' : 'ui-text-warning'}"
                 data-testid="rate-limiter-{limiter.name}-mode"
               >
                 {limiter.mode}
               </dd>
-              <dd class="font-mono text-gray-900 dark:text-gray-100" data-testid="rate-limiter-{limiter.name}-code">
+              <dd class="font-mono ui-text" data-testid="rate-limiter-{limiter.name}-code">
                 {limiter.error_code}
               </dd>
             </dl>
@@ -345,7 +345,7 @@
 
           <div class="overflow-x-auto">
             <table class="w-full text-sm" data-testid="rate-limiter-{limiter.name}-limits">
-              <thead class="bg-gray-50 text-left text-xs uppercase text-gray-500 dark:bg-gray-900/40 dark:text-gray-400">
+              <thead class="text-left text-xs uppercase ui-card ui-muted">
                 <tr>
                   <th class="px-6 py-3">Scope</th>
                   {#if limiter.limits.some((l) => l.mode !== undefined)}
@@ -356,27 +356,27 @@
                   {/each}
                 </tr>
               </thead>
-              <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+              <tbody class="divide-y ui-border">
                 {#each limiter.limits as limit (limit.scope)}
                   <tr data-testid="rate-limiter-{limiter.name}-limit-{limit.scope}">
                     <td class="px-6 py-3 align-top">
-                      <span class="font-mono text-gray-900 dark:text-gray-100">{limit.scope}</span>
+                      <span class="font-mono ui-text">{limit.scope}</span>
                       {#if limit.covers !== undefined}
-                        <p class="mt-1 max-w-xl text-xs text-gray-500 dark:text-gray-400" data-testid="rate-limiter-{limiter.name}-limit-{limit.scope}-covers">
+                        <p class="mt-1 max-w-xl text-xs ui-muted" data-testid="rate-limiter-{limiter.name}-limit-{limit.scope}-covers">
                           {limit.covers}
                         </p>
                       {/if}
                     </td>
                     {#if limiter.limits.some((l) => l.mode !== undefined)}
                       <td
-                        class="px-6 py-3 align-top font-medium {limit.mode === 'enforce' ? 'text-red-600 dark:text-red-400' : 'text-amber-600 dark:text-amber-400'}"
+                        class="px-6 py-3 align-top font-medium {limit.mode === 'enforce' ? 'ui-text-error' : 'ui-text-warning'}"
                         data-testid="rate-limiter-{limiter.name}-limit-{limit.scope}-mode"
                       >
                         {limit.mode ?? limiter.mode}
                       </td>
                     {/if}
                     {#each windowsOf(limiter) as w (w.key)}
-                      <td class="px-6 py-3 text-right tabular-nums text-gray-700 dark:text-gray-300">
+                      <td class="px-6 py-3 text-right tabular-nums ui-muted">
                         {formatLimit(limit[w.key] as number | undefined)}
                       </td>
                     {/each}
@@ -386,24 +386,24 @@
             </table>
           </div>
 
-          <p class="px-6 py-3 text-xs text-gray-500 dark:text-gray-400">
+          <p class="px-6 py-3 text-xs ui-muted">
             Props prefix <code class="font-mono">{limiter.props_prefix}</code>. -1 is unlimited, 0 blocks every call.
           </p>
 
           {#if limiter.name === "consumer"}
-            <div class="border-t border-gray-200 dark:border-gray-700" data-testid="consumer-rate-limits">
+            <div class="border-t ui-border" data-testid="consumer-rate-limits">
               <div class="flex flex-wrap items-center justify-between gap-2 px-6 pt-5 pb-3">
                 <div>
-                  <h3 class="flex items-center gap-2 text-base font-semibold text-gray-900 dark:text-gray-100">
+                  <h3 class="flex items-center gap-2 text-base font-semibold ui-text">
                     <Users size={18} /> Per-consumer rate limits
                   </h3>
-                  <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                  <p class="mt-1 text-sm ui-muted">
                     Rows set on individual Consumers. A Consumer with none uses <code class="font-mono">consumer_default</code> above.
                   </p>
                 </div>
                 <a
                   href="/consumers"
-                  class="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                  class="rounded-lg border px-3 py-1.5 text-sm font-medium ui-hover ui-muted ui-border"
                   data-testid="consumer-rate-limits-consumers-link"
                 >
                   Manage per Consumer
@@ -415,19 +415,19 @@
                   <MissingRoleAlert roles={["CanReadCallLimits"]} message="You need this role to list the per-consumer rows" />
                 </div>
               {:else if consumerLimitsError}
-                <p class="px-6 pb-5 text-sm text-red-700 dark:text-red-400" data-testid="consumer-rate-limits-error">
+                <p class="px-6 pb-5 text-sm ui-text-error" data-testid="consumer-rate-limits-error">
                   {consumerLimitsError}
                 </p>
               {:else if consumerLimits === null}
-                <p class="px-6 pb-5 text-sm text-gray-500 dark:text-gray-400">Loading per-consumer rate limits...</p>
+                <p class="px-6 pb-5 text-sm ui-muted">Loading per-consumer rate limits...</p>
               {:else if consumerLimits.length === 0}
-                <p class="px-6 pb-5 text-sm text-gray-500 dark:text-gray-400" data-testid="consumer-rate-limits-empty">
+                <p class="px-6 pb-5 text-sm ui-muted" data-testid="consumer-rate-limits-empty">
                   No Consumer has its own rate limit rows. Every Consumer is on the defaults above.
                 </p>
               {:else}
                 <div class="overflow-x-auto">
                   <table class="w-full text-sm" data-testid="consumer-rate-limits-table">
-                    <thead class="bg-gray-50 text-left text-xs uppercase text-gray-500 dark:bg-gray-900/40 dark:text-gray-400">
+                    <thead class="text-left text-xs uppercase ui-card ui-muted">
                       <tr>
                         <th class="px-6 py-3">Consumer</th>
                         <th class="px-6 py-3">Scope</th>
@@ -437,31 +437,31 @@
                         {/each}
                       </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                    <tbody class="divide-y ui-border">
                       {#each consumerLimits as limit (limit.rate_limiting_id)}
                         <tr
-                          class={limit.is_active ? "" : "text-gray-400 dark:text-gray-500"}
+                          class={limit.is_active ? "" : "ui-muted"}
                           data-testid="consumer-rate-limit-{limit.rate_limiting_id}"
                           data-state={limit.is_active ? "active" : "inactive"}
                         >
                           <td class="px-6 py-3">
                             <a
                               href="/consumers/{limit.consumer_id}/rate-limits"
-                              class="font-medium text-blue-600 hover:underline dark:text-blue-400"
+                              class="font-medium hover:underline ui-link"
                             >
                               {limit.consumer_name || "(unnamed)"}
                             </a>
-                            <div class="font-mono text-xs text-gray-500 dark:text-gray-400">{limit.consumer_id}</div>
+                            <div class="font-mono text-xs ui-muted">{limit.consumer_id}</div>
                           </td>
-                          <td class="px-6 py-3 text-gray-700 dark:text-gray-300">{scopeOf(limit)}</td>
-                          <td class="px-6 py-3 whitespace-nowrap text-gray-700 dark:text-gray-300">
+                          <td class="px-6 py-3 ui-muted">{scopeOf(limit)}</td>
+                          <td class="px-6 py-3 whitespace-nowrap ui-muted">
                             {formatDate(limit.from_date)} to {formatDate(limit.to_date)}
                             {#if limit.is_active}
-                              <span class="ml-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-400">active</span>
+                              <span class="ml-1 rounded-full px-2 py-0.5 text-xs font-medium ui-tone-success">active</span>
                             {/if}
                           </td>
                           {#each CONSUMER_WINDOWS as w (w.key)}
-                            <td class="px-6 py-3 text-right tabular-nums text-gray-700 dark:text-gray-300">
+                            <td class="px-6 py-3 text-right tabular-nums ui-muted">
                               {formatLimit(Number(limit[w.key]))}
                             </td>
                           {/each}
@@ -479,15 +479,15 @@
   {/if}
   <!-- IP penalties: an operator's temporary per-minute limit on one address, on every endpoint -->
   <section
-    class="mt-6 rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
+    class="mt-6 rounded-lg border shadow-sm ui-card ui-border"
     id="ip-penalties"
     data-testid="ip-penalties"
   >
     <div class="px-6 pt-5 pb-3">
-      <h2 class="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-gray-100">
+      <h2 class="flex items-center gap-2 text-lg font-semibold ui-text">
         <ShieldAlert size={20} /> Penalised addresses
       </h2>
-      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+      <p class="mt-1 text-sm ui-muted">
         A penalty limits one IP address to a number of requests per minute on every endpoint, until it expires, and
         is checked before all the limiters above. 0 refuses every request (429 <code class="font-mono">OBP-10062</code>).
         Penalties are shared by every instance and disappear when they expire.
@@ -500,39 +500,39 @@
       </div>
     {:else}
       <form class="flex flex-wrap items-end gap-3 px-6 pb-4" onsubmit={addPenalty} data-testid="ip-penalty-form">
-        <label class="text-sm text-gray-700 dark:text-gray-300">
+        <label class="text-sm ui-muted">
           IP address
           <input name="ip_address" required bind:value={penaltyForm.ip_address} placeholder="203.0.113.42"
-            class="mt-1 block w-44 rounded-md border border-gray-300 px-2 py-1.5 font-mono text-sm dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100"
+            class="mt-1 block w-44 rounded-md border px-2 py-1.5 font-mono text-sm ui-card ui-text ui-border"
             data-testid="ip-penalty-ip-address" />
         </label>
-        <label class="text-sm text-gray-700 dark:text-gray-300">
+        <label class="text-sm ui-muted">
           Per minute
           <input name="per_minute_limit" type="number" min="0" required bind:value={penaltyForm.per_minute_limit}
-            class="mt-1 block w-24 rounded-md border border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100"
+            class="mt-1 block w-24 rounded-md border px-2 py-1.5 text-sm ui-card ui-text ui-border"
             data-testid="ip-penalty-per-minute-limit" />
         </label>
-        <label class="text-sm text-gray-700 dark:text-gray-300">
+        <label class="text-sm ui-muted">
           Minutes
           <input name="duration_minutes" type="number" min="1" max="10080" required bind:value={penaltyForm.duration_minutes}
-            class="mt-1 block w-24 rounded-md border border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100"
+            class="mt-1 block w-24 rounded-md border px-2 py-1.5 text-sm ui-card ui-text ui-border"
             data-testid="ip-penalty-duration-minutes" />
         </label>
-        <label class="grow text-sm text-gray-700 dark:text-gray-300">
+        <label class="grow text-sm ui-muted">
           Reason
           <input name="reason" required maxlength="255" bind:value={penaltyForm.reason}
-            class="mt-1 block w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100"
+            class="mt-1 block w-full rounded-md border px-2 py-1.5 text-sm ui-card ui-text ui-border"
             data-testid="ip-penalty-reason" />
         </label>
         <button type="submit" disabled={penaltySubmitting}
-          class="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+          class="rounded-lg px-4 py-2 text-sm font-medium disabled:opacity-50 preset-filled-error-500"
           data-testid="ip-penalty-add" data-state={penaltySubmitting ? "submitting" : "idle"}>
           Add penalty
         </button>
       </form>
     {/if}
     {#if penaltySubmitError}
-      <p class="px-6 pb-3 text-sm text-red-700 dark:text-red-400" data-testid="ip-penalty-submit-error">{penaltySubmitError}</p>
+      <p class="px-6 pb-3 text-sm ui-text-error" data-testid="ip-penalty-submit-error">{penaltySubmitError}</p>
     {/if}
 
     {#if penaltiesForbidden}
@@ -541,15 +541,15 @@
       </div>
     {:else}
       {#if penaltiesError}
-        <p class="px-6 pb-5 text-sm text-red-700 dark:text-red-400" data-testid="ip-penalties-error">{penaltiesError}</p>
+        <p class="px-6 pb-5 text-sm ui-text-error" data-testid="ip-penalties-error">{penaltiesError}</p>
       {:else if penalties === null}
-        <p class="px-6 pb-5 text-sm text-gray-500 dark:text-gray-400">Loading IP penalties...</p>
+        <p class="px-6 pb-5 text-sm ui-muted">Loading IP penalties...</p>
       {:else if penalties.length === 0}
-        <p class="px-6 pb-5 text-sm text-gray-500 dark:text-gray-400" data-testid="ip-penalties-empty">No address has a penalty.</p>
+        <p class="px-6 pb-5 text-sm ui-muted" data-testid="ip-penalties-empty">No address has a penalty.</p>
       {:else}
         <div class="overflow-x-auto">
           <table class="w-full text-sm" data-testid="ip-penalties-table">
-            <thead class="bg-gray-50 text-left text-xs uppercase text-gray-500 dark:bg-gray-900/40 dark:text-gray-400">
+            <thead class="text-left text-xs uppercase ui-card ui-muted">
               <tr>
                 <th class="px-6 py-3">Address</th>
                 <th class="px-6 py-3 text-right">Per minute</th>
@@ -559,18 +559,18 @@
                 <th class="px-6 py-3"></th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody class="divide-y ui-border">
               {#each penalties as penalty (penalty.ip_address)}
                 <tr data-testid="ip-penalty-{penalty.ip_address}">
-                  <td class="px-6 py-3 font-mono text-gray-900 dark:text-gray-100">{penalty.ip_address}</td>
-                  <td class="px-6 py-3 text-right tabular-nums text-gray-700 dark:text-gray-300">{penalty.per_minute_limit}</td>
-                  <td class="px-6 py-3 whitespace-nowrap text-gray-700 dark:text-gray-300">{formatDate(penalty.expires_at)}</td>
-                  <td class="px-6 py-3 text-gray-700 dark:text-gray-300">{penalty.reason}</td>
-                  <td class="px-6 py-3 font-mono text-xs text-gray-500 dark:text-gray-400">{penalty.created_by_user_id}</td>
+                  <td class="px-6 py-3 font-mono ui-text">{penalty.ip_address}</td>
+                  <td class="px-6 py-3 text-right tabular-nums ui-muted">{penalty.per_minute_limit}</td>
+                  <td class="px-6 py-3 whitespace-nowrap ui-muted">{formatDate(penalty.expires_at)}</td>
+                  <td class="px-6 py-3 ui-muted">{penalty.reason}</td>
+                  <td class="px-6 py-3 font-mono text-xs ui-muted">{penalty.created_by_user_id}</td>
                   <td class="px-6 py-3 text-right">
                     {#if canDeletePenalty}
                       <button type="button" onclick={() => removePenalty(penalty.ip_address)}
-                        class="inline-flex items-center gap-1 rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                        class="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs ui-hover ui-muted ui-border"
                         aria-label="Remove the penalty on {penalty.ip_address}"
                         data-testid="ip-penalty-remove-{penalty.ip_address}">
                         <Trash2 size={14} /> Remove

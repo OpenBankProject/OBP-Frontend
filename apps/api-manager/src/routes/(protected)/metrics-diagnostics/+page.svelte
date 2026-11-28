@@ -114,10 +114,10 @@
 
   function checkBadgeColor(status: string): string {
     if (status === "OK")
-      return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400";
+      return "ui-tone-success";
     if (status === "WARNING")
-      return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400";
-    return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400";
+      return "ui-tone-warning";
+    return "ui-tone-error";
   }
 </script>
 
@@ -128,10 +128,10 @@
 <div class="container mx-auto px-4 py-8" data-testid="metrics-diagnostics-page">
   <!-- Header -->
   <div class="mb-6">
-    <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
+    <h1 class="text-3xl font-bold ui-text">
       Metrics Diagnostics
     </h1>
-    <p class="mt-1 text-gray-600 dark:text-gray-400">
+    <p class="mt-1 ui-muted">
       State of the <code class="font-mono">metric</code> and
       <code class="font-mono">metricarchive</code> tables, the archiving
       configuration, and integrity checks for the metrics archive scheduler.
@@ -147,20 +147,20 @@
     <!-- Overall Status -->
     <div
       class="mb-6 rounded-lg border p-4 {everythingAsExpected
-        ? 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20'
-        : 'border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20'}"
+        ? 'ui-tone-success'
+        : 'ui-tone-error'}"
       data-testid="overall-status"
       data-state={everythingAsExpected ? "ok" : "attention"}
     >
       <div class="flex items-center gap-3">
         {#if everythingAsExpected}
-          <CheckCircle2 class="h-6 w-6 text-green-600 dark:text-green-400" />
-          <p class="text-base font-semibold text-green-800 dark:text-green-200">
+          <CheckCircle2 class="h-6 w-6 ui-text-success" />
+          <p class="text-base font-semibold ui-text-success">
             Everything as expected
           </p>
         {:else}
-          <AlertTriangle class="h-6 w-6 text-red-600 dark:text-red-400" />
-          <p class="text-base font-semibold text-red-800 dark:text-red-200">
+          <AlertTriangle class="h-6 w-6 ui-text-error" />
+          <p class="text-base font-semibold ui-text-error">
             Some checks need attention
           </p>
         {/if}
@@ -169,58 +169,58 @@
 
     <!-- Table Stats -->
     <div class="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
-      {#each [{ title: "Metric Table", icon: Activity, stats: metric, color: "text-blue-500" }, { title: "Metric Archive Table", icon: Archive, stats: metricArchive, color: "text-purple-500" }] as card (card.title)}
+      {#each [{ title: "Metric Table", icon: Activity, stats: metric, color: "ui-link" }, { title: "Metric Archive Table", icon: Archive, stats: metricArchive, color: "ui-text-brand" }] as card (card.title)}
         <div
-          class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+          class="rounded-lg border p-6 shadow-sm ui-card ui-border"
           data-testid="table-stats"
           data-table={card.stats?.table_name}
         >
           <div class="mb-4 flex items-center justify-between">
             <div class="flex items-center gap-2">
               <card.icon class="h-5 w-5 {card.color}" />
-              <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              <h2 class="text-lg font-semibold ui-text">
                 {card.title}
               </h2>
             </div>
             <code
-              class="rounded bg-gray-100 px-2 py-1 text-xs font-mono text-gray-700 dark:bg-gray-900 dark:text-gray-300"
+              class="rounded px-2 py-1 text-xs font-mono ui-panel ui-muted"
             >
               {card.stats?.table_name ?? "—"}
             </code>
           </div>
 
           <div class="mb-4">
-            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">
+            <p class="text-sm font-medium ui-muted">
               Row Count
             </p>
             <p
-              class="mt-1 text-3xl font-bold text-gray-900 dark:text-gray-100"
+              class="mt-1 text-3xl font-bold ui-text"
               data-testid="row-count"
             >
               {formatCount(card.stats?.count)}
             </p>
           </div>
 
-          <div class="grid grid-cols-2 gap-4 rounded-lg bg-gray-50 p-4 dark:bg-gray-900/50">
+          <div class="grid grid-cols-2 gap-4 rounded-lg p-4 ui-card">
             <div>
-              <p class="text-sm font-medium text-gray-600 dark:text-gray-400">
+              <p class="text-sm font-medium ui-muted">
                 Oldest Record
               </p>
-              <p class="mt-1 text-sm text-gray-900 dark:text-gray-100">
+              <p class="mt-1 text-sm ui-text">
                 {formatDate(card.stats?.oldest_record_date)}
               </p>
-              <p class="text-xs text-gray-500 dark:text-gray-400">
+              <p class="text-xs ui-muted">
                 {formatAge(card.stats?.oldest_record_age_days)} old
               </p>
             </div>
             <div>
-              <p class="text-sm font-medium text-gray-600 dark:text-gray-400">
+              <p class="text-sm font-medium ui-muted">
                 Newest Record
               </p>
-              <p class="mt-1 text-sm text-gray-900 dark:text-gray-100">
+              <p class="mt-1 text-sm ui-text">
                 {formatDate(card.stats?.newest_record_date)}
               </p>
-              <p class="text-xs text-gray-500 dark:text-gray-400">
+              <p class="text-xs ui-muted">
                 {formatAge(card.stats?.newest_record_age_days)} old
               </p>
             </div>
@@ -231,21 +231,21 @@
 
     <!-- Archiving Configuration -->
     <div
-      class="mb-6 rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
+      class="mb-6 rounded-lg border shadow-sm ui-card ui-border"
     >
-      <div class="flex items-center gap-2 border-b border-gray-200 p-6 dark:border-gray-700">
-        <Settings class="h-5 w-5 text-gray-500" />
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+      <div class="flex items-center gap-2 border-b p-6 ui-border">
+        <Settings class="h-5 w-5 ui-muted" />
+        <h2 class="text-lg font-semibold ui-text">
           Metrics Configuration
         </h2>
       </div>
-      <div class="grid grid-cols-1 gap-px overflow-hidden rounded-b-lg bg-gray-200 dark:bg-gray-700 sm:grid-cols-2 lg:grid-cols-3">
+      <div class="grid grid-cols-1 gap-px overflow-hidden rounded-b-lg sm:grid-cols-2 lg:grid-cols-3 ui-panel">
         {#each Object.entries(config) as [key, value] (key)}
-          <div class="bg-white p-4 dark:bg-gray-800" data-testid="config-item" data-config-key={key}>
-            <code class="text-sm font-mono text-gray-600 dark:text-gray-400">
+          <div class="p-4 ui-card" data-testid="config-item" data-config-key={key}>
+            <code class="text-sm font-mono ui-muted">
               {key}
             </code>
-            <p class="mt-1 text-lg font-semibold text-gray-900 dark:text-gray-100">
+            <p class="mt-1 text-lg font-semibold ui-text">
               {#if typeof value === "boolean"}
                 {value ? "true" : "false"}
               {:else}
@@ -260,29 +260,29 @@
     <!-- Last Run / Last Successful Run -->
     {#each [{ title: "Last Run", prefix: "last_run", run: lastRun }, { title: "Last Successful Run", prefix: "last_successful_run", run: lastSuccessfulRun }] as section (section.prefix)}
       <div
-        class="mb-6 rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
+        class="mb-6 rounded-lg border shadow-sm ui-card ui-border"
         data-testid="archive-run"
         data-prefix={section.prefix}
       >
-        <div class="border-b border-gray-200 p-6 dark:border-gray-700">
-          <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+        <div class="border-b p-6 ui-border">
+          <h2 class="text-lg font-semibold ui-text">
             {section.title}
           </h2>
-          <code class="text-xs font-mono text-gray-500 dark:text-gray-400">{section.prefix}</code>
+          <code class="text-xs font-mono ui-muted">{section.prefix}</code>
         </div>
         {#if section.run}
-          <div class="grid grid-cols-1 gap-px overflow-hidden rounded-b-lg bg-gray-200 dark:bg-gray-700 sm:grid-cols-2 lg:grid-cols-3">
+          <div class="grid grid-cols-1 gap-px overflow-hidden rounded-b-lg sm:grid-cols-2 lg:grid-cols-3 ui-panel">
             {#each runFields(section.run, section.prefix) as field (field.prop)}
-              <div class="bg-white p-4 dark:bg-gray-800" data-testid="run-field" data-prop={field.prop}>
-                <code class="text-sm font-mono text-gray-600 dark:text-gray-400">{field.prop}</code>
-                <p class="mt-1 text-lg font-semibold break-words text-gray-900 dark:text-gray-100">
+              <div class="p-4 ui-card" data-testid="run-field" data-prop={field.prop}>
+                <code class="text-sm font-mono ui-muted">{field.prop}</code>
+                <p class="mt-1 text-lg font-semibold break-words ui-text">
                   {field.value}
                 </p>
               </div>
             {/each}
           </div>
         {:else}
-          <p class="p-6 text-sm text-gray-600 dark:text-gray-400">
+          <p class="p-6 text-sm ui-muted">
             No archive run recorded.
           </p>
         {/if}
@@ -291,43 +291,43 @@
 
     <!-- Integrity Checks -->
     <div
-      class="mb-6 rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
+      class="mb-6 rounded-lg border shadow-sm ui-card ui-border"
     >
-      <div class="border-b border-gray-200 p-6 dark:border-gray-700">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+      <div class="border-b p-6 ui-border">
+        <h2 class="text-lg font-semibold ui-text">
           Integrity Checks ({checks.length})
         </h2>
       </div>
-      <ul class="divide-y divide-gray-200 dark:divide-gray-700">
+      <ul class="divide-y ui-border">
         {#each checks as check (check.name)}
           <li class="flex items-start gap-3 p-4" data-testid="integrity-check" data-check={check.name} data-status={check.status}>
             <div class="mt-0.5">
               {#if check.status === "OK"}
-                <CheckCircle2 class="h-5 w-5 text-green-600 dark:text-green-400" />
+                <CheckCircle2 class="h-5 w-5 ui-text-success" />
               {:else if check.status === "WARNING"}
-                <AlertTriangle class="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+                <AlertTriangle class="h-5 w-5 ui-text-warning" />
               {:else}
-                <XCircle class="h-5 w-5 text-red-600 dark:text-red-400" />
+                <XCircle class="h-5 w-5 ui-text-error" />
               {/if}
             </div>
             <div class="flex-1">
               <div class="flex items-center gap-2">
-                <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                <span class="text-sm font-semibold ui-text">
                   {checkLabels[check.name] ?? check.name}
                 </span>
                 <span class="rounded-full px-2.5 py-0.5 text-xs font-medium {checkBadgeColor(check.status)}">
                   {check.status}
                 </span>
               </div>
-              <code class="text-xs font-mono text-gray-500 dark:text-gray-400">{check.name}</code>
-              <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+              <code class="text-xs font-mono ui-muted">{check.name}</code>
+              <p class="mt-1 text-sm ui-muted">
                 {check.message}
               </p>
               {#if checkProps[check.name]}
                 <div class="mt-2 flex flex-wrap items-center gap-1.5" data-testid="check-props">
-                  <span class="text-xs text-gray-500 dark:text-gray-400">props:</span>
+                  <span class="text-xs ui-muted">props:</span>
                   {#each checkProps[check.name] as prop (prop)}
-                    <code class="rounded bg-gray-100 px-1.5 py-0.5 text-xs font-mono text-gray-700 dark:bg-gray-900 dark:text-gray-300">{prop}</code>
+                    <code class="rounded px-1.5 py-0.5 text-xs font-mono ui-panel ui-muted">{prop}</code>
                   {/each}
                 </div>
               {/if}
@@ -339,17 +339,17 @@
 
     <!-- Raw Data -->
     <div
-      class="rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
+      class="rounded-lg border shadow-sm ui-card ui-border"
     >
-      <div class="border-b border-gray-200 p-6 dark:border-gray-700">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+      <div class="border-b p-6 ui-border">
+        <h2 class="text-lg font-semibold ui-text">
           Raw Diagnostics Data
         </h2>
       </div>
       <div class="p-6">
         <div class="overflow-auto max-h-[600px]">
-          <pre class="whitespace-pre-wrap break-words rounded-lg bg-gray-50 p-4 text-xs dark:bg-gray-900"><code
-              class="text-gray-900 dark:text-gray-100">{JSON.stringify(diagnostics, null, 2)}</code></pre>
+          <pre class="whitespace-pre-wrap break-words rounded-lg p-4 text-xs ui-card"><code
+              class="ui-text">{JSON.stringify(diagnostics, null, 2)}</code></pre>
         </div>
       </div>
     </div>

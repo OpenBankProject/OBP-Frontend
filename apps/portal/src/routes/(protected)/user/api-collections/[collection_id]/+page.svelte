@@ -91,32 +91,32 @@
 </script>
 
 <div class="mb-4">
-    <a href="/user/api-collections" class="text-primary-500 hover:underline text-sm">
+    <a href="/user/api-collections" class="hover:underline text-sm ui-text-brand">
         &larr; Back to Collections
     </a>
 </div>
 
 {#if data.collection}
-<h1 class="mb-2 text-3xl font-bold text-gray-900 dark:text-gray-100">{data.collection.api_collection_name}</h1>
+<h1 class="mb-2 text-3xl font-bold ui-text">{data.collection.api_collection_name}</h1>
 
 {#if data.collection.description}
-    <p class="mb-4 text-gray-700 dark:text-gray-300">{data.collection.description}</p>
+    <p class="mb-4 ui-muted">{data.collection.description}</p>
 {/if}
 
 <div class="mb-4 flex flex-wrap items-center gap-2">
     <span class={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
         data.collection.is_sharable
-            ? 'text-green-600 bg-green-100 dark:bg-green-900/20 dark:text-green-400'
-            : 'text-gray-600 bg-gray-100 dark:bg-gray-900/20 dark:text-gray-400'
+            ? 'ui-tone-success'
+            : 'ui-panel ui-muted'
     }`}>
         {data.collection.is_sharable ? 'Sharable' : 'Private'}
     </span>
-    <span class="text-xs text-gray-500 font-mono">ID: {data.collection.api_collection_id}</span>
+    <span class="text-xs font-mono ui-muted">ID: {data.collection.api_collection_id}</span>
     <a
         href="/collections/{data.collection.api_collection_id}"
         target="_blank"
         rel="noopener noreferrer"
-        class="text-xs text-secondary-500 dark:text-secondary-300 hover:underline"
+        class="text-xs hover:underline ui-text-brand"
     >
         View in Portal
     </a>
@@ -125,7 +125,7 @@
             href="{data.apiExplorerUrl}/resource-docs?api-collection-id={data.collection.api_collection_id}"
             target="_blank"
             rel="noopener noreferrer"
-            class="text-xs text-primary-500 dark:text-primary-200 hover:underline"
+            class="text-xs hover:underline ui-text-brand"
         >
             View in API Explorer
         </a>
@@ -133,29 +133,29 @@
 </div>
 
 {#if form?.message}
-    <div class="bg-error-500/10 border-error-500 mb-8 rounded-lg border p-4 text-center">
-        <p class="text-error-500 font-semibold">{form.message}</p>
+    <div class="mb-8 rounded-lg border p-4 text-center ui-tone-error">
+        <p class="font-semibold ui-text-error">{form.message}</p>
     </div>
 {/if}
 
 {#if form?.success}
-    <div class="mb-8 rounded-lg border border-green-200 bg-green-50 p-4 text-center dark:border-green-800 dark:bg-green-900/20">
-        <p class="font-semibold text-green-600 dark:text-green-400">{form.message}</p>
+    <div class="mb-8 rounded-lg border p-4 text-center ui-tone-success">
+        <p class="font-semibold ui-text-success">{form.message}</p>
     </div>
 {/if}
 
 <!-- Edit Collection Toggle -->
 <div class="mb-6">
     <button
-        class="btn preset-outlined-tertiary-500 text-sm"
+        class="btn preset-outlined-surface-500 text-sm"
         onclick={() => showEditForm = !showEditForm}
     >
         {showEditForm ? 'Cancel Edit' : 'Edit Collection'}
     </button>
 
     {#if showEditForm}
-        <div class="mt-4 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-            <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">Edit Collection</h3>
+        <div class="mt-4 rounded-lg border p-6 shadow-sm ui-card ui-border">
+            <h3 class="mb-4 text-lg font-semibold ui-text">Edit Collection</h3>
             <form method="POST" action="?/update" class="space-y-4">
                 <label class="label">
                     <span class="label-text">Collection Name *</span>
@@ -185,7 +185,7 @@
                         value="true"
                         checked={data.collection.is_sharable}
                     />
-                    <span class="text-sm text-gray-700 dark:text-gray-300">
+                    <span class="text-sm ui-muted">
                         Make this collection sharable
                     </span>
                 </label>
@@ -200,7 +200,7 @@
 
 <!-- Add Endpoint Section -->
 <div class="mb-8">
-    <h2 class="mb-4 text-xl font-semibold text-gray-900 dark:text-gray-100">Endpoints in Collection</h2>
+    <h2 class="mb-4 text-xl font-semibold ui-text">Endpoints in Collection</h2>
 
     <div class="flex flex-wrap gap-2 mb-4">
         <button
@@ -212,7 +212,7 @@
 
         {#if data.allCollections && data.allCollections.length > 0}
             <button
-                class="btn preset-outlined-secondary-500"
+                class="btn preset-outlined-surface-500"
                 onclick={() => { showCopyFromForm = !showCopyFromForm; showAddEndpointForm = false; }}
             >
                 {showCopyFromForm ? 'Cancel' : 'Copy From'}
@@ -221,8 +221,8 @@
     </div>
 
     {#if showCopyFromForm}
-        <div class="mb-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-            <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">Copy Endpoints from Another Collection</h3>
+        <div class="mb-6 rounded-lg border p-6 shadow-sm ui-card ui-border">
+            <h3 class="mb-4 text-lg font-semibold ui-text">Copy Endpoints from Another Collection</h3>
 
             <form method="POST" action="?/copyFrom" class="space-y-4">
                 <label class="label">
@@ -238,7 +238,7 @@
                             <option value={coll.api_collection_id}>{coll.api_collection_name}</option>
                         {/each}
                     </select>
-                    <p class="text-xs text-gray-500 mt-1">
+                    <p class="text-xs mt-1 ui-muted">
                         All endpoints from the selected collection will be copied. Existing endpoints will be skipped.
                     </p>
                 </label>
@@ -251,8 +251,8 @@
     {/if}
 
     {#if showAddEndpointForm}
-        <div class="mb-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-            <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">Add Endpoint to Collection</h3>
+        <div class="mb-6 rounded-lg border p-6 shadow-sm ui-card ui-border">
+            <h3 class="mb-4 text-lg font-semibold ui-text">Add Endpoint to Collection</h3>
 
             <form method="POST" action="?/addEndpoint" class="space-y-4">
                 <input type="hidden" name="operation_id" value={operationId} />
@@ -271,18 +271,18 @@
                             autocomplete="off"
                         />
                         {#if showDropdown && filteredOperations().length > 0}
-                            <div class="absolute z-50 mt-1 w-full max-h-60 overflow-auto rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800">
+                            <div class="absolute z-50 mt-1 w-full max-h-60 overflow-auto rounded-lg border shadow-lg ui-card ui-border">
                                 {#each filteredOperations() as op, index (op.operation_id)}
                                     <button
                                         type="button"
-                                        class="w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 {index === highlightedIndex ? 'bg-gray-100 dark:bg-gray-700' : ''}"
+                                        class="w-full px-4 py-2 text-left ui-hover {index === highlightedIndex ? 'ui-panel' : ''}"
                                         onmousedown={() => selectOperation(op.operation_id)}
                                     >
-                                        <div class="font-mono text-sm text-gray-900 dark:text-gray-100">
+                                        <div class="font-mono text-sm ui-text">
                                             {op.operation_id}
                                         </div>
                                         {#if op.summary}
-                                            <div class="text-xs text-gray-500 dark:text-gray-400 truncate">
+                                            <div class="text-xs truncate ui-muted">
                                                 {op.summary}
                                             </div>
                                         {/if}
@@ -291,12 +291,12 @@
                             </div>
                         {/if}
                         {#if showDropdown && searchQuery.trim() && filteredOperations().length === 0}
-                            <div class="absolute z-50 mt-1 w-full rounded-lg border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800">
-                                <p class="text-sm text-gray-500 dark:text-gray-400">No matching operations found</p>
+                            <div class="absolute z-50 mt-1 w-full rounded-lg border p-4 shadow-lg ui-card ui-border">
+                                <p class="text-sm ui-muted">No matching operations found</p>
                             </div>
                         {/if}
                     </div>
-                    <p class="text-xs text-gray-500 mt-1">
+                    <p class="text-xs mt-1 ui-muted">
                         Type to search for an operation ID by name or description
                     </p>
                 </label>
@@ -313,18 +313,18 @@
 {#if data.endpoints && data.endpoints.length > 0}
     <div class="overflow-x-auto">
         <table class="w-full text-left text-sm">
-            <thead class="bg-gray-50 dark:bg-gray-700">
+            <thead class="ui-card">
                 <tr>
-                    <th class="px-4 py-3 font-medium text-gray-900 dark:text-gray-100">Operation ID</th>
-                    <th class="px-4 py-3 font-medium text-gray-900 dark:text-gray-100">Endpoint ID</th>
-                    <th class="px-4 py-3 font-medium text-gray-900 dark:text-gray-100">Actions</th>
+                    <th class="px-4 py-3 font-medium ui-text">Operation ID</th>
+                    <th class="px-4 py-3 font-medium ui-text">Endpoint ID</th>
+                    <th class="px-4 py-3 font-medium ui-text">Actions</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
+            <tbody class="divide-y ui-border">
                 {#each data.endpoints as endpoint (endpoint.api_collection_endpoint_id)}
-                    <tr class="bg-white dark:bg-gray-800">
-                        <td class="px-4 py-3 font-mono text-sm text-gray-900 dark:text-gray-100">{endpoint.operation_id}</td>
-                        <td class="px-4 py-3 font-mono text-xs text-gray-500 dark:text-gray-400">{endpoint.api_collection_endpoint_id}</td>
+                    <tr class="ui-card">
+                        <td class="px-4 py-3 font-mono text-sm ui-text">{endpoint.operation_id}</td>
+                        <td class="px-4 py-3 font-mono text-xs ui-muted">{endpoint.api_collection_endpoint_id}</td>
                         <td class="px-4 py-3">
                             <form method="POST" action="?/removeEndpoint" class="inline">
                                 <input type="hidden" name="endpoint_id" value={endpoint.api_collection_endpoint_id} />
@@ -342,8 +342,8 @@
         </table>
     </div>
 {:else}
-    <div class="rounded-lg bg-gray-100 p-6 text-center dark:bg-gray-800">
-        <p class="text-gray-700 dark:text-gray-300">
+    <div class="rounded-lg p-6 text-center ui-panel">
+        <p class="ui-muted">
             No endpoints in this collection yet. Add your first endpoint above!
         </p>
     </div>

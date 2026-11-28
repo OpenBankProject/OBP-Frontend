@@ -227,26 +227,17 @@
 		width: 2px;
 		transform: translateX(-50%);
 		border-radius: 1px;
-		background: rgb(229 231 235);
+		background: var(--ui-panel);
 		transition: background 0.15s;
 	}
 
 	.split-handle:focus-visible::after,
 	.split[data-state='dragging'] .split-handle::after {
-		background: rgb(59 130 246);
+		background: var(--ui-fill-main-bg);
 	}
 
 	.split-handle:focus-visible {
-		outline: 2px solid rgb(59 130 246);
+		outline: 2px solid var(--ui-link);
 		outline-offset: 2px;
-	}
-
-	:global([data-mode='dark']) .split-handle::after {
-		background: rgb(55 65 81);
-	}
-
-	:global([data-mode='dark']) .split-handle:focus-visible::after,
-	:global([data-mode='dark']) .split[data-state='dragging'] .split-handle::after {
-		background: rgb(96 165 250);
 	}
 </style>

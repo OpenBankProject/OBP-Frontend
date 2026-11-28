@@ -73,32 +73,32 @@
 </script>
 
 <div
-  class="mb-8 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+  class="mb-8 rounded-lg border p-6 shadow-sm ui-card ui-border"
   data-testid="consumer-api-product-subscriptions"
 >
-  <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">API Product Subscriptions</h2>
+  <h2 class="mb-4 text-lg font-semibold ui-text">API Product Subscriptions</h2>
 
   {#if isLoading}
-    <p class="text-sm text-gray-500 dark:text-gray-400">Loading subscriptions...</p>
+    <p class="text-sm ui-muted">Loading subscriptions...</p>
   {:else if roleMissing}
     <MissingRoleAlert roles={[SUBSCRIPTION_ROLES.get]} message={loadError} />
   {:else if loadError}
-    <p class="text-sm text-red-700 dark:text-red-400" data-testid="consumer-api-product-subscriptions-error">{loadError}</p>
+    <p class="text-sm ui-text-error" data-testid="consumer-api-product-subscriptions-error">{loadError}</p>
   {:else if subscriptions.length === 0}
-    <p class="text-sm text-gray-500 dark:text-gray-400" data-testid="consumer-api-product-subscriptions-empty">No subscriptions.</p>
+    <p class="text-sm ui-muted" data-testid="consumer-api-product-subscriptions-empty">No subscriptions.</p>
   {:else}
     <div class="overflow-x-auto">
-      <table class="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-700">
-        <thead class="bg-gray-50 dark:bg-gray-900">
+      <table class="min-w-full divide-y text-sm ui-border">
+        <thead class="ui-card">
           <tr>
-            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Product</th>
-            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Bank</th>
-            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Status</th>
-            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Start</th>
-            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">End</th>
+            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Product</th>
+            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Bank</th>
+            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Status</th>
+            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Start</th>
+            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">End</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+        <tbody class="divide-y ui-border">
           {#each subscriptions as subscription (subscription.api_product_subscription_id)}
             <tr
               data-testid="consumer-api-product-subscription-{subscription.api_product_subscription_id}"
@@ -107,13 +107,13 @@
               <td class="px-4 py-3">
                 <a
                   href="/products/{subscription.bank_id}/{subscription.api_product_code}"
-                  class="text-blue-600 hover:underline dark:text-blue-400"
+                  class="hover:underline ui-link"
                 >{subscription.api_product_code}</a>
               </td>
-              <td class="px-4 py-3 font-mono text-xs text-gray-700 dark:text-gray-300">{subscription.bank_id}</td>
-              <td class="px-4 py-3 text-gray-900 dark:text-gray-100">{statusLabel(subscription.status)}</td>
-              <td class="whitespace-nowrap px-4 py-3 text-gray-700 dark:text-gray-300">{formatDate(subscription.start_date)}</td>
-              <td class="whitespace-nowrap px-4 py-3 text-gray-700 dark:text-gray-300">
+              <td class="px-4 py-3 font-mono text-xs ui-muted">{subscription.bank_id}</td>
+              <td class="px-4 py-3 ui-text">{statusLabel(subscription.status)}</td>
+              <td class="whitespace-nowrap px-4 py-3 ui-muted">{formatDate(subscription.start_date)}</td>
+              <td class="whitespace-nowrap px-4 py-3 ui-muted">
                 {subscription.end_date ? formatDate(subscription.end_date) : "Open-ended"}
               </td>
             </tr>

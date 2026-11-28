@@ -488,15 +488,15 @@
     <div class="mb-6">
       <button
         onclick={handleCancel}
-        class="mb-4 inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+        class="mb-4 inline-flex items-center gap-2 text-sm ui-muted"
       >
         <ArrowLeft size={16} />
         Back to Rules
       </button>
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
+      <h1 class="text-3xl font-bold ui-text">
         Edit ABAC Rule
       </h1>
-      <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+      <p class="mt-2 text-sm ui-muted">
         Update the Attribute-Based Access Control rule
       </p>
     </div>
@@ -505,16 +505,16 @@
       <!-- Object Browser Sidebar -->
       <div class="lg:col-span-1">
         <div
-          class="rounded-lg bg-white p-4 shadow-md dark:bg-gray-800 sticky top-4"
+          class="rounded-lg p-4 shadow-md sticky top-4 ui-card"
         >
           <div class="flex items-center justify-between mb-3">
-            <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100">
+            <h3 class="text-sm font-semibold ui-text">
               Available Objects
             </h3>
             <button
               type="button"
               onclick={() => fetchSchema()}
-              class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              class="disabled:opacity-50 disabled:cursor-not-allowed transition-all ui-link"
               title="Refresh schema"
               disabled={schemaLoading}
             >
@@ -524,23 +524,23 @@
               />
             </button>
           </div>
-          <p class="text-xs text-gray-600 dark:text-gray-400 mb-4">
+          <p class="text-xs mb-4 ui-muted">
             Click fields to insert into rule code
           </p>
 
           {#if schemaLoading}
             <div class="flex items-center justify-center py-8">
-              <Loader2 class="animate-spin text-blue-500" size={24} />
-              <span class="ml-2 text-sm text-gray-600 dark:text-gray-400"
+              <Loader2 class="animate-spin ui-link" size={24} />
+              <span class="ml-2 text-sm ui-muted"
                 >Loading schema...</span
               >
             </div>
           {:else if schemaError}
             <div
-              class="rounded-lg border border-red-300 bg-red-50 p-3 dark:border-red-700 dark:bg-red-900/20"
+              class="rounded-lg border p-3 ui-tone-error"
             >
               <div class="flex items-start justify-between mb-2">
-                <p class="text-xs text-red-800 dark:text-red-200 font-semibold">
+                <p class="text-xs font-semibold ui-text-error">
                   Schema Fetch Error - FULL UNFILTERED ERROR BELOW
                 </p>
                 <button
@@ -553,29 +553,29 @@
                       copiedSchemaError = false;
                     }, 2000);
                   }}
-                  class="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200"
+                  class="ui-text-error"
                   title="Copy error to clipboard"
                 >
                   {#if copiedSchemaError}
-                    <CheckCircle size={14} class="text-green-600" />
+                    <CheckCircle size={14} class="ui-text-success" />
                   {:else}
                     <Copy size={14} />
                   {/if}
                 </button>
               </div>
-              <div class="text-xs text-red-700 dark:text-red-300 mb-2">
+              <div class="text-xs mb-2 ui-text-error">
                 <pre
-                  class="whitespace-pre-wrap font-mono text-xs bg-red-100 dark:bg-red-950 p-2 rounded">{schemaError}</pre>
+                  class="whitespace-pre-wrap font-mono text-xs p-2 rounded ui-tone-error">{schemaError}</pre>
               </div>
               <div class="mt-2 space-y-2">
                 <button
                   type="button"
                   onclick={() => fetchSchema()}
-                  class="px-3 py-1 text-xs bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:hover:bg-red-800 rounded border border-red-300 dark:border-red-700"
+                  class="px-3 py-1 text-xs rounded border ui-tone-error"
                 >
                   Retry fetch schema
                 </button>
-                <p class="text-xs text-gray-600 dark:text-gray-400 mt-2">
+                <p class="text-xs mt-2 ui-muted">
                   Check browser console for additional error details
                 </p>
               </div>
@@ -587,49 +587,49 @@
               {#if index > 0 && availableObjects[index - 1].isParameter && !obj.isParameter}
                 <div class="pt-4 pb-2">
                   <div class="flex items-center gap-2 mb-2">
-                    <div class="flex-1 h-px bg-gray-300 dark:bg-gray-600"></div>
+                    <div class="flex-1 h-px ui-panel"></div>
                     <span
-                      class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide"
+                      class="text-xs font-semibold uppercase tracking-wide ui-muted"
                     >
                       Object Types
                     </span>
-                    <div class="flex-1 h-px bg-gray-300 dark:bg-gray-600"></div>
+                    <div class="flex-1 h-px ui-panel"></div>
                   </div>
                 </div>
               {/if}
               {#if index === 0 && obj.isParameter}
                 <div class="pb-2">
                   <div class="flex items-center gap-2 mb-2">
-                    <div class="flex-1 h-px bg-gray-300 dark:bg-gray-600"></div>
+                    <div class="flex-1 h-px ui-panel"></div>
                     <span
-                      class="text-xs font-semibold text-purple-600 dark:text-purple-400 uppercase tracking-wide"
+                      class="text-xs font-semibold uppercase tracking-wide ui-text-brand"
                     >
                       Parameters (Available in Rules)
                     </span>
-                    <div class="flex-1 h-px bg-gray-300 dark:bg-gray-600"></div>
+                    <div class="flex-1 h-px ui-panel"></div>
                   </div>
                 </div>
               {/if}
-              <div class="border border-gray-200 dark:border-gray-700 rounded">
+              <div class="border rounded ui-border">
                 <button
                   type="button"
                   onclick={() => toggleObject(obj.name)}
-                  class="w-full px-3 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center justify-between"
+                  class="w-full px-3 py-2 text-left text-xs font-medium flex items-center justify-between ui-hover ui-muted"
                 >
                   <div class="flex-1">
                     <div class="flex items-center gap-2">
-                      <div class="font-mono text-blue-600 dark:text-blue-400">
+                      <div class="font-mono ui-link">
                         {obj.name}
                       </div>
                       {#if obj.isParameter}
                         <span
-                          class="px-1.5 py-0.5 text-xs font-semibold rounded bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300"
+                          class="px-1.5 py-0.5 text-xs font-semibold rounded ui-tone-accent"
                         >
                           Parameter
                         </span>
                         {#if obj.category}
                           <span
-                            class="px-1.5 py-0.5 text-xs rounded bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"
+                            class="px-1.5 py-0.5 text-xs rounded ui-panel ui-muted"
                           >
                             {obj.category}
                           </span>
@@ -637,45 +637,45 @@
                       {/if}
                     </div>
                     <div
-                      class="text-gray-500 dark:text-gray-400 text-xs mt-0.5"
+                      class="text-xs mt-0.5 ui-muted"
                     >
                       {obj.description}
                     </div>
                   </div>
-                  <span class="text-gray-400"
+                  <span class="ui-muted"
                     >{expandedObjects.has(obj.name) ? "−" : "+"}</span
                   >
                 </button>
 
                 {#if expandedObjects.has(obj.name)}
                   <div
-                    class="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900"
+                    class="border-t ui-card ui-border"
                   >
                     {#each obj.fields as field}
                       <button
                         type="button"
                         onclick={() =>
                           insertFieldReference(obj.name, field.name)}
-                        class="w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-800 border-b border-gray-200 dark:border-gray-700 last:border-b-0"
+                        class="w-full px-4 py-2 text-left border-b last:border-b-0 ui-hover ui-border"
                       >
                         <div class="flex items-start gap-2">
                           <Copy
                             size={12}
-                            class="text-gray-400 mt-0.5 flex-shrink-0"
+                            class="mt-0.5 flex-shrink-0 ui-muted"
                           />
                           <div class="flex-1 min-w-0">
                             <div
-                              class="font-mono text-xs text-gray-900 dark:text-gray-100"
+                              class="font-mono text-xs ui-text"
                             >
                               {field.name}
                             </div>
                             <div
-                              class="text-xs text-gray-500 dark:text-gray-400 mt-0.5"
+                              class="text-xs mt-0.5 ui-muted"
                             >
                               {field.description}
                             </div>
                             <div
-                              class="text-xs text-gray-400 dark:text-gray-500 mt-0.5"
+                              class="text-xs mt-0.5 ui-muted"
                             >
                               {field.type}
                             </div>
@@ -691,17 +691,17 @@
 
           {#if schemaOperators.length > 0}
             <div
-              class="mb-4 rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-900"
+              class="mb-4 rounded-lg border p-3 ui-card ui-border"
             >
               <p
-                class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2"
+                class="text-xs font-semibold mb-2 ui-muted"
               >
                 Available Operators
               </p>
               <div class="flex flex-wrap gap-1">
                 {#each schemaOperators as operator}
                   <code
-                    class="inline-block px-2 py-0.5 text-xs bg-gray-200 dark:bg-gray-800 rounded font-mono text-gray-800 dark:text-gray-200"
+                    class="inline-block px-2 py-0.5 text-xs rounded font-mono ui-panel ui-text"
                   >
                     {operator}
                   </code>
@@ -712,10 +712,10 @@
 
           {#if schemaExamples.length > 0}
             <div
-              class="mb-4 rounded-lg border border-green-200 bg-green-50 p-3 dark:border-green-800 dark:bg-green-900/20"
+              class="mb-4 rounded-lg border p-3 ui-tone-success"
             >
               <p
-                class="text-xs font-semibold text-green-800 dark:text-green-200 mb-2"
+                class="text-xs font-semibold mb-2 ui-text-success"
               >
                 Examples
               </p>
@@ -729,7 +729,7 @@
                         ruleCodeTextarea.focus();
                       }
                     }}
-                    class="block w-full text-left px-2 py-1 text-xs bg-green-100 dark:bg-green-950 rounded hover:bg-green-200 dark:hover:bg-green-900 text-green-900 dark:text-green-100"
+                    class="block w-full text-left px-2 py-1 text-xs rounded ui-tone-success"
                     title={example.description || ""}
                   >
                     <div class="font-semibold">{example.title}</div>
@@ -746,14 +746,14 @@
 
           {#if schemaNotes.length > 0}
             <div
-              class="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-900/20"
+              class="mb-4 rounded-lg border p-3 ui-tone-info"
             >
               <p
-                class="text-xs font-semibold text-blue-800 dark:text-blue-200 mb-2"
+                class="text-xs font-semibold mb-2 ui-link"
               >
                 Notes
               </p>
-              <ul class="text-xs text-blue-700 dark:text-blue-300 space-y-1">
+              <ul class="text-xs space-y-1 ui-link">
                 {#each schemaNotes as note}
                   <li class="list-disc ml-4">{note}</li>
                 {/each}
@@ -766,29 +766,29 @@
       <!-- Main Form -->
       <div class="lg:col-span-2">
         <div
-          class="rounded-lg bg-white p-6 shadow-md dark:bg-gray-800 dark:shadow-gray-900/50"
+          class="rounded-lg p-6 shadow-md ui-card"
         >
           {#if formError}
             <div
-              class="mb-4 flex items-start gap-3 rounded-lg border border-red-300 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20"
+              class="mb-4 flex items-start gap-3 rounded-lg border p-4 ui-tone-error"
             >
               <AlertCircle
-                class="mt-0.5 flex-shrink-0 text-red-600 dark:text-red-400"
+                class="mt-0.5 flex-shrink-0 ui-text-error"
                 size={20}
               />
-              <p class="text-sm text-red-800 dark:text-red-200">{formError}</p>
+              <p class="text-sm ui-text-error">{formError}</p>
             </div>
           {/if}
 
           <!-- Info Banner -->
           <div
-            class="mb-6 flex items-start gap-3 rounded-lg border border-blue-300 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20"
+            class="mb-6 flex items-start gap-3 rounded-lg border p-4 ui-tone-info"
           >
             <Info
-              class="mt-0.5 flex-shrink-0 text-blue-600 dark:text-blue-400"
+              class="mt-0.5 flex-shrink-0 ui-link"
               size={20}
             />
-            <div class="text-sm text-blue-800 dark:text-blue-200">
+            <div class="text-sm ui-link">
               <p class="font-medium">About ABAC Rules</p>
               <p class="mt-1">
                 ABAC rules use code expressions to define access control logic.
@@ -804,9 +804,9 @@
               <div>
                 <label
                   for="rule_name"
-                  class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  class="mb-2 block text-sm font-medium ui-muted"
                 >
-                  Rule Name <span class="text-red-600">*</span>
+                  Rule Name <span class="ui-text-error">*</span>
                 </label>
                 <input
                   id="rule_name"
@@ -814,9 +814,9 @@
                   bind:value={formRuleName}
                   required
                   placeholder="e.g., admin_only"
-                  class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:focus:border-blue-400"
+                  class="w-full rounded-lg border px-4 py-2 focus:outline-none focus:ring-2 ui-card ui-text ui-border"
                 />
-                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                <p class="mt-1 text-xs ui-muted">
                   A unique identifier for this rule
                 </p>
               </div>
@@ -826,14 +826,14 @@
                 <div class="mb-2 flex items-center justify-between">
                   <label
                     for="rule_code"
-                    class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                    class="block text-sm font-medium ui-muted"
                   >
-                    Rule Code <span class="text-red-600">*</span>
+                    Rule Code <span class="ui-text-error">*</span>
                   </label>
                   <button
                     type="button"
                     onclick={() => (showExamples = !showExamples)}
-                    class="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                    class="text-xs ui-link"
                   >
                     {showExamples ? "Hide" : "Show"} Examples
                   </button>
@@ -841,15 +841,15 @@
 
                 {#if showExamples}
                   <div
-                    class="mb-3 rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900"
+                    class="mb-3 rounded-lg border p-4 ui-card ui-border"
                   >
                     {#if schemaExamples.length === 0}
-                      <p class="text-xs text-gray-500 dark:text-gray-400">
+                      <p class="text-xs ui-muted">
                         No examples available. Fetch schema to load examples.
                       </p>
                     {:else}
                       <p
-                        class="mb-3 text-xs font-medium text-gray-700 dark:text-gray-300"
+                        class="mb-3 text-xs font-medium ui-muted"
                       >
                         Example Rule Codes (organized by category):
                       </p>
@@ -857,38 +857,38 @@
                         {#each [...examplesByCategory()] as [category, examples]}
                           <div class="space-y-2">
                             <div
-                              class="sticky top-0 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-xs font-semibold text-gray-700 dark:text-gray-300"
+                              class="sticky top-0 px-2 py-1 rounded text-xs font-semibold ui-panel ui-muted"
                             >
                               {category}
                             </div>
                             {#each examples as example}
                               <div
-                                class="rounded border border-gray-200 bg-white p-2 dark:border-gray-600 dark:bg-gray-800 ml-2"
+                                class="rounded border p-2 ml-2 ui-card ui-border"
                               >
                                 <div
                                   class="mb-1 flex items-center justify-between"
                                 >
                                   <span
-                                    class="text-xs font-medium text-gray-700 dark:text-gray-300"
+                                    class="text-xs font-medium ui-muted"
                                   >
                                     {example.title}
                                   </span>
                                   <button
                                     type="button"
                                     onclick={() => insertExample(example.code)}
-                                    class="text-xs text-blue-600 hover:underline dark:text-blue-400"
+                                    class="text-xs hover:underline ui-link"
                                   >
                                     Use this
                                   </button>
                                 </div>
                                 <code
-                                  class="block text-xs text-gray-600 dark:text-gray-400 break-all"
+                                  class="block text-xs break-all ui-muted"
                                 >
                                   {example.code}
                                 </code>
                                 {#if example.description}
                                   <p
-                                    class="mt-1 text-xs text-gray-500 dark:text-gray-500"
+                                    class="mt-1 text-xs ui-muted"
                                   >
                                     {example.description}
                                   </p>
@@ -903,7 +903,7 @@
                 {/if}
 
                 <div class="relative">
-                  <Code class="absolute left-3 top-3 text-gray-400" size={18} />
+                  <Code class="absolute left-3 top-3 ui-muted" size={18} />
                   <textarea
                     id="rule_code"
                     bind:this={ruleCodeTextarea}
@@ -914,20 +914,20 @@
                     placeholder="e.g., AuthenticatedUser.emailAddress.contains('admin')"
                     class="w-full rounded-lg border {validationStatus ===
                     'invalid'
-                      ? 'border-red-500'
+                      ? 'ui-tone-error'
                       : validationStatus === 'valid'
-                        ? 'border-green-500'
-                        : 'border-gray-300'} bg-white py-2 pl-10 pr-10 font-mono text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:focus:border-blue-400"
+                        ? 'ui-tone-success'
+                        : 'ui-border'} py-2 pl-10 pr-10 font-mono text-sm focus:outline-none focus:ring-2 ui-card ui-text"
                   ></textarea>
 
                   <!-- Validation Status Icon -->
                   <div class="absolute right-3 top-3">
                     {#if validationStatus === "validating"}
-                      <Loader2 class="animate-spin text-blue-500" size={18} />
+                      <Loader2 class="animate-spin ui-link" size={18} />
                     {:else if validationStatus === "valid"}
-                      <CheckCircle class="text-green-500" size={18} />
+                      <CheckCircle class="ui-text-success" size={18} />
                     {:else if validationStatus === "invalid"}
-                      <XCircle class="text-red-500" size={18} />
+                      <XCircle class="ui-text-error" size={18} />
                     {/if}
                   </div>
                 </div>
@@ -935,18 +935,18 @@
                 <!-- Validation Messages -->
                 {#if validationStatus === "valid"}
                   <p
-                    class="mt-1 text-xs text-green-600 dark:text-green-400 flex items-center gap-1"
+                    class="mt-1 text-xs flex items-center gap-1 ui-text-success"
                   >
                     <CheckCircle size={12} />
                     Rule code is valid
                   </p>
                 {:else if validationStatus === "invalid" && validationError}
                   <div
-                    class="mt-2 rounded-lg border border-red-300 bg-red-50 p-3 dark:border-red-700 dark:bg-red-900/20"
+                    class="mt-2 rounded-lg border p-3 ui-tone-error"
                   >
                     <div class="flex items-start justify-between mb-2">
                       <p
-                        class="text-xs text-red-600 dark:text-red-400 flex items-start gap-1 font-semibold"
+                        class="text-xs flex items-start gap-1 font-semibold ui-text-error"
                       >
                         <XCircle size={14} class="mt-0.5 shrink-0" />
                         <span>Validation Error</span>
@@ -963,29 +963,29 @@
                             copiedValidationError = false;
                           }, 2000);
                         }}
-                        class="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200 relative"
+                        class="relative ui-text-error"
                         title="Copy error to clipboard"
                       >
                         {#if copiedValidationError}
-                          <CheckCircle size={14} class="text-green-600" />
+                          <CheckCircle size={14} class="ui-text-success" />
                         {:else}
                           <Copy size={14} />
                         {/if}
                       </button>
                     </div>
                     <div class="ml-5 space-y-2">
-                      <p class="text-xs text-red-700 dark:text-red-300">
+                      <p class="text-xs ui-text-error">
                         {validationError}
                       </p>
                       {#if validationDetails}
                         <details class="text-xs">
                           <summary
-                            class="cursor-pointer text-red-600 dark:text-red-400 hover:underline"
+                            class="cursor-pointer hover:underline ui-text-error"
                           >
                             Show full error details
                           </summary>
                           <pre
-                            class="mt-2 overflow-x-auto rounded bg-red-100 dark:bg-red-950 p-2 text-xs text-red-900 dark:text-red-200">{JSON.stringify(
+                            class="mt-2 overflow-x-auto rounded p-2 text-xs ui-tone-error">{JSON.stringify(
                               validationDetails,
                               null,
                               2,
@@ -996,13 +996,13 @@
                   </div>
                 {:else if validationStatus === "validating"}
                   <p
-                    class="mt-1 text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1"
+                    class="mt-1 text-xs flex items-center gap-1 ui-link"
                   >
                     <Loader2 size={12} class="animate-spin" />
                     Validating rule...
                   </p>
                 {:else}
-                  <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  <p class="mt-1 text-xs ui-muted">
                     Click fields from the sidebar to insert references, or type
                     your own expression
                   </p>
@@ -1013,7 +1013,7 @@
               <div>
                 <label
                   for="description"
-                  class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  class="mb-2 block text-sm font-medium ui-muted"
                 >
                   Description
                 </label>
@@ -1022,9 +1022,9 @@
                   bind:value={formDescription}
                   rows="3"
                   placeholder="Only allow access to users with admin email"
-                  class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:focus:border-blue-400"
+                  class="w-full rounded-lg border px-4 py-2 focus:outline-none focus:ring-2 ui-card ui-text ui-border"
                 ></textarea>
-                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                <p class="mt-1 text-xs ui-muted">
                   A human-readable description of what this rule does
                 </p>
               </div>
@@ -1033,9 +1033,9 @@
               <div>
                 <label
                   for="policy"
-                  class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  class="mb-2 block text-sm font-medium ui-muted"
                 >
-                  Policy <span class="text-red-600">*</span>
+                  Policy <span class="ui-text-error">*</span>
                 </label>
                 <input
                   id="policy"
@@ -1043,30 +1043,30 @@
                   bind:value={formPolicy}
                   required
                   placeholder="e.g., account-access"
-                  class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:focus:border-blue-400"
+                  class="w-full rounded-lg border px-4 py-2 focus:outline-none focus:ring-2 ui-card ui-text ui-border"
                 />
-                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                <p class="mt-1 text-xs ui-muted">
                   Policy this Rule supports
                 </p>
               </div>
 
               <!-- Is Active Checkbox -->
               <div
-                class="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900"
+                class="rounded-lg border p-4 ui-card ui-border"
               >
                 <label class="flex items-start">
                   <input
                     type="checkbox"
                     bind:checked={formIsActive}
-                    class="mt-0.5 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
+                    class="mt-0.5 h-4 w-4 rounded focus:ring-2 ui-link ui-panel ui-border"
                   />
                   <div class="ml-3">
                     <span
-                      class="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      class="text-sm font-medium ui-muted"
                     >
                       Rule is Active
                     </span>
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    <p class="mt-1 text-xs ui-muted">
                       When active, this rule will be evaluated for access
                       control decisions. Inactive rules are ignored but remain
                       in the system.
@@ -1082,14 +1082,14 @@
                 type="button"
                 onclick={handleCancel}
                 disabled={isSubmitting}
-                class="rounded-lg border border-gray-300 bg-white px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                class="rounded-lg border px-6 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 ui-card ui-hover ui-muted ui-border"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting}
-                class="rounded-lg bg-blue-600 px-6 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
+                class="rounded-lg px-6 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 preset-filled-primary-500"
               >
                 {#if isSubmitting}
                   <span class="flex items-center">

@@ -31,5 +31,5 @@
 	{:else if page.error?.message}
 		<p class="mt-4" data-testid="error-message">{page.error.message}</p>
 	{/if}
-	<p class="mt-6"><a class="btn preset-filled" href="/">{m.error_go_home()}</a></p>
+	<p class="mt-6"><a class="btn preset-filled-primary-500" href="/">{m.error_go_home()}</a></p>
 </div>

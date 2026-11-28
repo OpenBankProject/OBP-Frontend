@@ -21,7 +21,7 @@
 	<select class="select" name="status">{#each statuses as s (s)}<option value={s} selected={s === v('status')}>{t(locale, `status_${s}` as MessageKey)}</option>{/each}</select></label>
 <label class="label"><span class="label-text">{t(locale, 'staff_field_opens_at')}</span><input class="input" type="date" name="opens_at" value={v('opens_at')} /></label>
 <label class="label"><span class="label-text">{t(locale, 'staff_field_closes_at')}</span><input class="input" type="date" name="closes_at" value={v('closes_at')} /></label>
-<fieldset class="card preset-outlined-surface-200-800 flex flex-col gap-3 p-3" data-testid="call-eligibility">
+<fieldset class="card border ui-border flex flex-col gap-3 p-3" data-testid="call-eligibility">
 	<legend class="px-1 font-bold">{t(locale, 'eligibility_rules')}</legend>
 	<p class="text-sm">{t(locale, 'eligibility_rules_intro')}</p>
 	<label class="label"><span class="label-text">{t(locale, 'eligibility_residency')}</span>

@@ -141,21 +141,21 @@
   <div class="mb-6">
     <a
       href="/dynamic-resource-docs/system"
-      class="mb-4 inline-flex items-center text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+      class="mb-4 inline-flex items-center text-sm ui-link"
     >
       ← Back to System Dynamic Resource Docs
     </a>
-    <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
+    <h1 class="text-3xl font-bold ui-text">
       Create System Dynamic Resource Doc
     </h1>
-    <p class="mt-1 text-gray-600 dark:text-gray-400">
+    <p class="mt-1 ui-muted">
       Define a new endpoint by writing the Scala method body that handles it.
     </p>
   </div>
 
   {#if pendingRequest}
     <div
-      class="mb-6 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-900/20 dark:text-amber-100"
+      class="mb-6 rounded-lg border p-4 text-sm ui-tone-warning"
       role="status"
       data-testid="approval-pending-panel"
     >
@@ -165,7 +165,7 @@
           <p class="font-semibold">Submitted for approval. The endpoint is not live yet.</p>
           <p class="mt-1">
             OBP stored your definition as a Dynamic Change Request. A different user holding
-            <code class="rounded bg-amber-100 px-1 dark:bg-amber-900/40">{approval.approvalRole}</code>
+            <code class="rounded px-1 ui-tone-warning">{approval.approvalRole}</code>
             must approve it before it is compiled and served. The request expires
             {#if pendingRequest.expires_at}at {pendingRequest.expires_at}{:else}after {approval.requestTtlHours} hours{/if}.
           </p>
@@ -175,7 +175,7 @@
               <span data-testid="pending-change-request-id">{pendingRequest.dynamic_change_request_id}</span>
               <button
                 type="button"
-                class="inline-flex items-center rounded border border-amber-300 px-1.5 py-0.5 text-[11px] hover:bg-amber-100 dark:border-amber-700 dark:hover:bg-amber-900/40"
+                class="inline-flex items-center rounded border px-1.5 py-0.5 text-[11px] ui-tone-warning"
                 onclick={copyRequestId}
                 aria-label="Copy change request id"
               >
@@ -197,7 +197,7 @@
     </div>
   {:else if approval.known && !approval.executionEnabled}
     <div
-      class="mb-6 flex items-start gap-3 rounded-lg border border-gray-300 bg-gray-50 p-4 text-sm text-gray-800 dark:border-gray-600 dark:bg-gray-800/60 dark:text-gray-200"
+      class="mb-6 flex items-start gap-3 rounded-lg border p-4 text-sm ui-card ui-text ui-border"
       role="status"
       data-testid="dynamic-code-disabled-notice"
     >
@@ -205,12 +205,12 @@
       <div>
         <p class="font-semibold">Dynamic code execution is disabled on this instance.</p>
         <p class="mt-1">
-          Creating this Resource Doc will fail with <code class="rounded bg-gray-200 px-1 dark:bg-gray-700">OBP-50020</code>
+          Creating this Resource Doc will fail with <code class="rounded px-1 ui-panel">OBP-50020</code>
           because the OBP-API prop
-          <code class="rounded bg-gray-200 px-1 dark:bg-gray-700">allow_user_generated_scala_code</code>
-          is not <code class="rounded bg-gray-200 px-1 dark:bg-gray-700">true</code>. An operator sets it in the
+          <code class="rounded px-1 ui-panel">allow_user_generated_scala_code</code>
+          is not <code class="rounded px-1 ui-panel">true</code>. An operator sets it in the
           props file or as the environment variable
-          <code class="rounded bg-gray-200 px-1 dark:bg-gray-700">OBP_ALLOW_USER_GENERATED_SCALA_CODE</code>
+          <code class="rounded px-1 ui-panel">OBP_ALLOW_USER_GENERATED_SCALA_CODE</code>
           and restarts OBP-API; props are read once at startup.
           {#if approval.requiresApproval}Once enabled, maker/checker approval also applies here.{/if}
         </p>
@@ -221,7 +221,7 @@
     </div>
   {:else if approval.requiresApproval}
     <div
-      class="mb-6 flex items-start gap-3 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-900/20 dark:text-amber-100"
+      class="mb-6 flex items-start gap-3 rounded-lg border p-4 text-sm ui-tone-warning"
       data-testid="approval-required-notice"
     >
       <ShieldCheck size={20} class="mt-0.5 shrink-0" />
@@ -230,7 +230,7 @@
         <p class="mt-1">
           Creating this Resource Doc submits a Dynamic Change Request instead of publishing the endpoint. A
           different user holding
-          <code class="rounded bg-amber-100 px-1 dark:bg-amber-900/40">{approval.approvalRole}</code>
+          <code class="rounded px-1 ui-tone-warning">{approval.approvalRole}</code>
           reviews the exact definition and approves it; only then is the Scala compiled and served.
           {#if approval.requestTtlHours > 0}Unapproved requests expire after {approval.requestTtlHours} hours.{/if}
         </p>
@@ -240,7 +240,7 @@
       </div>
     </div>
   {:else if approval.known}
-    <p class="mb-6 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400" data-testid="approval-off-notice">
+    <p class="mb-6 flex items-center gap-2 text-sm ui-muted" data-testid="approval-off-notice">
       <ShieldCheck size={16} class="shrink-0" />
       <span>
         Dynamic code is enabled and approval is not required on this instance: the endpoint goes live as soon as it is created.
@@ -248,7 +248,7 @@
       </span>
     </p>
   {:else}
-    <p class="mb-6 text-sm text-gray-500 dark:text-gray-400" data-testid="approval-unknown-notice">
+    <p class="mb-6 text-sm ui-muted" data-testid="approval-unknown-notice">
       Could not read the approval setting from OBP, so this page cannot say whether the endpoint will go live
       immediately or wait for approval.
       <a class="underline hover:no-underline" href="/dynamic-resource-docs/help#approval">About maker/checker</a>
@@ -257,7 +257,7 @@
 
   <ResizableSplit breakpoint="lg">
     {#snippet main()}
-    <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+    <div class="rounded-lg border p-6 shadow-sm ui-card ui-border">
       <DynamicResourceDocForm
         onSubmit={handleSubmit}
         submitLabel={approval.requiresApproval ? "Submit for Approval" : "Create Resource Doc"}
@@ -266,7 +266,7 @@
         {#snippet cancel()}
           <a
             href="/dynamic-resource-docs/system"
-            class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+            class="rounded-lg border px-4 py-2 text-sm font-medium ui-card ui-hover ui-muted ui-border"
           >
             Cancel
           </a>
@@ -278,7 +278,7 @@
     {#snippet side()}
     <!-- Opey pane: OpeyChat requires a definite height all the way down -->
       <div
-        class="h-[36rem] w-full overflow-hidden rounded-lg border border-gray-200 shadow-sm lg:h-[calc(100vh-80px-3rem)] dark:border-gray-700"
+        class="h-[36rem] w-full overflow-hidden rounded-lg border shadow-sm lg:h-[calc(100vh-80px-3rem)] ui-border"
       >
         <OpeyChat
           bind:this={opeyChat}

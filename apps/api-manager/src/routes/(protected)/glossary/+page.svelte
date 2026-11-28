@@ -55,15 +55,15 @@
 <div class="container mx-auto px-4 py-8">
   <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
     <div>
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Glossary</h1>
-      <p class="mt-1 max-w-3xl text-gray-600 dark:text-gray-400">
+      <h1 class="text-3xl font-bold ui-text">Glossary</h1>
+      <p class="mt-1 max-w-3xl ui-muted">
         The Glossary as consumers see it: the terms compiled into the API unioned with the
-        <a href="/glossary-items" class="text-blue-600 hover:underline dark:text-blue-400">Dynamic Glossary Items</a>
+        <a href="/glossary-items" class="hover:underline ui-link">Dynamic Glossary Items</a>
         maintained here. Each entry reports where it came from.
       </p>
     </div>
     <div class="flex items-center gap-2">
-      <a href="{data.explorerUrl}/glossary" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
+      <a href="{data.explorerUrl}/glossary" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 rounded-lg border px-3 py-2 text-sm font-medium ui-card ui-hover ui-muted ui-border">
         API Explorer <ExternalLink size={12} />
       </a>
     </div>
@@ -74,32 +74,32 @@
   </div>
 
   {#if data.loadError}
-    <div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300" data-testid="load-error">{data.loadError}</div>
+    <div class="mb-6 rounded-lg border p-4 text-sm ui-tone-error" data-testid="load-error">{data.loadError}</div>
   {/if}
 
   {#if data.duplicateTitles.length > 0}
-    <div class="mb-6 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-900/20 dark:text-amber-100" data-testid="duplicate-titles">
+    <div class="mb-6 rounded-lg border p-4 text-sm ui-tone-warning" data-testid="duplicate-titles">
       OBP serves {data.duplicateTitles.length} title{data.duplicateTitles.length === 1 ? "" : "s"} more than once, so only the first copy of each is listed here:
       <span class="font-mono">{data.duplicateTitles.join(", ")}</span>. Two static Glossary Items declared in different places can collide like this.
     </div>
   {/if}
 
   <div class="mb-4 grid gap-3 sm:grid-cols-4" data-testid="glossary-counts">
-    <div class="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-      <div class="text-2xl font-semibold text-gray-900 dark:text-gray-100">{data.counts.total}</div>
-      <div class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Entries</div>
+    <div class="rounded-lg border p-4 ui-card ui-border">
+      <div class="text-2xl font-semibold ui-text">{data.counts.total}</div>
+      <div class="text-xs uppercase tracking-wide ui-muted">Entries</div>
     </div>
-    <div class="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-      <div class="text-2xl font-semibold text-gray-900 dark:text-gray-100">{data.counts.static}</div>
-      <div class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Static</div>
+    <div class="rounded-lg border p-4 ui-card ui-border">
+      <div class="text-2xl font-semibold ui-text">{data.counts.static}</div>
+      <div class="text-xs uppercase tracking-wide ui-muted">Static</div>
     </div>
-    <div class="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-      <div class="text-2xl font-semibold text-gray-900 dark:text-gray-100">{data.counts.dynamic}</div>
-      <div class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Dynamic</div>
+    <div class="rounded-lg border p-4 ui-card ui-border">
+      <div class="text-2xl font-semibold ui-text">{data.counts.dynamic}</div>
+      <div class="text-xs uppercase tracking-wide ui-muted">Dynamic</div>
     </div>
-    <div class="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-      <div class="text-2xl font-semibold text-gray-900 dark:text-gray-100">{data.counts.overriding}</div>
-      <div class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Overriding a static item</div>
+    <div class="rounded-lg border p-4 ui-card ui-border">
+      <div class="text-2xl font-semibold ui-text">{data.counts.overriding}</div>
+      <div class="text-xs uppercase tracking-wide ui-muted">Overriding a static item</div>
     </div>
   </div>
 
@@ -107,20 +107,20 @@
     <form method="GET" action="/glossary" class="flex flex-wrap items-end gap-3" data-testid="search-form">
       <input type="hidden" name="source" value={data.source} />
       <div>
-        <label for="glossary-search" class="block text-xs font-medium text-gray-600 dark:text-gray-400">Search titles and descriptions</label>
+        <label for="glossary-search" class="block text-xs font-medium ui-muted">Search titles and descriptions</label>
         <input
           id="glossary-search"
           name="q"
           type="search"
           value={data.query}
           placeholder="e.g. consent, view, counterparty"
-          class="mt-1 w-80 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+          class="mt-1 w-80 rounded-lg border px-3 py-2 text-sm focus:ring-2 ui-card ui-text ui-border"
           data-testid="search-input"
         />
       </div>
-      <button type="submit" class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">Search</button>
+      <button type="submit" class="rounded-lg border px-3 py-2 text-sm font-medium ui-card ui-hover ui-muted ui-border">Search</button>
       {#if data.query}
-        <a href={clearSearchHref()} class="text-sm text-blue-600 hover:underline dark:text-blue-400" data-testid="clear-search">Clear</a>
+        <a href={clearSearchHref()} class="text-sm hover:underline ui-link" data-testid="clear-search">Clear</a>
       {/if}
     </form>
 
@@ -130,8 +130,8 @@
           href={sourceHref(s.key)}
           aria-current={data.source === s.key ? "page" : undefined}
           class="rounded-full border px-3 py-1 text-xs font-medium {data.source === s.key
-            ? 'border-blue-600 bg-blue-600 text-white dark:border-blue-500 dark:bg-blue-500'
-            : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'}"
+            ? 'preset-filled-primary-500'
+            : 'ui-card ui-hover ui-muted ui-border'}"
           data-testid="source-{s.key}"
         >
           {s.label} ({countFor(s.key)})
@@ -140,15 +140,15 @@
     </nav>
   </div>
 
-  <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+  <div class="overflow-hidden rounded-lg border shadow-sm ui-card ui-border">
     {#if data.rows.length === 0 && !data.loadError}
-      <div class="p-8 text-center text-sm text-gray-500 dark:text-gray-400" data-testid="empty">
+      <div class="p-8 text-center text-sm ui-muted" data-testid="empty">
         {#if data.query}
           Nothing in the Glossary matches "{data.query}".
-          <a href={clearSearchHref()} class="text-blue-600 hover:underline dark:text-blue-400">Clear the search</a>.
+          <a href={clearSearchHref()} class="hover:underline ui-link">Clear the search</a>.
         {:else if data.source === "dynamic"}
           No Dynamic Glossary Items yet — every entry is compiled into the API.
-          <a href="/glossary-items/create" class="text-blue-600 hover:underline dark:text-blue-400">Add one</a>.
+          <a href="/glossary-items/create" class="hover:underline ui-link">Add one</a>.
         {:else if data.source === "overriding"}
           No Dynamic Glossary Item is overriding a static one.
         {:else}
@@ -158,42 +158,42 @@
     {:else}
       <div class="overflow-x-auto">
         <table class="w-full text-sm" data-testid="glossary-table">
-          <thead class="bg-gray-50 dark:bg-gray-900">
+          <thead class="ui-card">
             <tr>
-              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Term</th>
-              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Description</th>
-              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Source</th>
-              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Actions</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Term</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Description</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Source</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Actions</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+          <tbody class="divide-y ui-border">
             {#each data.rows as row (row.title)}
               <tr data-testid="row-{row.title}">
                 <td class="px-4 py-3 align-top">
-                  <a href="/glossary/{encodeURIComponent(row.title)}" class="font-medium text-blue-600 hover:underline dark:text-blue-400">{row.title}</a>
+                  <a href="/glossary/{encodeURIComponent(row.title)}" class="font-medium hover:underline ui-link">{row.title}</a>
                 </td>
-                <td class="px-4 py-3 align-top text-gray-700 dark:text-gray-300">
+                <td class="px-4 py-3 align-top ui-muted">
                   {#if row.excerpt}
                     {row.excerpt}
                   {:else}
-                    <span class="text-xs italic text-gray-400 dark:text-gray-500">No description text — the entry is an image or is empty.</span>
+                    <span class="text-xs italic ui-muted">No description text — the entry is an image or is empty.</span>
                   {/if}
                 </td>
                 <td class="px-4 py-3 align-top">
                   {#if row.is_dynamic}
-                    <span class="inline-block rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/40 dark:text-blue-200" data-testid="dynamic-{row.title}">Dynamic</span>
+                    <span class="inline-block rounded-full px-2 py-0.5 text-xs font-medium ui-tone-info" data-testid="dynamic-{row.title}">Dynamic</span>
                     {#if row.overrides_static_item}
-                      <span class="mt-1 inline-block rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900/40 dark:text-amber-200" data-testid="overriding-{row.title}">Overrides static</span>
+                      <span class="mt-1 inline-block rounded-full px-2 py-0.5 text-xs font-medium ui-tone-warning" data-testid="overriding-{row.title}">Overrides static</span>
                     {/if}
                   {:else}
-                    <span class="text-xs text-gray-500 dark:text-gray-400">Static</span>
+                    <span class="text-xs ui-muted">Static</span>
                   {/if}
                 </td>
                 <td class="px-4 py-3 align-top">
                   {#if row.is_dynamic}
-                    <a href="/glossary-items/{encodeURIComponent(row.title)}" class="text-xs text-blue-600 hover:underline dark:text-blue-400" data-testid="edit-{row.title}">Edit</a>
+                    <a href="/glossary-items/{encodeURIComponent(row.title)}" class="text-xs hover:underline ui-link" data-testid="edit-{row.title}">Edit</a>
                   {:else}
-                    <a href="/glossary-items/create?title={encodeURIComponent(row.title)}" class="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline dark:text-blue-400" data-testid="override-{row.title}"><Plus size={12} /> Override</a>
+                    <a href="/glossary-items/create?title={encodeURIComponent(row.title)}" class="inline-flex items-center gap-1 text-xs hover:underline ui-link" data-testid="override-{row.title}"><Plus size={12} /> Override</a>
                   {/if}
                 </td>
               </tr>
@@ -201,11 +201,11 @@
           </tbody>
         </table>
       </div>
-      <div class="flex flex-wrap items-center justify-between gap-3 border-t border-gray-200 px-4 py-2 text-xs text-gray-500 dark:border-gray-700 dark:text-gray-400">
+      <div class="flex flex-wrap items-center justify-between gap-3 border-t px-4 py-2 text-xs ui-muted ui-border">
         <span data-testid="row-count">
           {data.rows.length} of {data.counts.total} entr{data.counts.total === 1 ? "y" : "ies"}{data.query ? ` matching "${data.query}"` : ""}
         </span>
-        <a href="/glossary-items" class="inline-flex items-center gap-1 text-blue-600 hover:underline dark:text-blue-400"><BookOpen size={12} /> Manage Dynamic Glossary Items</a>
+        <a href="/glossary-items" class="inline-flex items-center gap-1 hover:underline ui-link"><BookOpen size={12} /> Manage Dynamic Glossary Items</a>
       </div>
     {/if}
   </div>

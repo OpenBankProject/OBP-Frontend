@@ -57,9 +57,9 @@
   }
 
   function deltaClass(delta: ActivityDelta): string {
-    if (delta.direction === "up") return "text-green-700 dark:text-green-400";
-    if (delta.direction === "down") return "text-red-700 dark:text-red-400";
-    return "text-gray-600 dark:text-gray-400";
+    if (delta.direction === "up") return "ui-text-success";
+    if (delta.direction === "down") return "ui-text-error";
+    return "ui-muted";
   }
 
   const asOfLabel = $derived(
@@ -117,11 +117,11 @@
     <span class={deltaClass(row.delta)} data-testid={testId}>
       {deltaSymbol(row.delta)} {formatDeltaPct(row.delta)}
     </span>
-    <span class="text-gray-600 dark:text-gray-400">
+    <span class="ui-muted">
       {row.compareLabel}{#if row.reference !== null} ({formatCount(row.reference)}){/if}
     </span>
   {:else}
-    <span class="text-gray-600 dark:text-gray-400" data-testid={testId}>no comparison data</span>
+    <span class="ui-muted" data-testid={testId}>no comparison data</span>
   {/if}
 {/snippet}
 
@@ -133,36 +133,36 @@
       <ErrorMessage message={tile.message} />
     {/if}
   {:else if tile.status === "unavailable"}
-    <p class="text-sm text-gray-600 dark:text-gray-400">{tile.message}</p>
+    <p class="text-sm ui-muted">{tile.message}</p>
   {/if}
 {/snippet}
 
 {#snippet statCard(title: string, testId: string, href: string, hrefLabel: string, tile: DashboardTile, note: string | null, hrefForRow: ((key: string) => string) | null)}
   <div
-    class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+    class="rounded-lg border p-6 shadow-sm ui-card ui-border"
     data-testid={testId}
     data-state={tileState(tile)}
   >
     <div class="mb-1 flex items-baseline justify-between gap-2">
-      <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-100">{title}</h2>
-      <a href={href} class="text-xs text-blue-600 hover:underline dark:text-blue-400">{hrefLabel}</a>
+      <h2 class="text-sm font-semibold ui-text">{title}</h2>
+      <a href={href} class="text-xs hover:underline ui-link">{hrefLabel}</a>
     </div>
     {#if note}
-      <p class="mb-2 text-xs text-gray-600 dark:text-gray-400">{note}</p>
+      <p class="mb-2 text-xs ui-muted">{note}</p>
     {/if}
     {#if tile.status === "ok"}
-      <div class="divide-y divide-gray-100 dark:divide-gray-700">
+      <div class="divide-y ui-border">
         {#each tile.rows as row (row.key)}
           <div class="flex items-baseline gap-3 py-2" data-testid="{testId}-{row.key}">
             <div class="w-24 shrink-0 text-xs">
               {#if hrefForRow}
                 <a
                   href={hrefForRow(row.key)}
-                  class="text-blue-600 hover:underline dark:text-blue-400"
+                  class="hover:underline ui-link"
                   data-testid="{testId}-{row.key}-link">{row.label}</a
                 >
               {:else}
-                <span class="text-gray-600 dark:text-gray-400">{row.label}</span>
+                <span class="ui-muted">{row.label}</span>
               {/if}
             </div>
             <div class="text-xl font-semibold" data-testid="{testId}-{row.key}-value">
@@ -175,7 +175,7 @@
         {/each}
       </div>
       {#if tile.truncated}
-        <p class="mt-2 text-xs text-gray-600 dark:text-gray-400">
+        <p class="mt-2 text-xs ui-muted">
           Paging stopped at the safety cap, so these counts are lower bounds.
         </p>
       {/if}
@@ -188,8 +188,8 @@
 <div class="container mx-auto max-w-7xl px-4 py-8">
   <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
     <div>
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Activity Summary Dashboard</h1>
-      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400" data-testid="dashboard-as-of">
+      <h1 class="text-2xl font-bold ui-text">Activity Summary Dashboard</h1>
+      <p class="mt-1 text-sm ui-muted" data-testid="dashboard-as-of">
         As of {asOfLabel} — figures lag 10 minutes so cached snapshots stay exact.
         Hour and day windows compare to the same window last week; longer windows to the previous period.
       </p>
@@ -199,7 +199,7 @@
       onclick={refresh}
       disabled={refreshing}
       data-testid="dashboard-refresh"
-      class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+      class="rounded-md border px-3 py-1.5 text-sm font-medium shadow-sm disabled:opacity-50 ui-card ui-hover ui-muted ui-border"
     >
       {refreshing ? "Refreshing…" : "Refresh"}
     </button>
@@ -219,27 +219,27 @@
     {@render statCard("Active consumers", "dashboard-active-consumers", "/consumers", "Consumers", data.tiles.activeConsumers, null, (key) => `/system-activity-dashboard/active-consumers?${windowQuery(key)}`)}
 
     <div
-      class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+      class="rounded-lg border p-6 shadow-sm ui-card ui-border"
       data-testid="dashboard-consent-traffic"
       data-state={tileState(data.tiles.consentTraffic)}
     >
       <div class="mb-1 flex items-baseline justify-between gap-2">
-        <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-100">Consent / agent traffic</h2>
-        <a href="/metrics" class="text-xs text-blue-600 hover:underline dark:text-blue-400">API Metrics</a>
+        <h2 class="text-sm font-semibold ui-text">Consent / agent traffic</h2>
+        <a href="/metrics" class="text-xs hover:underline ui-link">API Metrics</a>
       </div>
-      <p class="mb-2 text-xs text-gray-600 dark:text-gray-400">
+      <p class="mb-2 text-xs ui-muted">
         Calls made under a Consent, and how many distinct Consents were exercised.
       </p>
       {#if data.tiles.consentTraffic.status === "ok"}
-        <div class="divide-y divide-gray-100 dark:divide-gray-700">
+        <div class="divide-y ui-border">
           {#each data.tiles.consentTraffic.rows as row (row.key)}
             <div class="py-2" data-testid="dashboard-consent-traffic-{row.key}">
               <div class="flex items-baseline gap-3">
-                <div class="w-24 shrink-0 text-xs text-gray-600 dark:text-gray-400">{row.label}</div>
+                <div class="w-24 shrink-0 text-xs ui-muted">{row.label}</div>
                 <div class="text-xl font-semibold" data-testid="dashboard-consent-traffic-{row.key}-value">
                   {formatCount(row.value)}
                 </div>
-                <div class="text-xs text-gray-600 dark:text-gray-400">
+                <div class="text-xs ui-muted">
                   {#if row.shareOfTotalPct !== null}
                     {row.shareOfTotalPct >= 10
                       ? Math.round(row.shareOfTotalPct)

@@ -40,13 +40,13 @@
 	style="height: 80px; flex-shrink: 0;"
 >
 	{#if isAuthenticated}
-		<span class="mx-4 hover:text-tertiary-400"><a href={profileUrl}>{username}</a></span>
-		<button type="button" class="btn preset-outlined-primary-500"
+		<span class="mx-4 ui-link"><a href={profileUrl}>{username}</a></span>
+		<button type="button" class="btn preset-outlined-surface-500"
 			><a href={logoutUrl}>Logout</a></button
 		>
 	{:else}
-		<span class="mx-4 hover:text-tertiary-400"><a href={registerUrl}>Register</a> </span>
-		<button type="button" class="btn preset-filled-surface-950-50"
+		<span class="mx-4 ui-link"><a href={registerUrl}>Register</a> </span>
+		<button type="button" class="btn preset-filled-primary-500"
 			><a href={loginUrl}>Login</a></button
 		>
 	{/if}

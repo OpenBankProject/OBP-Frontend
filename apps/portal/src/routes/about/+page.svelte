@@ -72,7 +72,7 @@ The Open Bank Project is an open source API and App store for banks that empower
 			</div>
 		{:else}
 			<div class="flex items-center justify-center py-8">
-				<p class="text-surface-600-400">Loading...</p>
+				<p class="ui-muted">Loading...</p>
 			</div>
 		{/if}
 
@@ -82,7 +82,7 @@ The Open Bank Project is an open source API and App store for banks that empower
 			<li>
 				<a
 					href="/status"
-					class="text-primary-600 dark:text-primary-400 underline hover:text-primary-800 dark:hover:text-primary-300"
+					class="underline ui-text-brand"
 					data-testid="link-status"
 				>
 					Status
@@ -92,7 +92,7 @@ The Open Bank Project is an open source API and App store for banks that empower
 			<li>
 				<a
 					href="/api-explorer"
-					class="text-primary-600 dark:text-primary-400 underline hover:text-primary-800 dark:hover:text-primary-300"
+					class="underline ui-text-brand"
 					data-testid="link-api-explorer"
 				>
 					API Explorer III
@@ -104,7 +104,7 @@ The Open Bank Project is an open source API and App store for banks that empower
 					href="https://www.openbankproject.com"
 					target="_blank"
 					rel="noopener noreferrer"
-					class="text-primary-600 dark:text-primary-400 underline hover:text-primary-800 dark:hover:text-primary-300"
+					class="underline ui-text-brand"
 					data-testid="link-website"
 				>
 					Official Website
@@ -115,7 +115,7 @@ The Open Bank Project is an open source API and App store for banks that empower
 					href="https://github.com/OpenBankProject"
 					target="_blank"
 					rel="noopener noreferrer"
-					class="text-primary-600 dark:text-primary-400 underline hover:text-primary-800 dark:hover:text-primary-300"
+					class="underline ui-text-brand"
 					data-testid="link-github"
 				>
 					GitHub Organization
@@ -126,7 +126,7 @@ The Open Bank Project is an open source API and App store for banks that empower
 					href={env.PUBLIC_OBP_CHAT_URL || 'https://chat.openbankproject.com'}
 					target="_blank"
 					rel="noopener noreferrer"
-					class="text-primary-600 dark:text-primary-400 underline hover:text-primary-800 dark:hover:text-primary-300"
+					class="underline ui-text-brand"
 					data-testid="link-chat"
 				>
 					Open Bank Project Chat
@@ -139,34 +139,34 @@ The Open Bank Project is an open source API and App store for banks that empower
 			This project is licensed under the GNU Affero General Public License v3.0 (AGPL-3.0).
 		</p>
 
-		<p class="mt-8 border-t border-surface-200-800 pt-6 text-sm text-surface-600-400">
+		<p class="mt-8 border-t pt-6 text-sm ui-muted ui-border">
 			© TESOBE 2011-{Math.max(new Date().getFullYear(), 2026)}. All rights reserved.
 		</p>
 
 		<!-- Version Information Footer -->
-		<div class="mt-12 border-t border-surface-200-800 pt-8">
-			<div class="text-sm text-surface-600-400">
+		<div class="mt-12 border-t pt-8 ui-border">
+			<div class="text-sm ui-muted">
 				<span class="font-medium">Version:</span>
-				<span class="font-mono text-surface-900-100">{__APP_VERSION__}</span>
+				<span class="font-mono ui-text">{__APP_VERSION__}</span>
 				{#if __GIT_COMMIT__ !== 'unknown'}
 					<span class="mx-2">•</span>
 					<span class="font-medium">Commit:</span>
-					<span class="font-mono text-surface-900-100">{__GIT_COMMIT__}</span>
+					<span class="font-mono ui-text">{__GIT_COMMIT__}</span>
 				{/if}
 				{#if __GIT_BRANCH__ !== 'unknown'}
 					<span class="mx-2">•</span>
 					<span class="font-medium">Branch:</span>
-					<span class="font-mono text-surface-900-100">{__GIT_BRANCH__}</span>
+					<span class="font-mono ui-text">{__GIT_BRANCH__}</span>
 				{/if}
 				<span class="mx-2">•</span>
 				<span class="font-medium">Built:</span>
-				<span class="font-mono text-surface-900-100">{formatBuildTime(__BUILD_TIME__)}</span>
+				<span class="font-mono ui-text">{formatBuildTime(__BUILD_TIME__)}</span>
 				<span class="mx-2">•</span>
 				<a
 					href="https://github.com/OpenBankProject"
 					target="_blank"
 					rel="noopener noreferrer"
-					class="text-primary-500 hover:text-primary-400 hover:underline"
+					class="hover:underline ui-text-brand"
 				>
 					GitHub
 				</a>

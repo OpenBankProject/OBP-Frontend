@@ -248,7 +248,7 @@
 </script>
 
 <div
-	class="grid h-screen w-full grid-cols-[auto_1fr] divide-x divide-solid divide-surface-100-900 overflow-hidden"
+	class="grid h-screen w-full grid-cols-[auto_1fr] divide-x divide-solid overflow-hidden ui-border"
 >
 	<NavigationSidebar
 		{menuItems}
@@ -270,7 +270,7 @@
 		collapsedLogoUrl={env.PUBLIC_MINIMAL_LOGO_URL || env.PUBLIC_DARK_LOGO_URL}
 	/>
 	<div
-		class="h-full bg-conic-250 from-30% via-40% to-50% dark:from-primary-950 dark:via-secondary-500/70 dark:to-primary-950"
+		class="h-full ui-glow"
 	>
 		<div class="flex flex-col backdrop-blur-2xl" style="height: calc(100vh - 48px);">
 			<PageHeader {isAuthenticated} username={data.username} />

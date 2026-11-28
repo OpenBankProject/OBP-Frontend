@@ -115,7 +115,7 @@
 			</label>
 		</div>
 		<label class="label"><span>Description</span><textarea class="textarea" name="description" rows="3" maxlength="4000">{values.description ?? ''}</textarea></label>
-		<fieldset class="grid gap-2 rounded border border-surface-500/30 p-3">
+		<fieldset class="grid gap-2 rounded border ui-border/30 p-3">
 			<legend class="px-1 font-semibold">Where its endpoints come from</legend>
 			<p class="text-sm">The endpoints are offered when writing a test, and their schemas check the answers. The source can also be the reference the suite is run against before participants use it.</p>
 			<label class="flex items-start gap-2"><input class="radio mt-1" type="radio" name="source" value="obp_version" bind:group={source} />
@@ -157,7 +157,7 @@
 			{/if}
 			<label class="flex items-start gap-2"><input class="radio mt-1" type="radio" name="source" value="" bind:group={source} /><span>None: the steps are written by hand.</span></label>
 		</fieldset>
-		<div><button class="btn preset-filled" data-testid="suite-create">Create the suite</button></div>
+		<div><button class="btn preset-filled-primary-500" data-testid="suite-create">Create the suite</button></div>
 	</form>
 {:else}
 	<div class="mt-2"><MissingRoleAlert roles={[data.createRole]} bankId={data.space || undefined} /></div>

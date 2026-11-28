@@ -39,14 +39,14 @@
 </script>
 
 {#if endpoints.length > 0}
-  <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500 dark:text-gray-400" data-testid={testid}>
+  <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs ui-muted" data-testid={testid}>
     <span class="font-medium uppercase tracking-wide">{label}</span>
     {#each endpoints as e (e.operation_id)}
       <a
         href={e.url}
         target="_blank"
         rel="noopener noreferrer"
-        class="inline-flex items-center gap-1 rounded border border-gray-200 px-2 py-0.5 font-mono text-blue-700 hover:bg-blue-50 dark:border-gray-700 dark:text-blue-300 dark:hover:bg-gray-700"
+        class="inline-flex items-center gap-1 rounded border px-2 py-0.5 font-mono ui-link ui-hover ui-border"
         data-testid="endpoint-{e.operation_id}"
       >
         <span class="font-semibold">{e.verb}</span>

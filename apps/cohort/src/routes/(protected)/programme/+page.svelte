@@ -11,17 +11,17 @@
 <h1 class="h2">{t(locale, 'programme_heading')}</h1>
 {#if data.announcements.length}<div class="mt-6"><AnnouncementList {locale} announcements={data.announcements} testid="programme-announcements" /></div>{/if}
 
-{#if form?.teamChosen}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'team_chosen')}</p>{/if}
-{#if form?.memberAdded}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'team_member_added')}</p>{/if}
-{#if form?.memberChanged}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'team_member_changed')}</p>{/if}
+{#if form?.teamChosen}<p class="mt-4 ui-tone-success rounded p-3" role="status">{t(locale, 'team_chosen')}</p>{/if}
+{#if form?.memberAdded}<p class="mt-4 ui-tone-success rounded p-3" role="status">{t(locale, 'team_member_added')}</p>{/if}
+{#if form?.memberChanged}<p class="mt-4 ui-tone-success rounded p-3" role="status">{t(locale, 'team_member_changed')}</p>{/if}
 {#if form?.memberRemoved}<p class="mt-4" role="status">{t(locale, 'team_member_removed')}</p>{/if}
 {#if form?.left}<p class="mt-4" role="status">{t(locale, 'team_left')}</p>{/if}
-{#if form?.registered}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'programme_company_registered')}</p>{/if}
-{#if form?.reported}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'programme_reported')}</p>{/if}
-{#if form?.booked}<p class="mt-4 preset-tonal-success rounded p-3" role="status">{t(locale, 'programme_booked')}</p>{/if}
+{#if form?.registered}<p class="mt-4 ui-tone-success rounded p-3" role="status">{t(locale, 'programme_company_registered')}</p>{/if}
+{#if form?.reported}<p class="mt-4 ui-tone-success rounded p-3" role="status">{t(locale, 'programme_reported')}</p>{/if}
+{#if form?.booked}<p class="mt-4 ui-tone-success rounded p-3" role="status">{t(locale, 'programme_booked')}</p>{/if}
 {#if form?.cancelled}<p class="mt-4" role="status">{t(locale, 'programme_cancelled')}</p>{/if}
 {#if form?.error}
-	<p class="mt-4 preset-tonal-error rounded p-3" role="alert">
+	<p class="mt-4 ui-tone-error rounded p-3" role="alert">
 		{['company_missing', 'team_missing', 'member_missing', 'not_yours', 'file_type', 'file_size', 'report_empty', 'session_closed', 'session_full'].includes(String(form.error))
 			? t(locale, `programme_error_${form.error}` as MessageKey)
 			: `${t(locale, 'staff_error')} ${String(form.error)}`}
@@ -33,7 +33,7 @@
 {/if}
 
 {#each data.programmes as p (p.id)}
-	<section class="card preset-outlined-surface-200-800 mt-6 p-4" data-testid="programme-{p.id}">
+	<section class="card border ui-border mt-6 p-4" data-testid="programme-{p.id}">
 		<h2 class="h3">{p.programme_name || p.programme_id}</h2>
 		<dl class="mt-3 grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1">
 			<dt>{t(locale, 'programme_startup')}</dt><dd>{p.startup_name}</dd>
@@ -54,7 +54,7 @@
 		<h3 class="h4 mt-6">{t(locale, 'programme_getting_started')}</h3>
 		<ol class="mt-2 flex flex-col gap-3">
 			<li class="flex gap-2" data-testid="programme-team-{p.id}">
-				{#if p.team}<CircleCheck class="size-5 shrink-0 text-success-600-400" aria-hidden="true" />{:else}<Circle class="size-5 shrink-0" aria-hidden="true" />{/if}
+				{#if p.team}<CircleCheck class="size-5 shrink-0 ui-text-success" aria-hidden="true" />{:else}<Circle class="size-5 shrink-0" aria-hidden="true" />{/if}
 				<div class="flex-1">
 					<strong>{t(locale, 'team_heading')}{#if p.team?.name}: {p.team.name}{/if}</strong>
 					{#if p.team}
@@ -128,7 +128,7 @@
 				</div>
 			</li>
 			<li class="flex gap-2">
-				{#if p.customer_id}<CircleCheck class="size-5 shrink-0 text-success-600-400" aria-hidden="true" />{:else}<Circle class="size-5 shrink-0" aria-hidden="true" />{/if}
+				{#if p.customer_id}<CircleCheck class="size-5 shrink-0 ui-text-success" aria-hidden="true" />{:else}<Circle class="size-5 shrink-0" aria-hidden="true" />{/if}
 				<div class="flex-1">
 					<strong>{t(locale, 'programme_step_company')}</strong>
 					{#if p.customer_id}
@@ -167,7 +167,7 @@
 		{#if p.sessions.length === 0}<p class="mt-2 text-sm">{t(locale, 'programme_sessions_none')}</p>{/if}
 		<ul class="mt-2 flex flex-col gap-2" data-testid="programme-sessions">
 			{#each p.sessions as s (s.id)}
-				<li class="card preset-outlined-surface-200-800 p-3" data-testid="programme-session-{s.id}">
+				<li class="card border ui-border p-3" data-testid="programme-session-{s.id}">
 					<div class="flex flex-wrap items-baseline gap-x-2">
 						<strong>{s.title}</strong>
 						<span class="text-sm">{t(locale, `session_kind_${s.kind}` as MessageKey)} · {s.starts_at.replace('T', ' ')} · {s.duration_minutes} {t(locale, 'sessions_minutes')}</span>
@@ -176,12 +176,12 @@
 					{#if s.upcoming}
 						{#if s.booking_id}
 							<form method="POST" action="?/cancel" class="mt-2 flex items-center gap-2">
-								<span class="badge preset-tonal-success">{t(locale, 'programme_session_booked')}</span>
+								<span class="badge ui-tone-success">{t(locale, 'programme_session_booked')}</span>
 								<input type="hidden" name="booking_id" value={s.booking_id} />
 								<button class="btn btn-sm preset-tonal" data-testid="programme-cancel-{s.id}">{t(locale, 'programme_session_cancel')}</button>
 							</form>
 						{:else if s.booked}
-							<p class="mt-2"><span class="badge preset-tonal-success">{t(locale, 'programme_session_booked_by_team')}</span></p>
+							<p class="mt-2"><span class="badge ui-tone-success">{t(locale, 'programme_session_booked_by_team')}</span></p>
 						{:else if s.seats_left > 0}
 							<form method="POST" action="?/book" class="mt-2 flex items-center gap-2">
 								<input type="hidden" name="participant_id" value={p.id} />
@@ -205,7 +205,7 @@
 				{#each p.surveys as s (s.id)}
 					<li class="flex flex-wrap items-center gap-2">
 						<a class="anchor" href="/programme/surveys/{s.id}?participant={p.id}">{s.title}</a>
-						{#if s.submitted_at}<span class="badge preset-tonal-success">{t(locale, 'programme_survey_answered')}</span>{:else}<span class="badge preset-tonal-warning">{t(locale, 'programme_survey_to_answer')}</span>{/if}
+						{#if s.submitted_at}<span class="badge ui-tone-success">{t(locale, 'programme_survey_answered')}</span>{:else}<span class="badge ui-tone-warning">{t(locale, 'programme_survey_to_answer')}</span>{/if}
 					</li>
 				{/each}
 			</ul>
@@ -215,14 +215,14 @@
 		{#if p.milestones.length === 0}<p class="mt-2 text-sm">{t(locale, 'programme_milestones_none')}</p>{/if}
 		<ol class="mt-2 flex flex-col gap-3" data-testid="programme-milestones">
 			{#each p.milestones as m (m.id)}
-				<li class="card preset-outlined-surface-200-800 p-3" data-testid="programme-milestone-{m.id}">
+				<li class="card border ui-border p-3" data-testid="programme-milestone-{m.id}">
 					<div class="flex flex-wrap items-baseline gap-x-2">
 						<strong>{m.title}</strong>
-						<span class="badge {m.status === 'accepted' ? 'preset-tonal-success' : m.behind ? 'preset-tonal-error' : 'preset-tonal'}">{t(locale, `milestone_status_${m.status}` as MessageKey)}{#if m.behind}{' '}· {t(locale, 'milestones_behind_one')}{/if}</span>
+						<span class="badge {m.status === 'accepted' ? 'ui-tone-success' : m.behind ? 'ui-tone-error' : 'preset-tonal'}">{t(locale, `milestone_status_${m.status}` as MessageKey)}{#if m.behind}{' '}· {t(locale, 'milestones_behind_one')}{/if}</span>
 						{#if m.due_on}<span class="text-sm">{t(locale, 'milestones_due')} {m.due_on}</span>{/if}
 					</div>
 					{#if m.description}<p class="mt-1 text-sm">{m.description}</p>{/if}
-					{#if m.message}<p class="mt-2 preset-tonal-warning rounded p-2 text-sm">{m.message}</p>{/if}
+					{#if m.message}<p class="mt-2 ui-tone-warning rounded p-2 text-sm">{m.message}</p>{/if}
 					{#if m.status !== 'accepted'}
 						<details class="mt-2">
 							<summary class="btn btn-sm preset-tonal cursor-pointer">{t(locale, m.status === 'not_started' ? 'programme_report' : 'programme_report_again')}</summary>

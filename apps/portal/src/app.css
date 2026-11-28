@@ -28,6 +28,7 @@
 /* Make sure to resolve the relative path. */
 /* Note the .css extension is optional. */
 @import '../../../packages/shared/obp-theme.css';
+@import '../../../packages/shared/styles.css';
 @import '../../../packages/shared/section-accents.css';
 
 /* for dark mode toggling */

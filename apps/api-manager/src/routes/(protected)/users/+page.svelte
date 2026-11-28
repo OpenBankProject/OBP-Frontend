@@ -442,12 +442,12 @@
                       {#if user.user_id}
                         <a
                           href="/users/{encodeURIComponent(user.user_id)}"
-                          class="text-blue-600 hover:text-blue-800 underline"
+                          class="underline ui-link"
                         >
                           Details
                         </a>
                       {:else}
-                        <span class="text-gray-400">N/A</span>
+                        <span class="ui-muted">N/A</span>
                       {/if}
                     </td>
                   </tr>
@@ -467,7 +467,7 @@
       {:else if lastSearchCall && !isSearching}
         <div class="mt-6">
           <div class="search-results-header mb-3">
-            <span class="text-gray-500">
+            <span class="ui-muted">
               No users found{lastSearchedQuery ? ` matching "${lastSearchedQuery}"` : ""}
             </span>
             {@render technicalDetails()}
@@ -485,43 +485,27 @@
   }
 
   .panel {
-    background: white;
+    background: var(--ui-card);
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     overflow: hidden;
   }
 
-  :global([data-mode="dark"]) .panel {
-    background: rgb(var(--color-surface-800));
-  }
-
   .panel-header {
     padding: 1.5rem;
-    border-bottom: 1px solid #e5e7eb;
-  }
-
-  :global([data-mode="dark"]) .panel-header {
-    border-bottom-color: rgb(var(--color-surface-700));
+    border-bottom: 1px solid var(--ui-border);
   }
 
   .panel-title {
     font-size: 1.25rem;
     font-weight: 600;
-    color: #111827;
+    color: var(--ui-text);
     margin-bottom: 0.25rem;
-  }
-
-  :global([data-mode="dark"]) .panel-title {
-    color: var(--color-surface-100);
   }
 
   .panel-subtitle {
     font-size: 0.875rem;
-    color: #6b7280;
-  }
-
-  :global([data-mode="dark"]) .panel-subtitle {
-    color: var(--color-surface-400);
+    color: var(--ui-muted);
   }
 
   .panel-content {
@@ -531,15 +515,9 @@
   .form-input {
     width: 100%;
     padding: 0.5rem 0.75rem;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--ui-border);
     border-radius: 0.375rem;
     font-size: 0.875rem;
-  }
-
-  :global([data-mode="dark"]) .form-input {
-    background: rgb(var(--color-surface-700));
-    border-color: rgb(var(--color-surface-600));
-    color: var(--color-surface-100);
   }
 
   .btn {
@@ -551,13 +529,13 @@
   }
 
   .btn-primary {
-    background: #3b82f6;
-    color: white;
+    background: var(--ui-fill-main-bg);
+    color: var(--ui-fill-main-text);
     border: none;
   }
 
   .btn-primary:hover:not(:disabled) {
-    background: #2563eb;
+    opacity: 0.85;
   }
 
   .btn-primary:disabled {
@@ -566,23 +544,13 @@
   }
 
   .btn-secondary {
-    background: white;
-    color: #3b82f6;
-    border: 1px solid #3b82f6;
+    background: var(--ui-card);
+    color: var(--ui-link);
+    border: 1px solid var(--ui-link);
   }
 
   .btn-secondary:hover {
-    background: #eff6ff;
-  }
-
-  :global([data-mode="dark"]) .btn-secondary {
-    background: rgb(var(--color-surface-700));
-    color: rgb(var(--color-primary-400));
-    border-color: rgb(var(--color-primary-400));
-  }
-
-  :global([data-mode="dark"]) .btn-secondary:hover {
-    background: rgb(var(--color-surface-600));
+    background: var(--ui-tone-info-bg);
   }
 
   .table-wrapper {
@@ -599,70 +567,44 @@
     padding: 0.75rem;
     font-weight: 600;
     font-size: 0.875rem;
-    color: #374151;
-    border-bottom: 2px solid #e5e7eb;
-  }
-
-  :global([data-mode="dark"]) .users-table th {
-    color: var(--color-surface-300);
-    border-bottom-color: rgb(var(--color-surface-700));
+    color: var(--ui-text);
+    border-bottom: 2px solid var(--ui-border);
   }
 
   .users-table td {
     padding: 0.75rem;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--ui-border);
     font-size: 0.875rem;
   }
 
-  :global([data-mode="dark"]) .users-table td {
-    border-bottom-color: rgb(var(--color-surface-700));
-  }
-
   .users-table tbody tr:hover {
-    background: #f9fafb;
-  }
-
-  :global([data-mode="dark"]) .users-table tbody tr:hover {
-    background: rgb(var(--color-surface-700));
+    background: var(--ui-hover);
   }
 
   .users-table a {
-    color: #2563eb;
+    color: var(--ui-link);
     text-decoration: underline;
     font-weight: 500;
   }
 
   .users-table a:hover {
-    color: #1d4ed8;
-  }
-
-  :global([data-mode="dark"]) .users-table a {
-    color: rgb(var(--color-primary-400));
-  }
-
-  :global([data-mode="dark"]) .users-table a:hover {
-    color: rgb(var(--color-primary-300));
+    color: var(--ui-link-hover);
   }
 
   .entitlement-badge {
     display: inline-block;
     padding: 0.25rem 0.5rem;
-    background: #dbeafe;
-    color: #1e40af;
+    background: var(--ui-tone-info-bg);
+    color: var(--ui-tone-info-text);
     border-radius: 0.25rem;
     font-size: 0.75rem;
     font-weight: 500;
   }
 
-  :global([data-mode="dark"]) .entitlement-badge {
-    background: rgb(var(--color-primary-900));
-    color: rgb(var(--color-primary-200));
-  }
-
   .empty-state {
     text-align: center;
     padding: 3rem;
-    color: #6b7280;
+    color: var(--ui-muted);
   }
 
   .alert {
@@ -672,15 +614,9 @@
   }
 
   .alert-error {
-    background: #fee2e2;
-    color: #991b1b;
-    border: 1px solid #fecaca;
-  }
-
-  :global([data-mode="dark"]) .alert-error {
-    background: rgb(var(--color-error-900));
-    color: rgb(var(--color-error-200));
-    border-color: rgb(var(--color-error-800));
+    background: var(--ui-tone-error-bg);
+    color: var(--ui-tone-error-text);
+    border: 1px solid var(--ui-tone-error-border);
   }
 
   .search-results-header {
@@ -703,12 +639,8 @@
     padding: 0.25rem 0;
     cursor: pointer;
     font-weight: 600;
-    color: #6b7280;
+    color: var(--ui-muted);
     user-select: none;
-  }
-
-  :global([data-mode="dark"]) .search-call-summary {
-    color: var(--color-surface-400);
   }
 
   .search-call-info {
@@ -725,34 +657,23 @@
   }
 
   .search-call-label {
-    color: #6b7280;
+    color: var(--ui-muted);
     font-weight: 600;
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.03em;
   }
 
-  :global([data-mode="dark"]) .search-call-label {
-    color: var(--color-surface-400);
-  }
-
   .search-call-input,
   .search-call-textarea {
     width: 100%;
     padding: 0.375rem 0.5rem;
-    background: white;
-    border: 1px solid #d1d5db;
+    background: var(--ui-card);
+    border: 1px solid var(--ui-border);
     border-radius: 0.25rem;
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 0.8125rem;
-    color: #111827;
-  }
-
-  :global([data-mode="dark"]) .search-call-input,
-  :global([data-mode="dark"]) .search-call-textarea {
-    background: rgb(var(--color-surface-800));
-    border-color: rgb(var(--color-surface-600));
-    color: var(--color-surface-100);
+    color: var(--ui-text);
   }
 
   .search-call-textarea {

@@ -9,7 +9,7 @@
 <h1 class="h2">{t(locale, 'login_heading')}</h1>
 
 {#if data.loginError}
-	<p class="mt-4 preset-tonal-error rounded p-3" role="alert" data-testid="login-error">
+	<p class="mt-4 ui-tone-error rounded p-3" role="alert" data-testid="login-error">
 		{t(locale, `login_error_${data.loginError}` as MessageKey)}
 	</p>
 {/if}
@@ -20,7 +20,7 @@
 	<ul class="mt-4 flex flex-col gap-2">
 		{#each data.providers as provider (provider)}
 			<li>
-				<a class="btn preset-filled" href="/login/{provider}" data-testid="login-provider-{provider}"
+				<a class="btn preset-filled-primary-500" href="/login/{provider}" data-testid="login-provider-{provider}"
 					>{t(locale, 'login_with')} {provider}</a
 				>
 			</li>

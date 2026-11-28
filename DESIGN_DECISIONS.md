@@ -27,6 +27,7 @@ Also: [docs/page-layout.md](docs/page-layout.md) (page width), [docs/playwright-
 - **No `title=` tooltips or `cursor: help` on data** (cells, chips, IDs): they get in the way of selecting and copying the value. Use a visible label or `aria-label`.
 - **The URL drives the content.** Filters and view state live in the query string and are honoured on arrival, so links (including documentation links) land on the right view.
 - **Users are professionals.** No explanatory subtitles or intro blurbs under headings, and no "are you sure"-style warnings; a heading and the data are enough.
+- **Named colour styles only.** Pages colour things with the few named styles in `packages/shared/styles.css` (`ui-muted`, `ui-card`, `ui-tone-error`, four button presets and so on), never a Tailwind palette colour or a theme shade, so a theme decides every colour and there are only those styles to check. The list, and how to brand an app, are in [docs/branding.md](docs/branding.md); `/style-guide` shows them. Converted apps have a test that fails on any other colour class.
 - **Show env var names literally.** Diagnostic UI uses the real name as the key (`PUBLIC_OBP_BASE_URL`), never a renamed form.
 
 ## Documentation in the apps

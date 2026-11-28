@@ -46,7 +46,7 @@
 	{#if data.lackingApplications}
 		<MissingRole {locale} space={data.space} role={data.lackingApplications} entitlementRequestsUrl={data.entitlementRequestsUrl} />
 	{:else if data.applicationsError}
-		<p class="preset-tonal-error rounded p-3">{data.applicationsError}</p>
+		<p class="ui-tone-error rounded p-3">{data.applicationsError}</p>
 	{:else if data.applications.length === 0}
 		<p>{t(locale, 'staff_none')}</p>
 	{:else}

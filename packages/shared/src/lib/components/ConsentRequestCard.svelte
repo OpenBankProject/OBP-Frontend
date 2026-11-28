@@ -346,16 +346,16 @@
 	}
 </script>
 
-<div class="card rounded-lg border border-tertiary-500/60 px-3 py-2.5 bg-tertiary-50-950/10">
+<div class="card rounded-lg border px-3 py-2.5 ui-tone-info">
 	<!-- Header row: icon + title + tool/operation context -->
 	<div class="mb-1.5 flex items-center gap-2">
-		<KeyRound class="text-tertiary-600 dark:text-tertiary-400 flex-shrink-0" size={16} />
+		<KeyRound class="flex-shrink-0 ui-link" size={16} />
 		<span class="text-sm font-semibold">Consent Required</span>
-		<code class="ms-auto rounded bg-primary-100 px-1.5 py-0.5 text-xs dark:bg-primary-800">{toolMessage.toolName}</code>
+		<code class="ms-auto rounded px-1.5 py-0.5 text-xs ui-tone-info">{toolMessage.toolName}</code>
 	</div>
 
 	<!-- Brief explanation -->
-	<p class="mb-2 text-xs text-surface-600 dark:text-surface-400">
+	<p class="mb-2 text-xs ui-muted">
 		{#if (toolMessage.consentToolCallCount ?? 1) > 1}
 			<strong>{toolMessage.consentToolCallCount} calls</strong> need a temporary consent (1 hr).
 		{:else}
@@ -375,7 +375,7 @@
 		<div class="mb-2 flex flex-wrap items-center gap-1" data-testid="consent-my-resource-chips">
 			{#each myResourceEntries as e (`${e.bank_id}|${e.entity_name}`)}
 				<span
-					class="inline-flex items-center gap-1 rounded-full bg-tertiary-100 px-2 py-0.5 text-[11px] font-medium dark:bg-tertiary-800"
+					class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ui-tone-info"
 					data-testid="consent-my-resource-chip"
 					title="Your own records in this entity"
 				>
@@ -393,19 +393,19 @@
 	{#if toolMessage.consentAccountId || toolMessage.consentViewId || toolMessage.consentIsUserScoped}
 		<div class="mb-2 flex flex-wrap items-center gap-1">
 			{#if toolMessage.consentIsUserScoped}
-				<span class="inline-flex items-center gap-1 rounded-full bg-tertiary-100 px-2 py-0.5 text-[11px] font-medium dark:bg-tertiary-800" title="Identity-bound endpoint">
+				<span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ui-tone-info" title="Identity-bound endpoint">
 					<User size={10} />
 					User-scoped
 				</span>
 			{/if}
 			{#if toolMessage.consentAccountId}
-				<span class="inline-flex items-center gap-1 rounded-full bg-tertiary-100 px-2 py-0.5 text-[11px] font-medium dark:bg-tertiary-800" title="Account ID">
+				<span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ui-tone-info" title="Account ID">
 					<CreditCard size={10} />
 					Account: <code class="font-mono">{toolMessage.consentAccountId}</code>
 				</span>
 			{/if}
 			{#if toolMessage.consentViewId}
-				<span class="inline-flex items-center gap-1 rounded-full bg-tertiary-100 px-2 py-0.5 text-[11px] font-medium dark:bg-tertiary-800" title="View ID">
+				<span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ui-tone-info" title="View ID">
 					<Eye size={10} />
 					View: <code class="font-mono">{toolMessage.consentViewId}</code>
 				</span>
@@ -420,7 +420,7 @@
 			{#if embedPreview}
 				{#each embedPreview.entitlements as e (`${e.role_name}|${e.bank_id}`)}
 					<span
-						class="inline-flex items-center gap-1 rounded-full bg-tertiary-100 px-2 py-0.5 text-[11px] font-medium dark:bg-tertiary-800"
+						class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ui-tone-info"
 						data-testid="consent-role-chip"
 					>
 						<Shield size={10} />
@@ -434,7 +434,7 @@
 				{/each}
 				{#each embedPreview.unsatisfiable as label (label)}
 					<span
-						class="inline-flex items-center gap-1 rounded-full border border-warning-500 px-2 py-0.5 text-[11px] font-medium text-warning-700 dark:text-warning-300"
+						class="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium ui-tone-warning"
 						data-testid="consent-role-chip-missing"
 					>
 						<Shield size={10} />
@@ -443,7 +443,7 @@
 				{/each}
 			{:else}
 				{#each narrowestRoles(rawRoleNames) as role (role)}
-					<span class="inline-flex items-center gap-1 rounded-full bg-tertiary-100 px-2 py-0.5 text-[11px] font-medium dark:bg-tertiary-800">
+					<span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ui-tone-info">
 						<Shield size={10} />
 						{role}
 					</span>
@@ -454,21 +454,21 @@
 
 	<!-- Error Display -->
 	{#if consentError}
-		<div class="mb-2 rounded bg-error-50 px-2 py-1.5 text-xs text-error-700 dark:bg-error-900/30 dark:text-error-300">
+		<div class="mb-2 rounded px-2 py-1.5 text-xs ui-tone-error">
 			{consentError}
 		</div>
 	{/if}
 
 	<!-- Dev-only debug surface: what Opey asked for, what we'd POST, what came back -->
 	{#if isDev}
-		<details class="mb-2 rounded border border-surface-300 dark:border-surface-700" data-testid="consent-debug">
-			<summary class="cursor-pointer px-2 py-1 text-[11px] text-surface-600 dark:text-surface-400">
+		<details class="mb-2 rounded border ui-border" data-testid="consent-debug">
+			<summary class="cursor-pointer px-2 py-1 text-[11px] ui-muted">
 				🐞 Debug
 			</summary>
-			<div class="space-y-2 border-t border-surface-300 px-2 py-2 text-[11px] dark:border-surface-700">
+			<div class="space-y-2 border-t px-2 py-2 text-[11px] ui-border">
 				<div>
 					<div class="font-semibold">consent_request event from Opey</div>
-					<pre class="overflow-auto rounded bg-surface-100 p-1 font-mono dark:bg-surface-900" data-testid="consent-debug-asked">{JSON.stringify({
+					<pre class="overflow-auto rounded p-1 font-mono ui-panel" data-testid="consent-debug-asked">{JSON.stringify({
 						toolName: toolMessage.toolName,
 						toolCallId: toolMessage.toolCallId,
 						consentRequiredRoles: toolMessage.consentRequiredRoles,
@@ -483,17 +483,17 @@
 				</div>
 				<div>
 					<div class="font-semibold">POST /backend/opey/consent body</div>
-					<pre class="overflow-auto rounded bg-surface-100 p-1 font-mono dark:bg-surface-900" data-testid="consent-debug-body">{JSON.stringify(buildConsentBody(), null, 2)}</pre>
+					<pre class="overflow-auto rounded p-1 font-mono ui-panel" data-testid="consent-debug-body">{JSON.stringify(buildConsentBody(), null, 2)}</pre>
 				</div>
 				{#if debugResponse}
 					<div>
 						<div class="font-semibold">Response — HTTP {debugResponse.status}</div>
 						{#if debugResponse.error}
-							<pre class="overflow-auto rounded bg-error-50 p-1 font-mono text-error-700 dark:bg-error-900/30 dark:text-error-300" data-testid="consent-debug-response-error">{debugResponse.error}</pre>
+							<pre class="overflow-auto rounded p-1 font-mono ui-tone-error" data-testid="consent-debug-response-error">{debugResponse.error}</pre>
 						{/if}
 						{#if debugResponse.decodedJwt}
-							<div class="mt-1 text-surface-500">Decoded consent JWT payload:</div>
-							<pre class="overflow-auto rounded bg-surface-100 p-1 font-mono dark:bg-surface-900" data-testid="consent-debug-response-jwt">{JSON.stringify(debugResponse.decodedJwt, null, 2)}</pre>
+							<div class="mt-1 ui-muted">Decoded consent JWT payload:</div>
+							<pre class="overflow-auto rounded p-1 font-mono ui-panel" data-testid="consent-debug-response-jwt">{JSON.stringify(debugResponse.decodedJwt, null, 2)}</pre>
 						{/if}
 					</div>
 				{/if}
@@ -504,12 +504,12 @@
 	<!-- Illogical request: a role OBP never allows in a consent -->
 	{#if illogicalReason}
 		<div
-			class="mb-2 rounded border border-error-500/60 bg-error-50 px-2 py-2 text-xs dark:bg-error-900/20"
+			class="mb-2 rounded border px-2 py-2 text-xs ui-tone-error"
 			role="alert"
 			data-testid="consent-illogical"
 		>
-			<p class="mb-1 font-semibold text-error-800 dark:text-error-200">This consent can't be granted</p>
-			<p class="mb-2 text-error-800 dark:text-error-200">
+			<p class="mb-1 font-semibold ui-text-error">This consent can't be granted</p>
+			<p class="mb-2 ui-text-error">
 				{#each forbiddenRoles as r (r)}<code class="font-mono">{r}</code>{' '}{/each}
 				is the system-wide role-granting role. OBP never lets a consent carry it
 				(OBP-35033), so no consent can authorise this call for Opey. Opey can act with
@@ -524,7 +524,7 @@
 	<!-- Missing role: nothing the user holds satisfies it, so no consent can carry it -->
 	{#if missingReason && !illogicalReason}
 		<div
-			class="mb-2 rounded border border-warning-500/60 bg-warning-50 px-2 py-2 text-xs text-warning-800 dark:bg-warning-900/20 dark:text-warning-200"
+			class="mb-2 rounded border px-2 py-2 text-xs ui-tone-warning"
 			role="alert"
 			data-testid="consent-missing-role"
 		>
@@ -537,17 +537,17 @@
 	<!-- Safeguard: this consent_request needs view scope but none is available yet -->
 	{#if promptForScope}
 		<div
-			class="mb-2 rounded border border-warning-500/50 bg-warning-50 px-2 py-2 text-xs dark:bg-warning-900/20"
+			class="mb-2 rounded border px-2 py-2 text-xs ui-tone-warning"
 			data-testid="consent-needs-scope"
 		>
-			<p class="mb-2 text-warning-800 dark:text-warning-200">
+			<p class="mb-2 ui-text-warning">
 				This action needs view access to at least one account, but you haven't
 				selected any in the <strong>Working accounts</strong> picker below the chat.
 				Pick the account(s) and view(s) you'd like Opey to see, then click Grant.
 			</p>
 			<button
 				type="button"
-				class="btn btn-sm preset-filled-warning-500"
+				class="btn btn-sm preset-filled-primary-500"
 				onclick={focusAccountScopePicker}
 				data-testid="open-account-scope-picker-from-consent"
 			>
@@ -559,7 +559,7 @@
 	<!-- Action Buttons -->
 	<div class="flex gap-2">
 		<button
-			class="btn btn-sm flex-1 preset-filled-tertiary-500"
+			class="btn btn-sm flex-1 preset-filled-primary-500"
 			onclick={handleGrantConsent}
 			disabled={isProcessing || promptForScope || !!blockedReason}
 			data-testid="consent-grant-button"
@@ -573,7 +573,7 @@
 			{/if}
 		</button>
 		<button
-			class="btn btn-sm {blockedReason ? 'flex-1 preset-filled-error-500' : 'preset-outlined-error-500'}"
+			class="btn btn-sm {blockedReason ? 'flex-1 preset-filled-error-500' : 'preset-outlined-surface-500'}"
 			onclick={handleDenyConsent}
 			disabled={isProcessing}
 			data-testid="consent-deny-button"

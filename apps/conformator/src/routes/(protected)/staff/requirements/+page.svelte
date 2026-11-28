@@ -36,7 +36,7 @@
 {/if}
 
 <h2 class="h4 mt-8">Add a requirement</h2>
-{#if form?.created}<p class="mt-2 preset-tonal-success rounded p-3" role="status">Added {form.created}.</p>{/if}
+{#if form?.created}<p class="mt-2 ui-tone-success rounded p-3" role="status">Added {form.created}.</p>{/if}
 {#if data.canCreate}
 	<FormProblems problems={form?.problems} />
 	<form method="POST" action="?/create" class="mt-2 grid max-w-3xl gap-3">
@@ -47,7 +47,7 @@
 			<label class="label"><span>Source document</span><input class="input" name="source_document" maxlength="255" value={values.source_document ?? ''} /></label>
 			<label class="label"><span>Version of the source document</span><input class="input" name="source_version" maxlength="32" value={values.source_version ?? ''} /></label>
 		</div>
-		<div><button class="btn preset-filled" data-testid="requirement-create">Add the requirement</button></div>
+		<div><button class="btn preset-filled-primary-500" data-testid="requirement-create">Add the requirement</button></div>
 	</form>
 {:else}
 	<div class="mt-2"><MissingRoleAlert roles={[data.createRole]} bankId={data.space || undefined} /></div>

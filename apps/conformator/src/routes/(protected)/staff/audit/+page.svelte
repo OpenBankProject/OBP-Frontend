@@ -22,14 +22,14 @@
 	Every change to a participant's lifecycle, a report, a submission or a review decision adds an entry to a hash chain in OBP-API. Each entry holds the record as it was saved, who saved it and when, and the hash of the entry before it. Changing or removing an entry afterwards, or changing a record without going through OBP-API, breaks the chain, and the check below finds it.
 </p>
 
-{#if form?.error}<p class="mt-4 preset-tonal-error rounded p-3" role="alert">{form.error}</p>{/if}
+{#if form?.error}<p class="mt-4 ui-tone-error rounded p-3" role="alert">{form.error}</p>{/if}
 
 {#if !data.canRead}
-	<p class="mt-4 preset-tonal-warning rounded p-3" role="status" data-testid="audit-no-role">
+	<p class="mt-4 ui-tone-warning rounded p-3" role="status" data-testid="audit-no-role">
 		Seeing and checking the audit chains needs the system Role <code>CanGetDynamicEntityAuditRootChain</code>. Ask for it on <a class="anchor" href="/staff/access">Your Roles</a>.
 	</p>
 {:else if data.problem}
-	<p class="mt-4 preset-tonal-error rounded p-3" role="alert">The audit chains could not be read: {data.problem}</p>
+	<p class="mt-4 ui-tone-error rounded p-3" role="alert">The audit chains could not be read: {data.problem}</p>
 {:else if !data.root}
 	<p class="mt-4" data-testid="audit-none">No audit chain has been started yet. The app starts the central ones once it holds its Scopes (see <a class="anchor" href="/setup#entities">Setup</a>), and each participant's space gets its own when it is set up.</p>
 {:else}
@@ -60,11 +60,11 @@
 	{#if form?.check}
 		<section class="mt-6" data-testid="audit-check-result">
 			{#if form.check.is_intact}
-				<p class="preset-tonal-success rounded p-3" role="status">
+				<p class="ui-tone-success rounded p-3" role="status">
 					Intact. {formatNumber(form.check.chains_checked)} chains and {formatNumber(form.check.entries_checked)} root entries checked at {when(form.check.checked_at)}. Nothing was changed outside OBP-API. To compare with a hash you kept, the root chain's last hash is <code class="break-all">{form.check.last_hash}</code> at entry {formatNumber(form.check.last_sequence)}.
 				</p>
 			{:else}
-				<p class="preset-tonal-error rounded p-3" role="alert">The check found {formatNumber(form.check.problem_count)} problems at {when(form.check.checked_at)}.</p>
+				<p class="ui-tone-error rounded p-3" role="alert">The check found {formatNumber(form.check.problem_count)} problems at {when(form.check.checked_at)}.</p>
 				<table class="table mt-2">
 					<thead><tr><th>Chain</th><th>Entry</th><th>Record</th><th>Problem</th></tr></thead>
 					<tbody>
@@ -84,7 +84,7 @@
 	{/if}
 
 	{#if form?.sealed}
-		<section class="mt-6 preset-tonal-success rounded p-3" role="status" data-testid="audit-sealed">
+		<section class="mt-6 ui-tone-success rounded p-3" role="status" data-testid="audit-sealed">
 			<p>Sealed at {when(form.sealed.sealed_at)}: {formatNumber(form.sealed.chains_sealed)} chains had changed since the last seal.</p>
 			<p class="mt-2">Keep this hash outside OBP-API, with the time and entry number:</p>
 			<p class="mt-1"><code class="break-all" data-testid="audit-sealed-hash">{form.sealed.last_hash}</code> (entry {formatNumber(form.sealed.last_sequence)})</p>
@@ -97,7 +97,7 @@
 		{#each data.spaces as space (space.space)}
 			<h3 class="h5 mt-4"><code>{space.space}</code>{#if space.central} (central space){/if}</h3>
 			{#if space.missing.length}
-				<p class="mt-1 preset-tonal-warning rounded p-2 text-sm" data-testid="audit-missing-{space.space}">No chain yet for: {space.missing.join(', ')}.</p>
+				<p class="mt-1 ui-tone-warning rounded p-2 text-sm" data-testid="audit-missing-{space.space}">No chain yet for: {space.missing.join(', ')}.</p>
 			{/if}
 			{#if space.chains.length}
 				<table class="table mt-2">

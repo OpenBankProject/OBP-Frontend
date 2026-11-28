@@ -38,7 +38,7 @@
   .glossary-body {
     font-size: 0.9375rem;
     line-height: 1.6;
-    color: #374151;
+    color: var(--ui-text);
   }
 
   .glossary-body :global(h1) {
@@ -49,14 +49,14 @@
     font-size: 1.0625rem;
     font-weight: 600;
     margin: 1.25rem 0 0.5rem;
-    color: #111827;
+    color: var(--ui-text);
   }
 
   .glossary-body :global(h3) {
     font-size: 0.9375rem;
     font-weight: 600;
     margin: 1rem 0 0.375rem;
-    color: #111827;
+    color: var(--ui-text);
   }
 
   .glossary-body :global(p) {
@@ -75,15 +75,15 @@
 
   .glossary-body :global(code) {
     font-size: 0.85em;
-    background: #f3f4f6;
+    background: var(--ui-panel);
     padding: 0.05rem 0.3rem;
     border-radius: 4px;
   }
 
   .glossary-body :global(pre) {
     overflow-x: auto;
-    background: #111827;
-    color: #e5e7eb;
+    background: var(--ui-panel);
+    color: var(--ui-text);
     padding: 0.75rem 1rem;
     border-radius: 6px;
     font-size: 0.8125rem;
@@ -97,36 +97,13 @@
   }
 
   .glossary-body :global(a) {
-    color: #2563eb;
+    color: var(--ui-link);
     text-decoration: underline;
   }
 
   .glossary-missing {
-    color: #6b7280;
+    color: var(--ui-muted);
     font-size: 0.9375rem;
-  }
-
-
-
-  :global([data-mode="dark"]) .glossary-body {
-    color: var(--color-surface-200);
-  }
-
-  :global([data-mode="dark"]) .glossary-body :global(h2),
-  :global([data-mode="dark"]) .glossary-body :global(h3) {
-    color: var(--color-surface-50);
-  }
-
-  :global([data-mode="dark"]) .glossary-body :global(code) {
-    background: rgb(var(--color-surface-700));
-  }
-
-  :global([data-mode="dark"]) .glossary-body :global(a) {
-    color: #60a5fa;
-  }
-
-  :global([data-mode="dark"]) .glossary-missing {
-    color: var(--color-surface-400);
   }
 
 </style>

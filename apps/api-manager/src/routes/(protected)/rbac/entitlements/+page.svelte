@@ -119,7 +119,7 @@
 
   let userId = $derived((data.userId as string) || "");
 
-  const GROUP_COLORS = ['#3b82f6','#8b5cf6','#f59e0b','#ec4899','#06b6d4'];
+  const GROUP_COLORS = ['var(--ui-chart-1)', 'var(--ui-chart-7)', 'var(--ui-chart-4)', 'var(--ui-chart-5)', 'var(--ui-chart-3)'];
   function computeGroupColors(items: Entitlement[]): string[] {
     const result: string[] = [];
     let colorIdx = -1;
@@ -339,23 +339,15 @@
   }
 
   .panel {
-    background: white;
+    background: var(--ui-card);
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     overflow: hidden;
   }
 
-  :global([data-mode="dark"]) .panel {
-    background: rgb(var(--color-surface-800));
-  }
-
   .panel-header {
     padding: 1.5rem;
-    border-bottom: 1px solid #e5e7eb;
-  }
-
-  :global([data-mode="dark"]) .panel-header {
-    border-bottom-color: rgb(var(--color-surface-700));
+    border-bottom: 1px solid var(--ui-border);
   }
 
   .header-top {
@@ -369,22 +361,14 @@
   .panel-title {
     font-size: 1.5rem;
     font-weight: 600;
-    color: #111827;
+    color: var(--ui-text);
     margin: 0;
-  }
-
-  :global([data-mode="dark"]) .panel-title {
-    color: var(--color-surface-100);
   }
 
   .panel-subtitle {
     font-size: 0.875rem;
-    color: #6b7280;
+    color: var(--ui-muted);
     margin-top: 0.5rem;
-  }
-
-  :global([data-mode="dark"]) .panel-subtitle {
-    color: var(--color-surface-400);
   }
 
   .header-actions {
@@ -398,13 +382,9 @@
     flex-direction: column;
     align-items: flex-end;
     padding: 0.75rem 1.25rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--ui-fill-main-bg);
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
-  }
-
-  :global([data-mode="dark"]) .entitlement-count {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 2px 4px color-mix(in srgb, var(--ui-link) 20%, transparent);
   }
 
   .btn-create {
@@ -412,8 +392,8 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.75rem 1.25rem;
-    background: #51b265;
-    color: white;
+    background: var(--ui-tone-success-bg);
+    color: var(--ui-tone-success-text);
     text-decoration: none;
     border-radius: 6px;
     font-size: 0.875rem;
@@ -423,48 +403,29 @@
   }
 
   .btn-create:hover {
-    background: #3d9e52;
+    background: var(--ui-tone-success-bg);
     transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(81, 178, 101, 0.3);
-  }
-
-  :global([data-mode="dark"]) .btn-create {
-    background: #51b265;
-  }
-
-  :global([data-mode="dark"]) .btn-create:hover {
-    background: #3d9e52;
+    box-shadow: 0 2px 4px color-mix(in srgb, var(--ui-success) 30%, transparent);
+    color: var(--ui-tone-success-text);
   }
 
   .count-number {
     font-size: 2rem;
     font-weight: 700;
-    color: white;
+    color: var(--ui-fill-main-text);
     line-height: 1;
-  }
-
-  :global([data-mode="dark"]) .count-number {
-    color: white;
   }
 
   .count-label {
     font-size: 0.75rem;
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--ui-fill-main-text);
     text-transform: uppercase;
     letter-spacing: 0.05em;
     margin-top: 0.25rem;
   }
 
-  :global([data-mode="dark"]) .count-label {
-    color: rgba(255, 255, 255, 0.9);
-  }
-
   .search-container {
     margin-top: 1rem;
-  }
-
-  :global([data-mode="dark"]) .search-container {
-    border-top-color: rgb(var(--color-surface-700));
   }
 
   .search-input-wrapper {
@@ -476,18 +437,14 @@
   .search-input-wrapper :global(.search-icon) {
     position: absolute;
     left: 1rem;
-    color: #9ca3af;
+    color: var(--ui-muted);
     pointer-events: none;
-  }
-
-  :global([data-mode="dark"]) .search-input-wrapper :global(.search-icon) {
-    color: var(--color-surface-400);
   }
 
   .search-input {
     width: 100%;
     padding: 0.75rem 3rem 0.75rem 3rem;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--ui-border);
     border-radius: 8px;
     font-size: 0.875rem;
     transition: all 0.2s;
@@ -495,19 +452,8 @@
 
   .search-input:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-  }
-
-  :global([data-mode="dark"]) .search-input {
-    background: rgb(var(--color-surface-700));
-    border-color: rgb(var(--color-surface-600));
-    color: var(--color-surface-100);
-  }
-
-  :global([data-mode="dark"]) .search-input:focus {
-    border-color: rgb(var(--color-primary-500));
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+    border-color: var(--ui-link);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-link) 10%, transparent);
   }
 
   .clear-button {
@@ -515,7 +461,7 @@
     right: 1rem;
     background: none;
     border: none;
-    color: #9ca3af;
+    color: var(--ui-muted);
     font-size: 1.25rem;
     cursor: pointer;
     padding: 0.25rem;
@@ -529,25 +475,13 @@
   }
 
   .clear-button:hover {
-    color: #4b5563;
-  }
-
-  :global([data-mode="dark"]) .clear-button {
-    color: var(--color-surface-400);
-  }
-
-  :global([data-mode="dark"]) .clear-button:hover {
-    color: var(--color-surface-200);
+    color: var(--ui-muted);
   }
 
   .search-results-info {
     margin-top: 0.5rem;
     font-size: 0.875rem;
-    color: #6b7280;
-  }
-
-  :global([data-mode="dark"]) .search-results-info {
-    color: var(--color-surface-400);
+    color: var(--ui-muted);
   }
 
   .panel-content {
@@ -561,25 +495,15 @@
   }
 
   .alert-error {
-    background: #fef2f2;
-    border: 1px solid #fecaca;
-    color: #991b1b;
-  }
-
-  :global([data-mode="dark"]) .alert-error {
-    background: rgb(var(--color-error-900));
-    border-color: rgb(var(--color-error-700));
-    color: rgb(var(--color-error-200));
+    background: var(--ui-tone-error-bg);
+    border: 1px solid var(--ui-tone-error-border);
+    color: var(--ui-tone-error-text);
   }
 
   .empty-state {
     text-align: center;
     padding: 3rem;
-    color: #6b7280;
-  }
-
-  :global([data-mode="dark"]) .empty-state {
-    color: var(--color-surface-400);
+    color: var(--ui-muted);
   }
 
   .empty-icon {
@@ -591,20 +515,12 @@
   .empty-title {
     font-size: 1.125rem;
     font-weight: 600;
-    color: #4a5568;
+    color: var(--ui-muted);
     margin-bottom: 0.5rem;
   }
 
-  :global([data-mode="dark"]) .empty-title {
-    color: var(--color-surface-200);
-  }
-
   .empty-text {
-    color: #6b7280;
-  }
-
-  :global([data-mode="dark"]) .empty-text {
-    color: var(--color-surface-400);
+    color: var(--ui-muted);
   }
 
   .two-column-layout {
@@ -621,22 +537,14 @@
   .column-empty {
     padding: 2rem;
     text-align: center;
-    color: #6b7280;
+    color: var(--ui-muted);
     font-size: 0.875rem;
   }
 
-  :global([data-mode="dark"]) .column-empty {
-    color: var(--color-surface-400);
-  }
-
   .bank-group {
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--ui-border);
     border-radius: 8px;
     overflow: hidden;
-  }
-
-  :global([data-mode="dark"]) .bank-group {
-    border-color: rgb(var(--color-surface-700));
   }
 
   .bank-header {
@@ -644,47 +552,29 @@
     align-items: center;
     gap: 0.75rem;
     padding: 1rem 1.5rem;
-    background: #f9fafb;
-    border-bottom: 1px solid #e5e7eb;
-  }
-
-  :global([data-mode="dark"]) .bank-header {
-    background: rgb(var(--color-surface-700));
-    border-bottom-color: rgb(var(--color-surface-600));
+    background: var(--ui-card);
+    border-bottom: 1px solid var(--ui-border);
   }
 
   .bank-header :global(.bank-icon) {
-    color: #667eea;
-  }
-
-  :global([data-mode="dark"]) .bank-header :global(.bank-icon) {
-    color: rgb(var(--color-primary-400));
+    color: var(--ui-link);
   }
 
   .bank-name {
     font-size: 1.125rem;
     font-weight: 600;
-    color: #111827;
+    color: var(--ui-text);
     margin: 0;
     flex: 1;
   }
 
-  :global([data-mode="dark"]) .bank-name {
-    color: var(--color-surface-100);
-  }
-
   .bank-count {
     font-size: 0.875rem;
-    color: #6b7280;
+    color: var(--ui-muted);
     font-weight: 500;
-    background: white;
+    background: var(--ui-card);
     padding: 0.25rem 0.75rem;
     border-radius: 9999px;
-  }
-
-  :global([data-mode="dark"]) .bank-count {
-    background: rgb(var(--color-surface-600));
-    color: var(--color-surface-300);
   }
 
   .entitlements-list {
@@ -695,8 +585,8 @@
   }
 
   .entitlement-card {
-    background: white;
-    border: 1px solid #e5e7eb;
+    background: var(--ui-card);
+    border: 1px solid var(--ui-border);
     border-left: 3px solid transparent;
     border-radius: 8px;
     padding: 1rem;
@@ -705,26 +595,13 @@
 
   .entitlement-card:hover {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-    border-color: #667eea;
-  }
-
-  :global([data-mode="dark"]) .entitlement-card {
-    background: rgb(var(--color-surface-800));
-    border-color: rgb(var(--color-surface-700));
-  }
-
-  :global([data-mode="dark"]) .entitlement-card:hover {
-    border-color: rgb(var(--color-primary-500));
+    border-color: var(--ui-link);
   }
 
   .entitlement-header {
     margin-bottom: 1rem;
     padding-bottom: 0.75rem;
-    border-bottom: 1px solid #f3f4f6;
-  }
-
-  :global([data-mode="dark"]) .entitlement-header {
-    border-bottom-color: rgb(var(--color-surface-700));
+    border-bottom: 1px solid var(--ui-border);
   }
 
   .entitlement-role {
@@ -739,32 +616,20 @@
     gap: 0.5rem;
     font-size: 0.875rem;
     font-weight: 600;
-    color: #111827;
+    color: var(--ui-text);
     margin: 0;
     word-break: break-word;
   }
 
-  :global([data-mode="dark"]) .role-name {
-    color: var(--color-surface-100);
-  }
-
   .role-link {
-    color: #3b82f6;
+    color: var(--ui-link);
     text-decoration: none;
     transition: color 0.2s;
   }
 
   .role-link:hover {
-    color: #2563eb;
+    color: var(--ui-link-hover);
     text-decoration: underline;
-  }
-
-  :global([data-mode="dark"]) .role-link {
-    color: rgb(var(--color-primary-400));
-  }
-
-  :global([data-mode="dark"]) .role-link:hover {
-    color: rgb(var(--color-primary-300));
   }
 
   .delete-button {
@@ -772,24 +637,15 @@
     align-items: center;
     justify-content: center;
     padding: 0.375rem;
-    color: #6b7280;
+    color: var(--ui-muted);
     border-radius: 0.25rem;
     transition: all 0.2s;
     text-decoration: none;
   }
 
   .delete-button:hover {
-    color: #dc2626;
-    background: #fee2e2;
-  }
-
-  :global([data-mode="dark"]) .delete-button {
-    color: var(--color-surface-400);
-  }
-
-  :global([data-mode="dark"]) .delete-button:hover {
-    color: rgb(var(--color-error-400));
-    background: rgb(var(--color-error-900));
+    color: var(--ui-tone-error-text);
+    background: var(--ui-tone-error-bg);
   }
 
   .entitlement-body {
@@ -806,12 +662,8 @@
 
   .entitlement-info :global(.info-icon) {
     margin-top: 0.125rem;
-    color: #6b7280;
+    color: var(--ui-muted);
     flex-shrink: 0;
-  }
-
-  :global([data-mode="dark"]) .entitlement-info :global(.info-icon) {
-    color: var(--color-surface-400);
   }
 
   .info-content {
@@ -825,42 +677,26 @@
   .info-label {
     font-size: 0.75rem;
     font-weight: 500;
-    color: #6b7280;
+    color: var(--ui-muted);
     flex-shrink: 0;
-  }
-
-  :global([data-mode="dark"]) .info-label {
-    color: var(--color-surface-400);
   }
 
   .info-value {
     font-size: 0.75rem;
-    color: #111827;
+    color: var(--ui-text);
     word-break: break-all;
   }
 
-  :global([data-mode="dark"]) .info-value {
-    color: var(--color-surface-200);
-  }
-
   .user-link {
-    color: #667eea;
+    color: var(--ui-link);
     text-decoration: none;
     font-weight: 500;
     transition: color 0.2s;
   }
 
   .user-link:hover {
-    color: #5568d3;
+    color: var(--ui-link-hover);
     text-decoration: underline;
-  }
-
-  :global([data-mode="dark"]) .user-link {
-    color: rgb(var(--color-primary-400));
-  }
-
-  :global([data-mode="dark"]) .user-link:hover {
-    color: rgb(var(--color-primary-300));
   }
 
   .you-badge {
@@ -868,24 +704,15 @@
     font-weight: 700;
     padding: 0.1rem 0.4rem;
     border-radius: 9999px;
-    background: #dcfce7;
-    color: #15803d;
+    background: var(--ui-tone-success-bg);
+    color: var(--ui-tone-success-text);
     letter-spacing: 0.03em;
-  }
-
-  :global([data-mode="dark"]) .you-badge {
-    background: rgba(34, 197, 94, 0.2);
-    color: rgb(var(--color-success-300));
   }
 
   .info-detail {
     font-size: 0.7rem;
-    color: #9ca3af;
+    color: var(--ui-muted);
     font-family: monospace;
-  }
-
-  :global([data-mode="dark"]) .info-detail {
-    color: var(--color-surface-500);
   }
 
   @media (max-width: 768px) {

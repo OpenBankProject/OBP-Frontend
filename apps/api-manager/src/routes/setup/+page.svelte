@@ -47,9 +47,9 @@
       <dd>{data.checkedAt ?? "not checked yet"}</dd>
     </dl>
     {#if data.problem}
-      <p class="mt-2 preset-tonal-warning rounded p-3" role="alert" data-testid="setup-problem">{data.problem}</p>
+      <p class="mt-2 preset-tonal rounded p-3" role="alert" data-testid="setup-problem">{data.problem}</p>
     {/if}
-    <a class="btn preset-filled mt-4" href="/consumers/platform-apps" data-testid="setup-platform-apps-link">Open Platform Apps</a>
+    <a class="btn preset-filled-primary-500 mt-4" href="/consumers/platform-apps" data-testid="setup-platform-apps-link">Open Platform Apps</a>
   </section>
 
   <section class="mt-6" data-testid="setup-scopes">

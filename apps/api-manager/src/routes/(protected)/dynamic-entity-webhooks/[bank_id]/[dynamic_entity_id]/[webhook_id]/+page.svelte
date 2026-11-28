@@ -100,9 +100,9 @@
   }
 
   const statusClass: Record<string, string> = {
-    DELIVERED: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
-    PENDING: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300",
-    STICKY: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
+    DELIVERED: "ui-tone-success",
+    PENDING: "ui-tone-warning",
+    STICKY: "ui-tone-error",
   };
 
   const suggestedQuestions: SuggestedQuestion[] = [
@@ -143,40 +143,40 @@
 <div class="container mx-auto max-w-7xl px-4 py-8">
   <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
     <div class="min-w-0">
-      <a href={listHref} class="mb-4 inline-flex items-center text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">← Back to Dynamic Entity Webhooks</a>
-      <h1 class="break-all font-mono text-2xl font-bold text-gray-900 dark:text-gray-100">{w.url}</h1>
+      <a href={listHref} class="mb-4 inline-flex items-center text-sm ui-link">← Back to Dynamic Entity Webhooks</a>
+      <h1 class="break-all font-mono text-2xl font-bold ui-text">{w.url}</h1>
       <dl class="mt-2 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm" data-testid="webhook-details">
-        <dt class="text-gray-500 dark:text-gray-400">Entity</dt>
-        <dd class="font-mono text-xs text-gray-900 dark:text-gray-100">
-          <a href="/dynamic-entities/system/{encodeURIComponent(w.dynamic_entity_id)}?bank_id={encodeURIComponent(w.bank_id)}" class="text-blue-600 hover:underline dark:text-blue-400">{w.entity_name}</a>
+        <dt class="ui-muted">Entity</dt>
+        <dd class="font-mono text-xs ui-text">
+          <a href="/dynamic-entities/system/{encodeURIComponent(w.dynamic_entity_id)}?bank_id={encodeURIComponent(w.bank_id)}" class="hover:underline ui-link">{w.entity_name}</a>
         </dd>
-        <dt class="text-gray-500 dark:text-gray-400">Space</dt>
-        <dd class="font-mono text-xs text-gray-900 dark:text-gray-100">{w.bank_id}</dd>
-        <dt class="text-gray-500 dark:text-gray-400">webhook_id</dt>
-        <dd class="font-mono text-xs text-gray-900 dark:text-gray-100">{w.webhook_id}</dd>
-        <dt class="text-gray-500 dark:text-gray-400">Signing</dt>
-        <dd class="text-xs text-gray-900 dark:text-gray-100">
+        <dt class="ui-muted">Space</dt>
+        <dd class="font-mono text-xs ui-text">{w.bank_id}</dd>
+        <dt class="ui-muted">webhook_id</dt>
+        <dd class="font-mono text-xs ui-text">{w.webhook_id}</dd>
+        <dt class="ui-muted">Signing</dt>
+        <dd class="text-xs ui-text">
           {#if w.signature_status === "signed"}
             Signed: each request carries OBP-Signature, verifiable with the key at /obp/v5.1.0/certs.
           {:else}
             Not signed on this instance (it has no stable server key). Requests carry OBP-Signature-Status: not_configured.
           {/if}
         </dd>
-        <dt class="text-gray-500 dark:text-gray-400">Created</dt>
-        <dd class="text-xs text-gray-900 dark:text-gray-100">{w.created_at} by <a href="/users/{encodeURIComponent(w.created_by_user_id)}" class="font-mono text-blue-600 hover:underline dark:text-blue-400">{w.created_by_user_id}</a></dd>
-        <dt class="text-gray-500 dark:text-gray-400">Updated</dt>
-        <dd class="text-xs text-gray-900 dark:text-gray-100">{w.updated_at}</dd>
+        <dt class="ui-muted">Created</dt>
+        <dd class="text-xs ui-text">{w.created_at} by <a href="/users/{encodeURIComponent(w.created_by_user_id)}" class="font-mono hover:underline ui-link">{w.created_by_user_id}</a></dd>
+        <dt class="ui-muted">Updated</dt>
+        <dd class="text-xs ui-text">{w.updated_at}</dd>
       </dl>
       <div class="mt-3"><ApiExplorerEndpoints endpoints={data.endpoints} /></div>
     </div>
     <div class="flex items-center gap-2">
-<a href="/dynamic-entity-webhooks/help" aria-label="Dynamic Entity Webhooks help" data-testid="webhooks-help-link" class="inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
+<a href="/dynamic-entity-webhooks/help" aria-label="Dynamic Entity Webhooks help" data-testid="webhooks-help-link" class="inline-flex items-center gap-1 rounded-lg border px-3 py-2 text-sm font-medium ui-card ui-hover ui-muted ui-border">
         <CircleHelp size={16} />
       </a>
-      <button type="button" onclick={sendTest} disabled={busy !== null} data-testid="test-btn" class="inline-flex items-center gap-1 rounded-lg border border-blue-300 bg-white px-3 py-2 text-sm font-medium text-blue-700 hover:bg-blue-50 disabled:opacity-50 dark:border-blue-700 dark:bg-gray-800 dark:text-blue-300 dark:hover:bg-blue-900/20">
+      <button type="button" onclick={sendTest} disabled={busy !== null} data-testid="test-btn" class="inline-flex items-center gap-1 rounded-lg border px-3 py-2 text-sm font-medium disabled:opacity-50 ui-card ui-tone-info">
         <Send size={14} /> {busy === "test" ? "Queuing…" : "Send test request"}
       </button>
-      <button type="button" onclick={handleDelete} disabled={busy !== null} data-testid="delete-btn" class="inline-flex items-center gap-1 rounded-lg border border-red-300 bg-white px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-50 disabled:opacity-50 dark:border-red-700 dark:bg-gray-800 dark:text-red-400 dark:hover:bg-red-900/20">
+      <button type="button" onclick={handleDelete} disabled={busy !== null} data-testid="delete-btn" class="inline-flex items-center gap-1 rounded-lg border px-3 py-2 text-sm font-medium disabled:opacity-50 ui-card ui-tone-error">
         <Trash2 size={14} /> {busy === "delete" ? "Deleting…" : "Delete"}
       </button>
     </div>
@@ -189,22 +189,22 @@
   ]} />
 
   {#if !w.is_active}
-    <div class="mb-6 rounded-lg border border-yellow-200 bg-yellow-50 p-4 text-sm text-yellow-800 dark:border-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-200" data-testid="deactivated">
+    <div class="mb-6 rounded-lg border p-4 text-sm ui-tone-warning" data-testid="deactivated">
       <strong>Off ({w.deactivated_reason ?? "TURNED_OFF"}).</strong> {DEACTIVATED_REASONS[w.deactivated_reason ?? "TURNED_OFF"] ?? ""}
     </div>
   {/if}
   {#if actionError}
-    <div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300" data-testid="action-error">{actionError}</div>
+    <div class="mb-6 rounded-lg border p-4 text-sm ui-tone-error" data-testid="action-error">{actionError}</div>
   {/if}
   {#if message}
-    <div class="mb-6 rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-700 dark:border-green-800 dark:bg-green-900/20 dark:text-green-300" role="status" data-testid="message">{message}</div>
+    <div class="mb-6 rounded-lg border p-4 text-sm ui-tone-success" role="status" data-testid="message">{message}</div>
   {/if}
 
   <ResizableSplit breakpoint="lg">
     {#snippet main()}
     <div class="space-y-6">
-    <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-      <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">Settings</h2>
+    <div class="rounded-lg border p-6 shadow-sm ui-card ui-border">
+      <h2 class="mb-4 text-lg font-semibold ui-text">Settings</h2>
       {#key `${w.webhook_id}-${w.updated_at}`}
         <DynamicEntityWebhookForm
           entity={data.entity}
@@ -216,53 +216,53 @@
       {/key}
     </div>
 
-    <div class="rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-gray-200 px-4 py-3 dark:border-gray-700">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Deliveries</h2>
+    <div class="rounded-lg border shadow-sm ui-card ui-border">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b px-4 py-3 ui-border">
+        <h2 class="text-lg font-semibold ui-text">Deliveries</h2>
         <div class="flex items-center gap-2">
-          <select value={data.status} onchange={chooseStatus} class="rounded-lg border border-gray-300 bg-white px-2 py-1 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" data-testid="status-filter">
+          <select value={data.status} onchange={chooseStatus} class="rounded-lg border px-2 py-1 text-sm ui-card ui-text ui-border" data-testid="status-filter">
             <option value="">All</option>
             <option value="PENDING">PENDING</option>
             <option value="DELIVERED">DELIVERED</option>
             <option value="STICKY">STICKY</option>
           </select>
-          <button type="button" onclick={() => invalidateAll()} class="inline-flex items-center gap-1 rounded border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700" data-testid="refresh-deliveries">
+          <button type="button" onclick={() => invalidateAll()} class="inline-flex items-center gap-1 rounded border px-2 py-1 text-xs ui-hover ui-muted ui-border" data-testid="refresh-deliveries">
             <RefreshCw size={12} /> Refresh
           </button>
         </div>
       </div>
       {#if data.deliveriesError}
-        <div class="p-4 text-sm text-red-700 dark:text-red-300" data-testid="deliveries-error">{data.deliveriesError}</div>
+        <div class="p-4 text-sm ui-text-error" data-testid="deliveries-error">{data.deliveriesError}</div>
       {:else if data.deliveries.length === 0}
-        <div class="p-8 text-center text-sm text-gray-500 dark:text-gray-400" data-testid="no-deliveries">No deliveries{data.status ? ` with status ${data.status}` : ""} yet.</div>
+        <div class="p-8 text-center text-sm ui-muted" data-testid="no-deliveries">No deliveries{data.status ? ` with status ${data.status}` : ""} yet.</div>
       {:else}
         <div class="overflow-x-auto">
           <table class="w-full text-sm" data-testid="deliveries-table">
-            <thead class="bg-gray-50 dark:bg-gray-900">
+            <thead class="ui-card">
               <tr>
-                <th class="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Event</th>
-                <th class="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Status</th>
-                <th class="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Attempts</th>
-                <th class="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"></th>
+                <th class="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider ui-muted">Event</th>
+                <th class="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider ui-muted">Status</th>
+                <th class="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider ui-muted">Attempts</th>
+                <th class="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider ui-muted"></th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody class="divide-y ui-border">
               {#each data.deliveries as d (d.event_id)}
                 <tr data-testid="delivery-{d.event_id}">
                   <td class="px-3 py-2 text-xs">
-                    <div class="font-mono text-gray-900 dark:text-gray-100">{d.event_name}</div>
-                    {#if d.record_id}<div class="font-mono text-gray-500 dark:text-gray-400">record {d.record_id}</div>{/if}
-                    <div class="text-gray-500 dark:text-gray-400">{d.created_at}</div>
+                    <div class="font-mono ui-text">{d.event_name}</div>
+                    {#if d.record_id}<div class="font-mono ui-muted">record {d.record_id}</div>{/if}
+                    <div class="ui-muted">{d.created_at}</div>
                   </td>
                   <td class="px-3 py-2 text-xs">
                     <span class="rounded-full px-2 py-0.5 {statusClass[d.status] ?? ''}">{d.status}</span>
-                    {#if d.last_http_status}<div class="mt-1 text-gray-500 dark:text-gray-400">HTTP {d.last_http_status}</div>{/if}
-                    {#if d.last_error}<div class="mt-1 max-w-xs break-words text-gray-500 dark:text-gray-400">{d.last_error}</div>{/if}
+                    {#if d.last_http_status}<div class="mt-1 ui-muted">HTTP {d.last_http_status}</div>{/if}
+                    {#if d.last_error}<div class="mt-1 max-w-xs break-words ui-muted">{d.last_error}</div>{/if}
                   </td>
-                  <td class="px-3 py-2 text-xs text-gray-700 dark:text-gray-300">{d.attempts}</td>
+                  <td class="px-3 py-2 text-xs ui-muted">{d.attempts}</td>
                   <td class="px-3 py-2 text-right">
                     {#if d.status === "STICKY"}
-                      <button type="button" onclick={() => retry(d.event_id)} disabled={busy !== null} class="inline-flex items-center gap-1 rounded border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700" data-testid="retry-{d.event_id}">
+                      <button type="button" onclick={() => retry(d.event_id)} disabled={busy !== null} class="inline-flex items-center gap-1 rounded border px-2 py-1 text-xs disabled:opacity-50 ui-hover ui-muted ui-border" data-testid="retry-{d.event_id}">
                         <RotateCcw size={12} /> {busy === `retry-${d.event_id}` ? "Queuing…" : "Retry"}
                       </button>
                     {/if}
@@ -272,14 +272,14 @@
             </tbody>
           </table>
         </div>
-        <div class="border-t border-gray-200 px-4 py-2 text-xs text-gray-500 dark:border-gray-700 dark:text-gray-400">The 50 most recent{data.status ? ` ${data.status}` : ""} deliveries, newest first.</div>
+        <div class="border-t px-4 py-2 text-xs ui-muted ui-border">The 50 most recent{data.status ? ` ${data.status}` : ""} deliveries, newest first.</div>
       {/if}
     </div>
     </div>
     {/snippet}
 
     {#snippet side()}
-      <div class="h-[36rem] w-full overflow-hidden rounded-lg border border-gray-200 shadow-sm lg:h-[calc(100vh-80px-3rem)] dark:border-gray-700">
+      <div class="h-[36rem] w-full overflow-hidden rounded-lg border shadow-sm lg:h-[calc(100vh-80px-3rem)] ui-border">
         <OpeyChat {opeyChatOptions} userAuthenticated={!!page.data.userId} {clientTools} {clientContext} />
       </div>
     {/snippet}

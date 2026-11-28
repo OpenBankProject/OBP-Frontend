@@ -183,7 +183,7 @@
 	{/if}
 
 	<nav
-		class="flex h-full min-h-0 flex-col gap-4 overflow-hidden bg-primary-50 dark:bg-primary-950
+		class="flex h-full min-h-0 flex-col gap-4 overflow-hidden ui-page
 		       transition-[width] duration-200 ease-[cubic-bezier(0.165,0.85,0.45,1)]"
 		style="width: {isNavExpanded ? '358px' : '64px'}"
 	>
@@ -220,7 +220,7 @@
 						<a
 							href={item.href}
 							class="btn w-full justify-start gap-3 px-3 py-2 whitespace-nowrap overflow-hidden hover:preset-tonal"
-							class:preset-filled-primary-50-950={currentPathname === item.href}
+							class:ui-panel={currentPathname === item.href}
 							class:border={currentPathname === item.href}
 							class:border-solid-secondary-500={currentPathname === item.href}
 							title={tooltip(item.href, item.label)}
@@ -249,8 +249,8 @@
 					{#if isNavExpanded}
 						<button
 							type="button"
-							class="hover:bg-surface-100-800 flex w-full items-center justify-between rounded-md p-3 text-start transition-colors"
-							class:bg-primary-100-800={isMyAccountActive}
+							class="flex w-full items-center justify-between rounded-md p-3 text-start transition-colors ui-hover"
+							class:ui-panel={isMyAccountActive}
 							onclick={toggleMyAccount}
 						>
 							<div class="flex items-center gap-3 whitespace-nowrap overflow-hidden">
@@ -272,9 +272,9 @@
 										<a
 											href={subItem.href}
 											class="btn w-full justify-start gap-3 px-2 ps-6 text-sm whitespace-nowrap overflow-hidden hover:preset-tonal"
-											class:preset-filled-secondary-50-950={currentPathname === subItem.href}
+											class:ui-panel={currentPathname === subItem.href}
 											class:border-s-2={currentPathname === subItem.href}
-											class:border-primary-500={currentPathname === subItem.href}
+											class:ui-border-brand={currentPathname === subItem.href}
 											title={tooltip(subItem.href, subItem.label)}
 											aria-label={subItem.label}
 											target={subItem.external ? '_blank' : undefined}
@@ -295,7 +295,7 @@
 						<a
 							href="/user"
 							class="btn w-full justify-start gap-3 px-3 py-2 hover:preset-tonal"
-							class:preset-filled-primary-50-950={isMyAccountActive}
+							class:ui-panel={isMyAccountActive}
 							title={m.nav_my_account()}
 							aria-label={m.nav_my_account()}
 						>
@@ -315,7 +315,7 @@
 							<a
 								href={section.href}
 								class="btn w-full justify-start gap-3 p-3 whitespace-nowrap overflow-hidden hover:preset-tonal"
-								class:preset-filled-primary-50-950={currentPathname === section.href}
+								class:ui-panel={currentPathname === section.href}
 								title={tooltip(section.href, section.label)}
 								aria-label={section.label}
 								target={section.external ? '_blank' : undefined}
@@ -333,8 +333,8 @@
 						{:else if isNavExpanded}
 							<button
 								type="button"
-								class="hover:bg-surface-100-800 flex w-full items-center justify-between rounded-md p-3 text-start transition-colors"
-								class:bg-primary-100-800={isSectionActive(section)}
+								class="flex w-full items-center justify-between rounded-md p-3 text-start transition-colors ui-hover"
+								class:ui-panel={isSectionActive(section)}
 								onclick={() => toggleSection(section.id)}
 							>
 								<div class="flex items-center gap-3 whitespace-nowrap overflow-hidden">
@@ -359,7 +359,7 @@
 									{#each subsections as group (group.label)}
 										{#if group.label}
 											<li
-												class="text-surface-500 mt-2 px-2 ps-6 text-[11px] font-semibold tracking-wider uppercase"
+												class="mt-2 px-2 ps-6 text-[11px] font-semibold tracking-wider uppercase ui-muted"
 												data-testid="nav-subsection-{group.label}"
 											>
 												{group.label}
@@ -371,9 +371,9 @@
 											<a
 												href={subItem.href}
 												class="btn w-full justify-start gap-3 px-2 ps-6 text-sm whitespace-nowrap overflow-hidden hover:preset-tonal"
-												class:preset-filled-secondary-50-950={isSubItemActive(subItem.href)}
+												class:ui-panel={isSubItemActive(subItem.href)}
 												class:border-s-2={isSubItemActive(subItem.href)}
-												class:border-primary-500={isSubItemActive(subItem.href)}
+												class:ui-border-brand={isSubItemActive(subItem.href)}
 												title={tooltip(subItem.href, subItem.label)}
 												aria-label={subItem.loginRequired && !isAuthenticated ? `${subItem.label} (log in required)` : subItem.label}
 												data-login-required={subItem.loginRequired && !isAuthenticated ? 'true' : undefined}
@@ -400,7 +400,7 @@
 							<a
 								href={section.basePaths[0]}
 								class="btn w-full justify-start gap-3 px-3 py-2 hover:preset-tonal"
-								class:preset-filled-primary-50-950={isSectionActive(section)}
+								class:ui-panel={isSectionActive(section)}
 								title={tooltip(section.basePaths[0], section.label)}
 								aria-label={section.label}
 							>
@@ -420,10 +420,10 @@
 					</a>
 				</div>
 			{:else if isNavExpanded}
-				<div class="flex flex-wrap items-center gap-3 text-xs text-surface-800-200">
+				<div class="flex flex-wrap items-center gap-3 text-xs ui-text">
 					<LightSwitch bind:mode={displayMode} />
 					{#each footerLinks as link (link.href)}
-						<a href={link.href} class="flex items-center gap-2 hover:text-tertiary-400">
+						<a href={link.href} class="flex items-center gap-2 ui-link">
 							{#if link.iconLight && link.iconDark}
 								<img
 									class="h-4"
@@ -434,12 +434,12 @@
 							{link.label}
 						</a>
 					{/each}
-					<a href="/about" class="hover:text-tertiary-400">{m.nav_about()}</a>
+					<a href="/about" class="ui-link">{m.nav_about()}</a>
 					{#if !hideFooterExtras && copyrightHolder && copyrightStartYear}
 						<span> © {copyrightHolder} {copyrightStartYear}-{Math.max(new Date().getFullYear(), 2026)} </span>
 					{/if}
 					{#if sponsorNote}
-						<span class="text-surface-800-200">{sponsorNote}</span>
+						<span class="ui-text">{sponsorNote}</span>
 					{/if}
 					{#if sponsorImageUrl}
 						{#if sponsorInfoUrl}

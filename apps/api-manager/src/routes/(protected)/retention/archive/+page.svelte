@@ -22,8 +22,8 @@
 
   let { data } = $props();
   const when = (v?: string) => (v ? new Date(v).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short", hourCycle: "h23" }) : "—");
-  const th = "px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400";
-  const input = "rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100";
+  const th = "px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted";
+  const input = "rounded-lg border px-3 py-1.5 text-sm ui-card ui-text ui-border";
   const pageHref = (offset: number) => {
     const p = new URLSearchParams({ bank_id: data.bankId, ...Object.fromEntries(Object.entries(data.filters).filter(([, v]) => v)), offset: String(offset) });
     return `?${p}`;
@@ -45,21 +45,21 @@
     <input name="entity_name" value={data.filters.entity_name} placeholder="Dynamic Entity" aria-label="Dynamic Entity" class={input} />
     <input name="resource_id" value={data.filters.resource_id} placeholder="Resource id" aria-label="Resource id" class="{input} font-mono" />
     <input name="owner_user_id" value={data.filters.owner_user_id} placeholder="Owner user id" aria-label="Owner user id" class="{input} font-mono" />
-    <button class="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white dark:bg-blue-500">Filter</button>
+    <button class="rounded-lg px-3 py-1.5 text-sm font-medium preset-filled-primary-500">Filter</button>
   </form>
 
-  {#if data.loadError}<div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300" data-testid="load-error">{data.loadError}</div>{/if}
+  {#if data.loadError}<div class="mb-6 rounded-lg border p-4 text-sm ui-tone-error" data-testid="load-error">{data.loadError}</div>{/if}
 
-  <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+  <div class="overflow-x-auto rounded-lg border shadow-sm ui-card ui-border">
     {#if data.entries.length === 0}
-      <div class="p-8 text-center text-sm text-gray-500 dark:text-gray-400" data-testid="empty">Nothing archived in {data.bankId}{Object.values(data.filters).some(Boolean) ? " that matches" : ""}.</div>
+      <div class="p-8 text-center text-sm ui-muted" data-testid="empty">Nothing archived in {data.bankId}{Object.values(data.filters).some(Boolean) ? " that matches" : ""}.</div>
     {:else}
       <table class="w-full text-sm" data-testid="archive-table">
-        <thead class="bg-gray-50 dark:bg-gray-900"><tr><th class={th}>Archived</th><th class={th}>Resource</th><th class={th}>Owner</th><th class={th}>Deleted after</th><th class={th}>Content</th></tr></thead>
-        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+        <thead class="ui-card"><tr><th class={th}>Archived</th><th class={th}>Resource</th><th class={th}>Owner</th><th class={th}>Deleted after</th><th class={th}>Content</th></tr></thead>
+        <tbody class="divide-y ui-border">
           {#each data.entries as e (e.retention_archive_id)}
             <tr data-testid="row-{e.retention_archive_id}">
-              <td class="px-4 py-3"><a class="text-blue-600 underline dark:text-blue-400" href="/retention/archive/{encodeURIComponent(data.bankId)}/{encodeURIComponent(e.retention_archive_id)}">{when(e.archived_at)}</a></td>
+              <td class="px-4 py-3"><a class="underline ui-link" href="/retention/archive/{encodeURIComponent(data.bankId)}/{encodeURIComponent(e.retention_archive_id)}">{when(e.archived_at)}</a></td>
               <td class="px-4 py-3 font-mono text-xs">{e.resource_type}{e.entity_name ? ` ${e.entity_name}` : ""} {e.resource_id}</td>
               <td class="px-4 py-3 font-mono text-xs">{e.owner_user_id ?? "—"}</td>
               <td class="px-4 py-3 text-xs">{when(e.delete_after)}</td>
@@ -71,7 +71,7 @@
     {/if}
   </div>
   <div class="mt-3 flex gap-3 text-sm">
-    {#if data.offset > 0}<a class="text-blue-600 underline dark:text-blue-400" href={pageHref(Math.max(0, data.offset - data.pageSize))}>Previous</a>{/if}
-    {#if data.entries.length === data.pageSize}<a class="text-blue-600 underline dark:text-blue-400" href={pageHref(data.offset + data.pageSize)}>Next</a>{/if}
+    {#if data.offset > 0}<a class="underline ui-link" href={pageHref(Math.max(0, data.offset - data.pageSize))}>Previous</a>{/if}
+    {#if data.entries.length === data.pageSize}<a class="underline ui-link" href={pageHref(data.offset + data.pageSize)}>Next</a>{/if}
   </div>
 </div>

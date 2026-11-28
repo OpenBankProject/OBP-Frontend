@@ -197,17 +197,17 @@
     <div class="mb-6">
       <button
         onclick={handleBack}
-        class="mb-4 inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+        class="mb-4 inline-flex items-center gap-2 text-sm ui-muted"
       >
         <ArrowLeft size={16} />
         Back to Rules
       </button>
       <div class="flex items-start justify-between">
         <div>
-          <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
+          <h1 class="text-3xl font-bold ui-text">
             Test Rule: {data.rule?.rule_name || "ABAC Rule"}
           </h1>
-          <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+          <p class="mt-2 text-sm ui-muted">
             Rule ID: {data.ruleId}
           </p>
         </div>
@@ -231,7 +231,7 @@
           <!-- Status -->
           <div>
             <div
-              class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1"
+              class="text-xs font-medium mb-1 ui-muted"
             >
               Status
             </div>
@@ -248,11 +248,11 @@
           {#if data.rule?.description}
             <div class="md:col-span-3">
               <div
-                class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1"
+                class="text-xs font-medium mb-1 ui-muted"
               >
                 Description
               </div>
-              <p class="text-sm text-gray-700 dark:text-gray-300">
+              <p class="text-sm ui-muted">
                 {data.rule.description}
               </p>
             </div>
@@ -262,12 +262,12 @@
         <!-- Rule Code - Full Width -->
         <div class="mt-4">
           <div
-            class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1"
+            class="text-xs font-medium mb-1 ui-muted"
           >
             Rule Code
           </div>
           <div
-            class="code-block rounded border border-gray-200 bg-gray-50 p-2 dark:border-gray-700 dark:bg-gray-900"
+            class="code-block rounded border p-2 ui-card ui-border"
           >
             <pre class="overflow-x-auto text-xs"><code
                 >{data.rule?.rule_code}</code
@@ -279,14 +279,14 @@
         {#if detectedParameters.length > 0}
           <div class="mt-4">
             <div
-              class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1"
+              class="text-xs font-medium mb-1 ui-muted"
             >
               Detected Parameters
             </div>
             <div class="flex flex-wrap gap-1">
               {#each detectedParameters as param}
                 <span
-                  class="inline-flex items-center rounded bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
+                  class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium ui-tone-info"
                 >
                   {param}
                 </span>
@@ -308,7 +308,7 @@
       <div class="panel-content">
         <!-- Parameters Form -->
         <div class="space-y-4">
-          <div class="text-sm font-medium text-gray-700 dark:text-gray-300">
+          <div class="text-sm font-medium ui-muted">
             Select Parameter Context
           </div>
 
@@ -409,10 +409,10 @@
           <!-- Parameter inputs grouped by top-level object -->
           {#if Object.keys(parameters).length === 0}
             <div
-              class="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-6 text-center dark:border-gray-700 dark:bg-gray-900"
+              class="rounded-lg border border-dashed p-6 text-center ui-card ui-border"
             >
-              <Code class="mx-auto mb-2 text-gray-400" size={24} />
-              <p class="text-sm text-gray-600 dark:text-gray-400">
+              <Code class="mx-auto mb-2 ui-muted" size={24} />
+              <p class="text-sm ui-muted">
                 Click a parameter context above to start adding test values
               </p>
             </div>
@@ -428,7 +428,7 @@
                     <button
                       type="button"
                       onclick={() => addCustomParameter(topLevel)}
-                      class="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                      class="text-xs ui-link"
                     >
                       + Add {topLevel} property
                     </button>
@@ -496,19 +496,19 @@
           <!-- Execution Results -->
           {#if executeError}
             <div
-              class="result-box result-error flex items-start gap-3 rounded-lg border border-red-300 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20"
+              class="result-box result-error flex items-start gap-3 rounded-lg border p-4 ui-tone-error"
             >
               <XCircle
-                class="shrink-0 text-red-600 dark:text-red-400"
+                class="shrink-0 ui-text-error"
                 size={20}
               />
               <div class="flex-1">
                 <h4
-                  class="text-sm font-semibold text-red-800 dark:text-red-200"
+                  class="text-sm font-semibold ui-text-error"
                 >
                   Execution Failed
                 </h4>
-                <p class="mt-1 text-sm text-red-700 dark:text-red-300">
+                <p class="mt-1 text-sm ui-text-error">
                   {executeError}
                 </p>
               </div>
@@ -517,23 +517,23 @@
 
           {#if executeResult}
             <div
-              class="result-box result-success flex items-start gap-3 rounded-lg border border-green-300 bg-green-50 p-4 dark:border-green-800 dark:bg-green-900/20"
+              class="result-box result-success flex items-start gap-3 rounded-lg border p-4 ui-tone-success"
             >
               <CheckCircle
-                class="shrink-0 text-green-600 dark:text-green-400"
+                class="shrink-0 ui-text-success"
                 size={20}
               />
               <div class="flex-1">
                 <h4
-                  class="text-sm font-semibold text-green-800 dark:text-green-200"
+                  class="text-sm font-semibold ui-text-success"
                 >
                   Execution Result
                 </h4>
                 <div
-                  class="mt-2 rounded border border-green-200 bg-white p-3 dark:border-green-700 dark:bg-gray-800"
+                  class="mt-2 rounded border p-3 ui-card ui-tone-success ui-border"
                 >
                   <pre
-                    class="overflow-x-auto text-xs text-gray-800 dark:text-gray-200">{JSON.stringify(
+                    class="overflow-x-auto text-xs ui-text">{JSON.stringify(
                       executeResult,
                       null,
                       2,
@@ -553,34 +553,22 @@
   }
 
   .panel {
-    background: white;
+    background: var(--ui-card);
     border-radius: 0.75rem;
     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
     overflow: hidden;
   }
 
-  :global([data-mode="dark"]) .panel {
-    background: rgb(31, 41, 55);
-  }
-
   .panel-header {
     padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid #e5e7eb;
-  }
-
-  :global([data-mode="dark"]) .panel-header {
-    border-bottom-color: rgb(55, 65, 81);
+    border-bottom: 1px solid var(--ui-border);
   }
 
   .panel-title {
     font-size: 1.125rem;
     font-weight: 600;
-    color: #111827;
+    color: var(--ui-text);
     margin: 0;
-  }
-
-  :global([data-mode="dark"]) .panel-title {
-    color: #f9fafb;
   }
 
   .panel-content {
@@ -592,8 +580,8 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.625rem 1.25rem;
-    background: #3b82f6;
-    color: white;
+    background: var(--ui-fill-main-bg);
+    color: var(--ui-fill-main-text);
     border: none;
     border-radius: 0.5rem;
     font-size: 0.875rem;
@@ -603,11 +591,7 @@
   }
 
   .btn-primary:hover {
-    background: #2563eb;
-  }
-
-  :global([data-mode="dark"]) .btn-primary:hover {
-    background: #2563eb;
+    opacity: 0.85;
   }
 
   .btn-execute {
@@ -617,8 +601,8 @@
     gap: 0.5rem;
     width: 100%;
     padding: 0.75rem 1rem;
-    background: #10b981;
-    color: white;
+    background: var(--ui-tone-success-bg);
+    color: var(--ui-tone-success-text);
     border: none;
     border-radius: 0.5rem;
     font-size: 0.875rem;
@@ -628,7 +612,8 @@
   }
 
   .btn-execute:hover:not(:disabled) {
-    background: #059669;
+    background: var(--ui-tone-success-bg);
+    color: var(--ui-tone-success-text);
   }
 
   .btn-execute:disabled {
@@ -651,51 +636,35 @@
   }
 
   .code-block code {
-    color: #1f2937;
-  }
-
-  :global([data-mode="dark"]) .code-block code {
-    color: #f9fafb;
+    color: var(--ui-text);
   }
 
   .status-active {
-    background: #10b981;
-    color: #ffffff;
+    background: var(--ui-tone-success-bg);
+    color: var(--ui-tone-success-text);
   }
 
   .status-inactive {
-    background: #ef4444;
-    color: #ffffff;
+    background: var(--ui-tone-error-bg);
+    color: var(--ui-tone-error-text);
   }
 
   .context-button {
     padding: 0.75rem 1rem;
-    background: white;
-    border: 2px solid #e5e7eb;
+    background: var(--ui-card);
+    border: 2px solid var(--ui-border);
     border-radius: 0.5rem;
     font-size: 0.875rem;
     font-weight: 500;
-    color: #374151;
+    color: var(--ui-text);
     cursor: pointer;
     transition: all 0.2s;
   }
 
   .context-button:hover {
-    border-color: #3b82f6;
-    background: #eff6ff;
-    color: #3b82f6;
-  }
-
-  :global([data-mode="dark"]) .context-button {
-    background: rgb(31, 41, 55);
-    border-color: rgb(55, 65, 81);
-    color: #d1d5db;
-  }
-
-  :global([data-mode="dark"]) .context-button:hover {
-    border-color: #3b82f6;
-    background: rgb(30, 58, 138);
-    color: #3b82f6;
+    border-color: var(--ui-tone-info-border);
+    background: var(--ui-tone-info-bg);
+    color: var(--ui-tone-info-text);
   }
 
   .context-icon {
@@ -704,28 +673,18 @@
     justify-content: center;
     width: 1.5rem;
     height: 1.5rem;
-    background: #dbeafe;
+    background: var(--ui-tone-info-bg);
     border-radius: 0.25rem;
     font-size: 0.75rem;
     font-weight: 700;
-    color: #1e40af;
-  }
-
-  :global([data-mode="dark"]) .context-icon {
-    background: rgba(59, 130, 246, 0.2);
-    color: #60a5fa;
+    color: var(--ui-tone-info-text);
   }
 
   .parameter-group {
     padding: 1rem;
-    background: #f9fafb;
+    background: var(--ui-card);
     border-radius: 0.5rem;
-    border: 1px solid #e5e7eb;
-  }
-
-  :global([data-mode="dark"]) .parameter-group {
-    background: rgb(17, 24, 39);
-    border-color: rgb(55, 65, 81);
+    border: 1px solid var(--ui-border);
   }
 
   .parameter-group-header {
@@ -734,22 +693,14 @@
     justify-content: space-between;
     margin-bottom: 0.75rem;
     padding-bottom: 0.5rem;
-    border-bottom: 1px solid #e5e7eb;
-  }
-
-  :global([data-mode="dark"]) .parameter-group-header {
-    border-bottom-color: rgb(55, 65, 81);
+    border-bottom: 1px solid var(--ui-border);
   }
 
   .parameter-group-title {
     font-size: 0.875rem;
     font-weight: 600;
-    color: #111827;
+    color: var(--ui-text);
     font-family: monospace;
-  }
-
-  :global([data-mode="dark"]) .parameter-group-title {
-    color: #f9fafb;
   }
 
   .parameter-input-row {
@@ -762,34 +713,24 @@
     min-width: 120px;
     font-size: 0.75rem;
     font-weight: 500;
-    color: #6b7280;
+    color: var(--ui-muted);
     font-family: monospace;
-  }
-
-  :global([data-mode="dark"]) .parameter-label {
-    color: #9ca3af;
   }
 
   .parameter-input {
     flex: 1;
     padding: 0.5rem 0.75rem;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--ui-border);
     border-radius: 0.375rem;
     font-size: 0.875rem;
-    background: white;
-    color: #111827;
+    background: var(--ui-card);
+    color: var(--ui-text);
   }
 
   .parameter-input:focus {
     outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
-  }
-
-  :global([data-mode="dark"]) .parameter-input {
-    background: rgb(31, 41, 55);
-    border-color: rgb(75, 85, 99);
-    color: #f9fafb;
+    border-color: var(--ui-link);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--ui-link) 10%, transparent);
   }
 
   .remove-button {
@@ -799,32 +740,20 @@
     width: 2rem;
     height: 2rem;
     padding: 0;
-    background: white;
-    border: 1px solid #d1d5db;
+    background: var(--ui-card);
+    border: 1px solid var(--ui-border);
     border-radius: 0.375rem;
     font-size: 1.25rem;
     font-weight: 400;
-    color: #6b7280;
+    color: var(--ui-muted);
     cursor: pointer;
     transition: all 0.2s;
   }
 
   .remove-button:hover {
-    background: #fee2e2;
-    border-color: #ef4444;
-    color: #ef4444;
-  }
-
-  :global([data-mode="dark"]) .remove-button {
-    background: rgb(31, 41, 55);
-    border-color: rgb(75, 85, 99);
-    color: #9ca3af;
-  }
-
-  :global([data-mode="dark"]) .remove-button:hover {
-    background: rgba(239, 68, 68, 0.1);
-    border-color: #ef4444;
-    color: #ef4444;
+    background: var(--ui-tone-error-bg);
+    border-color: var(--ui-tone-error-border);
+    color: var(--ui-tone-error-text);
   }
 
   .result-box {

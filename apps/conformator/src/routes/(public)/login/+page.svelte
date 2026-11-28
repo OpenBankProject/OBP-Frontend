@@ -25,7 +25,7 @@
 <h1 class="h2">{m.login_heading()}</h1>
 
 {#if data.loginError}
-	<p class="mt-4 preset-tonal-error rounded p-3" role="alert" data-testid="login-error">{messages[data.loginError]?.()}</p>
+	<p class="mt-4 ui-tone-error rounded p-3" role="alert" data-testid="login-error">{messages[data.loginError]?.()}</p>
 {/if}
 
 {#if data.providers.length === 0}
@@ -33,7 +33,7 @@
 {:else}
 	<ul class="mt-4 flex flex-col gap-2">
 		{#each data.providers as provider (provider)}
-			<li><a class="btn preset-filled" href="/login/{provider}" data-testid="login-provider-{provider}">{m.login_with({ provider })}</a></li>
+			<li><a class="btn preset-filled-primary-500" href="/login/{provider}" data-testid="login-provider-{provider}">{m.login_with({ provider })}</a></li>
 		{/each}
 	</ul>
 {/if}

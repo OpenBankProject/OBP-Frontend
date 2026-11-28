@@ -140,7 +140,7 @@
 <div class="mb-4">
   <a
     href="/chat-rooms/{level}"
-    class="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+    class="text-sm ui-link"
     data-testid="back-link"
   >
     &larr; Back to {level === "bank" ? "Bank" : "System"} Chat Rooms
@@ -148,7 +148,7 @@
 </div>
 
 <div class="flex items-center justify-between mb-4">
-  <p class="text-sm text-gray-600 dark:text-gray-400">
+  <p class="text-sm ui-muted">
     <span class="font-mono">{chatRoomId}</span> &middot; Level: {level}{bankId ? ` · Bank: ${bankId}` : ""}
     {#if participants.length > 0}
       &middot; Participants: {participants.length}
@@ -157,7 +157,7 @@
   {#if !room?.is_open_room}
     <a
       href={addParticipantLink}
-      class="inline-flex items-center rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+      class="inline-flex items-center rounded-lg px-3 py-1.5 text-sm font-medium preset-filled-primary-500"
       data-testid="add-participant-btn"
     >
       Add Participant
@@ -166,70 +166,70 @@
 </div>
 
 {#if successMessage}
-  <div class="mb-4 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-800 dark:border-green-800 dark:bg-green-900/20 dark:text-green-200" data-testid="success-message">
+  <div class="mb-4 rounded-lg border p-3 text-sm ui-tone-success" data-testid="success-message">
     {successMessage}
   </div>
 {/if}
 
 {#if error}
-  <div class="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800 dark:border-red-800 dark:bg-red-900/20 dark:text-red-200" data-testid="error-message">
+  <div class="mb-4 rounded-lg border p-3 text-sm ui-tone-error" data-testid="error-message">
     {error}
   </div>
 {/if}
 
 {#if loading}
   <div class="flex items-center justify-center py-8">
-    <div class="h-6 w-6 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
-    <span class="ml-2 text-sm text-gray-600 dark:text-gray-400">Loading...</span>
+    <div class="h-6 w-6 animate-spin rounded-full border-2 border-t-transparent border-current ui-text-brand"></div>
+    <span class="ml-2 text-sm ui-muted">Loading...</span>
   </div>
 {:else if participants.length > 0}
   <div class="overflow-x-auto">
     <table class="w-full border-collapse" data-testid="participants-table">
       <thead>
-        <tr class="border-b-2 border-gray-200 dark:border-gray-700">
-          <th class="text-left px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-400">User ID</th>
-          <th class="text-left px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-400">Permissions</th>
-          <th class="text-left px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-400">Joined</th>
-          <th class="text-left px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-400">Muted</th>
-          <th class="text-right px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-400">Actions</th>
+        <tr class="border-b-2 ui-border">
+          <th class="text-left px-3 py-2 text-sm font-medium ui-muted">User ID</th>
+          <th class="text-left px-3 py-2 text-sm font-medium ui-muted">Permissions</th>
+          <th class="text-left px-3 py-2 text-sm font-medium ui-muted">Joined</th>
+          <th class="text-left px-3 py-2 text-sm font-medium ui-muted">Muted</th>
+          <th class="text-right px-3 py-2 text-sm font-medium ui-muted">Actions</th>
         </tr>
       </thead>
       <tbody>
         {#each participants as participant (participant.participant_id)}
-          <tr class="border-b border-gray-100 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800/50" data-testid="participant-row-{participant.user_id}">
-            <td class="px-3 py-2 text-sm text-gray-900 dark:text-gray-100">
+          <tr class="border-b ui-hover ui-border" data-testid="participant-row-{participant.user_id}">
+            <td class="px-3 py-2 text-sm ui-text">
               <span class="font-medium">{participant.username || participant.user_id}</span>
               {#if participant.provider}
-                <br /><span class="text-xs text-gray-500 dark:text-gray-500">{participant.provider}</span>
+                <br /><span class="text-xs ui-muted">{participant.provider}</span>
               {/if}
               {#if participant.username}
-                <br /><span class="text-xs font-mono text-gray-500 dark:text-gray-500">{participant.user_id}</span>
+                <br /><span class="text-xs font-mono ui-muted">{participant.user_id}</span>
               {/if}
               {#if participant.consumer_id}
-                <br /><span class="text-xs text-gray-500">Consumer: {participant.consumer_name || participant.consumer_id}</span>
+                <br /><span class="text-xs ui-muted">Consumer: {participant.consumer_name || participant.consumer_id}</span>
               {/if}
             </td>
-            <td class="px-3 py-2 text-sm text-gray-900 dark:text-gray-100">
+            <td class="px-3 py-2 text-sm ui-text">
               <div class="flex flex-wrap gap-1">
                 {#each participant.permissions as perm}
-                  <span class="rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
+                  <span class="rounded-full px-2 py-0.5 text-xs ui-tone-info">
                     {perm}
                   </span>
                 {/each}
               </div>
             </td>
-            <td class="px-3 py-2 text-sm text-gray-900 dark:text-gray-100">{formatDate(participant.joined_at)}</td>
+            <td class="px-3 py-2 text-sm ui-text">{formatDate(participant.joined_at)}</td>
             <td class="px-3 py-2 text-sm">
               <span class="rounded-full px-2 py-0.5 text-xs font-medium {participant.is_muted
-                ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
-                : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'}">
+                ? 'ui-tone-warning'
+                : 'ui-tone-success'}">
                 {participant.is_muted ? "Muted" : "Active"}
               </span>
             </td>
             <td class="px-3 py-2 text-right">
               <button
                 onclick={() => removeParticipant(participant.user_id)}
-                class="inline-flex items-center rounded border border-red-300 bg-red-50 px-2 py-1 text-xs font-medium text-red-700 hover:bg-red-100 dark:border-red-600 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50"
+                class="inline-flex items-center rounded border px-2 py-1 text-xs font-medium ui-tone-error"
                 data-testid="remove-participant-{participant.user_id}"
               >
                 Remove
@@ -241,16 +241,16 @@
     </table>
   </div>
 {:else if !error}
-  <div class="rounded-lg bg-gray-100 p-8 text-center dark:bg-gray-800" data-testid="empty-participants">
+  <div class="rounded-lg p-8 text-center ui-panel" data-testid="empty-participants">
     {#if room?.is_open_room}
-      <p class="text-sm font-medium text-gray-700 dark:text-gray-300" data-testid="everyone-label">
+      <p class="text-sm font-medium ui-muted" data-testid="everyone-label">
         This room is Open. Everyone can join.
       </p>
     {:else}
-      <p class="text-sm font-medium text-gray-700 dark:text-gray-300">
+      <p class="text-sm font-medium ui-muted">
         No participants found
       </p>
-      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+      <p class="mt-1 text-sm ui-muted">
         Add a participant to this chat room.
       </p>
     {/if}

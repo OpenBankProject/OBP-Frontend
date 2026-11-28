@@ -175,44 +175,28 @@
   }
 
   .panel {
-    background: white;
+    background: var(--ui-card);
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     overflow: hidden;
   }
 
-  :global([data-mode="dark"]) .panel {
-    background: rgb(var(--color-surface-800));
-  }
-
   .panel-header {
     padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid #e5e7eb;
-  }
-
-  :global([data-mode="dark"]) .panel-header {
-    border-bottom-color: rgb(var(--color-surface-700));
+    border-bottom: 1px solid var(--ui-border);
   }
 
   .panel-title {
     font-size: 1.25rem;
     font-weight: 600;
-    color: #111827;
+    color: var(--ui-text);
     margin: 0;
-  }
-
-  :global([data-mode="dark"]) .panel-title {
-    color: var(--color-surface-100);
   }
 
   .panel-subtitle {
     font-size: 0.8125rem;
-    color: #6b7280;
+    color: var(--ui-muted);
     margin: 0.25rem 0 0;
-  }
-
-  :global([data-mode="dark"]) .panel-subtitle {
-    color: var(--color-surface-400);
   }
 
   .header-row {
@@ -227,26 +211,17 @@
     align-items: center;
     gap: 0.375rem;
     padding: 0.375rem 0.75rem;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--ui-border);
     border-radius: 6px;
     font-size: 0.8125rem;
-    color: #374151;
+    color: var(--ui-text);
     text-decoration: none;
     white-space: nowrap;
   }
 
   .help-link:hover {
-    background: #f3f4f6;
+    background: var(--ui-hover);
     text-decoration: underline;
-  }
-
-  :global([data-mode="dark"]) .help-link {
-    border-color: rgb(var(--color-surface-600));
-    color: var(--color-surface-200);
-  }
-
-  :global([data-mode="dark"]) .help-link:hover {
-    background: rgb(var(--color-surface-700));
   }
 
   .panel-content {
@@ -274,22 +249,18 @@
   .field-label {
     font-size: 0.75rem;
     font-weight: 600;
-    color: #374151;
-  }
-
-  :global([data-mode="dark"]) .field-label {
-    color: var(--color-surface-300);
+    color: var(--ui-text);
   }
 
   .field-label .optional {
     font-weight: 400;
-    color: #9ca3af;
+    color: var(--ui-muted);
   }
 
   .field-input,
   .field-textarea {
     padding: 0.5rem 0.75rem;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--ui-border);
     border-radius: 6px;
     font-size: 0.875rem;
     font-family: monospace;
@@ -298,28 +269,15 @@
   .field-input:focus,
   .field-textarea:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: var(--ui-link);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-link) 10%, transparent);
   }
 
   .field-input:disabled,
   .field-textarea:disabled {
-    background: #f9fafb;
+    background: var(--ui-card);
     cursor: not-allowed;
     opacity: 0.6;
-  }
-
-  :global([data-mode="dark"]) .field-input,
-  :global([data-mode="dark"]) .field-textarea {
-    background: rgb(var(--color-surface-700));
-    border-color: rgb(var(--color-surface-600));
-    color: var(--color-surface-100);
-  }
-
-  :global([data-mode="dark"]) .field-input:focus,
-  :global([data-mode="dark"]) .field-textarea:focus {
-    border-color: rgb(var(--color-primary-500));
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
   }
 
   .field-textarea {
@@ -333,8 +291,8 @@
 
   .btn-publish {
     padding: 0.5rem 1.5rem;
-    background: #51b265;
-    color: white;
+    background: var(--ui-tone-success-bg);
+    color: var(--ui-tone-success-text);
     border: none;
     border-radius: 6px;
     font-size: 0.875rem;
@@ -344,7 +302,8 @@
   }
 
   .btn-publish:hover:not(:disabled) {
-    background: #3d9e52;
+    background: var(--ui-tone-success-bg);
+    color: var(--ui-tone-success-text);
   }
 
   .btn-publish:disabled {
@@ -359,27 +318,15 @@
   }
 
   .alert-error {
-    background: #fee2e2;
-    color: #991b1b;
-    border: 1px solid #fecaca;
-  }
-
-  :global([data-mode="dark"]) .alert-error {
-    background: rgb(var(--color-error-900));
-    color: rgb(var(--color-error-200));
-    border-color: rgb(var(--color-error-800));
+    background: var(--ui-tone-error-bg);
+    color: var(--ui-tone-error-text);
+    border: 1px solid var(--ui-tone-error-border);
   }
 
   .alert-success {
-    background: #d1fae5;
-    color: #065f46;
-    border: 1px solid #a7f3d0;
-  }
-
-  :global([data-mode="dark"]) .alert-success {
-    background: rgb(var(--color-success-900));
-    color: rgb(var(--color-success-200));
-    border-color: rgb(var(--color-success-800));
+    background: var(--ui-tone-success-bg);
+    color: var(--ui-tone-success-text);
+    border: 1px solid var(--ui-tone-success-border);
   }
 
   @media (max-width: 768px) {

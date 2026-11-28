@@ -229,11 +229,11 @@
   }
 
   const statusStyles: Record<ApiProductSubscriptionStatus, string> = {
-    requested: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
-    active: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
-    past_due: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300",
-    suspended: "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300",
-    cancelled: "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300",
+    requested: "ui-tone-info",
+    active: "ui-tone-success",
+    past_due: "ui-tone-warning",
+    suspended: "ui-tone-warning",
+    cancelled: "ui-panel ui-muted",
   };
 
   function statusStyle(status: string): string {
@@ -249,13 +249,13 @@
 </script>
 
 <section
-  class="mb-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+  class="mb-6 rounded-lg border p-6 shadow-sm ui-card ui-border"
   data-testid="api-product-subscriptions"
 >
-  <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
+  <h2 class="mb-4 text-lg font-semibold ui-text">
     Subscriptions
     {#if !isLoading && !loadError}
-      <span class="ml-2 text-sm font-normal text-gray-500" data-testid="api-product-subscriptions-count">({subscriptions.length})</span>
+      <span class="ml-2 text-sm font-normal ui-muted" data-testid="api-product-subscriptions-count">({subscriptions.length})</span>
     {/if}
   </h2>
 
@@ -266,26 +266,26 @@
   {/if}
 
   {#if isLoading}
-    <p class="text-sm text-gray-500 dark:text-gray-400" data-testid="api-product-subscriptions-loading">Loading subscriptions...</p>
+    <p class="text-sm ui-muted" data-testid="api-product-subscriptions-loading">Loading subscriptions...</p>
   {:else if loadError}
-    <p class="text-sm text-red-700 dark:text-red-400" data-testid="api-product-subscriptions-error">{loadError}</p>
+    <p class="text-sm ui-text-error" data-testid="api-product-subscriptions-error">{loadError}</p>
   {:else if subscriptions.length === 0}
-    <p class="text-sm text-gray-500 dark:text-gray-400" data-testid="api-product-subscriptions-empty">No subscriptions.</p>
+    <p class="text-sm ui-muted" data-testid="api-product-subscriptions-empty">No subscriptions.</p>
   {:else}
     <div class="overflow-x-auto">
-      <table class="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-700">
-        <thead class="bg-gray-50 dark:bg-gray-900">
+      <table class="min-w-full divide-y text-sm ui-border">
+        <thead class="ui-card">
           <tr>
-            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Consumer ID</th>
-            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Status</th>
-            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Start</th>
-            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">End</th>
-            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Created by user ID</th>
-            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Attributes</th>
+            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Consumer ID</th>
+            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Status</th>
+            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Start</th>
+            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">End</th>
+            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Created by user ID</th>
+            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ui-muted">Attributes</th>
             <th class="px-4 py-3"></th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+        <tbody class="divide-y ui-border">
           {#each subscriptions as subscription (subscription.api_product_subscription_id)}
             <tr
               class="align-top"
@@ -295,10 +295,10 @@
               <td class="px-4 py-3">
                 <a
                   href="/consumers/{subscription.consumer_id}/edit"
-                  class="font-mono text-xs text-blue-600 hover:underline dark:text-blue-400"
+                  class="font-mono text-xs hover:underline ui-link"
                   data-testid="api-product-subscription-consumer-link"
                 >{subscription.consumer_id}</a>
-                <div class="mt-1 font-mono text-[11px] text-gray-500 dark:text-gray-400">
+                <div class="mt-1 font-mono text-[11px] ui-muted">
                   Subscription ID: {subscription.api_product_subscription_id}
                 </div>
               </td>
@@ -307,12 +307,12 @@
                   {statusLabel(subscription.status)}
                 </span>
               </td>
-              <td class="whitespace-nowrap px-4 py-3 text-gray-700 dark:text-gray-300">{formatDate(subscription.start_date)}</td>
-              <td class="whitespace-nowrap px-4 py-3 text-gray-700 dark:text-gray-300">
+              <td class="whitespace-nowrap px-4 py-3 ui-muted">{formatDate(subscription.start_date)}</td>
+              <td class="whitespace-nowrap px-4 py-3 ui-muted">
                 {subscription.end_date ? formatDate(subscription.end_date) : "Open-ended"}
               </td>
-              <td class="px-4 py-3 font-mono text-xs text-gray-600 dark:text-gray-400">{subscription.created_by_user_id}</td>
-              <td class="px-4 py-3 text-xs text-gray-700 dark:text-gray-300">
+              <td class="px-4 py-3 font-mono text-xs ui-muted">{subscription.created_by_user_id}</td>
+              <td class="px-4 py-3 text-xs ui-muted">
                 {#if subscription.attributes && subscription.attributes.length > 0}
                   <ul class="space-y-0.5">
                     {#each subscription.attributes as subscriptionAttribute (subscriptionAttribute.api_product_subscription_attribute_id)}
@@ -331,8 +331,8 @@
                       onclick={() => changeStatus(subscription, statusAction)}
                       disabled={busySubscriptionId === subscription.api_product_subscription_id}
                       class="rounded-md border px-3 py-1 text-xs font-medium disabled:opacity-50 {statusAction.confirm
-                        ? 'border-red-300 text-red-700 hover:bg-red-50 dark:border-red-700 dark:text-red-300 dark:hover:bg-red-900/20'
-                        : 'border-green-300 text-green-700 hover:bg-green-50 dark:border-green-700 dark:text-green-300 dark:hover:bg-green-900/20'}"
+                        ? 'ui-tone-error'
+                        : 'ui-tone-success'}"
                       data-testid="api-product-subscription-action-{statusAction.label.toLowerCase()}"
                     >
                       {statusAction.label}
@@ -342,7 +342,7 @@
                     type="button"
                     onclick={() => deleteSubscription(subscription)}
                     disabled={busySubscriptionId === subscription.api_product_subscription_id}
-                    class="rounded-md border border-red-300 bg-red-50 px-3 py-1 text-xs font-medium text-red-700 hover:bg-red-100 disabled:opacity-50 dark:border-red-700 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50"
+                    class="rounded-md border px-3 py-1 text-xs font-medium disabled:opacity-50 ui-tone-error"
                     data-testid="api-product-subscription-action-delete"
                   >
                     Delete
@@ -358,41 +358,41 @@
 
   {#if !selfSubscribe}
     <form
-      class="mt-6 border-t border-gray-200 pt-4 dark:border-gray-700"
+      class="mt-6 border-t pt-4 ui-border"
       onsubmit={enrolConsumer}
       data-testid="api-product-subscription-enrol-form"
     >
-      <h3 class="mb-3 text-base font-semibold text-gray-900 dark:text-gray-100">Enrol a consumer</h3>
+      <h3 class="mb-3 text-base font-semibold ui-text">Enrol a consumer</h3>
       <div class="grid gap-4 md:grid-cols-3">
         <label class="block text-sm">
-          <span class="font-medium text-gray-700 dark:text-gray-300">Consumer ID</span>
+          <span class="font-medium ui-muted">Consumer ID</span>
           <input
             type="text"
             name="consumer_id"
             bind:value={enrolConsumerId}
             required
-            class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 font-mono text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+            class="mt-1 w-full rounded-md border px-3 py-2 font-mono text-sm ui-panel ui-text ui-border"
             data-testid="api-product-subscription-enrol-consumer-id"
           />
         </label>
         <label class="block text-sm">
-          <span class="font-medium text-gray-700 dark:text-gray-300">Start date (optional)</span>
+          <span class="font-medium ui-muted">Start date (optional)</span>
           <input
             type="date"
             name="start_date"
             bind:value={enrolStartDate}
-            class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+            class="mt-1 w-full rounded-md border px-3 py-2 text-sm ui-panel ui-text ui-border"
             data-testid="api-product-subscription-enrol-start-date"
           />
         </label>
         <label class="block text-sm">
-          <span class="font-medium text-gray-700 dark:text-gray-300">End date (optional)</span>
+          <span class="font-medium ui-muted">End date (optional)</span>
           <input
             type="date"
             name="end_date"
             bind:value={enrolEndDate}
             min={enrolStartDate || undefined}
-            class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+            class="mt-1 w-full rounded-md border px-3 py-2 text-sm ui-panel ui-text ui-border"
             data-testid="api-product-subscription-enrol-end-date"
           />
         </label>
@@ -400,7 +400,7 @@
       <button
         type="submit"
         disabled={isEnrolling}
-        class="mt-4 inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
+        class="mt-4 inline-flex items-center rounded-lg px-4 py-2 text-sm font-medium disabled:opacity-50 preset-filled-primary-500"
         data-testid="api-product-subscription-enrol-submit"
       >
         {isEnrolling ? "Enrolling..." : "Enrol"}

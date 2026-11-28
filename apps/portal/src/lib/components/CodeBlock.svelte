@@ -72,33 +72,31 @@
                 type="button"
                 class="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium transition-colors
                        {useRealHost
-                         ? 'bg-primary-500 text-white'
-                         : 'bg-surface-200 text-surface-600 dark:bg-surface-700 dark:text-surface-300'}
+                         ? 'preset-filled-primary-500'
+                         : 'ui-panel ui-muted'}
                        hover:opacity-80"
                 onclick={() => { useRealHost = !useRealHost; }}
                 data-testid="host-toggle"
                 title={useRealHost ? 'Show placeholder host' : 'Use actual API host'}
             >
-                <span class="inline-block h-2 w-2 rounded-full {useRealHost ? 'bg-white' : 'bg-surface-400'}"></span>
+                <span class="inline-block h-2 w-2 rounded-full {useRealHost ? 'bg-white' : 'ui-panel'}"></span>
                 {useRealHost ? apiHost : 'YOUR_OBP_HOST'}
             </button>
         {/if}
         <button
             type="button"
-            class="rounded-md p-1.5 text-surface-400 transition-colors
-                   hover:bg-surface-200 hover:text-surface-600
-                   dark:hover:bg-surface-700 dark:hover:text-surface-300
+            class="rounded-md p-1.5 transition-colors ui-muted ui-hover
                    opacity-0 group-hover:opacity-100"
             onclick={copyToClipboard}
             data-testid="copy-button"
             title="Copy to clipboard"
         >
             {#if copied}
-                <Check class="size-4 text-green-500" />
+                <Check class="size-4 ui-text-success" />
             {:else}
                 <Copy class="size-4" />
             {/if}
         </button>
     </div>
-    <pre class="rounded-lg bg-surface-100 dark:bg-surface-900 p-4 pr-24 overflow-x-auto text-sm"><code>{displayCode}</code></pre>
+    <pre class="rounded-lg p-4 pr-24 overflow-x-auto text-sm ui-panel"><code>{displayCode}</code></pre>
 </div>

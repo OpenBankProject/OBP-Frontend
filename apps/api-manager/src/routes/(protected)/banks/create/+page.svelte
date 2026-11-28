@@ -131,36 +131,36 @@
     <div class="flex items-center gap-2 text-sm">
       <a
         href="/banks"
-        class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+        class="ui-link"
       >
         Banks
       </a>
-      <span class="text-gray-400">/</span>
-      <span class="text-gray-600 dark:text-gray-400">Create Bank</span>
+      <span class="ui-muted">/</span>
+      <span class="ui-muted">Create Bank</span>
     </div>
   </div>
 
   <!-- Header -->
   <div class="mb-8">
-    <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
+    <h1 class="text-3xl font-bold ui-text">
       Create Bank
     </h1>
-    <p class="mt-1 text-gray-600 dark:text-gray-400">
+    <p class="mt-1 ui-muted">
       Create a new bank in the Open Bank Project API. You will be automatically assigned the CanCreateEntitlementAtOneBank role.
     </p>
   </div>
 
   <!-- Form -->
-  <div class="rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+  <div class="rounded-lg border ui-card ui-border">
     <form onsubmit={handleSubmit} class="p-6">
       <div class="space-y-6">
         <!-- Bank ID -->
         <div>
           <label
             for="bank-id"
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            class="block text-sm font-medium ui-muted"
           >
-            Bank ID <span class="text-red-600">*</span>
+            Bank ID <span class="ui-text-error">*</span>
           </label>
           <input
             id="bank-id"
@@ -170,9 +170,9 @@
             placeholder="e.g., gh.29.uk"
             disabled={isSubmitting}
             required
-            class="mt-2 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 disabled:opacity-50"
+            class="mt-2 block w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 disabled:opacity-50 ui-card ui-text ui-border"
           />
-          <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+          <p class="mt-1 text-xs ui-muted">
             A unique identifier for this bank
           </p>
         </div>
@@ -181,9 +181,9 @@
         <div>
           <label
             for="full-name"
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            class="block text-sm font-medium ui-muted"
           >
-            Full Name <span class="text-red-600">*</span>
+            Full Name <span class="ui-text-error">*</span>
           </label>
           <input
             id="full-name"
@@ -193,7 +193,7 @@
             placeholder="e.g., Bank of Example"
             disabled={isSubmitting}
             required
-            class="mt-2 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 disabled:opacity-50"
+            class="mt-2 block w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 disabled:opacity-50 ui-card ui-text ui-border"
           />
         </div>
 
@@ -201,7 +201,7 @@
         <div>
           <label
             for="bank-code"
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            class="block text-sm font-medium ui-muted"
           >
             Bank Code
           </label>
@@ -211,7 +211,7 @@
             bind:value={bankCode}
             placeholder="e.g., CGHZ"
             disabled={isSubmitting}
-            class="mt-2 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 disabled:opacity-50"
+            class="mt-2 block w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 disabled:opacity-50 ui-card ui-text ui-border"
           />
         </div>
 
@@ -219,7 +219,7 @@
         <div>
           <label
             for="logo"
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            class="block text-sm font-medium ui-muted"
           >
             Logo URL
           </label>
@@ -229,7 +229,7 @@
             bind:value={logo}
             placeholder="https://example.com/logo.png"
             disabled={isSubmitting}
-            class="mt-2 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 disabled:opacity-50"
+            class="mt-2 block w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 disabled:opacity-50 ui-card ui-text ui-border"
           />
         </div>
 
@@ -237,7 +237,7 @@
         <div>
           <label
             for="website"
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            class="block text-sm font-medium ui-muted"
           >
             Website
           </label>
@@ -247,21 +247,21 @@
             bind:value={website}
             placeholder="https://www.example.com"
             disabled={isSubmitting}
-            class="mt-2 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 disabled:opacity-50"
+            class="mt-2 block w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 disabled:opacity-50 ui-card ui-text ui-border"
           />
         </div>
 
         <!-- Bank Routings -->
         <div>
           <div class="flex items-center justify-between">
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label class="block text-sm font-medium ui-muted">
               Bank Routings
             </label>
             <button
               type="button"
               onclick={addRouting}
               disabled={isSubmitting}
-              class="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 disabled:opacity-50"
+              class="inline-flex items-center text-sm disabled:opacity-50 ui-link"
             >
               <svg class="mr-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -280,7 +280,7 @@
                       bind:value={routing.scheme}
                       placeholder="Scheme (e.g., OBP)"
                       disabled={isSubmitting}
-                      class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 disabled:opacity-50"
+                      class="block w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 disabled:opacity-50 ui-card ui-text ui-border"
                     />
                   </div>
                   <div class="flex-1">
@@ -289,14 +289,14 @@
                       bind:value={routing.address}
                       placeholder="Address"
                       disabled={isSubmitting}
-                      class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 disabled:opacity-50"
+                      class="block w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 disabled:opacity-50 ui-card ui-text ui-border"
                     />
                   </div>
                   <button
                     type="button"
                     onclick={() => removeRouting(index)}
                     disabled={isSubmitting}
-                    class="mt-1 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 disabled:opacity-50"
+                    class="mt-1 disabled:opacity-50 ui-text-error"
                     title="Remove routing"
                   >
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -307,7 +307,7 @@
               {/each}
             </div>
           {:else}
-            <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+            <p class="mt-2 text-xs ui-muted">
               No routings added. Click "Add Routing" to add bank routing information.
             </p>
           {/if}
@@ -316,18 +316,18 @@
 
       <!-- Inline error banner -->
       {#if submitError}
-        <div class="mt-6 flex items-start gap-3 rounded-lg border border-red-300 bg-red-50 p-4 dark:border-red-700 dark:bg-red-950">
-          <svg class="mt-0.5 h-5 w-5 flex-shrink-0 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="mt-6 flex items-start gap-3 rounded-lg border p-4 ui-tone-error">
+          <svg class="mt-0.5 h-5 w-5 flex-shrink-0 ui-text-error" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <div class="flex-1">
-            <p class="text-sm font-medium text-red-800 dark:text-red-300">Error</p>
-            <p class="mt-1 text-sm text-red-700 dark:text-red-400">{submitError}</p>
+            <p class="text-sm font-medium ui-text-error">Error</p>
+            <p class="mt-1 text-sm ui-text-error">{submitError}</p>
           </div>
           <button
             type="button"
             onclick={() => (submitError = null)}
-            class="text-red-400 hover:text-red-600 dark:text-red-500 dark:hover:text-red-300"
+            class="ui-text-error"
             aria-label="Dismiss error"
           >
             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -338,10 +338,10 @@
       {/if}
 
       <!-- Actions -->
-      <div class="mt-8 flex justify-end gap-3 border-t border-gray-200 pt-6 dark:border-gray-700">
+      <div class="mt-8 flex justify-end gap-3 border-t pt-6 ui-border">
         <a
           href="/banks"
-          class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+          class="rounded-lg border px-4 py-2 text-sm font-medium ui-card ui-hover ui-muted ui-border"
         >
           Cancel
         </a>
@@ -349,7 +349,7 @@
           type="submit"
           data-testid="submit-create-bank"
           disabled={isSubmitting}
-          class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
+          class="rounded-lg px-4 py-2 text-sm font-medium disabled:opacity-50 preset-filled-primary-500"
         >
           {isSubmitting ? "Creating..." : "Create Bank"}
         </button>
