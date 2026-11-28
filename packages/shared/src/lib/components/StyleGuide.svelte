@@ -77,6 +77,15 @@
 		</div>
 	</section>
 
+	<section data-testid="style-guide-items">
+		<h2 class="h4">Item text: a list of items</h2>
+		<div class="mt-3 max-w-3xl rounded-container border p-4 ui-card ui-border">
+			<p class="ui-summary"><span class="ui-highlight">alice</span> <span class="ui-muted">has requested</span> <span class="ui-highlight">CanCreateAccount</span> <span class="ui-muted">at</span> <span class="ui-highlight">gh.29.uk</span></p>
+			<p class="mt-1 flex flex-wrap gap-x-4 gap-y-1 ui-details"><span>alice@example.com</span><a class="ui-link" href="#style-guide-items">User Details</a><span>28/11/2026 09:12</span><span>5f3a9c1e-2b7d-4e0a-9c55-1d2e3f4a5b6c</span></p>
+		</div>
+		<p class="mt-2 ui-muted"><code>ui-summary</code>: the line people read first. <code>ui-highlight</code>: the values in it they always look for. <code>ui-details</code>: dates, IDs and links, looked at now and then. Links inside keep <code>ui-link</code> and take the details' size.</p>
+	</section>
+
 	<section data-testid="style-guide-tones">
 		<h2 class="h4">Tones: badges, messages and highlighted boxes</h2>
 		<div class="mt-3 flex flex-wrap gap-2">

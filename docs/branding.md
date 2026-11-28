@@ -34,7 +34,7 @@ The Portal's `/style-guide` page shows every named style below, and the theme's 
 
 ## The named styles
 
-Pages never pick a colour shade themselves. They use these named styles from `packages/shared/styles.css`, which a theme colours. Each sets colours only, for light and dark mode.
+Pages never pick a colour shade themselves. They use these named styles from `packages/shared/styles.css`, which a theme colours. Each sets colours only, for light and dark mode, except the three item text styles, which set size and weight.
 
 | Style | Used for |
 |---|---|
@@ -50,6 +50,9 @@ Pages never pick a colour shade themselves. They use these named styles from `pa
 | `ui-border` | Borders, and the dividers between children |
 | `ui-border-brand` | The marker on a selected item or your own message: a border in the brand colour |
 | `ui-tone-success`, `ui-tone-warning`, `ui-tone-error`, `ui-tone-info`, `ui-tone-accent`, `ui-tone-neutral` | Badges, messages and highlighted boxes: background, text and border together |
+| `ui-summary` | In a list of items, the line people read first: what the item is about |
+| `ui-highlight` | Inside the summary, the values people always look for, such as the username and the Role name |
+| `ui-details` | The line people look at only now and then: dates, IDs, email addresses and links, small and muted |
 | `ui-glow`, `ui-fade` | The dark-mode background glow, and the fade at the foot of a cut-off card |
 | `preset-filled-primary-500`, `preset-tonal`, `preset-outlined-surface-500`, `preset-filled-error-500` | Buttons: main, secondary, outline and danger (Skeleton presets) |
 
@@ -72,3 +75,5 @@ The theme's colour scales are for the theme: primary is the brand colour, second
 ## For developers
 
 Use only the named styles above for colour: the classes in markup, the variables in a page's `<style>` block or a `style` attribute. Never a Tailwind palette colour (`text-gray-600`), a theme shade (`bg-surface-100` or `var(--color-surface-100)`), another Skeleton preset, or a written-out colour (`#e5e7eb`, `rgb(…)`, `white`) in page CSS; a neutral black shadow is the one exception. A test fails if one appears (`src/lib/themeColours.test.ts` in the Portal, the API Manager, the Conformator and Cohort, `src/lib/server/themeColours.test.ts` in the shared package). If a page needs something the styles don't cover, add a style to `styles.css` and the style guide, rather than a one-off colour.
+
+In a list of items, use the three item text styles rather than font sizes and weights of the page's own: what people always look at is `ui-highlight` inside `ui-summary`, and everything else goes in `ui-details`. Words that link the highlights ("has requested", "at") are `ui-muted`, and links stay `ui-link`.

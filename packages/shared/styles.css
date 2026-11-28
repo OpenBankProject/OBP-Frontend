@@ -139,6 +139,11 @@
 	.ui-tone-accent { background-color: var(--ui-tone-accent-bg); color: var(--ui-tone-accent-text); border-color: var(--ui-tone-accent-border); }
 	.ui-tone-neutral { background-color: var(--ui-tone-neutral-bg); color: var(--ui-tone-neutral-text); border-color: var(--ui-tone-neutral-border); }
 
+	/* Item text: in a list of items, the line people read first (summary), the values in it they always look for (highlight), and the line of things they look at now and then, such as dates, IDs and links (details). Text size and weight only, so a page lays them out as it needs. */
+	.ui-summary { font-size: 1.125rem; }
+	.ui-highlight { font-weight: 600; }
+	.ui-details { font-size: 0.75rem; color: var(--ui-muted); }
+
 	/* Decoration: the glow behind the Portal in dark mode, and the fade at the foot of a cut-off card */
 	[data-mode='dark'] .ui-glow { background-image: conic-gradient(from 250deg in srgb, var(--ui-page) 30%, color-mix(in srgb, var(--color-secondary-500) 70%, transparent) 40%, var(--ui-page) 50%); }
 	.ui-fade { background-image: linear-gradient(to top, var(--ui-card), transparent); }

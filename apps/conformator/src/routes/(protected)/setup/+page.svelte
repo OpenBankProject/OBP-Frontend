@@ -106,7 +106,17 @@
 	{#if data.signing.ready}
 		<p class="mt-2">Reports are signed with key <code>{data.signing.keyId}</code>. Its public key is at <a class="anchor" href="/reports/signing-key">/reports/signing-key</a>.</p>
 	{:else}
-		<p class="mt-2 ui-tone-warning rounded p-3" role="alert">{data.signing.problem} Make one with <code>openssl genpkey -algorithm ed25519 -out report-signing.pem</code>, keep it out of the repository, set REPORT_SIGNING_KEY_FILE to it and restart this app.</p>
+		<div class="mt-2 ui-tone-warning rounded p-3 max-w-3xl" role="alert">
+			<p>{data.signing.problem}</p>
+			<p class="mt-2">Conformator signs each report, so anyone can check that it came from you and has not been changed. To set up the key:</p>
+			<ol class="mt-2 list-decimal pl-6 space-y-1">
+				<li>On the machine this app runs on, make the key: <code>openssl genpkey -algorithm ed25519 -out report-signing.pem</code></li>
+				<li>Keep the file secret. Do not put it in a repository or send it to anyone, because whoever has it can sign reports as you.</li>
+				<li>Keep a backup. Reports you have issued can only be checked with this key, so do not replace it.</li>
+				<li>In this app's settings, set <code>REPORT_SIGNING_KEY_FILE</code> to the file's full path, such as <code>/etc/conformator/report-signing.pem</code>.</li>
+				<li>Restart this app. This section then shows the key.</li>
+			</ol>
+		</div>
 	{/if}
 </section>
 

@@ -21,8 +21,6 @@
     Search,
     CheckCircle,
     XCircle,
-    Clock,
-    User,
     Calendar,
     ArrowUpDown,
     ChevronLeft,
@@ -413,86 +411,74 @@
         <div class="requests-container">
           <div class="requests-list">
             {#each filteredRequests as request, i}
-              <div class="request-card" style="border-left-color: {requestColors[i] || 'transparent'}">
-                <!-- User row: prominent -->
-                <div class="card-user-row">
-                  <div class="user-info">
-                    <div class="user-name">
-                      <User size={15} class="user-icon" />
-                      {request.user.username}
-                      {#if request.user.user_id === userId}
-                        <span class="you-badge">You</span>
-                      {/if}
-                      <span class="user-links">
-                        <a
-                          href="/users/{encodeURIComponent(request.user.user_id)}"
-                          class="user-link"
-                          data-testid="user-detail-link-{request.entitlement_request_id}"
-                        >
-                          User Details
-                        </a>
-                        <a
-                          href="/metrics?user_id={encodeURIComponent(request.user.user_id)}&from_date={encodeURIComponent(metricsFromDate)}"
-                          class="user-link"
-                          data-testid="user-metrics-link-{request.entitlement_request_id}"
-                        >
-                          User Metrics
-                        </a>
-                      </span>
-                    </div>
-                    <div class="user-email">{request.user.email}</div>
-                  </div>
-                  <div class="request-actions">
-                    {#if processErrors.get(request.entitlement_request_id)}
-                      <div class="action-error">
-                        {processErrors.get(request.entitlement_request_id)}
-                      </div>
+              <div class="request-card" style="border-left-color: {requestColors[i] || 'transparent'}" data-testid="entitlement-request-{request.entitlement_request_id}">
+                <!-- The request itself on one line: who wants which Role, where, and the decision -->
+                <div class="request-main">
+                  <p class="request-sentence ui-summary">
+                    <span class="ui-highlight">{request.user.username}</span>
+                    {#if request.user.user_id === userId}
+                      <span class="you-badge">You</span>
                     {/if}
+                    <span class="ui-muted">has requested</span>
+                    <span class="ui-highlight break-all">{request.role_name}</span>
+                    {#if request.bank_id}
+                      <span class="ui-muted">at</span>
+                      <span class="ui-highlight">{request.bank_id}</span>
+                    {:else}
+                      <span class="ui-muted">system-wide</span>
+                    {/if}
+                  </p>
+                  <div class="request-actions">
                     <button
                       class="btn-accept"
                       onclick={() => handleAccept(request.entitlement_request_id)}
                       disabled={processingRequests.get(request.entitlement_request_id)}
+                      data-testid="accept-{request.entitlement_request_id}"
                     >
-                      {#if processingRequests.get(request.entitlement_request_id)}
-                        ⏳ Processing...
-                      {:else}
-                        <CheckCircle size={16} />
-                        Accept
-                      {/if}
+                      <CheckCircle size={16} />
+                      Accept
                     </button>
                     <button
                       class="btn-decline"
                       onclick={() => handleDecline(request.entitlement_request_id)}
                       disabled={processingRequests.get(request.entitlement_request_id)}
+                      data-testid="decline-{request.entitlement_request_id}"
                     >
-                      {#if processingRequests.get(request.entitlement_request_id)}
-                        ⏳ Processing...
-                      {:else}
-                        <XCircle size={16} />
-                        Decline
-                      {/if}
+                      <XCircle size={16} />
+                      Decline
                     </button>
                   </div>
                 </div>
 
-                <!-- Role + scope on same line, date + ID below -->
-                <div class="card-meta-row">
-                  <div class="role-scope">
-                    <span class="role-name">{request.role_name}</span>
-                    {#if request.bank_id}
-                      <span class="scope-badge scope-bank">🏦 {request.bank_id}</span>
-                    {:else}
-                      <span class="scope-badge scope-system">🌐 System-wide</span>
-                    {/if}
-                  </div>
-                  <div class="card-footer-meta">
-                    <span class="created-date">
-                      <Calendar size={13} class="meta-icon" />
-                      {formatDate(request.created)}
-                    </span>
-                    <span class="request-id">{request.entitlement_request_id}</span>
-                  </div>
+                <!-- The details, small, underneath -->
+                <div class="request-details ui-details">
+                  <span>{request.user.email}</span>
+                  <a
+                    href="/users/{encodeURIComponent(request.user.user_id)}"
+                    class="ui-link"
+                    data-testid="user-detail-link-{request.entitlement_request_id}"
+                  >
+                    User Details
+                  </a>
+                  <a
+                    href="/metrics?user_id={encodeURIComponent(request.user.user_id)}&from_date={encodeURIComponent(metricsFromDate)}"
+                    class="ui-link"
+                    data-testid="user-metrics-link-{request.entitlement_request_id}"
+                  >
+                    User Metrics
+                  </a>
+                  <span class="created-date">
+                    <Calendar size={12} class="meta-icon" />
+                    {formatDate(request.created)}
+                  </span>
+                  <span>{request.entitlement_request_id}</span>
                 </div>
+
+                {#if processErrors.get(request.entitlement_request_id)}
+                  <div class="action-error">
+                    {processErrors.get(request.entitlement_request_id)}
+                  </div>
+                {/if}
               </div>
             {/each}
           </div>
@@ -757,157 +743,67 @@
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   }
 
-  /* User row — top section, prominent */
-  .card-user-row {
-    padding: 0.875rem 1rem;
-    background: var(--ui-card);
-    border-bottom: 1px solid var(--ui-border);
+  .request-main {
+    padding: 0.75rem 1rem 0.25rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 1rem;
+    flex-wrap: wrap;
   }
 
-  .user-info {
+  .request-sentence {
     display: flex;
-    flex-direction: column;
-    gap: 0.125rem;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0;
     min-width: 0;
   }
 
-  .user-name {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--ui-text);
-  }
-
-  .user-name :global(.user-icon) {
-    color: var(--ui-muted);
-    flex-shrink: 0;
-  }
-
   .you-badge {
-    font-size: 0.65rem;
-    font-weight: 700;
+    align-self: center;
+    font-size: 0.75rem;
+    font-weight: 600;
     padding: 0.1rem 0.4rem;
     border-radius: 9999px;
     background: var(--ui-tone-success-bg);
     color: var(--ui-tone-success-text);
-    letter-spacing: 0.03em;
-  }
-
-  .user-links {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-left: 0.5rem;
-  }
-
-  .user-link {
-    font-size: 0.75rem;
-    font-weight: 500;
-    color: var(--ui-link);
-    text-decoration: none;
-  }
-
-  .user-link:hover {
-    text-decoration: underline;
-  }
-
-  .user-email {
-    font-size: 0.8rem;
-    color: var(--ui-muted);
-    padding-left: 1.4rem;
   }
 
   .request-actions {
     display: flex;
-    flex-wrap: wrap;
     gap: 0.5rem;
     flex-shrink: 0;
     align-items: center;
   }
 
-  .action-error {
-    width: 100%;
-    padding: 0.375rem 0.5rem;
-    background: var(--ui-tone-error-bg);
-    border: 1px solid var(--ui-tone-error-border);
-    border-radius: 4px;
-    color: var(--ui-tone-error-text);
-    font-size: 0.75rem;
-  }
-
-  /* Role + scope row — bottom section */
-  .card-meta-row {
-    padding: 0.625rem 1rem;
+  .request-details {
+    padding: 0 1rem 0.75rem;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
     flex-wrap: wrap;
-  }
-
-  .role-scope {
-    display: flex;
     align-items: center;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-    min-width: 0;
-  }
-
-  .role-name {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--ui-text);
-    font-family: monospace;
-  }
-
-  .scope-badge {
-    font-size: 0.7rem;
-    font-weight: 600;
-    padding: 0.125rem 0.5rem;
-    border-radius: 9999px;
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-
-  .scope-badge.scope-bank {
-    background: var(--ui-tone-info-bg);
-    color: var(--ui-tone-info-text);
-  }
-
-  .scope-badge.scope-system {
-    background: var(--ui-panel);
-    color: var(--ui-muted);
-  }
-
-  .card-footer-meta {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    flex-shrink: 0;
+    gap: 0.25rem 1rem;
   }
 
   .created-date {
     display: flex;
     align-items: center;
     gap: 0.25rem;
-    font-size: 0.75rem;
-    color: var(--ui-muted);
   }
 
   .created-date :global(.meta-icon) {
     flex-shrink: 0;
   }
 
-  .request-id {
-    font-size: 0.7rem;
-    color: var(--ui-muted);
-    font-family: monospace;
+  .action-error {
+    margin: 0 1rem 0.75rem;
+    padding: 0.375rem 0.5rem;
+    background: var(--ui-tone-error-bg);
+    border: 1px solid var(--ui-tone-error-border);
+    border-radius: 4px;
+    color: var(--ui-tone-error-text);
+    font-size: 0.75rem;
   }
 
   .btn-accept,
@@ -919,7 +815,7 @@
     border: none;
     border-radius: 6px;
     font-size: 0.875rem;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
   }
@@ -1021,11 +917,6 @@
       width: 100%;
     }
 
-    .card-user-row {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-
     .request-actions {
       width: 100%;
     }
@@ -1034,12 +925,6 @@
     .btn-decline {
       flex: 1;
       justify-content: center;
-    }
-
-    .card-footer-meta {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 0.25rem;
     }
   }
 </style>
